@@ -1,0 +1,12 @@
+{
+    "instanceUrl": "https://msdata.visualstudio.com/",
+    "projectName": "Purview Data Governance",
+    "codebaseName": "MSDATA_Governance_DataEstateHealth",
+    "areaPath": "Purview Data Governance\\Data Estate Health",
+    "iterationPath": "Purview Data Governance\\TSA",
+    "defaultBranches": "main",
+    "ignoreBranchName": true,
+    "notificationAliases": [
+        "adsops@microsoft.com"
+    ]
+}

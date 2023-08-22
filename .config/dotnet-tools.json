@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "swashbuckle.aspnetcore.cli": {
+      "version": "6.5.0",
+      "commands": [
+        "swagger"
+      ]
+    },
+    "Powershell": {
+      "version": "7.2.7",
+      "commands": [
+        "pwsh"
+      ]
+    }
+  }
+}

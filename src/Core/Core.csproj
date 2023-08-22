@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+	  <Platforms>x64</Platforms>
+    <ImplicitUsings>enable</ImplicitUsings>
+	  <RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.Core</RootNamespace>
+	  <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Core</AssemblyName>
+  </PropertyGroup>
+
+</Project>

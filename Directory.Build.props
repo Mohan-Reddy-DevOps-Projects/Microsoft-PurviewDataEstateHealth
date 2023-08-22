@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  This root MSBuild file is automatically imported for all projects in the tree by MSBuild 15.0 and serves as the central entry point.
+  You can have a hierarchy of imports but make sure that this file is still imported.
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <EnlistmentRoot>$(MSBuildThisFileDirectory.TrimEnd('\\'))</EnlistmentRoot>
+    <LocalDropPath>$(EnlistmentRoot)\target</LocalDropPath>
+    <LocalRepositoryPath>$(EnlistmentRoot)\packages</LocalRepositoryPath>
+    <RunSettingsFilePath>$(EnlistmentRoot)\src\.runsettings</RunSettingsFilePath>
+
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+
+    <Deterministic>true</Deterministic>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+  </PropertyGroup>
+</Project>
