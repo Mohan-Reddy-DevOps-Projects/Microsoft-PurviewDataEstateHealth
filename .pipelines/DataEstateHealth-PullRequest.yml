@@ -77,6 +77,9 @@ extends:
               minor: '0'
               exclude_commit: true
 
+          - task: NuGetAuthenticate@1
+            displayName: NuGet Authenticate
+
           - task: DotNetCoreCLI@2
             displayName: 'DotNetCore restore'
             inputs:
