@@ -1,0 +1,20 @@
+// -----------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+// -----------------------------------------------------------
+
+namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
+
+using System.Threading.Tasks;
+
+/// <summary>
+/// The contract for components capable of creating entities.
+/// </summary>
+public interface IEntityCreateOperation<TPayload, TEntity>
+{
+    /// <summary>
+    /// Creates a new entity.
+    /// </summary>
+    /// <param name="payload">The information needed to create the entity.</param>
+    /// <returns>A task that resolves to the newly created entity.</returns>
+    Task<TEntity> Create(TPayload payload);
+}

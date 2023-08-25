@@ -8,4 +8,12 @@
 	  <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Core</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -8,4 +8,11 @@
 	  <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Common</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+    <PackageReference Include="Microsoft.WindowsAzure.ResourceStack" />
+    <PackageReference Include="Polly.Contrib.WaitAndRetry" />
+  </ItemGroup>
+
 </Project>

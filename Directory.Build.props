@@ -17,5 +17,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+
+    <!-- Disable NU1603 since warnings are treated as errors and this warning fires for backward compatible nuget dependencies. -->
+    <NoWarn>$(NoWarn);NU1603</NoWarn>
   </PropertyGroup>
 </Project>
