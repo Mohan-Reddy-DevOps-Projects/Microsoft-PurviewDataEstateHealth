@@ -37,6 +37,11 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static new readonly ErrorCode InvalidField = new(ServiceErrorCode.InvalidField.Code, ServiceErrorCode.InvalidField.Message);
 
+    /// <summary>
+    /// Error in start up.
+    /// </summary>
+    public static readonly ErrorCode StartupError = new(1010);
+
     #endregion
 
     #region Data access

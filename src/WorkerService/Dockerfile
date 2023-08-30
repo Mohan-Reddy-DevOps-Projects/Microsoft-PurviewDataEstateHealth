@@ -1,22 +1,9 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
-
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
-COPY ["WorkerService/WorkerService.csproj", "WorkerService/"]
-RUN dotnet restore "WorkerService/WorkerService.csproj"
+FROM mcr.microsoft.com/dotnet/aspnet:7.0-cbl-mariner2.0
+WORKDIR /workerservice
 COPY . .
-WORKDIR "/src/WorkerService"
-RUN dotnet build "WorkerService.csproj" -c Release -o /app/build
 
-FROM build AS publish
-RUN dotnet publish "WorkerService.csproj" -c Release -o /app/publish /p:UseAppHost=false
+# Install the public AME root certificate in the trusted CA folder
+COPY ameroot.crt /etc/pki/ca-trust/source/anchors/ameroot.crt
+RUN update-ca-trust
 
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "WorkerService.dll"]
+ENTRYPOINT ["dotnet", "Microsoft.Azure.Purview.Share.WorkerService.dll"]

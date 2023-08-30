@@ -2,35 +2,91 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
+using System.Net;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Environment = System.Environment;
+using Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
 
-/// <summary>
-/// The Data Estate Health Worker service.
-/// </summary>
-public class Program
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
-    /// <summary>
-    /// Entry point for Data Estate Health Worker service.
-    /// </summary>
-    /// <param name="args"></param>
-    public static void Main(string[] args)
+    Args = args,
+    WebRootPath = Directory.GetCurrentDirectory()
+});
+
+var startup = new Startup(builder.Configuration, builder.Environment);
+
+try
+{
+    string configurationFolder = "config";
+    string[] configurationFiles = { "appsettings.json" };
+
+    if (builder.Environment.IsDevelopment())
     {
-        var builder = WebApplication.CreateBuilder(args);
+        configurationFolder = ".";
+        configurationFiles = Environment.GetEnvironmentVariable("CONFIG_FILE")
+            ?.Split(";");
+    }
 
-        var app = builder.Build();
-
-        // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
+    if (configurationFiles != null)
+    {
+        foreach (string file in configurationFiles)
         {
+            string basePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                configurationFolder);
+            string configFile = Path.Combine(basePath, file);
+            if (File.Exists(configFile))
+            {
+                builder.Configuration.SetBasePath(basePath);
+                builder.Configuration.AddJsonFile(configFile);
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"Unable to find configuration file: {configFile}");
+            }
+        }
+    }
+
+    builder.WebHost.ConfigureKestrel((hostingContext, options) =>
+    {
+
+        var serverConfig = options.ApplicationServices.GetService<IOptions<ServerConfiguration>>().Value;
+
+        if (serverConfig.WorkerServiceReadinessProbePort.HasValue)
+        {
+            options.Listen(
+                IPAddress.IPv6Any,
+                serverConfig.WorkerServiceReadinessProbePort.Value);
         }
 
-        app.UseHttpsRedirection();
+        options.Listen(
+                IPAddress.IPv6Any,
+                serverConfig.WorkerServicePort.Value);
+    });
 
-        app.UseAuthorization();
+    startup.ConfigureServices(builder.Services);
 
+    builder.Logging.ClearProviders();
 
-        app.MapControllers();
+    var app = builder.Build();
 
-        app.Run();
-    }
+    startup.Configure(app, builder.Environment, app.Lifetime);
+
+    await app.RunAsync();
+}
+catch (Exception exception)
+{
+    Console.WriteLine(
+    JsonConvert.SerializeObject(
+            new
+            {
+                Message = "Unhandled exception during service start up",
+                ExceptionMessage = exception.Message,
+                StackTrace = exception.StackTrace
+            }));
+
+    throw;
 }

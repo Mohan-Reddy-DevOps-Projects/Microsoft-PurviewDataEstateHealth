@@ -10,10 +10,12 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Configurations\Configurations.csproj" />
     <ProjectReference Include="..\Loggers\Loggers.csproj" />
   </ItemGroup>
 
