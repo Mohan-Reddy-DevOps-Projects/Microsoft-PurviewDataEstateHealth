@@ -113,9 +113,9 @@ public class Startup
             {
                 IServiceProvider serviceProvider = app.ApplicationServices.GetRequiredService<IServiceProvider>();
 
-                IDataEstateHealthLogger purviewShareLogger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
+                IDataEstateHealthLogger dataEstateHealthLogger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
                 var environmentConfiguration = serviceProvider.GetRequiredService<IOptions<EnvironmentConfiguration>>().Value;
-                purviewShareLogger.LogInformation($"WorkerService started successfully for versions {string.Join(", ", environmentConfiguration.PermittedApiVersions)}");
+                dataEstateHealthLogger.LogInformation($"WorkerService started successfully for versions {string.Join(", ", environmentConfiguration.PermittedApiVersions)}");
             });
     }
 }

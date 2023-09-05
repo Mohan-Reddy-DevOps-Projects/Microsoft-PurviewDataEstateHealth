@@ -28,8 +28,8 @@ public class WorkerService : BackgroundService
         IJobDispatcher jobDispatcher = this.serviceProvider.GetRequiredService<IJobDispatcher>();
         await jobDispatcher.Initialize();
 
-        IDataEstateHealthLogger purviewShareLogger = this.serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
-        purviewShareLogger.LogInformation("WorkerService initialized and setting up infinite loop.");
+        IDataEstateHealthLogger dataEstateHealthLogger = this.serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
+        dataEstateHealthLogger.LogInformation("WorkerService initialized and setting up infinite loop.");
 
         while (!cancellationToken.IsCancellationRequested)
         {
