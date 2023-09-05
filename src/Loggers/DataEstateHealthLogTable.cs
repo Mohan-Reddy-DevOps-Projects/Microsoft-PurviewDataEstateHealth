@@ -7,22 +7,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Logger;
 /// <summary>
 /// Available Purview Share log tables
 /// </summary>
-public enum PurviewShareLogTable
+public enum DataEstateHealthLogTable
 {
-    /// <summary>
-    /// Client cert auth event table
-    /// </summary>
-    ClientCertificateAuthLogEvent,
-
-    /// <summary>
-    /// Artifact store event table
-    /// </summary>
-    ArtifactStoreServiceLogEvent,
-    /// <summary>
-    /// Metadata service event table
-    /// </summary>
-    MetadataServiceLogEvent,
-
     /// <summary>
     /// Job definition event table
     /// </summary>
@@ -44,9 +30,9 @@ public enum PurviewShareLogTable
     JobLogEvent,
 
     /// <summary>
-    /// General Purview share event table
+    /// General Data estate health event table
     /// </summary>
-    PurviewShareLogEvent,
+    DataEstateHealthLogEvent,
 
     /// <summary>
     /// Telemetry event table

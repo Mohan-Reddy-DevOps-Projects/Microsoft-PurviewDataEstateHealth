@@ -12,18 +12,8 @@ using global::Azure.Core;
 using global::Azure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Azure.Purview.Share.Common.V1;
-using Microsoft.Azure.Purview.Share.Common.V2.Extensions;
-using Microsoft.Azure.Purview.Share.Configurations;
-using Microsoft.Azure.Purview.Share.Core;
-using Microsoft.Azure.Purview.Share.Core.V1;
-using Microsoft.Azure.Purview.Share.Core.V2;
-using Microsoft.Azure.Purview.Share.DataAccess.Shared;
-using Microsoft.Azure.Purview.Share.DataAccess.V1;
-using Microsoft.Azure.Purview.Share.DataAccess.V2;
-using Microsoft.Azure.Purview.Share.Logger;
-using Microsoft.Azure.Purview.Share.Models;
-using Microsoft.Azure.PurviewShare.Logger;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -97,40 +87,8 @@ public class Startup
             azureCredentials = new DefaultAzureCredential(credentialOptions);
         }
 
-        var genevaConfiguration = this.Configuration.GetSection("genevaConfiguration").Get<GenevaConfiguration>();
-
         var serverConfiguration = this.Configuration.GetSection("serverConfiguration").Get<ServerConfiguration>();
-
-        var jobManagerConfiguration = this.Configuration.GetSection("jobManagerConfiguration").Get<JobManagerConfiguration>();
-
-        services.AddWorkerServiceConfigurations(this.Configuration)
-            .AddLogger(genevaConfiguration, serverConfiguration, jobManagerConfiguration, this.WebHostEnvironment.IsDevelopment())
-            .AddCoreLayerV1()
-            .AddCoreLayerV2()
-            .AddCoreLayer(azureCredentials)
-            .AddDataAccessLayerShared()
-            .AddDataAccessLayerV1()
-            .AddDataAccessLayerV2()
-            .AddServiceBasicsForWorkerService()
-            .AddScoped<IVersion2JobManager>(sp => sp.GetService<Version2JobManager>().WithContext(WorkerJobExecutionContext.ChildJob));
-
-        // Service Section
-        services.AddSingleton(
-            new ModelAdapterRegistry(
-                new string[]
-                {
-                // TODO: top level application should not provide these names
-                // TODO: instead, rely on AdapterVisible attribute instead to discover assemblies to scan
-                "Microsoft.Azure.Purview.Share.WorkerService",
-                "Microsoft.Azure.Purview.Share.Core",
-                "Microsoft.Azure.Purview.Share.DataAccess"
-                }));
-
-        services.AddSingleton<IJobDispatcher, JobDispatcher>();
-        services.AddScoped<IRequestHeaderContextFactory, RequestHeaderContextFactory>();
-        //TODO 1292711: Test while implementing asset mapping flow if request header context needs to be injected in worker service
-        services.AddScoped<IRequestHeaderContext, RequestHeaderContext>(
-            di => di.GetRequiredService<IRequestHeaderContextFactory>().GetContext());
+  
         services.AddHostedService<WorkerService>();
     }
 
@@ -155,10 +113,7 @@ public class Startup
             {
                 IServiceProvider serviceProvider = app.ApplicationServices.GetRequiredService<IServiceProvider>();
 
-                var readinessCheck = app.ApplicationServices.GetRequiredService<ServiceHealthCheck>();
-                readinessCheck.Initialized = true;
-
-                IPurviewShareLogger purviewShareLogger = serviceProvider.GetRequiredService<IPurviewShareLogger>();
+                IDataEstateHealthLogger purviewShareLogger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
                 var environmentConfiguration = serviceProvider.GetRequiredService<IOptions<EnvironmentConfiguration>>().Value;
                 purviewShareLogger.LogInformation($"WorkerService started successfully for versions {string.Join(", ", environmentConfiguration.PermittedApiVersions)}");
             });

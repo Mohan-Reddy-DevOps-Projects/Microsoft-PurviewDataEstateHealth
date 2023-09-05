@@ -1,8 +1,6 @@
-// -----------------------------------------------------------------------
-//  <copyright file="JobManagerConfiguration.cs" company="Microsoft Corporation">
-//      Copyright (C) Microsoft Corporation. All rights reserved.
-//  </copyright>
-// -----------------------------------------------------------------------
+// -----------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+// -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 

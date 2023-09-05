@@ -50,90 +50,85 @@ public class SingletonStorageAccessorService : ISingletonStorageAccessorService
     /// <inheritdoc />
     public async Task<string> GetConnectionString(string resourceId)
     {
-        return await this.dataEstateHealthLogger.TraceAsync(
-            this.retryPolicy,
-            EndPointType.StorageAccount,
-            async () =>
+        //REVIST IMPLEMENTATION : add trace async method for retry and logging
+        if (resourceId.Length == 0)
+        {
+            throw new Exception("ResourceId cannot be empty");
+        }
+
+        if (!this.cache.TryGetValue(resourceId, out string cachedConnectionString))
+        {
+            // Return value for localhost
+            if (this.environmentConfiguration.IsDevelopmentEnvironment())
             {
-                if (resourceId.Length == 0)
+                string localConnString = "UseDevelopmentStorage=true";
+                this.cache.Set(resourceId, localConnString, TimeSpan.FromHours(1));
+
+                return localConnString;
+            }
+
+            string cacheBackupKey = $"{resourceId}-backup";
+            IList<StorageAccountKey> accessKeys;
+            var storageResourceId = ResourceId.FromString(resourceId);
+
+            try
+            {
+                ServiceClientCredentials credentials = await this.GetServiceCredentialsAsync();
+
+                var storageManagementClient = new StorageManagementClient(credentials)
                 {
-                    throw new Exception("ResourceId cannot be empty");
+                    SubscriptionId = storageResourceId.SubscriptionId
+                };
+
+                accessKeys = (await storageManagementClient.StorageAccounts.ListKeysAsync(
+                    storageResourceId.ResourceGroupName,
+                    storageResourceId.Name)).Keys;
+
+                if (accessKeys.Count == 0)
+                {
+                    throw new ServiceError(
+                            ErrorCategory.DownStreamError,
+                            ErrorCode.Storage_FailedToGetAccessKeys.Code,
+                            FormattableString.Invariant(
+                                $"No access keys were found for storage account with resource id {resourceId}."))
+                        .ToException();
+                }
+            }
+            catch (Exception exception)
+            {
+                this.dataEstateHealthLogger.LogError(
+                    $"Unable to retrieve the connection string for the storage account with resource id: {resourceId}, attempting to use backup...",
+                    exception);
+
+                if (!this.cache.TryGetValue(cacheBackupKey, out string backupConnectionString))
+                {
+                    this.dataEstateHealthLogger.LogCritical(
+                        $"Unable to retrieve the connection string for the storage account with resource id: {resourceId}",
+                        exception);
+
+                    throw new ServiceError(
+                            ErrorCategory.DownStreamError,
+                            ErrorCode.Storage_FailedToGetAccessKeys.Code,
+                            FormattableString.Invariant(
+                                $"Failed to retrieve access keys for storage account with resource id {resourceId}"))
+                        .ToException();
                 }
 
-                if (!this.cache.TryGetValue(resourceId, out string cachedConnectionString))
-                {
-                    // Return value for localhost
-                    if (this.environmentConfiguration.IsDevelopmentEnvironment())
-                    {
-                        string localConnString = "UseDevelopmentStorage=true";
-                        this.cache.Set(resourceId, localConnString, TimeSpan.FromHours(1));
+                this.cache.Set(resourceId, backupConnectionString, TimeSpan.FromHours(1));
+                this.dataEstateHealthLogger.LogInformation(
+                    $"Fetched backup connection string for storage account with resource id: {resourceId}");
 
-                        return localConnString;
-                    }
+                return backupConnectionString;
+            }
 
-                    string cacheBackupKey = $"{resourceId}-backup";
-                    IList<StorageAccountKey> accessKeys;
-                    var storageResourceId = ResourceId.FromString(resourceId);
+            cachedConnectionString = this.GenerateConnectionString(
+                accessKeys.First().Value,
+                storageResourceId);
+            this.cache.Set(resourceId, cachedConnectionString, TimeSpan.FromHours(1));
+            this.cache.Set(cacheBackupKey, cachedConnectionString);
+        }
 
-                    try
-                    {
-                        ServiceClientCredentials credentials = await this.GetServiceCredentialsAsync();
-
-                        var storageManagementClient = new StorageManagementClient(credentials)
-                        {
-                            SubscriptionId = storageResourceId.SubscriptionId
-                        };
-
-                        accessKeys = (await storageManagementClient.StorageAccounts.ListKeysAsync(
-                            storageResourceId.ResourceGroupName,
-                            storageResourceId.Name)).Keys;
-
-                        if (accessKeys.Count == 0)
-                        {
-                            throw new ServiceError(
-                                    ErrorCategory.DownStreamError,
-                                    ErrorCode.Storage_FailedToGetAccessKeys.Code,
-                                    FormattableString.Invariant(
-                                        $"No access keys were found for storage account with resource id {resourceId}."))
-                                .ToException();
-                        }
-                    }
-                    catch (Exception exception)
-                    {
-                        this.purviewShareLogger.LogError(
-                            $"Unable to retrieve the connection string for the storage account with resource id: {resourceId}, attempting to use backup...",
-                            exception);
-
-                        if (!this.cache.TryGetValue(cacheBackupKey, out string backupConnectionString))
-                        {
-                            this.purviewShareLogger.LogCritical(
-                                $"Unable to retrieve the connection string for the storage account with resource id: {resourceId}",
-                                exception);
-
-                            throw new ServiceError(
-                                    ErrorCategory.DownStreamError,
-                                    ErrorCode.Storage_FailedToGetAccessKeys.Code,
-                                    FormattableString.Invariant(
-                                        $"Failed to retrieve access keys for storage account with resource id {resourceId}"))
-                                .ToException();
-                        }
-
-                        this.cache.Set(resourceId, backupConnectionString, TimeSpan.FromHours(1));
-                        this.purviewShareLogger.LogInformation(
-                            $"Fetched backup connection string for storage account with resource id: {resourceId}");
-
-                        return backupConnectionString;
-                    }
-
-                    cachedConnectionString = this.GenerateConnectionString(
-                        accessKeys.First().Value,
-                        storageResourceId);
-                    this.cache.Set(resourceId, cachedConnectionString, TimeSpan.FromHours(1));
-                    this.cache.Set(cacheBackupKey, cachedConnectionString);
-                }
-
-                return cachedConnectionString;
-            });
+        return cachedConnectionString;
     }
 
     private string GenerateConnectionString(string accessKey, ResourceId storageResourceId)

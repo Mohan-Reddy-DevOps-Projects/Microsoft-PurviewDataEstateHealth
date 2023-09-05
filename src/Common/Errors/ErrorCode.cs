@@ -57,4 +57,47 @@ public class ErrorCode : ServiceErrorCode
     public static readonly ErrorCode ArtifactStoreServiceException = new(3001);
 
     #endregion
+
+    #region Storage checks
+
+    /// <summary>
+    /// Retrieving storage account access keys failed.
+    /// </summary>
+    public static readonly ErrorCode Storage_FailedToGetAccessKeys = new(14000);
+
+    /// <summary>
+    /// Could not find specified storage account table
+    /// </summary>
+    public static readonly ErrorCode Storage_TableDoesNotExist = new(14001);
+
+    #endregion
+
+    #region Job Errors
+
+    /// <summary>
+    /// Unhandled error in job processing
+    /// </summary>
+    public static readonly ErrorCode Job_UnhandledError = new(4000);
+
+    /// <summary>
+    /// Job encountered maximum number of retries
+    /// </summary>
+    public static readonly ErrorCode Job_MaximumRetryCount = new(4001);
+
+    /// <summary>
+    /// Job encountered maximum number of postponing
+    /// </summary>
+    public static readonly ErrorCode Job_MaximumPostponeCount = new(4002);
+
+    /// <summary>
+    /// Delete account dependencies job callback faulted
+    /// </summary>
+    public static readonly ErrorCode Job_DeleteAccountDependenciesJobCallbackFaulted = new(4003);
+
+    /// <summary>
+    /// Job has exceeded the defined execution parameters.
+    /// </summary>
+    public static readonly ErrorCode Job_ExecutionConstraintsExceeded = new(4004);
+
+    #endregion
 }

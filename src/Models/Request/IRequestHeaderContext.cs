@@ -12,8 +12,6 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 /// </summary>
 public interface IRequestHeaderContext
 {
-    // Tracking 
-
     /// <summary>
     /// Request Correlation Id
     /// </summary>

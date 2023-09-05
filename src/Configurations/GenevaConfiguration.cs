@@ -1,0 +1,38 @@
+﻿// -----------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+// -----------------------------------------------------------
+
+namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+
+using System.Collections.Generic;
+
+/// <summary>
+/// Configurations related to geneva service
+/// </summary>
+public class GenevaConfiguration
+{
+    /// <summary>
+    /// Name of the metrics or hot path account
+    /// </summary>
+    public string MetricsAccount { get; set; }
+
+    /// <summary>
+    /// Namespace under teh metrics account to emit values to
+    /// </summary>
+    public string MetricsNamespace { get; set; }
+
+    /// <summary>
+    /// Geneva service host name on AKS
+    /// </summary>
+    public string GenevaServicesHost { get; set; }
+
+    /// <summary>
+    /// Geneva service host port on AKS
+    /// </summary>
+    public int GenevaServicesPort { get; set; }
+
+    /// <summary>
+    /// Default dimensions to add to the metric being logged
+    /// </summary>
+    public Dictionary<string, string> DefaultDimensions { get; set; }
+}
