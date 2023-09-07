@@ -22,4 +22,9 @@
     <ProjectReference Include="..\Loggers\Loggers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\JobManager\DataEstateHealthTransformationAndAggregationJob\" />
+    <Folder Include="Services\JobManager\DataEstateHealthDataWarehouseJob\" />
+  </ItemGroup>
+
 </Project>

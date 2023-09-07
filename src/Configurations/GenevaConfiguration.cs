@@ -17,7 +17,7 @@ public class GenevaConfiguration
     public string MetricsAccount { get; set; }
 
     /// <summary>
-    /// Namespace under teh metrics account to emit values to
+    /// Namespace under the metrics account to emit values to
     /// </summary>
     public string MetricsNamespace { get; set; }
 
