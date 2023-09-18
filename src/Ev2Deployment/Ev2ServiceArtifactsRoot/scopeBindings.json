@@ -1,0 +1,59 @@
+{
+  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/scopeBindings.json",
+  "scopeBindings": [
+    {
+      "scopeTagName": "Core",
+      "bindings": [
+        {
+          "find": "__CORE_ACA_ENVIRONMENT_NAME__",
+          "replaceWith": "$config(pdg.regionSharedInfrastructure.acaEnvironmentPrefix)$config(regionShortName)"
+        },
+        {
+          "find": "__CORE_ACR_NAME__",
+          "replaceWith": "$config(pdg.regionSharedInfrastructure.acrPrefix)$config(regionShortName)"
+        },
+        {
+          "find": "__CORE_RESOURCE_GROUP_NAME__",
+          "replaceWith": "$config(pdg.regionSharedInfrastructure.resourceGroupPrefix)$config(regionName)"
+        },
+        {
+          "find": "__CORE_VNET_NAME__",
+          "replaceWith": "$config(pdg.regionSharedInfrastructure.vnetPrefix)$config(regionShortName)"
+        }
+      ]
+    },
+    {
+      "scopeTagName": "Infrastructure",
+      "bindings": [
+        {
+          "find": "__INFRA_API_SERVICE_CONTAINER_APP_NAME__",
+          "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-apiservice-ca"
+        },
+        {
+          "find": "__INFRA_API_SERVICE_IMAGE_NAME__",
+          "replaceWith": "$config(serviceShortName)-apiservice"
+        },
+        {
+          "find": "__INFRA_CONTAINER_APP_IDENTITY_NAME__",
+          "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-ca-identity"
+        },
+        {
+          "find": "__INFRA_IMAGE_TAG_NAME__",
+          "replaceWith": "$buildVersion()"
+        },
+        {
+          "find": "__INFRA_JOB_STORAGE_ACCOUNT_NAME__",
+          "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)jobs"
+        },
+        {
+          "find": "__INFRA_RESOURCE_GROUP_NAME__",
+          "replaceWith": "$config(resourceGroupName)"
+        },
+        {
+          "find": "__INFRA_SUBSCRIPTION_ID__",
+          "replaceWith": "$subscriptionId()"
+        }
+      ]
+    }
+  ]
+}

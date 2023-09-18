@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.Build.NoTargets">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Platforms>x64</Platforms>
+    <BUILD_BUILDNUMBER Condition=" '$(BUILD_BUILDNUMBER)' == '' ">1.0.0.0</BUILD_BUILDNUMBER>
+    <BUILD_SOURCEVERSION Condition=" '$(BUILD_SOURCEVERSION)' == '' ">localcommit</BUILD_SOURCEVERSION>
+    <BUILD_BUILDID Condition=" '$(BUILD_BUILDID)' == '' ">localbuildnumber</BUILD_BUILDID>
+    <BUILD_SOURCEBRANCH Condition=" '$(BUILD_SOURCEBRANCH)' == '' ">localbranch</BUILD_SOURCEBRANCH>
+    <BUILD_SOURCEBRANCH>$(BUILD_SOURCEBRANCH.Replace('refs/heads/', '').Replace('refs/pull/', ''))</BUILD_SOURCEBRANCH>
+    <ServiceGroupRootDropPath>$(LocalDropPath)/$(Configuration)/$(Platform)/Ev2Deployment/Ev2ServiceArtifactsRoot</ServiceGroupRootDropPath>
+    <IsPublishable>false</IsPublishable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FilesToCopy Include="Ev2ServiceArtifactsRoot\**\*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Bicep.CommandLine.win-x64" Condition="'$(OS)' == 'WINDOWS_NT'" />
+    <PackageReference Include="Azure.Bicep.CommandLine.linux-x64" Condition="'$(OS)' == 'UNIX'" />
+    <PackageReference Include="Azure.Bicep.MSBuild" />
+  </ItemGroup>
+
+  <Target Name="CopyFiles" BeforeTargets="PrepareForRun">
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(ServiceGroupRootDropPath)\%(RecursiveDir)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Retries="3" RetryDelayMilliseconds="100" UseHardlinksIfPossible="true">
+      <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
+    </Copy>
+  </Target>
+  <Target Name="GenerateVersionTxt" AfterTargets="CopyFiles">
+    <Exec Command="pwsh -ExecutionPolicy Bypass -Command &quot;Set-Content $(ServiceGroupRootDropPath)/version.txt -Value &quot;&quot;$(BUILD_BUILDNUMBER)-$(BUILD_SOURCEVERSION)&quot;&quot; -Force&quot;" />
+  </Target>
+  <Target Name="GenerateTarFiles" AfterTargets="GenerateVersionTxt">
+    <Exec Command="tar -C shell -pczvf $(ServiceGroupRootDropPath)/shell.tar.gz ." />
+  </Target>
+  <ItemGroup>
+    <Bicep Include="templates/bicep/*.bicep" OutputFile="$(ServiceGroupRootDropPath)/templates/%(FileName).json" />
+  </ItemGroup>
+	
+</Project>

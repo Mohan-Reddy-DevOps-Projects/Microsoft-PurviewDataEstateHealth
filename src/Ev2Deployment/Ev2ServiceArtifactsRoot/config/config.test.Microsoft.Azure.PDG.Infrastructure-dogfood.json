@@ -1,0 +1,7 @@
+{
+  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
+  "settings": {
+    "resourceGroupName": "dgh-dogfood-westus2-rg",
+    "serviceShortName": "dgh"
+  }
+}

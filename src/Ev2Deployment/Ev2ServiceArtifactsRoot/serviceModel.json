@@ -1,0 +1,85 @@
+{
+  "$schema": "https://ev2schema.azure.net/schemas/2020-04-01/RegionAgnosticServiceModel.json",
+  "contentVersion": "1.0.0",
+  "serviceMetadata": {
+    "serviceIdentifier":"f04e5f0a-a46b-4f9c-8bf7-d53ced284864",
+    "serviceGroup": "Microsoft.Azure.PDG.Infrastructure",
+    "displayName": "PDG Infrastructure",
+    "environment": "$config(pdg.environment.name)",
+    "TenantId": "$config(pdg.tenantId)",
+    "serviceSpecificationPath": "serviceSpec.json",
+    "buildout": {
+      "isForAutomatedBuildout": "false"
+    }
+  },
+  "serviceResourceGroupDefinitions": [
+    {
+      "name": "dataEstateHealth",
+      "azureResourceGroupName": "$config(resourceGroupName)",
+      "subscriptionKey": "$config(pdg.groupName)-$config(pdg.environment.name)-$location()",
+      "serviceResourceDefinitions": [
+        {
+          "name": "infrastructureResourceGroupDefinition",
+          "composedOf": {
+            "arm": {
+              "templatePath": "Templates\\infrastructure.json",
+              "parametersPath": "Parameters\\infrastructure.parameters.json",
+              "deploymentLevel": "ResourceGroup"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "Core"
+            },
+            {
+              "name": "Infrastructure"
+            }
+          ]
+        },
+        {
+          "name": "containerImagesResourceGroupDefinition",
+          "composedOf": {
+            "extension": {
+              "rolloutParametersPath": "Parameters\\uploadImage.rollout.parameters.json",
+              "shell": [
+                {
+                  "type": "Run",
+                  "properties": {
+                    "imageName": "adm-ubuntu-1804-l",
+                    "imageVersion": "v30"
+                  }
+                }
+              ]
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "Core"
+            },
+            {
+              "name": "Infrastructure"
+            }
+          ]
+        },
+        {
+          "name": "apiServiceContainerAppResourceGroupDefinition",
+          "composedOf": {
+            "arm": {
+              "templatePath": "Templates\\containerApp.json",
+              "parametersPath": "Parameters\\apiServiceContainerApp.parameters.json",
+              "deploymentLevel": "ResourceGroup"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "Core"
+            },
+            {
+              "name": "Infrastructure"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

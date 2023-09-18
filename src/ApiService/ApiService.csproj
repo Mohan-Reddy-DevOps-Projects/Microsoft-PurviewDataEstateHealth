@@ -17,4 +17,23 @@
     <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="ameroot.crt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="openssl.cnf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="CopyFiles" AfterTargets="AfterBuild">
+    <ItemGroup>
+        <OutputFiles Include="$(OutputPath)\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(OutputFiles)" DestinationFolder="$(LocalDropPath)\$(Configuration)\$(Platform)\ApiService\%(RecursiveDir)" />
+  </Target>
+
 </Project>

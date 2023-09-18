@@ -1,0 +1,28 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "acaEnvironmentName":{
+        "value": "__CORE_ACA_ENVIRONMENT_NAME__"
+      },
+      "acaResourceGroupName": {
+        "value": "__CORE_RESOURCE_GROUP_NAME__"
+      },
+      "acrName":{
+        "value": "__CORE_ACR_NAME__"
+      },
+      "containerAppIdentityName":{
+        "value": "__INFRA_CONTAINER_APP_IDENTITY_NAME__"
+      },
+      "containerAppName":{
+        "value": "__INFRA_API_SERVICE_CONTAINER_APP_NAME__"
+      },
+      "imageName":{
+        "value": "__INFRA_API_SERVICE_IMAGE_NAME__"
+      },
+      "imageTagName":{
+        "value": "__INFRA_IMAGE_TAG_NAME__"
+      }
+    }
+  }
+  

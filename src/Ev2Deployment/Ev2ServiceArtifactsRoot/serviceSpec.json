@@ -1,0 +1,9 @@
+{
+  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/serviceSpecification.json",
+  "providerType":"ServiceTree",
+  "identifier": "f04e5f0a-a46b-4f9c-8bf7-d53ced284864",
+  "description": "Purview Data Governance",
+  "ownerGroupContactEmail": "pdginfrastructureeng@microsoft.com",
+  "policyCheckEnabled": true,
+  "contentVersion": "1.0.0.0"
+}

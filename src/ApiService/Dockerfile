@@ -1,22 +1,15 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
-WORKDIR /app
+FROM mcr.microsoft.com/dotnet/aspnet:7.0-cbl-mariner2.0
+WORKDIR /apiservice
 EXPOSE 80
 EXPOSE 443
-
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
-COPY ["ApiService.csproj", "."]
-RUN dotnet restore "./ApiService.csproj"
 COPY . .
-WORKDIR "/src/."
-RUN dotnet build "ApiService.csproj" -c Release -o /app/build
 
-FROM build AS publish
-RUN dotnet publish "ApiService.csproj" -c Release -o /app/publish /p:UseAppHost=false
+COPY openssl.cnf /etc/ssl/openssl.cnf
 
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ApiService.dll"]
+# Install the public AME root certificate in the trusted CA folder
+COPY ameroot.crt /etc/pki/ca-trust/source/anchors/ameroot.crt
+RUN update-ca-trust
+
+ENTRYPOINT ["dotnet", "Microsoft.Azure.Purview.DataEstateHealth.ApiService.dll"]
