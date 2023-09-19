@@ -4,6 +4,9 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
+using System.Text;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+
 /// <summary>
 /// The Data Estate Health API service.
 /// </summary>
@@ -17,7 +20,14 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
+        string appSettingsJson = Environment.GetEnvironmentVariable("APP_SETTINGS_JSON");
+        if (appSettingsJson != null)
+        {
+            builder.Configuration.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettingsJson)));
+        }
+
+        builder.Services.AddOptions()
+            .Configure<SampleConfiguration>(builder.Configuration.GetSection("environment"));
 
         builder.Services.AddControllers();
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

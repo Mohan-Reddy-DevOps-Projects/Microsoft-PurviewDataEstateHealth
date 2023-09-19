@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Loggers", "Loggers\Loggers.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ev2Deployment", "Ev2Deployment\Ev2Deployment.csproj", "{5AA7943B-8D8A-4CA3-ACAB-0277FCF616C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerService", "WorkerService\WorkerService.csproj", "{6E933334-DE9C-48BC-A6AB-52E6B43CF899}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkerService", "WorkerService\WorkerService.csproj", "{6E933334-DE9C-48BC-A6AB-52E6B43CF899}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +89,14 @@ Global
 		{5AA7943B-8D8A-4CA3-ACAB-0277FCF616C8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B9B116C4-A029-4F99-A1EF-C1E743C65CA1}.Release|x64.ActiveCfg = Release|x64
 		{B9B116C4-A029-4F99-A1EF-C1E743C65CA1}.Release|x64.Build.0 = Release|x64
+		{5AA7943B-8D8A-4CA3-ACAB-0277FCF616C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5AA7943B-8D8A-4CA3-ACAB-0277FCF616C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5AA7943B-8D8A-4CA3-ACAB-0277FCF616C8}.Debug|x64.ActiveCfg = Debug|x64
+		{5AA7943B-8D8A-4CA3-ACAB-0277FCF616C8}.Debug|x64.Build.0 = Debug|x64
+		{5AA7943B-8D8A-4CA3-ACAB-0277FCF616C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5AA7943B-8D8A-4CA3-ACAB-0277FCF616C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5AA7943B-8D8A-4CA3-ACAB-0277FCF616C8}.Release|x64.ActiveCfg = Release|x64
+		{5AA7943B-8D8A-4CA3-ACAB-0277FCF616C8}.Release|x64.Build.0 = Release|x64
 		{6E933334-DE9C-48BC-A6AB-52E6B43CF899}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6E933334-DE9C-48BC-A6AB-52E6B43CF899}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E933334-DE9C-48BC-A6AB-52E6B43CF899}.Debug|x64.ActiveCfg = Debug|Any CPU

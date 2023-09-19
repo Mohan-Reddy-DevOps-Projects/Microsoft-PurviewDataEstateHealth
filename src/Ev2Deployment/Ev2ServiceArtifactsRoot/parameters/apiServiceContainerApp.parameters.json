@@ -11,6 +11,9 @@
       "acrName":{
         "value": "__CORE_ACR_NAME__"
       },
+      "appSettingsJson":{
+        "value": "__CONFIG_APP_SETTINGS_JSON__"
+      },
       "containerAppIdentityName":{
         "value": "__INFRA_CONTAINER_APP_IDENTITY_NAME__"
       },

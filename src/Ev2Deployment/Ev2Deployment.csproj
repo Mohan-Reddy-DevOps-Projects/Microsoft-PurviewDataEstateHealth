@@ -23,11 +23,14 @@
   </ItemGroup>
 
   <Target Name="CopyFiles" BeforeTargets="PrepareForRun">
-    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(ServiceGroupRootDropPath)\%(RecursiveDir)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Retries="3" RetryDelayMilliseconds="100" UseHardlinksIfPossible="true">
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(ServiceGroupRootDropPath)\%(RecursiveDir)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Retries="3" RetryDelayMilliseconds="100">
       <Output TaskParameter="DestinationFiles" ItemName="FileWrites" />
     </Copy>
   </Target>
-  <Target Name="GenerateVersionTxt" AfterTargets="CopyFiles">
+  <Target Name="CopyAppSettingsToScopeBindings" AfterTargets="CopyFiles">
+    <Exec Command="pwsh -ExecutionPolicy Bypass -Command &quot;.\scripts\CopyAppSettingsToScopeBindings.ps1 -AppSettingsPath $(ProjectDir)/templates/appsettings/appsettings.json -ScopeBindingsPath $(ServiceGroupRootDropPath)/scopeBindings.json &quot;" />
+  </Target>
+  <Target Name="GenerateVersionTxt" AfterTargets="CopyAppSettingsToScopeBindings">
     <Exec Command="pwsh -ExecutionPolicy Bypass -Command &quot;Set-Content $(ServiceGroupRootDropPath)/version.txt -Value &quot;&quot;$(BUILD_BUILDNUMBER)-$(BUILD_SOURCEVERSION)&quot;&quot; -Force&quot;" />
   </Target>
   <Target Name="GenerateTarFiles" AfterTargets="GenerateVersionTxt">

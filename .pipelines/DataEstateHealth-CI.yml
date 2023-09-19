@@ -8,7 +8,10 @@
 # Support:        https://aka.ms/onebranchsup                                   #
 #################################################################################
 
-trigger: none # https://aka.ms/obpipelines/triggers
+trigger:
+  branches:
+    include:
+    - main
 
 parameters: # parameters are shown up in ADO UI in a build queue time
 - name: 'debug'
@@ -46,93 +49,72 @@ extends:
       #   suppressionFile: $(Build.SourcesDirectory)\.gdn\global.gdnsuppress
 
     stages:
-    - stage: build
+    - stage: docker
       jobs:
-      - job: main
+      - job: build_image
         pool:
-          type: windows  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+          type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
         
         variables:
-          ob_outputDirectory: '$(Build.SourcesDirectory)\out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+          ob_outputDirectory: '$(Build.SourcesDirectory)/target/Release/x64' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
           # https://aka.ms/obpipelines/sdl
           ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
           ob_sdl_binskim_break: true # always break the build on binskim issues. You can disable it by setting to 'false'
           ob_sdl_binskim_scanOutputDirectoryOnly: true
-          ob_sdl_roslyn_break: true
-          # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+          LinuxContainerImage: 'mcr.microsoft.com/onebranch/cbl-mariner/build:2.0'
+          CDP_DEFINITION_BUILD_COUNT: $[counter('', 0)] # needed for onebranch.pipeline.version task https://aka.ms/obpipelines/versioning
+          OB_build_container: true
 
         steps:
-          - task: UseDotNet@2
-            continueOnError: true
-            inputs:
-              packageType: 'sdk'
-              useGlobalJson: true
-              performMultiLevelLookup: true
-
           - task: onebranch.pipeline.version@1 # generates automatic version. For other versioning options check https://aka.ms/obpipelines/versioning
             displayName: 'Setup BuildNumber'
+            env:
+              ob_restore_phase: true # # Steps decorated with this env variable will be run with network. All these steps are hoisted to the beginning of the build
             inputs:
               system: 'RevisionCounter'
               major: '1'
               minor: '0'
               exclude_commit: true
 
+          - task: UseDotNet@2
+            continueOnError: true
+            env:
+              ob_restore_phase: true # # Steps decorated with this env variable will be run with network. All these steps are hoisted to the beginning of the build
+            inputs:
+              packageType: 'sdk'
+              useGlobalJson: true
+              performMultiLevelLookup: true
+
+          - task: NuGetAuthenticate@1
+            env:
+              ob_restore_phase: true # # Steps decorated with this env variable will be run with network. All these steps are hoisted to the beginning of the build
+            displayName: NuGet Authenticate
+
           - task: DotNetCoreCLI@2
             displayName: 'DotNetCore restore'
             inputs:
-              command: 'custom'
-              projects: $(BuildSolution)
-              custom: 'restore'
-
-          # roslynanalyzers task wraps around dotnet build to enable static analysis
-          - task: RoslynAnalyzers@3
-            displayName: 'DotNetCore build with RoslynAnalyzers'
-            inputs:
-              userProvideBuildInfo: 'msBuildInfo'
-              msBuildCommandline: 'dotnet.exe build $(BuildSolution) --no-restore --configuration $(BuildConfiguration)'
+              command: 'restore'
+              projects: '$(Build.SourcesDirectory)/dirs.proj'
+              feedsToUse: 'config'
+              nugetConfigPath: '$(Build.SourcesDirectory)/Nuget.config'
 
           - task: DotNetCoreCLI@2
-            displayName: 'DotNetCore test'
+            displayName: 'Build'
             inputs:
-              command: 'test'
-              projects: $(BuildSolution)
-              arguments: '--no-build --no-restore --configuration $(BuildConfiguration) --logger trx --blame --collect "Code coverage" --results-directory $(Build.SourcesDirectory)\TestResults\'
-              publishTestResults: false
+              command: 'build'
+              projects: '$(Build.SourcesDirectory)/dirs.proj'
+              arguments: --no-restore --configuration $(BuildConfiguration)
 
-          - task: PublishTestResults@2
-            displayName: 'Publish test results'
+          - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
-              testResultsFormat: VSTest
-              testResultsFiles: '$(Build.SourcesDirectory)\TestResults\**\*.trx'
-              failTaskOnFailedTests: true
-
-          - task: DotNetCoreCLI@2
-            displayName: 'DotNetCore publish'
-            inputs:
-              command: 'publish'
-              publishWebProjects: false
-              projects: $(BuildSolution)
-              arguments: '--no-build --no-restore --configuration $(BuildConfiguration) --output $(Build.SourcesDirectory)\out'
-              zipAfterPublish: false
-
-# https://aka.ms/obpipelines/cloudtest
-# uncomment this section and edit parameters to enable CloudTest
-    # - stage: cloudtest
-    #   dependsOn: build_stage
-    #   jobs:
-    #   - job: cloudtestjob
-    #     pool:
-    #       type: cloudtestagentless
-    #     continueOnError: true
-    #     steps:
-    #     - task: CloudTestServerBuildTask@1
-    #       displayName: 'CloudTest'
-    #       inputs:
-    #         connectedServiceName: 'CloudTest-prod'
-    #         cloudTestTenant: 'onebranchtest'
-    #         testMapLocation: '[BuildRoot]\ClassLibrary.UnitTest\TestMapCdp.xml'
-    #         pipelineArtifactName: 'drop_build_main'
-    #         pipelineArtifactBuildUrl: '$(System.TaskDefinitionsUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)'
-    #         parserProperties: 'worker:VsTestVersion=V150;CodeCoverageType=Dynamic;worker:TestVar=$(RUN_PIPELINE_VARIABLE)'
-    #         cacheEnabled: false
-    #         scheduleBuildRequesterAlias: 'azbldrun'
+              repositoryName: apiservice
+              dockerFileRelPath: artifacts/ApiService/Dockerfile
+              dockerFileContextPath: artifacts/ApiService
+              registry: onebranch.azurecr.io
+              addPipelineData: false
+              push: false
+              saveImageToPath: ../target/Release/x64/Ev2Deployment/Ev2ServiceArtifactsRoot/dgh.apiservice.tar.gz
+              buildkit: 1
+              enable_network: false
+              build_tag: $(Build.BuildNumber)-$(Build.SourceVersion) # Docker image tag
+              compress: true

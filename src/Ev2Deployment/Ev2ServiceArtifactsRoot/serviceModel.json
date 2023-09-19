@@ -72,6 +72,9 @@
           },
           "scopeTags": [
             {
+              "name": "Configuration"
+            },
+            {
               "name": "Core"
             },
             {

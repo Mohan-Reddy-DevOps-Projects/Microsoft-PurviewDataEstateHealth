@@ -54,6 +54,15 @@
           "replaceWith": "$subscriptionId()"
         }
       ]
+    },
+    {
+      "scopeTagName": "Configuration",
+      "bindings": [
+        {
+          "find": "__CONFIG_APP_SETTINGS_JSON__",
+          "replaceWith": "__REPLACE_APP_SETTINGS_JSON_PLACEHOLDER__"
+        }
+      ]
     }
   ]
 }

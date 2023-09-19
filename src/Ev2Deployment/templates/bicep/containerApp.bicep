@@ -1,6 +1,7 @@
 param acaEnvironmentName string
 param acaResourceGroupName string
 param acrName string
+param appSettingsJson string
 param containerAppIdentityName string
 param containerAppName string
 param imageName string
@@ -52,7 +53,12 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
         {
           image: '${acr.properties.loginServer}/${imageName}:${imageTagName}'
           name: 'apiservice'
-          env: []
+          env: [
+            {
+              name: 'APP_SETTINGS_JSON'
+              value: appSettingsJson
+            }
+          ]
           resources: {
             cpu: json('0.5')
             memory: '1.0Gi'
