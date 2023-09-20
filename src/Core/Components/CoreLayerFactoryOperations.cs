@@ -31,4 +31,17 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
         this.componentRuntime = componentRuntime;
         this.contextFactory = contextFactory;
     }
+
+    /// <inheritdoc />
+    public IDataEstateHealthSummaryComponent CreateDataEstateHealthSummaryComponent(
+        Guid tenantId,
+        Guid accountId)
+    {
+        return this.componentRuntime.ResolveLatest<IDataEstateHealthSummaryComponent, IDataEstateHealthSummaryContext>(
+            this.contextFactory.CreateDataEstateHealthSummaryContext(
+                this.version,
+                null,
+                accountId,
+                tenantId));
+    }
 }
