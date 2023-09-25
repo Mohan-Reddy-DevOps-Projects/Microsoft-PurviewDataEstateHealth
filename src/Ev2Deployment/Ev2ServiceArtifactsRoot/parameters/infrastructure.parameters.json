@@ -5,14 +5,17 @@
     "acrName":{
       "value": "__CORE_ACR_NAME__"
     },
-    "acrResourceGroupName": {
-      "value": "__CORE_RESOURCE_GROUP_NAME__"
-    },
     "containerAppIdentityName":{
       "value": "__INFRA_CONTAINER_APP_IDENTITY_NAME__"
     },
+    "coreResourceGroupName": {
+      "value": "__CORE_RESOURCE_GROUP_NAME__"
+    },
     "jobStorageAccountName":{
       "value": "__INFRA_JOB_STORAGE_ACCOUNT_NAME__"
+    },
+    "vnetName": {
+      "value": "__CORE_VNET_NAME__"
     }
   }
 }

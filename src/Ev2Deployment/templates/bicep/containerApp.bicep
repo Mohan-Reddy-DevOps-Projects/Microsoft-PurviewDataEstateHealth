@@ -4,15 +4,23 @@ param acrName string
 param appSettingsJson string
 param containerAppIdentityName string
 param containerAppName string
+param dnsZoneName string
+param dnsZoneResourceGroupName string
+param dnsZoneSubscriptionId string
 param imageName string
 param imageTagName string
 param location string = resourceGroup().location
 param maxReplicas int = 10
 param minReplicas int = 1
+param subdomainName string
 
 resource acaEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing = {
   name: acaEnvironmentName
   scope: resourceGroup(acaResourceGroupName)
+
+  resource sslCert 'certificates@2023-05-01' existing = {
+    name: 'ssl-cert'
+  }
 }
 
 resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = {
@@ -25,7 +33,19 @@ resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   name: containerAppIdentityName
 }
 
+module dnsRecords 'dnsRecords.bicep' = {
+  name: 'dnsRecords'
+  scope: resourceGroup(dnsZoneSubscriptionId, dnsZoneResourceGroupName)
+  params: {
+    cnameRecordName: '${containerAppName}.${acaEnvironment.properties.defaultDomain}'
+    dnsZoneName: dnsZoneName
+    subdomain: subdomainName
+    txtRecordValue: acaEnvironment.properties.customDomainConfiguration.customDomainVerificationId
+  }
+}
+
 resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
+  dependsOn: [dnsRecords]
   name: containerAppName
   location: location
   identity: {
@@ -40,6 +60,13 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
       ingress: {
         external: true
         targetPort: 80
+        customDomains: [
+          {
+            name: '${subdomainName}.${dnsZoneName}'
+            certificateId: acaEnvironment::sslCert.id
+            bindingType: 'SniEnabled'
+          }
+        ]
       }
       registries: [
         {
@@ -57,6 +84,10 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
             {
               name: 'APP_SETTINGS_JSON'
               value: appSettingsJson
+            }
+            {
+              name: 'AZURE_CLIENT_ID'
+              value: containerAppIdentity.properties.clientId
             }
           ]
           resources: {

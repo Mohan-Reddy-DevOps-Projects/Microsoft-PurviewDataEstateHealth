@@ -2,6 +2,8 @@
   "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
   "settings": {
     "resourceGroupName": "dgh-dogfood-westus2-rg",
-    "serviceShortName": "dgh"
+    "serviceShortName": "dgh",
+    "cloudShareInfrastructureDnsZoneName": "purview-dg.azure-test.com",
+    "cloudShareInfrastructureSubscriptionId": "b7334dcb-050a-40e3-81c9-b1cef5ecfe79"
   }
 }

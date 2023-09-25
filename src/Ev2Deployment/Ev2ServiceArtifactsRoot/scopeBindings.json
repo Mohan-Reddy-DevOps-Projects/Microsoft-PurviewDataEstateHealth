@@ -13,6 +13,18 @@
           "replaceWith": "$config(pdg.regionSharedInfrastructure.acrPrefix)$config(regionShortName)"
         },
         {
+          "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_DNS_ZONE_NAME__",
+          "replaceWith": "$config(cloudShareInfrastructureDnsZoneName)"
+        },
+        {
+          "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_RESOURCE_GROUP_NAME__",
+          "replaceWith": "$config(pdg.cloudSharedInfrastructure.resourceGroupName)"
+        },
+        {
+          "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_SUBSCRIPTION_ID__",
+          "replaceWith": "$config(cloudShareInfrastructureSubscriptionId)"
+        },
+        {
           "find": "__CORE_RESOURCE_GROUP_NAME__",
           "replaceWith": "$config(pdg.regionSharedInfrastructure.resourceGroupPrefix)$config(regionName)"
         },
@@ -32,6 +44,10 @@
         {
           "find": "__INFRA_API_SERVICE_IMAGE_NAME__",
           "replaceWith": "$config(serviceShortName)-apiservice"
+        },
+        {
+          "find": "__INFRA_API_SERVICE_SUBDOMAIN_NAME__",
+          "replaceWith": "$config(pdg.environment.name)$config(regionShortName)$config(serviceShortName)"
         },
         {
           "find": "__INFRA_CONTAINER_APP_IDENTITY_NAME__",

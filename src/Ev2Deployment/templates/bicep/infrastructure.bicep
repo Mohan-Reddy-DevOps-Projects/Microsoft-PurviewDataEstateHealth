@@ -1,8 +1,9 @@
 param acrName string
-param acrResourceGroupName string
 param containerAppIdentityName string
+param coreResourceGroupName string
 param jobStorageAccountName string
 param location string = resourceGroup().location
+param vnetName string
 
 resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: containerAppIdentityName
@@ -11,35 +12,32 @@ resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 
 module acrRoleAssignments 'acrRoleAssignments.bicep' = {
   name: 'acrRoleAssignments'
-  scope: resourceGroup(acrResourceGroupName)
+  scope: resourceGroup(coreResourceGroupName)
   params: {
     acrName: acrName
     principalId: containerAppIdentity.properties.principalId
   }
 }
 
-resource jobStorageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
-  name: jobStorageAccountName
-  location: location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Standard_GZRS'
-  }
-  properties: {
-    accessTier: 'Hot'
-    allowBlobPublicAccess: false
-    supportsHttpsTrafficOnly: true
-    minimumTlsVersion: 'TLS1_2'
-    networkAcls: {
-      defaultAction: 'Deny'
-    }
+resource vnet 'Microsoft.Network/virtualNetworks@2023-04-01' existing = {
+  name: vnetName
+  scope: resourceGroup(coreResourceGroupName)
+}
+
+module jobStorageAccount 'storageAccount.bicep' = {
+  name: 'jobStorageAccount'
+  params: {
+    location: location
+    storageAccountName: jobStorageAccountName
+    subnetId: vnet.properties.subnets[0].id
   }
 }
 
 module storageRoleAssignments 'storageRoleAssignments.bicep' = {
+  dependsOn: [jobStorageAccount]
   name: 'storageRoleAssignments'
   params: {
-    storageAccountName: jobStorageAccount.name
+    storageAccountName: jobStorageAccountName
     principalId: containerAppIdentity.properties.principalId
   }
 }
