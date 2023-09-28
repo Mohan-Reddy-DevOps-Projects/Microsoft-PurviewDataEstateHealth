@@ -62,6 +62,10 @@
           "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)jobs"
         },
         {
+          "find": "__INFRA_KEY_VAULT_NAME__",
+          "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)kv"
+        },
+        {
           "find": "__INFRA_RESOURCE_GROUP_NAME__",
           "replaceWith": "$config(resourceGroupName)"
         },

@@ -14,6 +14,9 @@
     "jobStorageAccountName":{
       "value": "__INFRA_JOB_STORAGE_ACCOUNT_NAME__"
     },
+    "keyVaultName":{
+      "value": "__INFRA_KEY_VAULT_NAME__"
+    },
     "vnetName": {
       "value": "__CORE_VNET_NAME__"
     }
