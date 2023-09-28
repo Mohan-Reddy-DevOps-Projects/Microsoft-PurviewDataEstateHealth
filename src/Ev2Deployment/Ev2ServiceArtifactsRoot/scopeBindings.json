@@ -6,7 +6,7 @@
       "bindings": [
         {
           "find": "__ASSISTED_ID_APP_ID__",
-          "replaceWith": "$assistedIdentityAppId()"
+          "replaceWith": "b2758aaf-9d88-4484-86b6-f39183ed0988"
         },
         {
           "find": "__ASSISTED_ID_APP_SECRET_URI__",
