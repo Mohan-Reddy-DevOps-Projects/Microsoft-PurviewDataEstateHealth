@@ -109,7 +109,7 @@
         },
         {
           "find": "__INFRA_KEY_VAULT_URI__",
-          "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)kv"
+          "replaceWith": "https://$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)kv.$config(keyVault.domainNameSuffix)"
         },
         {
           "find": "__INFRA_RESOURCE_GROUP_NAME__",
