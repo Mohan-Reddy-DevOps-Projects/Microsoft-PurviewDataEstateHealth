@@ -15,7 +15,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 /// <summary>
 /// Logger for singleton services that does not log scoped parameters
 /// </summary>
-public class DataEstateHealthLogger : IDataEstateHealthLogger
+public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealthRequestLogger
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DataEstateHealthLogger" /> class.
@@ -33,7 +33,6 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
@@ -45,7 +44,6 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
@@ -57,7 +55,6 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
@@ -69,7 +66,6 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
@@ -81,7 +77,6 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
@@ -96,7 +91,6 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
@@ -115,7 +109,6 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        throw new NotImplementedException();
     }
 
     /// <inheritdoc/>
@@ -124,7 +117,6 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger
         string tableName,
         string rowState)
     {
-        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -139,18 +131,17 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger
     /// <inheritdoc/>
     public IDisposable BeginScope<TState>(TState state) where TState : notnull
     {
-        throw new NotImplementedException();
+        return null;
     }
 
     /// <inheritdoc/>
     public bool IsEnabled(LogLevel logLevel)
     {
-        throw new NotImplementedException();
+        return false;
     }
 
     /// <inheritdoc/>
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
     {
-        throw new NotImplementedException();
     }
 }

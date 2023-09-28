@@ -4,15 +4,14 @@ param acrName string
 param appSettingsJson string
 param containerAppIdentityName string
 param containerAppName string
-param dnsZoneName string
-param dnsZoneResourceGroupName string
-param dnsZoneSubscriptionId string
+param dnsZoneName string = ''
+param externalIngress bool = false
 param imageName string
 param imageTagName string
 param location string = resourceGroup().location
 param maxReplicas int = 10
 param minReplicas int = 1
-param subdomainName string
+param subdomainName string = ''
 
 resource acaEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing = {
   name: acaEnvironmentName
@@ -33,19 +32,7 @@ resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   name: containerAppIdentityName
 }
 
-module dnsRecords 'dnsRecords.bicep' = {
-  name: 'dnsRecords'
-  scope: resourceGroup(dnsZoneSubscriptionId, dnsZoneResourceGroupName)
-  params: {
-    cnameRecordName: '${containerAppName}.${acaEnvironment.properties.defaultDomain}'
-    dnsZoneName: dnsZoneName
-    subdomain: subdomainName
-    txtRecordValue: acaEnvironment.properties.customDomainConfiguration.customDomainVerificationId
-  }
-}
-
 resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
-  dependsOn: [dnsRecords]
   name: containerAppName
   location: location
   identity: {
@@ -57,7 +44,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
   properties: {
     managedEnvironmentId: acaEnvironment.id
     configuration: {
-      ingress: {
+      ingress: externalIngress ? {
         external: true
         targetPort: 80
         customDomains: [
@@ -67,7 +54,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
             bindingType: 'SniEnabled'
           }
         ]
-      }
+      } : null
       registries: [
         {
           identity: containerAppIdentity.id
@@ -79,7 +66,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
       containers: [
         {
           image: '${acr.properties.loginServer}/${imageName}:${imageTagName}'
-          name: 'apiservice'
+          name: imageName
           env: [
             {
               name: 'APP_SETTINGS_JSON'

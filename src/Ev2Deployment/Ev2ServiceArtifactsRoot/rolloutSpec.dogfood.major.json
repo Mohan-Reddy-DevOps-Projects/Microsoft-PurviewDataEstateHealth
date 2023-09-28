@@ -30,18 +30,39 @@
       "actions": ["deploy"]
     },
     {
-      "name": "pushContainerImages",
+      "name": "pushApiServiceImage",
+      "dependsOn": ["deployInfrastructure"],
       "targetType": "ServiceResourceDefinition",
-      "targetName": "containerImagesResourceGroupDefinition",
-      "actions": ["Shell/Run"],
-      "dependsOn": ["deployInfrastructure"]
+      "targetName": "apiServiceImageResourceGroupDefinition",
+      "actions": ["Shell/Run"]
+    },
+    {
+      "name": "pushWorkerServiceImage",
+      "dependsOn": ["deployInfrastructure"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "workerServiceImageResourceGroupDefinition",
+      "actions": ["Shell/Run"]
+    },
+    {
+      "name": "addDnsRecords",
+      "dependsOn": ["pushApiServiceImage"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "apiServiceContainerAppDnsRecordsResourceGroupDefinition",
+      "actions": ["deploy"]
     },
     {
       "name":"deployApiService",
+      "dependsOn": ["addDnsRecords"],
       "targetType": "ServiceResourceDefinition",
       "targetName": "apiServiceContainerAppResourceGroupDefinition",
-      "actions": ["deploy"],
-      "dependsOn": ["pushContainerImages"]
+      "actions": ["deploy"]
+    },
+    {
+      "name":"deployWorkerService",
+      "dependsOn": ["pushWorkerServiceImage"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "workerServiceContainerAppResourceGroupDefinition",
+      "actions": ["deploy"]
     }
   ]
 }

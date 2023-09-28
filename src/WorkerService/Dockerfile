@@ -6,4 +6,4 @@ COPY . .
 COPY ameroot.crt /etc/pki/ca-trust/source/anchors/ameroot.crt
 RUN update-ca-trust
 
-ENTRYPOINT ["dotnet", "Microsoft.Azure.Purview.Share.WorkerService.dll"]
+ENTRYPOINT ["dotnet", "Microsoft.Azure.Purview.DataEstateHealth.WorkerService.dll"]

@@ -47,7 +47,7 @@
         },
         {
           "find": "__INFRA_API_SERVICE_SUBDOMAIN_NAME__",
-          "replaceWith": "$config(pdg.environment.name)$config(regionShortName)$config(serviceShortName)"
+          "replaceWith": "$config(pdg.environment.shortName)-$config(regionName)-health"
         },
         {
           "find": "__INFRA_CONTAINER_APP_IDENTITY_NAME__",
@@ -68,6 +68,14 @@
         {
           "find": "__INFRA_SUBSCRIPTION_ID__",
           "replaceWith": "$subscriptionId()"
+        },
+        {
+          "find": "__INFRA_WORKER_SERVICE_CONTAINER_APP_NAME__",
+          "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-workerservice-ca"
+        },
+        {
+          "find": "__INFRA_WORKER_SERVICE_IMAGE_NAME__",
+          "replaceWith": "$config(serviceShortName)-workerservice"
         }
       ]
     },

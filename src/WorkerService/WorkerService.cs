@@ -5,7 +5,6 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 /// <summary>
 /// Worker service implementation.
@@ -25,11 +24,11 @@ public class WorkerService : BackgroundService
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        IJobDispatcher jobDispatcher = this.serviceProvider.GetRequiredService<IJobDispatcher>();
+        JobDispatcher jobDispatcher = await JobDispatcher.CreateAsync(this.serviceProvider);
         await jobDispatcher.Initialize();
 
-        IDataEstateHealthLogger dataEstateHealthLogger = this.serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
-        dataEstateHealthLogger.LogInformation("WorkerService initialized and setting up infinite loop.");
+        //IDataEstateHealthLogger dataEstateHealthLogger = this.serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
+        //dataEstateHealthLogger.LogInformation("WorkerService initialized and setting up infinite loop.");
 
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -41,6 +40,7 @@ public class WorkerService : BackgroundService
     /// <inheritdoc />
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
+        // TODO(zachmadsen): Do we need to do something with jobDispatcher here?
         await base.StopAsync(cancellationToken);
     }
 }

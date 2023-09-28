@@ -6,11 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>3c2d3b1c-3a11-4a16-ad6d-10a744950c87</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
     <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.WorkerService</AssemblyName>
     <RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.WorkerService</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Core" />
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
   </ItemGroup>
@@ -18,5 +20,21 @@
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ameroot.crt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Dockerfile">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="CopyFiles" AfterTargets="AfterBuild">
+    <ItemGroup>
+        <OutputFiles Include="$(OutputPath)\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(OutputFiles)" DestinationFolder="$(LocalDropPath)\$(Configuration)\$(Platform)\WorkerService\%(RecursiveDir)" />
+  </Target>
 
 </Project>

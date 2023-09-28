@@ -1,0 +1,55 @@
+{
+  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/rolloutParameters.json",
+  "contentVersion": "1.0.0.0",
+  "shellExtensions": [
+    {
+      "name": "Run",
+      "type": "Run",
+      "properties": {
+        "maxExecutionTime": "PT50M"
+      },
+      "package": {
+        "reference": {
+          "path": "shell.tar.gz"
+        }
+      },
+      "launch": {
+        "command": [
+          "/bin/bash",
+          "run.sh"
+        ],
+        "environmentVariables": [
+          {
+            "name": "DESTINATION_ACR_NAME",
+            "value": "__CORE_ACR_NAME__"
+          },
+          {
+            "name": "TARBALL_IMAGE_FILE_SAS",
+            "reference": {
+              "path": "dgh.workerservice.tar.gz"
+            },
+            "asSecureValue": "true"
+          },
+          {
+            "name": "TAG_NAME",
+            "value": "__INFRA_IMAGE_TAG_NAME__"
+          },
+          {
+            "name": "DESTINATION_FILE_NAME",
+            "value": "dgh.workerservice.tar.gz"
+          },
+          {
+            "name": "IMAGE_NAME",
+            "value": "__INFRA_WORKER_SERVICE_IMAGE_NAME__"
+          }
+        ],
+        "identity": {
+          "type": "userAssigned",
+          "userAssignedIdentities": [
+            "/subscriptions/__INFRA_SUBSCRIPTION_ID__/resourcegroups/__INFRA_RESOURCE_GROUP_NAME__/providers/Microsoft.ManagedIdentity/userAssignedIdentities/__INFRA_CONTAINER_APP_IDENTITY_NAME__"
+          ]
+        }
+      }
+    }
+  ]
+}

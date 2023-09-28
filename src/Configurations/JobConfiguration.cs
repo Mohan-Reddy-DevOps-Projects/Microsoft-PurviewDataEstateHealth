@@ -5,12 +5,12 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 /// <summary>
-/// Job Manager Configuration
+/// Job configuration.
 /// </summary>
-public class JobManagerConfiguration
+public class JobConfiguration
 {
     /// <summary>
-    /// Background jobs storage account resource id
+    /// Background jobs storage account name.
     /// </summary>
-    public string BackgroundJobStorageResourceId { get; set; }
+    public string StorageAccountName { get; set; }
 }

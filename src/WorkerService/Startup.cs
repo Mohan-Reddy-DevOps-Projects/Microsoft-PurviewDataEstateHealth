@@ -7,115 +7,35 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
 using System;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using global::Azure.Core;
 using global::Azure.Identity;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using Microsoft.Azure.Purview.DataEstateHealth.Logger;
 
 /// <summary>
 /// Worker service startup.
 /// </summary>
-public class Startup
+public static class Startup
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="Startup" /> class.
+    /// Sets up configuration and DI services.
     /// </summary>
-    /// <param name="configuration">The configuration.</param>
-    /// <param name="webHostEnvironment">Worker service environment.</param>
-    public Startup(IConfiguration configuration,
-        IWebHostEnvironment webHostEnvironment)
+    /// <param name="services">The service collection</param>
+    /// <param name="configurationManager">The configuration manager</param>
+    public static void Configure(IServiceCollection services, ConfigurationManager configurationManager)
     {
-        this.Configuration = configuration;
-        this.WebHostEnvironment = webHostEnvironment;
-    }
+        string appSettingsJson = Environment.GetEnvironmentVariable("APP_SETTINGS_JSON") ?? throw new Exception("environment variable 'APP_SETTINGS_JSON' is missing");
+        configurationManager.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettingsJson)));
 
-    /// <summary>
-    /// Gets the configuration.
-    /// </summary>
-    /// <value>
-    /// The configuration.
-    /// </value>
-    public IConfiguration Configuration { get; }
+        services.AddCommonConfigurations(configurationManager);
 
-    /// <summary>
-    /// Worker service environment.
-    /// </summary>
-    public IWebHostEnvironment WebHostEnvironment { get; }
+        var tokenCredentials = new DefaultAzureCredential();
+        services
+            .AddLogger()
+            .AddCoreLayer(tokenCredentials);
 
-    /// <summary>
-    /// This method gets called by the runtime. Use this method to add services to the container.
-    /// </summary>
-    /// <param name="services">The services.</param>
-    public void ConfigureServices(IServiceCollection services)
-    {
-        TokenCredential azureCredentials;
-        if (this.WebHostEnvironment.IsDevelopment())
-        {
-            //When debugging inside a Docker container, we can't authenticate to KeyVault using the Visual Studio identity.
-            //This workaround fetches an access token that's retrieved during a debug build.
-            //It should be compatible with all methods of debugging - IISExpress, Kestrel, and Docker.
-
-            string accessTokenText;
-            using (var streamReader = new StreamReader("debugAccessToken.json", Encoding.UTF8))
-            {
-                accessTokenText = streamReader.ReadToEnd();
-            }
-            dynamic accessTokenConfig = JsonConvert.DeserializeObject(accessTokenText);
-
-            string token = accessTokenConfig.Token;
-            var expiresOn = Convert.ToDateTime(accessTokenConfig.ExpiresOn);
-            azureCredentials = DelegatedTokenCredential.Create(
-                (_, _) => new AccessToken(token, expiresOn),
-                (_, _) => ValueTask.FromResult(new AccessToken(token, expiresOn)));
-        }
-        else
-        {
-            var credentialOptions = new DefaultAzureCredentialOptions();
-            credentialOptions.Retry.Mode = RetryMode.Fixed;
-            credentialOptions.Retry.Delay = TimeSpan.FromSeconds(15);
-            credentialOptions.Retry.MaxRetries = 12;
-            credentialOptions.Retry.NetworkTimeout = TimeSpan.FromSeconds(100);
-
-            azureCredentials = new DefaultAzureCredential(credentialOptions);
-        }
-
-        var serverConfiguration = this.Configuration.GetSection("serverConfiguration").Get<ServerConfiguration>();
-  
         services.AddHostedService<WorkerService>();
-    }
-
-    /// <summary>
-    /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    /// </summary>
-    public void Configure(
-        IApplicationBuilder app,
-        IWebHostEnvironment env,
-        IHostApplicationLifetime hostApplicationLifetime)
-    {
-        if (env.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
-
-        var serverConfig = app.ApplicationServices.GetService<IOptions<ServerConfiguration>>().Value;
-        app.UseHealthChecks(serverConfig.ReadinessProbePath, serverConfig.WorkerServiceReadinessProbePort.Value);
-
-        hostApplicationLifetime.ApplicationStarted.Register(
-            () =>
-            {
-                IServiceProvider serviceProvider = app.ApplicationServices.GetRequiredService<IServiceProvider>();
-
-                IDataEstateHealthLogger dataEstateHealthLogger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
-                var environmentConfiguration = serviceProvider.GetRequiredService<IOptions<EnvironmentConfiguration>>().Value;
-                dataEstateHealthLogger.LogInformation($"WorkerService started successfully for versions {string.Join(", ", environmentConfiguration.PermittedApiVersions)}");
-            });
     }
 }

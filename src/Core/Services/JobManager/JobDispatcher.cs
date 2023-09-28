@@ -6,16 +6,15 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.DGP.ServiceBasics.Errors;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
-using Microsoft.WindowsAzure.ResourceStack.Common.EventSources;
-using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
-using Microsoft.WindowsAzure.ResourceStack.Common.Utilities;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Auth;
 
 /// <summary>
 /// Job Dispatcher
@@ -24,30 +23,18 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
 {
     private readonly IDataEstateHealthLogger dataEstateHealthLogger;
 
-    private readonly IOptions<EnvironmentConfiguration> environmentConfiguration;
-
-    private readonly string jobLocation;
-
-    private readonly JobManagementClient jobManagementClient;
-
     /// <summary>
     /// JobDispatcher constructor
     /// </summary>
-    public JobDispatcher(
-        IOptions<JobManagerConfiguration> jobManagerConfiguration,
-        IOptions<EnvironmentConfiguration> environmentConfiguration,
-        IBackgroundJobsEventSource jobLogger,
-        IDataEstateHealthLogger dataEstateHealthLogger,
-        ISingletonStorageAccessorService singletonStorageAccessorService,
-        IJobManagementClientBuilder jobManagementClientBuilder,
-        IServiceProvider serviceProvider = null)
+    private JobDispatcher(
+        CloudStorageAccount cloudStorageAccount,
+        EnvironmentConfiguration environmentConfiguration,
+        IServiceProvider serviceProvider)
         : base(
-            singletonStorageAccessorService
-                .GetConnectionString(jobManagerConfiguration.Value.BackgroundJobStorageResourceId)
-                .GetAwaiter()
-                .GetResult(),
-            environmentConfiguration.Value.Location,
-            jobLogger,
+            cloudStorageAccount,
+            environmentConfiguration.Location,
+            // TODO(zachmadsen): Pass the job logger here.
+            null,
             tableName: "jobdefinitions",
             queueNamePrefix: "jobtriggers",
             requestOptions: null,
@@ -57,13 +44,33 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
             factory: new WorkerJobCallbackFactory(serviceProvider),
             instrumentationSource: null)
     {
-        this.dataEstateHealthLogger = dataEstateHealthLogger;
-        this.jobLocation = environmentConfiguration.Value.Location;
-        this.environmentConfiguration = environmentConfiguration;
-        this.jobManagementClient = jobManagementClientBuilder.Build();
+        this.dataEstateHealthLogger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
 
-        // All JobCallbacks should be available in the same assembly as the JobDispatcher
+        // All JobCallbacks should be available in the same assembly as the JobDispatcher.
         this.RegisterJobCallbackAssembly(typeof(JobDispatcher).Assembly);
+    }
+
+    /// <summary>
+    /// Creates an instance of JobDispatcher asynchronously.
+    /// </summary>
+    /// <param name="serviceProvider"></param>
+    public static async Task<JobDispatcher> CreateAsync(IServiceProvider serviceProvider)
+    {
+        EnvironmentConfiguration environmentConfiguration = serviceProvider.GetRequiredService<IOptions<EnvironmentConfiguration>>().Value;
+        JobConfiguration jobConfiguration = serviceProvider.GetRequiredService<IOptions<JobConfiguration>>().Value;
+        IStorageCredentialsProvider storageCredentialsProvider = serviceProvider.GetRequiredService<IStorageCredentialsProvider>();
+
+        StorageCredentials storageCredentials = await storageCredentialsProvider.GetRenewableCredentialsAsync();
+        var cloudStorageAccount = new CloudStorageAccount(
+            storageCredentials: storageCredentials,
+            jobConfiguration.StorageAccountName,
+            endpointSuffix: environmentConfiguration.AzureEnvironment.StorageEndpointSuffix,
+            useHttps: true);
+
+        return new JobDispatcher(
+            cloudStorageAccount,
+            environmentConfiguration,
+            serviceProvider);
     }
 
     /// <summary>

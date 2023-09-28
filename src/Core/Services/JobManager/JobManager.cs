@@ -20,6 +20,11 @@ using Polly;
 using System.Collections.Concurrent;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.WindowsAzure.Storage.Auth;
+using Microsoft.Extensions.Options;
+using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
 
 /// <inheritdoc />
 public abstract class JobManager : IJobManager
@@ -35,14 +40,9 @@ public abstract class JobManager : IJobManager
     private static readonly string jobIdFormat = $"{{0}}-{{1}}-{{2}}";
 
     /// <summary>
-    /// Job management client builder.
-    /// </summary>
-    protected IJobManagementClientBuilder JobManagementClientBuilder;
-
-    /// <summary>
     /// Job management client for managing jobs
     /// </summary>
-    protected Lazy<JobManagementClient> JobManagementClient;
+    protected Lazy<Task<JobManagementClient>> JobManagementClient;
 
     /// <summary>
     /// Request header context
@@ -63,14 +63,42 @@ public abstract class JobManager : IJobManager
     /// Initializes a new instance of the <see cref="JobManager" /> class.
     /// </summary>
     public JobManager(
-        IJobManagementClientBuilder jobManagementClientBuilder,
         IRequestHeaderContext requestHeaderContext,
         IDataEstateHealthRequestLogger dataEstateHealthRequestLogger,
+        IOptions<EnvironmentConfiguration> environmentConfiguration,
+        IOptions<JobConfiguration> jobConfiguration,
+        IStorageCredentialsProvider storageCredentialsProvider,
         WorkerJobExecutionContext workerJobExecutionContext = WorkerJobExecutionContext.None)
     {
-        // TODO Add request options for JobDispatcher
-        this.JobManagementClientBuilder = jobManagementClientBuilder;
-        this.JobManagementClient = new Lazy<JobManagementClient>(this.JobManagementClientBuilder.Build());
+        var dataConsistencyOptions = new StorageConsistencyOptions
+        {
+            ShardingEnabled = false,
+            ReplicationEnabled = false
+        };
+
+        this.JobManagementClient = new Lazy<Task<JobManagementClient>>(async () =>
+        {
+            StorageCredentials storageCredentials = await storageCredentialsProvider.GetCredentialsAsync();
+            var cloudStorageAccount = new CloudStorageAccount(
+                storageCredentials: storageCredentials,
+                jobConfiguration.Value.StorageAccountName,
+                endpointSuffix: environmentConfiguration.Value.AzureEnvironment.StorageEndpointSuffix,
+                useHttps: true);
+
+            return new JobManagementClient(
+                storageAccount: cloudStorageAccount,
+                executionAffinity: environmentConfiguration.Value.Location,
+                // TODO(zachmadsen): Pass the job logger here.
+                eventSource: null,
+                tableName: "jobdefinitions",
+                queueNamePrefix: "jobtriggers",
+                requestOptions: null,
+                consistencyOptions: dataConsistencyOptions,
+                secretThumbprint: null,
+                compressionUtility: null,
+                notificationChannel: null);
+        });
+
         this.RequestHeaderContext = (RequestHeaderContext)requestHeaderContext;
         this.dataEstateHealthRequestLogger = dataEstateHealthRequestLogger;
         this.WorkerJobExecutionContext = workerJobExecutionContext;
@@ -90,7 +118,7 @@ public abstract class JobManager : IJobManager
     /// <inheritdoc />
     public async Task DeleteJobAsync(string partitionId, string jobId)
     {
-        JobManagementClient jobClient = this.JobManagementClient.Value;
+        JobManagementClient jobClient = await this.JobManagementClient.Value;
 
         await PollyRetryPolicies
             .GetNonHttpClientTransientRetryPolicy(
@@ -207,7 +235,7 @@ public abstract class JobManager : IJobManager
     /// <inheritdoc />
     public async Task<BackgroundJob[]> GetJobsAsync(string partitionId)
     {
-        JobManagementClient jobClient = this.JobManagementClient.Value;
+        JobManagementClient jobClient = await this.JobManagementClient.Value;
 
         return await PollyRetryPolicies
             .GetNonHttpClientTransientRetryPolicy(
@@ -219,7 +247,7 @@ public abstract class JobManager : IJobManager
     /// <inheritdoc />
     public async Task<BackgroundJob> GetJobAsync(string partitionId, string jobId)
     {
-        JobManagementClient jobClient = this.JobManagementClient.Value;
+        JobManagementClient jobClient = await this.JobManagementClient.Value;
 
         return await PollyRetryPolicies
             .GetNonHttpClientTransientRetryPolicy(
@@ -283,7 +311,7 @@ public abstract class JobManager : IJobManager
     {
         try
         {
-            JobManagementClient jobClient = this.JobManagementClient.Value;
+            JobManagementClient jobClient = await this.JobManagementClient.Value;
 
             await PollyRetryPolicies
                 .GetNonHttpClientTransientRetryPolicy(

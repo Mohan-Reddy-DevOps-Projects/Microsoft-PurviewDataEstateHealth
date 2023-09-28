@@ -37,10 +37,10 @@
           ]
         },
         {
-          "name": "containerImagesResourceGroupDefinition",
+          "name": "apiServiceImageResourceGroupDefinition",
           "composedOf": {
             "extension": {
-              "rolloutParametersPath": "Parameters\\uploadImage.rollout.parameters.json",
+              "rolloutParametersPath": "Parameters\\pushApiServiceImage.rollout.parameters.json",
               "shell": [
                 {
                   "type": "Run",
@@ -62,11 +62,75 @@
           ]
         },
         {
+          "name": "workerServiceImageResourceGroupDefinition",
+          "composedOf": {
+            "extension": {
+              "rolloutParametersPath": "Parameters\\pushWorkerServiceImage.rollout.parameters.json",
+              "shell": [
+                {
+                  "type": "Run",
+                  "properties": {
+                    "imageName": "adm-ubuntu-1804-l",
+                    "imageVersion": "v30"
+                  }
+                }
+              ]
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "Core"
+            },
+            {
+              "name": "Infrastructure"
+            }
+          ]
+        },
+        {
+          "name": "apiServiceContainerAppDnsRecordsResourceGroupDefinition",
+          "composedOf": {
+            "arm": {
+              "templatePath": "Templates\\containerAppDnsRecords.json",
+              "parametersPath": "Parameters\\apiServiceContainerAppDnsRecords.parameters.json",
+              "deploymentLevel": "ResourceGroup"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "Core"
+            },
+            {
+              "name": "Infrastructure"
+            }
+          ]
+        },
+        {
           "name": "apiServiceContainerAppResourceGroupDefinition",
           "composedOf": {
             "arm": {
               "templatePath": "Templates\\containerApp.json",
               "parametersPath": "Parameters\\apiServiceContainerApp.parameters.json",
+              "deploymentLevel": "ResourceGroup"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "Configuration"
+            },
+            {
+              "name": "Core"
+            },
+            {
+              "name": "Infrastructure"
+            }
+          ]
+        },
+        {
+          "name": "workerServiceContainerAppResourceGroupDefinition",
+          "composedOf": {
+            "arm": {
+              "templatePath": "Templates\\containerApp.json",
+              "parametersPath": "Parameters\\workerServiceContainerApp.parameters.json",
               "deploymentLevel": "ResourceGroup"
             }
           },

@@ -22,15 +22,10 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        string appSettingsJson = Environment.GetEnvironmentVariable("APP_SETTINGS_JSON");
-        if (appSettingsJson == null)
-        {
-            throw new Exception("environment variable 'APP_SETTINGS_JSON' is missing");
-        }
-
+        string appSettingsJson = Environment.GetEnvironmentVariable("APP_SETTINGS_JSON") ?? throw new Exception("environment variable 'APP_SETTINGS_JSON' is missing");
         builder.Configuration.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettingsJson)));
-        builder.Services.AddOptions()
-            .Configure<SampleConfiguration>(builder.Configuration.GetSection("environment"));
+
+        builder.Services.AddCommonConfigurations(builder.Configuration);
 
         TokenCredential credential = new DefaultAzureCredential();
         builder.Services.AddSingleton(credential);

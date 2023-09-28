@@ -4,9 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Logger;
 
-using System;
 using System.Diagnostics;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
@@ -20,15 +19,12 @@ public static class LoggerExtensions
     /// Add the logger services to IServiceCollection
     /// </summary>
     /// <param name="serviceCollection"></param>
-    /// <param name="genevaConfiguration"></param>
-    /// <param name="serverConfiguration"></param>
-    /// <param name="jobManagerConfiguration"></param>
-    /// <param name="isDevEnvironment"></param>
-    public static IServiceCollection AddLogger(this IServiceCollection serviceCollection, 
-        GenevaConfiguration genevaConfiguration, ServerConfiguration serverConfiguration,
-        JobManagerConfiguration jobManagerConfiguration, bool isDevEnvironment)
+    public static IServiceCollection AddLogger(this IServiceCollection serviceCollection)
     {
-        throw new NotImplementedException();
+        serviceCollection.AddSingleton<IDataEstateHealthLogger, DataEstateHealthLogger>();
+        serviceCollection.AddScoped<IDataEstateHealthRequestLogger, DataEstateHealthLogger>();
+
+        return serviceCollection;
     }
 
     /// <summary>

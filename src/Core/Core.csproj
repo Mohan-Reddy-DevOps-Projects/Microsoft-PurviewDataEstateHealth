@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Core" />
     <PackageReference Include="Microsoft.Azure.Management.Storage" />
     <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
     <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" />
@@ -21,11 +22,6 @@
     <ProjectReference Include="..\Configurations\Configurations.csproj" />
     <ProjectReference Include="..\Loggers\Loggers.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\JobManager\DataEstateHealthTransformationAndAggregationJob\" />
-    <Folder Include="Services\JobManager\DataEstateHealthDataWarehouseJob\" />
   </ItemGroup>
 
 </Project>

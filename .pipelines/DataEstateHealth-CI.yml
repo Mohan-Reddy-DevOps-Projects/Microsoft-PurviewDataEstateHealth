@@ -118,3 +118,17 @@ extends:
               enable_network: false
               build_tag: $(Build.BuildNumber)-$(Build.SourceVersion) # Docker image tag
               compress: true
+          
+          - task: onebranch.pipeline.imagebuildinfo@1
+            inputs:
+              repositoryName: workerservice
+              dockerFileRelPath: artifacts/WorkerService/Dockerfile
+              dockerFileContextPath: artifacts/WorkerService
+              registry: onebranch.azurecr.io
+              addPipelineData: false
+              push: false
+              saveImageToPath: ../target/Release/x64/Ev2Deployment/Ev2ServiceArtifactsRoot/dgh.workerservice.tar.gz
+              buildkit: 1
+              enable_network: false
+              build_tag: $(Build.BuildNumber)-$(Build.SourceVersion) # Docker image tag
+              compress: true

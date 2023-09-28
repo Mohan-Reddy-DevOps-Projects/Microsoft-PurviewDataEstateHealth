@@ -18,22 +18,13 @@
         "value": "__INFRA_CONTAINER_APP_IDENTITY_NAME__"
       },
       "containerAppName":{
-        "value": "__INFRA_API_SERVICE_CONTAINER_APP_NAME__"
-      },
-      "dnsZoneName":{
-        "value": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_DNS_ZONE_NAME__"
-      },
-      "externalIngress":{
-        "value": true
+        "value": "__INFRA_WORKER_SERVICE_CONTAINER_APP_NAME__"
       },
       "imageName":{
-        "value": "__INFRA_API_SERVICE_IMAGE_NAME__"
+        "value": "__INFRA_WORKER_SERVICE_IMAGE_NAME__"
       },
       "imageTagName":{
         "value": "__INFRA_IMAGE_TAG_NAME__"
-      },
-      "subdomainName":{
-        "value": "__INFRA_API_SERVICE_SUBDOMAIN_NAME__"
       }
     }
   }
