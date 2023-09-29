@@ -16,4 +16,12 @@ public interface ICoreLayerFactoryOperations
     public IDataEstateHealthSummaryComponent CreateDataEstateHealthSummaryComponent(
         Guid tenantId,
         Guid accountId);
+
+    /// <summary>
+    /// Creates an instance of HealthReportComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IHealthReportCollectionComponent"/>.</returns>
+    public IHealthReportCollectionComponent CreateHealthReportCollectionComponent(
+        Guid tenantId,
+        Guid accountId);
 }

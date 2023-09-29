@@ -64,20 +64,6 @@ public class ErrorCode : ServiceErrorCode
 
     #endregion
 
-    #region Data access
-
-    /// <summary>
-    /// Problems accessing metadata service.
-    /// </summary>
-    public static readonly ErrorCode MetadataServiceException = new(3000);
-
-    /// <summary>
-    /// An exception while accessing the artifact store.
-    /// </summary>
-    public static readonly ErrorCode ArtifactStoreServiceException = new(3001);
-
-    #endregion
-
     #region Storage checks
 
     /// <summary>
@@ -145,7 +131,31 @@ public class ErrorCode : ServiceErrorCode
     /// <summary>
     /// Error in reading secret to key vault
     /// </summary>
-    public static readonly ErrorCode KeyVault_GetSecretError = new(50001);
+    public static readonly ErrorCode KeyVault_GetSecretError = new(50002);
 
     #endregion
+
+    #region Data access
+
+    /// <summary>
+    /// Problems accessing metadata service.
+    /// </summary>
+    public static readonly ErrorCode MetadataServiceException = new(6000);
+
+    /// <summary>
+    /// An exception while accessing the artifact store.
+    /// </summary>
+    public static readonly ErrorCode ArtifactStoreServiceException = new(6001);
+
+    #endregion
+
+    #region Data Estate Health
+
+    /// <summary>
+    /// Invalid health report kind.
+    /// </summary>
+    public static readonly ErrorCode HealthReport_InvalidKind = new(7000);
+
+    #endregion
+
 }

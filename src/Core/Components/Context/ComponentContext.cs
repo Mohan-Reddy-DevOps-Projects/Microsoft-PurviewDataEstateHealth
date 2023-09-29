@@ -1,14 +1,11 @@
-﻿// -----------------------------------------------------------------------
-//  <copyright file="ComponentContext.cs" company="Microsoft Corporation">
-//      Copyright (C) Microsoft Corporation. All rights reserved.
-//  </copyright>
-// -----------------------------------------------------------------------
+﻿// -----------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+// -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
 using System.Linq;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
 
 /// <inheritdoc />
 internal class ComponentContext
@@ -20,13 +17,10 @@ internal class ComponentContext
     public Guid TenantId { get; init; }
 
     /// <inheritdoc />
-    public ServiceVersion Version { get; init; }
-
-    /// <inheritdoc />
     public string Location { get; init; }
 
     /// <inheritdoc />
-    public virtual object Key => this.JoinKeys(this.AccountId, this.TenantId, this.Version);
+    public virtual object Key => this.JoinKeys(this.AccountId, this.TenantId);
 
     /// <inheritdoc />
     protected string JoinKeys(params object[] keys)

@@ -44,4 +44,18 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
                 accountId,
                 tenantId));
     }
+
+    /// <inheritdoc />
+    public IHealthReportCollectionComponent CreateHealthReportCollectionComponent(
+        Guid tenantId,
+        Guid accountId)
+    {
+        return this.componentRuntime.Resolve<IHealthReportCollectionComponent, IHealthReportListContext>(
+            this.contextFactory.CreateHealthReportListContext(
+                this.version,
+                null,
+                tenantId,
+                accountId),
+            this.version.Numeric);
+    }
 }

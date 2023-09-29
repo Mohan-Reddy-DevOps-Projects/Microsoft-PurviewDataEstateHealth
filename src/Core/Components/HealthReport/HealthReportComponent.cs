@@ -1,0 +1,23 @@
+﻿// -----------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+// -----------------------------------------------------------
+
+namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
+
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.DGP.ServiceBasics.Components;
+
+/// <inheritdoc />
+[Component(typeof(IHealthReportComponent))]
+internal class HealthReportComponent : BaseComponent<IHealthReportListContext>, IHealthReportComponent
+{
+    public HealthReportComponent(HealthReportContext context, int version) : base(context, version)
+    {
+    }
+
+    /// <inheritdoc />
+    public Task<IHealthReportModel<HealthReportProperties>> Get()
+    {
+        throw new NotImplementedException();
+    }
+}

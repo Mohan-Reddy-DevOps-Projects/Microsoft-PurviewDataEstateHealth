@@ -21,4 +21,18 @@ internal interface IComponentContextFactory
         string location,
         Guid accountId,
         Guid tenantId);
+
+    /// <summary>
+    /// Creates an <see cref="IHealthReportListContext"/>
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="location"></param>
+    /// <param name="accountId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public IHealthReportListContext CreateHealthReportListContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId);
 }

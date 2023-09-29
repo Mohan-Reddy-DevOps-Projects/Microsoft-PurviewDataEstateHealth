@@ -33,6 +33,22 @@ internal class ComponentContextFactory : IComponentContextFactory
         };
     }
 
+    /// <inheritdoc />
+    public IHealthReportListContext CreateHealthReportListContext(
+        ServiceVersion version,
+        string location,
+        Guid tenantId,
+        Guid accountId)
+    {
+        return new HealthReportListContext
+        {
+            Version = version,
+            Location = this.LocationOf(location),
+            TenantId = tenantId,
+            AccountId = accountId
+        };
+    }
+
     internal string LocationOf(string location)
     {
         return string.IsNullOrWhiteSpace(location) ? this.environmentConfiguration.Location : location;
