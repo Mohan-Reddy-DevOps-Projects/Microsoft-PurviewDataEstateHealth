@@ -42,6 +42,26 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode StartupError = new(1003);
 
+    /// <summary>
+    /// Missing client certificate.
+    /// </summary>
+    public static readonly ErrorCode MissingClientCertificate = new(1004);
+
+    /// <summary>
+    /// Invalid client certificate.
+    /// </summary>
+    public static readonly ErrorCode InvalidClientCertificate = new(1005);
+
+    /// <summary>
+    /// Not Authorized.
+    /// </summary>
+    public static readonly ErrorCode NotAuthorized = new(1006);
+
+    /// <summary>
+    /// Invalid certificate set
+    /// </summary>
+    public static readonly ErrorCode Invalid_CertificateSet = new(1007);
+
     #endregion
 
     #region Data access
@@ -98,6 +118,34 @@ public class ErrorCode : ServiceErrorCode
     /// Job has exceeded the defined execution parameters.
     /// </summary>
     public static readonly ErrorCode Job_ExecutionConstraintsExceeded = new(3004);
+
+    #endregion
+
+    #region Certificates
+
+    /// <summary>
+    /// Certificate not found
+    /// </summary>
+    public static readonly ErrorCode CertificateLoader_NotFound = new(40000);
+
+    /// <summary>
+    /// The certificate in akv does not have a private key
+    /// </summary>
+    public static readonly ErrorCode CertificateLoader_MissingPrivateKey = new(40001);
+
+    #endregion
+
+    #region KeyVault
+
+    /// <summary>
+    /// Error in reading certificate to key vault
+    /// </summary>
+    public static readonly ErrorCode KeyVault_GetCertificateError = new(50001);
+
+    /// <summary>
+    /// Error in reading secret to key vault
+    /// </summary>
+    public static readonly ErrorCode KeyVault_GetSecretError = new(50001);
 
     #endregion
 }

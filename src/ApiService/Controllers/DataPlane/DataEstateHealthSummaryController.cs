@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
@@ -14,6 +15,7 @@ using Microsoft.DGP.ServiceBasics.Adapters;
 /// Data estate health summary page controller.
 /// </summary>
 [ApiController]
+[ApiVersion(ServiceVersion.LabelV1)]
 [Route("/summary/domains")]
 public class DataEstateHealthSummaryController : DataPlaneController
 {
