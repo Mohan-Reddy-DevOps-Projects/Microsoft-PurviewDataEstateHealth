@@ -22,7 +22,8 @@ public static class ConfigurationExtensions
         services.AddCommonConfigurations(configuration)
             .Configure<SslConfiguration>(configuration.GetSection("sslConfiguration"))
             .Configure<ClientCertificateConfiguration>(configuration.GetSection("clientCertificateConfiguration"))
-            .Configure<CertificateSetConfiguration>(configuration.GetSection("apiServiceClientCertificates"));
+            .Configure<CertificateSetConfiguration>(configuration.GetSection("apiServiceClientCertificates"))
+            .Configure<PowerBIAuthConfiguration>(configuration.GetSection("powerBIAuthConfiguration"));
 
         return services;
     }

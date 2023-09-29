@@ -100,8 +100,12 @@ public class Program
         var app = builder.Build();
 
         // Initialize client certificate cache
-        var certificateLoaderService = app.Services.GetService<ICertificateLoaderService>();
+        ICertificateLoaderService certificateLoaderService = app.Services.GetRequiredService<ICertificateLoaderService>();
         await certificateLoaderService.InitializeAsync();
+
+        // Initialize PowerBI service
+        IPowerBIService powerBIService = app.Services.GetService<IPowerBIService>();
+        await powerBIService.Initialize();
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
