@@ -186,9 +186,7 @@ public class Program
                 var httpsConnectionAdapterOptions =
                     new HttpsConnectionAdapterOptions
                     {
-                        ClientCertificateMode = environmentConfiguration.IsDevelopmentEnvironment()
-                                ? ClientCertificateMode.AllowCertificate
-                                : ClientCertificateMode.RequireCertificate,
+                        ClientCertificateMode = ClientCertificateMode.RequireCertificate,
                         // Restrict to use TLS 1.2 or greater and set the preference order of cipher suites
                         ServerCertificateSelector = (connectionContext, name) =>
                         {
