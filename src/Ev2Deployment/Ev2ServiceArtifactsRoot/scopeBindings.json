@@ -40,6 +40,14 @@
         {
           "find": "__CERTS_PUBLIC_ISSUER_PROVIDER__",
           "replaceWith": "$config(pdg.environmentSharedInfrastructure.certificates.publicIssuerProvider)"
+        },
+        {
+          "find": "__CERTS_SSL_CERT_NAME__",
+          "replaceWith": "ssl-cert"
+        },
+        {
+          "find": "__CERTS_SSL_CERT_DOMAIN__",
+          "replaceWith": "$config(pdg.environment.shortName)-$config(regionName)-health.$config(dnsZoneName)"
         }
       ]
     },
