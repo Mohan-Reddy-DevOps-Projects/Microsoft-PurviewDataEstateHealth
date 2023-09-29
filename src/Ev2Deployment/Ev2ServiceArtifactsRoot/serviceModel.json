@@ -25,9 +25,18 @@
               "templatePath": "Templates\\infrastructure.json",
               "parametersPath": "Parameters\\infrastructure.parameters.json",
               "deploymentLevel": "ResourceGroup"
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\infrastructure.rollout.parameters.json"
             }
           },
           "scopeTags": [
+            {
+              "name": "AssistedIdentity"
+            },
+            {
+              "name": "Certificates"
+            },
             {
               "name": "Core"
             },

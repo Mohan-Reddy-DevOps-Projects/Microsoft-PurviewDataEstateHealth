@@ -23,6 +23,7 @@ using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using System.Text;
 
 /// <summary>
 /// The Data Estate Health API service.
@@ -185,9 +186,7 @@ public class Program
                 var httpsConnectionAdapterOptions =
                     new HttpsConnectionAdapterOptions
                     {
-                        ClientCertificateMode = environmentConfiguration.IsDevelopmentEnvironment()
-                                ? ClientCertificateMode.AllowCertificate
-                                : ClientCertificateMode.RequireCertificate,
+                        ClientCertificateMode = ClientCertificateMode.RequireCertificate,
                         // Restrict to use TLS 1.2 or greater and set the preference order of cipher suites
                         ServerCertificateSelector = (connectionContext, name) =>
                         {
@@ -233,29 +232,13 @@ public class Program
 
     private static void SetAksConfiguration(WebApplicationBuilder builder)
     {
-        const string appConfigFile = "appsettings.json";
-        string[] configFolders = { "config-volume" };
-        var configPaths = new List<string>();
-
-        bool configFileFound = false;
-
-        foreach (string folder in configFolders)
+        const string appSettingsEnvVar = "APP_SETTINGS_JSON";
+        string appSettingsJson = Environment.GetEnvironmentVariable(appSettingsEnvVar);
+        if (appSettingsJson == null)
         {
-            string appConfigPath = Path.Combine(Directory.GetCurrentDirectory(), folder, appConfigFile);
-
-            configPaths.Add(appConfigPath);
-            if (File.Exists(appConfigPath))
-            {
-                builder.Configuration.AddJsonFile(appConfigPath, optional: false, reloadOnChange: true);
-                configFileFound = true;
-                break;
-            }
+            throw new InvalidOperationException($"environment variable '{appSettingsEnvVar}' was not found");
         }
 
-        if (!configFileFound)
-        {
-            throw new InvalidOperationException(
-                $"Unable to find configuration file");
-        }
+        builder.Configuration.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettingsJson)));
     }
 }

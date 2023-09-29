@@ -2,6 +2,56 @@
   "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/scopeBindings.json",
   "scopeBindings": [
     {
+      "scopeTagName": "AssistedIdentity",
+      "bindings": [
+        {
+          "find": "__ASSISTED_ID_APP_ID__",
+          "replaceWith": "$config(assistedIdentityAppId)"
+        },
+        {
+          "find": "__ASSISTED_ID_APP_SECRET_URI__",
+          "replaceWith": "$config(pdg.environmentSharedInfrastructure.assistedId.secretUri)"
+        }
+      ]
+    },
+    {
+      "scopeTagName": "Certificates",
+      "bindings": [
+        {
+          "find": "__CERTS_CLIENT_CERT_NAME__",
+          "replaceWith": "client-cert"
+        },
+        {
+          "find": "__CERTS_CLIENT_CERT_DOMAIN__",
+          "replaceWith": "health.$config(dnsZoneName)"
+        },
+        {
+          "find": "__CERTS_PRIVATE_ISSUER_NAME__",
+          "replaceWith": "$config(pdg.environmentSharedInfrastructure.certificates.privateIssuerName)"
+        },
+        {
+          "find": "__CERTS_PRIVATE_ISSUER_PROVIDER__",
+          "replaceWith": "$config(pdg.environmentSharedInfrastructure.certificates.privateIssuerProvider)"
+        },        
+        {
+          "find": "__CERTS_PUBLIC_ISSUER_NAME__",
+          "replaceWith": "$config(pdg.environmentSharedInfrastructure.certificates.publicIssuerName)"
+        },
+        {
+          "find": "__CERTS_PUBLIC_ISSUER_PROVIDER__",
+          "replaceWith": "$config(pdg.environmentSharedInfrastructure.certificates.publicIssuerProvider)"
+        },
+        {
+          "find": "__CERTS_SSL_CERT_NAME__",
+          "replaceWith": "ssl-cert"
+        },
+        {
+          "find": "__CERTS_SSL_CERT_DOMAIN__",
+          "replaceWith": "$config(pdg.environment.shortName)-$config(regionName)-health.$config(dnsZoneName)"
+        }
+      ]
+    },
+    {
       "scopeTagName": "Core",
       "bindings": [
         {
@@ -14,7 +64,7 @@
         },
         {
           "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_DNS_ZONE_NAME__",
-          "replaceWith": "$config(cloudShareInfrastructureDnsZoneName)"
+          "replaceWith": "$config(dnsZoneName)"
         },
         {
           "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_RESOURCE_GROUP_NAME__",
@@ -60,6 +110,14 @@
         {
           "find": "__INFRA_JOB_STORAGE_ACCOUNT_NAME__",
           "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)jobs"
+        },
+        {
+          "find": "__INFRA_KEY_VAULT_NAME__",
+          "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-kv"
+        },
+        {
+          "find": "__INFRA_KEY_VAULT_URI__",
+          "replaceWith": "https://$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-kv.$config(keyVault.domainNameSuffix)"
         },
         {
           "find": "__INFRA_RESOURCE_GROUP_NAME__",

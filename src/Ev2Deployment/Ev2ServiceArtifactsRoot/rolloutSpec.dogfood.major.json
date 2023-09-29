@@ -27,7 +27,13 @@
       "name":"deployInfrastructure",
       "targetType": "ServiceResourceDefinition",
       "targetName": "infrastructureResourceGroupDefinition",
-      "actions": ["deploy"]
+      "actions": [
+        "deploy",
+        "Extension/CreateOneCertV2PublicIssuer",
+        "Extension/CreateOneCertV2PrivateIssuer",
+        "Extension/CreateCertificate-Client",
+        "Extension/CreateCertificate-SSL"
+      ]
     },
     {
       "name": "pushApiServiceImage",
