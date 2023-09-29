@@ -10,12 +10,12 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// Extension methods for setting up the core layer.
+/// Provides behavior on the core layer level.
 /// </summary>
 public static class CoreLayer
 {
     /// <summary>
-    /// Initializes the core layer dependencies.
+    /// Initializes the core layer.
     /// </summary>
     /// <param name="services">Gives the core layer a chance to configure its dependency injection.</param>
     /// <param name="azureCredentials"></param>
@@ -23,11 +23,15 @@ public static class CoreLayer
     {
         services.AddSingleton(azureCredentials);
         services.AddSingleton<IExceptionAdapterService, ExceptionAdapterService>();
+        services.AddSingleton<ICertificateLoaderService, CertificateLoaderService>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IStorageCredentialsProvider, StorageCredentialsProvider>();
+        services.AddSingleton<ISingletonKeyVaultAccessorService, SingletonKeyVaultAccessorService>();
 
-        services.AddScoped<IApiClient, ApiClient>();
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
+
+        services.AddSingleton<ServiceHealthCheck>();
+        services.AddHealthChecks().AddCheck<ServiceHealthCheck>("Ready");
 
         return services;
     }

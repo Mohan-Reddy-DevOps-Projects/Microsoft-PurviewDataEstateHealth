@@ -4,12 +4,15 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 /// <summary>
-/// Data Plane Controller
+/// Base controller for data plane certificate authentication.
 /// </summary>
-/// TODO: #2690747 Add Auth scheme for data plane controllers
-public class DataPlaneController : ControllerBase
+[CertificateConfig(CertificateSet.DataPlane)]
+[Authorize(AuthenticationSchemes = "Certificate")]
+public abstract class DataPlaneController : Controller
 {
 }

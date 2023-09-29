@@ -29,7 +29,7 @@ public static class Startup
         string appSettingsJson = Environment.GetEnvironmentVariable("APP_SETTINGS_JSON") ?? throw new Exception("environment variable 'APP_SETTINGS_JSON' is missing");
         configurationManager.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettingsJson)));
 
-        services.AddCommonConfigurations(configurationManager);
+        services.AddWorkerServiceConfigurations(configurationManager);
 
         var tokenCredentials = new DefaultAzureCredential();
         services
