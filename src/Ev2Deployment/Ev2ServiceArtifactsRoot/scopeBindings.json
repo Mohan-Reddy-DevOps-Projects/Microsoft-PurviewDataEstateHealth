@@ -6,7 +6,7 @@
       "bindings": [
         {
           "find": "__ASSISTED_ID_APP_ID__",
-          "replaceWith": "b2758aaf-9d88-4484-86b6-f39183ed0988"
+          "replaceWith": "$config(assistedIdentityAppId)"
         },
         {
           "find": "__ASSISTED_ID_APP_SECRET_URI__",
@@ -23,7 +23,7 @@
         },
         {
           "find": "__CERTS_CLIENT_CERT_DOMAIN__",
-          "replaceWith": "health.$config(cloudShareInfrastructureDnsZoneName)"
+          "replaceWith": "health.$config(dnsZoneName)"
         },
         {
           "find": "__CERTS_PRIVATE_ISSUER_NAME__",
@@ -56,7 +56,7 @@
         },
         {
           "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_DNS_ZONE_NAME__",
-          "replaceWith": "$config(cloudShareInfrastructureDnsZoneName)"
+          "replaceWith": "$config(dnsZoneName)"
         },
         {
           "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_RESOURCE_GROUP_NAME__",
@@ -105,11 +105,11 @@
         },
         {
           "find": "__INFRA_KEY_VAULT_NAME__",
-          "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)kv"
+          "replaceWith": "$config(keyVaultName)"
         },
         {
           "find": "__INFRA_KEY_VAULT_URI__",
-          "replaceWith": "https://$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)kv.$config(keyVault.domainNameSuffix)"
+          "replaceWith": "https://$config(keyVaultName).$config(keyVault.domainNameSuffix)"
         },
         {
           "find": "__INFRA_RESOURCE_GROUP_NAME__",
