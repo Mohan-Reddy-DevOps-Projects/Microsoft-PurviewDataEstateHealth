@@ -20,9 +20,9 @@ public static class ConfigurationExtensions
         IConfiguration configuration)
     {
         services.AddCommonConfigurations(configuration)
-            .Configure<SslConfiguration>(configuration.GetSection("sslConfiguration"))
-            .Configure<ClientCertificateConfiguration>(configuration.GetSection("clientCertificateConfiguration"))
-            .Configure<CertificateSetConfiguration>(configuration.GetSection("apiServiceClientCertificates"));
+            .Configure<SslConfiguration>(configuration.GetSection("ssl"))
+            .Configure<AllowListedCertificateConfiguration>(configuration.GetSection("allowListedCertificate"))
+            .Configure<CertificateSetConfiguration>(configuration.GetSection("apiServiceCertificateSet"));
 
         return services;
     }
@@ -47,7 +47,7 @@ public static class ConfigurationExtensions
         IConfiguration configuration)
     {
         services.AddOptions()
-            .Configure<GenevaConfiguration>(configuration.GetSection("genevaConfiguration"))
+            .Configure<GenevaConfiguration>(configuration.GetSection("geneva"))
             .Configure<EnvironmentConfiguration>(configuration.GetSection("environment"))
             .Configure<JobConfiguration>(configuration.GetSection("job"))
             .Configure<ServiceConfiguration>(configuration.GetSection("service"));
