@@ -23,6 +23,7 @@ public static class ConfigurationExtensions
             .Configure<SslConfiguration>(configuration.GetSection("ssl"))
             .Configure<AllowListedCertificateConfiguration>(configuration.GetSection("allowListedCertificate"))
             .Configure<CertificateSetConfiguration>(configuration.GetSection("apiServiceCertificateSet"));
+            .Configure<PowerBIAuthConfiguration>(configuration.GetSection("powerBIAuth"));
 
         return services;
     }

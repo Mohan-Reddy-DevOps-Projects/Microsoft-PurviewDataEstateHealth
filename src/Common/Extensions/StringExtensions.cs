@@ -4,6 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 
+using System.Security;
+
 /// <summary>
 /// Extension methods for the <see cref="string"/> type.
 /// </summary>
@@ -22,5 +24,24 @@ public static class StringExtensions
         }
 
         return char.ToLowerInvariant(value[0]) + value.Substring(1);
+    }
+
+    /// <summary>
+    /// Convert a secure string to a plain string
+    /// </summary>
+    /// <param name="sstr"></param>
+    /// <returns></returns>
+    public static string ToPlainString(this SecureString sstr)
+    {
+        IntPtr valuePtr = IntPtr.Zero;
+        try
+        {
+            valuePtr = System.Runtime.InteropServices.Marshal.SecureStringToGlobalAllocUnicode(sstr);
+            return System.Runtime.InteropServices.Marshal.PtrToStringUni(valuePtr);
+        }
+        finally
+        {
+            System.Runtime.InteropServices.Marshal.ZeroFreeGlobalAllocUnicode(valuePtr);
+        }
     }
 }

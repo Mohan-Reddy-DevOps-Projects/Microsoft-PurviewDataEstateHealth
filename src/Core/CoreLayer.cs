@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Core;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,11 +28,26 @@ public static class CoreLayer
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IStorageCredentialsProvider, StorageCredentialsProvider>();
         services.AddSingleton<ISingletonKeyVaultAccessorService, SingletonKeyVaultAccessorService>();
-
+        services.AddPowerBI();
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
 
         services.AddSingleton<ServiceHealthCheck>();
         services.AddHealthChecks().AddCheck<ServiceHealthCheck>("Ready");
+
+        services.AddMemoryCache();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Initializes the PowerBI services.
+    /// </summary>
+    /// <param name="services">Service collection</param>
+    public static IServiceCollection AddPowerBI(this IServiceCollection services)
+    {
+        services.AddSingleton<AadAppTokenProviderService<PowerBIAuthConfiguration>>();
+        services.AddSingleton<IPowerBIService, PowerBIService>();
+        services.AddSingleton<PowerBIFactory>();
 
         return services;
     }
