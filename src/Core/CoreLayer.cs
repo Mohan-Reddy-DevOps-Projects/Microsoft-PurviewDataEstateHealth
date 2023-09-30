@@ -28,7 +28,10 @@ public static class CoreLayer
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IStorageCredentialsProvider, StorageCredentialsProvider>();
         services.AddSingleton<ISingletonKeyVaultAccessorService, SingletonKeyVaultAccessorService>();
+
         services.AddPowerBI();
+        services.AddServerlessPool();
+
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
 
         services.AddSingleton<ServiceHealthCheck>();
@@ -48,6 +51,18 @@ public static class CoreLayer
         services.AddSingleton<AadAppTokenProviderService<PowerBIAuthConfiguration>>();
         services.AddSingleton<IPowerBIService, PowerBIService>();
         services.AddSingleton<PowerBIFactory>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Initializes the Synapse Serverless Pool services.
+    /// </summary>
+    /// <param name="services">Service collection</param>
+    public static IServiceCollection AddServerlessPool(this IServiceCollection services)
+    {
+        services.AddSingleton<AadAppTokenProviderService<ServerlessPoolAuthConfiguration>>();
+        services.AddSingleton<IServerlessPoolClient, ServerlessPoolClient>();
 
         return services;
     }

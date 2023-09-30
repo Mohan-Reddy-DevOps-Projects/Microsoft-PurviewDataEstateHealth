@@ -18,11 +18,12 @@ using Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Options;
+using Microsoft.PowerBI.Api.Models;
 using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using System.Text;
 
 /// <summary>
@@ -98,15 +99,9 @@ public class Program
         builder.Services
             .AddLogger();
 
-        var app = builder.Build();
+        WebApplication app = builder.Build();
 
-        // Initialize client certificate cache
-        ICertificateLoaderService certificateLoaderService = app.Services.GetRequiredService<ICertificateLoaderService>();
-        await certificateLoaderService.InitializeAsync();
-
-        // Initialize PowerBI service
-        IPowerBIService powerBIService = app.Services.GetService<IPowerBIService>();
-        await powerBIService.Initialize();
+        await Initialize(app);
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
@@ -144,6 +139,21 @@ public class Program
             });
 
         await app.RunAsync();
+    }
+
+    private static async Task Initialize(WebApplication app)
+    {
+        // Initialize client certificate cache
+        ICertificateLoaderService certificateLoaderService = app.Services.GetRequiredService<ICertificateLoaderService>();
+        await certificateLoaderService.InitializeAsync();
+
+        // Initialize PowerBI service
+        IPowerBIService powerBIService = app.Services.GetService<IPowerBIService>();
+        await powerBIService.Initialize();
+
+        // Initialize PowerBI service
+        IServerlessPoolClient serverlessPoolClient = app.Services.GetService<IServerlessPoolClient>();
+        await serverlessPoolClient.Initialize();
     }
 
     private static void ConfigurePortsAndSsl(WebHostBuilderContext hostingContext, KestrelServerOptions options, WebApplicationBuilder builder)
