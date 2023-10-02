@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Options;
@@ -62,7 +63,8 @@ public class Program
             .AddApiServiceConfigurations(builder.Configuration)
             .AddApiServices()
             .AddCoreLayer(azureCredentials)
-            .AddDataAccessLayer();
+            .AddDataAccessLayer()
+            .AddServiceBasicsForApiService();
 
         builder.Services
             .AddScoped<CertificateValidationService>()
@@ -243,7 +245,7 @@ public class Program
     private static void SetAksConfiguration(WebApplicationBuilder builder)
     {
         const string appSettingsEnvVar = "APP_SETTINGS_JSON";
-        string appSettingsJson = Environment.GetEnvironmentVariable(appSettingsEnvVar);
+        string appSettingsJson = System.Environment.GetEnvironmentVariable(appSettingsEnvVar);
         if (appSettingsJson == null)
         {
             throw new InvalidOperationException($"environment variable '{appSettingsEnvVar}' was not found");

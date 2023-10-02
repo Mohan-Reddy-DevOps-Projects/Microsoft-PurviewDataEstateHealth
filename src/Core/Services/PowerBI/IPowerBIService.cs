@@ -3,7 +3,11 @@
 // -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
+
 using System.Threading.Tasks;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.PowerBI.Api.Models;
 
 /// <summary>
 /// Interface for PowerBI service
@@ -15,4 +19,164 @@ public interface IPowerBIService
     /// </summary>
     /// <returns></returns>
     Task Initialize();
+
+    #region Profile
+
+    /// <summary>
+    /// Create a unique service principal profile in Power BI
+    /// Each profile represents one customer in Power BI.
+    /// </summary>
+    /// <param name="profileName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<ServicePrincipalProfile> CreateProfile(string profileName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Delete a service principal profile in Power BI
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task DeleteProfile(Guid profileId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// List the service principal profiles in PowerBI
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <param name="top"></param>
+    /// <param name="skip"></param>
+    /// <param name="filter"></param>
+    /// <returns></returns>
+    Task<ServicePrincipalProfiles> GetProfiles(CancellationToken cancellationToken, int? top = null, int? skip = null, string filter = null);
+
+    #endregion
+
+    #region Workspace
+
+    /// <summary>
+    /// Create a workspace in Power BI
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="workspaceName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Group> CreateWorkspace(Guid profileId, string workspaceName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// List all workspaces in Power BI available to the specified profile
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="filter"></param>
+    /// <param name="top"></param>
+    /// <param name="skip"></param>
+    /// <returns></returns>
+    Task<Groups> GetWorkspaces(Guid profileId, CancellationToken cancellationToken, string filter = null, int? top = null, int? skip = null);
+
+    /// <summary>
+    /// Delete a workspace in Power BI that is available to the specified profile
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<HttpResponseMessage> DeleteWorkspace(Guid profileId, Guid workspaceId, CancellationToken cancellationToken);
+
+    #endregion
+
+    #region Token
+
+    /// <summary>
+    /// Generate an embedded token that will be used to render a report in the browser
+    /// Limitations: https://learn.microsoft.com/en-us/rest/api/power-bi/embed-token/generate-token#limitations
+    /// </summary>
+    /// <param name="embeddedTokenRequest"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<EmbedToken> GenerateEmbeddedToken(EmbeddedTokenRequest embeddedTokenRequest, CancellationToken cancellationToken);
+
+    #endregion
+
+    #region Capacity
+
+    /// <summary>
+    /// List the capacities available to the specified profile.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Capacities> ListCapacities(Guid profileId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Assigns the specified workspace to an available capacity.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="groupId"></param>
+    /// <param name="capacityId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task AssignWorkspaceCapacity(Guid profileId, Guid groupId, Guid capacityId, CancellationToken cancellationToken);
+
+    #endregion
+
+    #region Report
+
+    /// <summary>
+    /// Get the reports for the specified workspace.
+    /// </summary>
+    /// <param name="groupId"></param>
+    /// <param name="profileId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Reports> GetReports(Guid groupId, Guid profileId, CancellationToken cancellationToken);
+
+    #endregion
+
+    #region Dataset
+
+    /// <summary>
+    /// Delete a dataset in the specified workspace.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="datasetId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<HttpResponseMessage> DeleteDataset(Guid profileId, Guid workspaceId, string datasetId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get the dataset in the specified workspace.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="datasetId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Dataset> GetDataset(Guid profileId, Guid workspaceId, string datasetId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get the datasets for the specified workspace.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Datasets> GetDatasets(Guid profileId, Guid workspaceId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Create a dataset in the specified workspace.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="stream"></param>
+    /// <param name="datasetName"></param>
+    /// <param name="parameters"></param>
+    /// <param name="powerBiCredential"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="optimizedDataset"></param>
+    /// <returns></returns>
+    Task<Import> CreateDataset(Guid profileId, Guid workspaceId, Stream stream, string datasetName, Dictionary<string, string> parameters, PowerBICredential powerBiCredential, CancellationToken cancellationToken, bool optimizedDataset = false);
+
+    #endregion
+
 }

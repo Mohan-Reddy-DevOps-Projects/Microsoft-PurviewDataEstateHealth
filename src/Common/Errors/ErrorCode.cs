@@ -158,4 +158,56 @@ public class ErrorCode : ServiceErrorCode
 
     #endregion
 
+    #region Profile
+
+    /// <summary>
+    /// Failed to get profile.
+    /// </summary>
+    public static readonly ErrorCode Profile_GetFailed = new(8000);
+
+    /// <summary>
+    /// Failed to create profile.
+    /// </summary>
+    public static readonly ErrorCode Profile_CreateFailed = new(8002);
+
+    /// <summary>
+    /// Failed to get profile.
+    /// </summary>
+    public static readonly ErrorCode Profile_DeleteFailed = new(8003);
+
+    #endregion
+
+    #region Workspace
+
+    /// <summary>
+    /// Failed to get workspace.
+    /// </summary>
+    public static readonly ErrorCode Workspace_GetFailed = new(9000);
+
+    /// <summary>
+    /// Failed to create workspace.
+    /// </summary>
+    public static readonly ErrorCode Workspace_CreateFailed = new(9001);
+
+    /// <summary>
+    /// Failed to get workspace.
+    /// </summary>
+    public static readonly ErrorCode Workspace_DeleteFailed = new(9002);
+
+    #endregion
+
+
+    #region
+
+    /// <summary>
+    /// PowerBI import has not reached a terminal state.
+    /// </summary>
+    public static readonly ErrorCode PowerBI_ImportNotCompleted = new(10000);
+
+    /// <summary>
+    /// PowerBI import failed.
+    /// </summary>
+    public static readonly ErrorCode PowerBI_ImportFailed = new(10001);
+
+    #endregion
 }
