@@ -5,9 +5,7 @@
 namespace Microsoft.Azure.Purview.DataAccess.ApiService;
 
 using System.Net;
-using System.Runtime.InteropServices;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using global::Azure.Core;
 using global::Azure.Identity;
 using Microsoft.AspNetCore.OData;
@@ -21,11 +19,12 @@ using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Options;
-using Microsoft.PowerBI.Api.Models;
 using Newtonsoft.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Security.Cryptography.X509Certificates;
 
 /// <summary>
 /// The Data Estate Health API service.
@@ -94,6 +93,28 @@ public class Program
             })
             .AddODataNewtonsoftJson();
 
+        builder.Services.AddCertificateForwarding(options =>
+        {
+            options.CertificateHeader = "X-Forwarded-Client-Cert";
+            options.HeaderConverter = (headerValue) =>
+            {
+                // The format of the header value is a semicolon separated
+                // list with Hash, Cert, and Chain keys:
+                //
+                // Hash=....;Cert="...";Chain="...";
+                //
+                // We need to extract the Cert key. It contains the client
+                // certificate in URL encoded PEM format.
+                string certKey = headerValue.Split(';').First((key) => key.StartsWith("Cert"));
+                string encodedCert = certKey.Split('=')[1].Trim('"');
+                return X509Certificate2.CreateFromPem(WebUtility.UrlDecode(encodedCert));
+            };
+        });
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        });
+
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -113,6 +134,8 @@ public class Program
         }
         else
         {
+            app.UseCertificateForwarding();
+            app.UseForwardedHeaders();
             app.UseHsts();
         }
 
@@ -188,35 +211,6 @@ public class Program
             serverConfig.ApiServicePort.Value,
             listenOptions =>
             {
-                ICertificateLoaderService certificateLoaderService = options.ApplicationServices.GetService<ICertificateLoaderService>();
-                EnvironmentConfiguration environmentConfiguration = options.ApplicationServices.GetRequiredService<IOptions<EnvironmentConfiguration>>().Value;
-
-                SslConfiguration sslConfiguration = options.ApplicationServices
-                    .GetRequiredService<IOptions<SslConfiguration>>()
-                    .Value;
-
-                var httpsConnectionAdapterOptions =
-                    new HttpsConnectionAdapterOptions
-                    {
-                        ClientCertificateMode = ClientCertificateMode.RequireCertificate,
-                        // Restrict to use TLS 1.2 or greater and set the preference order of cipher suites
-                        ServerCertificateSelector = (connectionContext, name) =>
-                        {
-                            X509Certificate2 sslCertificate = certificateLoaderService.LoadAsync(
-                                sslConfiguration.CertificateName).GetAwaiter().GetResult();
-
-                            return sslCertificate;
-                        },
-                        OnAuthenticate = (conContext, sslAuthOptions) =>
-                        {
-                            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                            {
-                                sslAuthOptions.CipherSuitesPolicy =
-                                    TlsProtocols.CipherSuitesPolicy;
-                            }
-                        }
-                    };
-                listenOptions.UseHttps(httpsConnectionAdapterOptions);
                 listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
             });
     }

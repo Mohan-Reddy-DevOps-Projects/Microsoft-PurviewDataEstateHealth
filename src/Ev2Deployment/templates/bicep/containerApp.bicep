@@ -45,6 +45,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
     managedEnvironmentId: acaEnvironment.id
     configuration: {
       ingress: externalIngress ? {
+        clientCertificateMode: 'require'
         external: true
         targetPort: 80
         customDomains: [
