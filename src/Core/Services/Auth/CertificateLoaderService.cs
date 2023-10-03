@@ -26,7 +26,7 @@ using Microsoft.Extensions.Options;
 /// </summary>
 public class CertificateLoaderService : ICertificateLoaderService
 {
-    private readonly ISingletonKeyVaultAccessorService singletonKeyVaultAccessorService;
+    private readonly IKeyVaultAccessorService keyVaultAccessorService;
     private readonly IDataEstateHealthLogger logger;
     private readonly TokenCredential credentials;
     private Dictionary<string, X509Certificate2> certCache = new();
@@ -41,12 +41,12 @@ public class CertificateLoaderService : ICertificateLoaderService
     /// Public constructor
     /// </summary>
     public CertificateLoaderService(
-        ISingletonKeyVaultAccessorService singletonKeyVaultAccessorService,
+        IKeyVaultAccessorService keyVaultAccessorService,
         IDataEstateHealthLogger logger,
         IOptions<CertificateSetConfiguration> certConfig,
         TokenCredential credentials)
     {
-        this.singletonKeyVaultAccessorService = singletonKeyVaultAccessorService;
+        this.keyVaultAccessorService = keyVaultAccessorService;
         this.logger = logger;
         this.credentials = credentials;
         this.certConfig = certConfig;
@@ -67,11 +67,11 @@ public class CertificateLoaderService : ICertificateLoaderService
         var certificateDetails = certificateClient.GetPropertiesOfCertificatesAsync();
         List<Task<NamedCertificate>> certTasks = new();
 
-        await foreach (var certificateDetail in certificateDetails)
+        await foreach (CertificateProperties certificateDetail in certificateDetails)
         {
             if (certificateDetail.Enabled.Value)
             {
-                certTasks.Add(this.LoadFromKeyVaultAsync(this.certConfig.Value.CommonKeyVaultUri, certificateDetail.Name));
+                certTasks.Add(this.LoadFromKeyVaultAsync(certificateDetail.Name, CancellationToken.None));
             }
         }
 
@@ -108,7 +108,7 @@ public class CertificateLoaderService : ICertificateLoaderService
                 {
                     var refreshTasks = this.certCache.Select(async cert =>
                     {
-                        var newCert = await this.LoadFromKeyVaultAsync(this.certConfig.Value.CommonKeyVaultUri, cert.Key);
+                        var newCert = await this.LoadFromKeyVaultAsync(cert.Key, CancellationToken.None);
                         newCertCache.TryAdd(cert.Key, newCert.Certificate);
                     });
 
@@ -134,7 +134,7 @@ public class CertificateLoaderService : ICertificateLoaderService
     /// Load certificate
     /// </summary>
     /// <returns>Certificate loaded from the configured store</returns>
-    public async Task<X509Certificate2> LoadAsync(string secretName)
+    public async Task<X509Certificate2> LoadAsync(string secretName, CancellationToken cancellationToken)
     {
         // construct the cache key
         var uriBuilder = new UriBuilder(this.certConfig.Value.CommonKeyVaultUri)
@@ -149,7 +149,7 @@ public class CertificateLoaderService : ICertificateLoaderService
 
         if (!this.certCache.TryGetValue(secretName, out X509Certificate2 loadedCertificate))
         {
-            loadedCertificate = (await this.LoadFromKeyVaultAsync(this.certConfig.Value.CommonKeyVaultUri, secretName)).Certificate;
+            loadedCertificate = (await this.LoadFromKeyVaultAsync(secretName, cancellationToken)).Certificate;
         }
 
         // validate the certificate
@@ -179,16 +179,10 @@ public class CertificateLoaderService : ICertificateLoaderService
         return loadedCertificate;
     }
 
-    private async Task<NamedCertificate> LoadFromKeyVaultAsync(string keyVaultUri, string secretName)
+    private async Task<NamedCertificate> LoadFromKeyVaultAsync(string secretName, CancellationToken cancellationToken)
     {
-        if (this.singletonKeyVaultAccessorService == null)
-        {
-            throw new InvalidOperationException("No key vault accessor service was configured");
-        }
-
-        SecretClient secretClient = new(new Uri(keyVaultUri), this.credentials);
-        string secret = await this.singletonKeyVaultAccessorService.GetSecretAsync(secretClient, secretName);
-        X509Certificate2 certificate = new(Convert.FromBase64String(secret), (string)null);
+        KeyVaultSecret secret = await this.keyVaultAccessorService.GetSecretAsync(secretName, cancellationToken);
+        X509Certificate2 certificate = new(Convert.FromBase64String(secret.Value), (string)null);
 
         X509Chain chain = new()
         {
@@ -218,17 +212,18 @@ public class CertificateLoaderService : ICertificateLoaderService
     /// </summary>
     /// <param name="httpMessageHandler"></param>
     /// <param name="certName"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
-    public async Task BindAsync(HttpMessageHandler httpMessageHandler, string certName)
+    public async Task BindAsync(HttpMessageHandler httpMessageHandler, string certName, CancellationToken cancellationToken)
     {
         if (certName == null)
         {
             throw new ArgumentNullException(nameof(certName));
         }
 
-        X509Certificate2 certificate = await this.LoadAsync(certName);
+        X509Certificate2 certificate = await this.LoadAsync(certName, cancellationToken);
 
         if (certificate != null)
         {

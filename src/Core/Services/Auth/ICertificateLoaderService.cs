@@ -15,17 +15,18 @@ public interface ICertificateLoaderService
     /// Load certificate
     /// </summary>
     /// <returns>Certificate loaded from the configured store</returns>
-    Task<X509Certificate2> LoadAsync(string secretName);
+    Task<X509Certificate2> LoadAsync(string secretName, CancellationToken cancellationToken);
 
     /// <summary>
     /// Binds a cert to a message handler
     /// </summary>
     /// <param name="httpMessageHandler"></param>
     /// <param name="certName"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
-    Task BindAsync(HttpMessageHandler httpMessageHandler, string certName);
+    Task BindAsync(HttpMessageHandler httpMessageHandler, string certName, CancellationToken cancellationToken);
 
     /// <summary>
     /// Initializes the cache.

@@ -68,7 +68,7 @@ internal sealed class AadAppTokenProviderService<TAadConfig>
         if (forceTokenRefresh || !this.cache.TryGetValue(cacheKey, out AuthenticationResult cachedAuthenticationResult)
             || cachedAuthenticationResult.ExpiresOn <= DateTimeOffset.UtcNow.Add(this.timeSpanToRenewTokenBeforeExpiry))
         {
-            X509Certificate2 certificate = await this.certificateLoaderService.LoadAsync(this.configuration.CertificateName);
+            X509Certificate2 certificate = await this.certificateLoaderService.LoadAsync(this.configuration.CertificateName, CancellationToken.None);
 
             string region = string.IsNullOrEmpty(this.configuration.AzureRegion) ? ConfidentialClientApplication.AttemptRegionDiscovery : this.configuration.AzureRegion;
             IConfidentialClientApplication app = ConfidentialClientApplicationBuilder

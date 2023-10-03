@@ -25,7 +25,8 @@ public static class ConfigurationExtensions
             .Configure<CertificateSetConfiguration>(configuration.GetSection("apiServiceCertificateSet"))
             .Configure<PowerBIAuthConfiguration>(configuration.GetSection("powerBIAuth"))
             .Configure<ServerlessPoolAuthConfiguration>(configuration.GetSection("serverlessPoolAuth"))
-            .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"));
+            .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"))
+            .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"));
 
         return services;
     }

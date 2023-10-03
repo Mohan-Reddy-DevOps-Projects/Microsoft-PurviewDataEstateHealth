@@ -27,7 +27,7 @@ public static class CoreLayer
         services.AddSingleton<ICertificateLoaderService, CertificateLoaderService>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IStorageCredentialsProvider, StorageCredentialsProvider>();
-        services.AddSingleton<ISingletonKeyVaultAccessorService, SingletonKeyVaultAccessorService>();
+        services.AddSingleton<IKeyVaultAccessorService, KeyVaultAccessorService>();
 
         services.AddPowerBI();
         services.AddServerlessPool();
