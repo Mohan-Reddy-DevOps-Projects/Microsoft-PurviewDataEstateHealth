@@ -99,7 +99,7 @@
         }
       },
       {
-        "name": "CreateCertificate-SSL",
+        "name": "CreateCertificate-ArtifactStore",
         "type": "Microsoft.KeyVault.DataPlane/CreateCertificate",
         "version": "2020-03-01",
         "connectionProperties": {
@@ -122,10 +122,10 @@
             "value": "__INFRA_KEY_VAULT_URI__"
           },
           "certificateName": {
-            "value": "__CERTS_SSL_CERT_NAME__"
+            "value": "__CERTS_ARTIFACT_STORE_CERT_NAME__"
           },
           "policy": {
-            "value": "{\"key_props\":{\"exportable\":true,\"kty\":\"RSA\",\"key_size\":2048,\"reuse_key\":false},\"secret_props\":{\"contentType\":\"application/x-pkcs12\"},\"x509_props\":{\"subject\":\"CN=__CERTS_SSL_CERT_DOMAIN__\",\"sans\":{\"dns_names\":[\"__CERTS_SSL_CERT_DOMAIN__\"]},\"ekus\":[\"1.3.6.1.5.5.7.3.1\",\"1.3.6.1.5.5.7.3.2\"],\"key_usage\":[\"digitalSignature\",\"keyEncipherment\"],\"validity_months\":12,\"basic_constraints\":{\"ca\":false}},\"lifetime_actions\":[{\"trigger\":{\"days_before_expiry\":276},\"action\":{\"action_type\":\"AutoRenew\"}}],\"issuer\":{\"name\":\"__CERTS_PUBLIC_ISSUER_NAME__\"}}"
+            "value": "{\"key_props\":{\"exportable\":true,\"kty\":\"RSA\",\"key_size\":2048,\"reuse_key\":false},\"secret_props\":{\"contentType\":\"application/x-pkcs12\"},\"x509_props\":{\"subject\":\"CN=__CERTS_ARTIFACT_STORE_CERT_DOMAIN__\",\"sans\":{\"dns_names\":[\"__CERTS_ARTIFACT_STORE_CERT_DOMAIN__\"]},\"ekus\":[\"1.3.6.1.5.5.7.3.1\",\"1.3.6.1.5.5.7.3.2\"],\"key_usage\":[\"digitalSignature\",\"keyEncipherment\"],\"validity_months\":24,\"basic_constraints\":{\"ca\":false}},\"lifetime_actions\":[{\"trigger\":{\"days_before_expiry\":642},\"action\":{\"action_type\":\"AutoRenew\"}}],\"issuer\":{\"name\":\"__CERTS_PRIVATE_ISSUER_NAME__\"}}"
           },
           "forceNewVersion": {
             "value": "false"
