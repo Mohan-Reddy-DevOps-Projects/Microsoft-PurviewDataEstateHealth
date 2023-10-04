@@ -30,13 +30,15 @@ public static class CoreLayer
         services.AddSingleton<IKeyVaultAccessorService, KeyVaultAccessorService>();
         services.AddSingleton<IBlobStorageAccessor, BlobStorageAccessor>();
         services.AddSingleton<AadAppTokenProviderService<FirstPartyAadAppConfiguration>>();
+        services.AddSingleton<IComponentContextFactory, ComponentContextFactory>();
+        services.AddSingleton<ServiceHealthCheck>();
 
         services.AddPowerBI();
         services.AddServerlessPool();
 
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
-
-        services.AddSingleton<ServiceHealthCheck>();
+        services.AddScoped<ICoreLayerFactory, CoreLayerFactory>();
+       
         services.AddHealthChecks().AddCheck<ServiceHealthCheck>("Ready");
 
         services.AddMemoryCache();

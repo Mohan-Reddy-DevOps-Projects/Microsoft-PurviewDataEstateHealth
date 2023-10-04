@@ -19,7 +19,6 @@
     <PackageReference Include="Microsoft.AspNetCore.OData.NewtonsoftJson" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.Identity.ServerAuthorization" />
-    <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>

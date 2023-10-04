@@ -2,31 +2,37 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
+namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Newtonsoft.Json;
 
-/// <inheritdoc/> 
-public class DataAssetsSummaryModel : IDataAssetsSummaryModel
+internal class DataAssetsSummaryEntity
 {
-    /// <inheritdoc/> 
+    public DataAssetsSummaryEntity()
+    {
+    }
+
+    public DataAssetsSummaryEntity(DataAssetsSummaryEntity entity)
+    {
+        this.DataAssetsTrendLink = entity.DataAssetsTrendLink;
+        this.DataAssetsLastRefreshDate = entity.DataAssetsLastRefreshDate;
+        this.TotalCuratableDataAssetsCount = entity.TotalCuratableDataAssetsCount;
+        this.TotalCuratedDataAssetsCount = entity.TotalCuratedDataAssetsCount;
+        this.TotalNonCuratableDataAssetsCount = entity.TotalNonCuratableDataAssetsCount;
+    }
+
     [JsonProperty("totalCuratedDataAssetsCount")]
     public int TotalCuratedDataAssetsCount { get; set; }
 
-    /// <inheritdoc/> 
     [JsonProperty("totalCuratableDataAssetsCount")]
     public int TotalCuratableDataAssetsCount { get; set; }
 
-    /// <inheritdoc/> 
     [JsonProperty("totalNonCuratableDataAssetsCount")]
     public int TotalNonCuratableDataAssetsCount { get; set; }
 
-    /// <inheritdoc/> 
     [JsonProperty("dataAssetsTrendLink")]
     public string DataAssetsTrendLink { get; set; }
 
-    /// <inheritdoc/> 
     [JsonProperty("dataAssetsLastRefreshDate")]
     public DateTime DataAssetsLastRefreshDate { get; set; }
 }
-

@@ -2,28 +2,30 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
+namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using System;
 using Newtonsoft.Json;
 
-/// <inheritdoc/> 
-public class DataProductsSummaryModel : IDataProductsSummaryModel
+internal class DataProductsSummaryEntity
 {
-    /// <summary>
-    /// Total number of data products
-    /// </summary>
+    public DataProductsSummaryEntity()
+    {
+    }
+
+    public DataProductsSummaryEntity(DataProductsSummaryEntity entity)
+    {
+        this.DataProductsTrendLink = entity.DataProductsTrendLink;
+        this.DataProductsLastRefreshDate = entity.DataProductsLastRefreshDate;
+        this.TotalDataProductsCount = entity.TotalDataProductsCount;
+    }
+
     [JsonProperty("totalDataProductsCount")]
     public int TotalDataProductsCount { get; set; }
 
-    /// <summary>
-    /// Link to the data products default  API
-    /// </summary>
     [JsonProperty("dataProductsTrendLink")]
     public string DataProductsTrendLink { get; set; }
 
-    /// <summary>
-    /// Last refresh date
-    /// </summary>
     [JsonProperty("dataProductsLastRefreshDate")]
     public DateTime DataProductsLastRefreshDate { get; set; }
 }

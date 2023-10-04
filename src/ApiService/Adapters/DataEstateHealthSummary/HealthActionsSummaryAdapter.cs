@@ -21,7 +21,7 @@ public class HealthActionsSummaryAdapter : BaseModelAdapter<IHealthActionsSummar
             TotalCompletedActionsCount = model.TotalCompletedActionsCount,
             TotalDismissedActionsCount = model.TotalDismissedActionsCount,
             TotalOpenActionsCount = model.TotalOpenActionsCount,
-            HealthActionsDefaultTrendLink = model.HealthActionsDefaultTrendLink,
+            HealthActionsTrendLink = model.HealthActionsTrendLink,
             LastRefreshDate = model.HealthActionsLastRefreshDate
         };
     }
@@ -34,7 +34,7 @@ public class HealthActionsSummaryAdapter : BaseModelAdapter<IHealthActionsSummar
             TotalCompletedActionsCount = healthActionSummaryDto.TotalCompletedActionsCount,
             TotalDismissedActionsCount = healthActionSummaryDto.TotalDismissedActionsCount,
             TotalOpenActionsCount = healthActionSummaryDto.TotalOpenActionsCount,
-            HealthActionsDefaultTrendLink = healthActionSummaryDto.HealthActionsDefaultTrendLink,
+            HealthActionsTrendLink = healthActionSummaryDto.HealthActionsTrendLink,
             HealthActionsLastRefreshDate = healthActionSummaryDto.LastRefreshDate
         };
     }

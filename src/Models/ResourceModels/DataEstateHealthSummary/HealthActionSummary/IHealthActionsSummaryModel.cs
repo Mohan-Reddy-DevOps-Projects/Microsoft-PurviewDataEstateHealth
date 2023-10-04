@@ -25,9 +25,9 @@ public interface IHealthActionsSummaryModel
     int TotalDismissedActionsCount { get; }
 
     /// <summary>
-    /// Link to the health actions trend API
+    /// Link to the health actions  API
     /// </summary>
-    string HealthActionsDefaultTrendLink { get; }
+    string HealthActionsTrendLink { get; }
 
     /// <summary>
     /// Last refresh date

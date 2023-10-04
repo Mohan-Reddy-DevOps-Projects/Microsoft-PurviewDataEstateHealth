@@ -31,7 +31,7 @@ public class BusinessDomainsSummaryAdapter : BaseModelAdapter<IBusinessDomainsSu
         {
             TotalBusinessDomainsCount = model.TotalBusinessDomainsCount,
             BusinessDomainsList = businessDomainsListDTO,
-            BusinessDomainsDefaultTrendLink = model.BusinessDomainsDefaultTrendLink,
+            BusinessDomainsTrendLink = model.BusinessDomainsTrendLink,
             LastRefreshDate = model.BusinessDomainsLastRefreshDate
         };
     }
@@ -53,7 +53,7 @@ public class BusinessDomainsSummaryAdapter : BaseModelAdapter<IBusinessDomainsSu
         {
             TotalBusinessDomainsCount = businessDomainSummaryDto.TotalBusinessDomainsCount,
             BusinessDomainsList = businessDomainsListModel,
-            BusinessDomainsDefaultTrendLink = businessDomainSummaryDto.BusinessDomainsDefaultTrendLink,
+            BusinessDomainsTrendLink = businessDomainSummaryDto.BusinessDomainsTrendLink,
             BusinessDomainsLastRefreshDate = businessDomainSummaryDto.LastRefreshDate
         };
     }

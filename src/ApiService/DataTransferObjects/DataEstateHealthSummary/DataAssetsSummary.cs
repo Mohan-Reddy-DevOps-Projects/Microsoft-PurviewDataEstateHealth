@@ -30,10 +30,10 @@ public class DataAssetsSummary
     public int TotalNonCuratableDataAssetsCount { get; internal set; }
 
     /// <summary>
-    /// Link to the data assets trend API
+    /// Link to the data assets  API
     /// </summary>
     [ReadOnly(true)]
-    public string DataAssetsDefaultTrendLink { get; internal set; }
+    public string DataAssetsTrendLink { get; internal set; }
 
     /// <summary>
     /// Last refresh date

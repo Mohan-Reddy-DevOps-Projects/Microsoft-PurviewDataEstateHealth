@@ -5,10 +5,13 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core.Components.HealthReport;
 
 using System.Threading.Tasks;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.BaseModels;
 using Microsoft.DGP.ServiceBasics.Components;
 
+/// <inheritdoc />
+[Component(typeof(IHealthReportCollectionComponent), ServiceVersion.V1)]
 internal class HealthReportCollectionComponent : BaseComponent<IHealthReportListContext>, IHealthReportCollectionComponent
 {
     public HealthReportCollectionComponent(IHealthReportListContext context, int version) : base(context, version)

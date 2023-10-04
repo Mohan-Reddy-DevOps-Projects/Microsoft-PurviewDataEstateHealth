@@ -17,5 +17,5 @@ public class BusinessDomain
     /// <summary>
     /// Id of the business domain
     /// </summary>
-    public int BusinessDomainId { get; set; }
+    public Guid BusinessDomainId { get; set; }
 }

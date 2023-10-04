@@ -19,7 +19,7 @@ public class DataProductsSummaryAdapter : BaseModelAdapter<IDataProductsSummaryM
         return new DataProductsSummary
         {
             TotalDataProductsCount = model.TotalDataProductsCount,
-            DataProductsDefaultTrendLink = model.DataProductsDefaultTrendLink,
+            DataProductsTrendLink = model.DataProductsTrendLink,
             LastRefreshDate = model.DataProductsLastRefreshDate
         };
     }
@@ -30,7 +30,7 @@ public class DataProductsSummaryAdapter : BaseModelAdapter<IDataProductsSummaryM
         return new DataProductsSummaryModel
         {
             TotalDataProductsCount = dataProductSummaryDto.TotalDataProductsCount,
-            DataProductsDefaultTrendLink = dataProductSummaryDto.DataProductsDefaultTrendLink,
+            DataProductsTrendLink = dataProductSummaryDto.DataProductsTrendLink,
             DataProductsLastRefreshDate = dataProductSummaryDto.LastRefreshDate
         };
     }

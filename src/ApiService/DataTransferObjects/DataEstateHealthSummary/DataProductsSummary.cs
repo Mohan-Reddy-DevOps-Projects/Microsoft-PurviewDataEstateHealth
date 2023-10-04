@@ -18,10 +18,10 @@ public class DataProductsSummary
     public int TotalDataProductsCount { get; internal set; }
 
     /// <summary>
-    /// Link to the data products default trend API
+    /// Link to the data products default  API
     /// </summary>
     [ReadOnly(true)]
-    public string DataProductsDefaultTrendLink { get; internal set; }
+    public string DataProductsTrendLink { get; internal set; }
 
     /// <summary>
     /// Last refresh date

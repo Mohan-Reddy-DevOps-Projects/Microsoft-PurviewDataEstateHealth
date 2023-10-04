@@ -21,13 +21,13 @@ public class BusinessDomainsSummary
     /// List of all of the business domains 
     /// </summary>
     [ReadOnly(true)]
-    public IList<BusinessDomain> BusinessDomainsList { get; internal set; }
+    public IEnumerable<BusinessDomain> BusinessDomainsList { get; internal set; }
 
     /// <summary>
-    /// Link to the business domains trend API 
+    /// Link to the business domains  API 
     /// </summary>
     [ReadOnly(true)]
-    public string BusinessDomainsDefaultTrendLink { get; internal set; }
+    public string BusinessDomainsTrendLink { get; internal set; }
 
     /// <summary>
     /// Last refresh date

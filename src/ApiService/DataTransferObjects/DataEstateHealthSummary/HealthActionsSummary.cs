@@ -30,10 +30,10 @@ public class HealthActionsSummary
     public int TotalDismissedActionsCount { get; internal set; }
 
     /// <summary>
-    /// Link to the health actions trend API
+    /// Link to the health actions  API
     /// </summary>
     [ReadOnly(true)]
-    public string HealthActionsDefaultTrendLink { get; internal set; }
+    public string HealthActionsTrendLink { get; internal set; }
 
     /// <summary>
     /// Last refresh date

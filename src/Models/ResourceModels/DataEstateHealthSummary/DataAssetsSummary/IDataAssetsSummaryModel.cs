@@ -27,9 +27,9 @@ public interface IDataAssetsSummaryModel
     int TotalNonCuratableDataAssetsCount { get;}
 
     /// <summary>
-    /// Link to the data assets trend API
+    /// Link to the data assets  API
     /// </summary>
-    string DataAssetsDefaultTrendLink { get; }
+    string DataAssetsTrendLink { get; }
 
     /// <summary>
     /// Last refresh date

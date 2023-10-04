@@ -22,7 +22,7 @@ public class DataAssetsSummaryAdapter : BaseModelAdapter<IDataAssetsSummaryModel
             TotalCuratableDataAssetsCount = model.TotalCuratableDataAssetsCount,
             TotalNonCuratableDataAssetsCount = model.TotalNonCuratableDataAssetsCount,
             LastRefreshDate = model.DataAssetsLastRefreshDate,
-            DataAssetsDefaultTrendLink = model.DataAssetsDefaultTrendLink,
+            DataAssetsTrendLink = model.DataAssetsTrendLink,
         };
     }
 
@@ -35,7 +35,7 @@ public class DataAssetsSummaryAdapter : BaseModelAdapter<IDataAssetsSummaryModel
             TotalCuratableDataAssetsCount = dataAssetSummaryDto.TotalCuratableDataAssetsCount,
             TotalNonCuratableDataAssetsCount = dataAssetSummaryDto.TotalNonCuratableDataAssetsCount,
             DataAssetsLastRefreshDate = dataAssetSummaryDto.LastRefreshDate,
-            DataAssetsDefaultTrendLink = dataAssetSummaryDto.DataAssetsDefaultTrendLink
+            DataAssetsTrendLink = dataAssetSummaryDto.DataAssetsTrendLink
         };
     }
 }

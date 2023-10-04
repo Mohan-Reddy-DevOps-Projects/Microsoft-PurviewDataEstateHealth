@@ -77,7 +77,7 @@ public class DataEstateHealthSummaryController : DataPlaneController
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(typeof(DataEstateHealthSummary), 200)]
-    [Route("/domainId")]
+    [Route("/{domainId}")]
     public async Task<IActionResult> GetDataEstateHealthSummaryAsync(
         [FromRoute] Guid domainId,
         [FromQuery(Name = "api-version")] string apiVersion,

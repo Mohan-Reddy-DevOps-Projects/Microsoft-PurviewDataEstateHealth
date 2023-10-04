@@ -15,9 +15,9 @@ public interface IDataProductsSummaryModel
     int TotalDataProductsCount { get; }
 
     /// <summary>
-    /// Link to the data products default trend API
+    /// Link to the data products default  API
     /// </summary>
-    string DataProductsDefaultTrendLink { get; }
+    string DataProductsTrendLink { get; }
 
     /// <summary>
     /// Last refresh date

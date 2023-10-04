@@ -2,26 +2,34 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
+namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Newtonsoft.Json;
 
-/// <inheritdoc/> 
-public class BusinessDomainsSummaryModel : IBusinessDomainsSummaryModel
+internal class BusinessDomainsSummaryEntity
 {
-    /// <inheritdoc/> 
+    public BusinessDomainsSummaryEntity()
+    {
+    }
+
+    public BusinessDomainsSummaryEntity(BusinessDomainsSummaryEntity entity)
+    {
+        this.TotalBusinessDomainsCount = entity.TotalBusinessDomainsCount;
+        this.BusinessDomainsList = entity.BusinessDomainsList;
+        this.BusinessDomainsTrendLink = entity.BusinessDomainsTrendLink;
+        this.BusinessDomainsLastRefreshDate = entity.BusinessDomainsLastRefreshDate;
+    }
+
     [JsonProperty("totalBusinessDomainsCount")]
     public int TotalBusinessDomainsCount { get; set; }
 
-    /// <inheritdoc/> 
     [JsonProperty("businessDomainsList")]
     public IEnumerable<BusinessDomain> BusinessDomainsList { get; set; }
 
-    /// <inheritdoc/> 
     [JsonProperty("businessDomainsTrendLink")]
     public string BusinessDomainsTrendLink { get; set; }
 
-    /// <inheritdoc/> 
     [JsonProperty("businessDomainsLastRefreshDate")]
     public DateTime BusinessDomainsLastRefreshDate { get; set; }
 }

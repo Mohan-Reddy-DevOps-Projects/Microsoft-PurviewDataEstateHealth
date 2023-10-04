@@ -17,12 +17,12 @@ public interface IBusinessDomainsSummaryModel
     /// <summary>
     /// List of all of the business domains 
     /// </summary>
-    IList<BusinessDomain> BusinessDomainsList { get; }
+    IEnumerable<BusinessDomain> BusinessDomainsList { get; }
 
     /// <summary>
-    /// Link to the business domains trend API 
+    /// Link to the business domains  API 
     /// </summary>
-    string BusinessDomainsDefaultTrendLink { get; }
+    string BusinessDomainsTrendLink { get; }
 
     /// <summary>
     /// Last refresh date

@@ -9,7 +9,7 @@ using System.ComponentModel;
 /// <summary>
 /// A Business Domains class.
 /// </summary>
-public partial class BusinessDomain
+public class BusinessDomain
 {
     /// <summary>
     /// Name of the business domain
@@ -21,5 +21,5 @@ public partial class BusinessDomain
     /// Id of the business domain
     /// </summary>
     [ReadOnly(true)]
-    public int BusinessDomainId { get; internal set; }
+    public Guid BusinessDomainId { get; internal set; }
 }

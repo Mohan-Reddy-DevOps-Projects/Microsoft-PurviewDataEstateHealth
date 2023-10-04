@@ -11,6 +11,6 @@ using Microsoft.DGP.ServiceBasics.Components;
 /// Defines operations for a DataEstateHealthSummary object.
 /// </summary>
 public interface IDataEstateHealthSummaryComponent : IRetrieveEntityOperation<IDataEstateHealthSummaryModel>,
-       INavigable<Guid, IDataEstateHealthSummaryComponent>, IComponent<IDataEstateHealthSummaryContext>
+    INavigable<Guid, IDataEstateHealthSummaryComponent>, IComponent<IDataEstateHealthSummaryContext>
 {
 }

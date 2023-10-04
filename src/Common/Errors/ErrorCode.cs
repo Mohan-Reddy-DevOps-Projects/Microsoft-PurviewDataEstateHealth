@@ -156,6 +156,11 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode HealthReport_InvalidKind = new(7000);
 
+    /// <summary>
+    /// Domain summary does not exist.
+    /// </summary>
+    public static readonly ErrorCode DomainSummary_NotAvailable = new(7001);
+
     #endregion
 
     #region Profile

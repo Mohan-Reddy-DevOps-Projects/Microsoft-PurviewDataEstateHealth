@@ -2,30 +2,38 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
+namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Newtonsoft.Json;
 
-/// <inheritdoc/> 
-public class HealthActionsSummaryModel : IHealthActionsSummaryModel
+internal class HealthActionsSummaryEntity
 {
-    /// <inheritdoc/>
+   public HealthActionsSummaryEntity()
+   {
+
+   }
+
+   public HealthActionsSummaryEntity(HealthActionsSummaryEntity entity)
+   {
+        this.HealthActionsTrendLink = entity.HealthActionsTrendLink;
+        this.HealthActionsLastRefreshDate = entity.HealthActionsLastRefreshDate;
+        this.TotalDismissedActionsCount = entity.TotalDismissedActionsCount;
+        this.TotalCompletedActionsCount = entity.TotalCompletedActionsCount;
+        this.TotalOpenActionsCount = entity.TotalOpenActionsCount;
+   }
+
     [JsonProperty("totalOpenActionsCount")]
     public int TotalOpenActionsCount { get; set; }
 
-    /// <inheritdoc/>
     [JsonProperty("totalCompletedActionsCount")]
     public int TotalCompletedActionsCount { get; set; }
 
-    /// <inheritdoc/>
     [JsonProperty("totalDismissedActionsCount")]
     public int TotalDismissedActionsCount { get; set; }
 
-    /// <inheritdoc/>
     [JsonProperty("healthActionsTrendLink")]
     public string HealthActionsTrendLink { get; set; }
 
-    /// <inheritdoc/>
     [JsonProperty("healthActionsLastRefreshDate")]
     public DateTime HealthActionsLastRefreshDate { get; set; }
 }

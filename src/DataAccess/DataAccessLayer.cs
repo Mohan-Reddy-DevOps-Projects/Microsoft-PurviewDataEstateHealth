@@ -17,6 +17,8 @@ public static class DataAccessLayer
     /// <param name="services">Gives the data access layer a chance to configure its dependency injection.</param>
     public static IServiceCollection AddDataAccessLayer(this IServiceCollection services)
     {
+        _ = services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
+
         return services;
     }
 }
