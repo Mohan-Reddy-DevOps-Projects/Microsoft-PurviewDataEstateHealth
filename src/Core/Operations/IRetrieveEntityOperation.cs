@@ -14,6 +14,8 @@ public interface IRetrieveEntityOperation<TEntity>
     /// <summary>
     /// Retrieves a single entity.
     /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that resolves to the entity information.</returns>
-    Task<TEntity> Get();
+    /// <returns></returns>
+    Task<TEntity> Get(CancellationToken cancellationToken);
 }

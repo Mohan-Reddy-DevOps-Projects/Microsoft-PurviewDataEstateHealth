@@ -15,6 +15,7 @@ public interface IEntityCreateOperation<TPayload, TEntity>
     /// Creates a new entity.
     /// </summary>
     /// <param name="payload">The information needed to create the entity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that resolves to the newly created entity.</returns>
-    Task<TEntity> Create(TPayload payload);
+    Task<TEntity> Create(TPayload payload, CancellationToken cancellationToken);
 }

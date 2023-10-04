@@ -21,7 +21,7 @@ internal class DataEstateHealthSummaryComponent : BaseComponent<IDataEstateHealt
     }
 
     /// <inheritdoc />
-    public Task<IDataEstateHealthSummaryModel> Get()
+    public Task<IDataEstateHealthSummaryModel> Get(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

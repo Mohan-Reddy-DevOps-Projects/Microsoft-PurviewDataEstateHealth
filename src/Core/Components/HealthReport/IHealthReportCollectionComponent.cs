@@ -5,7 +5,6 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.Azure.Purview.Share.Core;
 using Microsoft.DGP.ServiceBasics.Components;
 
 /// <summary>

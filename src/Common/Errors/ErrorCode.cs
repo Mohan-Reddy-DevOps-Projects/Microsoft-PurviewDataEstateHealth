@@ -161,19 +161,9 @@ public class ErrorCode : ServiceErrorCode
     #region Profile
 
     /// <summary>
-    /// Failed to get profile.
-    /// </summary>
-    public static readonly ErrorCode Profile_GetFailed = new(8000);
-
-    /// <summary>
     /// Failed to create profile.
     /// </summary>
-    public static readonly ErrorCode Profile_CreateFailed = new(8002);
-
-    /// <summary>
-    /// Failed to get profile.
-    /// </summary>
-    public static readonly ErrorCode Profile_DeleteFailed = new(8003);
+    public static readonly ErrorCode Profile_CreateFailed = new(8000);
 
     #endregion
 
@@ -189,11 +179,6 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode Workspace_CreateFailed = new(9001);
 
-    /// <summary>
-    /// Failed to get workspace.
-    /// </summary>
-    public static readonly ErrorCode Workspace_DeleteFailed = new(9002);
-
     #endregion
 
 
@@ -208,6 +193,11 @@ public class ErrorCode : ServiceErrorCode
     /// PowerBI import failed.
     /// </summary>
     public static readonly ErrorCode PowerBI_ImportFailed = new(10001);
+
+    /// <summary>
+    /// PowerBI dataset conflict.
+    /// </summary>
+    public static readonly ErrorCode PowerBI_DatasetConflict = new(10002);
 
     #endregion
 }

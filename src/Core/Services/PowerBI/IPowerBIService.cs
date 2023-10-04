@@ -142,7 +142,7 @@ public interface IPowerBIService
     /// <param name="datasetId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<HttpResponseMessage> DeleteDataset(Guid profileId, Guid workspaceId, string datasetId, CancellationToken cancellationToken);
+    Task<HttpResponseMessage> DeleteDataset(Guid profileId, Guid workspaceId, Guid datasetId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Get the dataset in the specified workspace.
@@ -152,7 +152,7 @@ public interface IPowerBIService
     /// <param name="datasetId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<Dataset> GetDataset(Guid profileId, Guid workspaceId, string datasetId, CancellationToken cancellationToken);
+    Task<Dataset> GetDataset(Guid profileId, Guid workspaceId, Guid datasetId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Get the datasets for the specified workspace.

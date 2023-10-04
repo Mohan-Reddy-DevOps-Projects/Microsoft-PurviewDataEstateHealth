@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataAccess.ApiService;
 
 using System.Net;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using global::Azure.Core;
 using global::Azure.Identity;
 using Microsoft.AspNetCore.OData;
@@ -24,7 +25,6 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text;
 using Microsoft.AspNetCore.HttpOverrides;
-using System.Security.Cryptography.X509Certificates;
 
 /// <summary>
 /// The Data Estate Health API service.

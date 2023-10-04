@@ -50,13 +50,15 @@ public class HealthReportController : DataPlaneController
     /// </summary>
     /// <param name="reportId">id of the health report.</param>
     /// <param name="apiVersion">The api version of the call.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpGet]
     [Route("{reportId}")]
     [ProducesResponseType(typeof(HealthReport), 200)]
     public async Task<IActionResult> GetHealthReportAsync(
     [FromRoute] Guid reportId,
-    [FromQuery(Name = "api-version")] string apiVersion)
+    [FromQuery(Name = "api-version")] string apiVersion,
+    CancellationToken cancellationToken)
     {
         IHealthReportModel<HealthReportProperties> healthReportModel
             = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
@@ -64,7 +66,7 @@ public class HealthReportController : DataPlaneController
                 this.requestHeaderContext.TenantId,
                 this.requestHeaderContext.AccountObjectId)
             .ById(reportId)
-            .Get();
+        .Get(cancellationToken);
 
         return this.Ok(
             this.adapterRegistry.AdapterFor<IHealthReportModel<HealthReportProperties>, HealthReport>(

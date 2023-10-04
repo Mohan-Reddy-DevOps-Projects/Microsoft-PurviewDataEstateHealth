@@ -66,4 +66,16 @@ public static class CoreLayer
 
         return services;
     }
+
+    /// <summary>
+    /// Add commands
+    /// </summary>
+    /// <param name="services">Service collection</param>
+    public static IServiceCollection AddCommands(this IServiceCollection services)
+    {
+        services.AddScoped<IDatasetCommand, DatasetCommand>();
+        services.AddScoped<IProfileCommand, ProfileCommand>();
+        services.AddScoped<IWorkspaceCommand, WorkspaceCommand>();
+        return services;
+    }
 }

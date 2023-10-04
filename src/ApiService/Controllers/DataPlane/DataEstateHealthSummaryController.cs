@@ -48,18 +48,20 @@ public class DataEstateHealthSummaryController : DataPlaneController
     /// Get summary for all business domains.
     /// </summary>
     /// <param name="apiVersion">The api version of the call</param>
+    /// <param name="cancellationToken">The cancellation token</param>
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(typeof(DataEstateHealthSummary), 200)]
     public async Task<IActionResult> GetDataEstateHealthSummaryAsync(
-        [FromQuery(Name = "api-version")] string apiVersion)
+        [FromQuery(Name = "api-version")] string apiVersion,
+        CancellationToken cancellationToken)
     {
         IDataEstateHealthSummaryModel dataEstateHealthSummaryModel
             = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
             .CreateDataEstateHealthSummaryComponent(
                 this.requestHeaderContext.TenantId,
                 this.requestHeaderContext.AccountObjectId)
-            .Get();
+            .Get(cancellationToken);
 
         return this.Ok(
             this.adapterRegistry.AdapterFor<IDataEstateHealthSummaryModel,DataEstateHealthSummary>()
@@ -71,13 +73,15 @@ public class DataEstateHealthSummaryController : DataPlaneController
     /// </summary>
     /// /// <param name="domainId">id of the domain.</param>
     /// <param name="apiVersion">The api version of the call</param>
+    /// <param name="cancellationToken">The cancellation token</param>
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(typeof(DataEstateHealthSummary), 200)]
     [Route("/domainId")]
     public async Task<IActionResult> GetDataEstateHealthSummaryAsync(
         [FromRoute] Guid domainId,
-        [FromQuery(Name = "api-version")] string apiVersion)
+        [FromQuery(Name = "api-version")] string apiVersion,
+        CancellationToken cancellationToken)
     {
         IDataEstateHealthSummaryModel dataEstateHealthSummaryModel
            = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
@@ -85,7 +89,7 @@ public class DataEstateHealthSummaryController : DataPlaneController
                this.requestHeaderContext.TenantId,
                this.requestHeaderContext.AccountObjectId)
            .ById(domainId)
-           .Get();
+           .Get(cancellationToken);
 
         return this.Ok(
                    this.adapterRegistry.AdapterFor<IDataEstateHealthSummaryModel, DataEstateHealthSummary>()

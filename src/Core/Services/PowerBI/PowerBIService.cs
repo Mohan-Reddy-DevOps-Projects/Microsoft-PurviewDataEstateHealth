@@ -224,12 +224,12 @@ internal class PowerBIService : IPowerBIService
     #region Dataset
 
     /// <inheritdoc/>
-    public async Task<HttpResponseMessage> DeleteDataset(Guid profileId, Guid workspaceId, string datasetId, CancellationToken cancellationToken)
+    public async Task<HttpResponseMessage> DeleteDataset(Guid profileId, Guid workspaceId, Guid datasetId, CancellationToken cancellationToken)
     {
         PowerBIClient pbiClient = await this.powerBIFactory.GetClientAsync(cancellationToken);
         Dictionary<string, string> dimensions = GetDimensions(EntityType.Dataset, PowerBIOperations.Delete);
         this.logger.LogTrace($"{Tag}|Request - {EntityType.Dataset} {PowerBIOperations.Delete}: ProfileId: {profileId}; WorkspaceId: {workspaceId}; DatasetId: {datasetId}");
-        using HttpOperationResponse response = await pbiClient.Datasets.DeleteDatasetInGroupWithHttpMessagesAsync(workspaceId, datasetId, customHeaders: GetProfileHeader(profileId), cancellationToken: cancellationToken);
+        using HttpOperationResponse response = await pbiClient.Datasets.DeleteDatasetInGroupWithHttpMessagesAsync(workspaceId, datasetId.ToString(), customHeaders: GetProfileHeader(profileId), cancellationToken: cancellationToken);
         this.LogResponse(response, dimensions);
 
         return response.Response;
@@ -249,12 +249,12 @@ internal class PowerBIService : IPowerBIService
     }
 
     /// <inheritdoc/>
-    public async Task<Dataset> GetDataset(Guid profileId, Guid workspaceId, string datasetId, CancellationToken cancellationToken)
+    public async Task<Dataset> GetDataset(Guid profileId, Guid workspaceId, Guid datasetId, CancellationToken cancellationToken)
     {
         PowerBIClient pbiClient = await this.powerBIFactory.GetClientAsync(cancellationToken);
         Dictionary<string, string> dimensions = GetDimensions(EntityType.Dataset, PowerBIOperations.Get);
         this.logger.LogTrace($"{Tag}|Request - {EntityType.Dataset} {PowerBIOperations.Get}: ProfileId: {profileId}; WorkspaceId: {workspaceId}");
-        using HttpOperationResponse<Dataset> response = await pbiClient.Datasets.GetDatasetInGroupWithHttpMessagesAsync(workspaceId, datasetId, customHeaders: GetProfileHeader(profileId), cancellationToken: cancellationToken);
+        using HttpOperationResponse<Dataset> response = await pbiClient.Datasets.GetDatasetInGroupWithHttpMessagesAsync(workspaceId, datasetId.ToString(), customHeaders: GetProfileHeader(profileId), cancellationToken: cancellationToken);
         this.LogResponse(response, dimensions);
         this.logger.LogTrace($"{Tag}|{EntityType.Dataset} {PowerBIOperations.List}\n{JsonSerializer.Serialize(response.Body)}");
 
@@ -313,7 +313,7 @@ internal class PowerBIService : IPowerBIService
                     // update to premium dataset
                     await this.UpdateDatasetStorageMode(profileId, dataset.Id, workspaceId, StorageMode.PremiumFiles, cancellationToken);
                 }
-                await this.UpdateDatasetConnectionString(profileId, dataset.Id, workspaceId, parameters, powerBiCredential, cancellationToken);
+                await this.UpdateDatasetConnectionString(profileId, Guid.Parse(dataset.Id), workspaceId, parameters, powerBiCredential, cancellationToken);
             }
 
             return import;
@@ -367,13 +367,13 @@ internal class PowerBIService : IPowerBIService
     /// <param name="workspaceId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task<Datasources> GetDataSources(Guid profileId, string datasetId, Guid workspaceId, CancellationToken cancellationToken)
+    private async Task<Datasources> GetDataSources(Guid profileId, Guid datasetId, Guid workspaceId, CancellationToken cancellationToken)
     {
         PowerBIClient pbiClient = await this.powerBIFactory.GetClientAsync(cancellationToken);
 
         Dictionary<string, string> dimensions = GetDimensions(EntityType.Datasource, PowerBIOperations.List);
         this.logger.LogTrace($"{Tag}|Request - {EntityType.Datasource} {PowerBIOperations.List}: ProfileId: {profileId}; WorkspaceId: {workspaceId}; DatasetId: {datasetId}");
-        using HttpOperationResponse<Datasources> response = await pbiClient.Datasets.GetDatasourcesInGroupWithHttpMessagesAsync(workspaceId, datasetId, customHeaders: GetProfileHeader(profileId), cancellationToken: cancellationToken);
+        using HttpOperationResponse<Datasources> response = await pbiClient.Datasets.GetDatasourcesInGroupWithHttpMessagesAsync(workspaceId, datasetId.ToString(), customHeaders: GetProfileHeader(profileId), cancellationToken: cancellationToken);
         this.LogResponse(response, dimensions);
         this.logger.LogTrace($"{Tag}|{EntityType.Datasource} {PowerBIOperations.List}\n{JsonSerializer.Serialize(response.Body)}");
         return response.Body;
@@ -389,7 +389,7 @@ internal class PowerBIService : IPowerBIService
     /// <param name="powerBiCredential"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task UpdateDatasetConnectionString(Guid profileId, string datasetId, Guid workspaceId, Dictionary<string, string> parameters, PowerBICredential powerBiCredential, CancellationToken cancellationToken)
+    private async Task UpdateDatasetConnectionString(Guid profileId, Guid datasetId, Guid workspaceId, Dictionary<string, string> parameters, PowerBICredential powerBiCredential, CancellationToken cancellationToken)
     {
         PowerBIClient pbiClient = await this.powerBIFactory.GetClientAsync(cancellationToken);
 
@@ -409,7 +409,7 @@ internal class PowerBIService : IPowerBIService
             }
             Dictionary<string, string> dimensions = GetDimensions(EntityType.Dataset, PowerBIOperations.Update);
             this.logger.LogTrace($"{Tag}|Request - {EntityType.Dataset} {PowerBIOperations.Update}: WorkspaceId: {workspaceId}; DatasetId: {datasetId}; ProfileId: {profileId}; Body: {JsonSerializer.Serialize(request)}");
-            using HttpOperationResponse response = await pbiClient.Datasets.UpdateParametersInGroupWithHttpMessagesAsync(workspaceId, datasetId, request, customHeaders: GetProfileHeader(profileId), cancellationToken: cancellationToken);
+            using HttpOperationResponse response = await pbiClient.Datasets.UpdateParametersInGroupWithHttpMessagesAsync(workspaceId, datasetId.ToString(), request, customHeaders: GetProfileHeader(profileId), cancellationToken: cancellationToken);
             this.LogResponse(response, dimensions);
 
             Datasources dataSourcesList = await this.GetDataSources(profileId, datasetId, workspaceId, cancellationToken);

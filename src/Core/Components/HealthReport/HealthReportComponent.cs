@@ -16,7 +16,7 @@ internal class HealthReportComponent : BaseComponent<IHealthReportListContext>, 
     }
 
     /// <inheritdoc />
-    public Task<IHealthReportModel<HealthReportProperties>> Get()
+    public Task<IHealthReportModel<HealthReportProperties>> Get(CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
