@@ -28,6 +28,8 @@ public static class CoreLayer
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IStorageCredentialsProvider, StorageCredentialsProvider>();
         services.AddSingleton<IKeyVaultAccessorService, KeyVaultAccessorService>();
+        services.AddSingleton<IBlobStorageAccessor, BlobStorageAccessor>();
+        services.AddSingleton<AadAppTokenProviderService<FirstPartyAadAppConfiguration>>();
 
         services.AddPowerBI();
         services.AddServerlessPool();

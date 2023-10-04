@@ -7,22 +7,30 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System;
 using System.Net;
 using System.Threading.Tasks;
+using global::Azure.Storage.Blobs;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.DGP.ServiceBasics.Errors;
+using Microsoft.Extensions.Options;
 using Microsoft.PowerBI.Api.Models;
-using Microsoft.WindowsAzure.Storage.Blob;
 
 internal sealed class DatasetCommand : IDatasetCommand
 {
     private readonly IDataEstateHealthLogger logger;
     private readonly IPowerBIService powerBiService;
+    private readonly IBlobStorageAccessor blobStorageAccessor;
+    private readonly AuxStorageConfiguration storageConfiguration;
+    private readonly BlobServiceClient blobServiceClient;
 
-    public DatasetCommand(IDataEstateHealthLogger logger, IPowerBIService powerBiService)
+    public DatasetCommand(IDataEstateHealthLogger logger, IPowerBIService powerBiService, IBlobStorageAccessor blobStorageAccessor, IOptions<AuxStorageConfiguration> storageConfiguration)
     {
         this.logger = logger;
         this.powerBiService = powerBiService;
+        this.blobStorageAccessor = blobStorageAccessor;
+        this.storageConfiguration = storageConfiguration.Value;
+        this.blobServiceClient = this.blobStorageAccessor.GetBlobServiceClient(this.storageConfiguration.AccountName, this.storageConfiguration.EndpointSuffix, this.storageConfiguration.BlobStorageResource);
     }
 
     /// <inheritdoc/>
@@ -37,11 +45,11 @@ internal sealed class DatasetCommand : IDatasetCommand
             { "DATABASE_SCHEMA", requestContext.DatabaseSchema }
         };
 
-        (BlobProperties properties, MemoryStream ms) = await this.GetDatasetFile(requestContext, cancellationToken);
-        using (ms)
+        Stream stream = await this.GetDatasetFile(requestContext, cancellationToken);
+        using (stream)
         {
-            ms.Seek(0, SeekOrigin.Begin);
-            Import import = await this.powerBiService.CreateDataset(requestContext.ProfileId, requestContext.WorkspaceId, ms, requestContext.DatasetName, parameters, requestContext.PowerBICredential, cancellationToken, requestContext.OptimizedDataset);
+            stream.Seek(0, SeekOrigin.Begin);
+            Import import = await this.powerBiService.CreateDataset(requestContext.ProfileId, requestContext.WorkspaceId, stream, requestContext.DatasetName, parameters, requestContext.PowerBICredential, cancellationToken, requestContext.OptimizedDataset);
             Dataset dataset = import.Datasets.First();
 
             return dataset;
@@ -132,14 +140,15 @@ internal sealed class DatasetCommand : IDatasetCommand
     /// <param name="requestContext"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task<(BlobProperties properties, MemoryStream ms)> GetDatasetFile(IDatasetRequest requestContext, CancellationToken cancellationToken)
+    private async Task<Stream> GetDatasetFile(IDatasetRequest requestContext, CancellationToken cancellationToken)
     {
-        BlobProperties properties = new();
-        MemoryStream ms = new();
-
-        await Task.CompletedTask;
-
-        return (properties, ms);
+        BlobContainerClient containerClient = await this.blobStorageAccessor.GetBlobContainerClient(this.blobServiceClient, requestContext.DatasetContainer, cancellationToken);
+        Stream blob = await this.blobStorageAccessor.GetBlobAsync(containerClient, requestContext.DatasetFileName, cancellationToken);
+        if (blob == null)
+        {
+            throw new ServiceError(ErrorCategory.ServiceError, ErrorCode.PowerBI_ImportFailed.Code, "Failed to retrieve dataset template.").ToException();
+        }
+        return blob;
     }
 
     private static void CreateValidate(IDatasetRequest requestContext)

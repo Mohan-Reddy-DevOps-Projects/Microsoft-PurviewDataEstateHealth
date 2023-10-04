@@ -6,9 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 using System;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
-using Environment = Microsoft.Azure.Purview.DataEstateHealth.Common.Environment;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.DGP.ServiceBasics.Errors;
+using Environment = Common.Environment;
 using System.Collections.Generic;
 
 /// <summary>

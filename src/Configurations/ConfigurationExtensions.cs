@@ -26,7 +26,9 @@ public static class ConfigurationExtensions
             .Configure<PowerBIAuthConfiguration>(configuration.GetSection("powerBIAuth"))
             .Configure<ServerlessPoolAuthConfiguration>(configuration.GetSection("serverlessPoolAuth"))
             .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"))
-            .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"));
+            .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
+            .Configure<AuxStorageConfiguration>(configuration.GetSection("auxStorage"))
+            .Configure<FirstPartyAadAppConfiguration>(configuration.GetSection("firstPartyAadApp"));
 
         return services;
     }
