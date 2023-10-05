@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System.Threading.Tasks;
+using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
@@ -15,17 +16,20 @@ internal class PowerBICredentialComponent : IPowerBICredentialComponent
 {
     private readonly ServerlessPoolAuthConfiguration serverlessAuthConfig;
     private readonly IKeyVaultAccessorService keyVaultAccessor;
+    
     /// <inheritdoc/>
     public PowerBICredentialComponent(IOptions<ServerlessPoolAuthConfiguration> serverlessAuthConfig, IKeyVaultAccessorService keyVaultAccessor)
     {
         this.serverlessAuthConfig = serverlessAuthConfig.Value;
         this.keyVaultAccessor = keyVaultAccessor;
     }
+
     /// <inheritdoc/>
     public async Task AddOrUpdateSynapseDatabaseLoginInfo(PowerBICredential credential, CancellationToken cancellationToken)
     {
         await this.keyVaultAccessor.SetSecretAsync(credential.CredentialSecretKey, credential.Password, cancellationToken);
     }
+    
     /// <inheritdoc/>
     public PowerBICredential CreateCredential(Guid accountId, string owner)
     {
@@ -34,12 +38,13 @@ internal class PowerBICredentialComponent : IPowerBICredentialComponent
             Password = StringExtensions.RandomString(10, 5).ToSecureString()
         };
     }
+
     /// <inheritdoc/>
     public async Task<PowerBICredential> GetSynapseDatabaseLoginInfo(Guid accountId, string owner, CancellationToken cancellationToken)
     {
         // Login and user name are generated specific to the account. The password is shared across logins for now.
         PowerBICredential credential = new(accountId, this.serverlessAuthConfig.AzureRegion, owner);
-        var secret = await this.keyVaultAccessor.GetSecretAsync(credential.CredentialSecretKey, cancellationToken);
+        KeyVaultSecret secret = await this.keyVaultAccessor.GetSecretAsync(credential.CredentialSecretKey, cancellationToken);
         if (secret == null)
         {
             return null;
@@ -47,6 +52,7 @@ internal class PowerBICredentialComponent : IPowerBICredentialComponent
         credential.Password = secret.Value.ToSecureString();
         return credential;
     }
+    
     /// <inheritdoc/>
     public async Task AddOrUpdateSynapseDatabaseMasterKey(DatabaseMasterKey credential, CancellationToken cancellationToken)
     {
@@ -55,6 +61,7 @@ internal class PowerBICredentialComponent : IPowerBICredentialComponent
             await this.keyVaultAccessor.SetSecretAsync(this.MasterKeySecretName(), credential.MasterKey, cancellationToken);
         }
     }
+    
     /// <inheritdoc/>
     public async Task<DatabaseMasterKey> GetSynapseDatabaseMasterKey(string databaseName, CancellationToken cancellationToken)
     {
@@ -69,6 +76,7 @@ internal class PowerBICredentialComponent : IPowerBICredentialComponent
             MasterKey = secret.Value.ToSecureString(),
         };
     }
+
     /// <inheritdoc/>
     public DatabaseMasterKey CreateMasterKey(string databaseName)
     {
@@ -78,5 +86,6 @@ internal class PowerBICredentialComponent : IPowerBICredentialComponent
             MasterKey = StringExtensions.RandomString(10, 5).ToSecureString()
         };
     }
+
     private string MasterKeySecretName() => $"{this.serverlessAuthConfig.AzureRegion}masterKey";
 }

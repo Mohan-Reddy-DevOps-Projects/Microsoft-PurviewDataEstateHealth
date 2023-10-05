@@ -12,5 +12,5 @@ public interface IDataEstateHealthSummaryContext : IRootComponentContext
     /// <summary>
     /// Gets the domain Id. 
     /// </summary>
-    Guid? DomainId { get; set; }
+    Guid? DomainId { get; internal set; }
 }

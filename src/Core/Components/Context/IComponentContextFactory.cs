@@ -35,4 +35,20 @@ internal interface IComponentContextFactory
         string location,
         Guid accountId,
         Guid tenantId);
+
+    /// <summary>
+    /// Creates an <see cref="ITokenContext"/>
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="location"></param>
+    /// <param name="accountId"></param>
+    /// <param name="tenantId"></param>
+    /// <param name="owner"></param>
+    /// <returns></returns>
+    public ITokenContext CreateTokenContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId,
+        string owner);
 }

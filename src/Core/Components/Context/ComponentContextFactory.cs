@@ -49,6 +49,24 @@ internal class ComponentContextFactory : IComponentContextFactory
         };
     }
 
+    /// <inheritdoc />
+    public ITokenContext CreateTokenContext(
+        ServiceVersion version,
+        string location,
+        Guid tenantId,
+        Guid accountId,
+        string owner)
+    {
+        return new TokenContext
+        {
+            Version = version,
+            Location = this.LocationOf(location),
+            TenantId = tenantId,
+            AccountId = accountId,
+            Owner = owner
+        };
+    }
+
     internal string LocationOf(string location)
     {
         return string.IsNullOrWhiteSpace(location) ? this.environmentConfiguration.Location : location;

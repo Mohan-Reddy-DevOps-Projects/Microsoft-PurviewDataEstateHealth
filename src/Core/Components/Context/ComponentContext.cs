@@ -11,6 +11,18 @@ using Microsoft.Azure.Purview.DataEstateHealth.Common;
 /// <inheritdoc />
 internal class ComponentContext : IRootComponentContext
 {
+    public ComponentContext()
+    {
+    }
+
+    public ComponentContext(IRootComponentContext context)
+    {
+        this.AccountId = context.AccountId;
+        this.TenantId = context.TenantId;
+        this.Location = context.Location;
+        this.Version = context.Version;
+    }
+
     /// <inheritdoc />
     public Guid AccountId { get; init; }
 

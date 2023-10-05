@@ -24,4 +24,13 @@ public interface ICoreLayerFactoryOperations
     public IHealthReportCollectionComponent CreateHealthReportCollectionComponent(
         Guid tenantId,
         Guid accountId);
+
+    /// <summary>
+    /// Creates an instance of TokenComponent. 
+    /// </summary>
+    /// <returns>An <see cref="ITokenComponent"/>.</returns>
+    public ITokenComponent CreateTokenComponent(
+        Guid tenantId,
+        Guid accountId,
+        string owner);
 }

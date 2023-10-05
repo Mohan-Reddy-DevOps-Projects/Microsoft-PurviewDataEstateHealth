@@ -58,4 +58,17 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
                 accountId),
             this.version.Numeric);
     }
+
+    /// <inheritdoc />
+    public ITokenComponent CreateTokenComponent(Guid tenantId, Guid accountId, string owner)
+    {
+        return this.componentRuntime.Resolve<ITokenComponent, ITokenContext>(
+            this.contextFactory.CreateTokenContext(
+                this.version,
+                null,
+                tenantId,
+                accountId,
+                owner),
+            this.version.Numeric);
+    }
 }

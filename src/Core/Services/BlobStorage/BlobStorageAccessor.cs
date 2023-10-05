@@ -29,7 +29,7 @@ using Newtonsoft.Json.Linq;
 internal sealed class BlobStorageAccessor : IBlobStorageAccessor
 {
     private const string Tag = nameof(BlobStorageAccessor);
-    private readonly AadAppTokenProviderService<AadAppConfiguration> tokenProvider;
+    private readonly AadAppTokenProviderService<FirstPartyAadAppConfiguration> tokenProvider;
     private readonly IDataEstateHealthLogger logger;
     private readonly AuxStorageConfiguration storageConfiguration;
 
@@ -50,7 +50,7 @@ internal sealed class BlobStorageAccessor : IBlobStorageAccessor
     /// <param name="tokenProvider"></param>
     /// <param name="logger">logger</param>
     /// <param name="storageConfiguration">Storage configuration</param>
-    public BlobStorageAccessor(AadAppTokenProviderService<AadAppConfiguration> tokenProvider, IDataEstateHealthLogger logger, IOptions<AuxStorageConfiguration> storageConfiguration)
+    public BlobStorageAccessor(AadAppTokenProviderService<FirstPartyAadAppConfiguration> tokenProvider, IDataEstateHealthLogger logger, IOptions<AuxStorageConfiguration> storageConfiguration)
     {
         this.tokenProvider = tokenProvider;
         this.logger = logger;
@@ -124,7 +124,7 @@ internal sealed class BlobStorageAccessor : IBlobStorageAccessor
     /// <inheritdoc/>
     public BlobServiceClient GetBlobServiceClient(string storageAccountName, string storageEndPointSuffix, string blobStorageResource)
     {
-        TokenCredential tokenCredential = new AuthTokenCredential<AadAppConfiguration>(this.tokenProvider, blobStorageResource);
+        TokenCredential tokenCredential = new AuthTokenCredential<FirstPartyAadAppConfiguration>(this.tokenProvider, blobStorageResource);
 
         return new BlobServiceClient(new Uri($"https://{storageAccountName}.blob.{storageEndPointSuffix}"), tokenCredential, options);
     }

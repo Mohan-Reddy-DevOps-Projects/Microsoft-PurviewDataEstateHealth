@@ -2,10 +2,12 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
+
 using System.Security;
 using System.Threading.Tasks;
 using global::Azure.Security.KeyVault.Certificates;
 using global::Azure.Security.KeyVault.Secrets;
+
 /// <summary>
 /// Key vault accessor service
 /// </summary>
@@ -19,6 +21,7 @@ public interface IKeyVaultAccessorService
     /// <param name="version">Secret version</param>
     /// <returns>Secret value</returns>
     Task<KeyVaultSecret> GetSecretAsync(string secretName, CancellationToken cancellationToken, string version = null);
+
     /// <summary>
     /// Set a secret in key vault
     /// </summary>

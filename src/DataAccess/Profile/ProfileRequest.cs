@@ -38,6 +38,9 @@ public sealed class ProfileRequest : IProfileRequest
     public string ProfileName { get; set; }
 
     /// <inheritdoc/>
+    public string Owner { get; set; }
+
+    /// <inheritdoc/>
     public override string ToString()
     {
         return JsonSerializer.Serialize(this);

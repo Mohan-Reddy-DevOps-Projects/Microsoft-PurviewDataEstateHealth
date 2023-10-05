@@ -35,6 +35,7 @@ public static class CoreLayer
 
         services.AddPowerBI();
         services.AddServerlessPool();
+        services.AddCommands();
 
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
         services.AddScoped<ICoreLayerFactory, CoreLayerFactory>();
@@ -77,9 +78,11 @@ public static class CoreLayer
     /// <param name="services">Service collection</param>
     public static IServiceCollection AddCommands(this IServiceCollection services)
     {
+        services.AddScoped<IPowerBICredentialComponent, PowerBICredentialComponent>();
         services.AddScoped<IDatasetCommand, DatasetCommand>();
         services.AddScoped<IProfileCommand, ProfileCommand>();
         services.AddScoped<IWorkspaceCommand, WorkspaceCommand>();
+        
         return services;
     }
 }
