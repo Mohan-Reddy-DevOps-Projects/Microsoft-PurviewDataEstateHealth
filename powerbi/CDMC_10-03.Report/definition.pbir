@@ -2,7 +2,7 @@
   "version": "1.0",
   "datasetReference": {
     "byPath": {
-      "path": "../CDMC_pbip.Dataset"
+      "path": "../CDMC_10-03.Dataset"
     },
     "byConnection": null
   }

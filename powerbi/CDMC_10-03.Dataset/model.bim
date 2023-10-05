@@ -40701,8 +40701,10 @@
           {
             "name": "Data Quality Pass count",
             "expression": [
+              "IF(ISBLANK(CALCULATE(DISTINCTCOUNT('pbi DataProduct'[DataProductId]),",
+              "'pbi DataProduct'[Data Qualiy P/F] = \"Pass\")),0,",
               "CALCULATE(DISTINCTCOUNT('pbi DataProduct'[DataProductId]),",
-              "'pbi DataProduct'[Data Qualiy P/F] = \"Pass\")+0"
+              "'pbi DataProduct'[Data Qualiy P/F] = \"Pass\"))"
             ],
             "formatString": "0",
             "lineageTag": "500c5030-b4e5-4538-bb2a-2a089290b436"
@@ -40763,7 +40765,7 @@
           },
           {
             "name": "Dummy Target",
-            "expression": "0.8",
+            "expression": "0.5",
             "formatString": "0.0%;-0.0%;0.0%",
             "lineageTag": "c2d0f5a0-1b7c-464b-831c-4b684c0031c6"
           },
@@ -40826,8 +40828,10 @@
           {
             "name": "Classifiaction pass count",
             "expression": [
+              "IF(ISBLANK(CALCULATE(DISTINCTCOUNT('pbi DataProduct'[DataProductId]),",
+              "'pbi DataProduct'[Classification_Product P/F] = \"Pass\")),0,",
               "CALCULATE(DISTINCTCOUNT('pbi DataProduct'[DataProductId]),",
-              "'pbi DataProduct'[Classification_Product P/F] = \"Pass\")+0"
+              "'pbi DataProduct'[Classification_Product P/F] = \"Pass\"))"
             ],
             "formatString": "0",
             "lineageTag": "6f291950-cfa9-4f61-925c-72e77ae75600"
@@ -40844,8 +40848,10 @@
           {
             "name": "Owner Pass count",
             "expression": [
+              "IF(ISBLANK(CALCULATE(DISTINCTCOUNT('pbi DataProduct'[DataProductId]),",
+              "'pbi DataProduct'[Owner P/F] = \"Pass\")),0,",
               "CALCULATE(DISTINCTCOUNT('pbi DataProduct'[DataProductId]),",
-              "'pbi DataProduct'[Owner P/F] = \"Pass\")+0"
+              "'pbi DataProduct'[Owner P/F] = \"Pass\"))"
             ],
             "formatString": "0",
             "lineageTag": "a055650f-832d-42b0-aa4c-015277c744fa"
@@ -40853,8 +40859,10 @@
           {
             "name": "Catalog Pass count",
             "expression": [
+              "IF(ISBLANK(CALCULATE(DISTINCTCOUNT('pbi DataProduct'[DataProductId]),",
+              "'pbi DataProduct'[Catalog P/F] = \"Pass\")),0,",
               "CALCULATE(DISTINCTCOUNT('pbi DataProduct'[DataProductId]),",
-              "'pbi DataProduct'[Catalog P/F] = \"Pass\")+0"
+              "'pbi DataProduct'[Catalog P/F] = \"Pass\"))"
             ],
             "formatString": "0",
             "lineageTag": "4c5ea111-70ab-47fa-b9cd-1ff9b78d78d8"
