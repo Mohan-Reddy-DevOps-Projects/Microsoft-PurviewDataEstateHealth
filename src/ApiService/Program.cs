@@ -96,19 +96,7 @@ public class Program
         builder.Services.AddCertificateForwarding(options =>
         {
             options.CertificateHeader = "X-Forwarded-Client-Cert";
-            options.HeaderConverter = (headerValue) =>
-            {
-                // The format of the header value is a semicolon separated
-                // list with Hash, Cert, and Chain keys:
-                //
-                // Hash=....;Cert="...";Chain="...";
-                //
-                // We need to extract the Cert key. It contains the client
-                // certificate in URL encoded PEM format.
-                string certKey = headerValue.Split(';').First((key) => key.StartsWith("Cert"));
-                string encodedCert = certKey.Split('=')[1].Trim('"');
-                return X509Certificate2.CreateFromPem(WebUtility.UrlDecode(encodedCert));
-            };
+            options.HeaderConverter = CertificateHeaderConverter.Convert;
         });
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
