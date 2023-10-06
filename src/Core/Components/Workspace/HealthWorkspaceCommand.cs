@@ -18,7 +18,7 @@ internal sealed class HealthWorkspaceCommand : IEntityCreateOperation<IWorkspace
     IRetrieveEntityByIdOperation<IWorkspaceContext, Group>,
     IEntityDeleteOperation<IWorkspaceContext>
 {
-    private const string HealthWorkspaceName = "heath";
+    private const string HealthWorkspaceName = "health";
     private readonly IWorkspaceCommand workspaceCommand;
 
     public HealthWorkspaceCommand(IWorkspaceCommand workspaceCommand)

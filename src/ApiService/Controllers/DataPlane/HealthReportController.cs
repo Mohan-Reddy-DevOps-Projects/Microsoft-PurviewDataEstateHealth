@@ -69,8 +69,7 @@ public class HealthReportController : DataPlaneController
         .Get(cancellationToken);
 
         return this.Ok(
-            this.adapterRegistry.AdapterFor<IHealthReportModel<HealthReportProperties>, HealthReport>(
-                healthReportModel.Properties.Id)
+            this.adapterRegistry.AdapterFor<IHealthReportModel<HealthReportProperties>, HealthReport>()
             .FromModel(healthReportModel));
     }
 

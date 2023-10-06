@@ -18,12 +18,21 @@ public interface ICoreLayerFactoryOperations
         Guid accountId);
 
     /// <summary>
-    /// Creates an instance of HealthReportComponent. 
+    /// Creates an instance of HealthReportCollectionComponent. 
     /// </summary>
     /// <returns>An <see cref="IHealthReportCollectionComponent"/>.</returns>
     public IHealthReportCollectionComponent CreateHealthReportCollectionComponent(
         Guid tenantId,
         Guid accountId);
+
+    /// <summary>
+    /// Creates an instance of HealthReportComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IHealthReportComponent"/>.</returns>
+    public IHealthReportComponent CreateHealthReportComponent(
+        Guid tenantId,
+        Guid accountId,
+        Guid reportId);
 
     /// <summary>
     /// Creates an instance of TokenComponent. 

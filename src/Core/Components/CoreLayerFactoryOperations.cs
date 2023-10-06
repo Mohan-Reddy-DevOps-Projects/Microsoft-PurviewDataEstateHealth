@@ -54,8 +54,24 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
             this.contextFactory.CreateHealthReportListContext(
                 this.version,
                 null,
+                accountId,
+                tenantId),
+            this.version.Numeric);
+    }
+
+    /// <inheritdoc />
+    public IHealthReportComponent CreateHealthReportComponent(
+        Guid tenantId,
+        Guid accountId,
+        Guid reportId)
+    {
+        return this.componentRuntime.Resolve<IHealthReportComponent, IHealthReportContext>(
+            this.contextFactory.CreateHealthReportContext(
+                this.version,
+                null,
+                accountId,
                 tenantId,
-                accountId),
+                reportId),
             this.version.Numeric);
     }
 

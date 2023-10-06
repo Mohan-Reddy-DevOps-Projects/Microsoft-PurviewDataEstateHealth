@@ -37,8 +37,8 @@ internal class ComponentContextFactory : IComponentContextFactory
     public IHealthReportListContext CreateHealthReportListContext(
         ServiceVersion version,
         string location,
-        Guid tenantId,
-        Guid accountId)
+        Guid accountId,
+        Guid tenantId)
     {
         return new HealthReportListContext
         {
@@ -46,6 +46,24 @@ internal class ComponentContextFactory : IComponentContextFactory
             Location = this.LocationOf(location),
             TenantId = tenantId,
             AccountId = accountId
+        };
+    }
+
+    /// <inheritdoc />
+    public IHealthReportContext CreateHealthReportContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId,
+        Guid reportId)
+    {
+        return new HealthReportContext
+        {
+            Version = version,
+            Location = this.LocationOf(location),
+            TenantId = tenantId,
+            AccountId = accountId,
+            ReportId = reportId
         };
     }
 

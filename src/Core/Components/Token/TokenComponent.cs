@@ -43,7 +43,7 @@ internal sealed class TokenComponent : BaseComponent<ITokenContext>, ITokenCompo
         Group workspace = await this.workspaceCommand.Get(workspaceContext, cancellationToken);
         Reports reports = await this.powerBIService.GetReports(profile.Id, workspace.Id, cancellationToken);
 
-        IEnumerable<Guid> datasetIds = Enumerable.Empty<Guid>();
+        IEnumerable<Guid> datasetIds = reports.Value.Select(x => Guid.Parse(x.DatasetId));
         IEnumerable<Guid> reportIds = reports.Value.Select(x => x.Id);
 
         return await this.GenerateEmbeddedToken(datasetIds, reportIds, profile.Id, cancellationToken);

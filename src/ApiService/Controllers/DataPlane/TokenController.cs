@@ -54,9 +54,7 @@ public class TokenController : DataPlaneController
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        EmbedToken response = new();
-
-        await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
+        EmbedToken response = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
             .CreateTokenComponent(
                 this.requestHeaderContext.TenantId,
                 this.requestHeaderContext.AccountObjectId, "health").Get(cancellationToken);

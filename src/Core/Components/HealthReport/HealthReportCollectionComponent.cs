@@ -19,6 +19,9 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
 {
 #pragma warning disable 649
     [Inject]
+    protected readonly IComponentContextFactory contextFactory;
+
+    [Inject]
     private readonly IPowerBIService powerBIService;
 
     [Inject]
@@ -32,9 +35,17 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
     {
     }
 
+    /// <inheritdoc />
     public IHealthReportComponent ById(Guid id)
     {
-        throw new NotImplementedException();
+        return this.ComponentRuntime.Resolve<IHealthReportComponent, IHealthReportContext>(
+            this.contextFactory.CreateHealthReportContext(
+                this.Context.Version,
+                this.Context.Location,
+                this.Context.AccountId,
+                this.Context.TenantId,
+                id),
+            this.Context.Version.Numeric);
     }
 
     /// <inheritdoc />
