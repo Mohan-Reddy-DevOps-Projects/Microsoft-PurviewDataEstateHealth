@@ -14,5 +14,5 @@ public interface IHealthReportContext : IHealthReportListContext
     /// <summary>
     /// Health report id
     /// </summary>
-    Guid ReportId { get; init; }
+    Guid ReportId { get; }
 }

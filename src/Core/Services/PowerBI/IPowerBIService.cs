@@ -130,6 +130,16 @@ public interface IPowerBIService
     /// <returns></returns>
     Task<Reports> GetReports(Guid profileId, Guid groupId, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Get the specified report from a workspace.
+    /// </summary>
+    /// <param name="groupId"></param>
+    /// <param name="reportId"></param>
+    /// <param name="profileId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Report> GetReport(Guid profileId, Guid groupId, Guid reportId, CancellationToken cancellationToken);
+
     #endregion
 
     #region Dataset

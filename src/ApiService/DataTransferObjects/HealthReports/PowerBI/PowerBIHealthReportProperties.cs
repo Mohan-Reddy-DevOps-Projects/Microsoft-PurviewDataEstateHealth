@@ -19,12 +19,6 @@ public class PowerBIHealthReportProperties : HealthReportProperties
     public Guid DatasetId { get; internal set; }
 
     /// <summary>
-    /// Workspace Id
-    /// </summary>
-    [ReadOnly(true)]
-    public Guid WorkspaceId { get; internal set; }
-
-    /// <summary>
     /// Created At
     /// </summary>
     [ReadOnly(true)]

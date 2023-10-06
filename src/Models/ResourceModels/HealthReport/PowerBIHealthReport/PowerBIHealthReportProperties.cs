@@ -18,12 +18,6 @@ public class PowerBIHealthReportProperties : HealthReportProperties
     public Guid DatasetId { get; set; }
 
     /// <summary>
-    /// Workspace Id
-    /// </summary>
-    [JsonProperty("workspaceId")]
-    public Guid WorkspaceId { get; set; }
-
-    /// <summary>
     /// Created At
     /// </summary>
     [JsonProperty("createdAt")]

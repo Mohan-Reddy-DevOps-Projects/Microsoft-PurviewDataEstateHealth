@@ -7,18 +7,58 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
+using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
+using Microsoft.PowerBI.Api.Models;
 
 /// <inheritdoc />
 [Component(typeof(IHealthReportComponent), ServiceVersion.V1)]
-internal class HealthReportComponent : BaseComponent<IHealthReportListContext>, IHealthReportComponent
+internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHealthReportComponent
 {
+#pragma warning disable 649
+    [Inject]
+    private readonly IPowerBIService powerBIService;
+
+    [Inject]
+    private readonly HealthProfileCommand profileCommand;
+
+    [Inject]
+    private readonly HealthWorkspaceCommand workspaceCommand;
+#pragma warning restore 649
+
     public HealthReportComponent(HealthReportContext context, int version) : base(context, version)
     {
     }
 
     /// <inheritdoc />
-    public Task<IHealthReportModel<HealthReportProperties>> Get(CancellationToken cancellationToken)
+    public async Task<IHealthReportModel<HealthReportProperties>> Get(CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        IProfileModel profile = await this.profileCommand.Get(this.Context, CancellationToken.None);
+        IWorkspaceContext workspaceContext = new WorkspaceContext(this.Context)
+        {
+            ProfileId = profile.Id,
+        };
+        Group workspace = await this.workspaceCommand.Get(workspaceContext, cancellationToken);
+        Report report = await this.powerBIService.GetReport(profile.Id, workspace.Id, this.Context.ReportId, cancellationToken);
+
+        return new PowerBIHealthReportModel()
+        {
+            Properties = new PowerBIHealthReportProperties()
+            {
+                Category = null,
+                CreatedAt = null,
+                LastRefreshedAt = DateTime.UtcNow,
+                ModifiedAt = null,
+                CreatedBy = null,
+                DatasetId = Guid.Parse(report.DatasetId),
+                Description = report.Description,
+                EmbedLink = report.EmbedUrl,
+                Id = report.Id,
+                ModifiedBy = null,
+                Name = report.Name,
+                ReportKind = HealthReportKind.PowerBIHealthReport,
+                ReportStatus = HealthReportStatus.Active,
+                ReportType = HealthReportType.System
+            }
+        };
     }
 }

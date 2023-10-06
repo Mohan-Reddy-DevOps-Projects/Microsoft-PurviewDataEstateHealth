@@ -11,7 +11,7 @@ using Microsoft.DGP.ServiceBasics.Components;
 /// Defines a contract for managing health report collections.
 /// </summary>
 public interface IHealthReportCollectionComponent :
-     IRetrieveEntityCollectionOperation<IHealthReportModel<HealthReportProperties>, HealthReportKind>,
-     IComponent<IHealthReportListContext>, INavigable<Guid, IHealthReportComponent>
+    IRetrieveEntityCollectionOperation<IHealthReportModel<HealthReportProperties>, HealthReportKind>,
+    IComponent<IHealthReportListContext>, INavigable<Guid, IHealthReportComponent>
 {
 }

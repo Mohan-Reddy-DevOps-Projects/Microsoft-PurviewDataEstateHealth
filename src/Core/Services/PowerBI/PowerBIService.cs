@@ -189,6 +189,19 @@ internal class PowerBIService : IPowerBIService
         return response.Body;
     }
 
+    /// <inheritdoc/>
+    public async Task<Report> GetReport(Guid profileId, Guid groupId, Guid reportId, CancellationToken cancellationToken)
+    {
+        PowerBIClient pbiClient = await this.powerBIFactory.GetClientAsync(cancellationToken);
+
+        Dictionary<string, string> dimensions = GetDimensions(EntityType.Report, PowerBIOperations.Get);
+        this.logger.LogTrace($"{Tag}|Request - {EntityType.Report} {PowerBIOperations.Get}: ProfileId: {profileId}; WorkspaceId: {groupId}");
+        using HttpOperationResponse<Report> response = await pbiClient.Reports.GetReportInGroupWithHttpMessagesAsync(groupId, reportId, GetProfileHeader(profileId), cancellationToken: cancellationToken);
+        this.LogResponse(response, dimensions);
+
+        return response.Body;
+    }
+
     #endregion
 
     #region Capacity

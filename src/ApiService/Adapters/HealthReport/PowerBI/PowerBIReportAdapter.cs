@@ -52,7 +52,6 @@ public class PowerBIReportAdapter : BaseModelAdapter<PowerBIHealthReportModel, P
                 CreatedAt = model.Properties.CreatedAt,
                 CreatedBy = model.Properties.CreatedAt,
                 DatasetId = model.Properties.DatasetId,
-                WorkspaceId = model.Properties.WorkspaceId,
                 ModifiedAt = model.Properties.ModifiedAt,
                 ModifiedBy = model.Properties.ModifiedBy
             }
