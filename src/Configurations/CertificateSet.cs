@@ -16,5 +16,10 @@ public enum CertificateSet
     /// <summary>
     /// Data Plane
     /// </summary>
-    DataPlane,
+    DataPlane = 1,
+
+    /// <summary>
+    /// Control Plane
+    /// </summary>
+    ControlPlane,
 }

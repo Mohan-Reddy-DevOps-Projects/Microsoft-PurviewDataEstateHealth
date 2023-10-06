@@ -22,6 +22,7 @@
     <PackageVersion Include="Microsoft.Azure.Management.ResourceManager.Fluent" Version="1.38.1" />
     <PackageVersion Include="Microsoft.Azure.Management.Storage" Version="25.0.0" />
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.Service.Basics" Version="1.0.2326.38" />
+    <PackageVersion Include="Microsoft.Azure.ProjectBabylon.Metadata.ProjectBabylonMetadataClient"  Version="1.0.109" />
     <PackageVersion Include="Microsoft.Azure.Services.AppAuthentication" Version="1.6.2" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="7.0.11" />

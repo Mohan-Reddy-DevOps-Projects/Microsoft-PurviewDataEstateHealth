@@ -24,6 +24,11 @@ public class AllowListedCertificateConfiguration
     public List<string> AllowListedDataPlaneSubjectNames { get; set; }
 
     /// <summary>
+    /// Allow listed control plane subject names.
+    /// </summary>
+    public List<string> AllowListedControlPlaneSubjectNames { get; set; }
+
+    /// <summary>
     /// Get list of allowed subject names.
     /// </summary>
     /// <param name="certificateSet">Input certificate set.</param>
@@ -35,6 +40,8 @@ public class AllowListedCertificateConfiguration
         {
             case CertificateSet.DataPlane:
                 return this.AllowListedDataPlaneSubjectNames;
+            case CertificateSet.ControlPlane:
+                return this.AllowListedControlPlaneSubjectNames;
             default:
                 throw new ServiceError(
                         ErrorCategory.ServiceError,
