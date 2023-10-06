@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
@@ -17,10 +18,13 @@ internal sealed class TokenComponent : BaseComponent<ITokenContext>, ITokenCompo
 {
 #pragma warning disable 649
     [Inject]
-    private readonly IProfileCommand profileCommand;
+    private readonly IPowerBIService powerBIService;
 
     [Inject]
-    private readonly IPowerBIService powerBIService;
+    private readonly HealthProfileCommand profileCommand;
+
+    [Inject]
+    private readonly HealthWorkspaceCommand workspaceCommand;
 
 #pragma warning restore 649
 
@@ -31,15 +35,16 @@ internal sealed class TokenComponent : BaseComponent<ITokenContext>, ITokenCompo
     /// <inheritdoc/>
     public async Task<EmbedToken> Get(CancellationToken cancellationToken)
     {
-        ProfileRequest profileRequest = new()
+        IProfileModel profile = await this.profileCommand.Get(this.Context, cancellationToken);
+        IWorkspaceContext workspaceContext = new WorkspaceContext(this.Context)
         {
-            AccountId = this.Context.AccountId,
-            ProfileName = this.Context.Owner,
-            Owner = this.Context.Owner,
+            ProfileId = profile.Id,
         };
-        IProfileModel profile = await this.profileCommand.Get(profileRequest, cancellationToken);
+        Group workspace = await this.workspaceCommand.Get(workspaceContext, cancellationToken);
+        Reports reports = await this.powerBIService.GetReports(profile.Id, workspace.Id, cancellationToken);
+
         IEnumerable<Guid> datasetIds = Enumerable.Empty<Guid>();
-        IEnumerable<Guid> reportIds = Enumerable.Empty<Guid>();
+        IEnumerable<Guid> reportIds = reports.Value.Select(x => x.Id);
 
         return await this.GenerateEmbeddedToken(datasetIds, reportIds, profile.Id, cancellationToken);
     }

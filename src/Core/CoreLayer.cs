@@ -82,7 +82,9 @@ public static class CoreLayer
         services.AddScoped<IDatasetCommand, DatasetCommand>();
         services.AddScoped<IProfileCommand, ProfileCommand>();
         services.AddScoped<IWorkspaceCommand, WorkspaceCommand>();
-        
+        services.AddScoped<HealthProfileCommand>();
+        services.AddScoped<HealthWorkspaceCommand>();
+
         return services;
     }
 }

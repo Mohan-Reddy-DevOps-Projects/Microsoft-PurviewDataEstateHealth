@@ -114,14 +114,25 @@ internal sealed class ProfileCommand : IProfileCommand
     {
         Validate(requestContext);
 
-        await Task.CompletedTask;
+        string profileDisplayName = $"{requestContext.ProfileName}-{requestContext.AccountId}";
+        ServicePrincipalProfile pbiProfile;
+        try
+        {
+            ServicePrincipalProfiles profiles = await this.powerBiService.GetProfiles(cancellationToken, filter: $"displayName eq '{profileDisplayName}'");
+            pbiProfile = profiles.Value.First();
+        }
+        catch (HttpOperationException httpEx) when (httpEx.Response.StatusCode == HttpStatusCode.NotFound)
+        {
+            this.logger.LogWarning($"Failed to get profile={requestContext}", httpEx);
+            return null;
+        }
 
         return new ProfileModel()
         {
             AccountId = requestContext.AccountId,
             ClientId = Guid.Parse(this.powerBIAuthConfig.ClientId),
-            Name = "Test",
-            Id = requestContext.AccountId,
+            Name = requestContext.ProfileName,
+            Id = pbiProfile.Id,
             TenantId = Guid.Parse(this.powerBIAuthConfig.TenantId)
         };
         //ProfileKey profileKey = new(this.profileRequest.ProfileName, this.profileRequest.AccountId, Guid.Parse(this.powerBIAuthConfig.TenantId));

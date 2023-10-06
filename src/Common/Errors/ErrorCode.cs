@@ -170,6 +170,11 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode Profile_CreateFailed = new(8000);
 
+    /// <summary>
+    /// Profile not found.
+    /// </summary>
+    public static readonly ErrorCode Profile_NotFound = new(8001, "Profile not found.");
+
     #endregion
 
     #region Workspace
@@ -183,6 +188,11 @@ public class ErrorCode : ServiceErrorCode
     /// Failed to create workspace.
     /// </summary>
     public static readonly ErrorCode Workspace_CreateFailed = new(9001);
+
+    /// <summary>
+    /// Workspace not found.
+    /// </summary>
+    public static readonly ErrorCode Workspace_NotFound = new(9002, "Workspace not found.");
 
     #endregion
 

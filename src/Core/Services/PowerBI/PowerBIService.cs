@@ -177,7 +177,7 @@ internal class PowerBIService : IPowerBIService
     #region Report
 
     /// <inheritdoc/>
-    public async Task<Reports> GetReports(Guid groupId, Guid profileId, CancellationToken cancellationToken)
+    public async Task<Reports> GetReports(Guid profileId, Guid groupId, CancellationToken cancellationToken)
     {
         PowerBIClient pbiClient = await this.powerBIFactory.GetClientAsync(cancellationToken);
 
