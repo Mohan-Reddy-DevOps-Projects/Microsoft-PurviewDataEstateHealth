@@ -55,6 +55,7 @@ public static class CoreLayer
     {
         services.AddSingleton<AadAppTokenProviderService<PowerBIAuthConfiguration>>();
         services.AddSingleton<IPowerBIService, PowerBIService>();
+        services.AddSingleton<ICapacityAssignment, CapacityAssignment>();
         services.AddSingleton<PowerBIFactory>();
 
         return services;

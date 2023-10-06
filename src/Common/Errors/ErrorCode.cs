@@ -197,7 +197,7 @@ public class ErrorCode : ServiceErrorCode
     #endregion
 
 
-    #region
+    #region PowerBI
 
     /// <summary>
     /// PowerBI import has not reached a terminal state.
@@ -213,6 +213,11 @@ public class ErrorCode : ServiceErrorCode
     /// PowerBI dataset conflict.
     /// </summary>
     public static readonly ErrorCode PowerBI_DatasetConflict = new(10002);
+
+    /// <summary>
+    /// PowerBI capacity not found.
+    /// </summary>
+    public static readonly ErrorCode PowerBI_CapacityNotFound = new(10003);
 
     #endregion
 }

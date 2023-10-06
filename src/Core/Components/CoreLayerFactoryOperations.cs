@@ -71,4 +71,16 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
                 owner),
             this.version.Numeric);
     }
+
+    /// <inheritdoc />
+    public IPartnerNotificationComponent CreatePartnerNotificationComponent(Guid tenantId, Guid accountId)
+    {
+        return this.componentRuntime.Resolve<IPartnerNotificationComponent, IPartnerNotificationContext>(
+            this.contextFactory.CreatePartnerNotificationComponent(
+                this.version,
+                null,
+                tenantId,
+                accountId),
+            this.version.Numeric);
+    }
 }

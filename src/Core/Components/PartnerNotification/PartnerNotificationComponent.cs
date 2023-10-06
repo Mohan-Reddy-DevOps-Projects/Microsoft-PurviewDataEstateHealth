@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System.Threading.Tasks;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
@@ -24,14 +25,17 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     [Inject]
     private readonly HealthWorkspaceCommand workspaceCommand;
 
-    [Inject]
-    private readonly IDatasetCommand datasetCommand;
+    /*[Inject]
+    private readonly IDatasetCommand datasetCommand;*/
 
     [Inject]
     private readonly IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration;
 
     [Inject]
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
+
+    [Inject]
+    private readonly ICapacityAssignment capacityAssignment;
 
 #pragma warning restore 649
 
@@ -40,7 +44,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     }
 
     /// <inheritdoc/>
-    public async Task CreateOrUpdateNotification(CancellationToken cancellationToken)
+    public async Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
         IProfileModel profile = await this.profileCommand.Create(this.Context, cancellationToken);
         IWorkspaceContext context = new WorkspaceContext(this.Context)
@@ -48,6 +52,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             ProfileId = profile.Id
         };
         Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
+        await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
         string owner = "health";
         PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(context.AccountId, owner, cancellationToken);
         if (powerBICredential == null)
@@ -56,7 +61,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             powerBICredential = this.powerBICredentialComponent.CreateCredential(context.AccountId, owner);
             await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
         }
-
+        
         string datasetName = "CDMC";
         IDatasetRequest datasetRequest = new DatasetRequest()
         {
@@ -72,6 +77,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             OptimizedDataset = true,
             PowerBICredential = powerBICredential
         };
-        Dataset dataset = await this.datasetCommand.Create(datasetRequest, cancellationToken);
+
+        // Dataset dataset = await this.datasetCommand.Create(datasetRequest, cancellationToken);
     }
 }

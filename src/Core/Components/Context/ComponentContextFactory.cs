@@ -67,6 +67,22 @@ internal class ComponentContextFactory : IComponentContextFactory
         };
     }
 
+    /// <inheritdoc />
+    public IPartnerNotificationContext CreatePartnerNotificationComponent(
+        ServiceVersion version,
+        string location,
+        Guid tenantId,
+        Guid accountId)
+    {
+        return new PartnerNotificationContext
+        {
+            Version = version,
+            Location = this.LocationOf(location),
+            TenantId = tenantId,
+            AccountId = accountId
+        };
+    }
+
     internal string LocationOf(string location)
     {
         return string.IsNullOrWhiteSpace(location) ? this.environmentConfiguration.Location : location;

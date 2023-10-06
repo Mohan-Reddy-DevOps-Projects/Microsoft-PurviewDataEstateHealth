@@ -51,4 +51,18 @@ internal interface IComponentContextFactory
         Guid accountId,
         Guid tenantId,
         string owner);
+
+    /// <summary>
+    /// Creates an <see cref="IPartnerNotificationComponent"/>
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="location"></param>
+    /// <param name="accountId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public IPartnerNotificationContext CreatePartnerNotificationComponent(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId);
 }

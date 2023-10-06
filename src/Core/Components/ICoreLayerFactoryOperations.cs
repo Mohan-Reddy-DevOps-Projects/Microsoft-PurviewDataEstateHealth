@@ -33,4 +33,12 @@ public interface ICoreLayerFactoryOperations
         Guid tenantId,
         Guid accountId,
         string owner);
+
+    /// <summary>
+    /// Creates an instance of PartnerNotificationComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IPartnerNotificationComponent"/>.</returns>
+    public IPartnerNotificationComponent CreatePartnerNotificationComponent(
+        Guid tenantId,
+        Guid accountId);
 }

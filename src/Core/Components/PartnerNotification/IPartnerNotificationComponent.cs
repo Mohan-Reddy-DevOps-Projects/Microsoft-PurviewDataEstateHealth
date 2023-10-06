@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.DGP.ServiceBasics.Components;
 
 /// <summary>
@@ -14,7 +15,8 @@ public interface IPartnerNotificationComponent : IComponent<IPartnerNotification
     /// <summary>
     /// Manage create or update notifications
     /// </summary>
+    /// <param name="account"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task CreateOrUpdateNotification(CancellationToken cancellationToken);
+    Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken);
 }
