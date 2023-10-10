@@ -101,8 +101,41 @@ internal class ComponentContextFactory : IComponentContextFactory
         };
     }
 
+    /// <inheritdoc />
+    public IHealthActionListContext CreateHealthActionListContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId)
+    {
+        return new HealthActionListContext
+        {
+            Version = version,
+            Location = this.LocationOf(location),
+            TenantId = tenantId,
+            AccountId = accountId
+        };
+    }
+
     internal string LocationOf(string location)
     {
         return string.IsNullOrWhiteSpace(location) ? this.environmentConfiguration.Location : location;
+    }
+
+    public IHealthActionContext CreateHealthActionContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId,
+        Guid businessDomainId)
+    {
+        return new HealthActionContext
+        {
+            Version = version,
+            Location = this.LocationOf(location),
+            TenantId = tenantId,
+            AccountId = accountId,
+            BusinessDomainId = businessDomainId
+        };
     }
 }

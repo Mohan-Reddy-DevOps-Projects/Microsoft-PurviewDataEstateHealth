@@ -50,4 +50,12 @@ public interface ICoreLayerFactoryOperations
     public IPartnerNotificationComponent CreatePartnerNotificationComponent(
         Guid tenantId,
         Guid accountId);
+
+    /// <summary>
+    /// Creates an instance of HealthActionComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IHealthActionCollectionComponent"/>.</returns>
+    public IHealthActionCollectionComponent CreateHealthActionCollectionComponent(
+        Guid tenantId,
+        Guid accountId);
 }

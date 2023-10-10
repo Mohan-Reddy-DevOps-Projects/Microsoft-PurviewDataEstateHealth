@@ -81,4 +81,34 @@ internal interface IComponentContextFactory
         string location,
         Guid accountId,
         Guid tenantId);
+
+    /// <summary>
+    /// Creates an <see cref="IHealthActionListContext"/>
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="location"></param>
+    /// <param name="accountId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public IHealthActionListContext CreateHealthActionListContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId);
+
+    /// <summary>
+    /// Creates an <see cref="IHealthActionContext"/>
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="location"></param>
+    /// <param name="accountId"></param>
+    /// <param name="tenantId"></param>
+    /// <param name="domaindId"></param>
+    /// <returns></returns>
+    public IHealthActionContext CreateHealthActionContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId,
+        Guid domaindId);
 }

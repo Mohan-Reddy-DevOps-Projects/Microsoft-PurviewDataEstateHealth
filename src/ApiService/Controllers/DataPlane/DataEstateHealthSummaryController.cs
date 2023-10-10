@@ -16,7 +16,7 @@ using Microsoft.DGP.ServiceBasics.Adapters;
 /// </summary>
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV1)]
-[Route("/summary/domains")]
+[Route("/summary/businessDomains/")]
 public class DataEstateHealthSummaryController : DataPlaneController
 {
     private readonly ICoreLayerFactory coreLayerFactory;
@@ -71,15 +71,15 @@ public class DataEstateHealthSummaryController : DataPlaneController
     /// <summary>
     /// Get summary for a chosen business domain.
     /// </summary>
-    /// /// <param name="domainId">id of the domain.</param>
+    /// /// <param name="businessDomainId">id of the domain.</param>
     /// <param name="apiVersion">The api version of the call</param>
     /// <param name="cancellationToken">The cancellation token</param>
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(typeof(DataEstateHealthSummary), 200)]
-    [Route("/{domainId}")]
+    [Route("{businessDomainId}")]
     public async Task<IActionResult> GetDataEstateHealthSummaryAsync(
-        [FromRoute] Guid domainId,
+        [FromRoute] Guid businessDomainId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
@@ -88,7 +88,7 @@ public class DataEstateHealthSummaryController : DataPlaneController
            .CreateDataEstateHealthSummaryComponent(
                this.requestHeaderContext.TenantId,
                this.requestHeaderContext.AccountObjectId)
-           .ById(domainId)
+           .ById(businessDomainId)
            .Get(cancellationToken);
 
         return this.Ok(

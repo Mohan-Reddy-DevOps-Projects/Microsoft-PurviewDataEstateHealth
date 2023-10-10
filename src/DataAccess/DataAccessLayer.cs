@@ -18,6 +18,7 @@ public static class DataAccessLayer
     public static IServiceCollection AddDataAccessLayer(this IServiceCollection services)
     {
         _ = services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
+        _ = services.AddScoped<IHealthActionRepository, HealthActionRepository>();
 
         return services;
     }

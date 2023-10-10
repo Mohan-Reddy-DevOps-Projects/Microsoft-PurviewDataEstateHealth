@@ -157,9 +157,14 @@ public class ErrorCode : ServiceErrorCode
     public static readonly ErrorCode HealthReport_InvalidKind = new(7000);
 
     /// <summary>
-    /// Domain summary does not exist.
+    /// Business Domain summary does not exist.
     /// </summary>
-    public static readonly ErrorCode DomainSummary_NotAvailable = new(7001);
+    public static readonly ErrorCode BusinessDomainSummary_NotAvailable = new(7001);
+
+    /// <summary>
+    /// Health actions does not exist.
+    /// </summary>
+    public static readonly ErrorCode HealthActions_NotAvailable = new(7002);
 
     #endregion
 

@@ -6,11 +6,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.DGP.ServiceBasics.DataAccess;
 
 /// <summary>
-/// DataEstateHealth Summary repostory interface
+/// Health action repository interface
 /// </summary>
-public interface IDataEstateHealthSummaryRepository : IGetSingleOperation<IDataEstateHealthSummaryModel, SummaryKey>, ILocationBased<IDataEstateHealthSummaryRepository>
+public interface IHealthActionRepository : IGetSingleOperation<IHealthActionModel, HealthActionKey>,
+    ILocationBased<IHealthActionRepository>,
+    IGetMultipleOperationWithoutCriteria<IHealthActionModel>
 {
 }

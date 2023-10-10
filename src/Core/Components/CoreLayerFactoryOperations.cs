@@ -99,4 +99,34 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
                 accountId),
             this.version.Numeric);
     }
+
+    /// <inheritdoc />
+    public IHealthActionCollectionComponent CreateHealthActionCollectionComponent(
+        Guid tenantId,
+        Guid accountId)
+    {
+        return this.componentRuntime.Resolve<IHealthActionCollectionComponent, IHealthActionListContext>(
+            this.contextFactory.CreateHealthActionListContext(
+                this.version,
+                null,
+                accountId,
+                tenantId),
+            this.version.Numeric);
+    }
+
+    /// <inheritdoc />
+    public IHealthActionComponent CreateHealthActionComponent(
+        Guid tenantId,
+        Guid accountId,
+        Guid businessDomainId)
+    {
+        return this.componentRuntime.Resolve<IHealthActionComponent, IHealthActionContext>(
+            this.contextFactory.CreateHealthActionContext(
+                this.version,
+                null,
+                tenantId,
+                accountId,
+                businessDomainId),
+            this.version.Numeric);
+    }
 }

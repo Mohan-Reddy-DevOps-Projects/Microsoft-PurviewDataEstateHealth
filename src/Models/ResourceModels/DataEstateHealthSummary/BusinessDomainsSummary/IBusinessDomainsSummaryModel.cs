@@ -12,7 +12,7 @@ public interface IBusinessDomainsSummaryModel
     /// <summary>
     /// Total number of business domains
     /// </summary>
-     int TotalBusinessDomainsCount { get; }
+    int TotalBusinessDomainsCount { get; }
 
     /// <summary>
     /// List of all of the business domains 

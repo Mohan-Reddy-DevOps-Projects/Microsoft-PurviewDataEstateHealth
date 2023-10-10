@@ -38,14 +38,15 @@ internal class DataEstateHealthSummaryComponent : BaseComponent<IDataEstateHealt
     public async Task<IDataEstateHealthSummaryModel> Get(CancellationToken cancellationToken)
     {
         IDataEstateHealthSummaryModel dataEstateHealthSummaryModel = await this.dataEstateHealthSummaryRepository.GetSingle(
-           new SummaryKey(this.Context.DomainId));
+           new SummaryKey(this.Context.DomainId),
+           cancellationToken);
 
         if (dataEstateHealthSummaryModel == null)
         {
             throw new ServiceError(
                     ErrorCategory.ResourceNotFound,
-                    ErrorCode.DomainSummary_NotAvailable.Code,
-                    ErrorCode.DomainSummary_NotAvailable.FormatMessage(this.Context.DomainId.ToString()))
+                    ErrorCode.BusinessDomainSummary_NotAvailable.Code,
+                    ErrorCode.BusinessDomainSummary_NotAvailable.FormatMessage(this.Context.DomainId.ToString()))
                 .ToException();
         }
 
