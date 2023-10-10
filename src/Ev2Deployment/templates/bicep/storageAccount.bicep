@@ -7,7 +7,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   location: location
   kind: 'StorageV2'
   sku: {
-    name: 'Standard_GZRS'
+    // ZRS SKUs aren't available in centraluseuap.
+    name: location == 'centraluseuap' ? 'Standard_GRS' : 'Standard_GZRS'
   }
   properties: {
     accessTier: 'Hot'

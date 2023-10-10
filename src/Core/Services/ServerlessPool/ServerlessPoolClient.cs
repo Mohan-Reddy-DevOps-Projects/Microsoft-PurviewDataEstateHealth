@@ -43,7 +43,10 @@ internal sealed class ServerlessPoolClient : IServerlessPoolClient
     /// <inheritdoc/>
     public async Task Initialize()
     {
-        await this.aadService.GetTokenAsync(this.authConfig.Resource);
+        if (this.authConfig.Enabled)
+        {
+            await this.aadService.GetTokenAsync(this.authConfig.Resource);
+        }
     }
 
     /// <inheritdoc/>

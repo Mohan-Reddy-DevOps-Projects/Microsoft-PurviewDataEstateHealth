@@ -20,7 +20,6 @@ public static class ConfigurationExtensions
         IConfiguration configuration)
     {
         services.AddCommonConfigurations(configuration)
-            .Configure<SslConfiguration>(configuration.GetSection("ssl"))
             .Configure<AllowListedCertificateConfiguration>(configuration.GetSection("allowListedCertificate"))
             .Configure<CertificateSetConfiguration>(configuration.GetSection("apiServiceCertificateSet"))
             .Configure<PowerBIAuthConfiguration>(configuration.GetSection("powerBIAuth"))

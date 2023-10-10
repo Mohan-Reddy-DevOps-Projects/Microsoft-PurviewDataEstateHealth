@@ -97,7 +97,7 @@
         },
         {
           "find": "__INFRA_API_SERVICE_SUBDOMAIN_NAME__",
-          "replaceWith": "$config(pdg.environment.shortName)-$config(regionName)-health"
+          "replaceWith": "$config(subdomainName)"
         },
         {
           "find": "__INFRA_CONTAINER_APP_IDENTITY_NAME__",
