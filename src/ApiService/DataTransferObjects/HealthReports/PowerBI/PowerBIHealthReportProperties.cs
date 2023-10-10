@@ -5,19 +5,12 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
 using System.ComponentModel;
-using Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 
 /// <summary>
 /// PowerBI health report property bag
 /// </summary>
-public class PowerBIHealthReportProperties : HealthReportProperties
+public class PowerBIHealthReportProperties
 {
-    /// <summary>
-    /// Dataset Id
-    /// </summary>
-    [ReadOnly(true)]
-    public Guid DatasetId { get; internal set; }
-
     /// <summary>
     /// Report description.
     /// </summary>

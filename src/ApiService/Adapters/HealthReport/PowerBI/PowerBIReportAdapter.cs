@@ -21,14 +21,14 @@ public class PowerBIReportAdapter : BaseModelAdapter<PowerBIHealthReportModel, P
             Properties = new Models.PowerBIHealthReportProperties
             {
                 EmbedLink = resource.Properties?.EmbedLink,
-                Name = resource.Properties.Name,
-                Category = resource.Properties?.Category,
+                Name = resource.Name,
+                Category = resource.Category,
                 Description = resource.Properties?.Description,
-                ReportStatus = resource.Properties.ReportStatus.ToModel(),
-                ReportType = resource.Properties.ReportType.ToModel(),
+                ReportStatus = resource.ReportStatus.ToModel(),
+                ReportType = resource.ReportType.ToModel(),
                 ReportKind = resource.ReportKind.ToModel(),
-                LastRefreshedAt = resource.Properties.LastRefreshedAt,
-                Id = resource.Properties.Id
+                LastRefreshedAt = resource.LastRefreshedAt,
+                Id = resource.Id,
             },
         };
     }
@@ -39,16 +39,16 @@ public class PowerBIReportAdapter : BaseModelAdapter<PowerBIHealthReportModel, P
         return new PowerBIHealthReport
         {
             ReportKind = model.Properties.ReportKind.ToDto(),
+            Name = model.Properties?.Name,
+            Category = model.Properties?.Category,
+            ReportStatus = model.Properties.ReportStatus.ToDto(),
+            ReportType = model.Properties.ReportType.ToDto(),
+            LastRefreshedAt = model.Properties.LastRefreshedAt,
+            Id = model.Properties.Id,
             Properties = new PowerBIHealthReportProperties
             {
                 EmbedLink = model.Properties.EmbedLink,
-                Name = model.Properties.Name,
-                Category = model.Properties?.Category,
-                Description = model.Properties?.Description,
-                ReportStatus = model.Properties.ReportStatus.ToDto(),
-                ReportType = model.Properties.ReportType.ToDto(),
-                LastRefreshedAt = model.Properties.LastRefreshedAt,
-                Id = model.Properties.Id
+                Description = model.Properties?.Description
             }
         };
     }
