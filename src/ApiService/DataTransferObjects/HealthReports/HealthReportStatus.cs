@@ -4,13 +4,9 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 
-using System.Text.Json.Serialization;
-using Newtonsoft.Json.Converters;
-
 /// <summary>
 /// Report status.
 /// </summary>
-[JsonConverter(typeof(StringEnumConverter))]
 public enum HealthReportStatus
 {
     /// <summary>

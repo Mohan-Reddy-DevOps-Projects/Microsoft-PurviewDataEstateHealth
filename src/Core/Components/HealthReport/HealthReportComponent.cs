@@ -45,15 +45,11 @@ internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHea
             Properties = new PowerBIHealthReportProperties()
             {
                 Category = null,
-                CreatedAt = null,
                 LastRefreshedAt = DateTime.UtcNow,
-                ModifiedAt = null,
-                CreatedBy = null,
                 DatasetId = Guid.Parse(report.DatasetId),
                 Description = report.Description,
                 EmbedLink = report.EmbedUrl,
                 Id = report.Id,
-                ModifiedBy = null,
                 Name = report.Name,
                 ReportKind = HealthReportKind.PowerBIHealthReport,
                 ReportStatus = HealthReportStatus.Active,

@@ -48,12 +48,7 @@ public class PowerBIReportAdapter : BaseModelAdapter<PowerBIHealthReportModel, P
                 ReportStatus = model.Properties.ReportStatus.ToDto(),
                 ReportType = model.Properties.ReportType.ToDto(),
                 LastRefreshedAt = model.Properties.LastRefreshedAt,
-                Id = model.Properties.Id,
-                CreatedAt = model.Properties.CreatedAt,
-                CreatedBy = model.Properties.CreatedAt,
-                DatasetId = model.Properties.DatasetId,
-                ModifiedAt = model.Properties.ModifiedAt,
-                ModifiedBy = model.Properties.ModifiedBy
+                Id = model.Properties.Id
             }
         };
     }

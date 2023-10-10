@@ -16,4 +16,10 @@ public class LegacyHealthReportProperties : HealthReportProperties
     /// </summary>
     [JsonProperty("embedLink")]
     public string EmbedLink { get; set; }
+
+    /// <summary>
+    /// Report description.
+    /// </summary>
+    [JsonProperty("description")]
+    public string Description { get; set; }
 }

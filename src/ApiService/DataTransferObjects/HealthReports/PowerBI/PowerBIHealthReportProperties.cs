@@ -19,28 +19,10 @@ public class PowerBIHealthReportProperties : HealthReportProperties
     public Guid DatasetId { get; internal set; }
 
     /// <summary>
-    /// Created At
+    /// Report description.
     /// </summary>
     [ReadOnly(true)]
-    public string CreatedAt { get; internal set; }
-
-    /// <summary>
-    /// Created By
-    /// </summary>
-    [ReadOnly(true)]
-    public string CreatedBy { get; internal set; }
-
-    /// <summary>
-    /// Modified At
-    /// </summary>
-    [ReadOnly(true)]
-    public string ModifiedAt { get; internal set; }
-
-    /// <summary>
-    /// Modiifed By
-    /// </summary>
-    [ReadOnly(true)]
-    public string ModifiedBy {  get; internal set; }
+    public string Description { get; set; }
 
     /// <summary>
     /// Embed Link

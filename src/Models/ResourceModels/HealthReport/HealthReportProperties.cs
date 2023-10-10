@@ -31,12 +31,6 @@ public class HealthReportProperties
     public string Category { get; set; }
 
     /// <summary>
-    /// Report description.
-    /// </summary>
-    [JsonProperty("description")]
-    public string Description { get; set; }
-
-    /// <summary>
     /// Report status.
     /// </summary>
     [JsonProperty("reportStatus")]

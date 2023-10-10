@@ -5,7 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 
 using System.ComponentModel;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 /// <summary>
@@ -30,12 +30,6 @@ public class HealthReportProperties
     /// </summary>
     [ReadOnly(true)]
     public string Category { get; set; }
-
-    /// <summary>
-    /// Report description.
-    /// </summary>
-    [ReadOnly(true)]
-    public string Description { get; set; }
 
     /// <summary>
     /// Report status.

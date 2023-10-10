@@ -61,15 +61,11 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
             Properties = new PowerBIHealthReportProperties()
             {
                 Category = null,
-                CreatedAt = null,
                 LastRefreshedAt = DateTime.UtcNow,
-                ModifiedAt = null,
-                CreatedBy = null,
                 DatasetId = Guid.Parse(x.DatasetId),
                 Description = x.Description,
                 EmbedLink = x.EmbedUrl,
                 Id = x.Id,
-                ModifiedBy = null,
                 Name = x.Name,
                 ReportKind = HealthReportKind.PowerBIHealthReport,
                 ReportStatus = HealthReportStatus.Active,

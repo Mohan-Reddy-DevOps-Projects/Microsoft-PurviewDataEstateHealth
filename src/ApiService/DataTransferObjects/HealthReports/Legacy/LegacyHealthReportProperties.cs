@@ -17,4 +17,10 @@ public class LegacyHealthReportProperties : HealthReportProperties
     /// </summary>
     [ReadOnly(true)]
     public string EmbedLink { get; internal set; }
+
+    /// <summary>
+    /// Report description.
+    /// </summary>
+    [ReadOnly(true)]
+    public string Description { get; set; }
 }
