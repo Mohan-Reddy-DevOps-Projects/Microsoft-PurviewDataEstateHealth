@@ -28,7 +28,8 @@ public static class ConfigurationExtensions
             .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"))
             .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
             .Configure<AuxStorageConfiguration>(configuration.GetSection("auxStorage"))
-            .Configure<FirstPartyAadAppConfiguration>(configuration.GetSection("firstPartyAadApp"));
+            .Configure<FirstPartyAadAppConfiguration>(configuration.GetSection("firstPartyAadApp"))
+            .Configure<DGProcessingStorageConfiguration>(configuration.GetSection("dgprocessingStorage"));
 
         return services;
     }

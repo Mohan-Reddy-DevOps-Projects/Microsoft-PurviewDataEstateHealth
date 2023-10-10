@@ -39,4 +39,9 @@ public sealed class ServerlessPoolConfiguration
     /// Gets or sets the maximum number of connections allowed in the connection pool for the specific connection string.
     /// </summary>
     public int MaxPoolSize { get; set; }
+
+    /// <summary>
+    /// Synapse storage account name.
+    /// </summary>
+    public string StorageAccount { get; set; }
 }
