@@ -62,6 +62,11 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode Invalid_CertificateSet = new(1007);
 
+    /// <summary>
+    /// Unsupported api-version query parameter.
+    /// </summary>
+    public static readonly ErrorCode UnsupportedApiVersionParameter = new(1008, "The API version '{0}' isn't supported. The supported versions are '{1}'.");
+
     #endregion
 
     #region Storage checks

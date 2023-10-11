@@ -10,16 +10,15 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 
 internal class ExceptionAdapterService : IExceptionAdapterService
 {
-    public DataEstateHealthErrorInfoModel GetUserFacingException(ServiceException serviceException)
+    public DataEstateHealthErrorInfo GetUserFacingException(ServiceException serviceException)
     {
         HttpStatusCode status = this.GetUserFacingStatusCode(serviceException);
 
-        var errorInfo = new DataEstateHealthErrorInfoModel(
+        var errorInfo = new DataEstateHealthErrorInfo(
             ExceptionAdapterService.TranslateToUserFacingCode(serviceException.ServiceError.Code),
             this.IsClientError(serviceException)
                 ? serviceException.Message
@@ -33,14 +32,14 @@ internal class ExceptionAdapterService : IExceptionAdapterService
         if (status != HttpStatusCode.InternalServerError)
         {
             Exception innerException = serviceException.InnerException;
-            var innerErrorInfos = new List<DataEstateHealthErrorInfoModel>();
+            var innerErrorInfos = new List<DataEstateHealthErrorInfo>();
 
             while (innerException != null)
             {
                 if (innerException is ServiceException innerServiceException)
                 {
                     innerErrorInfos.Add(
-                        new DataEstateHealthErrorInfoModel(
+                        new DataEstateHealthErrorInfo(
                             ExceptionAdapterService.TranslateToUserFacingCode(
                                 innerServiceException.ServiceError.Code),
                             this.IsClientError(serviceException)
@@ -50,7 +49,7 @@ internal class ExceptionAdapterService : IExceptionAdapterService
                 else
                 {
                     innerErrorInfos.Add(
-                        new DataEstateHealthErrorInfoModel(
+                        new DataEstateHealthErrorInfo(
                             HttpStatusCode.InternalServerError.ToString(),
                             "Unknown error"));
                 }
@@ -103,19 +102,19 @@ internal class ExceptionAdapterService : IExceptionAdapterService
         }
     }
 
-    public DataEstateHealthErrorInfoModel GetDefaultUserFacingException()
+    public DataEstateHealthErrorInfo GetDefaultUserFacingException()
     {
-        return new DataEstateHealthErrorInfoModel(HttpStatusCode.InternalServerError.ToString(), "Unknown error");
+        return new DataEstateHealthErrorInfo(HttpStatusCode.InternalServerError.ToString(), "Unknown error");
     }
 
-    public DataEstateHealthErrorInfoModel GetUserFacingHierarchicalException(
+    public DataEstateHealthErrorInfo GetUserFacingHierarchicalException(
         List<ServiceException> serviceExceptions)
     {
         if (serviceExceptions != null && serviceExceptions.Count > 0)
         {
-            DataEstateHealthErrorInfoModel parentError =
+            DataEstateHealthErrorInfo parentError =
                 this.GetUserFacingException(serviceExceptions.First());
-            var errorDetails = new List<DataEstateHealthErrorInfoModel>();
+            var errorDetails = new List<DataEstateHealthErrorInfo>();
 
             for (int index = 1; index < serviceExceptions.Count; index++)
             {

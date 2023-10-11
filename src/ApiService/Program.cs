@@ -125,7 +125,8 @@ public class Program
             .UseRouting()
             .UseCors(CorsPolicyName)
             .UseAuthentication()
-            .UseAuthorization();
+            .UseAuthorization()
+            .UseApiVersionGuard();
 
         app.MapControllers();
 

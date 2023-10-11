@@ -12,7 +12,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.DGP.ServiceBasics.Adapters;
 using System.Threading;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Extensions.Options;
@@ -54,7 +53,6 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     /// Create or update account notification.
     /// </summary>
     /// <param name="account">The model of the platform account</param>
-    /// <param name="apiVersion"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPut]
@@ -62,7 +60,6 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     [Route("/controlplane/account/")]
     public async Task<IActionResult> CreateOrUpdateNotificationAsync(
         [FromBody] AccountServiceModel account,
-        [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
         if (!this.environmentConfiguration.IsDevelopmentEnvironment())
@@ -70,7 +67,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
             return this.Ok();
         }
 
-        await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
+        await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
             .CreatePartnerNotificationComponent(
                 Guid.Parse(account.TenantId),
                 Guid.Parse(account.Id))

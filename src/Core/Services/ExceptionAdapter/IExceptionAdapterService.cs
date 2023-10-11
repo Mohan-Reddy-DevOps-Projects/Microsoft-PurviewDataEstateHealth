@@ -6,7 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System.Collections.Generic;
 using System.Net;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.DGP.ServiceBasics.Errors;
 
 /// <summary>
@@ -19,7 +19,7 @@ public interface IExceptionAdapterService
     /// </summary>
     /// <param name="serviceException"></param>
     /// <returns></returns>
-    DataEstateHealthErrorInfoModel GetUserFacingException(ServiceException serviceException);
+    DataEstateHealthErrorInfo GetUserFacingException(ServiceException serviceException);
 
     /// <summary>
     /// Get User Facing error Code
@@ -32,14 +32,14 @@ public interface IExceptionAdapterService
     /// Return a default user facing exception
     /// </summary>
     /// <returns></returns>
-    DataEstateHealthErrorInfoModel GetDefaultUserFacingException();
+    DataEstateHealthErrorInfo GetDefaultUserFacingException();
 
     /// <summary>
     /// Create Hierarchical purview share error info
     /// </summary>
     /// <param name="serviceExceptions"></param>
     /// <returns></returns>
-    DataEstateHealthErrorInfoModel GetUserFacingHierarchicalException(List<ServiceException> serviceExceptions);
+    DataEstateHealthErrorInfo GetUserFacingHierarchicalException(List<ServiceException> serviceExceptions);
 
     /// <summary>
     /// check if it is a client exception
