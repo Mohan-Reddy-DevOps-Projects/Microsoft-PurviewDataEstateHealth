@@ -10,7 +10,6 @@ using System.Security;
 using System.Threading.Tasks;
 using System.Threading;
 using global::Azure;
-using global::Azure.Core;
 using global::Azure.Identity;
 using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
@@ -27,7 +26,6 @@ using Microsoft.Extensions.Options;
 public class KeyVaultAccessorService : IKeyVaultAccessorService, IDisposable
 {
     private const string DefaultErrorMessage = "Failed to get key vault resource";
-
     private readonly IDataEstateHealthLogger logger;
     private readonly SecretClient secretClient;
     private bool isDisposed = false;
@@ -35,19 +33,13 @@ public class KeyVaultAccessorService : IKeyVaultAccessorService, IDisposable
     /// <summary>
     /// Constructor for the key vault accessor service
     /// </summary>
-    public KeyVaultAccessorService(IOptions<KeyVaultConfiguration> keyVaultConfig, IOptions<EnvironmentConfiguration> environmentConfig, IDataEstateHealthLogger logger)
+    public KeyVaultAccessorService(
+        AzureCredentialFactory credentialFactory,
+        IOptions<KeyVaultConfiguration> keyVaultConfig,
+        IDataEstateHealthLogger logger)
     {
-        DefaultAzureCredentialOptions credentialOptions = new();
-        credentialOptions.Retry.Mode = RetryMode.Fixed;
-        credentialOptions.Retry.Delay = TimeSpan.FromSeconds(15);
-        credentialOptions.Retry.MaxRetries = 12;
-        credentialOptions.Retry.NetworkTimeout = TimeSpan.FromSeconds(100);
-        credentialOptions.ExcludeManagedIdentityCredential = environmentConfig.Value.IsDevelopmentEnvironment();
-        credentialOptions.ExcludeWorkloadIdentityCredential = environmentConfig.Value.IsDevelopmentEnvironment();
-        credentialOptions.AuthorityHost = new Uri(keyVaultConfig.Value.Authority);
-
-        DefaultAzureCredential tokenCredential = new(credentialOptions);
-
+        Uri authorityHost = new(keyVaultConfig.Value.Authority);
+        DefaultAzureCredential tokenCredential = credentialFactory.CreateDefaultAzureCredential(authorityHost);
         this.secretClient = new SecretClient(
             new Uri(keyVaultConfig.Value.BaseUrl),
             tokenCredential);

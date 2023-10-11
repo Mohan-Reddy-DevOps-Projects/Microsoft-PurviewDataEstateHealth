@@ -19,10 +19,8 @@ public static class CoreLayer
     /// Initializes the core layer.
     /// </summary>
     /// <param name="services">Gives the core layer a chance to configure its dependency injection.</param>
-    /// <param name="azureCredentials"></param>
-    public static IServiceCollection AddCoreLayer(this IServiceCollection services, TokenCredential azureCredentials)
+    public static IServiceCollection AddCoreLayer(this IServiceCollection services)
     {
-        services.AddSingleton(azureCredentials);
         services.AddSingleton<IExceptionAdapterService, ExceptionAdapterService>();
         services.AddSingleton<ICertificateLoaderService, CertificateLoaderService>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -32,6 +30,7 @@ public static class CoreLayer
         services.AddSingleton<AadAppTokenProviderService<FirstPartyAadAppConfiguration>>();
         services.AddSingleton<IComponentContextFactory, ComponentContextFactory>();
         services.AddSingleton<ServiceHealthCheck>();
+        services.AddSingleton<AzureCredentialFactory>();
 
         services.AddPowerBI();
         services.AddServerlessPool();

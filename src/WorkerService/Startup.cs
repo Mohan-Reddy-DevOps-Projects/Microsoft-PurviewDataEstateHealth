@@ -31,10 +31,9 @@ public static class Startup
 
         services.AddWorkerServiceConfigurations(configurationManager);
 
-        var tokenCredentials = new DefaultAzureCredential();
         services
             .AddLogger()
-            .AddCoreLayer(tokenCredentials);
+            .AddCoreLayer();
 
         services.AddHostedService<WorkerService>();
     }

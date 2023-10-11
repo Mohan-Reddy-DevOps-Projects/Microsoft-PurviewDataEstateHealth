@@ -10,18 +10,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using global::Azure;
 using global::Azure.Core;
+using global::Azure.Identity;
 using global::Azure.Storage.Blobs;
 using global::Azure.Storage.Blobs.Models;
 using global::Azure.Storage.Blobs.Specialized;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json;
-using Microsoft.WindowsAzure.Storage;
-using Newtonsoft.Json.Linq;
 
 /// <summary>
 /// Defines the <see cref="BlobStorageAccessor" />.
@@ -29,9 +24,9 @@ using Newtonsoft.Json.Linq;
 internal sealed class BlobStorageAccessor : IBlobStorageAccessor
 {
     private const string Tag = nameof(BlobStorageAccessor);
-    private readonly AadAppTokenProviderService<FirstPartyAadAppConfiguration> tokenProvider;
     private readonly IDataEstateHealthLogger logger;
     private readonly AuxStorageConfiguration storageConfiguration;
+    private readonly DefaultAzureCredential tokenCredential;
 
     private static readonly BlobClientOptions options = new()
     {
@@ -47,14 +42,15 @@ internal sealed class BlobStorageAccessor : IBlobStorageAccessor
     /// <summary>
     /// Initializes a new instance of the <see cref="BlobStorageAccessor"/> class.
     /// </summary>
-    /// <param name="tokenProvider"></param>
     /// <param name="logger">logger</param>
+    /// <param name="credentialFactory"></param>
     /// <param name="storageConfiguration">Storage configuration</param>
-    public BlobStorageAccessor(AadAppTokenProviderService<FirstPartyAadAppConfiguration> tokenProvider, IDataEstateHealthLogger logger, IOptions<AuxStorageConfiguration> storageConfiguration)
+    public BlobStorageAccessor(IDataEstateHealthLogger logger, AzureCredentialFactory credentialFactory, IOptions<AuxStorageConfiguration> storageConfiguration)
     {
-        this.tokenProvider = tokenProvider;
         this.logger = logger;
         this.storageConfiguration = storageConfiguration.Value;
+        Uri authorityHost = new(storageConfiguration.Value.Authority);
+        this.tokenCredential = credentialFactory.CreateDefaultAzureCredential(authorityHost);
     }    
 
     /// <inheritdoc/>
@@ -62,12 +58,15 @@ internal sealed class BlobStorageAccessor : IBlobStorageAccessor
     {
         try
         {
-            AppendBlobClient blobClient = GetAppendBlobClient(containerClient, blobName);
+            BlobClient blobClient = containerClient.GetBlobClient(blobName);
             if (await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 BlobDownloadInfo download = await blobClient.DownloadAsync(cancellationToken);
                 this.logger.LogInformation($"{Tag}|Blob {containerClient.Name}/{blobName} downloaded successfully");
-                return download.Content;
+                MemoryStream memoryStream = new();
+                await download.Content.CopyToAsync(memoryStream, cancellationToken);
+
+                return memoryStream;
             }
             else
             {
@@ -95,7 +94,7 @@ internal sealed class BlobStorageAccessor : IBlobStorageAccessor
 
             await blobClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             await blobClient.AppendBlockAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
-            this.logger.LogWarning($"{Tag}|Blob {containerClient.Name}/{blobName} saved successfully");
+            this.logger.LogInformation($"{Tag}|Blob {containerClient.Name}/{blobName} saved successfully");
         }
         catch (Exception ex)
         {
@@ -124,16 +123,14 @@ internal sealed class BlobStorageAccessor : IBlobStorageAccessor
     /// <inheritdoc/>
     public BlobServiceClient GetBlobServiceClient(string storageAccountName, string storageEndPointSuffix, string blobStorageResource)
     {
-        TokenCredential tokenCredential = new AuthTokenCredential<FirstPartyAadAppConfiguration>(this.tokenProvider, blobStorageResource);
-
-        return new BlobServiceClient(new Uri($"https://{storageAccountName}.blob.{storageEndPointSuffix}"), tokenCredential, options);
+        return new BlobServiceClient(new Uri($"https://{storageAccountName}.blob.{storageEndPointSuffix}"), this.tokenCredential, options);
     }
 
     /// <inheritdoc/>
     public async Task<BlobContainerClient> GetBlobContainerClient(BlobServiceClient blobServiceClient, string containerName, CancellationToken cancellationToken)
     {
         BlobContainerClient containerClient = blobServiceClient.GetBlobContainerClient(containerName);
-        await containerClient.CreateIfNotExistsAsync();
+        await containerClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
 
         return containerClient;
     }

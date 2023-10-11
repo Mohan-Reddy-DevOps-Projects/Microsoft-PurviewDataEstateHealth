@@ -24,11 +24,11 @@ public class StorageCredentialsProvider : IStorageCredentialsProvider
     /// <summary>
     /// Initializes a new instance of <see cref="StorageCredentialsProvider" /> class.
     /// </summary>
-    /// <param name="credential"></param>
+    /// <param name="credentialFactory"></param>
     public StorageCredentialsProvider(
-        CoreTokenCredential credential)
+        AzureCredentialFactory credentialFactory)
     {
-        this.credential = credential;
+        this.credential = credentialFactory.CreateDefaultAzureCredential();
     }
 
     /// <inheritdoc/>

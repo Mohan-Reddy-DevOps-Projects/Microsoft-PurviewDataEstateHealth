@@ -44,11 +44,11 @@ public class CertificateLoaderService : ICertificateLoaderService
         IKeyVaultAccessorService keyVaultAccessorService,
         IDataEstateHealthLogger logger,
         IOptions<CertificateSetConfiguration> certConfig,
-        TokenCredential credentials)
+        AzureCredentialFactory credentialFactory)
     {
         this.keyVaultAccessorService = keyVaultAccessorService;
         this.logger = logger;
-        this.credentials = credentials;
+        this.credentials = credentialFactory.CreateDefaultAzureCredential();
         this.certConfig = certConfig;
     }
 

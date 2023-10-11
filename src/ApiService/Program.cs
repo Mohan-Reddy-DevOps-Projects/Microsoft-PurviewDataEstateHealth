@@ -48,20 +48,10 @@ public class Program
         // Add services to the container.
         builder.Services.AddApiVersioning();
 
-        var credentialOptions = new DefaultAzureCredentialOptions();
-        credentialOptions.Retry.Mode = RetryMode.Fixed;
-        credentialOptions.Retry.Delay = TimeSpan.FromSeconds(15);
-        credentialOptions.Retry.MaxRetries = 12;
-        credentialOptions.Retry.NetworkTimeout = TimeSpan.FromSeconds(100);
-        credentialOptions.ExcludeManagedIdentityCredential = builder.Environment.IsDevelopment();
-        credentialOptions.ExcludeWorkloadIdentityCredential = builder.Environment.IsDevelopment();
-
-        TokenCredential azureCredentials = new DefaultAzureCredential(credentialOptions);
-
         builder.Services
             .AddApiServiceConfigurations(builder.Configuration)
             .AddApiServices()
-            .AddCoreLayer(azureCredentials)
+            .AddCoreLayer()
             .AddDataAccessLayer()
             .AddServiceBasicsForApiService();
 
