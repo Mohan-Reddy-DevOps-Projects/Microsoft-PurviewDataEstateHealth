@@ -1,0 +1,6 @@
+# some configs for catalog
+AZURE_EVENT_HUB_STORAGE_ACCOUNT = ""
+DATA_PRODUCT_PATH = ""
+TERMS_PATH = ""
+BUSINESS_DOMAIN_PATH = ""
+

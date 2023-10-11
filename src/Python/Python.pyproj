@@ -1,0 +1,92 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>31937737-46e7-47c5-94e3-125392760ca5</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>setup.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>Python</Name>
+    <RootNamespace>Python</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="DataEstateHealthLibrary\AtlasRdd\atlas_rdd_column_functions.py" />
+    <Compile Include="DataEstateHealthLibrary\AtlasRdd\atlas_rdd_common_variables.py" />
+    <Compile Include="DataEstateHealthLibrary\AtlasRdd\atlas_rdd_map.py" />
+    <Compile Include="DataEstateHealthLibrary\AtlasRdd\atlas_rdd_schemas.py" />
+    <Compile Include="DataEstateHealthLibrary\AtlasRdd\atlas_rdd_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\AtlasRdd\build_atlas_rdd.py" />
+    <Compile Include="DataEstateHealthLibrary\AtlasRdd\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\BusinessDomain\build_business_domain.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\BusinessDomain\business_domain_column_functions.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\BusinessDomain\business_domain_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\BusinessDomain\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\catalog_constants.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\catalog_transformation_functions.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataAsset\build_data_asset.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataAsset\data_asset_column_functions.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataAsset\data_asset_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataAsset\data_asset_types.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataAsset\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataProduct\build_data_product.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataProduct\data_product_column_functions.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataProduct\data_product_config.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataProduct\data_product_main.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataProduct\data_product_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\DataProduct\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\Terms\build_term.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\Terms\term_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\Terms\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcControls\build_cdmc_measures.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcControls\cdmc_controls_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\data_quality_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\Shared\column_functions.py" />
+    <Compile Include="DataEstateHealthLibrary\Shared\helper_function.py" />
+    <Compile Include="DataEstateHealthLibrary\Shared\merge_helper_function.py" />
+    <Compile Include="DataEstateHealthLibrary\Shared\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\TestData\data_product_sample_data.py" />
+    <Compile Include="setup.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\catalog_column_functions.py" />
+    <Compile Include="DataEstateHealthLibrary\AtlasRdd\merge_function.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\catalog_schema.py" />
+    <Compile Include="DataEstateHealthLibrary\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DataEstateHealthLibrary\" />
+    <Folder Include="DataEstateHealthLibrary\Catalog\" />
+    <Folder Include="DataEstateHealthLibrary\AtlasRdd\" />
+    <Folder Include="DataEstateHealthLibrary\Catalog\DataAsset\" />
+    <Folder Include="DataEstateHealthLibrary\Catalog\BusinessDomain\" />
+    <Folder Include="DataEstateHealthLibrary\Catalog\DataProduct\" />
+    <Folder Include="DataEstateHealthLibrary\CdmcControls\" />
+    <Folder Include="DataEstateHealthLibrary\Catalog\Terms\" />
+    <Folder Include="DataEstateHealthLibrary\DataQuality\" />
+    <Folder Include="DataEstateHealthLibrary\Shared\" />
+    <Folder Include="DataEstateHealthLibrary\TestData\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="requirements.txt" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>
