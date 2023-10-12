@@ -6,12 +6,14 @@
     "dnsZoneName": "purview-dg.azure.com",
     "gatewaySubjectName": "gateway-prod-client.babylon.azure.com",
     "powerBiClientId": "28456abb-1abf-47c1-abc3-acb68b96484e",
-    "powerBiEnabled": "false",
+    "purviewInsights3PClientId": "7ae5382b-86c2-4c34-b805-ebb3d15a79ec",
+    "powerBiEnabled": "true",
     "powerBiTenantId": "8aebbf05-e60c-4fad-818d-508ad099d7ef",
     "resourceGroupName": "dgh-canary-centraluseuap-rg",
     "rpSubjectName": "rp.babylon-service-ame.azure.com",
     "serverlessPoolEnabled": "false",
     "serviceShortName": "dgh",
-    "subdomainName": "prod-eastus2euap-health"
+    "subdomainName": "prod-eastus2euap-health",
+    "azureEnvironment": "AzureGlobalCloud"
   }
 }
