@@ -5,6 +5,10 @@ param jobStorageAccountName string
 param keyVaultName string
 param location string = resourceGroup().location
 param vnetName string
+param synapseWorkspaceName string
+param synapseStorageAccountName string
+param synapseStorageAccountUrl string
+param sparkPoolName string
 
 resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: containerAppIdentityName
@@ -62,5 +66,67 @@ module keyVaultRoleAssignments 'keyVaultRoleAssignments.bicep' = {
   params: {
     keyVaultName: keyVaultName
     principalId: containerAppIdentity.properties.principalId
+  }
+}
+
+module synapseStorageAccount 'synapseStorageAccount.bicep' = {
+  name: 'synapseStorageAccount'
+  params: {
+    location: location
+    storageAccountName: synapseStorageAccountName
+  }
+}
+
+resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
+  dependsOn: [synapseStorageAccount]
+  name: synapseWorkspaceName
+  location: location
+  tags: {}
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    azureADOnlyAuthentication: false
+    publicNetworkAccess: 'Enabled'
+    managedVirtualNetwork: 'default'
+    cspWorkspaceAdminProperties: {
+    }
+    defaultDataLakeStorage: {
+      accountUrl: synapseStorageAccountUrl
+      createManagedPrivateEndpoint: true
+      filesystem: synapseStorageAccount.outputs.StorageContainerName
+      resourceId: synapseStorageAccount.outputs.StorageAccountResourceId
+    }
+    sqlAdministratorLogin: 'sqladminuser'
+    sqlAdministratorLoginPassword: null
+  }
+}
+
+resource sparkPool 'Microsoft.Synapse/workspaces/bigDataPools@2021-06-01' = {
+  dependsOn: [synapseWorkspace]
+  name: sparkPoolName
+  location: location
+  tags: {}
+  parent: synapseWorkspace
+  properties: {
+    autoPause: {
+      delayInMinutes: 5
+      enabled: true
+    }
+    autoScale: {
+      enabled: true
+      minNodeCount: 3
+      maxNodeCount: 10
+    }
+    dynamicExecutorAllocation: {
+      enabled: true
+      minExecutors: 1
+      maxExecutors: 4
+    }
+    isComputeIsolationEnabled: false
+    nodeSize: 'Small'
+    nodeSizeFamily: 'MemoryOptimized'
+    sessionLevelPackagesEnabled: true
+    sparkVersion: '3.3'
   }
 }
