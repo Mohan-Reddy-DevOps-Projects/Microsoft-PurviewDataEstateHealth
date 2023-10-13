@@ -80,6 +80,7 @@ public static class CoreLayer
     {
         services.AddScoped<IPowerBICredentialComponent, PowerBICredentialComponent>();
         services.AddScoped<IDatasetCommand, DatasetCommand>();
+        services.AddScoped<IReportCommand, ReportCommand>();
         services.AddScoped<IProfileCommand, ProfileCommand>();
         services.AddScoped<IWorkspaceCommand, WorkspaceCommand>();
         services.AddScoped<HealthProfileCommand>();

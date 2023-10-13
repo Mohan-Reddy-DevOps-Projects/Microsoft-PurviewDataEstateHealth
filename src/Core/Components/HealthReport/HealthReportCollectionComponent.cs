@@ -22,7 +22,7 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
     protected readonly IComponentContextFactory contextFactory;
 
     [Inject]
-    private readonly IPowerBIService powerBIService;
+    private readonly IReportCommand reportCommand;
 
     [Inject]
     private readonly HealthProfileCommand profileCommand;
@@ -100,21 +100,13 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
     /// <returns></returns>
     private async Task<IEnumerable<Report>> GetReportsByWorkspace(Guid profileId, Guid workspaceId, CancellationToken cancellationToken)
     {
-        Reports reports = await this.powerBIService.GetReports(profileId, workspaceId, cancellationToken);
+        IReportRequest reportRequest = new ReportRequest()
+        {
+            ProfileId = profileId,
+            WorkspaceId = workspaceId
+        };
+        Reports reports = await this.reportCommand.List(reportRequest, cancellationToken);
 
         return reports.Value.GroupBy(x => x.Name).Select(g => g.First());
-    }
-
-    /// <summary>
-    /// Get the list of reports available for the provided profile.
-    /// </summary>
-    /// <param name="workspaceId"></param>
-    /// <param name="reportId"></param>
-    /// <param name="profileId"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    private async Task<Report> GetReportByWorkspace(Guid profileId, Guid workspaceId, Guid reportId, CancellationToken cancellationToken)
-    {
-        return await this.powerBIService.GetReport(profileId, workspaceId, reportId, cancellationToken);
     }
 }

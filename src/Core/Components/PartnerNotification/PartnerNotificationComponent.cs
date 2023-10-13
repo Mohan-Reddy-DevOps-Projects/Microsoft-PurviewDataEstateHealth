@@ -11,6 +11,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
+using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.PowerBI.Api.Models;
@@ -25,8 +26,11 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     [Inject]
     private readonly HealthWorkspaceCommand workspaceCommand;
 
-    /*[Inject]
-    private readonly IDatasetCommand datasetCommand;*/
+    //[Inject]
+    //private readonly IReportCommand reportCommand;
+
+    [Inject]
+    private readonly IDatasetCommand datasetCommand;
 
     [Inject]
     private readonly IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration;
@@ -61,23 +65,57 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             powerBICredential = this.powerBICredentialComponent.CreateCredential(context.AccountId, owner);
             await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
         }
-        
-        string datasetName = "CDMC";
+
+        string datasetName = "CDMC_Report";
         IDatasetRequest datasetRequest = new DatasetRequest()
         {
             ProfileId = profile.Id,
             WorkspaceId = workspace.Id,
-            AccountId = context.AccountId,
-            DatabaseName = $"{owner}_1",
-            DatabaseSchema = $"{owner}-{context.AccountId}",
-            Server = this.serverlessPoolConfiguration.Value.SqlEndpoint.Split(';').First(),
             DatasetContainer = "powerbi",
             DatasetFileName = $"{datasetName}.pbix",
             DatasetName = datasetName,
             OptimizedDataset = true,
             PowerBICredential = powerBICredential
+            
         };
 
-        // Dataset dataset = await this.datasetCommand.Create(datasetRequest, cancellationToken);
+        string sharedDatasetName = "CDMC_Dataset";
+        IDatasetRequest sharedDatasetRequest = new DatasetRequest()
+        {
+            ProfileId = profile.Id,
+            WorkspaceId = workspace.Id,
+            DatasetContainer = "powerbi",
+            DatasetFileName = $"{sharedDatasetName}.pbix",
+            DatasetName = sharedDatasetName,
+            OptimizedDataset = true,
+            PowerBICredential = powerBICredential,
+            SkipReport = true,
+            Parameters = new Dictionary<string, string>()
+            {
+                { "SERVER", this.serverlessPoolConfiguration.Value.SqlEndpoint.Split(';').First() },
+                { "DATABASE", $"{owner}_1" }
+            }
+        };
+
+        Datasets datasets = await this.datasetCommand.List(sharedDatasetRequest, cancellationToken);
+        Dataset sharedDataset = datasets.Value.FirstOrDefault(d => d.Name == sharedDatasetName);
+
+        try
+        {
+            sharedDataset ??= await this.datasetCommand.Create(sharedDatasetRequest, cancellationToken);
+        }
+        catch (ServiceException ex) when (ex.ServiceError.Category == ErrorCategory.ServiceError && ex.ServiceError.Code == ErrorCode.PowerBI_ReportDeleteFailed.Code)
+        {
+            IDatasetRequest deleteRequest = new DatasetRequest()
+            {
+                DatasetId = Guid.Parse(sharedDataset.Id),
+                ProfileId = profile.Id,
+                WorkspaceId = workspace.Id
+            };
+            await this.datasetCommand.Delete(deleteRequest, cancellationToken);
+
+            throw;
+        }
+        // Report report = await this.reportCommand.Bind(sharedDataset, datasetRequest, cancellationToken);
     }
 }

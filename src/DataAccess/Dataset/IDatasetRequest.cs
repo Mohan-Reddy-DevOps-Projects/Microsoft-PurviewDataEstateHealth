@@ -28,29 +28,9 @@ public interface IDatasetRequest
     string DatasetName { get; }
 
     /// <summary>
-    /// The account id.
-    /// </summary>
-    Guid AccountId { get; }
-
-    /// <summary>
     /// The dataset id.
     /// </summary>
     Guid DatasetId { get; }
-
-    /// <summary>
-    /// The database name.
-    /// </summary>
-    string DatabaseName { get; }
-
-    /// <summary>
-    /// The database schema.
-    /// </summary>
-    string DatabaseSchema { get; }
-
-    /// <summary>
-    /// The database server.
-    /// </summary>
-    string Server { get; }
 
     /// <summary>
     /// The dataset container.
@@ -71,4 +51,14 @@ public interface IDatasetRequest
     /// Whether the dataset is in optimized formated for large sizes.
     /// </summary>
     bool OptimizedDataset { get; }
+
+    /// <summary>
+    /// Whether to skip the report creation.
+    /// </summary>
+    bool SkipReport { get; }
+
+    /// <summary>
+    /// Parameters to be used in the dataset creation.
+    /// </summary>
+    Dictionary<string, string> Parameters { get; }
 }

@@ -140,6 +140,27 @@ public interface IPowerBIService
     /// <returns></returns>
     Task<Report> GetReport(Guid profileId, Guid groupId, Guid reportId, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Rebind the report to a dataset in the specified workspace.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="groupId"></param>
+    /// <param name="datasetId"></param>
+    /// <param name="reportId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<HttpResponseMessage> RebindReport(Guid profileId, Guid groupId, Guid datasetId, Guid reportId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Delete the report in the specified workspace.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="groupId"></param>
+    /// <param name="reportId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<HttpResponseMessage> DeleteReport(Guid profileId, Guid groupId, Guid reportId, CancellationToken cancellationToken);
+
     #endregion
 
     #region Dataset
@@ -184,8 +205,9 @@ public interface IPowerBIService
     /// <param name="powerBiCredential"></param>
     /// <param name="cancellationToken"></param>
     /// <param name="optimizedDataset"></param>
+    /// <param name="skipReport"></param>
     /// <returns></returns>
-    Task<Import> CreateDataset(Guid profileId, Guid workspaceId, Stream stream, string datasetName, Dictionary<string, string> parameters, PowerBICredential powerBiCredential, CancellationToken cancellationToken, bool optimizedDataset = false);
+    Task<Import> CreateDataset(Guid profileId, Guid workspaceId, Stream stream, string datasetName, Dictionary<string, string> parameters, PowerBICredential powerBiCredential, CancellationToken cancellationToken, bool optimizedDataset = false, bool skipReport = false);
 
     #endregion
 

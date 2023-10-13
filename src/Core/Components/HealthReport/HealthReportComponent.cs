@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
@@ -16,7 +17,7 @@ internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHea
 {
 #pragma warning disable 649
     [Inject]
-    private readonly IPowerBIService powerBIService;
+    private readonly IReportCommand reportCommand;
 
     [Inject]
     private readonly HealthProfileCommand profileCommand;
@@ -38,7 +39,13 @@ internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHea
             ProfileId = profile.Id,
         };
         Group workspace = await this.workspaceCommand.Get(workspaceContext, cancellationToken);
-        Report report = await this.powerBIService.GetReport(profile.Id, workspace.Id, this.Context.ReportId, cancellationToken);
+        IReportRequest reportRequest = new ReportRequest()
+        {
+            ProfileId = profile.Id,
+            WorkspaceId = workspace.Id,
+            ReportId = this.Context.ReportId
+        };
+        Report report = await this.reportCommand.Get(reportRequest, cancellationToken);
 
         return new PowerBIHealthReportModel()
         {

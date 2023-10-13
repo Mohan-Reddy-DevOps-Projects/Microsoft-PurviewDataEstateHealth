@@ -206,7 +206,6 @@ public class ErrorCode : ServiceErrorCode
 
     #endregion
 
-
     #region PowerBI
 
     /// <summary>
@@ -228,6 +227,11 @@ public class ErrorCode : ServiceErrorCode
     /// PowerBI capacity not found.
     /// </summary>
     public static readonly ErrorCode PowerBI_CapacityNotFound = new(10003);
+
+    /// <summary>
+    /// PowerBI report delete failed.
+    /// </summary>
+    public static readonly ErrorCode PowerBI_ReportDeleteFailed = new(10004, "Report delete failed.");
 
     #endregion
 }

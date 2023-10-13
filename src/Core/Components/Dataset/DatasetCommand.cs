@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using global::Azure.Storage.Blobs;
@@ -36,23 +37,23 @@ internal sealed class DatasetCommand : IDatasetCommand
     /// <inheritdoc/>
     public async Task<Dataset> Create(IDatasetRequest requestContext, CancellationToken cancellationToken)
     {
-        CreateValidate(requestContext);
+        Import import = await this.Import(requestContext, cancellationToken);
+        Dataset dataset = import.Datasets.First();
 
-        Dictionary<string, string> parameters = new()
-        {
-            { "SERVER", requestContext.Server },
-            { "DATABASE", requestContext.DatabaseName },
-            { "DATABASE_SCHEMA", requestContext.DatabaseSchema }
-        };
+        return dataset;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Import> Import(IDatasetRequest requestContext, CancellationToken cancellationToken)
+    {
+        CreateValidate(requestContext);
 
         Stream stream = await this.GetDatasetFile(requestContext, cancellationToken);
         using (stream)
         {
             stream.Seek(0, SeekOrigin.Begin);
-            Import import = await this.powerBiService.CreateDataset(requestContext.ProfileId, requestContext.WorkspaceId, stream, requestContext.DatasetName, parameters, requestContext.PowerBICredential, cancellationToken, requestContext.OptimizedDataset);
-            Dataset dataset = import.Datasets.First();
 
-            return dataset;
+            return await this.powerBiService.CreateDataset(requestContext.ProfileId, requestContext.WorkspaceId, stream, requestContext.DatasetName, requestContext.Parameters, requestContext.PowerBICredential, cancellationToken, optimizedDataset: requestContext.OptimizedDataset, skipReport: requestContext.SkipReport);
         }
     }
 
@@ -161,21 +162,9 @@ internal sealed class DatasetCommand : IDatasetCommand
         {
             throw new ServiceError(ErrorCategory.ServiceError, ErrorCode.MissingField.Code, "Missing WorkspaceId.").ToException();
         }
-        if (requestContext.AccountId == Guid.Empty)
-        {
-            throw new ServiceError(ErrorCategory.ServiceError, ErrorCode.MissingField.Code, "Missing AccountId.").ToException();
-        }
         if (string.IsNullOrEmpty(requestContext.DatasetName))
         {
             throw new ServiceError(ErrorCategory.ServiceError, ErrorCode.MissingField.Code, "Missing DatasetName.").ToException();
-        }
-        if (string.IsNullOrEmpty(requestContext.DatabaseSchema))
-        {
-            throw new ServiceError(ErrorCategory.ServiceError, ErrorCode.MissingField.Code, "Missing DatabaseSchema.").ToException();
-        }
-        if (string.IsNullOrEmpty(requestContext.Server))
-        {
-            throw new ServiceError(ErrorCategory.ServiceError, ErrorCode.MissingField.Code, "Missing Server.").ToException();
         }
         if (string.IsNullOrEmpty(requestContext.DatasetContainer))
         {

@@ -21,4 +21,12 @@ internal interface IDatasetCommand : IEntityCreateOperation<IDatasetRequest, Dat
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that resolves to the entity information.</returns>
     Task<Datasets> List(IDatasetRequest requestContext, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Import a dataset.
+    /// </summary>
+    /// <param name="requestContext"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<Import> Import(IDatasetRequest requestContext, CancellationToken cancellationToken);
 }
