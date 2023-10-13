@@ -6,7 +6,7 @@
     "serviceGroup": "Microsoft.Azure.PDG.Infrastructure",
     "displayName": "PDG Infrastructure",
     "environment": "$config(pdg.environment.name)",
-    "TenantId": "$config(pdg.tenantId)",
+    "TenantId": "$config(pdg.tenant.id)",
     "serviceSpecificationPath": "serviceSpec.json",
     "buildout": {
       "isForAutomatedBuildout": "false"
