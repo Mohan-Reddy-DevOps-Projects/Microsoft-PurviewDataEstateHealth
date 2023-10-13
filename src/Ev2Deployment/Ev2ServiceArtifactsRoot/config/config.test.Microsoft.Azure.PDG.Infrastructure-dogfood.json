@@ -1,19 +1,20 @@
 {
   "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
-  "settings": {
-    "assistedIdentityAppId": "b2758aaf-9d88-4484-86b6-f39183ed0988",
-    "cloudShareInfrastructureSubscriptionId": "b7334dcb-050a-40e3-81c9-b1cef5ecfe79",
-    "dnsZoneName": "purview-dg.azure-test.com",
-    "gatewaySubjectName": "gateway-df-client.babylon.azure-test.com",
-    "powerBiClientId": "f5257d9c-4ed4-459b-b9e9-61e3e755fcf4",
-    "purviewInsights3PClientId": "28602f49-edf0-45c0-b1fe-ddac9dbdc207",
-    "powerBiEnabled": "true",
-    "powerBiTenantId": "7d8dbee8-bc7d-4574-a52a-44f5b76c7ecf",
-    "resourceGroupName": "dgh-dogfood-westus2-rg",
-    "rpSubjectName": "rp.babylon-service-ame.azure-test.com",
-    "serverlessPoolEnabled": "true",
-    "serviceShortName": "dgh",
-    "subdomainName": "df-westus2-health",
-    "azureEnvironment": "AzureGlobalCloud"
-  }
+    "settings": {
+        "assistedIdentityAppId": "b2758aaf-9d88-4484-86b6-f39183ed0988",
+        "cloudShareInfrastructureSubscriptionId": "b7334dcb-050a-40e3-81c9-b1cef5ecfe79",
+        "dnsZoneName": "purview-dg.azure-test.com",
+        "gatewaySubjectName": "gateway-df-client.babylon.azure-test.com",
+        "powerBiClientId": "f5257d9c-4ed4-459b-b9e9-61e3e755fcf4",
+        "purviewInsights3PClientId": "28602f49-edf0-45c0-b1fe-ddac9dbdc207",
+        "powerBiEnabled": "true",
+        "powerBiTenantId": "7d8dbee8-bc7d-4574-a52a-44f5b76c7ecf",
+        "resourceGroupName": "dgh-dogfood-westus2-rg",
+        "rpSubjectName": "rp.babylon-service-ame.azure-test.com",
+        "serverlessPoolEnabled": "true",
+        "serviceShortName": "dgh",
+        "subdomainName": "df-westus2-health",
+        "azureEnvironment": "AzureGlobalCloud",
+        "synapseRegion": "eastus"
+    }
 }

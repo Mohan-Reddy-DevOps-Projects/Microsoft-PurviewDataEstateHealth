@@ -1,19 +1,20 @@
 {
   "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
-  "settings": {
-    "assistedIdentityAppId": "a2508049-2811-4b1c-8805-83ae4f1c7806",
-    "cloudShareInfrastructureSubscriptionId": "80476949-ff86-4263-a6a6-7136fa973307",
-    "dnsZoneName": "purview-dg.azure.com",
-    "gatewaySubjectName": "gateway-prod-client.babylon.azure.com",
-    "powerBiClientId": "28456abb-1abf-47c1-abc3-acb68b96484e",
-    "purviewInsights3PClientId": "7ae5382b-86c2-4c34-b805-ebb3d15a79ec",
-    "powerBiEnabled": "true",
-    "powerBiTenantId": "8aebbf05-e60c-4fad-818d-508ad099d7ef",
-    "resourceGroupName": "dgh-canary-centraluseuap-rg",
-    "rpSubjectName": "rp.babylon-service-ame.azure.com",
-    "serverlessPoolEnabled": "false",
-    "serviceShortName": "dgh",
-    "subdomainName": "prod-eastus2euap-health",
-    "azureEnvironment": "AzureGlobalCloud"
-  }
+    "settings": {
+        "assistedIdentityAppId": "a2508049-2811-4b1c-8805-83ae4f1c7806",
+        "cloudShareInfrastructureSubscriptionId": "80476949-ff86-4263-a6a6-7136fa973307",
+        "dnsZoneName": "purview-dg.azure.com",
+        "gatewaySubjectName": "gateway-prod-client.babylon.azure.com",
+        "powerBiClientId": "28456abb-1abf-47c1-abc3-acb68b96484e",
+        "purviewInsights3PClientId": "7ae5382b-86c2-4c34-b805-ebb3d15a79ec",
+        "powerBiEnabled": "true",
+        "powerBiTenantId": "8aebbf05-e60c-4fad-818d-508ad099d7ef",
+        "resourceGroupName": "dgh-canary-centraluseuap-rg",
+        "rpSubjectName": "rp.babylon-service-ame.azure.com",
+        "serverlessPoolEnabled": "false",
+        "serviceShortName": "dgh",
+        "subdomainName": "prod-eastus2euap-health",
+        "azureEnvironment": "AzureGlobalCloud",
+        "synapseRegion": "eastus2euap"
+    }
 }

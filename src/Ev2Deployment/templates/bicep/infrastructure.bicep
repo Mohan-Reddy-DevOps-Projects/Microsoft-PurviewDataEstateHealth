@@ -9,6 +9,7 @@ param synapseWorkspaceName string
 param synapseStorageAccountName string
 param synapseStorageAccountUrl string
 param sparkPoolName string
+param synapseLocation string
 
 resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: containerAppIdentityName
@@ -80,7 +81,7 @@ module synapseStorageAccount 'synapseStorageAccount.bicep' = {
 resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
   dependsOn: [synapseStorageAccount]
   name: synapseWorkspaceName
-  location: location
+  location: synapseLocation
   tags: {}
   identity: {
     type: 'SystemAssigned'
@@ -105,7 +106,7 @@ resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
 resource sparkPool 'Microsoft.Synapse/workspaces/bigDataPools@2021-06-01' = {
   dependsOn: [synapseWorkspace]
   name: sparkPoolName
-  location: location
+  location: synapseLocation
   tags: {}
   parent: synapseWorkspace
   properties: {

@@ -150,7 +150,12 @@
             {
                 "find": "__INFRA_SYNAPSE_SPARK_POOL_NAME__",
                 "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)pool"
+            },
+            {
+                "find": "__INFRA_SYNAPSE_LOCATION__",
+                "replaceWith": "$config(synapseRegion)"
             }
+
         ]
     },
     {
