@@ -64,7 +64,10 @@ public class Program
             .AddAuthentication();
 
         builder.Services
-            .AddControllers()
+            .AddControllers(options =>
+            {
+                options.Filters.Add(typeof(ServiceExceptionFilter));
+            })
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
