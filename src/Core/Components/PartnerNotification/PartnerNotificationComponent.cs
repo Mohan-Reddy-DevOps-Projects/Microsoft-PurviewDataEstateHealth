@@ -26,8 +26,8 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     [Inject]
     private readonly HealthWorkspaceCommand workspaceCommand;
 
-    //[Inject]
-    //private readonly IReportCommand reportCommand;
+/*    [Inject]
+    private readonly IReportCommand reportCommand;
 
     [Inject]
     private readonly IDatasetCommand datasetCommand;
@@ -39,7 +39,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
 
     [Inject]
-    private readonly ICapacityAssignment capacityAssignment;
+    private readonly ICapacityAssignment capacityAssignment;*/
 
 #pragma warning restore 649
 
@@ -50,12 +50,19 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     /// <inheritdoc/>
     public async Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Create(this.Context, cancellationToken);
-        IWorkspaceContext context = new WorkspaceContext(this.Context)
+        try
         {
-            ProfileId = profile.Id
-        };
-        Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
+            IProfileModel profile = await this.profileCommand.Create(this.Context, cancellationToken);
+            IWorkspaceContext context = new WorkspaceContext(this.Context)
+            {
+                ProfileId = profile.Id
+            };
+            Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
+        }
+        catch (Exception)
+        {
+        }
+        /*
         await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
         string owner = "health";
         PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(context.AccountId, owner, cancellationToken);
@@ -116,6 +123,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 
             throw;
         }
-        // Report report = await this.reportCommand.Bind(sharedDataset, datasetRequest, cancellationToken);
+        Report report = await this.reportCommand.Bind(sharedDataset, datasetRequest, cancellationToken);
+        */
     }
 }

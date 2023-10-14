@@ -31,6 +31,9 @@ public class PlatformAccountNotificationsController : ControlPlaneController
 
     private readonly EnvironmentConfiguration environmentConfiguration;
 
+    private static readonly string[] AllowedAccounts = new string[] { "903ee1fb-f00e-4d7c-b488-59f4d483d9dc" };
+    private static readonly string[] AllowedTenants = new string[] { "79e7043b-2d89-4454-9f07-1d8ceb3f0399" };
+
     /// <summary>
     /// Instantiate instance of PlatformAccountNotificationsController.
     /// </summary>
@@ -62,9 +65,10 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         [FromBody] AccountServiceModel account,
         CancellationToken cancellationToken)
     {
-        if (!this.environmentConfiguration.IsDevelopmentEnvironment())
+        if (!this.environmentConfiguration.IsDevelopmentEnvironment() && !Validate(account))
         {
             return this.Ok();
+
         }
 
         await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
@@ -91,5 +95,10 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     {
         await Task.CompletedTask;
         return this.Ok();
+    }
+
+    private static bool Validate(AccountServiceModel accountServiceModel)
+    {
+        return AllowedAccounts.Where(x => x == accountServiceModel.Id).Any() && AllowedTenants.Where(x => x == accountServiceModel.TenantId).Any();
     }
 }
