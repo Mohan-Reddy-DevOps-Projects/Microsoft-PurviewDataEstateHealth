@@ -10,7 +10,7 @@
         },
         {
           "find": "__ASSISTED_ID_APP_SECRET_URI__",
-          "replaceWith": "$config(pdg.environmentSharedInfrastructure.assistedId.secretUri)"
+          "replaceWith": "https://$config(pdg.groupName)$config(pdg.environment.shortName)sharedSecretsKv.$config(keyVault.domainNameSuffix)/secrets/$config(assistedIdPrefix)AssistedIdCert"
         }
       ]
     },

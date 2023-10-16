@@ -1,7 +1,8 @@
 {
   "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
     "settings": {
-        "assistedIdentityAppId": "b2758aaf-9d88-4484-86b6-f39183ed0988",
+        "assistedIdentityAppId": "e3efd933-f56b-4afd-922e-f1603d7d052a",
+        "assistedIdPrefix": "Microsoft",
         "cloudShareInfrastructureSubscriptionId": "b7334dcb-050a-40e3-81c9-b1cef5ecfe79",
         "dnsZoneName": "purview-dg.azure-test.com",
         "gatewaySubjectName": "gateway-df-client.babylon.azure-test.com",
