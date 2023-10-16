@@ -4,7 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Newtonsoft.Json;
 
 internal class BusinessDomainsSummaryEntity
@@ -16,7 +15,7 @@ internal class BusinessDomainsSummaryEntity
     public BusinessDomainsSummaryEntity(BusinessDomainsSummaryEntity entity)
     {
         this.TotalBusinessDomainsCount = entity.TotalBusinessDomainsCount;
-        this.BusinessDomainsList = entity.BusinessDomainsList;
+        this.BusinessDomainsFilterListLink = entity.BusinessDomainsFilterListLink;
         this.BusinessDomainsTrendLink = entity.BusinessDomainsTrendLink;
         this.BusinessDomainsLastRefreshDate = entity.BusinessDomainsLastRefreshDate;
     }
@@ -24,8 +23,8 @@ internal class BusinessDomainsSummaryEntity
     [JsonProperty("totalBusinessDomainsCount")]
     public int TotalBusinessDomainsCount { get; set; }
 
-    [JsonProperty("businessDomainsList")]
-    public IEnumerable<BusinessDomain> BusinessDomainsList { get; set; }
+    [JsonProperty("businessDomainsFilterListLink")]
+    public string BusinessDomainsFilterListLink { get; set; }
 
     [JsonProperty("businessDomainsTrendLink")]
     public string BusinessDomainsTrendLink { get; set; }

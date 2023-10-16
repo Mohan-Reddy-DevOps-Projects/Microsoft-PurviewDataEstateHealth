@@ -2,9 +2,11 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
+namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
-/// <inheritdoc cref="IHealthActionListContext" />
-internal class HealthActionListContext : ComponentContext, IHealthActionListContext
+/// <summary>
+/// A business domain list class.
+/// </summary>
+public class BusinessDomainList : PagedResults<BusinessDomain>
 {
 }

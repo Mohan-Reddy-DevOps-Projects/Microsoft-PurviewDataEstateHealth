@@ -18,10 +18,10 @@ public class BusinessDomainsSummary
     public int TotalBusinessDomainsCount { get; internal set; }
 
     /// <summary>
-    /// List of all of the business domains 
+    /// Business domains link
     /// </summary>
     [ReadOnly(true)]
-    public IEnumerable<BusinessDomain> BusinessDomainsList { get; internal set; }
+    public string BusinessDomainsFilterListLink { get; internal set; }
 
     /// <summary>
     /// Link to the business domains  API 

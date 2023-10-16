@@ -19,6 +19,7 @@ public static class DataAccessLayer
     {
         _ = services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
         _ = services.AddScoped<IHealthActionRepository, HealthActionRepository>();
+        _ = services.AddScoped<IBusinessDomainRepository, BusinessDomainRepository>();
 
         return services;
     }

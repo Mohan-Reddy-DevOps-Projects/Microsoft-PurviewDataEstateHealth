@@ -14,8 +14,8 @@ public class BusinessDomainsSummaryModel : IBusinessDomainsSummaryModel
     public int TotalBusinessDomainsCount { get; set; }
 
     /// <inheritdoc/> 
-    [JsonProperty("businessDomainsList")]
-    public IEnumerable<BusinessDomain> BusinessDomainsList { get; set; }
+    [JsonProperty("businessDomainsFilterListLink")]
+    public string BusinessDomainsFilterListLink { get; set; }
 
     /// <inheritdoc/> 
     [JsonProperty("businessDomainsTrendLink")]

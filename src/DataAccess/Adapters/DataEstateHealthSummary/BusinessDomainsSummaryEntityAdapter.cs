@@ -18,7 +18,7 @@ internal class BusinessDomainsSummaryEntityAdapter : BaseModelAdapter<IBusinessD
         return new BusinessDomainsSummaryEntity()
         {
             TotalBusinessDomainsCount = model.TotalBusinessDomainsCount,
-            BusinessDomainsList = model.BusinessDomainsList,
+            BusinessDomainsFilterListLink = model.BusinessDomainsFilterListLink,
             BusinessDomainsTrendLink = model.BusinessDomainsTrendLink,
             BusinessDomainsLastRefreshDate = model.BusinessDomainsLastRefreshDate,
         };
@@ -34,7 +34,7 @@ internal class BusinessDomainsSummaryEntityAdapter : BaseModelAdapter<IBusinessD
         return new BusinessDomainsSummaryModel()
         {
             TotalBusinessDomainsCount = entity.TotalBusinessDomainsCount,
-            BusinessDomainsList = entity.BusinessDomainsList,
+            BusinessDomainsFilterListLink = entity.BusinessDomainsFilterListLink,
             BusinessDomainsTrendLink = entity.BusinessDomainsTrendLink,
             BusinessDomainsLastRefreshDate = entity.BusinessDomainsLastRefreshDate,
         };

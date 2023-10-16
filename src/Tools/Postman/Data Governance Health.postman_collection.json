@@ -176,80 +176,122 @@
 				}
 			]
 		},
-		{
-			"name": "Token",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "x-ms-account-id",
-						"value": "{{accountId}}",
-						"type": "text"
-					},
-					{
-						"key": "x-ms-client-tenant-id",
-						"value": "{{tenantId}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/token?api-version={{api-version}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"token"
-					],
-					"query": [
-						{
-							"key": "api-version",
-							"value": "{{api-version}}"
-						}
-					]
-				}
-			},
-			"response": []
-		}
-	],
-	"auth": {
-		"type": "bearer",
-		"bearer": [
-			{
-				"key": "token",
-				"value": "",
-				"type": "string"
-			}
-		]
-	},
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "api-version",
-			"value": "2023-10-01-preview"
-		}
-	]
-}
+        {
+            "name": "Token",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-ms-account-id",
+                        "value": "{{accountId}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-ms-client-tenant-id",
+                        "value": "{{tenantId}}",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/token?api-version={{api-version}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "token"
+                    ],
+                    "query": [
+                        {
+                            "key": "api-version",
+                            "value": "{{api-version}}"
+                        }
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "BusinessDomains",
+            "item": [
+                {
+                    "name": "BusinessDomains",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/businessDomains?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "businessDomains"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ],
+            "auth": {
+                "type": "bearer",
+                "bearer": [
+                    {
+                        "key": "token",
+                        "value": "",
+                        "type": "string"
+                    }
+                ]
+            },
+            "event": [
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            ""
+                        ]
+                    }
+                },
+                {
+                    "listen": "test",
+                    "script": {
+                        "type": "text/javascript",
+                        "exec": [
+                            ""
+                        ]
+                    }
+                }
+            ],
+            "variable": [
+                {
+                    "key": "api-version",
+                    "value": "2023-10-01-preview"
+                }
+            ]
+        }

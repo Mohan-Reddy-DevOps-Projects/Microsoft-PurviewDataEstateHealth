@@ -4,7 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using global::Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;

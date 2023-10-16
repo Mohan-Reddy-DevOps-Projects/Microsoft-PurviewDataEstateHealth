@@ -111,4 +111,18 @@ internal interface IComponentContextFactory
         Guid accountId,
         Guid tenantId,
         Guid domaindId);
+
+    /// <summary>
+    /// Creates an <see cref="IBusinessDomainListContext"/>
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="location"></param>
+    /// <param name="accountId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public IBusinessDomainListContext CreateBusinessDomainListContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId);
 }

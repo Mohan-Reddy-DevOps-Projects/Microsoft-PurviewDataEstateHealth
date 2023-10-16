@@ -8,7 +8,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
 
 /// <summary>
-/// Defines operations for a DataEstateHealthSummary object.
+/// Defines a contract for managing data estate health summary collections.
 /// </summary>
 public interface IDataEstateHealthSummaryComponent : IRetrieveEntityOperation<IDataEstateHealthSummaryModel>,
     INavigable<Guid, IDataEstateHealthSummaryComponent>, IComponent<IDataEstateHealthSummaryContext>

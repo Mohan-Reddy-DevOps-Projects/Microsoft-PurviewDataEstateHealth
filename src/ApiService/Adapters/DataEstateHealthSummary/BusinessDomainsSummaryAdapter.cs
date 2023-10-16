@@ -4,7 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
-using System.Collections.Generic;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 
@@ -17,20 +16,10 @@ public class BusinessDomainsSummaryAdapter : BaseModelAdapter<IBusinessDomainsSu
     /// <inheritdoc />
     public override BusinessDomainsSummary FromModel(IBusinessDomainsSummaryModel model)
     {
-        var businessDomainsListDTO = new List<BusinessDomain>();
-        foreach (var domain in model.BusinessDomainsList)
-        {
-            businessDomainsListDTO.Add(new BusinessDomain
-            {
-                BusinessDomainId = domain.BusinessDomainId,
-                BusinessDomainName = domain.BusinessDomainName,
-            });
-        }
-
         return new BusinessDomainsSummary
         {
             TotalBusinessDomainsCount = model.TotalBusinessDomainsCount,
-            BusinessDomainsList = businessDomainsListDTO,
+            BusinessDomainsFilterListLink = model.BusinessDomainsFilterListLink,
             BusinessDomainsTrendLink = model.BusinessDomainsTrendLink,
             LastRefreshDate = model.BusinessDomainsLastRefreshDate
         };
@@ -38,21 +27,11 @@ public class BusinessDomainsSummaryAdapter : BaseModelAdapter<IBusinessDomainsSu
 
     /// <inheritdoc />
     public override IBusinessDomainsSummaryModel ToModel(BusinessDomainsSummary businessDomainSummaryDto)
-    {
-        var businessDomainsListModel = new List<Models.BusinessDomain>();
-        foreach (var domain in businessDomainSummaryDto.BusinessDomainsList)
-        {
-            businessDomainsListModel.Add(new Models.BusinessDomain
-            {
-                BusinessDomainId = domain.BusinessDomainId,
-                BusinessDomainName = domain.BusinessDomainName,
-            });
-        }
-
+    { 
         return new BusinessDomainsSummaryModel
         {
             TotalBusinessDomainsCount = businessDomainSummaryDto.TotalBusinessDomainsCount,
-            BusinessDomainsList = businessDomainsListModel,
+            BusinessDomainsFilterListLink = businessDomainSummaryDto.BusinessDomainsFilterListLink,
             BusinessDomainsTrendLink = businessDomainSummaryDto.BusinessDomainsTrendLink,
             BusinessDomainsLastRefreshDate = businessDomainSummaryDto.LastRefreshDate
         };

@@ -18,6 +18,14 @@ public interface ICoreLayerFactoryOperations
         Guid accountId);
 
     /// <summary>
+    /// Creates an instance of BusinessDomainCollectionComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IBusinessDomainCollectionComponent"/>.</returns>
+    public IBusinessDomainCollectionComponent CreateBusinessDomainCollectionComponent(
+      Guid tenantId,
+      Guid accountId);
+
+    /// <summary>
     /// Creates an instance of HealthReportCollectionComponent. 
     /// </summary>
     /// <returns>An <see cref="IHealthReportCollectionComponent"/>.</returns>

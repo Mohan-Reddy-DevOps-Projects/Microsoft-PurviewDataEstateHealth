@@ -46,6 +46,19 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
     }
 
     /// <inheritdoc />
+    public IBusinessDomainCollectionComponent CreateBusinessDomainCollectionComponent(
+        Guid tenantId,
+        Guid accountId)
+    {
+        return this.componentRuntime.ResolveLatest<IBusinessDomainCollectionComponent, IBusinessDomainListContext>(
+            this.contextFactory.CreateBusinessDomainListContext(
+                this.version,
+                null,
+                accountId,
+                tenantId));
+    }
+
+    /// <inheritdoc />
     public IHealthReportCollectionComponent CreateHealthReportCollectionComponent(
         Guid tenantId,
         Guid accountId)

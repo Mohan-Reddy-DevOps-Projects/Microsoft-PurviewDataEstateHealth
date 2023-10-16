@@ -15,9 +15,9 @@ public interface IBusinessDomainsSummaryModel
     int TotalBusinessDomainsCount { get; }
 
     /// <summary>
-    /// List of all of the business domains 
+    /// Total number of business domains
     /// </summary>
-    IEnumerable<BusinessDomain> BusinessDomainsList { get; }
+    string BusinessDomainsFilterListLink { get; }
 
     /// <summary>
     /// Link to the business domains  API 

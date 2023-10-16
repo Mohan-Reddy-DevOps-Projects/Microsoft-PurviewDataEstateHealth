@@ -5,17 +5,17 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 /// <summary>
-/// Defines the business domains class
+/// Defines the business domain model
 /// </summary>
-public class BusinessDomain
+public interface IBusinessDomainModel
 {
     /// <summary>
-    /// Name of the business domain
+    /// Business domain name
     /// </summary>
-    public string BusinessDomainName { get; set; }
+    string BusinessDomainName { get; }
 
     /// <summary>
-    /// Id of the business domain
+    /// Business domain Id
     /// </summary>
-    public Guid BusinessDomainId { get; set; }
+    Guid BusinessDomainId { get; }
 }

@@ -4,7 +4,9 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-/// <inheritdoc cref="IHealthActionListContext" />
-internal class HealthActionListContext : ComponentContext, IHealthActionListContext
+/// <summary>
+///Business domain list context
+/// </summary>
+public interface IBusinessDomainListContext : IRootComponentContext
 {
 }
