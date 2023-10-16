@@ -128,18 +128,16 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
     }
 
     /// <inheritdoc />
-    public IHealthActionComponent CreateHealthActionComponent(
+    public IHealthScoreCollectionComponent CreateHealthScoreCollectionComponent(
         Guid tenantId,
-        Guid accountId,
-        Guid businessDomainId)
+        Guid accountId)
     {
-        return this.componentRuntime.Resolve<IHealthActionComponent, IHealthActionContext>(
-            this.contextFactory.CreateHealthActionContext(
+        return this.componentRuntime.Resolve<IHealthScoreCollectionComponent, IHealthScoreListContext>(
+            this.contextFactory.CreateHealthScoreListContext(
                 this.version,
                 null,
-                tenantId,
                 accountId,
-                businessDomainId),
+                tenantId),
             this.version.Numeric);
     }
 }

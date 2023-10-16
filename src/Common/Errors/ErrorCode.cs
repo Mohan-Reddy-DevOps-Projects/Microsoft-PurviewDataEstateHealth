@@ -167,9 +167,19 @@ public class ErrorCode : ServiceErrorCode
     public static readonly ErrorCode BusinessDomainSummary_NotAvailable = new(7001);
 
     /// <summary>
-    /// Health actions does not exist.
+    /// Health actions not available.
     /// </summary>
     public static readonly ErrorCode HealthActions_NotAvailable = new(7002);
+
+    /// <summary>
+    /// Invalid health score kind.
+    /// </summary>
+    public static readonly ErrorCode HealthScore_InvalidKind = new(7003);
+
+    /// <summary>
+    /// Health scores not available.
+    /// </summary>
+    public static readonly ErrorCode HealthScores_NotAvailable = new(7004);
 
     #endregion
 

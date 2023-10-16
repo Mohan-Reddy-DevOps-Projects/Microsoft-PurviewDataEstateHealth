@@ -12,19 +12,19 @@ public class HealthActionKey
     /// <summary>
     /// Initializes a new instance of the <see cref="HealthActionKey"/> class.
     /// </summary>
-    public HealthActionKey(Guid domainId)
+    public HealthActionKey(Guid businessDomainId)
     {
-        this.DomainId = domainId;
+        this.BusinessDomainId = businessDomainId;
     }
 
     /// <summary>
-    /// DomainId.
+    ///Business DomainId.
     /// </summary>
-    public Guid DomainId { get; set; }
+    public Guid BusinessDomainId { get; set; }
 
     /// <inheritdoc />
     public override string ToString()
     {
-        return this.DomainId.ToString();
+        return this.BusinessDomainId.ToString();
     }
 }

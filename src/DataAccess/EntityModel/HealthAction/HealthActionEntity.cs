@@ -50,6 +50,6 @@ internal class HealthActionEntity
     [JsonProperty("lastRefreshedAt")]
     public DateTime LastRefreshedAt { get; set; }
 
-    [JsonProperty("targetDetails")]
+    [JsonProperty("targetDetailsList")]
     public IEnumerable<TargetDetails> TargetDetailsList { get; set; }
 }

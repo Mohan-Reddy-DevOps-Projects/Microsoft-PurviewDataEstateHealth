@@ -54,13 +54,13 @@ public class HealthActionsController : DataPlaneController
     /// <returns></returns>
     [HttpGet]
     [Route("{businessDomainId}")]
-    [ProducesResponseType(typeof(HealthAction), 200)]
+    [ProducesResponseType(typeof(HealthActionList), 200)]
     public async Task<IActionResult> GetHealthActionByIDomainIdAsync(
         [FromRoute] Guid businessDomainId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        IHealthActionModel healthActionModel
+        IBatchResults<IHealthActionModel> healthActionModelResults
             = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
                 .CreateHealthActionCollectionComponent(
                     this.requestHeaderContext.TenantId,
@@ -68,9 +68,15 @@ public class HealthActionsController : DataPlaneController
                 .ById(businessDomainId)
                 .Get(cancellationToken);
 
-        return this.Ok(
-            this.adapterRegistry.AdapterFor<IHealthActionModel, HealthAction>()
-                .FromModel(healthActionModel));
+        var healthActions = new HealthActionList
+        {
+            Value = healthActionModelResults.Results.Select(
+            healthAction => this.adapterRegistry.AdapterFor<IHealthActionModel, HealthAction>()
+            .FromModel(healthAction))
+            .ToList()
+        };
+
+        return this.Ok(healthActions);
     }
 
     /// <summary>

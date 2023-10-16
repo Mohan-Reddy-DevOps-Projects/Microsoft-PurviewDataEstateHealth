@@ -44,6 +44,6 @@ public class HealthActionModel : IHealthActionModel
     public DateTime LastRefreshedAt { get; set; }
 
     /// <inheritdoc />
-    [JsonProperty("targetDetails")]
+    [JsonProperty("targetDetailsList")]
     public IEnumerable<TargetDetails> TargetDetailsList { get; set; }
 }

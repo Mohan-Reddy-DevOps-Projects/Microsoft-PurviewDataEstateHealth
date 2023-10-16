@@ -117,7 +117,6 @@ internal class ComponentContextFactory : IComponentContextFactory
         };
     }
 
-
     /// <inheritdoc />
     public IBusinessDomainListContext CreateBusinessDomainListContext(
         ServiceVersion version,
@@ -134,25 +133,24 @@ internal class ComponentContextFactory : IComponentContextFactory
         };
     }
 
-    internal string LocationOf(string location)
-    {
-        return string.IsNullOrWhiteSpace(location) ? this.environmentConfiguration.Location : location;
-    }
-
-    public IHealthActionContext CreateHealthActionContext(
+    /// <inheritdoc />
+    public IHealthScoreListContext CreateHealthScoreListContext(
         ServiceVersion version,
         string location,
         Guid accountId,
-        Guid tenantId,
-        Guid businessDomainId)
+        Guid tenantId)
     {
-        return new HealthActionContext
+        return new HealthScoreListContext
         {
             Version = version,
             Location = this.LocationOf(location),
             TenantId = tenantId,
-            AccountId = accountId,
-            BusinessDomainId = businessDomainId
+            AccountId = accountId
         };
+    }
+
+    internal string LocationOf(string location)
+    {
+        return string.IsNullOrWhiteSpace(location) ? this.environmentConfiguration.Location : location;
     }
 }

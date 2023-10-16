@@ -11,7 +11,7 @@ using Microsoft.DGP.ServiceBasics.Components;
 /// Defines a contract for managing health action collections.
 /// </summary>
 public interface IHealthActionCollectionComponent :
-    IRetrieveEntityCollectionOperations<IHealthActionModel>, INavigable<Guid, IHealthActionComponent>,
+    IRetrieveEntityCollectionOperations<IHealthActionModel>, INavigable<Guid, IHealthActionCollectionComponent>,
     IComponent<IHealthActionListContext>
 {
 }

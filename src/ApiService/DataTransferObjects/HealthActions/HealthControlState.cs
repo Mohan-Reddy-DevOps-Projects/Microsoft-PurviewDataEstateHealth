@@ -4,6 +4,9 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 
+using System.Text.Json.Serialization;
+using Newtonsoft.Json.Converters;
+
 /// <summary>
 /// Health control state enum.
 /// </summary>

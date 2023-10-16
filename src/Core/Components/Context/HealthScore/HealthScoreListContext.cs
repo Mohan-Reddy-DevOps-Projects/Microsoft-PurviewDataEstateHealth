@@ -4,10 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-
-/// <inheritdoc cref="IHealthActionContext" />
-internal class HealthActionContext : ComponentContext, IHealthActionContext
+/// <inheritdoc cref="IHealthScoreListContext" />
+internal class HealthScoreListContext : ComponentContext, IHealthScoreListContext
 {
-    public Guid BusinessDomainId { get; set; }
+    public Guid? BusinessDomainId { get; set; }
 }

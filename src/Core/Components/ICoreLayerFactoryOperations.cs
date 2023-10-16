@@ -66,4 +66,12 @@ public interface ICoreLayerFactoryOperations
     public IHealthActionCollectionComponent CreateHealthActionCollectionComponent(
         Guid tenantId,
         Guid accountId);
+
+    /// <summary>
+    /// Creates an instance of HealthScoreComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IHealthScoreCollectionComponent"/>.</returns>
+    public IHealthScoreCollectionComponent CreateHealthScoreCollectionComponent(
+        Guid tenantId,
+        Guid accountId);
 }

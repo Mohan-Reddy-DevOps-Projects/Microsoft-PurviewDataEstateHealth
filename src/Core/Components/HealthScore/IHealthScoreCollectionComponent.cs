@@ -8,8 +8,10 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
 
 /// <summary>
-/// Health action component contract.
+/// Defines a contract for managing health score collections.
 /// </summary>
-public interface IHealthActionComponent : IRetrieveEntityOperation<IHealthActionModel>, IComponent<IHealthActionContext>
+public interface IHealthScoreCollectionComponent :
+    IRetrieveEntityCollectionOperations<IHealthScoreModel<HealthScoreProperties>>, INavigable<Guid, IHealthScoreCollectionComponent>,
+    IComponent<IHealthScoreListContext>
 {
 }

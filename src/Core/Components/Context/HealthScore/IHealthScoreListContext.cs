@@ -4,15 +4,13 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-
 /// <summary>
-/// Health action context
+/// Health score list context
 /// </summary>
-public interface IHealthActionContext : IHealthActionListContext
+public interface IHealthScoreListContext : IRootComponentContext
 {
     /// <summary>
     /// Business domain id
     /// </summary>
-    Guid BusinessDomainId { get; set; }
+    Guid? BusinessDomainId { get; set; }
 }

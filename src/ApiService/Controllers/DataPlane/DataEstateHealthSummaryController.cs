@@ -64,7 +64,7 @@ public class DataEstateHealthSummaryController : DataPlaneController
             .Get(cancellationToken);
 
         return this.Ok(
-            this.adapterRegistry.AdapterFor<IDataEstateHealthSummaryModel,DataEstateHealthSummary>()
+            this.adapterRegistry.AdapterFor<IDataEstateHealthSummaryModel, DataEstateHealthSummary>()
             .FromModel(dataEstateHealthSummaryModel));
     }
 

@@ -97,20 +97,18 @@ internal interface IComponentContextFactory
         Guid tenantId);
 
     /// <summary>
-    /// Creates an <see cref="IHealthActionContext"/>
+    /// Creates an <see cref="IHealthScoreListContext"/>
     /// </summary>
     /// <param name="version"></param>
     /// <param name="location"></param>
     /// <param name="accountId"></param>
     /// <param name="tenantId"></param>
-    /// <param name="domaindId"></param>
     /// <returns></returns>
-    public IHealthActionContext CreateHealthActionContext(
+    public IHealthScoreListContext CreateHealthScoreListContext(
         ServiceVersion version,
         string location,
         Guid accountId,
-        Guid tenantId,
-        Guid domaindId);
+        Guid tenantId);
 
     /// <summary>
     /// Creates an <see cref="IBusinessDomainListContext"/>

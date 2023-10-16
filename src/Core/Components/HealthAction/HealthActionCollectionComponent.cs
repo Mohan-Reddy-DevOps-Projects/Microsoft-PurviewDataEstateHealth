@@ -9,6 +9,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.BaseModels;
 using Microsoft.DGP.ServiceBasics.Components;
+using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 
 [Component(typeof(IHealthActionCollectionComponent), ServiceVersion.V1)]
@@ -32,15 +33,10 @@ internal class HealthActionCollectionComponent : BaseComponent<IHealthActionList
         this.healthActionRepository = this.healthActionRepository.ByLocation(this.Context.Location);
     }
 
-    public IHealthActionComponent ById(Guid id)
+    public IHealthActionCollectionComponent ById(Guid id)
     {
-        return this.ComponentRuntime.ResolveLatest<IHealthActionComponent, IHealthActionContext>(
-          this.contextFactory.CreateHealthActionContext(
-              this.Context.Version,
-              this.Context.Location,
-              this.Context.AccountId,
-              this.Context.TenantId,
-              id));
+        this.Context.BusinessDomainId = id;
+        return this;
     }
 
     /// <inheritdoc />
@@ -48,8 +44,37 @@ internal class HealthActionCollectionComponent : BaseComponent<IHealthActionList
         CancellationToken cancellationToken,
         string skipToken = null)
     {
-        return await this.healthActionRepository.GetMultiple(
+        IBatchResults<IHealthActionModel> actionResults = null;
+        if (!this.Context.BusinessDomainId.HasValue)
+        {
+            actionResults = await this.healthActionRepository.GetMultiple(
             cancellationToken,
             skipToken);
+
+            if (actionResults == null)
+            {
+                throw new ServiceError(
+                   ErrorCategory.ResourceNotFound,
+                   ErrorCode.HealthActions_NotAvailable.Code,
+                   ErrorCode.HealthActions_NotAvailable.FormatMessage("Health actions not available for all business domains."))
+               .ToException();
+            }
+        }
+        else
+        {
+            actionResults = await this.healthActionRepository.GetMultiple(new HealthActionKey(this.Context.BusinessDomainId.Value),
+                cancellationToken,
+                skipToken);
+
+            if (actionResults == null)
+            {
+                throw new ServiceError(
+                   ErrorCategory.ResourceNotFound,
+                   ErrorCode.HealthActions_NotAvailable.Code,
+                   ErrorCode.HealthActions_NotAvailable.FormatMessage(this.Context.BusinessDomainId.ToString()))
+               .ToException();
+            }
+        }
+        return actionResults;
     }
 }

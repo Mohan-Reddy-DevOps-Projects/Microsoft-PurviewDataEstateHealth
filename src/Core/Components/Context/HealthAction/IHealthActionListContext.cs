@@ -9,5 +9,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 /// </summary>
 public interface IHealthActionListContext : IRootComponentContext
 {
-
+    /// <summary>
+    /// Business domain id
+    /// </summary>
+    Guid? BusinessDomainId { get; set; }
 }
