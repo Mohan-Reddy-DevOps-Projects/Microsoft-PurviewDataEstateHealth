@@ -1,8 +1,8 @@
 {
   "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
     "settings": {
-        "assistedIdentityAppId": "a2508049-2811-4b1c-8805-83ae4f1c7806",
-        "assistedIdPrefix": "Canary",
+        "assistedIdAppClientId": "f43d7f53-3f50-4e18-9c75-46133618e12e",
+        "assistedIdAppObjectId": "1329e457-07e1-4695-be0b-44137168346d",
         "cloudShareInfrastructureSubscriptionId": "80476949-ff86-4263-a6a6-7136fa973307",
         "dnsZoneName": "purview-dg.azure.com",
         "gatewaySubjectName": "gateway-prod-client.babylon.azure.com",

@@ -5,6 +5,9 @@
         "acrName": {
             "value": "__CORE_ACR_NAME__"
         },
+        "assistedIdAppObjectId": {
+            "value": "__ASSISTED_ID_APP_OBJECT_ID__"
+        },
         "containerAppIdentityName": {
             "value": "__INFRA_CONTAINER_APP_IDENTITY_NAME__"
         },

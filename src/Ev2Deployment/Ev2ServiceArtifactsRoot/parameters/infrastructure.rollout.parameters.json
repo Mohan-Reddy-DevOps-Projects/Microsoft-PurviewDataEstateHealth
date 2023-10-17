@@ -17,7 +17,7 @@
             }
           },
           "properties": {
-            "applicationId": "__ASSISTED_ID_APP_ID__"
+            "applicationId": "__ASSISTED_ID_APP_CLIENT_ID__"
           }
         }
       },
@@ -48,7 +48,7 @@
             }
           },
           "properties": {
-            "applicationId": "__ASSISTED_ID_APP_ID__"
+            "applicationId": "__ASSISTED_ID_APP_CLIENT_ID__"
           }
         }
       },
@@ -79,7 +79,7 @@
             }
           },
           "properties": {
-            "applicationId": "__ASSISTED_ID_APP_ID__"
+            "applicationId": "__ASSISTED_ID_APP_CLIENT_ID__"
           }
         }
       },
@@ -113,7 +113,7 @@
             }
           },
           "properties": {
-            "applicationId": "__ASSISTED_ID_APP_ID__"
+            "applicationId": "__ASSISTED_ID_APP_CLIENT_ID__"
           }
         }
       },

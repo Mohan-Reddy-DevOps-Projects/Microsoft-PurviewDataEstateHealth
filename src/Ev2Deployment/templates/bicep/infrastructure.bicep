@@ -1,4 +1,5 @@
 param acrName string
+param assistedIdAppObjectId string
 param containerAppIdentityName string
 param coreResourceGroupName string
 param jobStorageAccountName string
@@ -10,6 +11,10 @@ param synapseStorageAccountName string
 param synapseStorageAccountUrl string
 param sparkPoolName string
 param synapseLocation string
+
+var keyVaultReaderRoleDefName = '21090545-7ca7-4776-b22c-e363652d74d2'
+var keyVaultSecretsUserRoleDefName = '4633458b-17de-408a-b874-0445c86b69e6'
+var keyVaultCertificatesOfficerRoleDefName = 'a4417e6f-fecd-4de8-b567-7b0420556985'
 
 resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: containerAppIdentityName
@@ -61,12 +66,31 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-02-01' = {
   }
 }
 
-module keyVaultRoleAssignments 'keyVaultRoleAssignments.bicep' = {
-  dependsOn: [keyVault]
-  name: 'keyVaultRoleAssignments'
+module keyVaultReaderRoleModule 'keyVaultRoleAssignment.bicep' = {
+  name: 'keyVaultReaderRoleDeploy'
   params: {
-    keyVaultName: keyVaultName
+    keyVaultName: keyVault.name
     principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: keyVaultReaderRoleDefName
+  }
+}
+
+module keyVaultSecretsUserRoleModule 'keyVaultRoleAssignment.bicep' = {
+  name: 'keyVaultSecretsUserRoleDeploy'
+  params: {
+    keyVaultName: keyVault.name
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: keyVaultSecretsUserRoleDefName
+  }
+}
+
+// The assisted ID app needs Key Vault Certificate Officer to create certificates.
+module keyVaultCertificatesOfficerRoleModule 'keyVaultRoleAssignment.bicep' = {
+  name: 'keyVaultCertificatesOfficerRoleDeploy'
+  params: {
+    keyVaultName: keyVault.name
+    principalId: assistedIdAppObjectId
+    roleDefinitionName: keyVaultCertificatesOfficerRoleDefName
   }
 }
 

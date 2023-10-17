@@ -5,12 +5,16 @@
       "scopeTagName": "AssistedIdentity",
       "bindings": [
         {
-          "find": "__ASSISTED_ID_APP_ID__",
-          "replaceWith": "$config(assistedIdentityAppId)"
+          "find": "__ASSISTED_ID_APP_CLIENT_ID__",
+          "replaceWith": "$config(assistedIdAppClientId)"
+        },
+        {
+          "find": "__ASSISTED_ID_APP_OBJECT_ID__",
+          "replaceWith": "$config(assistedIdAppObjectId)"
         },
         {
           "find": "__ASSISTED_ID_APP_SECRET_URI__",
-          "replaceWith": "https://$config(pdg.groupName)$config(pdg.environment.shortName)sharedSecretsKv.$config(keyVault.domainNameSuffix)/secrets/$config(assistedIdPrefix)AssistedIdCert"
+          "replaceWith": "$config(pdg.cloudSharedInfrastructure.assistedId.secretUri)"
         }
       ]
     },
@@ -27,19 +31,19 @@
         },
         {
           "find": "__CERTS_PRIVATE_ISSUER_NAME__",
-          "replaceWith": "$config(pdg.environmentSharedInfrastructure.certificates.privateIssuerName)"
+          "replaceWith": "$config(pdg.cloudSharedInfrastructure.certificates.privateIssuerName)"
         },
         {
           "find": "__CERTS_PRIVATE_ISSUER_PROVIDER__",
-          "replaceWith": "$config(pdg.environmentSharedInfrastructure.certificates.privateIssuerProvider)"
+          "replaceWith": "$config(pdg.cloudSharedInfrastructure.certificates.privateIssuerProvider)"
         },        
         {
           "find": "__CERTS_PUBLIC_ISSUER_NAME__",
-          "replaceWith": "$config(pdg.environmentSharedInfrastructure.certificates.publicIssuerName)"
+          "replaceWith": "$config(pdg.cloudSharedInfrastructure.certificates.publicIssuerName)"
         },
         {
           "find": "__CERTS_PUBLIC_ISSUER_PROVIDER__",
-          "replaceWith": "$config(pdg.environmentSharedInfrastructure.certificates.publicIssuerProvider)"
+          "replaceWith": "$config(pdg.cloudSharedInfrastructure.certificates.publicIssuerProvider)"
         },
         {
           "find": "__CERTS_ARTIFACT_STORE_CERT_NAME__",
