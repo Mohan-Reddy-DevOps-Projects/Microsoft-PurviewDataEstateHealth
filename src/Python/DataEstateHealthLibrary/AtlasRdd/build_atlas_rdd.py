@@ -83,7 +83,7 @@ class BuildAtlasRdd:
     def build_data_asset_schema(atlas_rdd_df):
         atlas_rdd_df = ColumnFunctions.rename_col(atlas_rdd_df,"Guid", "DataAssetId")
         atlas_rdd_df = AtlasRddColumnFunctions.add_attribute_schema(atlas_rdd_df)
-        atlas_rdd_df = AtlasRddColumnFunctions.add_display_name(atlas_rdd_df, "Attributes", "DataAssetDisplayName")
+        atlas_rdd_df = AtlasRddColumnFunctions.add_display_name(atlas_rdd_df, "Attributes", "DisplayName")
         atlas_rdd_df = AtlasRddColumnFunctions.add_description(atlas_rdd_df, "Attributes", "DataAssetDescription")
         atlas_rdd_df = AtlasRddColumnFunctions.add_data_owner(atlas_rdd_df)
         atlas_rdd_df = AtlasRddColumnFunctions.compute_asset_curation(atlas_rdd_df)
@@ -108,7 +108,7 @@ class BuildAtlasRdd:
         atlas_rdd_df = AtlasRddColumnFunctions.add_has_terms_column(atlas_rdd_df)
         atlas_rdd_df = AtlasRddColumnFunctions.add_instance(atlas_rdd_df)
         
-        data_asset_df = atlas_rdd_df.select("DataAssetId", "CollectionId", "CurationLevel", "DataAssetDescription", "DataAssetDisplayName", "HasGlossaryTerm", "HasManualClassification", 
+        data_asset_df = atlas_rdd_df.select("DataAssetId", "CollectionId", "CurationLevel", "DataAssetDescription", "DisplayName", "HasGlossaryTerm", "HasManualClassification", 
                                         "HasScannedClassification", "HasSchema", "HasSensitiveClassification", "HasValidDescription", "UnclassificationReason", "SourceType", "SourceInstance",
                                         "QualifiedName", "Provider", "Platform", "ObjectType", "ModifiedBy","ModifiedAt", "CreatedBy", "CreatedAt", "HasValidOwner" )
         return data_asset_df
