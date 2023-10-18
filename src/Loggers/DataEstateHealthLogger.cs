@@ -16,22 +16,18 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 /// </summary>
 public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealthRequestLogger
 {
-    private readonly IOtelInstrumentation mdmLogger;
-
     private readonly Dictionary<DataEstateHealthLogTable, ILogger> loggers = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataEstateHealthLogger" /> class.
     /// </summary>
     /// <param name="loggerFactory">The mds logger</param>
-    /// <param name="mdmLogger"></param>
-    public DataEstateHealthLogger(ILoggerFactory loggerFactory, IOtelInstrumentation mdmLogger)
+    public DataEstateHealthLogger(ILoggerFactory loggerFactory)
     {
         foreach (var logTable in Enum.GetValues<DataEstateHealthLogTable>())
         {
             this.loggers.Add(logTable, loggerFactory.CreateLogger(logTable.ToString()));
-        }
-        this.mdmLogger = mdmLogger;
+            }
     }
 
     /// <inheritdoc/>
