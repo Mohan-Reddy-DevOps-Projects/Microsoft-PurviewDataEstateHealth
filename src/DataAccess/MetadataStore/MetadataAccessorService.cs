@@ -3,56 +3,38 @@
 // -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Security.AccessControl;
 using System.Threading.Tasks;
-using Microsoft.Azure.Management.ResourceManager.Fluent.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.MetadataStore;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.Rest.TransientFaultHandling;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Microsoft.WindowsAzure.Storage.RetryPolicies;
 
 internal class MetadataAccessorService : IMetadataAccessorService
 {
-    private readonly IProjectBabylonMetadataClient metadataClient;
-
-    private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
-
-    private readonly IRequestHeaderContext requestHeaderContext;
-
-    private readonly RetryPolicy<TransientErrorIgnoreStrategy> noRetryPolicy = new(0);
-
-    private readonly MetadataServiceConfiguration metadataServiceConfiguration;
-
-    private readonly EnvironmentConfiguration environmentConfiguration;
+    private readonly IDataEstateHealthLogger logger;
+    private readonly MetadataServiceClientFactory metadataServiceClientFactory;
 
     public MetadataAccessorService(
-        IProjectBabylonMetadataClient metadataClient,
-        IDataEstateHealthRequestLogger dataEstateHealthRequestLogger,
-        IRequestHeaderContext requestHeaderContext,
-        IOptions<MetadataServiceConfiguration> metadataServiceConfiguration,
-        IOptions<EnvironmentConfiguration> environmentConfiguration)
+        MetadataServiceClientFactory metadataServiceClientFactory,
+        IDataEstateHealthLogger logger)
     {
-        this.metadataClient = metadataClient;
-        this.dataEstateHealthRequestLogger = dataEstateHealthRequestLogger;
-        this.requestHeaderContext = requestHeaderContext;
-        this.metadataServiceConfiguration = metadataServiceConfiguration.Value;
-        metadataClient.ApiVersion = this.metadataServiceConfiguration.ApiVersion;
-        this.environmentConfiguration = environmentConfiguration.Value;
-        this.metadataClient.BaseUri = new Uri(this.metadataServiceConfiguration.Endpoint);
+        this.metadataServiceClientFactory = metadataServiceClientFactory;
+        this.logger = logger;
+    }
+
+    /// <inheritdoc/>
+    public void Initialize()
+    {
+        this.GetMetadataServiceClient();
+    }
+
+    private IProjectBabylonMetadataClient GetMetadataServiceClient()
+    {
+        return this.metadataServiceClientFactory.GetClient();
     }
 
     /// <inheritdoc/>
@@ -86,7 +68,7 @@ internal class MetadataAccessorService : IMetadataAccessorService
         Exception exception)
     {
         // Logging as error to avoid multiple criticals for each try. Higher level caller will log critical on failure.
-        this.dataEstateHealthRequestLogger.LogError(
+        this.logger.LogError(
             FormattableString.Invariant(
                 $"Failed to perform operation on {accountId}:"),
             exception);

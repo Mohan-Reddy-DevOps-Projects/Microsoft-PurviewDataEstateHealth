@@ -4,10 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using Microsoft.Azure.ProjectBabylon.Metadata;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.MetadataStore;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -18,11 +16,19 @@ using Polly;
 /// </summary>
 public static class DataAccessLayer
 {
-    private const int OverallTimeoutSeconds = 160;
+    /// <summary>
+    /// The default timeout for a request
+    /// </summary>
+    private static readonly TimeSpan DefaultRequestTimeout = TimeSpan.FromSeconds(15);
 
-    private const int PerRequestTimeoutSeconds = 30;
-
+    /// <summary>
+    /// The default lifetime of a message handler
+    /// </summary>
     private static readonly TimeSpan DefaultMessageHandlerLifetime = TimeSpan.FromMinutes(10);
+
+    private static readonly TimeSpan OverallTimeoutSeconds = TimeSpan.FromSeconds(100);
+
+    private const string DefaultUserAgent = "DGHealth";
 
     /// <summary>
     /// Initializes the data access layer.
@@ -30,27 +36,90 @@ public static class DataAccessLayer
     /// <param name="services">Gives the data access layer a chance to configure its dependency injection.</param>
     public static IServiceCollection AddDataAccessLayer(this IServiceCollection services)
     {
-        _ = services.AddHttpClient<IProjectBabylonMetadataClient, ProjectBabylonMetadataClient>((httpClient, _)
-            => new ProjectBabylonMetadataClient(httpClient, true))
-            .ConfigurePrimaryHttpMessageHandler((serviceProvider) => new MetadataCertificateHandler(
-                    serviceProvider.GetRequiredService<ICertificateLoaderService>(),
-                    serviceProvider.GetRequiredService<IOptions<MetadataServiceConfiguration>>()))
-            .SetHandlerLifetime(DefaultMessageHandlerLifetime)
-            .ConfigureHttpClient((client) => client.Timeout = TimeSpan.FromSeconds(OverallTimeoutSeconds))
-            .AddPolicyHandler((serviceProvider, _) => PollyRetryPolicies.GetHttpClientTransientRetryPolicy(
+        services.AddMetadataServiceHttpClient(MetadataServiceClientFactory.HttpClientName);
+        services.AddSingleton<MetadataServiceClientFactory>();
+        services.AddSingleton<IMetadataAccessorService, MetadataAccessorService>();
+        services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
+        services.AddScoped<IHealthActionRepository, HealthActionRepository>();
+        services.AddScoped<IHealthScoreRepository, HealthScoreRepository>();
+        services.AddScoped<IBusinessDomainRepository, BusinessDomainRepository>();
+            
+        return services;
+    }
+
+    /// <summary>
+    /// Register the metadata service http client 
+    /// </summary>
+    /// <param name="services">Service collection</param>
+    /// <param name="name">The user agent for the http client</param>
+    /// <returns>Http client builder</returns>
+    private static IHttpClientBuilder AddMetadataServiceHttpClient(this IServiceCollection services, string name)
+    {
+        HttpClientSettings httpClientSettings = new()
+        {
+            Name = name,
+            UserAgent = DefaultUserAgent,
+            RetryCount = 5
+        };
+
+        return services.AddCustomHttpClient<MetadataServiceConfiguration>(httpClientSettings,
+            (serviceProvider, request, policy) => { });
+    }
+
+    /// <summary>
+    /// Register the http client with the given settings
+    /// </summary>
+    /// <typeparam name="TConfig"></typeparam>
+    /// <param name="services"></param>
+    /// <param name="settings"></param>
+    /// <param name="configureRetryPolicy"></param>
+    /// <returns></returns>
+    public static IHttpClientBuilder AddCustomHttpClient<TConfig>(
+        this IServiceCollection services,
+        HttpClientSettings settings,
+        Action<IServiceProvider, HttpRequestMessage, IAsyncPolicy<HttpResponseMessage>> configureRetryPolicy = null)
+        where TConfig : BaseCertificateConfiguration
+    {
+        return services
+            .AddHttpClient(settings.Name, client =>
+            {
+                client.DefaultRequestHeaders.Add("User-Agent", settings.UserAgent);
+                client.Timeout = settings.Timeout ?? DefaultRequestTimeout;
+                client.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
+            })
+            .SetHandlerLifetime(settings.HandlerLifetime ?? DefaultMessageHandlerLifetime)
+            .ConfigurePrimaryHttpMessageHandler((serviceProvider) =>
+            {
+                ICertificateLoaderService certificateLoaderService = serviceProvider.GetRequiredService<ICertificateLoaderService>();
+                IOptions<TConfig> configOptions = serviceProvider.GetRequiredService<IOptions<TConfig>>();
+                var messageHandler = new CertificateHandler<TConfig>(certificateLoaderService, configOptions);
+
+                IDataEstateHealthLogger logger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
+                logger.LogInformation($"Created a new {nameof(SocketsHttpHandler)} instance named '{settings.Name}' for outbound calls");
+
+                return messageHandler;
+            })
+            .ConfigureHttpClient((client) => client.Timeout = settings.Timeout ?? OverallTimeoutSeconds)
+            .AddPolicyHandler((serviceProvider, request) =>
+            {
+                if (configureRetryPolicy != null)
+                {
+                    IAsyncPolicy<HttpResponseMessage> policy = PollyRetryPolicies.GetHttpClientTransientRetryPolicy(
+                        onRetry: LoggerRetryActionFactory.CreateHttpClientRetryAction(
+                            serviceProvider.GetService<IDataEstateHealthRequestLogger>(),
+                            settings.Name),
+                        retryCount: settings.RetryCount);
+                    
+                    configureRetryPolicy(serviceProvider, request, policy);
+                    return policy;
+                }
+
+                // Default or fallback policy
+                return PollyRetryPolicies.GetHttpClientTransientRetryPolicy(
                     onRetry: LoggerRetryActionFactory.CreateHttpClientRetryAction(
                         serviceProvider.GetService<IDataEstateHealthRequestLogger>(),
-                        nameof(MetadataAccessorService)),
-                    retryCount: 5))
-
-            .AddPolicyHandler(Policy.TimeoutAsync(PerRequestTimeoutSeconds).AsAsyncPolicy<HttpResponseMessage>());
-
-        _ = services.AddScoped<IMetadataAccessorService, MetadataAccessorService>();
-        _ = services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
-        _ = services.AddScoped<IHealthActionRepository, HealthActionRepository>();
-        _ = services.AddScoped<IHealthScoreRepository, HealthScoreRepository>();
-        _ = services.AddScoped<IBusinessDomainRepository, BusinessDomainRepository>();
-
-        return services;
+                        settings.Name),
+                    retryCount: settings.RetryCount);
+            });
     }
 }

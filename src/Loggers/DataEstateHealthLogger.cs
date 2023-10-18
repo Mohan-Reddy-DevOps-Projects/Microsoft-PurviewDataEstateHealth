@@ -27,7 +27,7 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealth
         foreach (var logTable in Enum.GetValues<DataEstateHealthLogTable>())
         {
             this.loggers.Add(logTable, loggerFactory.CreateLogger(logTable.ToString()));
-            }
+        }
     }
 
     /// <inheritdoc/>

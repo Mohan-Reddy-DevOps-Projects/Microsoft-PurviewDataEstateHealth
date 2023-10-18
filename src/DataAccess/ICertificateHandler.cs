@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 /// <summary>
 /// Interface to create handler for babylon metadata client.
 /// </summary>
-internal interface IMetadataCertificateHandler
+internal interface ICertificateHandler
 {
     /// <summary>
     /// Method to create http handler for babylon metadata client.

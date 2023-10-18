@@ -13,24 +13,24 @@ using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 
 /// <summary>
-/// A handler to fetch metadata certificate.
+/// A handler to fetch a certificate.
 /// </summary>
-public class MetadataCertificateHandler : DelegatingHandler, IMetadataCertificateHandler
+public class CertificateHandler<T> : DelegatingHandler, ICertificateHandler where T : BaseCertificateConfiguration
 {
     private readonly ICertificateLoaderService certificateLoaderService;
 
-    private readonly MetadataServiceConfiguration metadataServiceConfiguration;
+    private readonly T certConfiguration;
 
     private static readonly TimeSpan DefaultConnectTimeout = TimeSpan.FromSeconds(10);
 
     /// <summary>
     /// summary
     /// </summary>
-    public MetadataCertificateHandler(
+    public CertificateHandler(
         ICertificateLoaderService certificateLoaderService,
-        IOptions<MetadataServiceConfiguration> metadataServiceConfiguration)
+        IOptions<T> certConfiguration)
     {
-        this.metadataServiceConfiguration = metadataServiceConfiguration.Value;
+        this.certConfiguration = certConfiguration.Value;
         this.certificateLoaderService = certificateLoaderService;
         this.InnerHandler = this.CreateHandlerAsync().Result;
     }
@@ -48,8 +48,8 @@ public class MetadataCertificateHandler : DelegatingHandler, IMetadataCertificat
             ConnectTimeout = DefaultConnectTimeout,
             EnableMultipleHttp2Connections = true,
         };
-        await this.certificateLoaderService.BindAsync(messageHandler, this.metadataServiceConfiguration.CertificateName, default);
-
+        await this.certificateLoaderService.BindAsync(messageHandler, this.certConfiguration.CertificateName, default);
+        
         messageHandler.SslOptions.RemoteCertificateValidationCallback = (message, cert, chain, errors) =>
         {
             if ((errors & SslPolicyErrors.RemoteCertificateChainErrors) != 0)

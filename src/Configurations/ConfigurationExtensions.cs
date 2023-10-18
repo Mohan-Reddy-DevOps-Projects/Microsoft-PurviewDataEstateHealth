@@ -20,6 +20,7 @@ public static class ConfigurationExtensions
         IConfiguration configuration)
     {
         services.AddCommonConfigurations(configuration)
+            .AddProvisioningConfigurations(configuration)
             .Configure<AllowListedCertificateConfiguration>(configuration.GetSection("allowListedCertificate"))
             .Configure<CertificateSetConfiguration>(configuration.GetSection("apiServiceCertificateSet"))
             .Configure<PowerBIAuthConfiguration>(configuration.GetSection("powerBIAuth"))
@@ -58,6 +59,18 @@ public static class ConfigurationExtensions
             .Configure<JobConfiguration>(configuration.GetSection("job"))
             .Configure<ServiceConfiguration>(configuration.GetSection("service"))
             .Configure<MetadataServiceConfiguration>(configuration.GetSection("metadataService")); ;
+        return services;
+    }
+
+    /// <summary>
+    /// Configurations common for api and worker service.
+    /// </summary>
+    private static IServiceCollection AddProvisioningConfigurations(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddOptions()
+            .Configure<PartnerConfiguration>(configuration.GetSection("partner"));
         return services;
     }
 }

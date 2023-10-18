@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
@@ -48,6 +49,7 @@ public class Program
         builder.Services
             .AddApiServiceConfigurations(builder.Configuration)
             .AddApiServices()
+            .AddProvisioningService()
             .AddCoreLayer()
             .AddDataAccessLayer()
             .AddServiceBasicsForApiService();
@@ -155,9 +157,13 @@ public class Program
         IPowerBIService powerBIService = app.Services.GetService<IPowerBIService>();
         await powerBIService.Initialize();
 
-        // Initialize PowerBI service
+        // Initialize synapse service
         IServerlessPoolClient serverlessPoolClient = app.Services.GetService<IServerlessPoolClient>();
         await serverlessPoolClient.Initialize();
+
+        // Initialize metadata service
+        IMetadataAccessorService metadataService = app.Services.GetService<IMetadataAccessorService>();
+        metadataService.Initialize();
     }
 
     private static void ConfigurePortsAndSsl(WebHostBuilderContext hostingContext, KestrelServerOptions options, WebApplicationBuilder builder)

@@ -249,4 +249,52 @@ public class ErrorCode : ServiceErrorCode
     public static readonly ErrorCode PowerBI_ReportDeleteFailed = new(10004, "Report delete failed.");
 
     #endregion
+
+    #region Partner
+
+    /// <summary>
+    /// Generic Partner Exception
+    /// </summary>
+    public static readonly ErrorCode PartnerException = new(11000);
+
+    #endregion
+
+    #region Async Operations
+
+    /// <summary>
+    /// Async operation not found
+    /// </summary>
+    public static readonly ErrorCode AsyncOperation_NotFound = new(12000);
+
+    /// <summary>
+    /// Async operation result not found
+    /// </summary>
+    public static readonly ErrorCode AsyncOperation_ResultNotFound = new(12001);
+
+    /// <summary>
+    /// Async operation source error not found
+    /// </summary>
+    public static readonly ErrorCode AsyncOperation_SourceErrorNotFound = new(12002);
+
+    /// <summary>
+    /// Async operation trigger failed
+    /// </summary>
+    public static readonly ErrorCode AsyncOperation_TriggerFailed = new(12003);
+
+    /// <summary>
+    /// Async operation execution failed
+    /// </summary>
+    public static readonly ErrorCode AsyncOperation_ExecutionFailed = new(12004);
+
+    /// <summary>
+    /// Async operation timeout
+    /// </summary>
+    public static readonly ErrorCode AsyncOperation_Timeout = new(12005);
+
+    /// <summary>
+    /// Async operation precondition failed
+    /// </summary>
+    public static readonly ErrorCode AsyncOperation_PreconditionFailed = new(12006);
+
+    #endregion
 }
