@@ -4,8 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using global::Azure.Core;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;

@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Logger;
+namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 using System.Collections.Generic;
 using System.Diagnostics;

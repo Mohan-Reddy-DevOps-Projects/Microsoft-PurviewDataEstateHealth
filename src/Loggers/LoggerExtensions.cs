@@ -2,9 +2,8 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Logger;
+namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>

@@ -67,6 +67,11 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode UnsupportedApiVersionParameter = new(1008, "The API version '{0}' isn't supported. The supported versions are '{1}'.");
 
+    /// <summary>
+    /// The given location is not supported.
+    /// </summary>
+    public static readonly ErrorCode Unsupported_Location = new(1009);
+
     #endregion
 
     #region Storage checks

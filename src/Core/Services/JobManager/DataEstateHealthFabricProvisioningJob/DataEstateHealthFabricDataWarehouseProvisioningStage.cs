@@ -8,7 +8,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
-using Microsoft.Azure.Purview.DataEstateHealth.Logger;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 internal class DataEstateHealthFabricDataWarehouseProvisioningStage : IJobCallbackStage
 {

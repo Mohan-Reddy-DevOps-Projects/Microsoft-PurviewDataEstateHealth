@@ -23,4 +23,10 @@ public class ErrorMessage
     /// Service exception details
     /// </summary>
     public const string ServiceErrorDetailsMessage = "Service Error Occured";
+
+    /// <summary>
+    /// Downstream dependency error
+    /// </summary>
+    public const string DownstreamDependency =
+        "Service is currently facing technical issues. Please retry later or contact customer support.";
 }

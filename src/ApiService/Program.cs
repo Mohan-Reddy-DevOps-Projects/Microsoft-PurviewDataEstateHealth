@@ -6,9 +6,6 @@ namespace Microsoft.Azure.Purview.DataAccess.ApiService;
 
 using System.Net;
 using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using global::Azure.Core;
-using global::Azure.Identity;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.AspNetCore.Server.Kestrel.Core;

@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerBI.Api" />
+    <PackageReference Include="Microsoft.Azure.ProjectBabylon.Metadata.ProjectBabylonMetadataClient" />
   </ItemGroup>
 
 </Project>

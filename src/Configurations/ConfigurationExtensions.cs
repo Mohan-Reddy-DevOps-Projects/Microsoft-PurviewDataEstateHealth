@@ -56,7 +56,8 @@ public static class ConfigurationExtensions
             .Configure<GenevaConfiguration>(configuration.GetSection("geneva"))
             .Configure<EnvironmentConfiguration>(configuration.GetSection("environment"))
             .Configure<JobConfiguration>(configuration.GetSection("job"))
-            .Configure<ServiceConfiguration>(configuration.GetSection("service"));
+            .Configure<ServiceConfiguration>(configuration.GetSection("service"))
+            .Configure<MetadataServiceConfiguration>(configuration.GetSection("metadataService")); ;
         return services;
     }
 }

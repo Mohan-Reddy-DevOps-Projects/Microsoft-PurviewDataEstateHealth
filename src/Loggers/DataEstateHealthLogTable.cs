@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Logger;
+namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 /// <summary>
 /// Available Purview Share log tables
@@ -37,5 +37,10 @@ public enum DataEstateHealthLogTable
     /// <summary>
     /// Telemetry event table
     /// </summary>
-    TelemetryLogEvent
+    TelemetryLogEvent,
+
+    /// <summary>
+    /// Metadata service event table
+    /// </summary>
+    MetadataServiceLogEvent,
 }

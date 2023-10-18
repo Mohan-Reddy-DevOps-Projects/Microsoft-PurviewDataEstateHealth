@@ -7,12 +7,11 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
 using System;
 using System.IO;
 using System.Text;
-using global::Azure.Identity;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Azure.Purview.DataEstateHealth.Logger;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 /// <summary>
 /// Worker service startup.

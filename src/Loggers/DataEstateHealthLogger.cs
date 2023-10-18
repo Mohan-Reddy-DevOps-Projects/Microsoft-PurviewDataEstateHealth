@@ -2,12 +2,11 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Logger;
+namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
@@ -17,11 +16,22 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 /// </summary>
 public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealthRequestLogger
 {
+    private readonly IOtelInstrumentation mdmLogger;
+
+    private readonly Dictionary<DataEstateHealthLogTable, ILogger> loggers = new();
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DataEstateHealthLogger" /> class.
     /// </summary>
-    public DataEstateHealthLogger()
+    /// <param name="loggerFactory">The mds logger</param>
+    /// <param name="mdmLogger"></param>
+    public DataEstateHealthLogger(ILoggerFactory loggerFactory, IOtelInstrumentation mdmLogger)
     {
+        foreach (var logTable in Enum.GetValues<DataEstateHealthLogTable>())
+        {
+            this.loggers.Add(logTable, loggerFactory.CreateLogger(logTable.ToString()));
+        }
+        this.mdmLogger = mdmLogger;
     }
 
     /// <inheritdoc/>
