@@ -196,7 +196,7 @@ public class Program
             serverConfig.ApiServicePort.Value,
             listenOptions =>
             {
-                listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+                listenOptions.Protocols = HttpProtocols.Http1;
             });
     }
 
