@@ -10,23 +10,23 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 /// <summary>
 /// Adapter to convert Health report type between model and DTO.
 /// </summary>
-public static class HealthReportTypeAdapter
+public static class HealthResourceTypeAdapter
 {
     /// <summary>
     /// Convert to DTO.
     /// </summary>
     /// <param name="model">Input model.</param>
     /// <returns></returns>
-    public static DataTransferObjects.HealthReportType ToDto(this HealthReportType model)
+    public static DataTransferObjects.HealthResourceType ToDto(this HealthResourceType model)
     {
         switch (model)
         {
-            case HealthReportType.System:
-                return DataTransferObjects.HealthReportType.System;
-            case HealthReportType.Custom:
-                return DataTransferObjects.HealthReportType.Custom;
+            case HealthResourceType.System:
+                return DataTransferObjects.HealthResourceType.System;
+            case HealthResourceType.Custom:
+                return DataTransferObjects.HealthResourceType.Custom;
             default:
-                throw new InvalidEnumArgumentException(nameof(model), (int)model, typeof(HealthReportType));
+                throw new InvalidEnumArgumentException(nameof(model), (int)model, typeof(HealthResourceType));
         }
     }
 
@@ -35,19 +35,19 @@ public static class HealthReportTypeAdapter
     /// </summary>
     /// <param name="dto">Input DTO.</param>
     /// <returns></returns>
-    public static HealthReportType ToModel(this DataTransferObjects.HealthReportType dto)
+    public static HealthResourceType ToModel(this DataTransferObjects.HealthResourceType dto)
     {
         switch (dto)
         {
-            case DataTransferObjects.HealthReportType.System:
-                return HealthReportType.System;
-            case DataTransferObjects.HealthReportType.Custom:
-                return HealthReportType.Custom;
+            case DataTransferObjects.HealthResourceType.System:
+                return HealthResourceType.System;
+            case DataTransferObjects.HealthResourceType.Custom:
+                return HealthResourceType.Custom;
             default:
                 throw new InvalidEnumArgumentException(
                     nameof(dto),
                     (int)dto,
-                    typeof(DataTransferObjects.HealthReportType));
+                    typeof(DataTransferObjects.HealthResourceType));
         }
     }
 }

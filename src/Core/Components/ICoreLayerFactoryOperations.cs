@@ -60,7 +60,7 @@ public interface ICoreLayerFactoryOperations
         Guid accountId);
 
     /// <summary>
-    /// Creates an instance of HealthActionComponent. 
+    /// Creates an instance of HealthActionCollectionComponent. 
     /// </summary>
     /// <returns>An <see cref="IHealthActionCollectionComponent"/>.</returns>
     public IHealthActionCollectionComponent CreateHealthActionCollectionComponent(
@@ -68,10 +68,18 @@ public interface ICoreLayerFactoryOperations
         Guid accountId);
 
     /// <summary>
-    /// Creates an instance of HealthScoreComponent. 
+    /// Creates an instance of HealthScoreCollectionComponent. 
     /// </summary>
     /// <returns>An <see cref="IHealthScoreCollectionComponent"/>.</returns>
     public IHealthScoreCollectionComponent CreateHealthScoreCollectionComponent(
+        Guid tenantId,
+        Guid accountId);
+
+    /// <summary>
+    /// Creates an instance of HealthControlCollectionComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IHealthControlCollectionComponent"/>.</returns>
+    public IHealthControlCollectionComponent CreateHealthControlCollectionComponent(
         Guid tenantId,
         Guid accountId);
 }

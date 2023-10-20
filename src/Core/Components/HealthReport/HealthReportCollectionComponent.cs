@@ -68,8 +68,8 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
                 Id = x.Id,
                 Name = x.Name,
                 ReportKind = HealthReportKind.PowerBIHealthReport,
-                ReportStatus = HealthReportStatus.Active,
-                ReportType = HealthReportType.System
+                ReportStatus = HealthResourceStatus.Active,
+                ReportType = HealthResourceType.System
             }
         });
 

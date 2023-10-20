@@ -4,23 +4,22 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 /// <summary>
-/// Target kind enum.
+/// Health control kind.
 /// </summary>
-public enum TargetKind
+[JsonConverter(typeof(StringEnumConverter))]
+public enum HealthControlKind
 {
     /// <summary>
-    /// Business domain
+    /// DataGovernance Control.
     /// </summary>
-    BusinessDomain = 1,
+    DataGovernance = 1,
 
     /// <summary>
-    /// Data product.
+    /// Data quality control.
     /// </summary>
-    DataProduct,
-
-    /// <summary>
-    /// Data asset.
-    /// </summary>
-    DataAsset
+    DataQuality,  
 }

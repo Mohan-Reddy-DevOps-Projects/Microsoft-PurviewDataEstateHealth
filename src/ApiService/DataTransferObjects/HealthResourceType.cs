@@ -5,9 +5,9 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 
 /// <summary>
-/// Report Type.
+/// Health resource Type.
 /// </summary>
-public enum HealthReportType
+public enum HealthResourceType
 {
     /// <summary>
     /// System health report.

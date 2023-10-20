@@ -47,14 +47,14 @@ public abstract partial class HealthReport
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
     [ReadOnly(true)]
-    public HealthReportStatus ReportStatus { get; set; }
+    public HealthResourceStatus ReportStatus { get; set; }
 
     /// <summary>
     /// Report type.
     /// </summary>
     [JsonConverter(typeof(StringEnumConverter))]
     [ReadOnly(true)]
-    public HealthReportType ReportType { get; set; }
+    public HealthResourceType ReportType { get; set; }
 
     /// <summary>
     /// Report last refreshed at.

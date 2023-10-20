@@ -2,20 +2,20 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
+namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 /// <summary>
-/// Report status.
+/// Health control kind.
 /// </summary>
-public enum HealthReportStatus
+public enum HealthControlKind
 {
     /// <summary>
-    /// Active health report
+    /// DataGovernance Control.
     /// </summary>
-    Active = 1,
+    DataGovernance = 1,
 
     /// <summary>
-    /// Draft report.
+    /// Data quality control.
     /// </summary>
-    Draft
+    DataQuality,
 }

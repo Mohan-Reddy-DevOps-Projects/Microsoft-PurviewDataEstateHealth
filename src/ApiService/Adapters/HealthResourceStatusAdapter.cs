@@ -10,23 +10,23 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 /// <summary>
 /// Adapter to convert Health report status between model and DTO.
 /// </summary>
-public static class HealthReportStatusAdapter
+public static class HealthResourceStatusAdapter
 {
     /// <summary>
     /// Convert to DTO.
     /// </summary>
     /// <param name="model">Input model.</param>
     /// <returns></returns>
-    public static DataTransferObjects.HealthReportStatus ToDto(this HealthReportStatus model)
+    public static DataTransferObjects.HealthResourceStatus ToDto(this HealthResourceStatus model)
     {
         switch (model)
         {
-            case HealthReportStatus.Draft:
-                return DataTransferObjects.HealthReportStatus.Draft;
-            case HealthReportStatus.Active:
-                return DataTransferObjects.HealthReportStatus.Active;
+            case HealthResourceStatus.Draft:
+                return DataTransferObjects.HealthResourceStatus.Draft;
+            case HealthResourceStatus.Active:
+                return DataTransferObjects.HealthResourceStatus.Active;
             default:
-                throw new InvalidEnumArgumentException(nameof(model), (int)model, typeof(HealthReportStatus));
+                throw new InvalidEnumArgumentException(nameof(model), (int)model, typeof(HealthResourceStatus));
         }
     }
 
@@ -35,19 +35,19 @@ public static class HealthReportStatusAdapter
     /// </summary>
     /// <param name="dto">Input DTO.</param>
     /// <returns></returns>
-    public static HealthReportStatus ToModel(this DataTransferObjects.HealthReportStatus dto)
+    public static HealthResourceStatus ToModel(this DataTransferObjects.HealthResourceStatus dto)
     {
         switch (dto)
         {
-            case DataTransferObjects.HealthReportStatus.Active:
-                return HealthReportStatus.Active;
-            case DataTransferObjects.HealthReportStatus.Draft:
-                return HealthReportStatus.Draft;
+            case DataTransferObjects.HealthResourceStatus.Active:
+                return HealthResourceStatus.Active;
+            case DataTransferObjects.HealthResourceStatus.Draft:
+                return HealthResourceStatus.Draft;
             default:
                 throw new InvalidEnumArgumentException(
                     nameof(dto),
                     (int)dto,
-                    typeof(DataTransferObjects.HealthReportStatus));
+                    typeof(DataTransferObjects.HealthResourceStatus));
         }
     }
 }

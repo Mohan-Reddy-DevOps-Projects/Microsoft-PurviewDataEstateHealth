@@ -186,6 +186,11 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode HealthScores_NotAvailable = new(7004);
 
+    /// <summary>
+    /// Invalid health control kind.
+    /// </summary>
+    public static readonly ErrorCode HealthControl_InvalidKind = new(7005);
+
     #endregion
 
     #region Profile

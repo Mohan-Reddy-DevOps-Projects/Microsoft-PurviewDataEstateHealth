@@ -43,7 +43,8 @@ public static class DataAccessLayer
         services.AddScoped<IHealthActionRepository, HealthActionRepository>();
         services.AddScoped<IHealthScoreRepository, HealthScoreRepository>();
         services.AddScoped<IBusinessDomainRepository, BusinessDomainRepository>();
-            
+        services.AddScoped<IHealthControlRepository, HealthControlRepository>();
+
         return services;
     }
 

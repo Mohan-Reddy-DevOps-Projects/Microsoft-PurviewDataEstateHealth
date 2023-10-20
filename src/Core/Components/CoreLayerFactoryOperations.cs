@@ -140,4 +140,18 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
                 tenantId),
             this.version.Numeric);
     }
+
+    /// <inheritdoc />
+    public IHealthControlCollectionComponent CreateHealthControlCollectionComponent(
+        Guid tenantId,
+        Guid accountId)
+    {
+        return this.componentRuntime.Resolve<IHealthControlCollectionComponent, IHealthControlListContext>(
+            this.contextFactory.CreateHealthControlListContext(
+                this.version,
+                null,
+                accountId,
+                tenantId),
+            this.version.Numeric);
+    }
 }

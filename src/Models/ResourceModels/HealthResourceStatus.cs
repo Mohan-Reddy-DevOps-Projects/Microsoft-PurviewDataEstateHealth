@@ -8,19 +8,18 @@ using System.Text.Json.Serialization;
 using Newtonsoft.Json.Converters;
 
 /// <summary>
-/// Report Type.
+/// Report status.
 /// </summary>
 [JsonConverter(typeof(StringEnumConverter))]
-public enum HealthReportType
+public enum HealthResourceStatus
 {
     /// <summary>
-    /// System health report.
+    /// Active health report
     /// </summary>
-    System = 1,
+    Active = 1,
 
     /// <summary>
-    /// Custom health report.
+    /// Draft report.
     /// </summary>
-    Custom
+    Draft
 }
-

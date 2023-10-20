@@ -34,13 +34,13 @@ public class HealthReportProperties
     /// Report status.
     /// </summary>
     [JsonProperty("reportStatus")]
-    public HealthReportStatus ReportStatus { get; set; }
+    public HealthResourceStatus ReportStatus { get; set; }
 
     /// <summary>
     /// Report type.
     /// </summary>
     [JsonProperty("reportType")]
-    public HealthReportType ReportType { get; set; }
+    public HealthResourceType ReportType { get; set; }
 
     /// <summary>
     /// Report kind.
