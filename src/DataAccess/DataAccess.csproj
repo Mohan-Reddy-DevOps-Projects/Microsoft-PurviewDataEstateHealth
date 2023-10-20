@@ -15,6 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.ProjectBabylon.LoggerBase" />
+    <PackageReference Include="Microsoft.Azure.Purview.ExposureControlLibrary" />
     <PackageReference Include="Microsoft.PowerBI.Api" />
     <PackageReference Include="Microsoft.Azure.ProjectBabylon.Metadata.ProjectBabylonMetadataClient" />
   </ItemGroup>

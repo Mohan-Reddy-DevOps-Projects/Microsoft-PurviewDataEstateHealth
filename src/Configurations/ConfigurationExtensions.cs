@@ -58,7 +58,8 @@ public static class ConfigurationExtensions
             .Configure<EnvironmentConfiguration>(configuration.GetSection("environment"))
             .Configure<JobConfiguration>(configuration.GetSection("job"))
             .Configure<ServiceConfiguration>(configuration.GetSection("service"))
-            .Configure<MetadataServiceConfiguration>(configuration.GetSection("metadataService")); ;
+            .Configure<MetadataServiceConfiguration>(configuration.GetSection("metadataService"))
+            .Configure<ExposureControlConfiguration>(configuration.GetSection("exposureControl"));
         return services;
     }
 

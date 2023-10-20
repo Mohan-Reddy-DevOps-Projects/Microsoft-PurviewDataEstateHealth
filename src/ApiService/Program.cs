@@ -153,6 +153,10 @@ public class Program
         ICertificateLoaderService certificateLoaderService = app.Services.GetRequiredService<ICertificateLoaderService>();
         await certificateLoaderService.InitializeAsync();
 
+        // Initialize the exposure control client
+        IExposureControlClient exposureControlClient = app.Services.GetRequiredService<IExposureControlClient>();
+        await exposureControlClient.Initialize();
+
         // Initialize PowerBI service
         IPowerBIService powerBIService = app.Services.GetService<IPowerBIService>();
         await powerBIService.Initialize();

@@ -8,10 +8,8 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
-using Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using System.Threading;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Extensions.Options;
@@ -21,42 +19,37 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService.Configurations;
 using OperationType = DataEstateHealth.ApiService.DataTransferObjects.OperationType;
 using System.Collections.Concurrent;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 /// <summary>
 /// Purview account notifications controller.
 /// </summary>
 [ApiController]
-[Route("/controlplane/account/{accountId}/")]
+[Route("/controlplane/account/")]
 [ApiVersionNeutral]
 public class PlatformAccountNotificationsController : ControlPlaneController
 {
     private readonly ICoreLayerFactory coreLayerFactory;
-    private readonly IRequestHeaderContext requestHeaderContext;
-    private readonly EnvironmentConfiguration environmentConfiguration;
     private readonly IDataEstateHealthLogger logger;
     private readonly IPartnerService<AccountServiceModel, IPartnerDetails> partnerService;
     private readonly PartnerConfig<IPartnerDetails> partnerConfig;
-
-    private static readonly string[] AllowedAccounts = new string[] { "903ee1fb-f00e-4d7c-b488-59f4d483d9dc" };
-    private static readonly string[] AllowedTenants = new string[] { "79e7043b-2d89-4454-9f07-1d8ceb3f0399" };
+    private readonly IAccountExposureControlConfigProvider exposureControl;
 
     /// <summary>
     /// Instantiate instance of PlatformAccountNotificationsController.
     /// </summary>
     public PlatformAccountNotificationsController(
         ICoreLayerFactory coreLayerFactory,
-        IRequestHeaderContext requestHeaderContext,
-        IOptions<EnvironmentConfiguration> environmentConfiguration,
+        IPartnerService<AccountServiceModel, IPartnerDetails> partnerService,
+        IAccountExposureControlConfigProvider exposureControl,
         IOptions<PartnerConfiguration> partnerConfiguration,
         IDataEstateHealthLogger logger,
-         IPartnerService<AccountServiceModel, IPartnerDetails> partnerService,
     ControllerContext controllerContext = null)
     {
         this.coreLayerFactory = coreLayerFactory;
-        this.requestHeaderContext = requestHeaderContext;
-        this.environmentConfiguration = environmentConfiguration.Value;
         this.logger = logger;
         this.partnerService = partnerService;
+        this.exposureControl = exposureControl;
         this.partnerConfig = new(partnerConfiguration);
 
         if (controllerContext != null)
@@ -73,12 +66,11 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     /// <returns></returns>
     [HttpPut]
     [ApiExplorerSettings(IgnoreApi = true)]
-    [Route("/controlplane/account/")]
     public async Task<IActionResult> CreateOrUpdateNotificationAsync(
         [FromBody] AccountServiceModel account,
         CancellationToken cancellationToken)
     {
-        if (!this.environmentConfiguration.IsDevelopmentEnvironment() && !Validate(account))
+        if (!this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
             return this.Ok();
 
@@ -112,11 +104,17 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     [ProducesResponseType(typeof(AccountServiceModel), 200)]
     [ProducesResponseType(204)]
     [ApiExplorerSettings(IgnoreApi = true)]
+    [Route("{accountId}/")]
     public async Task<IActionResult> DeleteOrSoftDeleteNotificationAsync(
         [FromRoute] Guid accountId,
         [FromQuery(Name = "operation")] OperationType operation,
         [FromBody] AccountServiceModel account)
     {
+        if (!this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            return this.Ok();
+        }
+
         await PartnerNotifier.NotifyPartners(
                 this.logger,
                 this.partnerService,
@@ -126,11 +124,6 @@ public class PlatformAccountNotificationsController : ControlPlaneController
                 InitPartnerContext(this.partnerConfig.Partners)).ConfigureAwait(false);
 
         return this.Ok();
-    }
-
-    private static bool Validate(AccountServiceModel account)
-    {
-        return AllowedAccounts.Where(x => x == account.Id).Any() && AllowedTenants.Where(x => x == account.TenantId).Any();
     }
 
     /// <summary>

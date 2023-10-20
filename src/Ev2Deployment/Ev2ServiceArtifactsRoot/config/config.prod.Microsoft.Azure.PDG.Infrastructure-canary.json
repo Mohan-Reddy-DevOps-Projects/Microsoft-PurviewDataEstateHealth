@@ -16,6 +16,7 @@
         "serviceShortName": "dgh",
         "subdomainName": "prod-eastus2euap-health",
         "azureEnvironment": "AzureGlobalCloud",
-        "synapseRegion": "eastus2euap"
+        "synapseRegion": "eastus2euap",
+        "useEstsr": "true"
     }
 }

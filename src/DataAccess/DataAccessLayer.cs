@@ -36,6 +36,7 @@ public static class DataAccessLayer
     /// <param name="services">Gives the data access layer a chance to configure its dependency injection.</param>
     public static IServiceCollection AddDataAccessLayer(this IServiceCollection services)
     {
+        services.AddExposureControl();
         services.AddMetadataServiceHttpClient(MetadataServiceClientFactory.HttpClientName);
         services.AddSingleton<MetadataServiceClientFactory>();
         services.AddSingleton<IMetadataAccessorService, MetadataAccessorService>();
@@ -44,6 +45,21 @@ public static class DataAccessLayer
         services.AddScoped<IHealthScoreRepository, HealthScoreRepository>();
         services.AddScoped<IBusinessDomainRepository, BusinessDomainRepository>();
         services.AddScoped<IHealthControlRepository, HealthControlRepository>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Exposure Control service.
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddExposureControl(
+        this IServiceCollection services)
+    {
+        services
+            .AddSingleton<IExposureControlClient, ExposureControlClient>()
+            .AddSingleton<IAccountExposureControlConfigProvider, AccountExposureControlConfigProvider>();
 
         return services;
     }

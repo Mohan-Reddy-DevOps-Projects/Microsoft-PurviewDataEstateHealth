@@ -16,6 +16,7 @@
         "serviceShortName": "dgh",
         "subdomainName": "df-westus2-health",
         "azureEnvironment": "AzureGlobalCloud",
-        "synapseRegion": "eastus"
+        "synapseRegion": "eastus",
+        "useEstsr": "false"
     }
 }
