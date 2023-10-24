@@ -17,6 +17,7 @@
         "subdomainName": "prod-eastus2euap-health",
         "azureEnvironment": "AzureGlobalCloud",
         "synapseRegion": "eastus2euap",
-        "useEstsr": "true"
+        "useEstsr": "true",
+        "catalogServiceEndpoint": "prod-eastus2euap.dgcatalog.purview-service.azure.com"
     }
 }

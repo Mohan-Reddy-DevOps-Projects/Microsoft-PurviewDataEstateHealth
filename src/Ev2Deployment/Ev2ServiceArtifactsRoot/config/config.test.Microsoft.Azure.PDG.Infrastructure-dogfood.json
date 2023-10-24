@@ -17,6 +17,7 @@
         "subdomainName": "df-westus2-health",
         "azureEnvironment": "AzureGlobalCloud",
         "synapseRegion": "eastus",
-        "useEstsr": "false"
+        "useEstsr": "false",
+        "catalogServiceEndpoint": "df-westus2.dgcatalog.purview-service.azure-test.com"
     }
 }
