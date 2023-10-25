@@ -1,0 +1,9 @@
+{
+  "version": "1.0",
+  "datasetReference": {
+    "byPath": {
+      "path": "../CDMC_10-25_Datsaet.Dataset"
+    },
+    "byConnection": null
+  }
+}

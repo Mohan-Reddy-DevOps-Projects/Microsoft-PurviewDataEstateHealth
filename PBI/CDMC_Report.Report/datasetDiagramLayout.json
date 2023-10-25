@@ -5,234 +5,39 @@
       "ordinal": 0,
       "scrollPosition": {
         "x": 0,
-        "y": 0
+        "y": 269.86301369863014
       },
       "nodes": [
         {
           "location": {
-            "x": 300,
-            "y": 267.05605871989371
-          },
-          "nodeIndex": "pbi BusinessDomain",
-          "nodeLineageTag": "5ef696d9-67f3-46ef-8818-b0e47fd34a1e",
-          "size": {
-            "height": 224.7671232876711,
-            "width": 234
-          },
-          "zIndex": 19
-        },
-        {
-          "location": {
-            "x": 297.2602739726027,
-            "y": 0
-          },
-          "nodeIndex": "pbi BusinessDomainContactAssociation",
-          "nodeLineageTag": "adc463a7-9d7f-471c-b9c9-b205be5b563c",
-          "size": {
-            "height": 176,
-            "width": 268.24657534246575
-          },
-          "zIndex": 17
-        },
-        {
-          "location": {
-            "x": 0,
-            "y": 0
-          },
-          "nodeIndex": "pbi BusinessDomainDataProductAssociation",
-          "nodeLineageTag": "311c5e33-23ce-4dc9-a60c-1d2b8ab16168",
-          "size": {
-            "height": 152,
-            "width": 234
-          },
-          "zIndex": 5
-        },
-        {
-          "location": {
-            "x": 2245.4574429805971,
-            "y": 406.38411225303764
-          },
-          "nodeIndex": "pbi Collection",
-          "nodeLineageTag": "5d0844be-3140-40b1-bbca-6b96327f2d91",
-          "size": {
-            "height": 248,
-            "width": 234
-          },
-          "zIndex": 8
-        },
-        {
-          "location": {
-            "x": 500.00000000000006,
-            "y": 1052.1353891854469
-          },
-          "nodeIndex": "pbi ContactDetails",
-          "nodeLineageTag": "bf337964-bfa7-4c9a-9bcf-c8839fbabc71",
-          "size": {
-            "height": 176,
-            "width": 234
-          },
-          "zIndex": 9
-        },
-        {
-          "location": {
-            "x": 1308.2333832540305,
-            "y": 526.027397260274
-          },
-          "nodeIndex": "pbi DataAsset",
-          "nodeLineageTag": "c0bacef6-c762-4f13-ba80-8be2dcdcc64d",
-          "size": {
-            "height": 709.58904109589048,
-            "width": 234
-          },
-          "zIndex": 10
-        },
-        {
-          "location": {
-            "x": 1685.0832067191172,
-            "y": 63.2377720698525
-          },
-          "nodeIndex": "pbi DataAssetColumn",
-          "nodeLineageTag": "4a9a4486-1ca8-472f-85a4-a19d0ee04255",
-          "size": {
-            "height": 272,
-            "width": 234
-          },
-          "zIndex": 11
-        },
-        {
-          "location": {
-            "x": 1244.708554821196,
-            "y": 203.93982763131103
-          },
-          "nodeIndex": "pbi DataAssetContactAssociation",
-          "nodeLineageTag": "00ac16e3-f579-4375-a9b8-1ada21e5ebc4",
-          "size": {
-            "height": 176,
-            "width": 234
-          },
-          "zIndex": 12
-        },
-        {
-          "location": {
-            "x": 0,
-            "y": 276.71232876712327
-          },
-          "nodeIndex": "pbi DataProduct",
-          "nodeLineageTag": "f61b582f-eb09-463e-ade7-b8e6e60aaf58",
-          "size": {
-            "height": 632.8767123287671,
-            "width": 234
-          },
-          "zIndex": 20
-        },
-        {
-          "location": {
-            "x": 653.37203807925607,
-            "y": 0
-          },
-          "nodeIndex": "pbi DataProductContactAssociation",
-          "nodeLineageTag": "f716dd01-a845-41a0-a65b-1498a1379c03",
-          "size": {
-            "height": 176,
-            "width": 234
-          },
-          "zIndex": 13
-        },
-        {
-          "location": {
-            "x": 737.08286883901769,
-            "y": 203.63134022623524
-          },
-          "nodeIndex": "pbi DataProductDataAssetAssociation",
-          "nodeLineageTag": "32b036eb-2bdf-41ef-9a16-013761c520d1",
-          "size": {
-            "height": 148.54794520547944,
-            "width": 234
-          },
-          "zIndex": 16
-        },
-        {
-          "location": {
-            "x": 307.72648873206128,
-            "y": 669.61753735368313
-          },
-          "nodeIndex": "pbi DataProductGovernenceTagAssociation",
-          "nodeLineageTag": "aca77f8f-2add-43cd-957b-c5648674f753",
-          "size": {
-            "height": 164.98630136986299,
-            "width": 234
-          },
-          "zIndex": 14
-        },
-        {
-          "location": {
-            "x": 759.594429281967,
-            "y": 374.904660198243
-          },
-          "nodeIndex": "pbi Date",
-          "nodeLineageTag": "5369f299-a65d-4dd8-b319-bc8f63390e8b",
-          "size": {
-            "height": 175.34246575342468,
-            "width": 234
-          },
-          "zIndex": 18
-        },
-        {
-          "location": {
-            "x": 1954.553333391556,
-            "y": 235.80876978728423
-          },
-          "nodeIndex": "pbi GlossaryTerm",
-          "nodeLineageTag": "274b4ef2-2234-4b52-a4b5-03758460eea7",
-          "size": {
-            "height": 404.21917808219177,
-            "width": 234
-          },
-          "zIndex": 15
-        },
-        {
-          "location": {
-            "x": 3097.4574429805971,
-            "y": 335.35536582560019
+            "x": 2222.96906865031,
+            "y": 519.71683989972075
           },
           "nodeIndex": "Measure Table",
           "nodeLineageTag": "8d65ac4b-c757-43c0-86a8-cde291cb89b3",
           "size": {
-            "height": 104,
+            "height": 300,
             "width": 234
           },
-          "zIndex": 4
+          "zIndex": 0
         },
         {
           "location": {
-            "x": 241.73141558333685,
-            "y": 926.02739726027391
+            "x": 2506.96906865031,
+            "y": 557.71683989972075
           },
-          "nodeIndex": "pbi GovernenceTag",
-          "nodeLineageTag": "7e4f7d46-a751-4b95-ad7e-e22582499ac9",
+          "nodeIndex": "Classification",
+          "nodeLineageTag": "5f86d9d4-3ae6-41d3-9499-c524be932393",
           "size": {
             "height": 224,
             "width": 234
           },
-          "zIndex": 2
+          "zIndex": 0
         },
         {
           "location": {
-            "x": 3665.4574429805971,
-            "y": 353.23315201692975
-          },
-          "nodeIndex": "Trend Table",
-          "nodeLineageTag": "7a75d717-4e93-448f-b62c-fefc300dac8d",
-          "size": {
-            "height": 152,
-            "width": 234
-          },
-          "zIndex": 3
-        },
-        {
-          "location": {
-            "x": 3949.4574429805971,
-            "y": 515.47945205479448
+            "x": 2790.96906865031,
+            "y": 617.71683989972075
           },
           "nodeIndex": "drill through",
           "nodeLineageTag": "bf7347fb-0495-4c15-b7bf-ea2eb6ce4952",
@@ -240,30 +45,225 @@
             "height": 104,
             "width": 234
           },
-          "zIndex": 1
+          "zIndex": 0
         },
         {
           "location": {
-            "x": 713.25196352854289,
-            "y": 599.67123287671211
+            "x": 582.2560954923606,
+            "y": 343.73888750275023
+          },
+          "nodeIndex": "pbi BusinessDomain",
+          "nodeLineageTag": "5ef696d9-67f3-46ef-8818-b0e47fd34a1e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 296.77520691589848,
+            "y": 232.7956711648136
+          },
+          "nodeIndex": "pbi BusinessDomainContactAssociation",
+          "nodeLineageTag": "adc463a7-9d7f-471c-b9c9-b205be5b563c",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 995.03118163660838,
+            "y": 782.39648023448183
+          },
+          "nodeIndex": "pbi BusinessDomainDataProductAssociation",
+          "nodeLineageTag": "311c5e33-23ce-4dc9-a60c-1d2b8ab16168",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3074.96906865031,
+            "y": 519.71683989972075
           },
           "nodeIndex": "pbi BusinessDomainTrends",
           "nodeLineageTag": "c48c6ba5-4e72-4b4c-8e72-c46d32ec39f5",
           "size": {
-            "height": 427.39726027397251,
+            "height": 300,
             "width": 234
           },
-          "zIndex": 21
+          "zIndex": 0
         },
         {
           "location": {
-            "x": 4233.4574429805971,
-            "y": 505.80821917808225
+            "x": 3358.96906865031,
+            "y": 545.71683989972075
           },
-          "nodeIndex": "Classification",
-          "nodeLineageTag": "5f86d9d4-3ae6-41d3-9499-c524be932393",
+          "nodeIndex": "pbi Collection",
+          "nodeLineageTag": "5d0844be-3140-40b1-bbca-6b96327f2d91",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 297.0876813198617,
+            "y": 493.25077461364572
+          },
+          "nodeIndex": "pbi ContactDetails",
+          "nodeLineageTag": "bf337964-bfa7-4c9a-9bcf-c8839fbabc71",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1808.180307652653,
+            "y": 1029.4336797994415
+          },
+          "nodeIndex": "pbi DataAsset",
+          "nodeLineageTag": "c0bacef6-c762-4f13-ba80-8be2dcdcc64d",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3642.96906865031,
+            "y": 521.71683989972075
+          },
+          "nodeIndex": "pbi DataAssetColumn",
+          "nodeLineageTag": "4a9a4486-1ca8-472f-85a4-a19d0ee04255",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 10,
+            "y": 594.99259473567429
+          },
+          "nodeIndex": "pbi DataAssetContactAssociation",
+          "nodeLineageTag": "00ac16e3-f579-4375-a9b8-1ada21e5ebc4",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1132.5630292010198,
+            "y": 404.81913399599762
+          },
+          "nodeIndex": "pbi DataProduct",
+          "nodeLineageTag": "f61b582f-eb09-463e-ade7-b8e6e60aaf58",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 708.78553151209894,
+            "y": 695.10389270167661
+          },
+          "nodeIndex": "pbi DataProductContactAssociation",
+          "nodeLineageTag": "f716dd01-a845-41a0-a65b-1498a1379c03",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1419.2384483577584,
+            "y": 670.79147970684744
+          },
+          "nodeIndex": "pbi DataProductDataAssetAssociation",
+          "nodeLineageTag": "32b036eb-2bdf-41ef-9a16-013761c520d1",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1661.8599588891525,
+            "y": 848.91455491276747
+          },
+          "nodeIndex": "pbi DataProductGovernenceTagAssociation",
+          "nodeLineageTag": "aca77f8f-2add-43cd-957b-c5648674f753",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 719.87718444995653,
+            "y": -10
+          },
+          "nodeIndex": "pbi Date",
+          "nodeLineageTag": "5369f299-a65d-4dd8-b319-bc8f63390e8b",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3926.96906865031,
+            "y": 521.71683989972075
+          },
+          "nodeIndex": "pbi GlossaryTerm",
+          "nodeLineageTag": "274b4ef2-2234-4b52-a4b5-03758460eea7",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1948.96906865031,
+            "y": 739.60054470545242
+          },
+          "nodeIndex": "pbi GovernenceTag",
+          "nodeLineageTag": "7e4f7d46-a751-4b95-ad7e-e22582499ac9",
           "size": {
             "height": 224,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4210.96906865031,
+            "y": 569.71683989972075
+          },
+          "nodeIndex": "Trend Table",
+          "nodeLineageTag": "7a75d717-4e93-448f-b62c-fefc300dac8d",
+          "size": {
+            "height": 200,
             "width": 234
           },
           "zIndex": 0

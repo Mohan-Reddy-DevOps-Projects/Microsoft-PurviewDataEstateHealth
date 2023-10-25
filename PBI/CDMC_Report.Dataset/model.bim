@@ -4,7 +4,7 @@
     "annotations": [
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"pbi BusinessDomain\",\"pbi BusinessDomainContactAssociation\",\"pbi BusinessDomainDataProductAssociation\",\"pbi Collection\",\"pbi ContactDetails\",\"pbi DataAssetColumn\",\"pbi DataAssetContactAssociation\",\"pbi DataProduct\",\"pbi DataProductContactAssociation\",\"pbi DataProductDataAssetAssociation\",\"pbi DataProductGovernenceTagAssociation\",\"pbi Date\",\"pbi GlossaryTerm\",\"Measure Table\",\"pbi GovernenceTag\",\"pbi DataAsset\",\"Trend Table\",\"drill through\",\"pbi BusinessDomainTrends\",\"SERVER\",\"DATABASE\",\"Classification\"]"
+        "value": "[\"pbi BusinessDomain\",\"pbi BusinessDomainContactAssociation\",\"pbi BusinessDomainDataProductAssociation\",\"pbi Classification\",\"pbi ClassificationAssociation\",\"pbi Collection\",\"pbi ContactDetails\",\"pbi DataAssetColumn\",\"pbi DataAssetContactAssociation\",\"pbi DataProduct\",\"pbi DataProductContactAssociation\",\"pbi DataProductDataAssetAssociation\",\"pbi DataProductGovernenceTagAssociation\",\"pbi Date\",\"pbi GlossaryTerm\",\"Measure Table\",\"pbi GovernenceTag\",\"pbi DataAsset\",\"Trend Table\",\"drill through\",\"pbi BusinessDomainTrends\"]"
       },
       {
         "name": "__PBI_TimeIntelligenceEnabled",
@@ -12,7 +12,7 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.122.746.0 (23.10)"
+        "value": "2.122.442.0 (23.10)"
       },
       {
         "name": "PBI_ProTooling",
@@ -9045,6 +9045,570 @@
                       "State": "Suggested",
                       "Type": "Noun",
                       "Weight": 0.727
+                    }
+                  }
+                ]
+              },
+              "pbi_ClassificationAssociation": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi ClassificationAssociation"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "pbi ClassificationAssociation": {
+                      "State": "Generated"
+                    }
+                  }
+                ]
+              },
+              "pbi_ClassificationAssociation.classification_id": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi ClassificationAssociation",
+                    "ConceptualProperty": "ClassificationId"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "classification id": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "ClassificationId": {
+                      "State": "Generated",
+                      "Type": "Noun",
+                      "Weight": 0.99
+                    }
+                  },
+                  {
+                    "classification": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "classification identification": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "classification identity": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "classification identifier": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "classification credential": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.727
+                    }
+                  },
+                  {
+                    "organization": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "arrangement": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "taxonomy": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "categorization": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "cataloguing": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.476
+                    }
+                  },
+                  {
+                    "cataloging": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.476
+                    }
+                  }
+                ],
+                "Visibility": {
+                  "Value": "Hidden"
+                }
+              },
+              "pbi_ClassificationAssociation.classification_source": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi ClassificationAssociation",
+                    "ConceptualProperty": "ClassificationSource"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "classification source": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "ClassificationSource": {
+                      "State": "Generated",
+                      "Type": "Noun",
+                      "Weight": 0.99
+                    }
+                  },
+                  {
+                    "source": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "classification basis": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.5
+                    }
+                  },
+                  {
+                    "classification font": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.5
+                    }
+                  },
+                  {
+                    "classification birthplace": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.5
+                    }
+                  },
+                  {
+                    "basis": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "font": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "birthplace": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "classification foundation": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.485
+                    }
+                  },
+                  {
+                    "classification cause": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.485
+                    }
+                  },
+                  {
+                    "classification spring": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.485
+                    }
+                  },
+                  {
+                    "classification cradle": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.485
+                    }
+                  }
+                ]
+              },
+              "pbi_ClassificationAssociation.data_asset_column_id": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi ClassificationAssociation",
+                    "ConceptualProperty": "DataAssetColumnId"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "data asset column id": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "DataAssetColumnId": {
+                      "State": "Generated",
+                      "Type": "Noun",
+                      "Weight": 0.99
+                    }
+                  },
+                  {
+                    "asset column": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "data asset column": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "column id": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "asset column id": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "data asset column identification": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.771
+                    }
+                  },
+                  {
+                    "data asset column identity": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.771
+                    }
+                  },
+                  {
+                    "data asset column identifier": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.771
+                    }
+                  },
+                  {
+                    "asset column identification": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.762
+                    }
+                  },
+                  {
+                    "asset column identity": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.762
+                    }
+                  },
+                  {
+                    "asset column identifier": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.762
+                    }
+                  },
+                  {
+                    "column identification": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "column identity": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "column identifier": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "data asset column credential": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.748
+                    }
+                  }
+                ]
+              },
+              "pbi_ClassificationAssociation.data_asset_id": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi ClassificationAssociation",
+                    "ConceptualProperty": "DataAssetId"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "data asset id": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "DataAssetId": {
+                      "State": "Generated",
+                      "Type": "Noun",
+                      "Weight": 0.99
+                    }
+                  },
+                  {
+                    "asset": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "data asset": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "asset id": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "data asset identification": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.762
+                    }
+                  },
+                  {
+                    "data asset identity": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.762
+                    }
+                  },
+                  {
+                    "data asset identifier": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.762
+                    }
+                  },
+                  {
+                    "asset identification": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "asset identity": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "asset identifier": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "data asset credential": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.739
+                    }
+                  },
+                  {
+                    "asset credential": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.727
+                    }
+                  },
+                  {
+                    "information asset id": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.609
+                    }
+                  },
+                  {
+                    "fact asset id": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.609
                     }
                   }
                 ]
@@ -18992,6 +19556,611 @@
                   }
                 ]
               },
+              "pbi_classification": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi Classification"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "pbi classification": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "pbi organization": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.5
+                    }
+                  },
+                  {
+                    "pbi arrangement": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.5
+                    }
+                  },
+                  {
+                    "pbi taxonomy": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.5
+                    }
+                  },
+                  {
+                    "pbi categorization": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.5
+                    }
+                  },
+                  {
+                    "pbi cataloguing": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.485
+                    }
+                  },
+                  {
+                    "pbi cataloging": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.485
+                    }
+                  },
+                  {
+                    "pbi sorting": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.485
+                    }
+                  },
+                  {
+                    "pbi ordering": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.485
+                    }
+                  },
+                  {
+                    "pbi grouping": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.485
+                    }
+                  },
+                  {
+                    "pbi category": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.475
+                    }
+                  }
+                ]
+              },
+              "pbi_classification.category": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi Classification",
+                    "ConceptualProperty": "Category"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "category": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "class": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.714
+                    }
+                  },
+                  {
+                    "grouping": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.714
+                    }
+                  },
+                  {
+                    "kind": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.714
+                    }
+                  }
+                ]
+              },
+              "pbi_classification.classification_id": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi Classification",
+                    "ConceptualProperty": "ClassificationId"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "classification id": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "ClassificationId": {
+                      "State": "Generated",
+                      "Type": "Noun",
+                      "Weight": 0.99
+                    }
+                  },
+                  {
+                    "classification": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "classification identification": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "classification identity": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "classification identifier": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "classification credential": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.727
+                    }
+                  },
+                  {
+                    "organization": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "arrangement": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "taxonomy": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "categorization": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.491
+                    }
+                  },
+                  {
+                    "cataloguing": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.476
+                    }
+                  },
+                  {
+                    "cataloging": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.476
+                    }
+                  }
+                ]
+              },
+              "pbi_classification.classification_type": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi Classification",
+                    "ConceptualProperty": "ClassificationType"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "classification type": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "ClassificationType": {
+                      "State": "Generated",
+                      "Type": "Noun",
+                      "Weight": 0.99
+                    }
+                  },
+                  {
+                    "type": {
+                      "State": "Generated",
+                      "Weight": 0.97
+                    }
+                  },
+                  {
+                    "classification category": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "classification genre": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "classification manner": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "classification variety": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.75
+                    }
+                  },
+                  {
+                    "genre": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.736
+                    }
+                  },
+                  {
+                    "manner": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.736
+                    }
+                  },
+                  {
+                    "variety": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.736
+                    }
+                  },
+                  {
+                    "classification brand": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.727
+                    }
+                  },
+                  {
+                    "classification class": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.727
+                    }
+                  },
+                  {
+                    "classification kind": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.727
+                    }
+                  }
+                ]
+              },
+              "pbi_classification.description": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi Classification",
+                    "ConceptualProperty": "Description"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "description": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "appearance": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.736
+                    }
+                  },
+                  {
+                    "descriptor": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.736
+                    }
+                  },
+                  {
+                    "explanation": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.736
+                    }
+                  },
+                  {
+                    "specification": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.736
+                    }
+                  },
+                  {
+                    "account": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.714
+                    }
+                  },
+                  {
+                    "overview": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.714
+                    }
+                  },
+                  {
+                    "report": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.714
+                    }
+                  }
+                ]
+              },
+              "pbi_classification.display_name": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi Classification",
+                    "ConceptualProperty": "DisplayName"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "display name": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "DisplayName": {
+                      "State": "Generated",
+                      "Type": "Noun",
+                      "Weight": 0.99
+                    }
+                  },
+                  {
+                    "display nickname": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.727
+                    }
+                  },
+                  {
+                    "display title": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.727
+                    }
+                  },
+                  {
+                    "display label": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.727
+                    }
+                  },
+                  {
+                    "display tag": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.727
+                    }
+                  }
+                ]
+              },
+              "pbi_classification.name": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi Classification",
+                    "ConceptualProperty": "Name"
+                  }
+                },
+                "NameType": "Name",
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "name": {
+                      "State": "Generated"
+                    }
+                  },
+                  {
+                    "title": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.714
+                    }
+                  },
+                  {
+                    "label": {
+                      "Source": {
+                        "Agent": "Thesaurus"
+                      },
+                      "State": "Suggested",
+                      "Type": "Noun",
+                      "Weight": 0.714
+                    }
+                  }
+                ]
+              },
               "pbi_collection": {
                 "Definition": {
                   "Binding": {
@@ -27086,6 +28255,158 @@
                 },
                 "State": "Generated"
               },
+              "pbi_ClassificationAssociation_has_classification_source": {
+                "Binding": {
+                  "ConceptualEntity": "pbi ClassificationAssociation"
+                },
+                "Phrasings": [
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_ClassificationAssociation.classification_source"
+                      },
+                      "Subject": {
+                        "Role": "pbi_ClassificationAssociation"
+                      }
+                    },
+                    "ID": "pbi_ClassificationAssociations_have_classification_sources",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  }
+                ],
+                "Roles": {
+                  "pbi_ClassificationAssociation": {
+                    "Target": {
+                      "Entity": "pbi_ClassificationAssociation"
+                    }
+                  },
+                  "pbi_ClassificationAssociation.classification_source": {
+                    "Target": {
+                      "Entity": "pbi_ClassificationAssociation.classification_source"
+                    }
+                  }
+                },
+                "State": "Generated"
+              },
+              "pbi_ClassificationAssociation_has_data_asset_column_id": {
+                "Binding": {
+                  "ConceptualEntity": "pbi ClassificationAssociation"
+                },
+                "Phrasings": [
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_ClassificationAssociation.data_asset_column_id"
+                      },
+                      "Subject": {
+                        "Role": "pbi_ClassificationAssociation"
+                      }
+                    },
+                    "ID": "pbi_ClassificationAssociations_have_data_asset_column_ids",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  }
+                ],
+                "Roles": {
+                  "pbi_ClassificationAssociation": {
+                    "Target": {
+                      "Entity": "pbi_ClassificationAssociation"
+                    }
+                  },
+                  "pbi_ClassificationAssociation.data_asset_column_id": {
+                    "Target": {
+                      "Entity": "pbi_ClassificationAssociation.data_asset_column_id"
+                    }
+                  }
+                },
+                "State": "Generated"
+              },
+              "pbi_ClassificationAssociation_has_data_asset_id": {
+                "Binding": {
+                  "ConceptualEntity": "pbi ClassificationAssociation"
+                },
+                "Phrasings": [
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_ClassificationAssociation.data_asset_id"
+                      },
+                      "Subject": {
+                        "Role": "pbi_ClassificationAssociation"
+                      }
+                    },
+                    "ID": "pbi_ClassificationAssociations_have_data_asset_ids",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  }
+                ],
+                "Roles": {
+                  "pbi_ClassificationAssociation": {
+                    "Target": {
+                      "Entity": "pbi_ClassificationAssociation"
+                    }
+                  },
+                  "pbi_ClassificationAssociation.data_asset_id": {
+                    "Target": {
+                      "Entity": "pbi_ClassificationAssociation.data_asset_id"
+                    }
+                  }
+                },
+                "State": "Generated"
+              },
+              "pbi_ClassificationAssociation_has_pbi_classification": {
+                "Binding": {
+                  "ConceptualEntity": "pbi ClassificationAssociation"
+                },
+                "Phrasings": [
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_classification"
+                      },
+                      "Subject": {
+                        "Role": "pbi_ClassificationAssociation"
+                      }
+                    },
+                    "ID": "pbi_ClassificationAssociations_have_pbi_classifications",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  },
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_ClassificationAssociation"
+                      },
+                      "Subject": {
+                        "Role": "pbi_classification"
+                      }
+                    },
+                    "ID": "pbi_classifications_have_pbi_ClassificationAssociations",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  }
+                ],
+                "Roles": {
+                  "pbi_ClassificationAssociation": {
+                    "Target": {
+                      "Entity": "pbi_ClassificationAssociation"
+                    }
+                  },
+                  "pbi_classification": {
+                    "Nouns": [
+                      {
+                        "classification": {
+                          "State": "Generated"
+                        }
+                      }
+                    ],
+                    "Target": {
+                      "Entity": "pbi_classification"
+                    }
+                  }
+                },
+                "State": "Generated"
+              },
               "pbi_ContactDetail_has_contact_display_name": {
                 "Binding": {
                   "ConceptualEntity": "pbi ContactDetails"
@@ -31729,6 +33050,217 @@
                 },
                 "State": "Generated"
               },
+              "pbi_classification_has_category": {
+                "Binding": {
+                  "ConceptualEntity": "pbi Classification"
+                },
+                "Phrasings": [
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_classification.category"
+                      },
+                      "Subject": {
+                        "Role": "pbi_classification"
+                      }
+                    },
+                    "ID": "pbi_classifications_have_categories",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  }
+                ],
+                "Roles": {
+                  "pbi_classification": {
+                    "Target": {
+                      "Entity": "pbi_classification"
+                    }
+                  },
+                  "pbi_classification.category": {
+                    "Target": {
+                      "Entity": "pbi_classification.category"
+                    }
+                  }
+                },
+                "State": "Generated"
+              },
+              "pbi_classification_has_classification_id": {
+                "Binding": {
+                  "ConceptualEntity": "pbi Classification"
+                },
+                "Phrasings": [
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_classification.classification_id"
+                      },
+                      "Subject": {
+                        "Role": "pbi_classification"
+                      }
+                    },
+                    "ID": "pbi_classifications_have_classification_ids",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  }
+                ],
+                "Roles": {
+                  "pbi_classification": {
+                    "Target": {
+                      "Entity": "pbi_classification"
+                    }
+                  },
+                  "pbi_classification.classification_id": {
+                    "Target": {
+                      "Entity": "pbi_classification.classification_id"
+                    }
+                  }
+                },
+                "State": "Generated"
+              },
+              "pbi_classification_has_classification_type": {
+                "Binding": {
+                  "ConceptualEntity": "pbi Classification"
+                },
+                "Phrasings": [
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_classification.classification_type"
+                      },
+                      "Subject": {
+                        "Role": "pbi_classification"
+                      }
+                    },
+                    "ID": "pbi_classifications_have_classification_types",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  }
+                ],
+                "Roles": {
+                  "pbi_classification": {
+                    "Target": {
+                      "Entity": "pbi_classification"
+                    }
+                  },
+                  "pbi_classification.classification_type": {
+                    "Target": {
+                      "Entity": "pbi_classification.classification_type"
+                    }
+                  }
+                },
+                "State": "Generated"
+              },
+              "pbi_classification_has_description": {
+                "Binding": {
+                  "ConceptualEntity": "pbi Classification"
+                },
+                "Phrasings": [
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_classification.description"
+                      },
+                      "Subject": {
+                        "Role": "pbi_classification"
+                      }
+                    },
+                    "ID": "pbi_classifications_have_descriptions",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  }
+                ],
+                "Roles": {
+                  "pbi_classification": {
+                    "Target": {
+                      "Entity": "pbi_classification"
+                    }
+                  },
+                  "pbi_classification.description": {
+                    "Target": {
+                      "Entity": "pbi_classification.description"
+                    }
+                  }
+                },
+                "State": "Generated"
+              },
+              "pbi_classification_has_display_name": {
+                "Binding": {
+                  "ConceptualEntity": "pbi Classification"
+                },
+                "Phrasings": [
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_classification.display_name"
+                      },
+                      "Subject": {
+                        "Role": "pbi_classification"
+                      }
+                    },
+                    "ID": "pbi_classifications_have_display_names",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  }
+                ],
+                "Roles": {
+                  "pbi_classification": {
+                    "Target": {
+                      "Entity": "pbi_classification"
+                    }
+                  },
+                  "pbi_classification.display_name": {
+                    "Target": {
+                      "Entity": "pbi_classification.display_name"
+                    }
+                  }
+                },
+                "State": "Generated"
+              },
+              "pbi_classification_has_name": {
+                "Binding": {
+                  "ConceptualEntity": "pbi Classification"
+                },
+                "Phrasings": [
+                  {
+                    "Attribute": {
+                      "Object": {
+                        "Role": "pbi_classification.name"
+                      },
+                      "Subject": {
+                        "Role": "pbi_classification"
+                      }
+                    },
+                    "ID": "pbi_classifications_have_names",
+                    "State": "Generated",
+                    "Weight": 0.99
+                  },
+                  {
+                    "ID": "names_are_names_IDs_of_pbi_classifications",
+                    "Name": {
+                      "Name": {
+                        "Role": "pbi_classification.name"
+                      },
+                      "Subject": {
+                        "Role": "pbi_classification"
+                      }
+                    },
+                    "State": "Generated",
+                    "Weight": 0.99
+                  }
+                ],
+                "Roles": {
+                  "pbi_classification": {
+                    "Target": {
+                      "Entity": "pbi_classification"
+                    }
+                  },
+                  "pbi_classification.name": {
+                    "Target": {
+                      "Entity": "pbi_classification.name"
+                    }
+                  }
+                },
+                "State": "Generated"
+              },
               "pbi_collection_has_collection_id": {
                 "Binding": {
                   "ConceptualEntity": "pbi Collection"
@@ -34729,40 +36261,6 @@
       "returnErrorValuesAsNull": true
     },
     "defaultPowerBIDataSourceVersion": "powerBI_V3",
-    "expressions": [
-      {
-        "name": "SERVER",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Text"
-          }
-        ],
-        "expression": "\"dghdogfoodsynapse-ondemand.sql.azuresynapse.net\" meta [IsParameterQuery=true, Type=\"Any\", IsParameterQueryRequired=true]",
-        "kind": "m",
-        "lineageTag": "a14b6f22-ea8d-4a8e-97f2-05710f062eb1"
-      },
-      {
-        "name": "DATABASE",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Text"
-          }
-        ],
-        "expression": "\"blake\" meta [IsParameterQuery=true, Type=\"Any\", IsParameterQueryRequired=true]",
-        "kind": "m",
-        "lineageTag": "953805ba-bf53-4776-ad5b-7ae663b34473"
-      }
-    ],
     "relationships": [
       {
         "name": "28d0c98d-3df6-44ab-a600-4a6c6e1dba8d",
@@ -34862,6 +36360,13 @@
         "fromTable": "pbi DataProductGovernenceTagAssociation",
         "toColumn": "DataProductId",
         "toTable": "pbi BusinessDomainDataProductAssociation"
+      },
+      {
+        "name": "eb99116c-8883-4ea5-a659-a6e8a45d2189",
+        "fromColumn": "ClassificationId",
+        "fromTable": "pbi ClassificationAssociation",
+        "toColumn": "ClassificationId",
+        "toTable": "pbi Classification"
       },
       {
         "name": "88768582-413a-403b-8ac3-2f8777ecad7a",
@@ -35483,6 +36988,192 @@
                 "    pbi_BusinessDomainDataProductAssociation = Source{[Schema=\"pbi\",Item=\"BusinessDomainDataProductAssociation\"]}[Data]",
                 "in",
                 "    pbi_BusinessDomainDataProductAssociation"
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "pbi Classification",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "ClassificationId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "be18660f-525c-4e18-b686-65641dc85107",
+            "sourceColumn": "ClassificationId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Name",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "723b1e89-40bd-4aa8-9461-63cb239bfb65",
+            "sourceColumn": "Name",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DisplayName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "598f6240-0fe1-4b9e-848f-a1b63e31c757",
+            "sourceColumn": "DisplayName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Description",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8be320e7-31e6-4238-97d7-22e7e253c213",
+            "sourceColumn": "Description",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Category",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8e80be35-afe0-47eb-be08-2d0956847d38",
+            "sourceColumn": "Category",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ClassificationType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f45403f2-174e-4013-9c20-673ceacb0c5f",
+            "sourceColumn": "ClassificationType",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "20fe171f-5989-402d-ac6b-e841a89d3d5a",
+        "partitions": [
+          {
+            "name": "pbi Classification",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(\"x6eps4xrq2xudenlfv6naeo3i4-5bxikl2apeuexo2kzf3mnvjxna.msit-datawarehouse.pbidedicated.windows.net\", \"Dw-DEH-082023\"),",
+                "    pbi_Classification = Source{[Schema=\"pbi\",Item=\"Classification\"]}[Data]",
+                "in",
+                "    pbi_Classification"
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "pbi ClassificationAssociation",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "ClassificationId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "b68c00df-2935-4d74-8646-c0c344f14886",
+            "sourceColumn": "ClassificationId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataAssetId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ac268d00-2e3b-4fcf-aea4-2126411d0d15",
+            "sourceColumn": "DataAssetId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataAssetColumnId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "89f97c7e-de47-47c9-abff-32f5547c45d1",
+            "sourceColumn": "DataAssetColumnId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ClassificationSource",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "7a9af4d8-15f6-47c1-967a-374eba5f0ded",
+            "sourceColumn": "ClassificationSource",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "2f33e4f8-5bff-4ed1-abb8-fc0c9d547a04",
+        "partitions": [
+          {
+            "name": "pbi ClassificationAssociation",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(\"x6eps4xrq2xudenlfv6naeo3i4-5bxikl2apeuexo2kzf3mnvjxna.msit-datawarehouse.pbidedicated.windows.net\", \"Dw-DEH-082023\"),",
+                "    pbi_ClassificationAssociation = Source{[Schema=\"pbi\",Item=\"ClassificationAssociation\"]}[Data]",
+                "in",
+                "    pbi_ClassificationAssociation"
               ],
               "type": "m"
             }
@@ -36132,12 +37823,12 @@
             ],
             "dataType": "string",
             "expression": [
-              "SWITCH(TRUE(),\r",
-              "'pbi DataProduct'[AssetCount] >= 1 &&\r",
-              "'pbi DataProduct'[HasAccessEntitlement] = 1 &&\r",
-              "'pbi DataProduct'[GlossaryTermCount] > 0 &&\r",
-              "'pbi DataProduct'[HasNotNullDescription] = 1 &&\r",
-              "'pbi DataProduct'[HasValidOwner] = 1 &&\r",
+              "SWITCH(TRUE(),",
+              "'pbi DataProduct'[AssetCount] >= 1 &&",
+              "'pbi DataProduct'[HasAccessEntitlement] = 1 &&",
+              "'pbi DataProduct'[GlossaryTermCount] > 0 &&",
+              "'pbi DataProduct'[HasNotNullDescription] = 1 &&",
+              "'pbi DataProduct'[HasValidOwner] = 1 &&",
               "'pbi DataProduct'[HasValidUseCase] =1 , \"Pass\", \"Fail\")"
             ],
             "isDataTypeInferred": true,
@@ -36253,14 +37944,14 @@
             ],
             "dataType": "int64",
             "expression": [
-              "IF(\r",
-              "                'pbi DataProduct'[Owner P/F]= \"Fail\",1)\r",
-              "                +IF('pbi DataProduct'[Classification_Product P/F] = \"Fail\",1,0)\r",
-              "                +IF('pbi DataProduct'[Catalog P/F] = \"Fail\",1,0)\r",
-              "                +IF('pbi DataProduct'[Data Qualiy P/F] = \"Fail\", 1,0)\r",
-              "                +IF('pbi DataProduct'[Authoritative source P/F] = \"Fail\",1,0)\r",
-              "                +IF('pbi DataProduct'[Access entitlement P/F] = \"Fail\",1,0)\r",
-              "                +IF('pbi DataProduct'[Data consumption purpse P/F] = \"Fail\",1,0\r",
+              "IF(",
+              "                'pbi DataProduct'[Owner P/F]= \"Fail\",1)",
+              "                +IF('pbi DataProduct'[Classification_Product P/F] = \"Fail\",1,0)",
+              "                +IF('pbi DataProduct'[Catalog P/F] = \"Fail\",1,0)",
+              "                +IF('pbi DataProduct'[Data Qualiy P/F] = \"Fail\", 1,0)",
+              "                +IF('pbi DataProduct'[Authoritative source P/F] = \"Fail\",1,0)",
+              "                +IF('pbi DataProduct'[Access entitlement P/F] = \"Fail\",1,0)",
+              "                +IF('pbi DataProduct'[Data consumption purpse P/F] = \"Fail\",1,0",
               "                )+0"
             ],
             "formatString": "0",
@@ -36278,12 +37969,12 @@
             ],
             "dataType": "int64",
             "expression": [
-              "[Owner Pass count]+\r",
-              "[Catalog Pass count]+\r",
-              "[ClassificationPassCount]+\r",
-              "[Data Quality Pass count]+\r",
-              "[Authoritative source Pass count]+\r",
-              "[Access entitlement Pass count]+\r",
+              "[Owner Pass count]+",
+              "[Catalog Pass count]+",
+              "[ClassificationPassCount]+",
+              "[Data Quality Pass count]+",
+              "[Authoritative source Pass count]+",
+              "[Access entitlement Pass count]+",
               "[Data consumption Purpose Pass count]"
             ],
             "formatString": "0",
@@ -36302,9 +37993,9 @@
             ],
             "dataType": "string",
             "expression": [
-              "SWITCH(TRUE(),\r",
-              "                            [Overall health score] > 0.5, \"Healthy\", \r",
-              "                            [Overall health score] > 0.2 && [Overall health score] <= 0.5 , \"Fair\",\r",
+              "SWITCH(TRUE(),",
+              "                            [Overall health score] > 0.5, \"Healthy\", ",
+              "                            [Overall health score] > 0.2 && [Overall health score] <= 0.5 , \"Fair\",",
               "                            [Overall health score] < 0.2, \"Not healthy\")"
             ],
             "isDataTypeInferred": true,
@@ -36442,9 +38133,9 @@
             ],
             "dataType": "string",
             "expression": [
-              "SWITCH(TRUE(),\r",
-              "                            [Overall health score] > 0.5, \"Healthy > 50%\", \r",
-              "                            [Overall health score] > 0.2 && [Overall health score] <= 0.5 , \"Fair <= 50%\",\r",
+              "SWITCH(TRUE(),",
+              "                            [Overall health score] > 0.5, \"Healthy > 50%\", ",
+              "                            [Overall health score] > 0.2 && [Overall health score] <= 0.5 , \"Fair <= 50%\",",
               "                            [Overall health score] <= 0.2, \"Unhealthy < 20%\")"
             ],
             "lineageTag": "93c42cd7-7d9b-429c-832d-b76665e44d22",
@@ -40850,106 +42541,6 @@
           }
         ],
         "showAsVariationsOnly": true
-      },
-      {
-        "name": "Classification",
-        "columns": [
-          {
-            "name": "Category",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "d1a0e0a0-dbf2-4690-8297-56dee42b6e6b",
-            "sourceColumn": "Category",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "ClassificationId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "0ae29015-e8a7-42eb-af08-3fb9d8f5b07f",
-            "sourceColumn": "ClassificationId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "ClassificationType",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "9f2a8be5-6ad2-400b-8745-6ec19f9eb0ae",
-            "sourceColumn": "ClassificationType",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "ClassificationName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "1d8ebda7-b0b6-445e-857d-f7f810e0ed17",
-            "sourceColumn": "ClassificationName",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "DisplayName",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "f3e36d7f-efa6-4afc-850c-9c5314124f62",
-            "sourceColumn": "DisplayName",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "ClassificationDescription",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "26f2c81d-3cac-4a84-90cb-c9891284979b",
-            "sourceColumn": "ClassificationDescription",
-            "summarizeBy": "none"
-          }
-        ],
-        "lineageTag": "5f86d9d4-3ae6-41d3-9499-c524be932393",
-        "partitions": [
-          {
-            "name": "Classification",
-            "mode": "import",
-            "source": {
-              "expression": [
-                "let",
-                "    Source = Sql.Database(SERVER, DATABASE),",
-                "    dbo_Classification = Source{[Schema=\"dbo\",Item=\"Classification\"]}[Data]",
-                "in",
-                "    dbo_Classification"
-              ],
-              "type": "m"
-            }
-          }
-        ]
       }
     ]
   }
