@@ -6,12 +6,15 @@ using System.Net;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args,
     WebRootPath = Directory.GetCurrentDirectory()
 });
+
+builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment());
 
 Startup.Configure(builder.Services, builder.Configuration);
 

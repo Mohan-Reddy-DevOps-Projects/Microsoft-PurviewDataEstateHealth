@@ -18,7 +18,7 @@ internal class DataEstateHealthRequestLogger : DataEstateHealthLogger, IDataEsta
 
     /// <inheritdoc />
     /// <summary>
-    /// Initializes a new instance of the <see cref="T:Microsoft.Azure.PurviewShare.Logger.purviewShareRequestLogger" /> class.
+    /// Initializes a new instance of the <see cref="DataEstateHealthRequestLogger" /> class.
     /// </summary>
     /// <param name="loggerFactory">The logger factory to use</param>
     /// <param name="requestHeaderContext">The correlation context.</param>

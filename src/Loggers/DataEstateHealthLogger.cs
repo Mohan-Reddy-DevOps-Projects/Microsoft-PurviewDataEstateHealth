@@ -5,29 +5,23 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
-/// <inheritdoc />
 /// <summary>
 /// Logger for singleton services that does not log scoped parameters
 /// </summary>
 public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealthRequestLogger
 {
-    private readonly Dictionary<DataEstateHealthLogTable, ILogger> loggers = new();
+    private readonly ILogger logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DataEstateHealthLogger" /> class.
     /// </summary>
-    /// <param name="loggerFactory">The mds logger</param>
     public DataEstateHealthLogger(ILoggerFactory loggerFactory)
     {
-        foreach (var logTable in Enum.GetValues<DataEstateHealthLogTable>())
-        {
-            this.loggers.Add(logTable, loggerFactory.CreateLogger(logTable.ToString()));
-        }
+        this.logger = loggerFactory.CreateLogger("Log");
     }
 
     /// <inheritdoc/>
@@ -39,6 +33,7 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealth
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
+        this.logger.LogTrace(exception, message);
     }
 
     /// <inheritdoc/>
@@ -50,6 +45,7 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealth
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
+        this.logger.LogInformation(exception, message);
     }
 
     /// <inheritdoc/>
@@ -61,6 +57,7 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealth
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
+        this.logger.LogWarning(exception, message);
     }
 
     /// <inheritdoc/>
@@ -72,6 +69,7 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealth
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
+        this.logger.LogError(exception, message);
     }
 
     /// <inheritdoc/>
@@ -83,46 +81,30 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealth
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
+        this.logger.LogCritical(exception, message);
     }
 
     /// <inheritdoc/>
-    public void Log(
-        DataEstateHealthLogTable logTable,
+    public void Log<TState>(
         LogLevel logLevel,
-        string message,
-        List<KeyValuePair<string, object>> state = null,
-        Exception exception = null,
-        bool isSensitive = false,
-        [CallerMemberName] string operationName = "",
-        [CallerFilePath] string sourceFilePath = "",
-        [CallerLineNumber] int sourceLineNumber = 0)
+        EventId eventId,
+        TState state,
+        Exception exception,
+        Func<TState, Exception, string> formatter)
     {
+        this.logger.Log(logLevel, eventId, state, exception, formatter);
     }
 
     /// <inheritdoc/>
-    public void Log(
-        DataEstateHealthLogTable logTable,
-        LogLevel logLevel,
-        string message,
-        Guid? tenantId,
-        Guid? accountId,
-        string correlationId = null,
-        string resourceId = null,
-        Exception exception = null,
-        List<KeyValuePair<string, object>> state = null,
-        bool isSensitive = false,
-        [CallerMemberName] string operationName = "",
-        [CallerFilePath] string sourceFilePath = "",
-        [CallerLineNumber] int sourceLineNumber = 0)
+    public bool IsEnabled(LogLevel logLevel)
     {
+        return true;
     }
 
     /// <inheritdoc/>
-    public void LogRowTelemetry(
-        string snapshotId,
-        string tableName,
-        string rowState)
+    public IDisposable BeginScope<TState>(TState state) where TState : notnull
     {
+        return null;
     }
 
     /// <summary>
@@ -132,22 +114,5 @@ public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealth
     protected virtual IRequestHeaderContext GetRequestHeaderContext()
     {
         return null;
-    }
-
-    /// <inheritdoc/>
-    public IDisposable BeginScope<TState>(TState state) where TState : notnull
-    {
-        return null;
-    }
-
-    /// <inheritdoc/>
-    public bool IsEnabled(LogLevel logLevel)
-    {
-        return false;
-    }
-
-    /// <inheritdoc/>
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-    {
     }
 }

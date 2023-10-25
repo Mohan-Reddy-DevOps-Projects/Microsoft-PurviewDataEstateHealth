@@ -23,6 +23,7 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// The Data Estate Health API service.
@@ -43,10 +44,13 @@ public class Program
             ConfigurePortsAndSsl(hostingContext, options, builder);
         });
 
+        builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment());
+
         // Add services to the container.
         builder.Services.AddApiVersioning();
 
         builder.Services
+            .AddLogger()
             .AddApiServiceConfigurations(builder.Configuration)
             .AddApiServices()
             .AddProvisioningService()
