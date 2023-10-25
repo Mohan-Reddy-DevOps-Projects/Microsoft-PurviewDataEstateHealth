@@ -102,56 +102,55 @@ module synapseStorageAccount 'synapseStorageAccount.bicep' = {
   }
 }
 
-// resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
-//   dependsOn: [synapseStorageAccount]
-//   name: synapseWorkspaceName
-//   location: synapseLocation
-//   tags: {}
-//   identity: {
-//     type: 'SystemAssigned'
-//   }
-//   properties: {
-//     azureADOnlyAuthentication: false
-//     publicNetworkAccess: 'Enabled'
-//     managedVirtualNetwork: 'default'
-//     cspWorkspaceAdminProperties: {
-//     }
-//     defaultDataLakeStorage: {
-//       accountUrl: synapseStorageAccountUrl
-//       createManagedPrivateEndpoint: true
-//       filesystem: synapseStorageAccount.outputs.StorageContainerName
-//       resourceId: synapseStorageAccount.outputs.StorageAccountResourceId
-//     }
-//     sqlAdministratorLogin: 'sqladminuser'
-//     sqlAdministratorLoginPassword: null
-//   }
-// }
+resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
+  dependsOn: [synapseStorageAccount]
+  name: synapseWorkspaceName
+  location: synapseLocation
+  tags: {}
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    azureADOnlyAuthentication: false
+    publicNetworkAccess: 'Enabled'
+    managedVirtualNetwork: 'default'
+    cspWorkspaceAdminProperties: {
+    }
+    defaultDataLakeStorage: {
+      accountUrl: synapseStorageAccountUrl
+      createManagedPrivateEndpoint: true
+      filesystem: synapseStorageAccount.outputs.StorageContainerName
+      resourceId: synapseStorageAccount.outputs.StorageAccountResourceId
+    }
+    sqlAdministratorLogin: 'sqladminuser'
+    sqlAdministratorLoginPassword: null
+  }
+}
 
-// resource sparkPool 'Microsoft.Synapse/workspaces/bigDataPools@2021-06-01' = {
-//   dependsOn: [synapseWorkspace]
-//   name: sparkPoolName
-//   location: synapseLocation
-//   tags: {}
-//   parent: synapseWorkspace
-//   properties: {
-//     autoPause: {
-//       delayInMinutes: 5
-//       enabled: true
-//     }
-//     autoScale: {
-//       enabled: true
-//       minNodeCount: 3
-//       maxNodeCount: 10
-//     }
-//     dynamicExecutorAllocation: {
-//       enabled: true
-//       minExecutors: 1
-//       maxExecutors: 4
-//     }
-//     isComputeIsolationEnabled: false
-//     nodeSize: 'Small'
-//     nodeSizeFamily: 'MemoryOptimized'
-//     sessionLevelPackagesEnabled: true
-//     sparkVersion: '3.3'
-//   }
-// }
+resource sparkPool 'Microsoft.Synapse/workspaces/bigDataPools@2021-06-01' = {
+  name: sparkPoolName
+  location: synapseLocation
+  tags: {}
+  parent: synapseWorkspace
+  properties: {
+    autoPause: {
+      delayInMinutes: 5
+      enabled: true
+    }
+    autoScale: {
+      enabled: true
+      minNodeCount: 3
+      maxNodeCount: 10
+    }
+    dynamicExecutorAllocation: {
+      enabled: true
+      minExecutors: 1
+      maxExecutors: 4
+    }
+    isComputeIsolationEnabled: false
+    nodeSize: 'Small'
+    nodeSizeFamily: 'MemoryOptimized'
+    sessionLevelPackagesEnabled: true
+    sparkVersion: '3.3'
+  }
+}
