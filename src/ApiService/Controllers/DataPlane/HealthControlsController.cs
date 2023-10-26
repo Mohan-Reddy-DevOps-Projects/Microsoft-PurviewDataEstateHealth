@@ -74,5 +74,39 @@ public class HealthControlsController : DataPlaneController
 
         return this.Ok(healthControls);
     }
+
+    /// <summary>
+    /// List health controls by health control Id.
+    /// </summary>
+    /// <param name="controlId">Health control id.</param>
+    /// <param name="apiVersion">The api version of the call.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("{controlId}")]
+    [ProducesResponseType(typeof(HealthControlList), 200)]
+    public async Task<IActionResult> GetHealthControlsByControlIdAsync(
+        [FromRoute] Guid controlId,
+        [FromQuery(Name = "api-version")] string apiVersion,
+        CancellationToken cancellationToken)
+    {
+        IBatchResults<IHealthControlModel<Models.HealthControlProperties>> healthControlModelResults
+            = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
+                .CreateHealthControlCollectionComponent(
+                    this.requestHeaderContext.TenantId,
+                    this.requestHeaderContext.AccountObjectId)
+                .ById(controlId)
+                .Get(cancellationToken);
+
+        var healthControls = new HealthControlList
+        {
+            Value = healthControlModelResults.Results.Select(
+            healthControl => this.adapterRegistry.AdapterFor<IHealthControlModel<Models.HealthControlProperties>, HealthControl>()
+            .FromModel(healthControl))
+            .ToList()
+        };
+
+        return this.Ok(healthControls);
+    }
 }
 

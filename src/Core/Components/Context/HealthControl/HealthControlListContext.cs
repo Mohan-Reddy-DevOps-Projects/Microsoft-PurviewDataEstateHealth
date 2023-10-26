@@ -7,4 +7,5 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 /// <inheritdoc cref="IHealthControlListContext" />
 internal class HealthControlListContext : ComponentContext, IHealthControlListContext
 {
+    public Guid? ControlId { get; set; }
 }

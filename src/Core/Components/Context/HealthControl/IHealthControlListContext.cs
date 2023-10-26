@@ -9,4 +9,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 /// </summary>
 public interface IHealthControlListContext : IRootComponentContext
 {
+    /// <summary>
+    /// Health control id
+    /// </summary>
+    Guid? ControlId { get; set; }
 }

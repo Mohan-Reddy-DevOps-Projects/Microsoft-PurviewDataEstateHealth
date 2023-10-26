@@ -32,12 +32,25 @@ internal class HealthControlCollectionComponent : BaseComponent<IHealthControlLi
         this.healthControlRepository = this.healthControlRepository.ByLocation(this.Context.Location);
     }
 
+    public IHealthControlCollectionComponent ById(Guid id)
+    {
+        this.Context.ControlId = id;
+        return this;
+    }
+
     /// <inheritdoc />
     public async Task<IBatchResults<IHealthControlModel<HealthControlProperties>>> Get(
         CancellationToken cancellationToken,
         string skipToken = null)
     {
+        if (!this.Context.ControlId.HasValue)
+        {
          return await this.healthControlRepository.GetMultiple(
+             cancellationToken,
+             skipToken);
+    }
+
+        return await this.healthControlRepository.GetMultiple(new HealthControlKey(this.Context.ControlId.Value),
              cancellationToken,
              skipToken);
     }

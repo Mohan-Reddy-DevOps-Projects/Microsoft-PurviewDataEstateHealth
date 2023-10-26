@@ -339,6 +339,90 @@
                     "response": []
                 }
             ]
+        },
+        {
+            "name": "Controls",
+            "item": [
+                {
+                    "name": "Controls",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/controls?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "controls"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Controls by control ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/controls/{{controlId}}?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "controls",
+                                "{{controlId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
         }
     ],
 	"auth": {
