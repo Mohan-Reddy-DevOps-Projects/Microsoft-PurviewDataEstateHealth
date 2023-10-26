@@ -18,6 +18,7 @@
         "azureEnvironment": "AzureGlobalCloud",
         "synapseRegion": "eastus2euap",
         "useEstsr": "true",
-        "catalogServiceEndpoint": "prod-eastus2euap.dgcatalog.purview-service.azure.com"
+        "catalogServiceEndpoint": "prod-eastus2euap.dgcatalog.purview-service.azure.com",
+        "exposureControlEnvironment": "CanaryEastUS2EUAP"
     }
 }
