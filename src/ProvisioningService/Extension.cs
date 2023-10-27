@@ -6,13 +6,9 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
 
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService.Configurations;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 /// <summary>
 /// Provides behavior on the provisioning service.
@@ -27,7 +23,7 @@ public static class Extension
     {
         services.AddScoped<IPartnerService<AccountServiceModel, IPartnerDetails>, AccountPartnerService>();
         services.AddPartnerHttpClient("PartnerServiceClient");
-
+        services.AddSingleton<IProcessingStorageManager, ProcessingStorageManager>();
 
         return services;
     }

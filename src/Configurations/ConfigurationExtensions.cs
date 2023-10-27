@@ -29,7 +29,9 @@ public static class ConfigurationExtensions
             .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
             .Configure<AuxStorageConfiguration>(configuration.GetSection("auxStorage"))
             .Configure<FirstPartyAadAppConfiguration>(configuration.GetSection("firstPartyAadApp"))
-            .Configure<DGProcessingStorageConfiguration>(configuration.GetSection("dgprocessingStorage"));
+            .Configure<DGProcessingStorageConfiguration>(configuration.GetSection("dgprocessingStorage"))
+            .Configure<ProcessingStorageAuthConfiguration>(configuration.GetSection("processingStorage"))
+            .Configure<ProcessingStorageConfiguration>(configuration.GetSection("processingStorage"));
 
         return services;
     }

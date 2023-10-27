@@ -19,6 +19,7 @@
         "synapseRegion": "eastus2euap",
         "useEstsr": "true",
         "catalogServiceEndpoint": "prod-eastus2euap.dgcatalog.purview-service.azure.com",
-        "exposureControlEnvironment": "CanaryEastUS2EUAP"
+        "exposureControlEnvironment": "CanaryEastUS2EUAP",
+        "processingStorageSubscription": "f8b74e73-e311-4df1-aff3-edbdac78d89c"
     }
 }

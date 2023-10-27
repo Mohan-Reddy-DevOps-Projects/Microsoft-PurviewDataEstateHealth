@@ -31,6 +31,7 @@ public static class CoreLayer
         services.AddSingleton<IComponentContextFactory, ComponentContextFactory>();
         services.AddSingleton<ServiceHealthCheck>();
         services.AddSingleton<AzureCredentialFactory>();
+        services.AddSingleton<IAzureResourceManager, AzureResourceManager<ProcessingStorageAuthConfiguration>>();
 
         services.AddPowerBI();
         services.AddServerlessPool();

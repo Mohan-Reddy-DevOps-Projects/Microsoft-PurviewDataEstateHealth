@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.Share.ApiService;
+namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
 using System;
 using System.Threading.Tasks;
@@ -17,7 +17,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService.Configurations;
-using OperationType = DataEstateHealth.ApiService.DataTransferObjects.OperationType;
+using OperationType = DataTransferObjects.OperationType;
 using System.Collections.Concurrent;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
@@ -34,6 +34,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     private readonly IPartnerService<AccountServiceModel, IPartnerDetails> partnerService;
     private readonly PartnerConfig<IPartnerDetails> partnerConfig;
     private readonly IAccountExposureControlConfigProvider exposureControl;
+    private readonly IProcessingStorageManager processingStorageManager;
 
     /// <summary>
     /// Instantiate instance of PlatformAccountNotificationsController.
@@ -44,13 +45,15 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         IAccountExposureControlConfigProvider exposureControl,
         IOptions<PartnerConfiguration> partnerConfiguration,
         IDataEstateHealthLogger logger,
-    ControllerContext controllerContext = null)
+        IProcessingStorageManager processingStorageManager,
+        ControllerContext controllerContext = null)
     {
         this.coreLayerFactory = coreLayerFactory;
         this.logger = logger;
         this.partnerService = partnerService;
         this.exposureControl = exposureControl;
         this.partnerConfig = new(partnerConfiguration);
+        this.processingStorageManager = processingStorageManager;
 
         if (controllerContext != null)
         {
@@ -75,6 +78,8 @@ public class PlatformAccountNotificationsController : ControlPlaneController
             return this.Ok();
 
         }
+
+        // await this.processingStorageManager.Provision(account, cancellationToken);
 
         await PartnerNotifier.NotifyPartners(
                 this.logger,
