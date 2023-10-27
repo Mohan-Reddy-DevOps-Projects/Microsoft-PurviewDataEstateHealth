@@ -6,7 +6,7 @@
       "connectionString": "Data Source=powerbi://df-msit-scus-redirect.analysis.windows.net/v1.0/myorg/InsightsWorkspace;Initial Catalog=CDMC_Dataset;Access Mode=readonly;Integrated Security=ClaimsToken",
       "pbiServiceModelId": null,
       "pbiModelVirtualServerName": "sobe_wowvirtualserver",
-      "pbiModelDatabaseName": "35e1e294-7107-44f4-8442-40235b713096",
+      "pbiModelDatabaseName": "9dbd78aa-5bce-4beb-807e-23fc78c3fa16",
       "name": "EntityDataSource",
       "connectionType": "pbiServiceXmlaStyleLive"
     }
