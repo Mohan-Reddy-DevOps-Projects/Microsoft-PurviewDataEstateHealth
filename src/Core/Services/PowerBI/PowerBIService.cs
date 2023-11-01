@@ -444,10 +444,6 @@ internal class PowerBIService : IPowerBIService
             }
 
             Datasources dataSourcesList = await this.GetDataSources(profileId, datasetId, workspaceId, cancellationToken);
-            if (dataSourcesList.Value.Count <= 0)
-            {
-                throw new HttpOperationException();
-            }
 
             foreach (Datasource dataSource in dataSourcesList.Value)
             {

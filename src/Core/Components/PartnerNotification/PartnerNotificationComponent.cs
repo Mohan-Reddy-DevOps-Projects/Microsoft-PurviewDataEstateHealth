@@ -4,12 +4,17 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
+using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.PowerBI.Api.Models;
 
 [Component(typeof(IPartnerNotificationComponent), ServiceVersion.V1)]
@@ -25,7 +30,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     [Inject]
     private readonly IDatabaseManagementService databaseManagementService;
 
-/*  [Inject]
+    [Inject]
     private readonly IReportCommand reportCommand;
 
     [Inject]
@@ -38,7 +43,8 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
 
     [Inject]
-    private readonly ICapacityAssignment capacityAssignment;*/
+    private readonly ICapacityAssignment capacityAssignment;
+
 
 #pragma warning restore 649
 
@@ -50,21 +56,18 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     public async Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
         await this.databaseManagementService.Initialize(this.Context.AccountId, cancellationToken);
+        // await this.CreatePowerBIResources(account, cancellationToken);
+    }
 
-        try
+    private async Task CreatePowerBIResources(AccountServiceModel account, CancellationToken cancellationToken)
+    {
+        IProfileModel profile = await this.profileCommand.Create(this.Context, cancellationToken);
+        IWorkspaceContext context = new WorkspaceContext(this.Context)
         {
-            IProfileModel profile = await this.profileCommand.Create(this.Context, cancellationToken);
-            IWorkspaceContext context = new WorkspaceContext(this.Context)
-            {
-                ProfileId = profile.Id
-            };
-            Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
-        }
-        catch (Exception)
-        {
-        }
+            ProfileId = profile.Id
+        };
+        Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
 
-        /*
         await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
         string owner = "health";
         PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(context.AccountId, owner, cancellationToken);
@@ -75,7 +78,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
         }
 
-        string datasetName = "CDMC_Report";
+        string datasetName = "CDMC";
         IDatasetRequest datasetRequest = new DatasetRequest()
         {
             ProfileId = profile.Id,
@@ -85,7 +88,6 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             DatasetName = datasetName,
             OptimizedDataset = true,
             PowerBICredential = powerBICredential
-            
         };
 
         string sharedDatasetName = "CDMC_Dataset";
@@ -126,6 +128,5 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             throw;
         }
         Report report = await this.reportCommand.Bind(sharedDataset, datasetRequest, cancellationToken);
-        */
     }
 }

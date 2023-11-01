@@ -64,9 +64,17 @@ internal sealed class ReportCommand : IReportCommand
     public async Task<Report> Bind(Dataset targetDataset, IDatasetRequest requestContext, CancellationToken cancellationToken)
     {
         Import import = await this.datasetCommand.Import(requestContext, cancellationToken);
+        Dataset dataset = import.Datasets.First();
         Report report = import.Reports.First();
 
-        HttpResponseMessage response = await this.powerBIService.RebindReport(requestContext.WorkspaceId, requestContext.ProfileId, Guid.Parse(targetDataset.Id), report.Id, cancellationToken);
+        await this.powerBIService.RebindReport(requestContext.ProfileId, requestContext.WorkspaceId, Guid.Parse(targetDataset.Id), report.Id, cancellationToken);
+        IDatasetRequest deleteRequest = new DatasetRequest()
+        {
+            DatasetId = Guid.Parse(dataset.Id),
+            ProfileId = requestContext.ProfileId,
+            WorkspaceId = requestContext.WorkspaceId
+        };
+        await this.datasetCommand.Delete(deleteRequest, cancellationToken);
 
         return report;
     }
