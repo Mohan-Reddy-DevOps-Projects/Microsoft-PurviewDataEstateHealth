@@ -6,11 +6,11 @@
       "bindings": [
         {
           "find": "__ASSISTED_ID_APP_CLIENT_ID__",
-          "replaceWith": "$config(assistedIdAppClientId)"
+          "replaceWith": "$config(pdg.cloudSharedInfrastructure.assistedId.appId)"
         },
         {
           "find": "__ASSISTED_ID_APP_OBJECT_ID__",
-          "replaceWith": "$config(assistedIdAppObjectId)"
+          "replaceWith": "$config(pdg.cloudSharedInfrastructure.assistedId.objectId)"
         },
         {
           "find": "__ASSISTED_ID_APP_SECRET_URI__",
@@ -36,7 +36,7 @@
         {
           "find": "__CERTS_PRIVATE_ISSUER_PROVIDER__",
           "replaceWith": "$config(pdg.cloudSharedInfrastructure.certificates.privateIssuerProvider)"
-        },        
+        },
         {
           "find": "__CERTS_PUBLIC_ISSUER_NAME__",
           "replaceWith": "$config(pdg.cloudSharedInfrastructure.certificates.publicIssuerName)"
@@ -122,6 +122,10 @@
             {
                 "find": "__INFRA_KEY_VAULT_URI__",
                 "replaceWith": "https://$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-kv.$config(keyVault.domainNameSuffix)"
+            },
+            {
+                "find": "\"__INFRA_PROCESSING_STORAGE_SUBSCRIPTIONS__\"",
+                "replaceWith": "$config(pdg.regionSharedInfrastructure.sharedSubscriptions.storage)"
             },
             {
                 "find": "__INFRA_RESOURCE_GROUP_NAME__",

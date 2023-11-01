@@ -1,8 +1,6 @@
 {
   "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
     "settings": {
-        "assistedIdAppClientId": "f43d7f53-3f50-4e18-9c75-46133618e12e",
-        "assistedIdAppObjectId": "1329e457-07e1-4695-be0b-44137168346d",
         "cloudShareInfrastructureSubscriptionId": "80476949-ff86-4263-a6a6-7136fa973307",
         "dnsZoneName": "purview-dg.azure.com",
         "gatewaySubjectName": "gateway-prod-client.babylon.azure.com",
@@ -19,7 +17,6 @@
         "synapseRegion": "eastus2euap",
         "useEstsr": "true",
         "catalogServiceEndpoint": "prod-eastus2euap.dgcatalog.purview-service.azure.com",
-        "exposureControlEnvironment": "CanaryEastUS2EUAP",
-        "processingStorageSubscription": "f8b74e73-e311-4df1-aff3-edbdac78d89c"
+        "exposureControlEnvironment": "CanaryEastUS2EUAP"
     }
 }

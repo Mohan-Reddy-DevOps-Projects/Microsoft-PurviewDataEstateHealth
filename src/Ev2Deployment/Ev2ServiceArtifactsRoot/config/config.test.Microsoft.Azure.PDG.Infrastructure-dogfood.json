@@ -1,8 +1,6 @@
 {
   "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
     "settings": {
-        "assistedIdAppClientId": "11af49ce-4b4b-4736-a4d5-aeda9d832dc8",
-        "assistedIdAppObjectId": "e7036976-0e24-4340-94dc-b35c32a82b5f",
         "cloudShareInfrastructureSubscriptionId": "b7334dcb-050a-40e3-81c9-b1cef5ecfe79",
         "dnsZoneName": "purview-dg.azure-test.com",
         "gatewaySubjectName": "gateway-df-client.babylon.azure-test.com",
@@ -19,7 +17,6 @@
         "synapseRegion": "eastus",
         "useEstsr": "false",
         "catalogServiceEndpoint": "df-westus2.dgcatalog.purview-service.azure-test.com",
-        "exposureControlEnvironment": "DogfoodWestUS2",
-        "processingStorageSubscription": "f8b74e73-e311-4df1-aff3-edbdac78d89c"
+        "exposureControlEnvironment": "DogfoodWestUS2"
     }
 }

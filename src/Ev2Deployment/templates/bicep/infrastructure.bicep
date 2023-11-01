@@ -5,6 +5,7 @@ param coreResourceGroupName string
 param jobStorageAccountName string
 param keyVaultName string
 param location string = resourceGroup().location
+param processingStorageSubscriptions array
 param vnetName string
 param synapseWorkspaceName string
 param synapseStorageAccountName string
@@ -12,9 +13,11 @@ param synapseStorageAccountUrl string
 param sparkPoolName string
 param synapseLocation string
 
+var contributorRoleDefName = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 var keyVaultReaderRoleDefName = '21090545-7ca7-4776-b22c-e363652d74d2'
 var keyVaultSecretsUserRoleDefName = '4633458b-17de-408a-b874-0445c86b69e6'
 var keyVaultCertificatesOfficerRoleDefName = 'a4417e6f-fecd-4de8-b567-7b0420556985'
+var storageBlobDataContributorRoleDefName = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 
 resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: containerAppIdentityName
@@ -154,3 +157,23 @@ resource sparkPool 'Microsoft.Synapse/workspaces/bigDataPools@2021-06-01' = {
     sparkVersion: '3.3'
   }
 }
+
+module processingStorageSubContributorRoleModule 'subscriptionRoleAssignment.bicep' = [for processingStorageSubscription in processingStorageSubscriptions: {
+  name: 'processingStorageSubContributorRoleModuleDeploy_${processingStorageSubscription.stamp}'
+  scope: subscription(processingStorageSubscription.id)
+  params: {
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: contributorRoleDefName
+    subscriptionId: processingStorageSubscription.id
+  }
+}]
+
+module processingStorageSubBlobDataContributorRoleModule 'subscriptionRoleAssignment.bicep' = [for processingStorageSubscription in processingStorageSubscriptions: {
+  name: 'processingStorageSubBlobDataContributorRoleModuleDeploy_${processingStorageSubscription.stamp}'
+  scope: subscription(processingStorageSubscription.id)
+  params: {
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: storageBlobDataContributorRoleDefName
+    subscriptionId: processingStorageSubscription.id
+  }
+}]
