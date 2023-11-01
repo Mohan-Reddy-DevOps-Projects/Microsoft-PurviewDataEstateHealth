@@ -7,13 +7,9 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
-using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.PowerBI.Api.Models;
 
 [Component(typeof(IPartnerNotificationComponent), ServiceVersion.V1)]
@@ -26,7 +22,10 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     [Inject]
     private readonly HealthWorkspaceCommand workspaceCommand;
 
-/*    [Inject]
+    [Inject]
+    private readonly IDatabaseManagementService databaseManagementService;
+
+/*  [Inject]
     private readonly IReportCommand reportCommand;
 
     [Inject]
@@ -50,6 +49,8 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     /// <inheritdoc/>
     public async Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
+        await this.databaseManagementService.Initialize(this.Context.AccountId, cancellationToken);
+
         try
         {
             IProfileModel profile = await this.profileCommand.Create(this.Context, cancellationToken);
@@ -62,6 +63,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         catch (Exception)
         {
         }
+
         /*
         await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
         string owner = "health";

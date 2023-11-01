@@ -1,205 +1,317 @@
 USE [@databaseName];
 
-IF NOT EXISTS(SELECT [name] FROM sys.external_data_sources WHERE [name] = '@containerName')
+IF NOT EXISTS(SELECT [name] FROM sys.external_file_formats WHERE [name] = 'ParquetFormat')
 BEGIN
-    CREATE EXTERNAL DATA SOURCE @containerName
-    WITH (LOCATION = @containerUri, CREDENTIAL = @databaseScopedCredential);
+    CREATE EXTERNAL FILE FORMAT ParquetFormat WITH (  FORMAT_TYPE = PARQUET );
 END
-GO
 
 IF NOT EXISTS(SELECT [name] FROM sys.external_file_formats WHERE [name] = 'DeltaLakeFormat')
 BEGIN
     CREATE EXTERNAL FILE FORMAT DeltaLakeFormat WITH (  FORMAT_TYPE = DELTA );
 END
-GO
 
-IF NOT EXISTS(SELECT [name] FROM sys.external_file_formats WHERE [name] = 'ParquetFormat')
+IF NOT EXISTS(SELECT [name] FROM sys.external_data_sources WHERE [name] = '@containerName')
 BEGIN
-    CREATE EXTERNAL FILE FORMAT ParquetFormat WITH (  FORMAT_TYPE = PARQUET );
+    CREATE EXTERNAL DATA SOURCE [@containerName]
+    WITH (LOCATION = @containerUri, CREDENTIAL = @databaseScopedCredential);
 END
-GO
 
 BEGIN TRAN
-    DECLARE @schemaId int = (select schema_id from sys.schemas where name = '@schemaName');
-
-    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataAssetDefinition' AND schema_id = @schemaId)
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'BusinessDomain' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
     BEGIN
-        DROP EXTERNAL TABLE @schemaName.DataAssetDefinition
+        DROP EXTERNAL TABLE [@schemaName].[BusinessDomain]
     END
 
     BEGIN
-        CREATE EXTERNAL TABLE @schemaName.DataAssetDefinition
+        CREATE EXTERNAL TABLE [@schemaName].[BusinessDomain]
         (
-            DataAssetId NVARCHAR(255),
-            CollectionId NVARCHAR(255), 
-            DisplayName NVARCHAR(255),
-            QualifiedName NVARCHAR(512), 
-            SourceType NVARCHAR(255),
-            ObjectType NVARCHAR(255),
-            SourceInstance NVARCHAR(255),
-            CurationLevel NVARCHAR(255),
-            Provider NVARCHAR(255),
-            Platform NVARCHAR(255),
-            CreatedAt BIGINT,
-            ModifiedAt BIGINT,
-            CreatedBy NVARCHAR(255),
-            ModifiedBy NVARCHAR(255)
+            [BusinessDomainId] nvarchar (64),
+            [BusinessDomainDisplayName] nvarchar (256),
+            [HasNotNullDescription] int,
+            [CreatedAt] nvarchar (32),
+            [CreatedBy] nvarchar (256),
+            [ModifiedAt] nvarchar (32),
+            [ModifiedBy] nvarchar (256),
+            [GlossaryTermCount] int,
+            [DataProductCount] int,
+            [IsRootDomain] int,
+            [LastRefreshedAt] int,
+            [HasValidOwner] int
         )
         WITH (
-            LOCATION= N'/AtlasRdd/DataAsset',
-            DATA_SOURCE = @containerName,
+            LOCATION='/Sink/BusinessDomainSchema/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = [DeltaLakeFormat]
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'BusinessDomainContactAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[BusinessDomainContactAssociation]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[BusinessDomainContactAssociation]
+        (
+            [BusinessDomainId] nvarchar (64),
+            [ContactId] nvarchar (64),
+            [ContactRole] nvarchar (64),
+            [IsActive] int
+        )
+        WITH (
+            LOCATION='/Sink/BusinessDomainContactAssociation/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = [DeltaLakeFormat]
+        )
+    END
+
+    -- IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'BusinessDomainDataProductAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    -- BEGIN
+    --     DROP EXTERNAL TABLE [@schemaName].[BusinessDomainDataProductAssociation]
+    -- END
+
+    -- BEGIN
+    --     CREATE EXTERNAL TABLE [@schemaName].[BusinessDomainDataProductAssociation]
+    --     (
+    --         [DataProductId] nvarchar (64),
+    --         [BusinessDomainId] nvarchar (64),
+    --         [IsPrimaryDataProduct] int
+    --     )
+    --     WITH (
+    --         LOCATION='/Sink/DataProductDomainAssociation/',
+    --         DATA_SOURCE = [@containerName],
+    --         FILE_FORMAT = [DeltaLakeFormat]
+    --     )
+    -- END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'BusinessDomainTrends' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[BusinessDomainTrends]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[BusinessDomainTrends]
+        (
+            [BusinessDomainTrendId] nvarchar (64),
+            [BusinessDomainId] nvarchar (64),
+            [DataProductCount] int,
+            [AssetCount] int,
+            [ClassificationPassCount] int,
+            [GlossaryTermPassCount] int,
+            [DataQualityScorePassCount] int,
+            [NotNullDataProductDescriptionPassCount] int,
+            [ValidDataProductOwnerPassCount] int,
+            [DataShareAgreementSetOrExemptPassCount] int,
+            [AuthoratativeSourcePassCount] int,
+            [ValidUseCasePassCount] int,
+            [ValidTermsOfUsePassCount] int,
+            [AccessEntitlementPassCount] int,
+            [LastRefreshedAt] int
+        )
+        WITH (
+            LOCATION = 'Sink/BusinessDomainTrends/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = [ParquetFormat]
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataAsset' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[DataAsset]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[DataAsset]
+        (
+            [DataAssetId] nvarchar (64),
+            [_IGNORE_] nvarchar (64),
+            [__IGNORE__] nvarchar (64),
+            [CreatedAt] nvarchar (128),
+            [CreatedBy] nvarchar (256),
+            [ModifiedBy] nvarchar (256),
+            [ModifiedAt] nvarchar (32),
+            [LastRefreshedAt] int,
+            [HasNotNullDescription] int,
+            [CollectionId] nvarchar (64),
+            [DataAssetDisplayName] nvarchar(256),
+            [QualifiedName] nvarchar(512),
+            [SourceType] nvarchar (64),
+            [ObjectType] nvarchar (64),
+            [SourceInstance] nvarchar (64),
+            [CurationLevel] nvarchar (64),
+            [Provider] nvarchar (64),
+            [Platform] nvarchar (64),
+            [HasValidOwner] int,
+            [HasManualClassification] int,
+            [UnclassificationReason] nvarchar(512),
+            [HasSensitiveClassification] int,
+            [HasSchema] int,
+            [HasScannedClassification] int,
+            [GlossaryTermCount] int
+        )
+        WITH (
+            LOCATION='/Sink/DataAssetSchema/',
+            DATA_SOURCE = [@containerName],
             FILE_FORMAT = DeltaLakeFormat
         )
     END
 
-    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataAssetAttributes' AND schema_id = @schemaId)
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataAssetContactAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
     BEGIN
-        DROP EXTERNAL TABLE @schemaName.DataAssetAttributes
+        DROP EXTERNAL TABLE [@schemaName].[DataAssetContactAssociation]
     END
 
     BEGIN
-        CREATE EXTERNAL TABLE @schemaName.DataAssetAttributes
+        CREATE EXTERNAL TABLE [@schemaName].[DataAssetContactAssociation]
         (
-            DataAssetId NVARCHAR(255),
-            HasValidOwner BIT,
-            HasNotNullDescription BIT,
-            HasManualClassification BIT,
-            UnclassificationReason NVARCHAR(512),
-            HasSensitiveClassification BIT,
-            HasSchema BIT,
-            HasScannedClassification BIT,
-            GlossaryTermCount INT
+            [DataAssetId] nvarchar (64),
+            [ContactRole] nvarchar (64),
+            [ContactId] nvarchar (64),
+            [IsActive] int
         )
         WITH (
-            LOCATION= N'/AtlasRdd/DataAsset',
-            DATA_SOURCE = @containerName,
+            LOCATION='/Sink/DataAssetContactAssociation/',
+            DATA_SOURCE = [@containerName],
             FILE_FORMAT = DeltaLakeFormat
         )
     END
 
-    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'Label' AND schema_id = @schemaId)
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataProduct' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
     BEGIN
-        DROP EXTERNAL TABLE @schemaName.Label
+        DROP EXTERNAL TABLE [@schemaName].[DataProduct]
     END
 
     BEGIN
-        CREATE EXTERNAL TABLE @schemaName.Label
+        CREATE EXTERNAL TABLE [@schemaName].[DataProduct]
         (
-            LinkedAssetId NVARCHAR(255),
-            LinkedAssetType NVARCHAR(255),
-            LabelId NVARCHAR(255)
+            [DataProductId] nvarchar (64),
+            [DataProductDisplayName] nvarchar (256),
+            [DataProductType] nvarchar (32),
+            [HasValidOwner] int,
+            [HasValidUseCase] int,
+            [HasValidTermsofUse] int,
+            [DataPoductStatus] nvarchar (32),
+            [AssetCount] nvarchar (8), -- BUG BUG
+            [CreatedAt] nvarchar (32),
+            [HasNotNullDescription] int,
+            [CreatedBy] nvarchar (256),
+            [ModifiedAt] nvarchar (32),
+            [ModifiedBy] nvarchar (256),
+            [LastRefreshedAt] int,
+            [IsAuthoritativeSource] int,
+            [HasDataQualityScore] int,
+            [ClassificationPassCount] int,
+            [HasAccessEntitlement] int,
+            [HasDataShareAgreementSetOrExempt] int,
+            [GlossaryTermCount] int
         )
         WITH (
-            LOCATION= N'/AtlasRdd/Label',
-            DATA_SOURCE = @containerName,
-            FILE_FORMAT = DeltaLakeFormat
-        )
-    END
-    
-    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataAssetColumnDefinition' AND schema_id = @schemaId)
-    BEGIN
-        DROP EXTERNAL TABLE @schemaName.DataAssetColumnDefinition
-    END
-    
-    BEGIN
-        CREATE EXTERNAL TABLE @schemaName.DataAssetColumnDefinition
-        (
-            DataAssetId NVARCHAR(255),
-            DataAssetColumnId NVARCHAR(255),
-            DisplayName NVARCHAR(255),
-			QualifiedName NVARCHAR(255)
-        )
-        WITH (
-            LOCATION= N'/AtlasRdd/DataAssetColumn',
-            DATA_SOURCE = @containerName,
-            FILE_FORMAT = DeltaLakeFormat
-        )
-    END
-
-    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataAssetColumnAttributes' AND schema_id = @schemaId)
-    BEGIN
-        DROP EXTERNAL TABLE @schemaName.DataAssetColumnAttributes
-    END
-    
-    BEGIN
-        CREATE EXTERNAL TABLE @schemaName.DataAssetColumnAttributes
-        (
-            DataAssetColumnId NVARCHAR(255),
-			HasValidDescription BIT,
-			HasUserDescription BIT,
-			HasClassification BIT, 
-			HasTerms BIT
-        )
-        WITH (
-            LOCATION= N'/AtlasRdd/DataAssetColumn',
-            DATA_SOURCE = @containerName,
+            LOCATION='/Sink/DataProductSchema/',
+            DATA_SOURCE = [@containerName],
             FILE_FORMAT = DeltaLakeFormat
         )
     END
 
-    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'ClassificationAssociation' AND schema_id = @schemaId)
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataProductContactAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
     BEGIN
-        DROP EXTERNAL TABLE @schemaName.ClassificationAssociation
+        DROP EXTERNAL TABLE [@schemaName].[DataProductContactAssociation]
     END
 
     BEGIN
-        CREATE EXTERNAL TABLE @schemaName.ClassificationAssociation
+        CREATE EXTERNAL TABLE [@schemaName].[DataProductContactAssociation]
         (
-            DataAssetId NVARCHAR(255),
-            DataAssetColumnId NVARCHAR(255),
-            ClassificationId NVARCHAR(255),
-			ClassificationSource NVARCHAR(255)
+            [DataProductId] nvarchar (64),
+            [ContactRole] nvarchar (64),
+            [ContactId] nvarchar (64),
+            [IsActive] int
         )
         WITH (
-            LOCATION= N'/AtlasRdd/ClassificationAssociation',
-            DATA_SOURCE = @configurationdataContainerName,
+            LOCATION='/Sink/DataProductContactAssociation/',
+            DATA_SOURCE = [@containerName],
             FILE_FORMAT = DeltaLakeFormat
         )
     END
 
-    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'Collection' AND schema_id = @schemaId)
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataProductDataAssetAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
     BEGIN
-        DROP EXTERNAL TABLE @schemaName.Collection
+        DROP EXTERNAL TABLE [@schemaName].[DataProductDataAssetAssociation]
     END
-    
+
     BEGIN
-        CREATE EXTERNAL TABLE @schemaName.Collection
+        CREATE EXTERNAL TABLE [@schemaName].[DataProductDataAssetAssociation]
         (
-            CollectionId NVARCHAR(255),
-            FriendlyPath NVARCHAR(255),
-            CreatedAt BIGINT,
-			ModifiedAt BIGINT,
-			CreatedBy NVARCHAR(255),
-			ModifiedBy NVARCHAR(255)
+            [_IGNORE_] nvarchar (64),
+            [DataProductId] nvarchar (64),
+            [DataAssetId] nvarchar (64)
         )
         WITH (
-            LOCATION= N'/AtlasRdd/Collection',
-            DATA_SOURCE = @containerName,
-            FILE_FORMAT = DeltaLakeFormat
-        )
-    END
-    
-    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'Classification' AND schema_id = @schemaId)
-    BEGIN
-        DROP EXTERNAL TABLE @schemaName.Classification
-    END
-    
-    BEGIN
-        CREATE EXTERNAL TABLE @schemaName.Classification
-        (
-            Category NVARCHAR(255),
-            ClassificationId NVARCHAR(255),
-            ClassificationType NVARCHAR(255),
-			Name NVARCHAR(255),
-			DisplayName NVARCHAR(255),
-			Description NVARCHAR(255)
-        )
-        WITH (
-            LOCATION= N'/AtlasRdd/Classification',
-            DATA_SOURCE = @containerName,
+            LOCATION='/Sink/AssetDomainProductAssociation/',
+            DATA_SOURCE = [@containerName],
             FILE_FORMAT = DeltaLakeFormat
         )
     END
 
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'GlossaryTerm' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[GlossaryTerm]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[GlossaryTerm]
+        (
+            [TermId] nvarchar (64),
+            [Name] nvarchar (256),
+            [HasFullDescription] bigint,
+            [CreatedAt] nvarchar (32),
+            [ModifiedAt] nvarchar (32),
+            [Status] nvarchar (32),
+            [LastRefreshedAt] bigint,
+            [NickName] nvarchar(256),
+	        [CreatedBy] nvarchar(256),
+        	[ModifiedBy] nvarchar(256)
+        )
+        WITH (
+            LOCATION='/Sink/TermSchema/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'GlossaryTermBusinessDomainAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[GlossaryTermBusinessDomainAssociation]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[GlossaryTermBusinessDomainAssociation]
+        (
+            [BusinessDomainId] nvarchar (64),
+            [TermId] nvarchar (64)
+        )
+        WITH (
+            LOCATION='/Sink/TermDomainAssociation/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'GlossaryTermContactAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[GlossaryTermContactAssociation]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[GlossaryTermContactAssociation]
+        (
+            [TermId] nvarchar (64),
+            [ContactRole] nvarchar (64),
+            [ContactId] nvarchar (64),
+            [IsActive] int
+        )
+        WITH (
+            LOCATION='/Sink/TermContactAssociation/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
 COMMIT TRAN
-GO

@@ -103,9 +103,6 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        builder.Services
-            .AddLogger();
-
         WebApplication app = builder.Build();
 
         await Initialize(app);
