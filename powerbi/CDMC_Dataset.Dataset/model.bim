@@ -4,7 +4,7 @@
     "annotations": [
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"pbi BusinessDomain\",\"pbi BusinessDomainContactAssociation\",\"pbi BusinessDomainDataProductAssociation\",\"pbi Collection\",\"pbi ContactDetails\",\"pbi DataAssetColumn\",\"pbi DataAssetContactAssociation\",\"pbi DataProduct\",\"pbi DataProductContactAssociation\",\"pbi DataProductDataAssetAssociation\",\"pbi DataProductGovernenceTagAssociation\",\"pbi Date\",\"pbi GlossaryTerm\",\"Measure Table\",\"pbi GovernenceTag\",\"pbi DataAsset\",\"Trend Table\",\"drill through\",\"pbi BusinessDomainTrends\",\"SERVER\",\"DATABASE\",\"Classification\"]"
+        "value": "[\"pbi BusinessDomain\",\"pbi BusinessDomainContactAssociation\",\"pbi BusinessDomainDataProductAssociation\",\"pbi Collection\",\"pbi ContactDetails\",\"pbi DataAssetColumn\",\"pbi DataAssetContactAssociation\",\"pbi DataProduct\",\"pbi DataProductContactAssociation\",\"pbi DataProductDataAssetAssociation\",\"pbi DataProductGovernenceTagAssociation\",\"pbi Date\",\"pbi GlossaryTerm\",\"Measure Table\",\"pbi GovernenceTag\",\"pbi DataAsset\",\"Trend Table\",\"drill through\",\"pbi BusinessDomainTrends\",\"SERVER\",\"DATABASE\",\"DATABASE_SCHEMA\",\"BusinessDomain\",\"BusinessDomainDataProductAssociation\",\"BusinessDomainTrends\",\"DataAsset\",\"DataAssetContactAssociation\",\"DataProduct\",\"DataProductContactAssociation\",\"DataProductDataAssetAssociation\",\"GlossaryTerm\",\"GlossaryTermBusinessDomainAssociation\",\"GlossaryTermContactAssociation\"]"
       },
       {
         "name": "__PBI_TimeIntelligenceEnabled",
@@ -12,7 +12,7 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.122.746.0 (23.10)"
+        "value": "2.123.326.0 (23.11)"
       },
       {
         "name": "PBI_ProTooling",
@@ -34734,10 +34734,6 @@
         "name": "SERVER",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Text"
           }
@@ -34750,17 +34746,25 @@
         "name": "DATABASE",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
+            "name": "PBI_ResultType",
+            "value": "Text"
+          }
+        ],
+        "expression": "\"health_1\" meta [IsParameterQuery=true, Type=\"Any\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "953805ba-bf53-4776-ad5b-7ae663b34473"
+      },
+      {
+        "name": "DATABASE_SCHEMA",
+        "annotations": [
           {
             "name": "PBI_ResultType",
             "value": "Text"
           }
         ],
-        "expression": "\"blake\" meta [IsParameterQuery=true, Type=\"Any\", IsParameterQueryRequired=true]",
+        "expression": "\"ecf09339-34e0-464b-a8fb-661209048543\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
-        "lineageTag": "953805ba-bf53-4776-ad5b-7ae663b34473"
+        "lineageTag": "cd2727f6-9ba5-499d-ac89-a49a52b25d81"
       }
     ],
     "relationships": [
@@ -34932,6 +34936,59 @@
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_5ee310f9-f73f-4716-802d-ff23de931ad9"
+      },
+      {
+        "name": "84f96699-58ba-42b1-addf-d1b6ab6e9057",
+        "fromColumn": "BusinessDomainId",
+        "fromTable": "GlossaryTermBusinessDomainAssociation",
+        "toColumn": "BusinessDomainId",
+        "toTable": "BusinessDomain"
+      },
+      {
+        "name": "11f36acf-b1ad-4f19-9297-4320958c70e4",
+        "crossFilteringBehavior": "bothDirections",
+        "fromCardinality": "one",
+        "fromColumn": "DataProductId",
+        "fromTable": "DataProduct",
+        "toColumn": "DataProductId",
+        "toTable": "BusinessDomainDataProductAssociation"
+      },
+      {
+        "name": "cc44fb44-385f-4a19-95d9-bd975b3cdc1d",
+        "fromColumn": "DataProductId",
+        "fromTable": "DataProductContactAssociation",
+        "toColumn": "DataProductId",
+        "toTable": "BusinessDomainDataProductAssociation"
+      },
+      {
+        "name": "04fd2fa3-1df4-435c-a980-961d44d421d4",
+        "fromColumn": "DataAssetId",
+        "fromTable": "DataAssetContactAssociation",
+        "toColumn": "DataAssetId",
+        "toTable": "DataAsset"
+      },
+      {
+        "name": "e9b6f76b-5739-4f0f-895b-d3fb38551e94",
+        "fromColumn": "DataAssetId",
+        "fromTable": "DataProductDataAssetAssociation",
+        "toColumn": "DataAssetId",
+        "toTable": "DataAsset"
+      },
+      {
+        "name": "37f49e5d-5f90-405d-8b42-e316aa2118b7",
+        "crossFilteringBehavior": "bothDirections",
+        "fromCardinality": "one",
+        "fromColumn": "TermId",
+        "fromTable": "GlossaryTermBusinessDomainAssociation",
+        "toColumn": "TermId",
+        "toTable": "GlossaryTerm"
+      },
+      {
+        "name": "2578ce35-3e85-4965-a665-81e56cd6745b",
+        "fromColumn": "TermId",
+        "fromTable": "GlossaryTermContactAssociation",
+        "toColumn": "TermId",
+        "toTable": "GlossaryTerm"
       }
     ],
     "sourceQueryCulture": "en-US",
@@ -34942,6 +34999,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "columns": [
@@ -36132,12 +36193,12 @@
             ],
             "dataType": "string",
             "expression": [
-              "SWITCH(TRUE(),\r",
-              "'pbi DataProduct'[AssetCount] >= 1 &&\r",
-              "'pbi DataProduct'[HasAccessEntitlement] = 1 &&\r",
-              "'pbi DataProduct'[GlossaryTermCount] > 0 &&\r",
-              "'pbi DataProduct'[HasNotNullDescription] = 1 &&\r",
-              "'pbi DataProduct'[HasValidOwner] = 1 &&\r",
+              "SWITCH(TRUE(),",
+              "'pbi DataProduct'[AssetCount] >= 1 &&",
+              "'pbi DataProduct'[HasAccessEntitlement] = 1 &&",
+              "'pbi DataProduct'[GlossaryTermCount] > 0 &&",
+              "'pbi DataProduct'[HasNotNullDescription] = 1 &&",
+              "'pbi DataProduct'[HasValidOwner] = 1 &&",
               "'pbi DataProduct'[HasValidUseCase] =1 , \"Pass\", \"Fail\")"
             ],
             "isDataTypeInferred": true,
@@ -36253,14 +36314,14 @@
             ],
             "dataType": "int64",
             "expression": [
-              "IF(\r",
-              "                'pbi DataProduct'[Owner P/F]= \"Fail\",1)\r",
-              "                +IF('pbi DataProduct'[Classification_Product P/F] = \"Fail\",1,0)\r",
-              "                +IF('pbi DataProduct'[Catalog P/F] = \"Fail\",1,0)\r",
-              "                +IF('pbi DataProduct'[Data Qualiy P/F] = \"Fail\", 1,0)\r",
-              "                +IF('pbi DataProduct'[Authoritative source P/F] = \"Fail\",1,0)\r",
-              "                +IF('pbi DataProduct'[Access entitlement P/F] = \"Fail\",1,0)\r",
-              "                +IF('pbi DataProduct'[Data consumption purpse P/F] = \"Fail\",1,0\r",
+              "IF(",
+              "                'pbi DataProduct'[Owner P/F]= \"Fail\",1)",
+              "                +IF('pbi DataProduct'[Classification_Product P/F] = \"Fail\",1,0)",
+              "                +IF('pbi DataProduct'[Catalog P/F] = \"Fail\",1,0)",
+              "                +IF('pbi DataProduct'[Data Qualiy P/F] = \"Fail\", 1,0)",
+              "                +IF('pbi DataProduct'[Authoritative source P/F] = \"Fail\",1,0)",
+              "                +IF('pbi DataProduct'[Access entitlement P/F] = \"Fail\",1,0)",
+              "                +IF('pbi DataProduct'[Data consumption purpse P/F] = \"Fail\",1,0",
               "                )+0"
             ],
             "formatString": "0",
@@ -36278,12 +36339,12 @@
             ],
             "dataType": "int64",
             "expression": [
-              "[Owner Pass count]+\r",
-              "[Catalog Pass count]+\r",
-              "[ClassificationPassCount]+\r",
-              "[Data Quality Pass count]+\r",
-              "[Authoritative source Pass count]+\r",
-              "[Access entitlement Pass count]+\r",
+              "[Owner Pass count]+",
+              "[Catalog Pass count]+",
+              "[ClassificationPassCount]+",
+              "[Data Quality Pass count]+",
+              "[Authoritative source Pass count]+",
+              "[Access entitlement Pass count]+",
               "[Data consumption Purpose Pass count]"
             ],
             "formatString": "0",
@@ -36302,9 +36363,9 @@
             ],
             "dataType": "string",
             "expression": [
-              "SWITCH(TRUE(),\r",
-              "                            [Overall health score] > 0.5, \"Healthy\", \r",
-              "                            [Overall health score] > 0.2 && [Overall health score] <= 0.5 , \"Fair\",\r",
+              "SWITCH(TRUE(),",
+              "                            [Overall health score] > 0.5, \"Healthy\", ",
+              "                            [Overall health score] > 0.2 && [Overall health score] <= 0.5 , \"Fair\",",
               "                            [Overall health score] < 0.2, \"Not healthy\")"
             ],
             "isDataTypeInferred": true,
@@ -36442,9 +36503,9 @@
             ],
             "dataType": "string",
             "expression": [
-              "SWITCH(TRUE(),\r",
-              "                            [Overall health score] > 0.5, \"Healthy > 50%\", \r",
-              "                            [Overall health score] > 0.2 && [Overall health score] <= 0.5 , \"Fair <= 50%\",\r",
+              "SWITCH(TRUE(),",
+              "                            [Overall health score] > 0.5, \"Healthy > 50%\", ",
+              "                            [Overall health score] > 0.2 && [Overall health score] <= 0.5 , \"Fair <= 50%\",",
               "                            [Overall health score] <= 0.2, \"Unhealthy < 20%\")"
             ],
             "lineageTag": "93c42cd7-7d9b-429c-832d-b76665e44d22",
@@ -40512,20 +40573,6 @@
             "lineageTag": "c768c0e4-6153-4996-8c90-208c24ce6006",
             "sourceColumn": "DataQualityScorePassCount",
             "summarizeBy": "sum"
-          },
-          {
-            "name": "AssetPassCount",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "int64",
-            "formatString": "0",
-            "lineageTag": "85c72310-bdfb-4e38-92c8-45de0749efba",
-            "sourceColumn": "AssetPassCount",
-            "summarizeBy": "sum"
           }
         ],
         "lineageTag": "c48c6ba5-4e72-4b4c-8e72-c46d32ec39f5",
@@ -40852,10 +40899,20 @@
         "showAsVariationsOnly": true
       },
       {
-        "name": "Classification",
+        "name": "BusinessDomain",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
         "columns": [
           {
-            "name": "Category",
+            "name": "BusinessDomainId",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -40863,12 +40920,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "d1a0e0a0-dbf2-4690-8297-56dee42b6e6b",
-            "sourceColumn": "Category",
+            "lineageTag": "212cb632-0b48-471f-a1aa-3a469eb3c09e",
+            "sourceColumn": "BusinessDomainId",
             "summarizeBy": "none"
           },
           {
-            "name": "ClassificationId",
+            "name": "BusinessDomainDisplayName",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -40876,25 +40933,26 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "0ae29015-e8a7-42eb-af08-3fb9d8f5b07f",
-            "sourceColumn": "ClassificationId",
+            "lineageTag": "75f3b3b2-2ba0-40a1-a99e-53c5bd3c871c",
+            "sourceColumn": "BusinessDomainDisplayName",
             "summarizeBy": "none"
           },
           {
-            "name": "ClassificationType",
+            "name": "HasNotNullDescription",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
                 "value": "Automatic"
               }
             ],
-            "dataType": "string",
-            "lineageTag": "9f2a8be5-6ad2-400b-8745-6ec19f9eb0ae",
-            "sourceColumn": "ClassificationType",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "9c7d778f-867d-4333-a261-be9c7656ba5b",
+            "sourceColumn": "HasNotNullDescription",
             "summarizeBy": "none"
           },
           {
-            "name": "ClassificationName",
+            "name": "CreatedAt",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -40902,12 +40960,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "1d8ebda7-b0b6-445e-857d-f7f810e0ed17",
-            "sourceColumn": "ClassificationName",
+            "lineageTag": "08c01862-e173-4e62-b69a-ed5c8879aad9",
+            "sourceColumn": "CreatedAt",
             "summarizeBy": "none"
           },
           {
-            "name": "DisplayName",
+            "name": "CreatedBy",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -40915,12 +40973,12 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "f3e36d7f-efa6-4afc-850c-9c5314124f62",
-            "sourceColumn": "DisplayName",
+            "lineageTag": "3beb56d3-32d6-43f0-aa47-92e94d8c9057",
+            "sourceColumn": "CreatedBy",
             "summarizeBy": "none"
           },
           {
-            "name": "ClassificationDescription",
+            "name": "ModifiedAt",
             "annotations": [
               {
                 "name": "SummarizationSetBy",
@@ -40928,23 +40986,1634 @@
               }
             ],
             "dataType": "string",
-            "lineageTag": "26f2c81d-3cac-4a84-90cb-c9891284979b",
-            "sourceColumn": "ClassificationDescription",
+            "lineageTag": "a4bb3cea-6aa4-44e6-96d8-2c99ee9a77f0",
+            "sourceColumn": "ModifiedAt",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ModifiedBy",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2121ab79-072d-4384-8f6c-91425126e0e7",
+            "sourceColumn": "ModifiedBy",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "GlossaryTermCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "3907d87a-7141-407c-977b-6949beb885e8",
+            "sourceColumn": "GlossaryTermCount",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataProductCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "425f02e6-9961-4222-982c-280454a68013",
+            "sourceColumn": "DataProductCount",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "IsRootDomain",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "8e39a308-b872-4700-8e7d-ce9bfa97f261",
+            "sourceColumn": "IsRootDomain",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "LastRefreshedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "1540c7e8-9007-48e8-a2e2-f9948f52e22f",
+            "sourceColumn": "LastRefreshedAt",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "HasValidOwner",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "d623da40-2e4e-43dc-af07-50e0e3e293b7",
+            "sourceColumn": "HasValidOwner",
             "summarizeBy": "none"
           }
         ],
-        "lineageTag": "5f86d9d4-3ae6-41d3-9499-c524be932393",
+        "lineageTag": "bb22e2b4-7b67-4278-bc82-0426adf76ee0",
         "partitions": [
           {
-            "name": "Classification",
+            "name": "BusinessDomain",
             "mode": "import",
             "source": {
               "expression": [
                 "let",
                 "    Source = Sql.Database(SERVER, DATABASE),",
-                "    dbo_Classification = Source{[Schema=\"dbo\",Item=\"Classification\"]}[Data]",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomain\" = Source{[Schema= DATABASE_SCHEMA,Item=\"BusinessDomain\"]}[Data]",
                 "in",
-                "    dbo_Classification"
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomain\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "BusinessDomainDataProductAssociation",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DataProductId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "7d8e75a4-b189-491e-b07f-e4c854c9ee09",
+            "sourceColumn": "DataProductId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BusinessDomainId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "c453fb74-8c9a-4611-a565-541c16e2f20e",
+            "sourceColumn": "BusinessDomainId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "IsPrimaryDataProduct",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "061f5412-a019-4551-8b13-afaa94e1dfe9",
+            "sourceColumn": "IsPrimaryDataProduct",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "161b030b-e505-4eea-8935-6518aed757de",
+        "partitions": [
+          {
+            "name": "BusinessDomainDataProductAssociation",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(SERVER, DATABASE),",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainDataProductAssociation\" = Source{[Schema=DATABASE_SCHEMA,Item=\"BusinessDomainDataProductAssociation\"]}[Data]",
+                "in",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainDataProductAssociation\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "BusinessDomainTrends",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "BusinessDomainTrendId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "06c090aa-0a25-4ca5-99a5-717053f799a8",
+            "sourceColumn": "BusinessDomainTrendId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BusinessDomainId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "33b8338e-8f90-4470-934a-8586ee981f19",
+            "sourceColumn": "BusinessDomainId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataProductCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "b1b99c18-c54f-46d4-958a-5b57c1721e72",
+            "sourceColumn": "DataProductCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "AssetCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "48b4dd73-0802-4cec-b32b-4e5ab3d6ef2e",
+            "sourceColumn": "AssetCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "ClassificationPassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "3e913fd3-503b-49f8-a31b-21cb5004f942",
+            "sourceColumn": "ClassificationPassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "GlossaryTermPassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "a55ec180-4a5b-47ce-a84b-685395c2506c",
+            "sourceColumn": "GlossaryTermPassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DataQualityScorePassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "e9d8d89d-e181-4113-b068-30818381efee",
+            "sourceColumn": "DataQualityScorePassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "NotNullDataProductDescriptionPassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "bd836786-7d01-4393-8a07-161969f6137b",
+            "sourceColumn": "NotNullDataProductDescriptionPassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "ValidDataProductOwnerPassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "1fd02d44-f020-4ff8-a0f6-9504390d2e80",
+            "sourceColumn": "ValidDataProductOwnerPassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DataShareAgreementSetOrExemptPassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "d8f00ed5-d02b-43b6-805f-376b7395c218",
+            "sourceColumn": "DataShareAgreementSetOrExemptPassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "AuthoratativeSourcePassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "59cc9a6e-b62c-42eb-9147-baa8448f1850",
+            "sourceColumn": "AuthoratativeSourcePassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "ValidUseCasePassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "728b37aa-9a06-426f-89c6-26541f15ee1b",
+            "sourceColumn": "ValidUseCasePassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "ValidTermsOfUsePassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "55f542c4-287f-49ed-bb62-fc70817b339c",
+            "sourceColumn": "ValidTermsOfUsePassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "AccessEntitlementPassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "9fb4438e-0e01-4aad-8185-c9edb551f680",
+            "sourceColumn": "AccessEntitlementPassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "LastRefreshedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "50bf2db3-bef9-454d-9c9d-7557b81b5469",
+            "sourceColumn": "LastRefreshedAt",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "d6ae76ed-5409-4399-b782-f93c0a38a783",
+        "partitions": [
+          {
+            "name": "BusinessDomainTrends",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(SERVER, DATABASE),",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainTrends\" = Source{[Schema=DATABASE_SCHEMA,Item=\"BusinessDomainTrends\"]}[Data]",
+                "in",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainTrends\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "DataAsset",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DataAssetId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e39026af-ff1f-434e-9062-5b5c98fb7a68",
+            "sourceColumn": "DataAssetId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "_IGNORE_",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "1433ffcc-5a72-4e07-a519-58e7c1f2908b",
+            "sourceColumn": "_IGNORE_",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "__IGNORE__",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "81b34965-716f-4d64-8469-69345c3c15ed",
+            "sourceColumn": "__IGNORE__",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CreatedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f1e9149d-ec74-4fce-a79e-70964e721c76",
+            "sourceColumn": "CreatedAt",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CreatedBy",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "91eb7a17-9539-4015-8baa-91f543df2229",
+            "sourceColumn": "CreatedBy",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ModifiedBy",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "0f7de614-5aa1-40e8-be9b-eb3e96afaab5",
+            "sourceColumn": "ModifiedBy",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ModifiedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "40711738-1686-471a-acda-9ca6c8d7b098",
+            "sourceColumn": "ModifiedAt",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "LastRefreshedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "d96ae37b-f12a-43e7-84af-41f6f2908812",
+            "sourceColumn": "LastRefreshedAt",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "HasNotNullDescription",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "43649541-c293-423a-a22f-4f04ef673eee",
+            "sourceColumn": "HasNotNullDescription",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "CollectionId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "118b3ddc-5480-41b0-a3ec-e6e74e2ff87d",
+            "sourceColumn": "CollectionId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataAssetDisplayName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "b07bfe84-ffd5-4b04-b1d7-964153030e24",
+            "sourceColumn": "DataAssetDisplayName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QualifiedName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2165f426-5cd0-41fc-92d7-4ee03e6819c5",
+            "sourceColumn": "QualifiedName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "SourceType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "742cc15a-4dc4-4d9e-9b76-c5603dddb9ac",
+            "sourceColumn": "SourceType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ObjectType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e0fad8f6-34aa-4c3d-a885-3a133b725801",
+            "sourceColumn": "ObjectType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "SourceInstance",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "a1225e1d-3676-483f-964e-c9e9a713bde9",
+            "sourceColumn": "SourceInstance",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CurationLevel",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2bbe27ee-3d55-48c9-9592-992b077e4e27",
+            "sourceColumn": "CurationLevel",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Provider",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "20ac1fca-505f-4504-83ee-75e434f54b90",
+            "sourceColumn": "Provider",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Platform",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "51ebd0e3-d37f-4546-b15c-a4b0a36846b3",
+            "sourceColumn": "Platform",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "HasValidOwner",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "75b053ce-1ccc-4587-9dbb-28658d928f73",
+            "sourceColumn": "HasValidOwner",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "HasManualClassification",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "04ed1d8e-04fb-4679-a588-39048f2a1261",
+            "sourceColumn": "HasManualClassification",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "UnclassificationReason",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "37182bcf-3dc0-4468-9a46-77196328850a",
+            "sourceColumn": "UnclassificationReason",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "HasSensitiveClassification",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "1540ad3f-6812-4ab9-ba3a-f1cd273f41bf",
+            "sourceColumn": "HasSensitiveClassification",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "HasSchema",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "5f1f365b-63fe-4264-8e64-8f2e8b0ca6d8",
+            "sourceColumn": "HasSchema",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "HasScannedClassification",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "bbd15bfe-d095-434c-b82c-aa6b75be4cd2",
+            "sourceColumn": "HasScannedClassification",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "GlossaryTermCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "0c8855d4-0cc9-421d-a72e-2c69f0ec5060",
+            "sourceColumn": "GlossaryTermCount",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "e01a6210-45a2-498b-a38a-192cae8264e8",
+        "partitions": [
+          {
+            "name": "DataAsset",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(SERVER, DATABASE),",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataAsset\" = Source{[Schema= DATABASE_SCHEMA,Item=\"DataAsset\"]}[Data]",
+                "in",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataAsset\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "DataAssetContactAssociation",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DataAssetId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "b9eb9f08-4787-4e2e-bf47-756c7072bb2f",
+            "sourceColumn": "DataAssetId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ContactRole",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "fbab66b3-3042-44cc-b653-2c714744fc1e",
+            "sourceColumn": "ContactRole",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ContactId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8ff104b9-23a3-4036-8b99-8e5135f8cec5",
+            "sourceColumn": "ContactId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "IsActive",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "f5837da1-df40-4a24-901c-d8f58ec95f88",
+            "sourceColumn": "IsActive",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "f6784168-2d61-407e-a710-15511338caef",
+        "partitions": [
+          {
+            "name": "DataAssetContactAssociation",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(SERVER, DATABASE),",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataAssetContactAssociation\" = Source{[Schema = DATABASE_SCHEMA,Item=\"DataAssetContactAssociation\"]}[Data]",
+                "in",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataAssetContactAssociation\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "DataProduct",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DataProductId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "db0c9ab9-0f2d-4fed-8b70-b2279dac8c4f",
+            "sourceColumn": "DataProductId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataProductDisplayName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "a39dbf37-4089-4f07-9552-4da49c3b6fa4",
+            "sourceColumn": "DataProductDisplayName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataProductType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5f618f6d-0ac1-4f60-be42-32cf40567a53",
+            "sourceColumn": "DataProductType",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "HasValidOwner",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "df42f1c6-5b80-4516-8bf4-e96394cb19cd",
+            "sourceColumn": "HasValidOwner",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "HasValidUseCase",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "ad4067cc-72a9-4c38-a947-45a17093c2e7",
+            "sourceColumn": "HasValidUseCase",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "HasValidTermsofUse",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "0c30efef-65bb-4dc3-a8b1-7d3b96f8240b",
+            "sourceColumn": "HasValidTermsofUse",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DataPoductStatus",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "6d8a43f5-30f3-47d7-aefd-2b7e17c78eda",
+            "sourceColumn": "DataPoductStatus",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "AssetCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "26f5dc91-2a0f-4962-9798-ce1088adf767",
+            "sourceColumn": "AssetCount",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CreatedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ae87c72b-772c-4500-9c27-b6b2c94fe6c0",
+            "sourceColumn": "CreatedAt",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "HasNotNullDescription",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "734f8d35-dec0-408e-bb2f-b5d92ce4bcfb",
+            "sourceColumn": "HasNotNullDescription",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "CreatedBy",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "a8dd7633-e73e-46bd-9571-6a4c7e1d361d",
+            "sourceColumn": "CreatedBy",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ModifiedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "0b0cabc2-f4a3-463a-ae80-93532959cbab",
+            "sourceColumn": "ModifiedAt",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ModifiedBy",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "5707fdc7-b70b-41f4-91a2-c96f61b6b2f1",
+            "sourceColumn": "ModifiedBy",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "LastRefreshedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "cee8dcaf-70f8-47bf-a718-f7ad440326ac",
+            "sourceColumn": "LastRefreshedAt",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "IsAuthoritativeSource",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "cea7db2f-53b8-4e69-acb3-fd6b1649028d",
+            "sourceColumn": "IsAuthoritativeSource",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "HasDataQualityScore",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "0ab26c16-e9bf-4c61-8e4d-f486721fd7f4",
+            "sourceColumn": "HasDataQualityScore",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "ClassificationPassCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "8a126b99-65c8-4d6d-b958-ea8d100c1eba",
+            "sourceColumn": "ClassificationPassCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "HasAccessEntitlement",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "c59ed45b-910b-4e22-b602-d694829cdf81",
+            "sourceColumn": "HasAccessEntitlement",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "HasDataShareAgreementSetOrExempt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "79ad4ed1-5623-40f6-8aa7-ad0cbe8e95c0",
+            "sourceColumn": "HasDataShareAgreementSetOrExempt",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "GlossaryTermCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "4a8c05c3-f5c0-4fd9-9d4d-c75e6fd2a351",
+            "sourceColumn": "GlossaryTermCount",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "5e64d8f2-a51a-4abe-b8b8-86d5ed754fb7",
+        "partitions": [
+          {
+            "name": "DataProduct",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(SERVER, DATABASE),",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataProduct\" = Source{[Schema= DATABASE_SCHEMA,Item=\"DataProduct\"]}[Data]",
+                "in",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataProduct\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "DataProductContactAssociation",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DataProductId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f9228209-a9f2-48ef-bd76-3a4b3855747e",
+            "sourceColumn": "DataProductId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ContactRole",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f30a787a-b0a5-4e9b-99ca-c1c96923f277",
+            "sourceColumn": "ContactRole",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ContactId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "e30b29de-81e2-429f-abf9-eb516ac36939",
+            "sourceColumn": "ContactId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "IsActive",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "2e75d796-5478-4789-97c4-9f30ecb44d5d",
+            "sourceColumn": "IsActive",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "31236631-10ef-425d-ad3a-df87513dc736",
+        "partitions": [
+          {
+            "name": "DataProductContactAssociation",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(SERVER, DATABASE),",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataProductContactAssociation\" = Source{[Schema= DATABASE_SCHEMA,Item=\"DataProductContactAssociation\"]}[Data]",
+                "in",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataProductContactAssociation\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "DataProductDataAssetAssociation",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "_IGNORE_",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "fe91ed47-1ade-4654-b6d1-703d2e489c40",
+            "sourceColumn": "_IGNORE_",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataProductId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "c6a82698-29c5-4e57-ab24-4276fd4c8e03",
+            "sourceColumn": "DataProductId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataAssetId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ab4f9105-383a-4b7e-a4bb-fbc40e175c00",
+            "sourceColumn": "DataAssetId",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "85660211-deff-4cb3-963f-ed539531d13e",
+        "partitions": [
+          {
+            "name": "DataProductDataAssetAssociation",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(SERVER, DATABASE),",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataProductDataAssetAssociation\" = Source{[Schema= DATABASE_SCHEMA,Item=\"DataProductDataAssetAssociation\"]}[Data]",
+                "in",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataProductDataAssetAssociation\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "GlossaryTerm",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "TermId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "14e859c0-8d1f-4bd1-8146-be3ae4bf8a77",
+            "sourceColumn": "TermId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Name",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f2c7d032-6498-42bb-969f-0116c9f20f57",
+            "sourceColumn": "Name",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "HasFullDescription",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "56a177b5-a87e-4ce9-ace6-b14b6cf7bdaa",
+            "sourceColumn": "HasFullDescription",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CreatedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "77f893c4-b69a-42db-9e95-38e9a1c8a28e",
+            "sourceColumn": "CreatedAt",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ModifiedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f9a348bf-7047-4a26-b7dd-6a3c6cefe972",
+            "sourceColumn": "ModifiedAt",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Status",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "036fe1e4-6b84-448f-a18c-4f78b720fc7c",
+            "sourceColumn": "Status",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "LastRefreshedAt",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "d0d90a8c-f95f-49bc-90d4-4a016e6aea1c",
+            "sourceColumn": "LastRefreshedAt",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "NickName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ef602253-a64b-4ff7-8657-beb8be14b1f4",
+            "sourceColumn": "NickName",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CreatedBy",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "01de9a54-60f5-4435-a357-dfa5c8d72f9c",
+            "sourceColumn": "CreatedBy",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ModifiedBy",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "89655635-74a3-4199-962d-1e3dd2376f3b",
+            "sourceColumn": "ModifiedBy",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "11eca4bc-37b7-4418-8fab-8a61765a65a3",
+        "partitions": [
+          {
+            "name": "GlossaryTerm",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(SERVER, DATABASE),",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_GlossaryTerm\" = Source{[Schema= DATABASE_SCHEMA,Item=\"GlossaryTerm\"]}[Data]",
+                "in",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_GlossaryTerm\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "GlossaryTermBusinessDomainAssociation",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "BusinessDomainId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "578a84a4-5088-494a-ba8c-650d62daa820",
+            "sourceColumn": "BusinessDomainId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "TermId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "af9f0986-e62c-4280-8444-904768f310a1",
+            "sourceColumn": "TermId",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "fd5c20a4-b0a0-4d28-9e01-1f531c21fc70",
+        "partitions": [
+          {
+            "name": "GlossaryTermBusinessDomainAssociation",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(SERVER, DATABASE),",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_GlossaryTermBusinessDomainAssociation\" = Source{[Schema=DATABASE_SCHEMA,Item=\"GlossaryTermBusinessDomainAssociation\"]}[Data]",
+                "in",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_GlossaryTermBusinessDomainAssociation\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "GlossaryTermContactAssociation",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "TermId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "13117ed3-a663-4711-a439-ba76a7fe9d67",
+            "sourceColumn": "TermId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ContactRole",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "0f9c0326-28c1-46c0-a97b-4ae775e6005a",
+            "sourceColumn": "ContactRole",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ContactId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "239473fa-2382-414e-8956-a639652122ab",
+            "sourceColumn": "ContactId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "IsActive",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "a22490a6-eb29-498c-94af-89b5eb65470f",
+            "sourceColumn": "IsActive",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "fd6a0e2f-47e1-4b83-a77d-47ff1a529ec0",
+        "partitions": [
+          {
+            "name": "GlossaryTermContactAssociation",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = Sql.Database(SERVER, DATABASE),",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_GlossaryTermContactAssociation\" = Source{[Schema= DATABASE_SCHEMA,Item=\"GlossaryTermContactAssociation\"]}[Data]",
+                "in",
+                "    #\"ecf09339-34e0-464b-a8fb-661209048543_GlossaryTermContactAssociation\""
               ],
               "type": "m"
             }

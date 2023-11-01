@@ -11,7 +11,7 @@
         {
           "location": {
             "x": 300,
-            "y": 267.05605871989371
+            "y": 269.55605871989371
           },
           "nodeIndex": "pbi BusinessDomain",
           "nodeLineageTag": "5ef696d9-67f3-46ef-8818-b0e47fd34a1e",
@@ -24,7 +24,7 @@
         {
           "location": {
             "x": 297.2602739726027,
-            "y": 0
+            "y": 2.5
           },
           "nodeIndex": "pbi BusinessDomainContactAssociation",
           "nodeLineageTag": "adc463a7-9d7f-471c-b9c9-b205be5b563c",
@@ -37,7 +37,7 @@
         {
           "location": {
             "x": 0,
-            "y": 0
+            "y": 2.5
           },
           "nodeIndex": "pbi BusinessDomainDataProductAssociation",
           "nodeLineageTag": "311c5e33-23ce-4dc9-a60c-1d2b8ab16168",
@@ -50,7 +50,7 @@
         {
           "location": {
             "x": 2245.4574429805971,
-            "y": 406.38411225303764
+            "y": 408.88411225303764
           },
           "nodeIndex": "pbi Collection",
           "nodeLineageTag": "5d0844be-3140-40b1-bbca-6b96327f2d91",
@@ -63,7 +63,7 @@
         {
           "location": {
             "x": 500.00000000000006,
-            "y": 1052.1353891854469
+            "y": 1054.6353891854469
           },
           "nodeIndex": "pbi ContactDetails",
           "nodeLineageTag": "bf337964-bfa7-4c9a-9bcf-c8839fbabc71",
@@ -76,7 +76,7 @@
         {
           "location": {
             "x": 1308.2333832540305,
-            "y": 526.027397260274
+            "y": 528.527397260274
           },
           "nodeIndex": "pbi DataAsset",
           "nodeLineageTag": "c0bacef6-c762-4f13-ba80-8be2dcdcc64d",
@@ -89,7 +89,7 @@
         {
           "location": {
             "x": 1685.0832067191172,
-            "y": 63.2377720698525
+            "y": 65.7377720698525
           },
           "nodeIndex": "pbi DataAssetColumn",
           "nodeLineageTag": "4a9a4486-1ca8-472f-85a4-a19d0ee04255",
@@ -102,7 +102,7 @@
         {
           "location": {
             "x": 1244.708554821196,
-            "y": 203.93982763131103
+            "y": 206.43982763131103
           },
           "nodeIndex": "pbi DataAssetContactAssociation",
           "nodeLineageTag": "00ac16e3-f579-4375-a9b8-1ada21e5ebc4",
@@ -115,7 +115,7 @@
         {
           "location": {
             "x": 0,
-            "y": 276.71232876712327
+            "y": 279.21232876712327
           },
           "nodeIndex": "pbi DataProduct",
           "nodeLineageTag": "f61b582f-eb09-463e-ade7-b8e6e60aaf58",
@@ -128,7 +128,7 @@
         {
           "location": {
             "x": 653.37203807925607,
-            "y": 0
+            "y": 2.5
           },
           "nodeIndex": "pbi DataProductContactAssociation",
           "nodeLineageTag": "f716dd01-a845-41a0-a65b-1498a1379c03",
@@ -141,7 +141,7 @@
         {
           "location": {
             "x": 737.08286883901769,
-            "y": 203.63134022623524
+            "y": 206.13134022623524
           },
           "nodeIndex": "pbi DataProductDataAssetAssociation",
           "nodeLineageTag": "32b036eb-2bdf-41ef-9a16-013761c520d1",
@@ -154,7 +154,7 @@
         {
           "location": {
             "x": 307.72648873206128,
-            "y": 669.61753735368313
+            "y": 672.11753735368313
           },
           "nodeIndex": "pbi DataProductGovernenceTagAssociation",
           "nodeLineageTag": "aca77f8f-2add-43cd-957b-c5648674f753",
@@ -167,7 +167,7 @@
         {
           "location": {
             "x": 759.594429281967,
-            "y": 374.904660198243
+            "y": 377.404660198243
           },
           "nodeIndex": "pbi Date",
           "nodeLineageTag": "5369f299-a65d-4dd8-b319-bc8f63390e8b",
@@ -180,7 +180,7 @@
         {
           "location": {
             "x": 1954.553333391556,
-            "y": 235.80876978728423
+            "y": 238.30876978728423
           },
           "nodeIndex": "pbi GlossaryTerm",
           "nodeLineageTag": "274b4ef2-2234-4b52-a4b5-03758460eea7",
@@ -193,7 +193,7 @@
         {
           "location": {
             "x": 3097.4574429805971,
-            "y": 335.35536582560019
+            "y": 337.85536582560019
           },
           "nodeIndex": "Measure Table",
           "nodeLineageTag": "8d65ac4b-c757-43c0-86a8-cde291cb89b3",
@@ -206,7 +206,7 @@
         {
           "location": {
             "x": 241.73141558333685,
-            "y": 926.02739726027391
+            "y": 928.52739726027391
           },
           "nodeIndex": "pbi GovernenceTag",
           "nodeLineageTag": "7e4f7d46-a751-4b95-ad7e-e22582499ac9",
@@ -219,7 +219,7 @@
         {
           "location": {
             "x": 3665.4574429805971,
-            "y": 353.23315201692975
+            "y": 355.73315201692975
           },
           "nodeIndex": "Trend Table",
           "nodeLineageTag": "7a75d717-4e93-448f-b62c-fefc300dac8d",
@@ -232,7 +232,7 @@
         {
           "location": {
             "x": 3949.4574429805971,
-            "y": 515.47945205479448
+            "y": 517.97945205479448
           },
           "nodeIndex": "drill through",
           "nodeLineageTag": "bf7347fb-0495-4c15-b7bf-ea2eb6ce4952",
@@ -245,7 +245,7 @@
         {
           "location": {
             "x": 713.25196352854289,
-            "y": 599.67123287671211
+            "y": 602.17123287671211
           },
           "nodeIndex": "pbi BusinessDomainTrends",
           "nodeLineageTag": "c48c6ba5-4e72-4b4c-8e72-c46d32ec39f5",
@@ -258,19 +258,138 @@
         {
           "location": {
             "x": 4233.4574429805971,
-            "y": 505.80821917808225
+            "y": 470.30821917808225
           },
-          "nodeIndex": "Classification",
-          "nodeLineageTag": "5f86d9d4-3ae6-41d3-9499-c524be932393",
+          "nodeIndex": "BusinessDomain",
           "size": {
-            "height": 224,
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4811.6421941612271,
+            "y": 520.98322654564777
+          },
+          "nodeIndex": "BusinessDomainDataProductAssociation",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 7074.5423612266768,
+            "y": 470.30821917808225
+          },
+          "nodeIndex": "BusinessDomainTrends",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5664.0038335765867,
+            "y": 460.30821917808225
+          },
+          "nodeIndex": "DataAsset",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5948.1807218113172,
+            "y": 535.63321181051742
+          },
+          "nodeIndex": "DataAssetContactAssociation",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5095.8190823959567,
+            "y": 460.30821917808225
+          },
+          "nodeIndex": "DataProduct",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4527.4574429805971,
+            "y": 490.04833572299003
+          },
+          "nodeIndex": "DataProductContactAssociation",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5379.8190823959567,
+            "y": 515.37332835542406
+          },
+          "nodeIndex": "DataProductDataAssetAssociation",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6516.3654729919463,
+            "y": 460.30821917808225
+          },
+          "nodeIndex": "GlossaryTerm",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6800.5423612266768,
+            "y": 559.63321181051708
+          },
+          "nodeIndex": "GlossaryTermBusinessDomainAssociation",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 6232.1807218113172,
+            "y": 503.37332835542452
+          },
+          "nodeIndex": "GlossaryTermContactAssociation",
+          "size": {
+            "height": 176,
             "width": 234
           },
           "zIndex": 0
         }
       ],
       "name": "All tables",
-      "zoomValue": 73,
+      "zoomValue": 17.684420576020827,
       "pinKeyFieldsToTop": false,
       "showExtraHeaderInfo": false,
       "hideKeyFieldsWhenCollapsed": false,
