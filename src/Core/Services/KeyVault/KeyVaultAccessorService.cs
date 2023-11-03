@@ -19,6 +19,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 /// <summary>
 /// Access an Azure key vault using a managed identity

@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 using System;
+using global::Azure;
 
 /// <summary>
 /// Entity model.
@@ -14,7 +15,10 @@ public interface IEntityModel
     /// <summary>
     /// Account for the entity.
     /// </summary>
-    public Guid AccountId { get; }
+    /// <remarks>
+    /// The partition key is a unique identifier for the partition within a given table and forms the first part of an entity's primary key.
+    /// </remarks>
+    public string PartitionKey { get; }
 
     /// <summary>
     /// Etag for the entity.
@@ -28,7 +32,7 @@ public interface IEntityModel
     /// * Otherwise (default for entities that have been read): Entity's etag must match
     /// Overall these behaviors do the right thing by default.
     /// </remarks>
-    string Etag { get; set; }
+    public ETag ETag { get; set; }
 
     /// <summary>
     /// Identifier of the entity
@@ -43,8 +47,8 @@ public interface IEntityModel
     /// Name of the entity
     /// </summary>
     /// <remarks>
-    /// There is nothing particularly special about this field, it's just rather common. The actual Id used for lookups
-    /// is whatever is chosen in GetEntityId which sometimes includes this field.
+    /// The row key is a unique identifier for an entity within a given partition.
+    /// Together the PartitionKey and RowKey uniquely identify every entity within a table.
     /// </remarks>
-    string Name { get; }
+    string RowKey { get; }
 }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using global::Azure.ResourceManager.Resources;
 using global::Azure.ResourceManager.Storage;
 using global::Azure.ResourceManager.Storage.Models;
+using Microsoft.Azure.Management.Storage.Models;
 
 /// <summary>
 /// Interface for Azure Resource Manager.
@@ -53,4 +54,13 @@ public interface IAzureResourceManager
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<BlobContainerResource> CreateStorageContainer(StorageAccountResource storageAccount, string blobContainerName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Creates a new management policy for the specified storage account.
+    /// </summary>
+    /// <param name="storageAccount"></param>
+    /// <param name="managementPolicyData"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<StorageAccountManagementPolicyResource> CreateOrUpdateStorageManagementPolicy(StorageAccountResource storageAccount, StorageAccountManagementPolicyData managementPolicyData, CancellationToken cancellationToken);
 }

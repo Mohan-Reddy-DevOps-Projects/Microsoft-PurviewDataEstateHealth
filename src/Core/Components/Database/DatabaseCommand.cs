@@ -187,7 +187,7 @@ internal class DatabaseCommand : IDatabaseCommand
             { "@schemaName", request.SchemaName },
             { "@databaseScopedCredential", request.ScopedCredential.Name },
             { "@containerName", request.SchemaName },
-            { "@containerUri", $"'https://dgprocessingwus2esraapo.dfs.core.windows.net/{request.SchemaName}/'" },
+            { "@containerUri", $"'{request.DataSourceLocation}'" },
         };
 
         if (scriptVariables != null)

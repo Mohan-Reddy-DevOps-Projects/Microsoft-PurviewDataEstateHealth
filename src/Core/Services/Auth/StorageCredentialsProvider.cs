@@ -8,6 +8,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using global::Azure.Core;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.WindowsAzure.Storage.Auth;
 using CoreTokenCredential = global::Azure.Core.TokenCredential;
 using StorageTokenCredential = WindowsAzure.Storage.Auth.TokenCredential;

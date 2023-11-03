@@ -30,8 +30,8 @@ public static class CoreLayer
         services.AddSingleton<AadAppTokenProviderService<FirstPartyAadAppConfiguration>>();
         services.AddSingleton<IComponentContextFactory, ComponentContextFactory>();
         services.AddSingleton<ServiceHealthCheck>();
-        services.AddSingleton<AzureCredentialFactory>();
         services.AddSingleton<IAzureResourceManager, AzureResourceManager<ProcessingStorageAuthConfiguration>>();
+        services.AddSingleton<IProcessingStorageManager, ProcessingStorageManager>();
 
         services.AddPowerBI();
         services.AddServerlessPool();

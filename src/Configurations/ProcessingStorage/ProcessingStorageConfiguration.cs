@@ -10,9 +10,14 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 public class ProcessingStorageConfiguration
 {
     /// <summary>
-    /// Gets or sets the ARN.
+    /// Gets or sets the storage account name prefix.
     /// </summary>
-    public string ResourceId { get; set; }
+    public string StorageNamePrefix { get; set; }
+
+    /// <summary>
+    /// Gets or sets the azure region.
+    /// </summary>
+    public string AzureRegion { get; set; }
 
     /// <summary>
     /// Gets or sets the resource group name.
@@ -20,7 +25,12 @@ public class ProcessingStorageConfiguration
     public string ResourceGroupName { get; set; }
 
     /// <summary>
-    /// Gets or sets the azure region.
+    /// Gets or sets the subscriptionId.
     /// </summary>
-    public string AzureRegion { get; set; }
+    public Guid SubscriptionId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the tenantId.
+    /// </summary>
+    public Guid TenantId { get; set; }
 }

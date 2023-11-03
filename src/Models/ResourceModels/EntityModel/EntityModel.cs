@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 using System;
+using global::Azure;
 
 /// <summary>
 /// Entity model.
@@ -12,18 +13,18 @@ using System;
 public abstract class EntityModel : IEntityModel
 {
     /// <inheritdoc />
-    public string Name { get; set; }
+    public string RowKey { get; set; }
 
     /// <inheritdoc />
     public Guid Id { get; set; }
 
     /// <inheritdoc />
-    public Guid AccountId { get; set; }
+    public string PartitionKey { get; set; }
 
     /// <summary>
     /// <inheritdoc />
     /// </summary>
-    public string Etag { get; set; }
+    public ETag ETag { get; set; }
 
     /// <summary>
     /// Constructor.
@@ -35,15 +36,15 @@ public abstract class EntityModel : IEntityModel
     /// <summary>
     /// Constructor.
     /// </summary>
-    /// <param name="accountId"></param>
+    /// <param name="partitionKey"></param>
     /// <param name="id"></param>
-    /// <param name="name"></param>
+    /// <param name="rowKey"></param>
     /// <param name="etag"></param>
-    protected EntityModel(Guid accountId, Guid id, string name, string etag)
+    protected EntityModel(string partitionKey, Guid id, string rowKey, ETag etag)
     {
-        this.AccountId = accountId;
+        this.PartitionKey = partitionKey;
         this.Id = id;
-        this.Name = name;
-        this.Etag = etag;
+        this.RowKey = rowKey;
+        this.ETag = etag;
     }
 }

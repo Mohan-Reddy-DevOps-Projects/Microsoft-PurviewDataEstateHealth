@@ -23,7 +23,6 @@ public static class Extension
     {
         services.AddScoped<IPartnerService<AccountServiceModel, IPartnerDetails>, AccountPartnerService>();
         services.AddPartnerHttpClient("PartnerServiceClient");
-        services.AddSingleton<IProcessingStorageManager, ProcessingStorageManager>();
 
         return services;
     }

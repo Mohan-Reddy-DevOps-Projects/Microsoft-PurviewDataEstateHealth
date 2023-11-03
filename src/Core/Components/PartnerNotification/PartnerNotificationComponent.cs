@@ -55,7 +55,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     /// <inheritdoc/>
     public async Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
-        await this.databaseManagementService.Initialize(this.Context.AccountId, cancellationToken);
+        await this.databaseManagementService.Initialize(account, cancellationToken);
         // await this.CreatePowerBIResources(account, cancellationToken);
     }
 

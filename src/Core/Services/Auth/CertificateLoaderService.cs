@@ -17,6 +17,7 @@ using global::Azure.Security.KeyVault.Certificates;
 using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.Options;

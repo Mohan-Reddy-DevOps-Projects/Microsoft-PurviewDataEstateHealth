@@ -31,7 +31,8 @@ public static class ConfigurationExtensions
             .Configure<FirstPartyAadAppConfiguration>(configuration.GetSection("firstPartyAadApp"))
             .Configure<DGProcessingStorageConfiguration>(configuration.GetSection("dgprocessingStorage"))
             .Configure<ProcessingStorageAuthConfiguration>(configuration.GetSection("processingStorage"))
-            .Configure<ProcessingStorageConfiguration>(configuration.GetSection("processingStorage"));
+            .Configure<ProcessingStorageConfiguration>(configuration.GetSection("processingStorage"))
+            .Configure<AccountStorageTableConfiguration>(configuration.GetSection("accountStorageTable"));
 
         return services;
     }

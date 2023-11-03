@@ -18,6 +18,11 @@ public interface IDatabaseRequest
     string DatabaseName { get; }
 
     /// <summary>
+    /// The data source location.
+    /// </summary>
+    string DataSourceLocation { get; }
+
+    /// <summary>
     /// The schema name.
     /// </summary>
     string SchemaName { get; }

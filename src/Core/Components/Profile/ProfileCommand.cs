@@ -62,9 +62,9 @@ internal sealed class ProfileCommand : IProfileCommand
 
         profileModel = new ProfileModel
         {
-            AccountId = requestContext.AccountId,
+            PartitionKey = requestContext.AccountId.ToString(),
             ClientId = Guid.Parse(this.powerBIAuthConfig.ClientId),
-            Name = pbiProfile.DisplayName,
+            RowKey = pbiProfile.DisplayName,
             Id = pbiProfile.Id,
             TenantId = Guid.Parse(this.powerBIAuthConfig.TenantId)
         };
@@ -129,9 +129,9 @@ internal sealed class ProfileCommand : IProfileCommand
 
         return new ProfileModel()
         {
-            AccountId = requestContext.AccountId,
+            PartitionKey = requestContext.AccountId.ToString(),
             ClientId = Guid.Parse(this.powerBIAuthConfig.ClientId),
-            Name = requestContext.ProfileName,
+            RowKey = requestContext.ProfileName,
             Id = pbiProfile.Id,
             TenantId = Guid.Parse(this.powerBIAuthConfig.TenantId)
         };

@@ -14,6 +14,9 @@ public class DatabaseRequest : IDatabaseRequest
     public string DatabaseName { get; init; }
 
     /// <inheritdoc/>
+    public string DataSourceLocation { get; init; }
+
+    /// <inheritdoc/>
     public string SchemaName { get; init; }
 
     /// <inheritdoc/>

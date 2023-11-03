@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Polly;
@@ -36,10 +37,13 @@ public static class DataAccessLayer
     /// <param name="services">Gives the data access layer a chance to configure its dependency injection.</param>
     public static IServiceCollection AddDataAccessLayer(this IServiceCollection services)
     {
+        services.AddSingleton<AzureCredentialFactory>();
         services.AddExposureControl();
         services.AddMetadataServiceHttpClient(MetadataServiceClientFactory.HttpClientName);
         services.AddSingleton<MetadataServiceClientFactory>();
         services.AddSingleton<IMetadataAccessorService, MetadataAccessorService>();
+        services.AddSingleton<ITableStorageClient, TableStorageClient>();
+        services.AddSingleton<IStorageAccountRepository<ProcessingStorageModel>, ProcessingStorageRepository>();
         services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
         services.AddScoped<IHealthActionRepository, HealthActionRepository>();
         services.AddScoped<IHealthScoreRepository, HealthScoreRepository>();

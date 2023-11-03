@@ -4,10 +4,10 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
 using System.Threading.Tasks;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 
 internal interface IDatabaseManagementService
 {
-    Task Initialize(Guid accountId, CancellationToken cancellationToken);
+    Task Initialize(AccountServiceModel accountModel, CancellationToken cancellationToken);
 }

@@ -15,6 +15,7 @@ using global::Azure.Storage.Blobs;
 using global::Azure.Storage.Blobs.Models;
 using global::Azure.Storage.Blobs.Specialized;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Options;
 

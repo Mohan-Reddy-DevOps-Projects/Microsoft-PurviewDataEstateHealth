@@ -5,8 +5,11 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using global::Azure.Core;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
@@ -17,14 +20,16 @@ internal class DatabaseManagementService : IDatabaseManagementService
     private readonly IDatabaseCommand databaseCommand;
 
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
+    private readonly IProcessingStorageManager processingStorageManager;
 
-    public DatabaseManagementService(IDatabaseCommand databaseCommand, IPowerBICredentialComponent powerBICredentialComponent)
+    public DatabaseManagementService(IDatabaseCommand databaseCommand, IPowerBICredentialComponent powerBICredentialComponent, IProcessingStorageManager processingStorageManager)
     {
         this.databaseCommand = databaseCommand;
         this.powerBICredentialComponent = powerBICredentialComponent;
+        this.processingStorageManager = processingStorageManager;
     }
 
-    public async Task Initialize(Guid accountId, CancellationToken cancellationToken)
+    public async Task Initialize(AccountServiceModel accountModel, CancellationToken cancellationToken)
     {
         IDatabaseRequest databaseRequest = new DatabaseRequest
         {
@@ -33,6 +38,7 @@ internal class DatabaseManagementService : IDatabaseManagementService
         await this.databaseCommand.AddDatabaseAsync(databaseRequest, cancellationToken);
 
         string owner = "health";
+        Guid accountId = Guid.Parse(accountModel.Id);
         PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(accountId, owner, cancellationToken);
         if (powerBICredential == null)
         {
@@ -48,9 +54,14 @@ internal class DatabaseManagementService : IDatabaseManagementService
             await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseMasterKey(databaseMasterKey, cancellationToken);
         }
 
+        Models.ProcessingStorageModel storageModel = await this.processingStorageManager.Get(accountModel, cancellationToken);
+        ArgumentNullException.ThrowIfNull(storageModel, nameof(storageModel));
+        ResourceIdentifier storageId = new(storageModel.Properties.ResourceId);
+
         databaseRequest = new DatabaseRequest
         {
             DatabaseName = DatabaseName,
+            DataSourceLocation = $"https://{storageId.Name}.{storageModel.Properties.DnsZone}.dfs.{storageModel.Properties.EndpointSuffix}/{accountModel.DefaultCatalogId}/",
             SchemaName = accountId.ToString(),
             LoginName = powerBICredential.LoginName,
             LoginPassword = powerBICredential.Password,

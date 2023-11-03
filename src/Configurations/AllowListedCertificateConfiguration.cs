@@ -5,8 +5,8 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 using System.Collections.Generic;
-using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.DGP.ServiceBasics.Errors;
 
 /// <summary>
 /// Client certificate configuration model.

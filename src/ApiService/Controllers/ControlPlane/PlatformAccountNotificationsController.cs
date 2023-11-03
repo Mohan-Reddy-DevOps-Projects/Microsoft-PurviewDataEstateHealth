@@ -79,14 +79,14 @@ public class PlatformAccountNotificationsController : ControlPlaneController
 
         }
 
-        // await this.processingStorageManager.Provision(account, cancellationToken);
+        await this.processingStorageManager.Provision(account, cancellationToken);
 
         await PartnerNotifier.NotifyPartners(
                 this.logger,
                 this.partnerService,
                 this.partnerConfig,
                 account,
-                DataEstateHealth.ProvisioningService.OperationType.CreateOrUpdate,
+                ProvisioningService.OperationType.CreateOrUpdate,
                 InitPartnerContext(this.partnerConfig.Partners)).ConfigureAwait(false);
 
         await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
@@ -104,6 +104,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     /// <param name="accountId">The accountId of the Service Account</param>
     /// <param name="operation">The type of operation to perform on the account.</param>
     /// <param name="account">The account model.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpDelete]
     [ProducesResponseType(typeof(AccountServiceModel), 200)]
@@ -113,19 +114,22 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     public async Task<IActionResult> DeleteOrSoftDeleteNotificationAsync(
         [FromRoute] Guid accountId,
         [FromQuery(Name = "operation")] OperationType operation,
-        [FromBody] AccountServiceModel account)
+        [FromBody] AccountServiceModel account,
+        CancellationToken cancellationToken)
     {
         if (!this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
             return this.Ok();
         }
 
+        await this.processingStorageManager.Delete(account, cancellationToken);
+
         await PartnerNotifier.NotifyPartners(
                 this.logger,
                 this.partnerService,
                 this.partnerConfig,
                 account,
-                DataEstateHealth.ProvisioningService.OperationType.Delete,
+                ProvisioningService.OperationType.Delete,
                 InitPartnerContext(this.partnerConfig.Partners)).ConfigureAwait(false);
 
         return this.Ok();

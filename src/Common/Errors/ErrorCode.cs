@@ -86,6 +86,11 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode Storage_TableDoesNotExist = new(2001);
 
+    /// <summary>
+    /// Storage exception
+    /// </summary>
+    public static readonly ErrorCode StorageException = new(2002);
+
     #endregion
 
     #region Job Errors

@@ -16,6 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 internal sealed class AzureResourceManager<TAuthConfig> : IAzureResourceManager where TAuthConfig : AuthConfiguration
 {
@@ -65,5 +66,13 @@ internal sealed class AzureResourceManager<TAuthConfig> : IAzureResourceManager 
         BlobContainerResource blobContainer = blobContainerCreateOperation.Value;
 
         return blobContainer;
+    }
+
+    public async Task<StorageAccountManagementPolicyResource> CreateOrUpdateStorageManagementPolicy(StorageAccountResource storageAccount, StorageAccountManagementPolicyData managementPolicyData, CancellationToken cancellationToken)
+    {
+        StorageAccountManagementPolicyResource managementPolicyResource = storageAccount.GetStorageAccountManagementPolicy();
+        ArmOperation<StorageAccountManagementPolicyResource> response = await managementPolicyResource.CreateOrUpdateAsync(WaitUntil.Completed, managementPolicyData, cancellationToken);
+
+        return response.Value;
     }
 }
