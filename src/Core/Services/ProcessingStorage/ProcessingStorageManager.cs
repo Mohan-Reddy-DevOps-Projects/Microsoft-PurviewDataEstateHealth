@@ -11,6 +11,8 @@ using global::Azure.Core;
 using global::Azure.ResourceManager.Resources;
 using global::Azure.ResourceManager.Storage.Models;
 using global::Azure.ResourceManager.Storage;
+using global::Azure.Storage.Sas;
+using global::Azure.Storage;
 using Microsoft.Azure.Management.Storage.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities;
@@ -20,6 +22,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Options;
 using ProcessingStorageModel = Models.ProcessingStorageModel;
+using StorageAccountKey = global::Azure.ResourceManager.Storage.Models.StorageAccountKey;
 
 /// <summary>
 /// Processing storage manager.
@@ -32,14 +35,14 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
     /// Initializes a new instance of the <see cref="ProcessingStorageManager"/> class.
     /// </summary>
     /// <param name="storageAccountRepository"></param>
-    /// <param name="azureResourceManager"></param>
+    /// <param name="azureResourceManagerFactory"></param>
     /// <param name="processingStorageConfiguration"></param>
     /// <param name="logger"></param>
     public ProcessingStorageManager(
         IStorageAccountRepository<ProcessingStorageModel> storageAccountRepository,
-        IAzureResourceManager azureResourceManager,
+        IAzureResourceManagerFactory azureResourceManagerFactory,
         IOptions<ProcessingStorageConfiguration> processingStorageConfiguration,
-        IDataEstateHealthLogger logger) : base(azureResourceManager, processingStorageConfiguration, logger)
+        IDataEstateHealthLogger logger) : base(azureResourceManagerFactory.Create<ProcessingStorageAuthConfiguration>(), processingStorageConfiguration, logger)
     {
         this.storageAccountRepository = storageAccountRepository;
     }
@@ -111,6 +114,39 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
             await this.storageAccountRepository.Create(newStorageModel, accountServiceModel.Id, cancellationToken);
         }
         this.logger.LogInformation($"Successfully created storage account {newStorageModel.Properties.ResourceId}");
+    }
+
+    /// <inheritdoc/>
+    public async Task<string> GetProcessingStorageSasToken(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters, string containerName, CancellationToken cancellationToken)
+    {
+        string resourceId = $"/subscriptions/{this.storageConfiguration.SubscriptionId}";
+        SubscriptionResource subscription = this.azureResourceManager.GetSubscription(resourceId);
+        ResourceGroupResource resourceGroup = await this.azureResourceManager.GetResourceGroup(subscription, this.storageConfiguration.ResourceGroupName, cancellationToken);
+        string storageAccountName = processingStorageModel.GetStorageAccountName();
+        Response<StorageAccountResource> storageAccount = await resourceGroup.GetStorageAccountAsync(storageAccountName, cancellationToken: cancellationToken) ?? throw new InvalidOperationException($"Storage account {storageAccountName} not found");
+        string accountKey = await this.GetStorageAccountKeyInternal(storageAccount, cancellationToken);
+        BlobSasBuilder sasBuilder = new()
+        {
+            BlobContainerName = containerName,
+            BlobName = parameters.BlobPath,
+            Resource = parameters.Services,
+            ExpiresOn = DateTimeOffset.UtcNow.Add(parameters.TimeToLive)
+        };
+        sasBuilder.SetPermissions(parameters.Permissions);
+
+        return sasBuilder.ToSasQueryParameters(new StorageSharedKeyCredential(storageAccount.Value.Data.Name, accountKey)).ToString();
+    }
+
+    private async Task<string> GetStorageAccountKeyInternal(StorageAccountResource storageAccount, CancellationToken cancellationToken)
+    {
+        AsyncPageable<StorageAccountKey> keys = storageAccount.GetKeysAsync(cancellationToken: cancellationToken);
+        List<StorageAccountKey> response = new();
+        await foreach (StorageAccountKey key in keys)
+        {
+            response.Add(key);
+        }
+
+        return response.First(x => x.KeyName.Equals("key2", StringComparison.OrdinalIgnoreCase)).Value;
     }
 
     /// <summary>

@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using ProcessingStorageModel = Models.ProcessingStorageModel;
 
 /// <summary>
@@ -37,4 +38,14 @@ public interface IProcessingStorageManager
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<DeletionResult> Delete(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the processing storage SAS token.
+    /// </summary>
+    /// <param name="processingStorageModel"></param>
+    /// <param name="parameters">SAS Token Parameters</param>
+    /// <param name="containerName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>The processing storage SAS token.</returns>
+    Task<string> GetProcessingStorageSasToken(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters, string containerName, CancellationToken cancellationToken);
 }

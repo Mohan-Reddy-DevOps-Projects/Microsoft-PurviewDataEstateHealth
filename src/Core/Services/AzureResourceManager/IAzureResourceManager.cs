@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using global::Azure.ResourceManager.Resources;
 using global::Azure.ResourceManager.Storage;
 using global::Azure.ResourceManager.Storage.Models;
-using Microsoft.Azure.Management.Storage.Models;
+using global::Azure.ResourceManager.Synapse;
 
 /// <summary>
 /// Interface for Azure Resource Manager.
@@ -63,4 +63,16 @@ public interface IAzureResourceManager
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<StorageAccountManagementPolicyResource> CreateOrUpdateStorageManagementPolicy(StorageAccountResource storageAccount, StorageAccountManagementPolicyData managementPolicyData, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Creates a new Synapse spark pool.
+    /// </summary>
+    /// <param name="subscriptionId"></param>
+    /// <param name="resourceGroupName"></param>
+    /// <param name="workspaceName"></param>
+    /// <param name="bigDataPoolName"></param>
+    /// <param name="location"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<SynapseBigDataPoolInfoData> CreateSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, string location, CancellationToken cancellationToken);
 }

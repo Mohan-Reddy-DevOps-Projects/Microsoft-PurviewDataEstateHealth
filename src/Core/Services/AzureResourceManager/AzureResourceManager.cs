@@ -9,8 +9,6 @@ using global::Azure.Core;
 using global::Azure.Identity;
 using global::Azure.ResourceManager;
 using global::Azure.ResourceManager.Resources;
-using global::Azure.ResourceManager.Storage;
-using global::Azure.ResourceManager.Storage.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +16,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-internal sealed class AzureResourceManager<TAuthConfig> : IAzureResourceManager where TAuthConfig : AuthConfiguration
+internal sealed partial class AzureResourceManager<TAuthConfig> : IAzureResourceManager where TAuthConfig : AuthConfiguration
 {
     private readonly DefaultAzureCredential tokenCredential;
     private readonly ArmClient armClient;
@@ -44,35 +42,5 @@ internal sealed class AzureResourceManager<TAuthConfig> : IAzureResourceManager 
         ResourceGroupResource resourceGroup = operation.Value;
 
         return resourceGroup;
-    }
-
-    /// <inheritdoc/>
-    public async Task<StorageAccountResource> CreateOrUpdateStorageAccount(ResourceGroupResource resourceGroup, string accountName, StorageAccountCreateOrUpdateContent parameters, CancellationToken cancellationToken)
-    {
-        StorageAccountCollection accountCollection = resourceGroup.GetStorageAccounts();
-        ArmOperation<StorageAccountResource> accountCreateOperation = await accountCollection.CreateOrUpdateAsync(WaitUntil.Completed, accountName, parameters, cancellationToken);
-        StorageAccountResource storageAccount = accountCreateOperation.Value;
-
-        return storageAccount;
-    }
-
-    /// <inheritdoc/>
-    public async Task<BlobContainerResource> CreateStorageContainer(StorageAccountResource storageAccount, string blobContainerName, CancellationToken cancellationToken)
-    {
-        BlobServiceResource blobService = storageAccount.GetBlobService();
-        BlobContainerCollection blobContainerCollection = blobService.GetBlobContainers();
-        BlobContainerData blobContainerData = new();
-        ArmOperation<BlobContainerResource> blobContainerCreateOperation = await blobContainerCollection.CreateOrUpdateAsync(WaitUntil.Completed, blobContainerName, blobContainerData, cancellationToken);
-        BlobContainerResource blobContainer = blobContainerCreateOperation.Value;
-
-        return blobContainer;
-    }
-
-    public async Task<StorageAccountManagementPolicyResource> CreateOrUpdateStorageManagementPolicy(StorageAccountResource storageAccount, StorageAccountManagementPolicyData managementPolicyData, CancellationToken cancellationToken)
-    {
-        StorageAccountManagementPolicyResource managementPolicyResource = storageAccount.GetStorageAccountManagementPolicy();
-        ArmOperation<StorageAccountManagementPolicyResource> response = await managementPolicyResource.CreateOrUpdateAsync(WaitUntil.Completed, managementPolicyData, cancellationToken);
-
-        return response.Value;
     }
 }

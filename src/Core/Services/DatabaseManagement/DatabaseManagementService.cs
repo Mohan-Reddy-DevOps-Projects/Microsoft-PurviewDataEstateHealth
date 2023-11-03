@@ -56,12 +56,12 @@ internal class DatabaseManagementService : IDatabaseManagementService
 
         Models.ProcessingStorageModel storageModel = await this.processingStorageManager.Get(accountModel, cancellationToken);
         ArgumentNullException.ThrowIfNull(storageModel, nameof(storageModel));
-        ResourceIdentifier storageId = new(storageModel.Properties.ResourceId);
+        string storageAccountName = storageModel.GetStorageAccountName();
 
         databaseRequest = new DatabaseRequest
         {
             DatabaseName = DatabaseName,
-            DataSourceLocation = $"https://{storageId.Name}.{storageModel.Properties.DnsZone}.dfs.{storageModel.Properties.EndpointSuffix}/{accountModel.DefaultCatalogId}/",
+            DataSourceLocation = $"https://{storageAccountName}.{storageModel.Properties.DnsZone}.dfs.{storageModel.Properties.EndpointSuffix}/{accountModel.DefaultCatalogId}/",
             SchemaName = accountId.ToString(),
             LoginName = powerBICredential.LoginName,
             LoginPassword = powerBICredential.Password,

@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 using System.Text.Json;
+using global::Azure.Core;
 
 /// <summary>
 /// Processing storage model.
@@ -43,5 +44,24 @@ public class ProcessingStorageModel
     public override string ToString()
     {
         return JsonSerializer.Serialize(this);
+    }
+}
+
+/// <summary>
+/// Processing storage model extensions.
+/// </summary>
+public static class ProcessingStorageModelExtensions
+{
+    /// <summary>
+    /// Gets the processing storage account name.
+    /// </summary>
+    /// <param name="processingStorageModel"></param>
+    /// <returns></returns>
+    public static string GetStorageAccountName(this ProcessingStorageModel processingStorageModel)
+    {
+        string storageAccountId = processingStorageModel.Properties.ResourceId;
+        ResourceIdentifier storageAccountResourceId = new(storageAccountId);
+        
+        return storageAccountResourceId.Name;
     }
 }
