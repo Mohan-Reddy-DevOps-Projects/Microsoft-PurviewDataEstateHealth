@@ -4,7 +4,7 @@
     "annotations": [
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"pbi BusinessDomain\",\"pbi BusinessDomainContactAssociation\",\"pbi BusinessDomainDataProductAssociation\",\"pbi Collection\",\"pbi ContactDetails\",\"pbi DataAssetColumn\",\"pbi DataAssetContactAssociation\",\"pbi DataProduct\",\"pbi DataProductContactAssociation\",\"pbi DataProductDataAssetAssociation\",\"pbi DataProductGovernenceTagAssociation\",\"pbi Date\",\"pbi GlossaryTerm\",\"Measure Table\",\"pbi GovernenceTag\",\"pbi DataAsset\",\"Trend Table\",\"drill through\",\"pbi BusinessDomainTrends\",\"SERVER\",\"DATABASE\",\"DATABASE_SCHEMA\",\"BusinessDomain\",\"BusinessDomainDataProductAssociation\",\"BusinessDomainTrends\",\"DataAsset\",\"DataAssetContactAssociation\",\"DataProduct\",\"DataProductContactAssociation\",\"DataProductDataAssetAssociation\",\"GlossaryTerm\",\"GlossaryTermBusinessDomainAssociation\",\"GlossaryTermContactAssociation\"]"
+        "value": "[\"pbi BusinessDomain\",\"pbi BusinessDomainContactAssociation\",\"pbi BusinessDomainDataProductAssociation\",\"pbi Collection\",\"pbi ContactDetails\",\"pbi DataAssetColumn\",\"pbi DataAssetContactAssociation\",\"pbi DataProduct\",\"pbi DataProductContactAssociation\",\"pbi DataProductDataAssetAssociation\",\"pbi DataProductGovernenceTagAssociation\",\"pbi Date\",\"pbi GlossaryTerm\",\"Measure Table\",\"pbi GovernenceTag\",\"pbi DataAsset\",\"Trend Table\",\"drill through\",\"pbi BusinessDomainTrends\",\"SERVER\",\"DATABASE\",\"DATABASE_SCHEMA\",\"BusinessDomain\",\"BusinessDomainTrends\",\"DataAsset\",\"DataAssetContactAssociation\",\"DataProduct\",\"DataProductContactAssociation\",\"DataProductDataAssetAssociation\",\"GlossaryTerm\",\"GlossaryTermBusinessDomainAssociation\",\"GlossaryTermContactAssociation\"]"
       },
       {
         "name": "__PBI_TimeIntelligenceEnabled",
@@ -34945,22 +34945,6 @@
         "toTable": "BusinessDomain"
       },
       {
-        "name": "11f36acf-b1ad-4f19-9297-4320958c70e4",
-        "crossFilteringBehavior": "bothDirections",
-        "fromCardinality": "one",
-        "fromColumn": "DataProductId",
-        "fromTable": "DataProduct",
-        "toColumn": "DataProductId",
-        "toTable": "BusinessDomainDataProductAssociation"
-      },
-      {
-        "name": "cc44fb44-385f-4a19-95d9-bd975b3cdc1d",
-        "fromColumn": "DataProductId",
-        "fromTable": "DataProductContactAssociation",
-        "toColumn": "DataProductId",
-        "toTable": "BusinessDomainDataProductAssociation"
-      },
-      {
         "name": "04fd2fa3-1df4-435c-a980-961d44d421d4",
         "fromColumn": "DataAssetId",
         "fromTable": "DataAssetContactAssociation",
@@ -34999,10 +34983,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -40902,10 +40882,6 @@
         "name": "BusinessDomain",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
           }
@@ -41093,84 +41069,8 @@
         ]
       },
       {
-        "name": "BusinessDomainDataProductAssociation",
-        "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          }
-        ],
-        "columns": [
-          {
-            "name": "DataProductId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "7d8e75a4-b189-491e-b07f-e4c854c9ee09",
-            "sourceColumn": "DataProductId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "BusinessDomainId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "c453fb74-8c9a-4611-a565-541c16e2f20e",
-            "sourceColumn": "BusinessDomainId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "IsPrimaryDataProduct",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "int64",
-            "formatString": "0",
-            "lineageTag": "061f5412-a019-4551-8b13-afaa94e1dfe9",
-            "sourceColumn": "IsPrimaryDataProduct",
-            "summarizeBy": "none"
-          }
-        ],
-        "lineageTag": "161b030b-e505-4eea-8935-6518aed757de",
-        "partitions": [
-          {
-            "name": "BusinessDomainDataProductAssociation",
-            "mode": "import",
-            "source": {
-              "expression": [
-                "let",
-                "    Source = Sql.Database(SERVER, DATABASE),",
-                "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainDataProductAssociation\" = Source{[Schema=DATABASE_SCHEMA,Item=\"BusinessDomainDataProductAssociation\"]}[Data]",
-                "in",
-                "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainDataProductAssociation\""
-              ],
-              "type": "m"
-            }
-          }
-        ]
-      },
-      {
         "name": "BusinessDomainTrends",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"
@@ -41407,10 +41307,6 @@
       {
         "name": "DataAsset",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"
@@ -41773,10 +41669,6 @@
         "name": "DataAssetContactAssociation",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
           }
@@ -41857,10 +41749,6 @@
       {
         "name": "DataProduct",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"
@@ -42161,10 +42049,6 @@
         "name": "DataProductContactAssociation",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
           }
@@ -42246,10 +42130,6 @@
         "name": "DataProductDataAssetAssociation",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
           }
@@ -42316,10 +42196,6 @@
       {
         "name": "GlossaryTerm",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"
@@ -42481,10 +42357,6 @@
         "name": "GlossaryTermBusinessDomainAssociation",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Table"
           }
@@ -42538,10 +42410,6 @@
       {
         "name": "GlossaryTermContactAssociation",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"

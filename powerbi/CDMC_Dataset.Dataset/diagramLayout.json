@@ -269,18 +269,6 @@
         },
         {
           "location": {
-            "x": 4811.6421941612271,
-            "y": 520.98322654564777
-          },
-          "nodeIndex": "BusinessDomainDataProductAssociation",
-          "size": {
-            "height": 152,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
             "x": 7074.5423612266768,
             "y": 470.30821917808225
           },
