@@ -11,8 +11,9 @@ using global::Azure.Core;
 using global::Azure.ResourceManager.Resources;
 using global::Azure.ResourceManager.Storage.Models;
 using global::Azure.ResourceManager.Storage;
+using global::Azure.Storage.Files.DataLake;
+using global::Azure.Storage.Files.DataLake.Models;
 using global::Azure.Storage.Sas;
-using global::Azure.Storage;
 using Microsoft.Azure.Management.Storage.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities;
@@ -23,34 +24,45 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Options;
 using ProcessingStorageModel = Models.ProcessingStorageModel;
 using StorageAccountKey = global::Azure.ResourceManager.Storage.Models.StorageAccountKey;
+using StorageSasRequest = Models.StorageSasRequest;
 
 /// <summary>
 /// Processing storage manager.
 /// </summary>
 internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfiguration>, IProcessingStorageManager
 {
+    private readonly TokenCredential tokenCredential;
     private readonly IStorageAccountRepository<ProcessingStorageModel> storageAccountRepository;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProcessingStorageManager"/> class.
     /// </summary>
+    /// <param name="credentialFactory"></param>
     /// <param name="storageAccountRepository"></param>
     /// <param name="azureResourceManagerFactory"></param>
     /// <param name="processingStorageConfiguration"></param>
     /// <param name="logger"></param>
     public ProcessingStorageManager(
+        AzureCredentialFactory credentialFactory,
         IStorageAccountRepository<ProcessingStorageModel> storageAccountRepository,
         IAzureResourceManagerFactory azureResourceManagerFactory,
         IOptions<ProcessingStorageConfiguration> processingStorageConfiguration,
         IDataEstateHealthLogger logger) : base(azureResourceManagerFactory.Create<ProcessingStorageAuthConfiguration>(), processingStorageConfiguration, logger)
     {
         this.storageAccountRepository = storageAccountRepository;
+        this.tokenCredential = credentialFactory.CreateDefaultAzureCredential();
     }
 
     /// <inheritdoc/>
     public async Task<ProcessingStorageModel> Get(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
     {
-        StorageAccountLocator storageAccountKey = new(accountServiceModel.Id, this.storageConfiguration.StorageNamePrefix);
+        return await this.Get(Guid.Parse(accountServiceModel.Id), cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<ProcessingStorageModel> Get(Guid accountId, CancellationToken cancellationToken)
+    {
+        StorageAccountLocator storageAccountKey = new(accountId.ToString(), this.storageConfiguration.StorageNamePrefix);
 
         return await this.storageAccountRepository.GetSingle(storageAccountKey, cancellationToken);
     }
@@ -117,27 +129,51 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
     }
 
     /// <inheritdoc/>
-    public async Task<string> GetProcessingStorageSasToken(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters, string containerName, CancellationToken cancellationToken)
+    public async Task<Uri> GetProcessingStorageSasUri(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters, string containerName, CancellationToken cancellationToken)
     {
-        string resourceId = $"/subscriptions/{this.storageConfiguration.SubscriptionId}";
-        SubscriptionResource subscription = this.azureResourceManager.GetSubscription(resourceId);
-        ResourceGroupResource resourceGroup = await this.azureResourceManager.GetResourceGroup(subscription, this.storageConfiguration.ResourceGroupName, cancellationToken);
-        string storageAccountName = processingStorageModel.GetStorageAccountName();
-        Response<StorageAccountResource> storageAccount = await resourceGroup.GetStorageAccountAsync(storageAccountName, cancellationToken: cancellationToken) ?? throw new InvalidOperationException($"Storage account {storageAccountName} not found");
-        string accountKey = await this.GetStorageAccountKeyInternal(storageAccount, cancellationToken);
-        BlobSasBuilder sasBuilder = new()
-        {
-            BlobContainerName = containerName,
-            BlobName = parameters.BlobPath,
-            Resource = parameters.Services,
-            ExpiresOn = DateTimeOffset.UtcNow.Add(parameters.TimeToLive)
-        };
-        sasBuilder.SetPermissions(parameters.Permissions);
+        string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
+        DataLakeServiceClient serviceClient = new(new Uri(serviceEndpoint), this.tokenCredential);
+        DataLakeFileSystemClient fileSystemClient = new(new Uri($"{serviceEndpoint}/{containerName}"), this.tokenCredential);
+        DataLakeDirectoryClient directoryClient = fileSystemClient.GetDirectoryClient(parameters.Path);
 
-        return sasBuilder.ToSasQueryParameters(new StorageSharedKeyCredential(storageAccount.Value.Data.Name, accountKey)).ToString();
+        return await GetUserDelegationSasDirectory(directoryClient, serviceClient, parameters);
     }
 
-    private async Task<string> GetStorageAccountKeyInternal(StorageAccountResource storageAccount, CancellationToken cancellationToken)
+    /// <summary>
+    /// Get a user delegation Sas URI to the data lake directory.
+    /// </summary>
+    /// <param name="directoryClient"></param>
+    /// <param name="dataLakeServiceClient"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
+    private async static Task<Uri> GetUserDelegationSasDirectory(DataLakeDirectoryClient directoryClient, DataLakeServiceClient dataLakeServiceClient, StorageSasRequest parameters)
+    {
+        // Get a user delegation key that's valid for seven days.
+        // Use the key to generate any number of shared access signatures over the lifetime of the key.
+        UserDelegationKey userDelegationKey = await dataLakeServiceClient.GetUserDelegationKeyAsync(DateTimeOffset.UtcNow.Subtract(TimeSpan.FromMinutes(5)), DateTimeOffset.UtcNow.AddDays(7));
+
+        // Create a SAS token
+        DataLakeSasBuilder sasBuilder = new()
+        {
+            FileSystemName = directoryClient.FileSystemName,
+            Resource = "d",
+            IsDirectory = true,
+            Path = parameters.Path,
+            Protocol = SasProtocol.Https,
+            ExpiresOn = DateTimeOffset.UtcNow.Add(parameters.TimeToLive)
+        };
+
+        sasBuilder.SetPermissions(parameters.Permissions);
+
+        DataLakeUriBuilder fullUri = new(directoryClient.Uri)
+        {
+            Sas = sasBuilder.ToSasQueryParameters(userDelegationKey, dataLakeServiceClient.AccountName)
+        };
+
+        return fullUri.ToUri();
+    }
+
+    private async Task<string> GetStorageAccountKey(StorageAccountResource storageAccount, CancellationToken cancellationToken)
     {
         AsyncPageable<StorageAccountKey> keys = storageAccount.GetKeysAsync(cancellationToken: cancellationToken);
         List<StorageAccountKey> response = new();

@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using System.Threading.Tasks;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 
 /// <summary>
 /// Metadata service accessor
@@ -17,12 +18,11 @@ public interface IMetadataAccessorService
     void Initialize();
 
     /// <summary>
-    /// Gets a managed identity token.
+    /// Gets a sas token for the processing storage account.
     /// </summary>
     /// <param name="accountId"></param>
+    /// <param name="blobPath"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<string> GetManagedIdentityTokensAsync(
-            string accountId,
-            CancellationToken cancellationToken);
+    Task<StorageTokenKey> GetProcessingStorageSasToken(Guid accountId, string blobPath, CancellationToken cancellationToken);
 }

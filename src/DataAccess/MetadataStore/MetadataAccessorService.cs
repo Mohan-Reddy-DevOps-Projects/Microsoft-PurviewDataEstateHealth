@@ -5,13 +5,14 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.DGP.ServiceBasics.Errors;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.Rest;
 
 internal class MetadataAccessorService : IMetadataAccessorService
 {
@@ -38,28 +39,33 @@ internal class MetadataAccessorService : IMetadataAccessorService
     }
 
     /// <inheritdoc/>
-    public Task<string> GetManagedIdentityTokensAsync(
-            string accountId,
-            CancellationToken cancellationToken)
+    public async Task<StorageTokenKey> GetProcessingStorageSasToken(
+        Guid accountId,
+        string blobPath,
+        CancellationToken cancellationToken)
     {
+        StorageSasRequest storageSasRequest = new()
+        {
+            Services = "b",
+            Permissions = "rl",
+            BlobPath = blobPath,
+            TimeToLive = TimeSpan.FromHours(1).ToString(@"hh\:mm\:ss")
+        };
+
         try
         {
-            //TODO add implementation when onboarded
-            return default;
-        }
-        catch (ErrorResponseModelException exception)
-        {
-            if (exception.Body.Error.Code.EqualsOrdinalInsensitively("29000"))
-            {
-                //acccount not found
-                return null;
-            }
+            IProjectBabylonMetadataClient client = this.GetMetadataServiceClient();
+            HttpOperationResponse<StorageTokenKey> response = await client.AccountProcessingStorageSasToken.GetWithHttpMessagesAsync(accountId.ToString(), storageSasRequest, LookupType.ByAccountId, cancellationToken: cancellationToken);
 
-            throw this.LogAndConvert(accountId,  exception);
+            return response.Body;
+        }
+        catch (ErrorResponseModelException erx) when (erx.Response?.StatusCode == HttpStatusCode.NotFound)
+        {
+            throw;
         }
         catch (Exception exception)
         {
-            throw this.LogAndConvert(accountId, exception);
+            throw this.LogAndConvert(accountId.ToString(), exception);
         }
     }
 

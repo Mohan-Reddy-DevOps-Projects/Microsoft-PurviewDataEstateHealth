@@ -64,4 +64,14 @@ public static class ProcessingStorageModelExtensions
         
         return storageAccountResourceId.Name;
     }
+
+    /// <summary>
+    /// Gets the processing storage account dfs uri.
+    /// </summary>
+    /// <param name="processingStorageModel"></param>
+    /// <returns></returns>
+    public static string GetDfsEndpoint(this ProcessingStorageModel processingStorageModel)
+    {
+        return $"https://{processingStorageModel.GetStorageAccountName()}.{processingStorageModel.Properties.DnsZone}.dfs.{processingStorageModel.Properties.EndpointSuffix}";
+    }
 }

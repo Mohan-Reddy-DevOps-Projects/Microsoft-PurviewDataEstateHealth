@@ -18,6 +18,7 @@
         "useEstsr": "true",
         "catalogServiceEndpoint": "prod-eastus2euap.dgcatalog.purview-service.azure.com",
         "exposureControlEnvironment": "CanaryEastUS2EUAP",
-        "shortLocation": "eus2euap"
+        "shortLocation": "eus2euap",
+        "metadataServiceEndpoint": "eastus2euap.rp.purview-service.azure.com"
     }
 }

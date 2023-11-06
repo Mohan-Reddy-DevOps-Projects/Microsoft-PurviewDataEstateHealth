@@ -39,7 +39,7 @@ internal sealed class MetadataServiceClientFactory : ClientFactory<ProjectBabylo
     {
         return new ProjectBabylonMetadataClient(httpClient, true)
         {
-            BaseUri = new Uri($"https://{this.config.Endpoint}"),
+            BaseUri = new Uri(this.config.Endpoint),
             ApiVersion = ApiVersion,
         };
     }

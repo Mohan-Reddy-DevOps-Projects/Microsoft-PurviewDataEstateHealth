@@ -7,8 +7,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using ProcessingStorageModel = Models.ProcessingStorageModel;
+using StorageSasRequest = Models.StorageSasRequest;
 
 /// <summary>
 /// Defines the processing storage manager.
@@ -22,6 +22,14 @@ public interface IProcessingStorageManager
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<ProcessingStorageModel> Get(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get processing storage account.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<ProcessingStorageModel> Get(Guid accountId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Provision default storage account.
@@ -40,12 +48,12 @@ public interface IProcessingStorageManager
     Task<DeletionResult> Delete(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Gets the processing storage SAS token.
+    /// Gets the processing storage SAS URI.
     /// </summary>
     /// <param name="processingStorageModel"></param>
     /// <param name="parameters">SAS Token Parameters</param>
     /// <param name="containerName"></param>
     /// <param name="cancellationToken"></param>
     /// <returns>The processing storage SAS token.</returns>
-    Task<string> GetProcessingStorageSasToken(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters, string containerName, CancellationToken cancellationToken);
+    Task<Uri> GetProcessingStorageSasUri(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters, string containerName, CancellationToken cancellationToken);
 }
