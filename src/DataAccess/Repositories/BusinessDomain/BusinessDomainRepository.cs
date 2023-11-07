@@ -39,20 +39,13 @@ internal class BusinessDomainRepository : BaseRepository, IBusinessDomainReposit
     {
         string containerPath = await this.ConstructContainerPath(criteria.CatalogId.ToString(), criteria.AccountId, cancellationToken);
 
-        BusinessDomainQuery query = (BusinessDomainQuery)queryRequestBuilder.CreateQuery(
-            typeof(BusinessDomainEntity), containerPath).Build();
+        IServerlessQueryRequest<BusinessDomainRecord, BusinessDomainEntity> query = this.queryRequestBuilder.Build<BusinessDomainRecord, BusinessDomainEntity>(containerPath);
 
-        var businessDomainEntitiesList = await this.queryExecutor
-            .ExecuteAsync<BusinessDomainRecord, BusinessDomainEntity>(query, cancellationToken);
+        IList<BusinessDomainEntity> businessDomainEntitiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
-        var businessDomainModelList = new List<IBusinessDomainModel>();
-        foreach (var businessDomainsEntity in businessDomainEntitiesList)
-        {
-            businessDomainModelList.Add(this.modelAdapterRegistry
-                               .AdapterFor<IBusinessDomainModel, BusinessDomainEntity>()
-                                              .ToModel(businessDomainsEntity));
-        }
-
+        List<IBusinessDomainModel> businessDomainModelList = new();
+        businessDomainModelList.AddRange(businessDomainEntitiesList.Select(businessDomainsEntity =>
+            this.modelAdapterRegistry.AdapterFor<IBusinessDomainModel, BusinessDomainEntity>().ToModel(businessDomainsEntity)));
         return await Task.FromResult(new BaseBatchResults<IBusinessDomainModel>
         {
             Results = businessDomainModelList,

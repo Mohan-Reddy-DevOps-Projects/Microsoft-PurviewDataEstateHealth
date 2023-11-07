@@ -7,7 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 /// <summary>
 /// Intermediate record for Business domain.
 /// </summary>
-public class BusinessDomainRecord : BaseRecord
+public class BusinessDomainRecord
 {
     /// <summary>
     /// Business domain id.

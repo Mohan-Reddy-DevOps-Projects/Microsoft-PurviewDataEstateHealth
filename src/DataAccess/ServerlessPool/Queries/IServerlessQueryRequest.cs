@@ -10,7 +10,6 @@ using System.Data;
 /// Interface for ServerlessQueryRequest
 /// </summary>
 public interface IServerlessQueryRequest<out TIntermediate, out TEntity>
-    where TEntity : BaseEntity where TIntermediate : BaseRecord
 {
     /// <summary>
     /// Database

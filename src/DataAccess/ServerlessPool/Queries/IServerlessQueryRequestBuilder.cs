@@ -4,15 +4,9 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using static Microsoft.Azure.Purview.DataEstateHealth.DataAccess.QueryConstants;
-
 internal interface IServerlessQueryRequestBuilder
 {
-    IServerlessQueryRequestBuilder CreateQuery(Type entityType, string containerPath);
-
-    IServerlessQueryRequestBuilder AndClause(string left, string right, SQLOperator sqlOperator = SQLOperator.Equal);
-
-    IServerlessQueryRequestBuilder WhereClause(string left, string right, SQLOperator sqlOperator = SQLOperator.Equal);
-
-    IServerlessQueryRequest<BaseRecord, BaseEntity> Build();
+    IServerlessQueryRequest<TRecord, TEntity> Build<TRecord, TEntity>(string containerPath, Action<ClauseBuilder> buildFilter = null)
+        where TRecord : class
+        where TEntity : class;
 }

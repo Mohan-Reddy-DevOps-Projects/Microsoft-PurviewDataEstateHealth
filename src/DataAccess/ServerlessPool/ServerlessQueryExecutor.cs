@@ -39,14 +39,14 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
     /// <inheritdoc />
     public async Task<IList<TEntity>> ExecuteAsync<TIntermediate, TEntity>(
         IServerlessQueryRequest<TIntermediate, TEntity> request,
-        CancellationToken cancellationToken) where TEntity : BaseEntity where TIntermediate : BaseRecord
+        CancellationToken cancellationToken)
     {
         return await this.Populate(request, cancellationToken);
     }
 
     private async Task<IList<TEntity>> Populate<TIntermediate, TEntity>(
         IServerlessQueryRequest<TIntermediate, TEntity> request,
-        CancellationToken cancellationToken) where TEntity : BaseEntity where TIntermediate : BaseRecord
+        CancellationToken cancellationToken)
     {
         IList<TIntermediate> recordList = await RetryUtil.ExecuteWithRetryAsync<IList<TIntermediate>, Exception>(async retryCount =>
         {

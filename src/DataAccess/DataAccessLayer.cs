@@ -45,14 +45,15 @@ public static class DataAccessLayer
         services.AddSingleton<ITableStorageClient, TableStorageClient>();
         services.AddSingleton<IStorageAccountRepository<ProcessingStorageModel>, ProcessingStorageRepository>();
         services.AddSingleton<IServerlessPoolClient, ServerlessPoolClient>();
+        services.AddSingleton<IServerlessQueryRequestBuilder, ServerlessQueryRequestBuilder>();
+        services.AddSingleton<IServerlessQueryExecutor, ServerlessQueryExecutor>();
 
         services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
         services.AddScoped<IHealthActionRepository, HealthActionRepository>();
         services.AddScoped<IHealthScoreRepository, HealthScoreRepository>();
         services.AddScoped<IBusinessDomainRepository, BusinessDomainRepository>();
         services.AddScoped<IHealthControlRepository, HealthControlRepository>();
-        services.AddSingleton<IServerlessQueryExecutor, ServerlessQueryExecutor>();
-        services.AddTransient<IServerlessQueryRequestBuilder, ServerlessQueryRequestBuilder>();
+
 
         return services;
     }
