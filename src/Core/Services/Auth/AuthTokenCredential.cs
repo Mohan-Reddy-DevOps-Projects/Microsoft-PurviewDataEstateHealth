@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Core;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Identity.Client;
 
@@ -14,7 +15,7 @@ using Microsoft.Identity.Client;
 /// </summary>
 internal sealed class AuthTokenCredential<TAadConfig> : TokenCredential where TAadConfig : AadAppConfiguration
 {
-    private readonly AadAppTokenProviderService<TAadConfig> tokenProvider;
+    private readonly IAadAppTokenProviderService<TAadConfig> tokenProvider;
     private readonly string resource;
 
     /// <summary>
@@ -22,7 +23,7 @@ internal sealed class AuthTokenCredential<TAadConfig> : TokenCredential where TA
     /// </summary>
     /// <param name="tokenProvider">tokenProvider</param>
     /// <param name="resource"></param>
-    public AuthTokenCredential(AadAppTokenProviderService<TAadConfig> tokenProvider, string resource)
+    public AuthTokenCredential(IAadAppTokenProviderService<TAadConfig> tokenProvider, string resource)
     {
         this.tokenProvider = tokenProvider;
         this.resource = resource;

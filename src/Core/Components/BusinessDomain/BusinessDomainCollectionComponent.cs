@@ -15,8 +15,14 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 [Component(typeof(IBusinessDomainCollectionComponent), ServiceVersion.V1)]
 internal class BusinessDomainCollectionComponent : BaseComponent<IBusinessDomainListContext>, IBusinessDomainCollectionComponent
 {
+
+#pragma warning disable 649
     [Inject]
     private IBusinessDomainRepository businessDomainRepository;
+
+    [Inject]
+    private readonly IRequestHeaderContext requestHeaderContext;
+#pragma warning disable 649
 
     public BusinessDomainCollectionComponent(IBusinessDomainListContext context, int version) : base(context, version)
     {
@@ -32,7 +38,8 @@ internal class BusinessDomainCollectionComponent : BaseComponent<IBusinessDomain
         string skipToken = null)
     {
         return await this.businessDomainRepository.GetMultiple(
-             cancellationToken,
-             skipToken);
+            new BusinessDomainQueryCriteria(new Guid(this.requestHeaderContext.CatalogId), this.Context.AccountId),
+            cancellationToken,
+            skipToken); 
     }
 }

@@ -8,29 +8,42 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 using Microsoft.DGP.ServiceBasics.BaseModels;
-using Newtonsoft.Json;
 
-internal class BusinessDomainRepository : IBusinessDomainRepository
+internal class BusinessDomainRepository : BaseRepository, IBusinessDomainRepository
 {
     private readonly ModelAdapterRegistry modelAdapterRegistry;
 
     private readonly string location;
 
-    const string businessDomainsListJson = @"[{""businessDomainName"":""Finance"",""businessDomainId"":""8cae4ce6-85e0-4816-9579-d40840109e0b""},{""businessDomainName"":""Legal"",""businessDomainId"":""10247fce-26ab-45f8-a82d-af37def43669""},{""businessDomainName"":""Marketing"",""businessDomainId"":""ef35b13c-40bd-4aa8-87da-58eb1100af6f""},{""businessDomainName"":""IT"",""businessDomainId"":""bed33e7a-2d2f-4843-b3d0-2cf9fee4b7e9""}]";
+    private readonly IServerlessQueryExecutor queryExecutor;
+
+    private readonly IServerlessQueryRequestBuilder queryRequestBuilder;
 
     public BusinessDomainRepository(
          ModelAdapterRegistry modelAdapterRegistry,
-         string location = null)
+         IProcessingStorageManager processingStorageManager,
+         IServerlessQueryExecutor queryExecutor,
+         IServerlessQueryRequestBuilder queryRequestBuilder,
+         string location = null) : base(processingStorageManager)
     {
         this.modelAdapterRegistry = modelAdapterRegistry;
+        this.queryExecutor = queryExecutor;
+        this.queryRequestBuilder = queryRequestBuilder;
         this.location = location;
     }
 
     public async Task<IBatchResults<IBusinessDomainModel>> GetMultiple(
+        BusinessDomainQueryCriteria criteria,
         CancellationToken cancellationToken,
         string continuationToken = null)
     {
-        var businessDomainEntitiesList = JsonConvert.DeserializeObject<IList<BusinessDomainEntity>>(businessDomainsListJson);
+        string containerPath = await this.ConstructContainerPath(criteria.CatalogId.ToString(), criteria.AccountId, cancellationToken);
+
+        BusinessDomainQuery query = (BusinessDomainQuery)queryRequestBuilder.CreateQuery(
+            typeof(BusinessDomainEntity), containerPath).Build();
+
+        var businessDomainEntitiesList = await this.queryExecutor
+            .ExecuteAsync<BusinessDomainRecord, BusinessDomainEntity>(query, cancellationToken);
 
         var businessDomainModelList = new List<IBusinessDomainModel>();
         foreach (var businessDomainsEntity in businessDomainEntitiesList)
@@ -51,6 +64,9 @@ internal class BusinessDomainRepository : IBusinessDomainRepository
     {
         return new BusinessDomainRepository(
             this.modelAdapterRegistry,
+            this.processingStorageManager,
+            this.queryExecutor,
+            this.queryRequestBuilder,
             location);
     }
 }

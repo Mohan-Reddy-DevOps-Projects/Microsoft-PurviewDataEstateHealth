@@ -17,7 +17,7 @@ using Microsoft.Identity.Client;
 /// <summary>
 /// The token service provider for 1P or 3P Aad application.
 /// </summary>
-internal sealed class AadAppTokenProviderService<TAadConfig>
+internal sealed class AadAppTokenProviderService<TAadConfig> : IAadAppTokenProviderService<TAadConfig>
     where TAadConfig : AadAppConfiguration
 {
     private readonly TAadConfig configuration;

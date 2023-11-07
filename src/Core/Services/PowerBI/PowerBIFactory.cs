@@ -26,7 +26,7 @@ internal class PowerBIFactory : IDisposable
     private readonly PowerBIAuthConfiguration authConfiguration;
     /*private readonly ICounter callCounter;
     private readonly ICounter errorCounter;*/
-    private readonly AadAppTokenProviderService<PowerBIAuthConfiguration> aadService;
+    private readonly IAadAppTokenProviderService<PowerBIAuthConfiguration> aadService;
     private PowerBIClient instance;
     private PowerBIClient previousInstance;
     private long accessTokenExpirarationTime;
@@ -57,7 +57,7 @@ internal class PowerBIFactory : IDisposable
     public PowerBIFactory(
         IDataEstateHealthLogger logger,
         IOptions<PowerBIAuthConfiguration> authConfiguration,
-        AadAppTokenProviderService<PowerBIAuthConfiguration> aadService)
+        IAadAppTokenProviderService<PowerBIAuthConfiguration> aadService)
         // IRequestContextAccessor requestContextAccessor,
         // IMetricsWriter metricsWriter)
     {

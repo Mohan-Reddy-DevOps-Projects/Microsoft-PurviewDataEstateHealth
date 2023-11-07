@@ -12,6 +12,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 /// </summary>
 public interface IBusinessDomainRepository : 
     ILocationBased<IBusinessDomainRepository>,
-    IGetMultipleOperationWithoutCriteria<IBusinessDomainModel>
+    IGetMultipleOperation<IBusinessDomainModel, BusinessDomainQueryCriteria>
 {
 }

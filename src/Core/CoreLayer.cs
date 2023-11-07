@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -27,7 +28,10 @@ public static class CoreLayer
         services.AddSingleton<IStorageCredentialsProvider, StorageCredentialsProvider>();
         services.AddSingleton<IKeyVaultAccessorService, KeyVaultAccessorService>();
         services.AddSingleton<IBlobStorageAccessor, BlobStorageAccessor>();
-        services.AddSingleton<AadAppTokenProviderService<FirstPartyAadAppConfiguration>>();
+        services.AddSingleton<IAadAppTokenProviderService<FirstPartyAadAppConfiguration>,
+            AadAppTokenProviderService<FirstPartyAadAppConfiguration>>();
+        services.AddSingleton<IAadAppTokenProviderService<ServerlessPoolAuthConfiguration>,
+            AadAppTokenProviderService<ServerlessPoolAuthConfiguration>>();
         services.AddSingleton<IComponentContextFactory, ComponentContextFactory>();
         services.AddSingleton<ServiceHealthCheck>();
         services.AddSingleton<IProcessingStorageManager, ProcessingStorageManager>();
@@ -35,12 +39,11 @@ public static class CoreLayer
         services.AddTransient<ISynapseSparkExecutor, SynapseSparkExecutor>();
 
         services.AddPowerBI();
-        services.AddServerlessPool();
         services.AddCommands();
 
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
         services.AddScoped<ICoreLayerFactory, CoreLayerFactory>();
-       
+
         services.AddHealthChecks().AddCheck<ServiceHealthCheck>("Ready");
 
         services.AddMemoryCache();
@@ -54,22 +57,11 @@ public static class CoreLayer
     /// <param name="services">Service collection</param>
     public static IServiceCollection AddPowerBI(this IServiceCollection services)
     {
-        services.AddSingleton<AadAppTokenProviderService<PowerBIAuthConfiguration>>();
+        services.AddSingleton<IAadAppTokenProviderService<PowerBIAuthConfiguration>,
+            AadAppTokenProviderService<PowerBIAuthConfiguration>>();
         services.AddSingleton<IPowerBIService, PowerBIService>();
         services.AddSingleton<ICapacityAssignment, CapacityAssignment>();
         services.AddSingleton<PowerBIFactory>();
-
-        return services;
-    }
-
-    /// <summary>
-    /// Initializes the Synapse Serverless Pool services.
-    /// </summary>
-    /// <param name="services">Service collection</param>
-    public static IServiceCollection AddServerlessPool(this IServiceCollection services)
-    {
-        services.AddSingleton<AadAppTokenProviderService<ServerlessPoolAuthConfiguration>>();
-        services.AddSingleton<IServerlessPoolClient, ServerlessPoolClient>();
 
         return services;
     }

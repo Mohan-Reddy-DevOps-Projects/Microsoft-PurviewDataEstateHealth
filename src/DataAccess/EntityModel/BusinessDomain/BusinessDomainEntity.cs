@@ -6,7 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Newtonsoft.Json;
 
-internal class BusinessDomainEntity
+internal class BusinessDomainEntity : BaseEntity
 {
     public BusinessDomainEntity()
     {
