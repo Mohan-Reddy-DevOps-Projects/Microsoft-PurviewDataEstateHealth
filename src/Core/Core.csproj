@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Analytics.Synapse.Spark" />
     <PackageReference Include="Azure.ResourceManager.Storage" />
     <PackageReference Include="Azure.ResourceManager.Synapse" />
     <PackageReference Include="Azure.Security.KeyVault.Certificates" />

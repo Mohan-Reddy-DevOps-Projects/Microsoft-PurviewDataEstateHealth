@@ -74,5 +74,27 @@ public interface IAzureResourceManager
     /// <param name="location"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<SynapseBigDataPoolInfoData> CreateSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, string location, CancellationToken cancellationToken);
+    Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, string location, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the Synapse spark pool.
+    /// </summary>
+    /// <param name="subscriptionId"></param>
+    /// <param name="resourceGroupName"></param>
+    /// <param name="workspaceName"></param>
+    /// <param name="bigDataPoolName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<SynapseBigDataPoolInfoData> GetSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Whether the Synapse spark pool exists or not.
+    /// </summary>
+    /// <param name="subscriptionId"></param>
+    /// <param name="resourceGroupName"></param>
+    /// <param name="workspaceName"></param>
+    /// <param name="bigDataPoolName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<bool> SparkPoolExists(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, CancellationToken cancellationToken);
 }

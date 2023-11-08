@@ -47,6 +47,7 @@ public static class DataAccessLayer
         services.AddSingleton<IServerlessPoolClient, ServerlessPoolClient>();
         services.AddSingleton<IServerlessQueryRequestBuilder, ServerlessQueryRequestBuilder>();
         services.AddSingleton<IServerlessQueryExecutor, ServerlessQueryExecutor>();
+        services.AddSingleton<ISparkPoolRepository<SparkPoolModel>, SynapseSparkPoolRepository>();
 
         services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
         services.AddScoped<IHealthActionRepository, HealthActionRepository>();

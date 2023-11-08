@@ -35,14 +35,18 @@ public static class CoreLayer
         services.AddSingleton<IComponentContextFactory, ComponentContextFactory>();
         services.AddSingleton<ServiceHealthCheck>();
         services.AddSingleton<IProcessingStorageManager, ProcessingStorageManager>();
-        services.AddTransient<IAzureResourceManagerFactory, AzureResourceManagerFactory>();
-        services.AddTransient<ISynapseSparkExecutor, SynapseSparkExecutor>();
+        services.AddSingleton<ISynapseSparkExecutor, SynapseSparkExecutor>();
+        services.AddSingleton<ISparkJobManager, SparkJobManager>();
 
         services.AddPowerBI();
         services.AddCommands();
+        services.AddScoped<IPlatformSparkJobComponent, PlatformSparkJobComponent>();
+
 
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
         services.AddScoped<ICoreLayerFactory, CoreLayerFactory>();
+
+        services.AddTransient<IAzureResourceManagerFactory, AzureResourceManagerFactory>();
 
         services.AddHealthChecks().AddCheck<ServiceHealthCheck>("Ready");
 

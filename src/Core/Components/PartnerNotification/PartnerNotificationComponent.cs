@@ -45,6 +45,8 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     [Inject]
     private readonly ICapacityAssignment capacityAssignment;
 
+    [Inject]
+    private readonly ISparkJobManager sparkJobManager;
 
 #pragma warning restore 649
 
@@ -55,6 +57,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     /// <inheritdoc/>
     public async Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
+        await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
         await this.databaseManagementService.Initialize(account, cancellationToken);
         // await this.CreatePowerBIResources(account, cancellationToken);
     }

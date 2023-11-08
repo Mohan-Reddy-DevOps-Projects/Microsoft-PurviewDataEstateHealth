@@ -33,7 +33,8 @@ public static class ConfigurationExtensions
             .Configure<ProcessingStorageAuthConfiguration>(configuration.GetSection("processingStorage"))
             .Configure<ProcessingStorageConfiguration>(configuration.GetSection("processingStorage"))
             .Configure<AccountStorageTableConfiguration>(configuration.GetSection("accountStorageTable"))
-            .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"));
+            .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
+            .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"));
 
         return services;
     }

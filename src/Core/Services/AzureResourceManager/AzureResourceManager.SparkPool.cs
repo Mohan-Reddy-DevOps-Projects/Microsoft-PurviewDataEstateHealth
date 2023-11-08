@@ -14,15 +14,37 @@ using global::Azure.ResourceManager.Synapse.Models;
 
 internal sealed partial class AzureResourceManager<TAuthConfig>
 {
-    public async Task<SynapseBigDataPoolInfoData> CreateSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, string location, CancellationToken cancellationToken)
+    public async Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, string location, CancellationToken cancellationToken)
     {
-        ResourceIdentifier synapseWorkspaceResourceId = SynapseWorkspaceResource.CreateResourceIdentifier(subscriptionId.ToString(), resourceGroupName, workspaceName);
-        SynapseWorkspaceResource synapseWorkspace = this.armClient.GetSynapseWorkspaceResource(synapseWorkspaceResourceId);
-        SynapseBigDataPoolInfoCollection collection = synapseWorkspace.GetSynapseBigDataPoolInfos();
+        SynapseBigDataPoolInfoCollection collection = this.GetSynapseWorkspace(subscriptionId, resourceGroupName, workspaceName);
         SynapseBigDataPoolInfoData info = DefaultSparkConfig(location);
         ArmOperation<SynapseBigDataPoolInfoResource> lro = await collection.CreateOrUpdateAsync(WaitUntil.Completed, bigDataPoolName, info, cancellationToken: cancellationToken);
 
         return lro.Value.Data;
+    }
+
+    public async Task<SynapseBigDataPoolInfoData> GetSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, CancellationToken cancellationToken)
+    {
+        SynapseBigDataPoolInfoCollection collection = this.GetSynapseWorkspace(subscriptionId, resourceGroupName, workspaceName);
+        Response<SynapseBigDataPoolInfoResource> lro = await collection.GetAsync(bigDataPoolName, cancellationToken);
+
+        return lro.Value.Data;
+    }
+
+    public async Task<bool> SparkPoolExists(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, CancellationToken cancellationToken)
+    {
+        SynapseBigDataPoolInfoCollection collection = this.GetSynapseWorkspace(subscriptionId, resourceGroupName, workspaceName);
+        Response<bool> response = await collection.ExistsAsync(bigDataPoolName, cancellationToken);
+
+        return response.Value;
+    }
+
+    private SynapseBigDataPoolInfoCollection GetSynapseWorkspace(Guid subscriptionId, string resourceGroupName, string workspaceName)
+    {
+        ResourceIdentifier synapseWorkspaceResourceId = SynapseWorkspaceResource.CreateResourceIdentifier(subscriptionId.ToString(), resourceGroupName, workspaceName);
+        SynapseWorkspaceResource synapseWorkspace = this.armClient.GetSynapseWorkspaceResource(synapseWorkspaceResourceId);
+        
+        return synapseWorkspace.GetSynapseBigDataPoolInfos();
     }
 
     private static SynapseBigDataPoolInfoData DefaultSparkConfig(string location)
