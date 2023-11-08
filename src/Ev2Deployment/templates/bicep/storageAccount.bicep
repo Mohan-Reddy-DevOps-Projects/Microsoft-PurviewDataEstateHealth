@@ -1,6 +1,6 @@
 param location string
 param storageAccountName string
-param subnetId string
+param subnetId string = ''
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   name: storageAccountName
@@ -15,7 +15,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
     allowBlobPublicAccess: false
     supportsHttpsTrafficOnly: true
     minimumTlsVersion: 'TLS1_2'
-    networkAcls: {
+    networkAcls: !empty(subnetId) ? {
       defaultAction: 'Deny'
       virtualNetworkRules: [
         {
@@ -23,6 +23,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
           id: subnetId
         }
       ]
-    }
+    } : null
   }
 }
+
+output storageAccountName string = storageAccount.name

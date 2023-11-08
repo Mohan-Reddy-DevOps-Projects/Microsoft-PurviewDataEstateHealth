@@ -38,6 +38,9 @@
         "sparkPoolName": {
             "value": "__INFRA_SYNAPSE_SPARK_POOL_NAME__"
         },
+        "sparkPoolTableName": {
+            "value": "__INFRA_SYNAPSE_SPARK_POOL_TABLE_NAME__"
+        },
         "synapseLocation": {
             "value": "__INFRA_SYNAPSE_LOCATION__"
         }

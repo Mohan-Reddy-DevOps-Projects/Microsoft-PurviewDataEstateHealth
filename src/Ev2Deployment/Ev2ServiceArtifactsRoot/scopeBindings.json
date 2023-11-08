@@ -160,6 +160,10 @@
                 "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)pool"
             },
             {
+                "find": "__INFRA_SYNAPSE_SPARK_POOL_TABLE_NAME__",
+                "replaceWith": "$config(dgh.sparkPoolTableName)"
+            },
+            {
                 "find": "__INFRA_SYNAPSE_LOCATION__",
                 "replaceWith": "$config(synapseRegion)"
             }
@@ -172,6 +176,19 @@
         {
           "find": "__CONFIG_APP_SETTINGS_JSON__",
           "replaceWith": "__REPLACE_APP_SETTINGS_JSON_PLACEHOLDER__"
+        }
+      ]
+    },
+    {
+      "scopeTagName": "ProcessingStorage",
+      "bindings": [
+        {
+          "find": "__PROCESSING_STORAGE_ACCOUNT_NAME__",
+          "replaceWith": "$config(processingStorage.accountName)"
+        },
+        {
+          "find": "__PROCESSING_STORAGE_TABLE_NAME__",
+          "replaceWith": "$config(processingStorage.tableName)"
         }
       ]
     }

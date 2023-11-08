@@ -20,6 +20,14 @@
         "dataAccessServiceEndpoint": "df-westus2.dataaccess.dgcatalog.purview-service.azure-test.com",
         "exposureControlEnvironment": "DogfoodWestUS2",
         "shortLocation": "wus2",
-        "metadataServiceEndpoint": "westus2.rp.purview-service.azure-test.com"
+        "metadataServiceEndpoint": "westus2.rp.purview-service.azure-test.com",
+        "dgh": {
+            "sparkPoolTableName": "SparkPool"
+        },
+        "processingStorage": {
+            "resourceGroupName": "purview-rg-internal-storage",
+            "accountName": "dgprocshared$(pdg.environment.shortName)$(regionShortName)",
+            "tableName": "AccountStorageDetails"
+        }
     }
 }

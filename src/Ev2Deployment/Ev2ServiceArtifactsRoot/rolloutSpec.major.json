@@ -7,7 +7,7 @@
     "configuration": {
       "serviceGroupScope": {
         "specPath": "config/config.$rolloutInfra().$serviceGroup().json"
-      } 
+      }
     },
     "name": "Microsoft.Azure.PDG.Infrastructure.DataEstateHealth",
     "rolloutType": "major",
@@ -24,9 +24,18 @@
   },
   "orchestratedSteps": [
     {
-      "name":"deployInfrastructure",
+      "name":"deployProcessingStorage",
       "targetType": "ServiceResourceDefinition",
-      "targetName": "infrastructureResourceGroupDefinition",
+      "targetName": "processingStorageResourceDefinition",
+      "actions": [
+        "deploy"
+      ]
+    },
+    {
+      "name":"deployInfrastructure",
+      "dependsOn": ["deployProcessingStorage"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "infrastructureResourceDefinition",
       "actions": [
         "deploy",
         "Extension/CreateOneCertV2PublicIssuer",
@@ -39,35 +48,35 @@
       "name": "pushApiServiceImage",
       "dependsOn": ["deployInfrastructure"],
       "targetType": "ServiceResourceDefinition",
-      "targetName": "apiServiceImageResourceGroupDefinition",
+      "targetName": "apiServiceImageResourceDefinition",
       "actions": ["Shell/Run"]
     },
     {
       "name": "pushWorkerServiceImage",
       "dependsOn": ["deployInfrastructure"],
       "targetType": "ServiceResourceDefinition",
-      "targetName": "workerServiceImageResourceGroupDefinition",
+      "targetName": "workerServiceImageResourceDefinition",
       "actions": ["Shell/Run"]
     },
     {
       "name": "addDnsRecords",
       "dependsOn": ["pushApiServiceImage"],
       "targetType": "ServiceResourceDefinition",
-      "targetName": "apiServiceContainerAppDnsRecordsResourceGroupDefinition",
+      "targetName": "apiServiceContainerAppDnsRecordsResourceDefinition",
       "actions": ["deploy"]
     },
     {
       "name":"deployApiService",
-      "dependsOn": ["addDnsRecords"],
+      "dependsOn": ["addDnsRecords",  "pushWorkerServiceImage"],
       "targetType": "ServiceResourceDefinition",
-      "targetName": "apiServiceContainerAppResourceGroupDefinition",
+      "targetName": "apiServiceContainerAppResourceDefinition",
       "actions": ["deploy"]
     },
     {
       "name":"deployWorkerService",
-      "dependsOn": ["pushWorkerServiceImage"],
+      "dependsOn": ["pushApiServiceImage", "pushWorkerServiceImage"],
       "targetType": "ServiceResourceDefinition",
-      "targetName": "workerServiceContainerAppResourceGroupDefinition",
+      "targetName": "workerServiceContainerAppResourceDefinition",
       "actions": ["deploy"]
     }
   ]

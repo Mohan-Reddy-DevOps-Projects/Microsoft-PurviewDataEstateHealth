@@ -14,12 +14,12 @@
   },
   "serviceResourceGroupDefinitions": [
     {
-      "name": "dataEstateHealth",
+      "name": "dataEstateHealthResourceGroupDefinition",
       "azureResourceGroupName": "$config(resourceGroupName)",
       "subscriptionKey": "$config(pdg.groupName)-$config(pdg.environment.name)-$location()",
       "serviceResourceDefinitions": [
         {
-          "name": "infrastructureResourceGroupDefinition",
+          "name": "infrastructureResourceDefinition",
           "composedOf": {
             "arm": {
               "templatePath": "Templates\\infrastructure.json",
@@ -46,7 +46,7 @@
           ]
         },
         {
-          "name": "apiServiceImageResourceGroupDefinition",
+          "name": "apiServiceImageResourceDefinition",
           "composedOf": {
             "extension": {
               "rolloutParametersPath": "Parameters\\pushApiServiceImage.rollout.parameters.json",
@@ -71,7 +71,7 @@
           ]
         },
         {
-          "name": "workerServiceImageResourceGroupDefinition",
+          "name": "workerServiceImageResourceDefinition",
           "composedOf": {
             "extension": {
               "rolloutParametersPath": "Parameters\\pushWorkerServiceImage.rollout.parameters.json",
@@ -96,7 +96,7 @@
           ]
         },
         {
-          "name": "apiServiceContainerAppDnsRecordsResourceGroupDefinition",
+          "name": "apiServiceContainerAppDnsRecordsResourceDefinition",
           "composedOf": {
             "arm": {
               "templatePath": "Templates\\containerAppDnsRecords.json",
@@ -114,7 +114,7 @@
           ]
         },
         {
-          "name": "apiServiceContainerAppResourceGroupDefinition",
+          "name": "apiServiceContainerAppResourceDefinition",
           "composedOf": {
             "arm": {
               "templatePath": "Templates\\containerApp.json",
@@ -135,7 +135,7 @@
           ]
         },
         {
-          "name": "workerServiceContainerAppResourceGroupDefinition",
+          "name": "workerServiceContainerAppResourceDefinition",
           "composedOf": {
             "arm": {
               "templatePath": "Templates\\containerApp.json",
@@ -152,6 +152,31 @@
             },
             {
               "name": "Infrastructure"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "processingStorageResourceGroupDefinition",
+      "azureResourceGroupName": "$config(processingStorage.resourceGroupName)",
+      "subscriptionKey": "$config(pdg.regionSharedInfrastructure.subscriptionKeyPrefixes.storage)$location()-$stamp()",
+      "stamps": {
+        "count": 1
+      },
+      "serviceResourceDefinitions": [
+        {
+          "name": "processingStorageResourceDefinition",
+          "composedOf": {
+            "arm": {
+              "templatePath": "Templates\\processingStorage.json",
+              "parametersPath": "Parameters\\processingStorage.parameters.json",
+              "deploymentLevel": "ResourceGroup"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "ProcessingStorage"
             }
           ]
         }

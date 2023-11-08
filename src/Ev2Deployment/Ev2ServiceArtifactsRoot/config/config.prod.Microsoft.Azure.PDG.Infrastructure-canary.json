@@ -20,6 +20,14 @@
         "dataAccessServiceEndpoint": "prod-eastus2euap.dataaccess.dgcatalog.purview-service.azure.com",
         "exposureControlEnvironment": "CanaryEastUS2EUAP",
         "shortLocation": "eus2euap",
-        "metadataServiceEndpoint": "eastus2euap.rp.purview-service.azure.com"
+        "metadataServiceEndpoint": "eastus2euap.rp.purview-service.azure.com",
+        "dgh": {
+            "sparkPoolTableName": "SparkPool"
+        },
+        "processingStorage": {
+            "resourceGroupName": "purview-rg-internal-storage",
+            "accountName": "dgprocshared$(pdg.environment.shortName)$(regionShortName)",
+            "tableName": "AccountStorageDetails"
+        }
     }
 }
