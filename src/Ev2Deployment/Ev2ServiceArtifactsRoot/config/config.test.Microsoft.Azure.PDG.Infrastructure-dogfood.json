@@ -17,6 +17,7 @@
         "synapseRegion": "eastus",
         "useEstsr": "false",
         "catalogServiceEndpoint": "df-westus2.dgcatalog.purview-service.azure-test.com",
+        "dataAccessServiceEndpoint": "df-westus2.dataaccess.dgcatalog.purview-service.azure-test.com",
         "exposureControlEnvironment": "DogfoodWestUS2",
         "shortLocation": "wus2",
         "metadataServiceEndpoint": "westus2.rp.purview-service.azure-test.com"
