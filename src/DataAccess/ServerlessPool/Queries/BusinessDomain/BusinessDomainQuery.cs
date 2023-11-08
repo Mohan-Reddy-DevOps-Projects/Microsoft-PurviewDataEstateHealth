@@ -15,7 +15,7 @@ internal class BusinessDomainQuery : BaseQuery, IServerlessQueryRequest<Business
 
     public string Query
     {
-        get => "SELECT DISTINCT BusinessDomainId, BusinessDomainDisplayName" +
+        get => "SELECT BusinessDomainId, BusinessDomainDisplayName" +
                            QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) +
                            "WITH(BusinessDomainId nvarchar(36), BusinessDomainDisplayName nvarchar(max))" +
                            QueryConstants.ServerlessQuery.AsRows + this.FilterClause;

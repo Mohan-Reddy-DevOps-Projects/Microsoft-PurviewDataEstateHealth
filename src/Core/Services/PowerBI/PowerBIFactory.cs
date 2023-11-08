@@ -13,6 +13,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.PowerBI.Api;
 using Microsoft.Rest;
 using Microsoft.Extensions.Options;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 /// <summary>
 /// Manages clients that communicate with Power BI.

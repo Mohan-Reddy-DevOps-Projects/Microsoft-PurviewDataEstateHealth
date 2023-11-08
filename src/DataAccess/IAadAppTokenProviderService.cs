@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Common;
+namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using System.Threading.Tasks;
 using Microsoft.Identity.Client;

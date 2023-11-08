@@ -15,8 +15,13 @@ using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 [Component(typeof(IDataEstateHealthSummaryComponent), ServiceVersion.V1)]
 internal class DataEstateHealthSummaryComponent : BaseComponent<IDataEstateHealthSummaryContext>, IDataEstateHealthSummaryComponent
 {
+#pragma warning disable 649
     [Inject]
     private IDataEstateHealthSummaryRepository dataEstateHealthSummaryRepository;
+
+    [Inject]
+    private readonly IRequestHeaderContext requestHeaderContext;
+#pragma warning disable 649
 
     public DataEstateHealthSummaryComponent(DataEstateHealthSummaryContext context, int version) : base(context, version)
     {
@@ -38,19 +43,18 @@ internal class DataEstateHealthSummaryComponent : BaseComponent<IDataEstateHealt
     public async Task<IDataEstateHealthSummaryModel> Get(CancellationToken cancellationToken)
     {
         IDataEstateHealthSummaryModel dataEstateHealthSummaryModel = await this.dataEstateHealthSummaryRepository.GetSingle(
-           new SummaryKey(this.Context.DomainId),
+           new SummaryKey(this.Context.DomainId, this.Context.AccountId, new Guid(this.requestHeaderContext.CatalogId)),
            cancellationToken);
 
         if (dataEstateHealthSummaryModel == null)
         {
             throw new ServiceError(
                     ErrorCategory.ResourceNotFound,
-                    ErrorCode.BusinessDomainSummary_NotAvailable.Code,
-                    ErrorCode.BusinessDomainSummary_NotAvailable.FormatMessage(this.Context.DomainId.ToString()))
+                    ErrorCode.HealthSummary_NotAvailable.Code,
+                    ErrorCode.HealthSummary_NotAvailable.FormatMessage(this.Context.DomainId.ToString()))
                 .ToException();
         }
 
         return dataEstateHealthSummaryModel;
     }
 }
-

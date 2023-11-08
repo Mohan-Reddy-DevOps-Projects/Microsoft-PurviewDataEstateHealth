@@ -45,4 +45,9 @@ internal class QueryConstants
         GreaterOrEqual,
         LessOrEqual
     }
+
+    public class DataEstateHealthSummaryColumnNamesForKey
+    {
+        public static readonly string BusinessDomainId = "BusinessDomainId";
+    }
 }

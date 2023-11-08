@@ -5,8 +5,8 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Core;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Identity.Client;
 
 /// <summary>

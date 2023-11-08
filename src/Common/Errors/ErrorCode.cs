@@ -172,9 +172,9 @@ public class ErrorCode : ServiceErrorCode
     public static readonly ErrorCode HealthReport_InvalidKind = new(7000);
 
     /// <summary>
-    /// Business Domain summary does not exist.
+    /// Health summary does not exist.
     /// </summary>
-    public static readonly ErrorCode BusinessDomainSummary_NotAvailable = new(7001);
+    public static readonly ErrorCode HealthSummary_NotAvailable = new(7001);
 
     /// <summary>
     /// Health actions not available.

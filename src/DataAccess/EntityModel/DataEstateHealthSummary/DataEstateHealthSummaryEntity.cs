@@ -18,7 +18,6 @@ internal class DataEstateHealthSummaryEntity
         this.BusinessDomainsSummaryEntity = entity.BusinessDomainsSummaryEntity;
         this.DataProductsSummaryEntity = entity.DataProductsSummaryEntity;
         this.DataAssetsSummaryEntity = entity.DataAssetsSummaryEntity;
-        this.HealthReportsSummaryEntity = entity.HealthReportsSummaryEntity;
         this.HealthActionsSummaryEntity = entity.HealthActionsSummaryEntity;  
     }
 
@@ -33,7 +32,4 @@ internal class DataEstateHealthSummaryEntity
 
     [JsonProperty("healthActionsSummary")]
     public HealthActionsSummaryEntity HealthActionsSummaryEntity { get; set; }
-
-    [JsonProperty("healthReportsSummary")]
-    public HealthReportsSummaryEntity HealthReportsSummaryEntity { get; set; }
 }

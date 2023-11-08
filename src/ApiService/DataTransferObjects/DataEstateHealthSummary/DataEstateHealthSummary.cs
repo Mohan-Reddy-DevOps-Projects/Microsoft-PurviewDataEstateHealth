@@ -34,10 +34,4 @@ public class DataEstateHealthSummary
     /// </summary>
     [ReadOnly(true)]
     public DataAssetsSummary DataAssetsSummary { get; internal set; }
-
-    /// <summary>
-    /// Health reports summary class.
-    /// </summary>
-    [ReadOnly(true)]
-    public HealthReportsSummary HealthReportsSummary { get; internal set; }
 }

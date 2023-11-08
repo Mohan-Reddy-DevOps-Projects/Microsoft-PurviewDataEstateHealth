@@ -19,7 +19,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             var businessDomainsSummaryAdapter = this.Builder.AdapterFor<IBusinessDomainsSummaryModel, BusinessDomainsSummaryEntity>();
             var dataProductsSummaryAdapter = this.Builder.AdapterFor<IDataProductsSummaryModel, DataProductsSummaryEntity>();
             var dataAssetsSummaryAdapter = this.Builder.AdapterFor<IDataAssetsSummaryModel, DataAssetsSummaryEntity>();
-            var healthReportsSummaryAdapter = this.Builder.AdapterFor<IHealthReportsSummaryModel, HealthReportsSummaryEntity>();
             var healthActionsSummaryAdapter = this.Builder.AdapterFor<IHealthActionsSummaryModel, HealthActionsSummaryEntity>();
 
             return new DataEstateHealthSummaryEntity
@@ -27,8 +26,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 HealthActionsSummaryEntity = healthActionsSummaryAdapter.FromModel(model.HealthActionsSummaryModel),
                 DataProductsSummaryEntity = dataProductsSummaryAdapter.FromModel(model.DataProductsSummaryModel),
                 DataAssetsSummaryEntity = dataAssetsSummaryAdapter.FromModel(model.DataAssetsSummaryModel),
-                BusinessDomainsSummaryEntity = businessDomainsSummaryAdapter.FromModel(model.BusinessDomainsSummaryModel),
-                HealthReportsSummaryEntity = healthReportsSummaryAdapter.FromModel(model.HealthReportsSummaryModel)
+                BusinessDomainsSummaryEntity = businessDomainsSummaryAdapter.FromModel(model.BusinessDomainsSummaryModel)
             };
         }
 
@@ -38,7 +36,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             var businessDomainsSummaryAdapter = this.Builder.AdapterFor<IBusinessDomainsSummaryModel, BusinessDomainsSummaryEntity>();
             var dataProductsSummaryAdapter = this.Builder.AdapterFor<IDataProductsSummaryModel, DataProductsSummaryEntity>();
             var dataAssetsSummaryAdapter = this.Builder.AdapterFor<IDataAssetsSummaryModel, DataAssetsSummaryEntity>();
-            var healthReportsSummaryAdapter = this.Builder.AdapterFor<IHealthReportsSummaryModel, HealthReportsSummaryEntity>();
             var healthActionsSummaryAdapter = this.Builder.AdapterFor<IHealthActionsSummaryModel, HealthActionsSummaryEntity>();
 
             return new DataEstateHealthSummaryModel
@@ -46,7 +43,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 BusinessDomainsSummaryModel = businessDomainsSummaryAdapter.ToModel(entity.BusinessDomainsSummaryEntity),
                 DataProductsSummaryModel = dataProductsSummaryAdapter.ToModel(entity.DataProductsSummaryEntity),
                 DataAssetsSummaryModel = dataAssetsSummaryAdapter.ToModel(entity.DataAssetsSummaryEntity),
-                HealthReportsSummaryModel = healthReportsSummaryAdapter.ToModel(entity.HealthReportsSummaryEntity),
                 HealthActionsSummaryModel = healthActionsSummaryAdapter.ToModel(entity.HealthActionsSummaryEntity)
             };
         }

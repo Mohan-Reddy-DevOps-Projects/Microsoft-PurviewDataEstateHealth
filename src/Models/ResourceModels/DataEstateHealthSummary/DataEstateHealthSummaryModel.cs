@@ -18,8 +18,5 @@ public class DataEstateHealthSummaryModel : IDataEstateHealthSummaryModel
 
     /// <inheritdoc />
     public IHealthActionsSummaryModel HealthActionsSummaryModel { get; set; }
-
-    /// <inheritdoc />
-    public IHealthReportsSummaryModel HealthReportsSummaryModel { get; set; }
 }
 

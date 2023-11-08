@@ -9,9 +9,11 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 using Microsoft.DGP.ServiceBasics.BaseModels;
 
-internal class BusinessDomainRepository : BaseRepository, IBusinessDomainRepository
+internal class BusinessDomainRepository : IBusinessDomainRepository
 {
     private readonly ModelAdapterRegistry modelAdapterRegistry;
+
+    private readonly IProcessingStorageManager processingStorageManager;
 
     private readonly string location;
 
@@ -24,9 +26,10 @@ internal class BusinessDomainRepository : BaseRepository, IBusinessDomainReposit
          IProcessingStorageManager processingStorageManager,
          IServerlessQueryExecutor queryExecutor,
          IServerlessQueryRequestBuilder queryRequestBuilder,
-         string location = null) : base(processingStorageManager)
+         string location = null)
     {
         this.modelAdapterRegistry = modelAdapterRegistry;
+        this.processingStorageManager = processingStorageManager;
         this.queryExecutor = queryExecutor;
         this.queryRequestBuilder = queryRequestBuilder;
         this.location = location;
@@ -44,8 +47,10 @@ internal class BusinessDomainRepository : BaseRepository, IBusinessDomainReposit
         IList<BusinessDomainEntity> businessDomainEntitiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
         List<IBusinessDomainModel> businessDomainModelList = new();
+
         businessDomainModelList.AddRange(businessDomainEntitiesList.Select(businessDomainsEntity =>
             this.modelAdapterRegistry.AdapterFor<IBusinessDomainModel, BusinessDomainEntity>().ToModel(businessDomainsEntity)));
+
         return await Task.FromResult(new BaseBatchResults<IBusinessDomainModel>
         {
             Results = businessDomainModelList,
@@ -61,5 +66,13 @@ internal class BusinessDomainRepository : BaseRepository, IBusinessDomainReposit
             this.queryExecutor,
             this.queryRequestBuilder,
             location);
+    }
+
+    private async Task<string> ConstructContainerPath(string containerName, Guid accountId, CancellationToken cancellationToken)
+    {
+        Models.ProcessingStorageModel storageModel = await this.processingStorageManager.Get(accountId, cancellationToken);
+        ArgumentNullException.ThrowIfNull(storageModel, nameof(storageModel));
+
+        return $"{storageModel.GetDfsEndpoint()}/{containerName}";
     }
 }

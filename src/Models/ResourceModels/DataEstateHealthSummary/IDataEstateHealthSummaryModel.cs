@@ -28,9 +28,4 @@ public interface IDataEstateHealthSummaryModel
     /// Health actions summary model
     /// </summary>
     IHealthActionsSummaryModel HealthActionsSummaryModel { get; }
-
-    /// <summary>
-    /// Health reports summary model
-    /// </summary>
-    IHealthReportsSummaryModel HealthReportsSummaryModel { get; }
 }
