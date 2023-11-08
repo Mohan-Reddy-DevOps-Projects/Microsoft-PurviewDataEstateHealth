@@ -1,7 +1,10 @@
 param acrName string
 param assistedIdAppObjectId string
+param catalogResourceGroupName string
+param catalogSubscriptionId string
 param containerAppIdentityName string
 param coreResourceGroupName string
+param eventHubNamespaceName string
 param jobStorageAccountName string
 param keyVaultName string
 param location string = resourceGroup().location
@@ -15,6 +18,7 @@ param sparkPoolTableName string
 param synapseLocation string
 
 var contributorRoleDefName = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+var azureEventHubsDataReceiverRoleDefName = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'
 var keyVaultReaderRoleDefName = '21090545-7ca7-4776-b22c-e363652d74d2'
 var keyVaultSecretsUserRoleDefName = '4633458b-17de-408a-b874-0445c86b69e6'
 var keyVaultCertificatesOfficerRoleDefName = 'a4417e6f-fecd-4de8-b567-7b0420556985'
@@ -197,3 +201,13 @@ module processingStorageSubTableDataContributorRoleModule 'subscriptionRoleAssig
     subscriptionId: processingStorageSubscription.id
   }
 }]
+
+module eventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
+    name: 'eventHubNamespaceRoleDeploy'
+    scope: resourceGroup(catalogSubscriptionId, catalogResourceGroupName)
+    params: {
+      eventHubNamespaceName: eventHubNamespaceName
+      principalId: containerAppIdentity.properties.principalId
+      roleDefinitionName: azureEventHubsDataReceiverRoleDefName
+    }
+  }

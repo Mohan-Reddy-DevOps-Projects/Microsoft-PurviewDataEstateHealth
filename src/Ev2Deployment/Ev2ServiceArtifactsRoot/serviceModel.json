@@ -35,6 +35,9 @@
               "name": "AssistedIdentity"
             },
             {
+              "name": "Catalog"
+            },
+            {
               "name": "Certificates"
             },
             {

@@ -21,6 +21,11 @@
         "exposureControlEnvironment": "CanaryEastUS2EUAP",
         "shortLocation": "eus2euap",
         "metadataServiceEndpoint": "eastus2euap.rp.purview-service.azure.com",
+        "catalog": {
+            "eventHubNamespaceName": "dg-cnry-hub-eus2",
+            "resourceGroupName": "dgcatalog-cnry-rg-eus2",
+            "subscriptionId": "d2e1972c-dae3-47cd-9438-d01b75629bec"
+        },
         "dgh": {
             "sparkPoolTableName": "SparkPool"
         },

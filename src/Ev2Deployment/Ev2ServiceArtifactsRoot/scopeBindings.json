@@ -19,6 +19,23 @@
       ]
     },
     {
+        "scopeTagName": "Catalog",
+        "bindings": [
+            {
+            "find": "__CATALOG_RESOURCE_GROUP_NAME__",
+            "replaceWith": "$config(catalog.resourceGroupName)"
+            },
+            {
+            "find": "__CATALOG_SUBSCRIPTION_ID__",
+            "replaceWith": "$config(catalog.subscriptionId)"
+            },
+            {
+            "find": "__CATALOG_EVENT_HUB_NAMESPACE_NAME__",
+            "replaceWith": "$config(catalog.eventHubNamespaceName)"
+            }
+        ]
+    },
+    {
       "scopeTagName": "Certificates",
       "bindings": [
         {

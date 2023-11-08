@@ -1,5 +1,5 @@
 {
-  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
+    "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
     "settings": {
         "cloudShareInfrastructureSubscriptionId": "b7334dcb-050a-40e3-81c9-b1cef5ecfe79",
         "dnsZoneName": "purview-dg.azure-test.com",
@@ -21,6 +21,11 @@
         "exposureControlEnvironment": "DogfoodWestUS2",
         "shortLocation": "wus2",
         "metadataServiceEndpoint": "westus2.rp.purview-service.azure-test.com",
+        "catalog": {
+            "eventHubNamespaceName": "dg-df-hub-wus2",
+            "resourceGroupName": "dgcatalog-df-rg-wus2",
+            "subscriptionId": "5b48cdcd-b5c7-4730-8477-726ec15a0ff9"
+        },
         "dgh": {
             "sparkPoolTableName": "SparkPool"
         },

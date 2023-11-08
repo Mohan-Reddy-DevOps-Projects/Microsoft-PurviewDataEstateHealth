@@ -8,11 +8,20 @@
         "assistedIdAppObjectId": {
             "value": "__ASSISTED_ID_APP_OBJECT_ID__"
         },
+        "catalogResourceGroupName": {
+            "value": "__CATALOG_RESOURCE_GROUP_NAME__"
+        },
+        "catalogSubscriptionId": {
+            "value": "__CATALOG_SUBSCRIPTION_ID__"
+        },
         "containerAppIdentityName": {
             "value": "__INFRA_CONTAINER_APP_IDENTITY_NAME__"
         },
         "coreResourceGroupName": {
             "value": "__CORE_RESOURCE_GROUP_NAME__"
+        },
+        "eventHubNamespaceName": {
+            "value": "__CATALOG_EVENT_HUB_NAMESPACE_NAME__"
         },
         "jobStorageAccountName": {
             "value": "__INFRA_JOB_STORAGE_ACCOUNT_NAME__"
