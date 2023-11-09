@@ -30,7 +30,7 @@
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.LoggerBase" Version="2.26.0" />
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.Service.Basics" Version="1.0.2326.38" />
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.Metadata.ProjectBabylonMetadataClient" Version="1.0.120" />
-    <PackageVersion Include="Microsoft.Azure.Purview.ExposureControlLibrary" Version="1.0.294" />
+    <PackageVersion Include="Microsoft.Azure.Purview.ExposureControlLibrary" Version="1.0.325" />
     <PackageVersion Include="Microsoft.Azure.Services.AppAuthentication" Version="1.6.2" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="7.0.11" />

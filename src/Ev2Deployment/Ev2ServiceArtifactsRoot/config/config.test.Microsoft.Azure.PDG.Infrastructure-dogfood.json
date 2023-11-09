@@ -6,6 +6,7 @@
         "gatewaySubjectName": "gateway-df-client.babylon.azure-test.com",
         "powerBiClientId": "f5257d9c-4ed4-459b-b9e9-61e3e755fcf4",
         "purviewInsights3PClientId": "28602f49-edf0-45c0-b1fe-ddac9dbdc207",
+        "dgFPAClientId": "24676e7f-bd4d-4ae7-8782-dd551f44c6ce",
         "powerBiEnabled": "true",
         "powerBiTenantId": "7d8dbee8-bc7d-4574-a52a-44f5b76c7ecf",
         "resourceGroupName": "dgh-dogfood-westus2-rg",

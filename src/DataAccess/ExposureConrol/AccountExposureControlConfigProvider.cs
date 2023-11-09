@@ -109,25 +109,14 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     /// <inheritdoc/>
     public bool IsDataGovProvisioningEnabled(string accountId, string subscriptionId, string tenantId)
     {
-        Dictionary<string, string> allowedAccounts = new()
-        {
-            // canary account/tenant
-            { "903ee1fb-f00e-4d7c-b488-59f4d483d9dc", "79e7043b-2d89-4454-9f07-1d8ceb3f0399" },
-            // df account/tenant
-            { "ecf09339-34e0-464b-a8fb-661209048543", "12d98746-0b5a-4778-8bd0-449994469062" },
-            { "4285effc-d0a0-43bb-88b9-34932df50117", "12d98746-0b5a-4778-8bd0-449994469062" }
-        };
-
-        return allowedAccounts.TryGetValue(accountId, out string allowedTenantId) && allowedTenantId.Equals(tenantId, StringComparison.Ordinal);
-
-        /*ExposureControlOptions options = new(Features.DataGovProvisioning.ToString(), false)
+        ExposureControlOptions options = new(Features.DataGovProvisioning.ToString(), false)
         {
             AccountId = accountId,
             SubscriptionId = subscriptionId,
             TenantId = tenantId
         };
 
-        return this.IsFeatureEnabled(options);*/
+        return this.IsFeatureEnabled(options);
     }
 
     /// <inheritdoc/>
