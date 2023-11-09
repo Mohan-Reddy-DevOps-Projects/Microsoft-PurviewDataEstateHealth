@@ -1,6 +1,7 @@
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 from DataEstateHealthLibrary.Catalog.catalog_schema import CatalogSchema
+from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
 
 class CatalogColumnFunctions:
    
@@ -17,3 +18,11 @@ class CatalogColumnFunctions:
         )
 
         return contacts_schema_added
+
+    def calculate_count_for_domain(domain_association_df, colName):
+        count_added = domain_association_df.groupBy("BusinessDomainId").count()
+        count_added = ColumnFunctions.rename_col(count_added, "count", colName)
+        count_added = count_added.withColumn(colName, when(col(colName).isNull(), lit(0))
+            .otherwise(lit(col(colName)))
+               )
+        return count_added

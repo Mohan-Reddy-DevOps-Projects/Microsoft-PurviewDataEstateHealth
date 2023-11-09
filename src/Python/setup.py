@@ -7,7 +7,7 @@
 from setuptools import setup, find_packages
 
 NAME = "DataEstateHealthLibrary"
-VERSION = "0.0.3"
+VERSION = "0.0.5"
 # To install the library, run the following
 #
 # python setup.py install

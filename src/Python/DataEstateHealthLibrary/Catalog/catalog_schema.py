@@ -1,4 +1,3 @@
-from xmlrpc.client import DateTime
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 
@@ -69,11 +68,11 @@ class CatalogSchema:
 
     system_data_schema = StructType(
         [
-            StructField("lastModifiedAt", DateTime(), True),
+            StructField("lastModifiedAt", StringType(), True),
             StructField("lastModifiedBy", StringType(), True),
-            StructField("createdAt", DateTime(), True),
+            StructField("createdAt", StringType(), True),
             StructField("createdBy", StringType(), True),
-            StructField("expiredAt", DateTime(), True),
+            StructField("expiredAt", StringType(), True),
             StructField("expiredBy", StringType(), True),
         ]
     )
@@ -112,7 +111,7 @@ class CatalogSchema:
             StructField("type", StringType(), False),
             StructField("assetId", StringType(), True),
             StructField("assetType", StringType(), True),
-            StructField("lastRefreshedAt", DateTime(), True),
+            StructField("lastRefreshedAt", StringType(), True),
             StructField("lastRefreshedBy", StringType(), True),
         ]
     )

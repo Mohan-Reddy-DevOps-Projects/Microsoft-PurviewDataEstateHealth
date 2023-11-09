@@ -21,6 +21,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DataEstateHealthLibrary\ActionCenter\action_center_aggregation.py" />
+    <Compile Include="DataEstateHealthLibrary\ActionCenter\action_center_constants.py" />
+    <Compile Include="DataEstateHealthLibrary\ActionCenter\action_center_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\ActionCenter\build_action_center.py" />
+    <Compile Include="DataEstateHealthLibrary\ActionCenter\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\AtlasRdd\atlas_rdd_column_functions.py" />
     <Compile Include="DataEstateHealthLibrary\AtlasRdd\atlas_rdd_common_variables.py" />
     <Compile Include="DataEstateHealthLibrary\AtlasRdd\atlas_rdd_map.py" />
@@ -28,11 +33,17 @@
     <Compile Include="DataEstateHealthLibrary\AtlasRdd\atlas_rdd_transformations.py" />
     <Compile Include="DataEstateHealthLibrary\AtlasRdd\build_atlas_rdd.py" />
     <Compile Include="DataEstateHealthLibrary\AtlasRdd\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\BusinessDomainTrend\build_businessdomain_trend.py" />
+    <Compile Include="DataEstateHealthLibrary\BusinessDomainTrend\businessdomain_trend_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\BusinessDomainTrend\business_domain_trend_aggregation.py" />
+    <Compile Include="DataEstateHealthLibrary\BusinessDomainTrend\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\BusinessDomain\build_business_domain.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\BusinessDomain\business_domain_column_functions.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\BusinessDomain\business_domain_transformations.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\BusinessDomain\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\catalog_constants.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\catalog_main.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\catalog_term_schema_main.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\catalog_transformation_functions.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\DataAsset\build_data_asset.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\DataAsset\data_asset_column_functions.py" />
@@ -45,17 +56,30 @@
     <Compile Include="DataEstateHealthLibrary\Catalog\DataProduct\data_product_main.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\DataProduct\data_product_transformations.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\DataProduct\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\catalog_dedup_function.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\Relationship\build_relationship.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\Relationship\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\Terms\build_term.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\Terms\term_transformations.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\Terms\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\__init__.py" />
-    <Compile Include="DataEstateHealthLibrary\CdmcControls\build_cdmc_measures.py" />
-    <Compile Include="DataEstateHealthLibrary\CdmcControls\cdmc_controls_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcScore\build_scores.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcScore\cdmc_controls_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcScore\score_aggregation.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcScore\score_constants.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcScore\score_schema.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcScore\score_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcScore\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\DataQuality\data_quality_transformations.py" />
     <Compile Include="DataEstateHealthLibrary\DataQuality\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\HealthSummary\build_health_summary.py" />
+    <Compile Include="DataEstateHealthLibrary\HealthSummary\health_summary_aggregation.py" />
+    <Compile Include="DataEstateHealthLibrary\HealthSummary\health_summary_constants.py" />
+    <Compile Include="DataEstateHealthLibrary\HealthSummary\health_summary_transformation.py" />
+    <Compile Include="DataEstateHealthLibrary\HealthSummary\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\Shared\column_functions.py" />
     <Compile Include="DataEstateHealthLibrary\Shared\helper_function.py" />
-    <Compile Include="DataEstateHealthLibrary\Shared\merge_helper_function.py" />
+    <Compile Include="DataEstateHealthLibrary\Shared\dedup_helper_function.py" />
     <Compile Include="DataEstateHealthLibrary\Shared\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\TestData\data_product_sample_data.py" />
     <Compile Include="setup.py" />
@@ -71,9 +95,13 @@
     <Folder Include="DataEstateHealthLibrary\Catalog\DataAsset\" />
     <Folder Include="DataEstateHealthLibrary\Catalog\BusinessDomain\" />
     <Folder Include="DataEstateHealthLibrary\Catalog\DataProduct\" />
-    <Folder Include="DataEstateHealthLibrary\CdmcControls\" />
+    <Folder Include="DataEstateHealthLibrary\Catalog\Relationship\" />
+    <Folder Include="DataEstateHealthLibrary\CdmcScore\" />
     <Folder Include="DataEstateHealthLibrary\Catalog\Terms\" />
     <Folder Include="DataEstateHealthLibrary\DataQuality\" />
+    <Folder Include="DataEstateHealthLibrary\ActionCenter\" />
+    <Folder Include="DataEstateHealthLibrary\HealthSummary\" />
+    <Folder Include="DataEstateHealthLibrary\BusinessDomainTrend\" />
     <Folder Include="DataEstateHealthLibrary\Shared\" />
     <Folder Include="DataEstateHealthLibrary\TestData\" />
   </ItemGroup>

@@ -1,7 +1,7 @@
 from DataEstateHealthLibrary.AtlasRdd.atlas_rdd_schemas import AtlasRddScehmas
 from DataEstateHealthLibrary.AtlasRdd.atlas_rdd_column_functions import AtlasRddColumnFunctions
 from DataEstateHealthLibrary.AtlasRdd.atlas_rdd_transformations import AtlasRddTransformations
-from DataEstateHealthLibrary.Shared.merge_helper_function import MergeHelperFunction
+from DataEstateHealthLibrary.Shared.dedup_helper_function import DedupHelperFunction
 from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
 from pyspark.sql.functions import get_json_object,col
 
@@ -11,7 +11,7 @@ class BuildAtlasRdd:
         
         """Dedup : Merge assets having multiple instances based on timestamp. Will keep the latest instance of the asset"""
         merged_atlas_rdd = atlas_rdd_df.rdd.map(lambda x: (x["Guid"], x))
-        merged_atlas_rdd2 = merged_atlas_rdd.reduceByKey(lambda x,y : MergeHelperFunction.assets_reduce_func(x,y))
+        merged_atlas_rdd2 = merged_atlas_rdd.reduceByKey(lambda x,y : DedupHelperFunction.dedup_by_timestamp(x,y))
         merged_atlas_rdd3 = merged_atlas_rdd2.map(lambda x: x[1])
 
         final_atlas_rdd = merged_atlas_rdd3.toDF(sampleRatio=1.0)
@@ -30,7 +30,7 @@ class BuildAtlasRdd:
         classification_df = atlas_rdd_df.select("Category", "ClassificationId", "ClassificationType", "Name", "DisplayName", "Description")
         return classification_df
 
-    def build_ladel_schema(atlas_rdd_df):
+    def build_label_schema(atlas_rdd_df):
         
         """ filter rows which have sensitivity label value as null. only keep non null ones """
         atlas_rdd_df_filtered = atlas_rdd_df.select("Guid", "TypeName", "SensitivityLabel").filter(col("SensitivityLabel").isNotNull())

@@ -1,7 +1,7 @@
-class MergeHelperFunction:
-    def assets_reduce_func(instance1, instance2):
+class DedupHelperFunction:
+    def dedup_by_timestamp(instance1, instance2):
         """
-        Returns the asset instance with the latest timestamp
+        Returns the instance with the latest timestamp
         """
         if not instance1:
             return instance2
