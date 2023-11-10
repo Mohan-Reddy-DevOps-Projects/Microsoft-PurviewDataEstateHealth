@@ -21,7 +21,7 @@ class CdmcControlsTransformations:
     def calculate_cdmc_control_5(dataproduct_df):
         cdmc_control_5_added = dataproduct_df.withColumn(
         "C5_Catalog", when((col("HasValidOwner") == 1) &
-        (col("HasNotNullDescription") == 1) &
+        (col("HasDescription") == 1) &
         (col("HasValidUseCase") == 1) &
         (col("AssetCount") > 0) &
         (col("GlossaryTermCount") > 0) &
@@ -59,37 +59,24 @@ class CdmcControlsTransformations:
             )
         return cdmc_control_12_added
 
-    def add_total_data_products(dataproduct_df):
-        total_data_products_added = dataproduct_df.withColumn(
-        "TotalDataProducts", lit(1)
-        )
-
-        return total_data_products_added
+    def calculate_cdmc_column_sum_by_domain(dataproduct_df):
+        dataproduct_df = dataproduct_df.groupBy("BusinessDomainId").sum()
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C2_Ownership)","Ownership")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C3_AuhoritativeSource)","AuhoritativeSource")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C5_Catalog)","Catalog")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C6_Classification)","Classification")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C7_Access)","Access")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C8_DataConsumptionPurpose)","DataConsumptionPurpose")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C12_Quality)","Quality")
+        return dataproduct_df
     
-    def add_data_health(dataproduct_df):
-        data_health_added = dataproduct_df.withColumn(
-        "DataHealth", lit(0)
-        )
-
-        return data_health_added
-    
-    def add_quality(dataproduct_df):
-        quality_added = dataproduct_df.withColumn(
-        "Quality", lit(0)
-        )
-
-        return quality_added
-    
-    def add_use(dataproduct_df):
-        use_added = dataproduct_df.withColumn(
-        "Use", lit(0)
-        )
-
-        return use_added
-    
-    def add_metadata_completeness(dataproduct_df):
-        metadata_completeness_added = dataproduct_df.withColumn(
-        "MetadataCompleteness", lit(0)
-        )
-
-        return metadata_completeness_added
+    def calculate_aggregated_cdmc_column_sum(final_aggregated_cdmc_control_domain_df):
+        aggregated_scores_df = final_aggregated_cdmc_control_domain_df.groupBy().sum()
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Ownership)","Ownership")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(AuhoritativeSource)","AuhoritativeSource")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Catalog)","Catalog")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Classification)","Classification")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Access)","Access")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(DataConsumptionPurpose)","DataConsumptionPurpose")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Quality)","Quality")
+        return aggregated_scores_df

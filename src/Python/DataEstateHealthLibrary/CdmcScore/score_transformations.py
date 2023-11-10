@@ -1,10 +1,18 @@
 import datetime
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
-from DataEstateHealthLibrary.CdmcScore.cdmc_controls_transformations import CdmcControlsTransformations
+from DataEstateHealthLibrary.CdmcControls.cdmc_controls_transformations import CdmcControlsTransformations
 from DataEstateHealthLibrary.CdmcScore.score_constants import ScoreConstants
 
 class ScoreTransformations:
+    
+    def add_total_data_products(dataproduct_df):
+        total_data_products_added = dataproduct_df.withColumn(
+        "TotalDataProducts", lit(1)
+        )
+
+        return total_data_products_added
+    
     def add_actual_value(dataproduct_df):
         data_health_added = dataproduct_df.withColumn(
         "ActualValue", lit(0)
@@ -224,3 +232,43 @@ class ScoreTransformations:
                         )
 
         return data_health_score_added
+    
+    def get_aggregation_by_businessdomain_id(dataproduct_df):
+        dataproduct_df = ScoreTransformations.calculate_data_health_score(dataproduct_df)
+        dataproduct_df = ScoreTransformations.calculate_metadata_completeness(dataproduct_df)
+        dataproduct_df = ScoreTransformations.calculate_use(dataproduct_df)
+        dataproduct_df = ScoreTransformations.calculate_quality_measure(dataproduct_df)
+
+        return dataproduct_df
+    
+    def calculate_column_sum_by_domain(dataproduct_df):
+        dataproduct_df = dataproduct_df.groupBy("BusinessDomainId").sum()
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(TotalDataProducts)","TotalDataProducts")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C2_Ownership)","C2_Ownership")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C3_AuhoritativeSource)","C3_AuhoritativeSource")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C5_Catalog)","C5_Catalog")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C6_Classification)","C6_Classification")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C7_Access)","C7_Access")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C8_DataConsumptionPurpose)","C8_DataConsumptionPurpose")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C12_Quality)","C12_Quality")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(DataHealth)","DataHealth")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(MetadataCompleteness)","MetadataCompleteness")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(Use)","Use")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(Quality)","Quality")
+        return dataproduct_df
+
+    def calculate_aggregated_column_sum(final_aggregated_domain_df):
+        aggregated_scores_df = final_aggregated_domain_df.groupBy().sum()
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(TotalDataProducts)","TotalDataProducts")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(C2_Ownership)","C2_Ownership")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(C3_AuhoritativeSource)","C3_AuhoritativeSource")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(C5_Catalog)","C5_Catalog")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(C6_Classification)","C6_Classification")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(C7_Access)","C7_Access")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(C8_DataConsumptionPurpose)","C8_DataConsumptionPurpose")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(C12_Quality)","C12_Quality")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(DataHealth)","DataHealth")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(MetadataCompleteness)","MetadataCompleteness")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Use)","Use")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Quality)","Quality")
+        return aggregated_scores_df

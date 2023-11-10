@@ -8,4 +8,3 @@ class ScoreConstants:
     Scorekind = ["DataGovernance", "DataQuality", "DataCuration"]
     ScoreName = "Governance score"
     DefaultBusinessDomainDisplayName = "All business domains"
-    DefaultBusinessDomainId = "00000000-0000-0000-0000-000000000000"

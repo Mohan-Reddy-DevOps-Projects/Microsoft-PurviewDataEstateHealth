@@ -51,19 +51,20 @@ class DataProductTransformations:
         return has_access_entitlement_added
 
     def calculate_classification_pass_count(dataproduct_df):
+
         classification_pass_count_added = dataproduct_df.withColumn(
             "ClassificationPassCount", lit(0)
         )
 
         return classification_pass_count_added
-
-    def calculate_has_not_null_description(dataproduct_df):
-        has_not_null_description_added = dataproduct_df.withColumn(
-            "HasNotNullDescription", when(col("Description").isNotNull(), 1)
+    
+    def calculate_has_description(dataproduct_df):
+        has_description_added = dataproduct_df.withColumn(
+            "HasDescription", when(col("Description").isNotNull(), 1)
             .otherwise(0)
         )
 
-        return has_not_null_description_added
+        return has_description_added
     
     def calculate_has_valid_owner(dataproduct_df):
         has_valid_owner_added = dataproduct_df.withColumn(

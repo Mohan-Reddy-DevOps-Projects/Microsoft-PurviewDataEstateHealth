@@ -26,3 +26,7 @@ class HelperFunction:
         )
 
         return default_business_domain_id_added
+    
+    def cast_to_specific_type(dataframe,type,colName):
+        dataframe = dataframe.withColumn(colName, dataframe[colName].cast(type))
+        return dataframe

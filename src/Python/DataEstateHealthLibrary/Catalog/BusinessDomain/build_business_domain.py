@@ -26,7 +26,7 @@ class BuildBusinessDomain:
         businessdomain_df = ColumnFunctions.rename_col(businessdomain_df, "Name", "BusinessDomainDisplayName")
         businessdomain_df = ColumnFunctions.rename_col(businessdomain_df, "Id", "BusinessDomainId")
         businessdomain_df = BusinessdomainTransformations.calculate_is_root_domain(businessdomain_df)
-        businessdomain_df = BusinessdomainTransformations.calculate_has_not_null_description(businessdomain_df)
+        businessdomain_df = BusinessdomainTransformations.calculate_has_description(businessdomain_df)
         businessdomain_df = HelperFunction.calculate_last_refreshed_at(businessdomain_df)
 
         #get count from data product and term
@@ -50,7 +50,7 @@ class BuildBusinessDomain:
         #convert it to dataframe with sample ration 1 so as to avoid error with null column values
         final_businessdomain_df = dedup_rdd3.toDF(sampleRatio=1.0)
         
-        final_businessdomain_df = final_businessdomain_df.select("BusinessDomainId", "BusinessDomainDisplayName", "HasNotNullDescription", "CreatedAt", "CreatedBy", "ModifiedAt", "ModifiedBy", "GlossaryTermsCount",
+        final_businessdomain_df = final_businessdomain_df.select("BusinessDomainId", "BusinessDomainDisplayName", "HasDescription", "CreatedAt", "CreatedBy", "ModifiedAt", "ModifiedBy", "GlossaryTermsCount",
                                                      "DataProductsCount", "IsRootDomain","HasValidOwner", "LastRefreshedAt")
         return final_businessdomain_df
     

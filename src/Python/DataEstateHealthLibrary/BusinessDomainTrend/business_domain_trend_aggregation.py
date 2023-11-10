@@ -7,7 +7,7 @@ from DataEstateHealthLibrary.BusinessDomainTrend.businessdomain_trend_transforma
 from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
 
 class BusinessDomainTrendAggregation:
-    def aggregate_business_domain_trend(businessdomain_df, dataproduct_df, productdomain_association_df, assetdomain_association_df):
+    def aggregate_business_domain_trend(businessdomain_df, dataproduct_df, productdomain_association_df, assetdomain_association_df, healthaction_df):
         
         #join to get associated domain id for data product
         dataproduct_df = productdomain_association_df.join(dataproduct_df,"DataProductId","leftouter")
@@ -19,29 +19,27 @@ class BusinessDomainTrendAggregation:
         dataproduct_df = BusinessDomainTrendTransformations.calculate_data_qality_score_pass_count(dataproduct_df)
         dataproduct_df = BusinessDomainTrendTransformations.calculate_valid_terms_of_use_pass_count(dataproduct_df)
         dataproduct_df = BusinessDomainTrendTransformations.calculate_valid_use_case_pass_count(dataproduct_df)
-        dataproduct_df = BusinessDomainTrendTransformations.calculate_not_null_description_pass_count(dataproduct_df)
+        dataproduct_df = BusinessDomainTrendTransformations.calculate_dataproduct_description_pass_count(dataproduct_df)
         dataproduct_df = BusinessDomainTrendTransformations.calculate_glossary_term_pass_count(dataproduct_df)
         dataproduct_df = dataproduct_df.select("BusinessDomainId","AccessEntitlementPassCount","ValidTermsOfUsePassCount", "ValidUseCasePassCount","AuthoratativeSourcePassCount",
-                                              "DataShareAgreementSetOrExemptPassCount","ValidDataProductOwnerPassCount","NotNullDataProductDescriptionPassCount","ClassificationPassCount",
+                                              "DataShareAgreementSetOrExemptPassCount","ValidDataProductOwnerPassCount","DataProductDescriptionPassCount","ClassificationPassCount",
                                              "DataQualityScorePassCount","GlossaryTermPassCount")
         
         #group rows with same business domain id into one - Bucketing
-        dataproduct_df = dataproduct_df.groupBy("BusinessDomainId").sum()
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(AccessEntitlementPassCount)","AccessEntitlementPassCount")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(ValidTermsOfUsePassCount)","ValidTermsOfUsePassCount")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(ValidUseCasePassCount)","ValidUseCasePassCount")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(AuthoratativeSourcePassCount)","AuthoratativeSourcePassCount")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(ClassificationPassCount)","ClassificationPassCount")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(DataShareAgreementSetOrExemptPassCount)","DataShareAgreementSetOrExemptPassCount")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(ValidDataProductOwnerPassCount)","ValidDataProductOwnerPassCount")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(NotNullDataProductDescriptionPassCount)","NotNullDataProductDescriptionPassCount")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(DataQualityScorePassCount)","DataQualityScorePassCount")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(GlossaryTermPassCount)","GlossaryTermPassCount") 
+        dataproduct_df = BusinessDomainTrendTransformations.calculate_sum_for_all_columns(dataproduct_df)
 
+        #get asset ount
         businessdomain_asset_count = CatalogColumnFunctions.calculate_count_for_domain(assetdomain_association_df, "AssetCount")
         businessdomain_asset_count = businessdomain_asset_count.select("BusinessDomainId","AssetCount")
         businessdomain_df = businessdomain_df.join(businessdomain_asset_count,"BusinessDomainId","leftouter")
-        businessdomain_df = businessdomain_df.select("BusinessDomainId","BusinessDomainDisplayName", "DataProductsCount","AssetCount")
+        
+        #get action count
+        healthaction_df = healthaction_df.select("ActionId","BusinessDomainId")
+        healthaction_df = CatalogColumnFunctions.calculate_count_for_domain(healthaction_df,"TotalOpenActionsCount")
+        
+        businessdomain_df = businessdomain_df.join(healthaction_df,"BusinessDomainId","leftouter")
+        
+        businessdomain_df = businessdomain_df.select("BusinessDomainId","BusinessDomainDisplayName", "DataProductsCount","AssetCount", "TotalOpenActionsCount")
         businessdomain_df = ColumnFunctions.rename_col(businessdomain_df, "DataProductsCount", "DataProductCount")
         businessdomain_df = businessdomain_df.distinct()
 
@@ -50,8 +48,8 @@ class BusinessDomainTrendAggregation:
 
         businessdomain_trend_df = businessdomain_df.join(dataproduct_df,"BusinessDomainId","leftouter")
         
-        businessdomain_trend_df = businessdomain_trend_df.select("BusinessDomainTrendId","BusinessDomainId","DataProductCount","AssetCount","ClassificationPassCount",
-                                                                 "GlossaryTermPassCount","DataQualityScorePassCount","NotNullDataProductDescriptionPassCount","ValidDataProductOwnerPassCount",
+        businessdomain_trend_df = businessdomain_trend_df.select("BusinessDomainTrendId","BusinessDomainId","DataProductCount","AssetCount","TotalOpenActionsCount","ClassificationPassCount",
+                                                                 "GlossaryTermPassCount","DataQualityScorePassCount","DataProductDescriptionPassCount","ValidDataProductOwnerPassCount",
                                                                  "DataShareAgreementSetOrExemptPassCount","AuthoratativeSourcePassCount","ValidUseCasePassCount","ValidTermsOfUsePassCount",
                                                                  "AccessEntitlementPassCount","LastRefreshedAt")
         businessdomain_trend_df = businessdomain_trend_df.na.fill(value=0)

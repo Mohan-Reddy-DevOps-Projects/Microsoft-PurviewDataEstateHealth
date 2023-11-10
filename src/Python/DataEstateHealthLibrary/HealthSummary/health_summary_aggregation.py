@@ -6,6 +6,7 @@ from DataEstateHealthLibrary.HealthSummary.health_summary_transformation import 
 from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
 from DataEstateHealthLibrary.Catalog.catalog_column_functions import CatalogColumnFunctions
 from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
+from DataEstateHealthLibrary.Shared.common_constants import CommonConstants
 
 class HealthSummaryAggregation:
     def aggregate_health_summary(businessdomain_df, healthaction_df, assetdomain_association_df):
@@ -19,8 +20,9 @@ class HealthSummaryAggregation:
         businessdomain_df = businessdomain_df.join(businessdomain_asset_count,"BusinessDomainId","leftouter")
         
         healthaction_df = healthaction_df.select("ActionId","BusinessDomainId")
-        healthaction_df = healthaction_df.groupBy("BusinessDomainId").count()
-        healthaction_df = ColumnFunctions.rename_col(healthaction_df, "count", "TotalOpenActionsCount")
+        healthaction_df = CatalogColumnFunctions.calculate_count_for_domain(healthaction_df,"TotalOpenActionsCount")
+        #healthaction_df = healthaction_df.groupBy("BusinessDomainId").count()
+        #healthaction_df = ColumnFunctions.rename_col(healthaction_df, "count", "TotalOpenActionsCount")
         
         businessdomain_df = businessdomain_df.join(healthaction_df,"BusinessDomainId","leftouter")
         
@@ -46,7 +48,7 @@ class HealthSummaryAggregation:
         aggregated_healthsummary_df = HealthSummaryTransformation.calculate_default_total_business_domains(aggregated_healthsummary_df)
         aggregated_healthsummary_df = HealthSummaryTransformation.calculate_default_data_products_trend_link(aggregated_healthsummary_df)
         #assigning a default business domain Id and display name to aggregation
-        aggregated_healthsummary_df = HelperFunction.calculate_default_business_domain_id(aggregated_healthsummary_df, HealthSummaryConstants.DefaultBusinessDomainId)
+        aggregated_healthsummary_df = HelperFunction.calculate_default_business_domain_id(aggregated_healthsummary_df, CommonConstants.DefaultBusinessDomainId)
         aggregated_healthsummary_df = HelperFunction.calculate_default_business_domain_dispaly_name(aggregated_healthsummary_df, HealthSummaryConstants.DefaultBusinessDomainDisplayName)
         
         #calculate total sum

@@ -42,7 +42,7 @@
     <Compile Include="DataEstateHealthLibrary\Catalog\BusinessDomain\business_domain_transformations.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\BusinessDomain\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\catalog_constants.py" />
-    <Compile Include="DataEstateHealthLibrary\Catalog\catalog_main.py" />
+    <Compile Include="DataEstateHealthLibrary\Catalog\catalog_spark_job_main.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\catalog_term_schema_main.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\catalog_transformation_functions.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\DataAsset\build_data_asset.py" />
@@ -63,8 +63,10 @@
     <Compile Include="DataEstateHealthLibrary\Catalog\Terms\term_transformations.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\Terms\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\Catalog\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcControls\build_cdmc_controls.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcControls\cdmc_controls_aggregation.py" />
     <Compile Include="DataEstateHealthLibrary\CdmcScore\build_scores.py" />
-    <Compile Include="DataEstateHealthLibrary\CdmcScore\cdmc_controls_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\CdmcControls\cdmc_controls_transformations.py" />
     <Compile Include="DataEstateHealthLibrary\CdmcScore\score_aggregation.py" />
     <Compile Include="DataEstateHealthLibrary\CdmcScore\score_constants.py" />
     <Compile Include="DataEstateHealthLibrary\CdmcScore\score_schema.py" />
@@ -80,6 +82,7 @@
     <Compile Include="DataEstateHealthLibrary\Shared\column_functions.py" />
     <Compile Include="DataEstateHealthLibrary\Shared\helper_function.py" />
     <Compile Include="DataEstateHealthLibrary\Shared\dedup_helper_function.py" />
+    <Compile Include="DataEstateHealthLibrary\Shared\common_constants.py" />
     <Compile Include="DataEstateHealthLibrary\Shared\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\TestData\data_product_sample_data.py" />
     <Compile Include="setup.py" />
@@ -102,6 +105,7 @@
     <Folder Include="DataEstateHealthLibrary\ActionCenter\" />
     <Folder Include="DataEstateHealthLibrary\HealthSummary\" />
     <Folder Include="DataEstateHealthLibrary\BusinessDomainTrend\" />
+    <Folder Include="DataEstateHealthLibrary\CdmcControls\" />
     <Folder Include="DataEstateHealthLibrary\Shared\" />
     <Folder Include="DataEstateHealthLibrary\TestData\" />
   </ItemGroup>

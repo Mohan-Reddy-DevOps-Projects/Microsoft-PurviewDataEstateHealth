@@ -17,7 +17,7 @@ class BuildDataAsset:
         dataasset_df = ColumnFunctions.add_new_column_from_col_field(dataasset_df,"SystemData" ,"createdBy", "CreatedBy")
         dataasset_df = ColumnFunctions.add_new_column_from_col_field(dataasset_df,"SystemData" ,"lastModifiedBy", "ModifiedBy")
         dataasset_df = ColumnFunctions.add_new_column_from_col_field(dataasset_df,"SystemData" ,"lastModifiedAt", "ModifiedAt")
-        dataasset_df = DataAssetTransformations.calculate_has_not_null_description(dataasset_df)
+        dataasset_df = DataAssetTransformations.calculate_has_description(dataasset_df)
         dataasset_df = DataAssetTransformations.calculate_has_classification(dataasset_df)
         dataasset_df = DataAssetTransformations.calculate_has_schema(dataasset_df)
         dataasset_df = DataAssetColumnFunctions.add_source_schema(dataasset_df)
@@ -42,7 +42,7 @@ class BuildDataAsset:
         #convert it to dataframe with sample ration 1 so as to avoid error with null column values
         final_dataasset_df = dedup_rdd3.toDF(sampleRatio=1.0)
         final_dataasset_df = final_dataasset_df.select("DataAssetId","BusinessDomainId","SourceAssetId","DisplayName","ObjectType","SourceType","HasClassification",
-                                                       "HasSchema","HasNotNullDescription","CreatedAt","CreatedBy","ModifiedBy","ModifiedAt", "LastRefreshedAt")
+                                                       "HasSchema","HasDescription","CreatedAt","CreatedBy","ModifiedBy","ModifiedAt", "LastRefreshedAt")
         
         return final_dataasset_df
 

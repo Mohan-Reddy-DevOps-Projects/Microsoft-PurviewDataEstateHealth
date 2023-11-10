@@ -55,14 +55,14 @@ class HealthSummaryTransformation:
 
     def calculate_business_domains_trend_link(businessdomain_df):
         business_domains_trend_link_added = businessdomain_df.withColumn(
-            "BusinessDomainsTrendLink", concat(lit(HealthSummaryConstants.BUSINESS_DOMAINS_FILTERS_LIST_LINK), col("BusinessDomainId"))
+            "BusinessDomainsTrendLink", concat(lit(HealthSummaryConstants.BUSINESS_DOMAINS_TREND_LINK), col("BusinessDomainId"))
         )
 
         return business_domains_trend_link_added
    
     def calculate_data_products_trend_link(businessdomain_df):
         data_products_trend_link_added = businessdomain_df.withColumn(
-            "DataProductsTrendLink", concat(lit(HealthSummaryConstants.BUSINESS_DOMAINS_FILTERS_LIST_LINK), col("BusinessDomainId"))
+            "DataProductsTrendLink", concat(lit(HealthSummaryConstants.DATA_PRODUCTS_TREND_LINK), col("BusinessDomainId"))
         )
 
         return data_products_trend_link_added

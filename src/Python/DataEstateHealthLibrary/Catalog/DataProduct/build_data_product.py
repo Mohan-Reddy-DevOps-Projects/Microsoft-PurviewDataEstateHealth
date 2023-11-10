@@ -1,5 +1,6 @@
 import sys
 from pyspark.sql import SparkSession
+import DataEstateHealthLibrary
 from DataEstateHealthLibrary.Catalog.DataProduct.data_product_transformations import DataProductTransformations
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
@@ -14,10 +15,11 @@ from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
 from DataEstateHealthLibrary.Catalog.catalog_transformation_functions import CatalogTransformationFunctions
 from DataEstateHealthLibrary.Shared.dedup_helper_function import DedupHelperFunction
 from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
+from DataEstateHealthLibrary.Catalog.DataAsset.data_asset_transformations import DataAssetTransformations
 
 class BuildDataProduct:
 
-    def build_data_product_schema(dataproduct_df):
+    def build_data_product_schema(dataproduct_df,dataasset_df, assetproduct_association_df):
         #needed for owner col
         dataproduct_df = CatalogColumnFunctions.add_contacts_schema(dataproduct_df)
         
@@ -30,14 +32,13 @@ class BuildDataProduct:
         dataproduct_df = DataProductColumnFunctions.add_additional_properties_schema(dataproduct_df)
         dataproduct_df = DataProductColumnFunctions.add_asset_count(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_is_authoritative_source(dataproduct_df)
-        dataproduct_df = DataProductTransformations.calculate_classification_pass_count(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_has_access_entitlement(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_has_data_share_agreement_set_or_exempt(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_has_valid_terms_of_use(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_has_valid_use_case(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_has_valid_owner(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_is_authoritative_source(dataproduct_df)
-        dataproduct_df = DataProductTransformations.calculate_has_not_null_description(dataproduct_df)
+        dataproduct_df = DataProductTransformations.calculate_has_description(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_is_authoritative_source(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_glossary_term_count(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_has_data_quality_score(dataproduct_df)
@@ -48,11 +49,18 @@ class BuildDataProduct:
         dataproduct_df = ColumnFunctions.rename_col(dataproduct_df, "Status", "DataPoductStatus")
         dataproduct_df = ColumnFunctions.rename_col(dataproduct_df, "Type", "DataProductType")
         
+        dataasset_df = dataasset_df.join(assetproduct_association_df,"DataAssetId","leftouter")
+        dataasset_df = dataasset_df.select("DataProductId","HasClassification")
+        dataasset_df = DataAssetTransformations.calculate_sum_for_classification_count(dataasset_df)
+
+        dataproduct_df = dataproduct_df.join(dataasset_df,"DataProductId","leftouter")
+        dataproduct_df = ColumnFunctions.rename_col(dataproduct_df, "HasClassification", "ClassificationPassCount")
+        
         #add timestamp for deduping
         dataproduct_df = CatalogTransformationFunctions.add_timestamp_col(dataproduct_df)
         #remove duplicate rows
         dataproduct_df = dataproduct_df.distinct()
-        dataproduct_df = dataproduct_df.select("DataProductId","DataProductDisplayName","DataProductType","HasValidOwner","HasValidUseCase","HasValidTermsofUse","DataPoductStatus","AssetCount","CreatedAt","HasNotNullDescription","Timestamp",
+        dataproduct_df = dataproduct_df.select("DataProductId","DataProductDisplayName","DataProductType","HasValidOwner","HasValidUseCase","HasValidTermsofUse","DataPoductStatus","AssetCount","CreatedAt","HasDescription","Timestamp",
                                        "CreatedBy","ModifiedAt","ModifiedBy","LastRefreshedAt","IsAuthoritativeSource","HasDataQualityScore","ClassificationPassCount","HasAccessEntitlement","HasDataShareAgreementSetOrExempt","GlossaryTermCount")
        
         #map by data product id and reduce by timestamp
@@ -62,7 +70,7 @@ class BuildDataProduct:
         
         #convert it to dataframe with sample ration 1 so as to avoid error with null column values
         final_dataproduct_df = dedup_rdd3.toDF(sampleRatio=1.0)
-        final_dataproduct_df = final_dataproduct_df.select("DataProductId","DataProductDisplayName","DataProductType","HasValidOwner","HasValidUseCase","HasValidTermsofUse","DataPoductStatus","AssetCount","CreatedAt","HasNotNullDescription",
+        final_dataproduct_df = final_dataproduct_df.select("DataProductId","DataProductDisplayName","DataProductType","HasValidOwner","HasValidUseCase","HasValidTermsofUse","DataPoductStatus","AssetCount","CreatedAt","HasDescription",
                                        "CreatedBy","ModifiedAt","ModifiedBy","LastRefreshedAt","IsAuthoritativeSource","HasDataQualityScore","ClassificationPassCount","HasAccessEntitlement","HasDataShareAgreementSetOrExempt","GlossaryTermCount")
         return final_dataproduct_df
 

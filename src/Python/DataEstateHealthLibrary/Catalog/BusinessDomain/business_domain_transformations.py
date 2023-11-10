@@ -1,14 +1,14 @@
 from pyspark.sql.functions import *
 
 class BusinessdomainTransformations:
-    def calculate_has_not_null_description(businessdomain_df):
-        has_not_null_description_added = businessdomain_df.withColumn(
-            "HasNotNullDescription", when(col("Description").isNotNull() & 
+    def calculate_has_description(businessdomain_df):
+        has_description_added = businessdomain_df.withColumn(
+            "HasDescription", when(col("Description").isNotNull() & 
                     ~(col("Description") == ""), 1)
                                  .otherwise(0)
         )
 
-        return has_not_null_description_added
+        return has_description_added
 
     def calculate_is_root_domain(businessdomain_df):
         is_root_domain_added = businessdomain_df.withColumn(

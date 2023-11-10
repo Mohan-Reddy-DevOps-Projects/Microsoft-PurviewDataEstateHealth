@@ -32,10 +32,15 @@ class DataAssetTransformations:
 
         return has_schema_added
     
-    def calculate_has_not_null_description(dataasset_df):
-        has_not_null_description_added = dataasset_df.withColumn(
-            "HasNotNullDescription", when(col("Description").isNotNull(), 1)
+    def calculate_has_description(dataasset_df):
+        has_description_added = dataasset_df.withColumn(
+            "HasDescription", when(col("Description").isNotNull(), 1)
             .otherwise(0)
         )
 
-        return has_not_null_description_added
+        return has_description_added
+    
+    def calculate_sum_for_classification_count(dataasset_df):
+        dataasset_df = dataasset_df.groupBy("DataProductId").sum()
+        dataasset_df = dataasset_df.withColumnRenamed("sum(HasClassification)","HasClassification")
+        return dataasset_df

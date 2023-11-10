@@ -17,7 +17,7 @@ class ActionCenterAggregation:
         return merged_action_df
 
     def aggregated_business_domain_actions(businessdomain_df):
-        businessdomain_df = businessdomain_df.select("BusinessDomainId","HasValidOwner","HasNotNullDescription","BusinessDomainDisplayName")
+        businessdomain_df = businessdomain_df.select("BusinessDomainId","HasValidOwner","HasDescription","BusinessDomainDisplayName")
         #need it for aggregation later
         businessdomain_action_df = businessdomain_df.withColumn("DataProductId", lit("00000000-0000-0000-0000-000000000000"))
         businessdomain_action_df = businessdomain_action_df.withColumn("DataAssetId", lit("00000000-0000-0000-0000-000000000000"))
@@ -32,7 +32,7 @@ class ActionCenterAggregation:
         dataproduct_action_df = dataproduct_contact_association.join(dataproduct_df,"DataProductId","leftouter")
         dataproduct_action_df = dataproduct_domain_association.join(dataproduct_action_df,"DataProductId","leftouter")
         
-        dataproduct_action_df = dataproduct_action_df.select("DataProductId","BusinessDomainId","DataProductDisplayName","HasValidOwner","HasNotNullDescription","HasValidTermsofUse","ContactRole", "ContactId", "ContactDescription",
+        dataproduct_action_df = dataproduct_action_df.select("DataProductId","BusinessDomainId","DataProductDisplayName","HasValidOwner","HasDescription","HasValidTermsofUse","ContactRole", "ContactId", "ContactDescription",
                                                          "HasValidUseCase","HasAccessEntitlement","HasDataShareAgreementSetOrExempt","HasDataQualityScore")
         #need it for aggregation later
         dataproduct_action_df = dataproduct_action_df.withColumn("DataAssetId", lit("00000000-0000-0000-0000-000000000000"))
@@ -45,7 +45,7 @@ class ActionCenterAggregation:
     def aggregated_data_asset_actions(dataasset_df,dataasset_contact_association):
         dataasset_df = ColumnFunctions.rename_col(dataasset_df, "DataMapAssetId", "DataAssetId")
         asset_action_df = dataasset_contact_association.join(dataasset_df,"DataAssetId","leftouter")
-        asset_action_df = asset_action_df.select("DataAssetId","BusinessDomainId","ContactId", "ContactRole","ContactDescription","HasNotNullDescription")
+        asset_action_df = asset_action_df.select("DataAssetId","BusinessDomainId","ContactId", "ContactRole","ContactDescription","HasDescription")
         asset_action_df = ActionCenterTransformations.create_data_asset_actions(asset_action_df)
 
         #need it for aggregation later

@@ -4,7 +4,6 @@ from DataEstateHealthLibrary.ActionCenter.action_center_constants import ActionC
 from pyspark.sql.functions import *
 import datetime
 import random
-from pyspark.sql.functions import *
 from functools import reduce
 from pyspark.sql import DataFrame
 from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
@@ -23,11 +22,9 @@ class ActionCenterTransformations:
         return int_date_added
     
     def calculate_action_id(action_center_df):
-        now = datetime.datetime.now()
-        date_string = now.strftime("%Y%m%d")
         uuid_udf = f.udf(lambda : str(uuid.uuid4()), StringType())
         action_id_added = action_center_df.withColumn(
-            "ActionId", uuid_udf()
+            "ActionId", f.expr("uuid()")
             )
         
         return action_id_added
@@ -73,8 +70,8 @@ class ActionCenterTransformations:
     
     def create_data_asset_actions(asset_action_df):
         
-        #HasNotNullDescription
-        asset_action_df = asset_action_df.filter(col("HasNotNullDescription") < 1)
+        #HasDescription
+        asset_action_df = asset_action_df.filter(col("HasDescription") < 1)
         asset_action_df = ActionCenterTransformations.calculate_action_display_name(asset_action_df,ActionCenterConstants.DESCRIPTION_DISPLAY_NAME_STR)
         asset_action_df = ActionCenterTransformations.calculate_action_description(asset_action_df,ActionCenterConstants.DA_VALID_DESCRIPTION_STR)
         asset_action_df = ActionCenterTransformations.calculate_action_health_control_category(asset_action_df,ActionCenterConstants.GOVERNANCE_STR)
@@ -117,12 +114,12 @@ class ActionCenterTransformations:
         termsofuse_action_df = ActionCenterTransformations.calculate_action_health_control_category(termsofuse_action_df,ActionCenterConstants.GOVERNANCE_STR)
         termsofuse_action_df = ActionCenterTransformations.calculate_action_health_control_name(termsofuse_action_df,ActionCenterConstants.COMPLETENESS_STR)
         
-        #HasNotNullDescription
-        notnulldescription_action_df = dataproduct_action_df.filter(col("HasNotNullDescription") < 1)
-        notnulldescription_action_df = ActionCenterTransformations.calculate_action_display_name(notnulldescription_action_df,ActionCenterConstants.DESCRIPTION_DISPLAY_NAME_STR)
-        notnulldescription_action_df = ActionCenterTransformations.calculate_action_description(notnulldescription_action_df,ActionCenterConstants.DP_VALID_DESCRIPTION_STR)
-        notnulldescription_action_df = ActionCenterTransformations.calculate_action_health_control_category(notnulldescription_action_df,ActionCenterConstants.GOVERNANCE_STR)
-        notnulldescription_action_df = ActionCenterTransformations.calculate_action_health_control_name(notnulldescription_action_df,ActionCenterConstants.COMPLETENESS_STR)
+        #HasDescription
+        hasdescription_action_df = dataproduct_action_df.filter(col("HasDescription") < 1)
+        hasdescription_action_df = ActionCenterTransformations.calculate_action_display_name(hasdescription_action_df,ActionCenterConstants.DESCRIPTION_DISPLAY_NAME_STR)
+        hasdescription_action_df = ActionCenterTransformations.calculate_action_description(hasdescription_action_df,ActionCenterConstants.DP_VALID_DESCRIPTION_STR)
+        hasdescription_action_df = ActionCenterTransformations.calculate_action_health_control_category(hasdescription_action_df,ActionCenterConstants.GOVERNANCE_STR)
+        hasdescription_action_df = ActionCenterTransformations.calculate_action_health_control_name(hasdescription_action_df,ActionCenterConstants.COMPLETENESS_STR)
         
         #HasValidOwner
         validowner_action_df = dataproduct_action_df.filter(col("HasValidOwner") < 1)
@@ -138,7 +135,7 @@ class ActionCenterTransformations:
         accessentitlement_action_df = ActionCenterTransformations.calculate_action_health_control_category(accessentitlement_action_df,ActionCenterConstants.GOVERNANCE_STR)
         accessentitlement_action_df = ActionCenterTransformations.calculate_action_health_control_name(accessentitlement_action_df,ActionCenterConstants.COMPLETENESS_STR)
         
-        union_df = [validusecase_action_df,datashareagreementsetorexempt_action_df,dataqualityscore_action_df,termsofuse_action_df,notnulldescription_action_df,validowner_action_df,accessentitlement_action_df]
+        union_df = [validusecase_action_df,datashareagreementsetorexempt_action_df,dataqualityscore_action_df,termsofuse_action_df,hasdescription_action_df,validowner_action_df,accessentitlement_action_df]
         merged_dataproduct_action_df = reduce(DataFrame.unionAll, union_df)
 
         #common transformations
@@ -154,17 +151,17 @@ class ActionCenterTransformations:
         businessdomain_action_df = ActionCenterTransformations.calculate_default_contact_description(businessdomain_action_df)
         businessdomain_action_df = ActionCenterTransformations.calculate_default_contact_id(businessdomain_action_df)
         
-        #HasNotNullDescription
-        notnulldescription_action_df = businessdomain_action_df.filter(col("HasNotNullDescription") < 1)
-        notnulldescription_action_df = ActionCenterTransformations.calculate_action_display_name(notnulldescription_action_df,ActionCenterConstants.DESCRIPTION_DISPLAY_NAME_STR)
-        notnulldescription_action_df = ActionCenterTransformations.calculate_action_description(notnulldescription_action_df,ActionCenterConstants.BD_VALID_DESCRIPTION_STR)
+        #HasDescription
+        hasdescription_action_df = businessdomain_action_df.filter(col("HasDescription") < 1)
+        hasdescription_action_df = ActionCenterTransformations.calculate_action_display_name(hasdescription_action_df,ActionCenterConstants.DESCRIPTION_DISPLAY_NAME_STR)
+        hasdescription_action_df = ActionCenterTransformations.calculate_action_description(hasdescription_action_df,ActionCenterConstants.BD_VALID_DESCRIPTION_STR)
         
         #HasValidOwner
         validowner_action_df = businessdomain_action_df.filter(col("HasValidOwner") < 1)
         validowner_action_df = ActionCenterTransformations.calculate_action_display_name(validowner_action_df,ActionCenterConstants.OWNER_DISPLAY_NAME_STR)
         validowner_action_df = ActionCenterTransformations.calculate_action_description(validowner_action_df,ActionCenterConstants.BD_VALID_OWNER_STR)
 
-        union_df = [validowner_action_df,notnulldescription_action_df]
+        union_df = [validowner_action_df,hasdescription_action_df]
         merged_businessdomain_action_df = reduce(DataFrame.unionAll, union_df)
         
         merged_businessdomain_action_df = ActionCenterTransformations.calculate_target_type(merged_businessdomain_action_df, ActionCenterConstants.BUSINESS_DOMAIN_STR)

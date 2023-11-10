@@ -42,4 +42,4 @@ if __name__ == "__main__":
     
     #Generate termschema_df
     termschema_df = BuildTerm.build_term_schema(source_term_df)
-    termschema_df.write.format("delta").mode("overwrite").save(sys.argv[3]+"TermSchema")
+    #termschema_df.write.format("delta").mode("overwrite").save(sys.argv[3]+"TermSchema")
