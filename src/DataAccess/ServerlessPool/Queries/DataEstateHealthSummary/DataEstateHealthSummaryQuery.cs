@@ -32,33 +32,33 @@ internal class DataEstateHealthSummaryQuery : BaseQuery, IServerlessQueryRequest
         return new DataEstateHealthSummaryRecord()
         {
             BusinessDomainId =
-                Guid.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.BusinessDomainId).Name]?.ToString()),
+                Guid.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.BusinessDomainId).Name].ToString()),
             TotalBusinessDomains =
-                int.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalBusinessDomains).Name]?.ToString()),
+                (row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalBusinessDomains).Name]?.ToString()).AsInt(),
             BusinessDomainsFilterListLink =
                 row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.BusinessDomainsFilterListLink).Name]?.ToString(),
             BusinessDomainsTrendLink =
                  row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.BusinessDomainsTrendLink).Name]?.ToString(),
             LastRefreshDate =
-                 DateTime.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.LastRefreshDate).Name]?.ToString()),
+                 (row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.LastRefreshDate).Name]?.ToString()).AsDateTime(),
             TotalCuratedDataAssetsCount =
-                int.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalCuratedDataAssetsCount).Name]?.ToString()),
+                 (row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalCuratedDataAssetsCount).Name]?.ToString()).AsInt(),
             TotalCuratableDataAssetsCount =
-                int.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalCuratableDataAssetsCount).Name]?.ToString()),
+                (row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalCuratableDataAssetsCount).Name]?.ToString()).AsInt(),
             TotalNonCuratableDataAssetsCount =
-                int.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalNonCuratableDataAssetsCount).Name]?.ToString()),
+                (row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalNonCuratableDataAssetsCount).Name]?.ToString()).AsInt(),
             DataAssetsTrendLink =
                  row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.DataAssetsTrendLink).Name]?.ToString(),
             TotalDataProductsCount =
-                int.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalDataProductsCount).Name]?.ToString()),
+                (row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalDataProductsCount).Name]?.ToString()).AsInt(),
             DataProductsTrendLink =
                 row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.DataProductsTrendLink).Name]?.ToString(),
             TotalOpenActionsCount =
-                int.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalOpenActionsCount).Name]?.ToString()),
+                (row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalOpenActionsCount).Name]?.ToString()).AsInt(),
             TotalCompletedActionsCount =
-                int.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalCompletedActionsCount).Name]?.ToString()),
+                (row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalCompletedActionsCount).Name]?.ToString()).AsInt(),
             TotalDismissedActionsCount =
-                int.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalDismissedActionsCount).Name]?.ToString()),
+                (row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalDismissedActionsCount).Name]?.ToString()).AsInt(),
             HealthActionsTrendLink =
                 row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.HealthActionsTrendLink).Name]?.ToString()
         };

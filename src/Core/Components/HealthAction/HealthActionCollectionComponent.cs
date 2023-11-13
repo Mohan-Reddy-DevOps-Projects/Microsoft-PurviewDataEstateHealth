@@ -21,6 +21,9 @@ internal class HealthActionCollectionComponent : BaseComponent<IHealthActionList
 
     [Inject]
     private IHealthActionRepository healthActionRepository;
+
+    [Inject]
+    private readonly IRequestHeaderContext requestHeaderContext;
 #pragma warning restore 649
 
     public HealthActionCollectionComponent(IHealthActionListContext context, int version) : base(context, version)
@@ -44,37 +47,19 @@ internal class HealthActionCollectionComponent : BaseComponent<IHealthActionList
         CancellationToken cancellationToken,
         string skipToken = null)
     {
-        IBatchResults<IHealthActionModel> actionResults = null;
-        if (!this.Context.BusinessDomainId.HasValue)
-        {
-            actionResults = await this.healthActionRepository.GetMultiple(
-            cancellationToken,
-            skipToken);
+        IBatchResults<IHealthActionModel> actionResults = await this.healthActionRepository.GetMultiple(
+            new HealthActionKey(this.Context.BusinessDomainId, this.Context.AccountId, new Guid(this.requestHeaderContext.CatalogId)),
+            cancellationToken, skipToken);
 
-            if (actionResults == null)
-            {
-                throw new ServiceError(
-                   ErrorCategory.ResourceNotFound,
-                   ErrorCode.HealthActions_NotAvailable.Code,
-                   ErrorCode.HealthActions_NotAvailable.FormatMessage("Health actions not available for all business domains."))
-               .ToException();
-            }
-        }
-        else
+        if (actionResults == null)
         {
-            actionResults = await this.healthActionRepository.GetMultiple(new HealthActionKey(this.Context.BusinessDomainId.Value),
-                cancellationToken,
-                skipToken);
-
-            if (actionResults == null)
-            {
-                throw new ServiceError(
-                   ErrorCategory.ResourceNotFound,
-                   ErrorCode.HealthActions_NotAvailable.Code,
-                   ErrorCode.HealthActions_NotAvailable.FormatMessage(this.Context.BusinessDomainId.ToString()))
-               .ToException();
-            }
+            throw new ServiceError(
+               ErrorCategory.ResourceNotFound,
+               ErrorCode.HealthActions_NotAvailable.Code,
+               ErrorCode.HealthActions_NotAvailable.FormatMessage("Health actions not available for all business domains."))
+           .ToException();
         }
+
         return actionResults;
     }
 }

@@ -11,7 +11,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 /// Health action repository interface
 /// </summary>
 public interface IHealthActionRepository : IGetMultipleOperation<IHealthActionModel, HealthActionKey>,
-    ILocationBased<IHealthActionRepository>,
-    IGetMultipleOperationWithoutCriteria<IHealthActionModel>
+    ILocationBased<IHealthActionRepository>
 {
 }

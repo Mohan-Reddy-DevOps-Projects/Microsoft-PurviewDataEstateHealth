@@ -50,4 +50,9 @@ internal class QueryConstants
     {
         public static readonly string BusinessDomainId = "BusinessDomainId";
     }
+
+    public class HealthActionColumnNamesForKey
+    {
+        public static readonly string BusinessDomainId = "BusinessDomainId";
+    }
 }
