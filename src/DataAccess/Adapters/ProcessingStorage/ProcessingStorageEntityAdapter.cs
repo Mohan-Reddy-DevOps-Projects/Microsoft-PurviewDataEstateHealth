@@ -20,7 +20,8 @@ internal sealed class ProcessingStorageEntityAdapter : TableEntityConverter<Proc
             PartitionKey = accountId,
             Properties = JsonSerializer.Serialize(model.Properties),
             RowKey = model.Name,
-            TenantId = model.TenantId.ToString()
+            TenantId = model.TenantId.ToString(),
+            CatalogId = model.CatalogId.ToString(),
         };
     }
 
@@ -38,6 +39,7 @@ internal sealed class ProcessingStorageEntityAdapter : TableEntityConverter<Proc
             Name = entity.RowKey,
             Properties = JsonSerializer.Deserialize<ProcessingStoragePropertiesModel>(entity.Properties),
             TenantId = Guid.Parse(entity.TenantId),
+            CatalogId = Guid.Parse(entity.CatalogId)
         };
     }
 }

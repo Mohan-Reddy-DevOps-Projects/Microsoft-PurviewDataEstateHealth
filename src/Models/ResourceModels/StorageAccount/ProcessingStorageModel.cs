@@ -38,6 +38,11 @@ public class ProcessingStorageModel
     public Guid TenantId { get; set; }
 
     /// <summary>
+    /// Gets or sets the catalog identifier.
+    /// </summary>
+    public Guid CatalogId { get; set; }
+
+    /// <summary>
     /// Returns a string that represents the current object.
     /// </summary>
     /// <returns></returns>

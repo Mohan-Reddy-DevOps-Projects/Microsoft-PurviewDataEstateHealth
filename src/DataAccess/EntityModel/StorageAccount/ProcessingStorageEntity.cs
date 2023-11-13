@@ -9,4 +9,6 @@ internal class ProcessingStorageEntity : TableEntity
     public string Properties { get; set; }
 
     public string TenantId { get; set; }
+
+    public string CatalogId { get; set; }
 }

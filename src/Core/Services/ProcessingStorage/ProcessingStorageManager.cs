@@ -246,6 +246,7 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
             Id = existingStorageModel?.Id ?? Guid.NewGuid(),
             Name = this.storageConfiguration.StorageNamePrefix,
             TenantId = Guid.Parse(accountServiceModel.TenantId),
+            CatalogId = Guid.Parse(accountServiceModel.DefaultCatalogId),
             Properties = new()
             {
                 CreatedAt = existingStorageModel?.Properties?.CreatedAt ?? now,
