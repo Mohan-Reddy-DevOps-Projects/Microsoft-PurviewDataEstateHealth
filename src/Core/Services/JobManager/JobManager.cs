@@ -19,14 +19,13 @@ using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Polly;
 using System.Collections.Concurrent;
 using Microsoft.DGP.ServiceBasics.Errors;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
+using Microsoft.Extensions.Options;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.AspNetCore.Http;
 
 /// <inheritdoc />
-public abstract class JobManager : IJobManager
+public class JobManager : IJobManager
 {
     /// <summary>
     /// Default retry interval
@@ -65,25 +64,18 @@ public abstract class JobManager : IJobManager
         IRequestHeaderContext requestHeaderContext,
         IDataEstateHealthRequestLogger dataEstateHealthRequestLogger,
         IOptions<EnvironmentConfiguration> environmentConfiguration,
-        IOptions<JobConfiguration> jobConfiguration,
-        IStorageCredentialsProvider storageCredentialsProvider,
+        IJobManagementStorageAccountBuilder jobStorageAccountBuilder,
         WorkerJobExecutionContext workerJobExecutionContext = WorkerJobExecutionContext.None)
     {
-        var dataConsistencyOptions = new StorageConsistencyOptions
-        {
-            ShardingEnabled = false,
-            ReplicationEnabled = false
-        };
-
         this.JobManagementClient = new Lazy<Task<JobManagementClient>>(async () =>
         {
-            StorageCredentials storageCredentials = await storageCredentialsProvider.GetCredentialsAsync();
-            var cloudStorageAccount = new CloudStorageAccount(
-                storageCredentials: storageCredentials,
-                jobConfiguration.Value.StorageAccountName,
-                endpointSuffix: environmentConfiguration.Value.AzureEnvironment.StorageEndpointSuffix,
-                useHttps: true);
+            var dataConsistencyOptions = new StorageConsistencyOptions
+            {
+                ShardingEnabled = false,
+                ReplicationEnabled = false
+            };
 
+            var cloudStorageAccount = await jobStorageAccountBuilder.Build();
             return new JobManagementClient(
                 storageAccount: cloudStorageAccount,
                 executionAffinity: environmentConfiguration.Value.Location,
@@ -300,6 +292,47 @@ public abstract class JobManager : IJobManager
         return false;
     }
 
+
+    /// <inheritdoc />
+    public async Task ProvisionEventProcessorJob()
+    {
+        string jobPartition = "PARTNER-EVENT-CONSUMERS";
+        string jobId = "DATA-GOVERNANCE-PARTNER-EVENTS-CONSUMER";
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var requestHeaderContext = new RequestHeaderContext(new HttpContextAccessor());
+            requestHeaderContext.SetCorrelationIdInRequestContext(Guid.NewGuid().ToString());
+
+            var jobMetadata = new PartnerEventsConsumerJobMetadata
+            {
+                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                RequestHeaderContext = requestHeaderContext,
+                DataAccessEventsProcessed = false,
+                DataCatalogEventsProcessed = false,
+                DataQualityEventsProcessed = false,
+            };
+
+            JobBuilder jobBuilder = JobManager.GetJobBuilderWithDefaultOptions(
+                    nameof(PartnerEventsConsumerJobCallback),
+                    jobMetadata,
+                    jobPartition,
+                    jobId)
+                .WithoutStartTime()
+                .WithRepeatStrategy(TimeSpan.FromMinutes(5))
+                .WithRetryStrategy(TimeSpan.FromMinutes(1));
+
+            await this.CreateJobAsync(jobBuilder);
+        }
+    }
+
     /// <summary>
     /// Creates a job
     /// </summary>
@@ -499,27 +532,5 @@ public abstract class JobManager : IJobManager
         }
 
         return existingJob.JobId;
-    }
-
-    /// <inheritdoc />
-    public async Task<string> DataEstateHealthFabricProvisioningJob(Guid accountId, Guid tenantId, Guid catalogId)
-    {
-        var jobMetadata = new DataEstateHealthFabricProvisioningJobMetadata
-        {
-            AccountId = accountId,
-            TenantId = tenantId,
-            CatalogId = catalogId,
-            RequestHeaderContext = this.RequestHeaderContext,
-            WorkerJobExecutionContext = this.WorkerJobExecutionContext
-        };
-
-        JobBuilder jobBuider = JobManager.GetJobBuilderWithDefaultOptions(
-            nameof(DataEstateHealthFabricProvisioningJobCallback),
-            jobMetadata,
-            accountId.ToString());
-
-        await this.CreateJobAsync(jobBuider);
-
-        return jobBuider.JobId;
     }
 }

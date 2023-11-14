@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------
+// -----------------------------------------------------------
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
@@ -12,6 +12,8 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 
 /// <summary>
 /// Worker service startup.
@@ -25,15 +27,20 @@ public static class Startup
     /// <param name="configurationManager">The configuration manager</param>
     public static void Configure(IServiceCollection services, ConfigurationManager configurationManager)
     {
-        string appSettingsJson = Environment.GetEnvironmentVariable("APP_SETTINGS_JSON") ?? throw new Exception("environment variable 'APP_SETTINGS_JSON' is missing");
+        string appSettingsJson = System.Environment.GetEnvironmentVariable("APP_SETTINGS_JSON") ?? throw new Exception("environment variable 'APP_SETTINGS_JSON' is missing");
         configurationManager.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettingsJson)));
 
         services.AddWorkerServiceConfigurations(configurationManager);
 
         services
             .AddLogger()
-            .AddCoreLayer();
+            .AddDataAccessLayer()
+            .AddServiceBasicsForWorkerService()
+            .AddCoreLayer()
+            .AddPartnerEventsProcessor();
 
+        services.AddSingleton<IJobManagementStorageAccountBuilder, JobManagementStorageAccountBuilder>();
+        services.AddScoped<IJobManager, JobManager>();
         services.AddHostedService<WorkerService>();
     }
 }

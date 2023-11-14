@@ -115,7 +115,7 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
         this.JobCallbackUtils = new JobCallbackUtils<TMetadata>(this.Metadata);
         string jobName = this.GetType().Name.Replace("Callback", string.Empty);
 
-        this.TraceActivity = otelInstrumentation.ActivitySource.StartActivity($"{jobName}-{this.BackgroundJob.JobId}",
+        this.TraceActivity = otelInstrumentation?.ActivitySource.StartActivity($"{jobName}-{this.BackgroundJob.JobId}",
             ActivityKind.Consumer);
 
         if (this.TraceActivity != null)

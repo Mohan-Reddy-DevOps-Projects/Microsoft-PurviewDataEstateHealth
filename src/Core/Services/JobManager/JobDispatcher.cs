@@ -14,7 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
 
 /// <summary>
 /// Job Dispatcher
@@ -22,6 +21,10 @@ using Microsoft.WindowsAzure.Storage.Auth;
 public class JobDispatcher : JobDispatcherClient, IJobDispatcher
 {
     private readonly IDataEstateHealthLogger dataEstateHealthLogger;
+
+    private readonly EnvironmentConfiguration environmentConfiguration;
+
+    private readonly IServiceProvider scopedServiceProvider;
 
     /// <summary>
     /// JobDispatcher constructor
@@ -44,7 +47,9 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
             factory: new WorkerJobCallbackFactory(serviceProvider),
             instrumentationSource: null)
     {
+        this.environmentConfiguration = environmentConfiguration;
         this.dataEstateHealthLogger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
+        this.scopedServiceProvider = serviceProvider.CreateScope().ServiceProvider;
 
         // All JobCallbacks should be available in the same assembly as the JobDispatcher.
         this.RegisterJobCallbackAssembly(typeof(JobDispatcher).Assembly);
@@ -57,15 +62,8 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
     public static async Task<JobDispatcher> CreateAsync(IServiceProvider serviceProvider)
     {
         EnvironmentConfiguration environmentConfiguration = serviceProvider.GetRequiredService<IOptions<EnvironmentConfiguration>>().Value;
-        JobConfiguration jobConfiguration = serviceProvider.GetRequiredService<IOptions<JobConfiguration>>().Value;
-        IStorageCredentialsProvider storageCredentialsProvider = serviceProvider.GetRequiredService<IStorageCredentialsProvider>();
-
-        StorageCredentials storageCredentials = await storageCredentialsProvider.GetRenewableCredentialsAsync();
-        var cloudStorageAccount = new CloudStorageAccount(
-            storageCredentials: storageCredentials,
-            jobConfiguration.StorageAccountName,
-            endpointSuffix: environmentConfiguration.AzureEnvironment.StorageEndpointSuffix,
-            useHttps: true);
+        IJobManagementStorageAccountBuilder jobStorageAccountBuilder = serviceProvider.GetRequiredService<IJobManagementStorageAccountBuilder>();
+        CloudStorageAccount cloudStorageAccount = await jobStorageAccountBuilder.Build();
 
         return new JobDispatcher(
             cloudStorageAccount,
@@ -84,7 +82,15 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
 
             this.Start();
 
-            await this.ProvisionSystemConsistencyJob();
+            if (!environmentConfiguration.IsDevelopmentEnvironment())
+            {
+                await this.ProvisionSystemConsistencyJob();
+            }
+
+            IJobManager jobManager = this.scopedServiceProvider.GetRequiredService<IJobManager>();
+
+            // All jobs to be provisioned when service comes up...
+            await jobManager.ProvisionEventProcessorJob();
 
             this.dataEstateHealthLogger.LogInformation("Job dispatcher started successfully.");
         }

@@ -44,7 +44,11 @@ public static class CoreLayer
 
 
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
+        services.AddScoped<IRequestHeaderContextFactory, RequestHeaderContextFactory>();
         services.AddScoped<ICoreLayerFactory, CoreLayerFactory>();
+
+        services.AddScoped<IJobManager, JobManager>();
+        services.AddSingleton<IJobManagementStorageAccountBuilder, JobManagementStorageAccountBuilder>();
 
         services.AddTransient<IAzureResourceManagerFactory, AzureResourceManagerFactory>();
 
@@ -85,6 +89,17 @@ public static class CoreLayer
         services.AddScoped<HealthProfileCommand>();
         services.AddScoped<HealthWorkspaceCommand>();
         services.AddScoped<IDatabaseManagementService, DatabaseManagementService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Initializes the partner event processor services.
+    /// </summary>
+    /// <param name="services">Service collection</param>
+    public static IServiceCollection AddPartnerEventsProcessor(this IServiceCollection services)
+    {
+        services.AddSingleton<IPartnerEventsProcessorFactory, PartnerEventsProcessorFactory>();
 
         return services;
     }

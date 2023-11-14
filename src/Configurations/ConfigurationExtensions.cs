@@ -27,12 +27,8 @@ public static class ConfigurationExtensions
             .Configure<ServerlessPoolAuthConfiguration>(configuration.GetSection("serverlessPoolAuth"))
             .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"))
             .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
-            .Configure<AuxStorageConfiguration>(configuration.GetSection("auxStorage"))
             .Configure<FirstPartyAadAppConfiguration>(configuration.GetSection("firstPartyAadApp"))
             .Configure<DGProcessingStorageConfiguration>(configuration.GetSection("dgprocessingStorage"))
-            .Configure<ProcessingStorageAuthConfiguration>(configuration.GetSection("processingStorage"))
-            .Configure<ProcessingStorageConfiguration>(configuration.GetSection("processingStorage"))
-            .Configure<AccountStorageTableConfiguration>(configuration.GetSection("accountStorageTable"))
             .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
             .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"));
 
@@ -46,7 +42,8 @@ public static class ConfigurationExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddCommonConfigurations(configuration);
+        services.AddCommonConfigurations(configuration)
+            .AddEventHubConfigurations(configuration);
 
         return services;
     }
@@ -61,8 +58,12 @@ public static class ConfigurationExtensions
         services.AddOptions()
             .Configure<GenevaConfiguration>(configuration.GetSection("geneva"))
             .Configure<EnvironmentConfiguration>(configuration.GetSection("environment"))
-            .Configure<JobConfiguration>(configuration.GetSection("job"))
+            .Configure<JobConfiguration>(configuration.GetSection("jobManagerConfiguration"))
             .Configure<ServiceConfiguration>(configuration.GetSection("service"))
+            .Configure<AccountStorageTableConfiguration>(configuration.GetSection("accountStorageTable"))
+            .Configure<AuxStorageConfiguration>(configuration.GetSection("auxStorage"))
+            .Configure<ProcessingStorageConfiguration>(configuration.GetSection("processingStorage"))
+            .Configure<ProcessingStorageAuthConfiguration>(configuration.GetSection("processingStorage"))
             .Configure<MetadataServiceConfiguration>(configuration.GetSection("metadataService"))
             .Configure<ExposureControlConfiguration>(configuration.GetSection("exposureControl"));
         return services;
@@ -77,6 +78,20 @@ public static class ConfigurationExtensions
     {
         services.AddOptions()
             .Configure<PartnerConfiguration>(configuration.GetSection("partner"));
+        return services;
+    }
+
+    /// <summary>
+    /// Configurations common for event hub processor.
+    /// </summary>
+    private static IServiceCollection AddEventHubConfigurations(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddOptions()
+            .Configure<DataQualityEventHubConfiguration>(configuration.GetSection("eventhubConfiguration"))
+            .Configure<DataCatalogEventHubConfiguration>(configuration.GetSection("eventhubConfiguration"))
+            .Configure<DataAccessEventHubConfiguration>(configuration.GetSection("eventhubConfiguration"));
         return services;
     }
 }

@@ -21,6 +21,7 @@
         "dataAccessServiceEndpoint": "df-westus2.dataaccess.dgcatalog.purview-service.azure-test.com",
         "exposureControlEnvironment": "DogfoodWestUS2",
         "shortLocation": "wus2",
+        "dgEventhubNamespaceRegionSuffix": "wus2",
         "metadataServiceEndpoint": "westus2.rp.purview-service.azure-test.com",
         "catalog": {
             "eventHubNamespaceName": "dg-df-hub-wus2",

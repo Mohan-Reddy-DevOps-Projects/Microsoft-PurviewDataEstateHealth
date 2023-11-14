@@ -21,6 +21,7 @@
         "dataAccessServiceEndpoint": "prod-eastus2euap.dataaccess.dgcatalog.purview-service.azure.com",
         "exposureControlEnvironment": "CanaryEastUS2EUAP",
         "shortLocation": "eus2euap",
+        "dgEventhubNamespaceRegionSuffix": "eus2",
         "metadataServiceEndpoint": "eastus2euap.rp.purview-service.azure.com",
         "catalog": {
             "eventHubNamespaceName": "dg-cnry-hub-eus2",

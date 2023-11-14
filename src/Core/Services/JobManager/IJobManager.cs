@@ -98,11 +98,8 @@ public interface IJobManager
         ErrorCode errorCode);
 
     /// <summary>
-    /// Create data estate health fabric provisioning job.
+    /// Provisions event processing job
     /// </summary>
-    /// <param name="accountId">The Account Id.</param>
-    /// <param name="tenantId">The Tenant Id.</param>
-    /// <param name="catalogId">The Catalog Id.</param>
-    /// <returns>A Task returning a String.</returns>
-    Task<string> DataEstateHealthFabricProvisioningJob(Guid accountId, Guid tenantId, Guid catalogId);
+    /// <returns></returns>
+    Task ProvisionEventProcessorJob();
 }
