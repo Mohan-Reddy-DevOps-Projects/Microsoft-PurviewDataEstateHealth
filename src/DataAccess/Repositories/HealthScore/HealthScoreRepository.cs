@@ -8,23 +8,30 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 using Microsoft.DGP.ServiceBasics.BaseModels;
-using Newtonsoft.Json;
 
 internal class HealthScoreRepository : IHealthScoreRepository
 {
     private readonly ModelAdapterRegistry modelAdapterRegistry;
 
+    private readonly IProcessingStorageManager processingStorageManager;
+
     private readonly string location;
 
-    const string healthScoreDataAllDomainsJson = @"[{""scoreKind"":""DataGovernance"",""name"":""Governance score"",""description"":""Review your governance maturity posture based on the Cloud Data Management Council's framework."",""reportId"":""01f57eba-87e9-4f1c-b340-b8812ae21cff"",""actualValue"":90.4,""targetValue"":80,""measureUnit"":""%"",""performanceIndicatorRules"":[{""ruleOrder"":0,""minValue"":0,""maxValue"":40,""displayText"":""Unhealthy"",""defaultColor"":""#D13438""},{""ruleOrder"":1,""minValue"":41,""maxValue"":80,""displayText"":""Medium"",""defaultColor"":""#E8CC78""},{""ruleOrder"":2,""minValue"":81,""maxValue"":100,""displayText"":""Healthy"",""defaultColor"":""#80D091""}]},{""scoreKind"":""DataQuality"",""name"":""Dataqualityscore"",""description"":""Evaluate the quality of your data products and data assets to determine the irusefulness towards business goals."",""reportId"":""eae23f9f-4806-46eb-82a7-e5b879a6ea68"",""actualValue"":70,""targetValue"":30,""measureUnit"":""%"",""performanceIndicatorRules"":[{""ruleOrder"":0,""minValue"":0,""maxValue"":40,""displayText"":""Unhealthy"",""defaultColor"":""#D13438""},{""ruleOrder"":1,""minValue"":41,""maxValue"":80,""displayText"":""Medium"",""defaultColor"":""#E8CC78""},{""ruleOrder"":2,""minValue"":81,""maxValue"":100,""displayText"":""Healthy"",""defaultColor"":""#80D091""}]},{""scoreKind"":""DataCuration"",""name"":""Data curation"",""description"":""Review curated and uncurated data."",""reportId"":""eae24f9f-4806-46eb-82a7-e5b879a6ea68"",""totalCuratedCount"":158,""totalCanBeCuratedCount"":781,""totalCannotBeCuratedCount"":1714}]";
+    private readonly IServerlessQueryExecutor queryExecutor;
 
-    const string healthScoreDataOneDomainJson = @"[{""scoreKind"":""DataGovernance"",""name"":""Governance score"",""description"":""Review your governance maturity posture based on the Cloud Data Management Council's framework."",""reportId"":""01f57eba-87e9-4f1c-b340-b8812ae21cff"",""actualValue"":35,""targetValue"":24,""measureUnit"":""%"",""performanceIndicatorRules"":[{""ruleOrder"":0,""minValue"":0,""maxValue"":40,""displayText"":""Unhealthy"",""defaultColor"":""#D13438""},{""ruleOrder"":1,""minValue"":41,""maxValue"":80,""displayText"":""Medium"",""defaultColor"":""#E8CC78""},{""ruleOrder"":2,""minValue"":81,""maxValue"":100,""displayText"":""Healthy"",""defaultColor"":""#80D091""}]},{""scoreKind"":""DataQuality"",""name"":""Dataqualityscore"",""description"":""Evaluate the quality of your data products and data assets to determine the irusefulness towards business goals."",""reportId"":""eae23f9f-4806-46eb-82a7-e5b879a6ea68"",""actualValue"":70,""targetValue"":30,""measureUnit"":""%"",""performanceIndicatorRules"":[{""ruleOrder"":0,""minValue"":0,""maxValue"":40,""displayText"":""Unhealthy"",""defaultColor"":""#D13438""},{""ruleOrder"":1,""minValue"":41,""maxValue"":80,""displayText"":""Medium"",""defaultColor"":""#E8CC78""},{""ruleOrder"":2,""minValue"":81,""maxValue"":100,""displayText"":""Healthy"",""defaultColor"":""#80D091""}]},{""scoreKind"":""DataCuration"",""name"":""Data curation"",""description"":""Review curated and uncurated data."",""reportId"":""eae24f9f-4806-46eb-82a7-e5b879a6ea68"",""totalCuratedCount"":158,""totalCanBeCuratedCount"":781,""totalCannotBeCuratedCount"":1714}]";
+    private readonly IServerlessQueryRequestBuilder queryRequestBuilder;
 
     public HealthScoreRepository(
          ModelAdapterRegistry modelAdapterRegistry,
+         IProcessingStorageManager processingStorageManager,
+         IServerlessQueryExecutor queryExecutor,
+         IServerlessQueryRequestBuilder queryRequestBuilder,
          string location = null)
     {
         this.modelAdapterRegistry = modelAdapterRegistry;
+        this.processingStorageManager = processingStorageManager;
+        this.queryExecutor = queryExecutor;
+        this.queryRequestBuilder = queryRequestBuilder;
         this.location = location;
     }
 
@@ -33,31 +40,30 @@ internal class HealthScoreRepository : IHealthScoreRepository
          CancellationToken cancellationToken,
          string continuationToken = null)
     {
-        var healthScoreEntitiesList = JsonConvert.DeserializeObject<IList<HealthScoreEntity>>(healthScoreDataOneDomainJson);
+        string containerPath = await this.ConstructContainerPath(healthScoreKey.CatalogId.ToString(), healthScoreKey.AccountId, cancellationToken);
+
+        IServerlessQueryRequest<HealthScoreRecord, HealthScoreEntity> query;
+
+        if (healthScoreKey == null || !healthScoreKey.BusinessDomainId.HasValue)
+        {
+            query = this.queryRequestBuilder.Build<HealthScoreRecord, HealthScoreEntity>(containerPath, clauseBuilder =>
+            {
+                clauseBuilder.WhereClause(QueryConstants.HealthScoresColumnNamesForKey.BusinessDomainId, Guid.Empty.ToString());
+            });
+        }
+        else
+        {
+            query = this.queryRequestBuilder.Build<HealthScoreRecord, HealthScoreEntity>(containerPath, clauseBuilder =>
+            {
+                clauseBuilder.WhereClause(QueryConstants.HealthScoresColumnNamesForKey.BusinessDomainId, healthScoreKey.BusinessDomainId.Value.ToString());
+            });
+        }
+
+        var healthScoreEntitiesList = await this.queryExecutor
+            .ExecuteAsync<HealthScoreRecord, HealthScoreEntity>(query, cancellationToken);
 
         var healthScoreModelList = new List<IHealthScoreModel<HealthScoreProperties>>();
         foreach (var healthScoresEntity in healthScoreEntitiesList)
-        {
-            healthScoreModelList.Add(this.modelAdapterRegistry
-                               .AdapterFor<IHealthScoreModel<HealthScoreProperties>, HealthScoreEntity>()
-                                              .ToModel(healthScoresEntity));
-        }
-
-        return await Task.FromResult(new BaseBatchResults<IHealthScoreModel<HealthScoreProperties>>
-        {
-            Results = healthScoreModelList,
-            ContinuationToken = null
-        });
-    }
-
-    public async Task<IBatchResults<IHealthScoreModel<HealthScoreProperties>>> GetMultiple(
-        CancellationToken cancellationToken,
-        string continuationToken = null)
-    {
-        var healthScoreEntititiesList = JsonConvert.DeserializeObject<IList<HealthScoreEntity>>(healthScoreDataAllDomainsJson);
-
-        var healthScoreModelList = new List<IHealthScoreModel<HealthScoreProperties>>();
-        foreach (var healthScoresEntity in healthScoreEntititiesList)
         {
             healthScoreModelList.Add(this.modelAdapterRegistry
                                .AdapterFor<IHealthScoreModel<HealthScoreProperties>, HealthScoreEntity>()
@@ -75,6 +81,17 @@ internal class HealthScoreRepository : IHealthScoreRepository
     {
         return new HealthScoreRepository(
             this.modelAdapterRegistry,
+            this.processingStorageManager,
+            this.queryExecutor,
+            this.queryRequestBuilder,
             location);
+    }
+
+    private async Task<string> ConstructContainerPath(string containerName, Guid accountId, CancellationToken cancellationToken)
+    {
+        Models.ProcessingStorageModel storageModel = await this.processingStorageManager.Get(accountId, cancellationToken);
+        ArgumentNullException.ThrowIfNull(storageModel, nameof(storageModel));
+
+        return $"{storageModel.GetDfsEndpoint()}/{containerName}";
     }
 }

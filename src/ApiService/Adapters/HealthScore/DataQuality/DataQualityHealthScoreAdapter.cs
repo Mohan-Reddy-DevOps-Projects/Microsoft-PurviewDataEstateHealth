@@ -48,16 +48,20 @@ public class DataQualityHealthScoreAdapter : BaseModelAdapter<DataQualityScoreMo
     public override DataQualityScore FromModel(DataQualityScoreModel model)
     {
         var performanceIndicatorRulesListDTO = new List<PerformanceIndicatorRules>();
-        foreach (var rule in model.Properties.PerformanceIndicatorRules)
+
+        if (model.Properties.PerformanceIndicatorRules != null)
         {
-            performanceIndicatorRulesListDTO.Add(new PerformanceIndicatorRules
+            foreach (var rule in model.Properties.PerformanceIndicatorRules)
             {
-                RuleOrder = rule.RuleOrder,
-                MinValue = rule.MinValue,
-                MaxValue = rule.MaxValue,
-                DefaultColor = rule.DefaultColor,
-                DisplayText = rule.DisplayText,
-            });
+                performanceIndicatorRulesListDTO.Add(new PerformanceIndicatorRules
+                {
+                    RuleOrder = rule.RuleOrder,
+                    MinValue = rule.MinValue,
+                    MaxValue = rule.MaxValue,
+                    DefaultColor = rule.DefaultColor,
+                    DisplayText = rule.DisplayText,
+                });
+            }
         }
 
         return new DataQualityScore
@@ -71,7 +75,7 @@ public class DataQualityHealthScoreAdapter : BaseModelAdapter<DataQualityScoreMo
                 MeasureUnit = model.Properties.MeasureUnit,
                 PerformanceIndicatorRules = performanceIndicatorRulesListDTO,
                 ActualValue = model.Properties.ActualValue,
-                TargetValue = model.Properties.TargetValue,
+                TargetValue = model.Properties.TargetValue
             }
         };
     }

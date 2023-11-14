@@ -71,7 +71,7 @@ public class DataGovernanceHealthScoreAdapter : BaseModelAdapter<DataGovernanceS
                 MeasureUnit = model.Properties.MeasureUnit,
                 PerformanceIndicatorRules = performanceIndicatorRulesListDTO,
                 ActualValue = model.Properties.ActualValue,
-                TargetValue = model.Properties.TargetValue, 
+                TargetValue = model.Properties.TargetValue
             }
         };
     }

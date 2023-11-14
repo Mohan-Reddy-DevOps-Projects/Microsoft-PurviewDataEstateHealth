@@ -15,13 +15,13 @@ public class GovernanceAndQualityScoreProperties : HealthScoreProperties
     /// Actual Value.
     /// </summary>
     [JsonProperty("actualValue")]
-    public int ActualValue { get; set; }
+    public float ActualValue { get; set; }
 
     /// <summary>
     /// Target Value.
     /// </summary>
     [JsonProperty("targetValue")]
-    public int TargetValue { get; set; }
+    public float TargetValue { get; set; }
 
     /// <summary>
     /// Measure Unit.

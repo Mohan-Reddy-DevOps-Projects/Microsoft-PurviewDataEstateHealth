@@ -11,7 +11,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 /// Health score repository interface
 /// </summary>
 public interface IHealthScoreRepository : IGetMultipleOperation<IHealthScoreModel<HealthScoreProperties>, HealthScoreKey>,
-    ILocationBased<IHealthScoreRepository>,
-    IGetMultipleOperationWithoutCriteria<IHealthScoreModel<HealthScoreProperties>>
+    ILocationBased<IHealthScoreRepository>
 {
 }

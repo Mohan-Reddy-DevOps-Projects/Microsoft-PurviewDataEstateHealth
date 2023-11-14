@@ -15,13 +15,13 @@ public class GovernanceAndQualityScoreProperties
     /// Actual Value.
     /// </summary>
     [ReadOnly(true)]
-    public int ActualValue { get; internal set; }
+    public float ActualValue { get; internal set; }
 
     /// <summary>
     /// Target Value.
     /// </summary>
     [ReadOnly(true)]
-    public int TargetValue { get; set; }
+    public float TargetValue { get; set; }
 
     /// <summary>
     /// Measure Unit.

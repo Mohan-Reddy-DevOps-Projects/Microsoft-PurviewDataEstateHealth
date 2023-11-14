@@ -56,7 +56,7 @@ public static class QueryUtils
     /// <summary>
     /// TryParse as float.
     /// </summary>
-    public static double AsFloat(this string? input)
+    public static float AsFloat(this string? input)
     {
         if (!float.TryParse(input, out float result))
         {

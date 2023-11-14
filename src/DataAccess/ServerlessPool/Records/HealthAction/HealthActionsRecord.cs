@@ -4,8 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-
 /// <summary>
 /// Intermediate record for health actions.
 /// </summary>

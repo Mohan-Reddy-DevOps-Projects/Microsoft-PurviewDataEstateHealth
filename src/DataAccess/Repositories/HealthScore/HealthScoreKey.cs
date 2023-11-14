@@ -12,15 +12,27 @@ public class HealthScoreKey
     /// <summary>
     /// Initializes a new instance of the <see cref="HealthScoreKey"/> class.
     /// </summary>
-    public HealthScoreKey(Guid businessDomainId)
+    public HealthScoreKey(Guid? businessDomainId, Guid accountId, Guid catalogId)
     {
         this.BusinessDomainId = businessDomainId;
+        this.AccountId = accountId;
+        this.CatalogId = catalogId;
     }
 
     /// <summary>
-    ///Business DomainId.
+    /// Business DomainId.
     /// </summary>
-    public Guid BusinessDomainId { get; set; }
+    public Guid? BusinessDomainId { get; set; }
+
+    /// <summary>
+    /// AccountId
+    /// </summary>
+    public Guid AccountId { get; set; }
+
+    /// <summary>
+    /// CatalogId
+    /// </summary>
+    public Guid CatalogId { get; set; }
 
     /// <inheritdoc />
     public override string ToString()

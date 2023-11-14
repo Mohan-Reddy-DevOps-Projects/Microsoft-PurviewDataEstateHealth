@@ -28,10 +28,10 @@ internal class DataGovernanceHealthScoreEntity : HealthScoreEntity
     }
 
     [JsonProperty("actualValue")]
-    public int ActualValue { get; set; }
+    public float ActualValue { get; set; }
 
     [JsonProperty("targetValue")]
-    public int TargetValue { get; set; }
+    public float TargetValue { get; set; }
 
     [JsonProperty("measureUnit")]
     public string MeasureUnit { get; set; }

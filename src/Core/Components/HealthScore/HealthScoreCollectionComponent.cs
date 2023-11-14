@@ -20,6 +20,9 @@ internal class HealthScoreCollectionComponent : BaseComponent<IHealthScoreListCo
 
     [Inject]
     private IHealthScoreRepository healthScoreRepository;
+
+    [Inject]
+    private readonly IRequestHeaderContext requestHeaderContext;
 #pragma warning restore 649
 
     public HealthScoreCollectionComponent(IHealthScoreListContext context, int version) : base(context, version)
@@ -43,15 +46,10 @@ internal class HealthScoreCollectionComponent : BaseComponent<IHealthScoreListCo
         CancellationToken cancellationToken,
         string skipToken = null)
     {
-        if(!this.Context.BusinessDomainId.HasValue)
-        {
-            return await this.healthScoreRepository.GetMultiple(
-             cancellationToken,
-             skipToken);
-        }
+        IBatchResults<IHealthScoreModel<HealthScoreProperties>> scoreResults = await this.healthScoreRepository.GetMultiple(
+             new HealthScoreKey(this.Context.BusinessDomainId, this.Context.AccountId, new Guid(this.requestHeaderContext.CatalogId)),
+             cancellationToken, skipToken);
 
-        return await this.healthScoreRepository.GetMultiple(new HealthScoreKey(this.Context.BusinessDomainId.Value),
-             cancellationToken,
-             skipToken);
+        return scoreResults;
     }
 }
