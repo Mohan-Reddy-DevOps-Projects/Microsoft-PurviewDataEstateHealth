@@ -51,5 +51,13 @@
         }
       }
     }
+  ],
+  "wait": [
+    {
+      "name": "skip",
+      "properties": {
+        "duration": "PT1M"
+      }
+    }
   ]
 }

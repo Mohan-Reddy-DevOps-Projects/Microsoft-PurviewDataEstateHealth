@@ -198,6 +198,17 @@ extends:
               files_to_sign: '**/*.exe;**/*.dll;**/*.ps1;**/*.psm1'
               search_root: '$(Build.SourcesDirectory)/target'
 
+          - task: ArchiveFiles@2
+            displayName: "Archive Power BI files"
+            inputs:
+              rootFolderOrFile: '$(Build.SourcesDirectory)/powerbi'
+              includeRootFolder: false
+              archiveType: "tar"
+              tarCompression: none
+              archiveFile: '$(Build.SourcesDirectory)/target/Release/x64/Ev2Deployment/Ev2ServiceArtifactsRoot/powerbi.tar'
+              replaceExistingArchive: true
+              verbose: true
+
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
               repositoryName: apiservice

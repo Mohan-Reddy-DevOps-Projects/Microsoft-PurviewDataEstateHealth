@@ -16,31 +16,27 @@
       "launch": {
         "command": [
           "/bin/bash",
-          "run.sh"
+          "deployPowerBI.sh"
         ],
         "environmentVariables": [
           {
-            "name": "DESTINATION_ACR_NAME",
-            "value": "__CORE_ACR_NAME__"
+            "name": "SUBSCRIPTION_ID",
+            "value": "__INFRA_SUBSCRIPTION_ID__"
           },
           {
-            "name": "TARBALL_IMAGE_FILE_SAS",
+            "name": "POWER_BI_ARCHIVE_SAS",
             "reference": {
-              "path": "dgh.workerservice.tar.gz"
+              "path": "powerbi.tar"
             },
             "asSecureValue": "true"
           },
           {
-            "name": "TAG_NAME",
-            "value": "__INFRA_IMAGE_TAG_NAME__"
+            "name": "STORAGE_ACCOUNT_NAME",
+            "value": "__INFRA_JOB_STORAGE_ACCOUNT_NAME__"
           },
           {
-            "name": "DESTINATION_FILE_NAME",
-            "value": "dgh.workerservice.tar.gz"
-          },
-          {
-            "name": "IMAGE_NAME",
-            "value": "__INFRA_WORKER_SERVICE_IMAGE_NAME__"
+            "name": "DESTINATION_CONTAINER_NAME",
+            "value": "powerbi"
           }
         ],
         "identity": {

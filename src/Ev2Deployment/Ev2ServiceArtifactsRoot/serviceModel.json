@@ -105,6 +105,9 @@
               "templatePath": "Templates\\containerAppDnsRecords.json",
               "parametersPath": "Parameters\\apiServiceContainerAppDnsRecords.parameters.json",
               "deploymentLevel": "ResourceGroup"
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\wait.rollout.parameters.json"
             }
           },
           "scopeTags": [
@@ -123,6 +126,9 @@
               "templatePath": "Templates\\containerApp.json",
               "parametersPath": "Parameters\\apiServiceContainerApp.parameters.json",
               "deploymentLevel": "ResourceGroup"
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\wait.rollout.parameters.json"
             }
           },
           "scopeTags": [
@@ -144,6 +150,9 @@
               "templatePath": "Templates\\containerApp.json",
               "parametersPath": "Parameters\\workerServiceContainerApp.parameters.json",
               "deploymentLevel": "ResourceGroup"
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\wait.rollout.parameters.json"
             }
           },
           "scopeTags": [
@@ -153,6 +162,28 @@
             {
               "name": "Core"
             },
+            {
+              "name": "Infrastructure"
+            }
+          ]
+        },
+        {
+          "name": "powerBIFilesResourceDefintion",
+          "composedOf": {
+            "extension": {
+              "rolloutParametersPath": "Parameters\\deployPowerBI.rollout.parameters.json",
+              "shell": [
+                {
+                  "type": "Run",
+                  "properties": {
+                    "imageName": "adm-ubuntu-1804-l",
+                    "imageVersion": "v30"
+                  }
+                }
+              ]
+            }
+          },
+          "scopeTags": [
             {
               "name": "Infrastructure"
             }
@@ -175,6 +206,9 @@
               "templatePath": "Templates\\processingStorage.json",
               "parametersPath": "Parameters\\processingStorage.parameters.json",
               "deploymentLevel": "ResourceGroup"
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\wait.rollout.parameters.json"
             }
           },
           "scopeTags": [
