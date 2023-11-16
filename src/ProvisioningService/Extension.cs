@@ -22,7 +22,7 @@ public static class Extension
     public static IServiceCollection AddProvisioningService(this IServiceCollection services)
     {
         services.AddScoped<IPartnerService<AccountServiceModel, IPartnerDetails>, AccountPartnerService>();
-        services.AddPartnerHttpClient("PartnerServiceClient");
+        services.AddPartnerHttpClient(PartnerServiceBase.PartnerClient);
 
         return services;
     }
