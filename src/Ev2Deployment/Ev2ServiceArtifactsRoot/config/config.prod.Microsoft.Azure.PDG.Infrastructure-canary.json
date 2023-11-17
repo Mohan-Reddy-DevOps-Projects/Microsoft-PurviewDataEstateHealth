@@ -17,6 +17,7 @@
         "azureEnvironment": "AzureGlobalCloud",
         "synapseRegion": "eastus2euap",
         "useEstsr": "true",
+        "copilotServiceEndpoint": "prod-eastus2euap.copilot.dgcatalog.purview-service.azure.com",
         "catalogServiceEndpoint": "prod-eastus2euap.dgcatalog.purview-service.azure.com",
         "dataAccessServiceEndpoint": "prod-eastus2euap.dataaccess.dgcatalog.purview-service.azure.com",
         "exposureControlEnvironment": "CanaryEastUS2EUAP",
