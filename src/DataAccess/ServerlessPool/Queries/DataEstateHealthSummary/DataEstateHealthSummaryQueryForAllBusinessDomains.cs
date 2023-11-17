@@ -9,30 +9,28 @@ using System.Data;
 using static Microsoft.Azure.Purview.DataEstateHealth.Common.QueryUtils;
 
 [ServerlessQuery(typeof(DataEstateHealthSummaryEntity))]
-internal class DataEstateHealthSummaryQuery : BaseQuery, IServerlessQueryRequest<DataEstateHealthSummaryRecord, DataEstateHealthSummaryEntity>
+internal class DataEstateHealthSummaryQueryForAllBusinessDomains : BaseQuery, IServerlessQueryRequest<DataEstateHealthSummaryRecordForAllBusinessDomains, DataEstateHealthSummaryEntity>
 {
-    public string QueryPath => $"{this.ContainerPath}/Sink/DomainHealthSummary/";
+    public string QueryPath => $"{this.ContainerPath}/Sink/HealthSummary/";
 
     public string Query
     {
-        get => "SELECT BusinessDomainId, TotalBusinessDomains, BusinessDomainsFilterListLink, BusinessDomainsTrendLink, LastRefreshDate," +
+        get => "SELECT TotalBusinessDomains, BusinessDomainsFilterListLink, BusinessDomainsTrendLink, LastRefreshDate," +
                "TotalCuratedDataAssetsCount, TotalCuratableDataAssetsCount, TotalNonCuratableDataAssetsCount, DataAssetsTrendLink," +
                "TotalDataProductsCount, DataProductsTrendLink," +
                "TotalOpenActionsCount, TotalCompletedActionsCount, TotalDismissedActionsCount, HealthActionsTrendLink" +
                QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) +
-               "WITH(BusinessDomainId nvarchar(64),TotalBusinessDomains BIGINT, BusinessDomainsFilterListLink nvarchar(512),BusinessDomainsTrendLink nvarchar(512), LastRefreshDate DATE," +
+               "WITH(TotalBusinessDomains BIGINT, BusinessDomainsFilterListLink nvarchar(512),BusinessDomainsTrendLink nvarchar(512), LastRefreshDate DATE," +
                "TotalCuratedDataAssetsCount BIGINT, TotalCuratableDataAssetsCount BIGINT, TotalNonCuratableDataAssetsCount BIGINT, DataAssetsTrendLink nvarchar(512)," +
                "TotalDataProductsCount BIGINT, DataProductsTrendLink nvarchar(512)," +
                "TotalOpenActionsCount BIGINT, TotalCompletedActionsCount BIGINT, TotalDismissedActionsCount BIGINT, HealthActionsTrendLink nvarchar(512)" +
-               QueryConstants.ServerlessQuery.AsRows + this.FilterClause;
+               QueryConstants.ServerlessQuery.AsRows;
     }
 
-    public DataEstateHealthSummaryRecord ParseRow(IDataRecord row)
+    public DataEstateHealthSummaryRecordForAllBusinessDomains ParseRow(IDataRecord row)
     {
-        return new DataEstateHealthSummaryRecord()
+        return new DataEstateHealthSummaryRecordForAllBusinessDomains()
         {
-            BusinessDomainId =
-                Guid.Parse(row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.BusinessDomainId).Name].ToString()),
             TotalBusinessDomains =
                 (row[GetCustomAttribute<DataColumnAttribute, DataEstateHealthSummaryRecord>(x => x.TotalBusinessDomains).Name]?.ToString()).AsInt(),
             BusinessDomainsFilterListLink =
@@ -72,7 +70,7 @@ internal class DataEstateHealthSummaryQuery : BaseQuery, IServerlessQueryRequest
             return entityList;
         }
 
-        foreach (DataEstateHealthSummaryRecord record in records)
+        foreach (DataEstateHealthSummaryRecordForAllBusinessDomains record in records)
         {
             entityList.Add(new DataEstateHealthSummaryEntity()
             {

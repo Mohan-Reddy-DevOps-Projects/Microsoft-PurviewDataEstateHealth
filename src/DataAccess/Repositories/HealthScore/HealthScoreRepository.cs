@@ -42,14 +42,11 @@ internal class HealthScoreRepository : IHealthScoreRepository
     {
         string containerPath = await this.ConstructContainerPath(healthScoreKey.CatalogId.ToString(), healthScoreKey.AccountId, cancellationToken);
 
-        IServerlessQueryRequest<HealthScoreRecord, HealthScoreEntity> query;
+        IServerlessQueryRequest<HealthScoreRecordForAllBusinessDomains, HealthScoreEntity> query;
 
         if (healthScoreKey == null || !healthScoreKey.BusinessDomainId.HasValue)
         {
-            query = this.queryRequestBuilder.Build<HealthScoreRecord, HealthScoreEntity>(containerPath, clauseBuilder =>
-            {
-                clauseBuilder.WhereClause(QueryConstants.HealthScoresColumnNamesForKey.BusinessDomainId, Guid.Empty.ToString());
-            });
+            query = this.queryRequestBuilder.Build<HealthScoreRecordForAllBusinessDomains, HealthScoreEntity>(containerPath);
         }
         else
         {
@@ -59,8 +56,7 @@ internal class HealthScoreRepository : IHealthScoreRepository
             });
         }
 
-        var healthScoreEntitiesList = await this.queryExecutor
-            .ExecuteAsync<HealthScoreRecord, HealthScoreEntity>(query, cancellationToken);
+        var healthScoreEntitiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
         var healthScoreModelList = new List<IHealthScoreModel<HealthScoreProperties>>();
         foreach (var healthScoresEntity in healthScoreEntitiesList)

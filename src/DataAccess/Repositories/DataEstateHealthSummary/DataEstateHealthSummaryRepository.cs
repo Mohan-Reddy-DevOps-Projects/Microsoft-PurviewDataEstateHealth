@@ -38,14 +38,11 @@ internal class DataEstateHealthSummaryRepository : IDataEstateHealthSummaryRepos
     {
         string containerPath = await this.ConstructContainerPath(summaryKey.CatalogId.ToString(), summaryKey.AccountId, cancellationToken);
 
-        IServerlessQueryRequest<DataEstateHealthSummaryRecord, DataEstateHealthSummaryEntity> query;
+        IServerlessQueryRequest<DataEstateHealthSummaryRecordForAllBusinessDomains, DataEstateHealthSummaryEntity> query;
 
         if (summaryKey == null || !summaryKey.DomainId.HasValue)
         {
-            query = this.queryRequestBuilder.Build<DataEstateHealthSummaryRecord, DataEstateHealthSummaryEntity>(containerPath, clauseBuilder =>
-            {
-                clauseBuilder.WhereClause(QueryConstants.DataEstateHealthSummaryColumnNamesForKey.BusinessDomainId, Guid.Empty.ToString());
-            });
+            query = this.queryRequestBuilder.Build<DataEstateHealthSummaryRecordForAllBusinessDomains, DataEstateHealthSummaryEntity>(containerPath);
         }
         else
         {

@@ -10,25 +10,22 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using static Microsoft.Azure.Purview.DataEstateHealth.Common.QueryUtils;
 
 [ServerlessQuery(typeof(HealthScoreEntity))]
-internal class HealthScoresQuery : BaseQuery, IServerlessQueryRequest<HealthScoreRecord, HealthScoreEntity>
+internal class HealthScoresQueryForAllBusinessDomains : BaseQuery, IServerlessQueryRequest<HealthScoreRecordForAllBusinessDomains, HealthScoreEntity>
 {
-    public string QueryPath => $"{this.ContainerPath}/Sink/DomainHealthScores/";
+    public string QueryPath => $"{this.ContainerPath}/Sink/HealthScores/";
 
     public string Query
     {
-        get => "SELECT ScoreKind, Name, Description, ActualValue, BusinessDomainId " +
+        get => "SELECT ScoreKind, Name, Description, ActualValue " +
                QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) +
-               "WITH(ScoreKind nvarchar(128), Name nvarchar(128), Description nvarchar(1024), ActualValue float," +
-               "BusinessDomainId  nvarchar(64))" +
-               QueryConstants.ServerlessQuery.AsRows + this.FilterClause;
+               "WITH(ScoreKind nvarchar(128), Name nvarchar(128), Description nvarchar(1024), ActualValue float" +
+               QueryConstants.ServerlessQuery.AsRows;
     }
 
-    public HealthScoreRecord ParseRow(IDataRecord row)
+    public HealthScoreRecordForAllBusinessDomains ParseRow(IDataRecord row)
     {
-        return new HealthScoreRecord()
-        {
-            BusinessDomainId =
-                Guid.Parse(row[GetCustomAttribute<DataColumnAttribute, HealthScoreRecord>(x => x.BusinessDomainId).Name]?.ToString()),
+        return new HealthScoreRecordForAllBusinessDomains()
+        { 
             Name =
                 row[GetCustomAttribute<DataColumnAttribute, HealthScoreRecord>(x => x.Name).Name]?.ToString(),
             Description =
@@ -44,7 +41,7 @@ internal class HealthScoresQuery : BaseQuery, IServerlessQueryRequest<HealthScor
     {
         IList<HealthScoreEntity> entityList = new List<HealthScoreEntity>();
 
-        foreach (HealthScoreRecord record in records)
+        foreach (HealthScoreRecordForAllBusinessDomains record in records)
         {
             var performanceIndicatorRules = new List<PerformanceIndicatorRules>()
             {
