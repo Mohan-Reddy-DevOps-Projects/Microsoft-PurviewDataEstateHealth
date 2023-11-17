@@ -20,4 +20,10 @@ internal class PartnerEventsConsumerJobMetadata : StagedWorkerJobMetadata
     /// Flag indicating if data quality events processed.
     /// </summary>
     public bool DataQualityEventsProcessed;
+
+    /// <summary>
+    /// Cache for already retrieved processing store accounts.
+    /// </summary>
+    public IDictionary<string, string> ProcessingStoresCache;
+
 }

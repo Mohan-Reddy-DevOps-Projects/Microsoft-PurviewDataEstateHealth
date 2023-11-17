@@ -28,7 +28,6 @@ public static class ConfigurationExtensions
             .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"))
             .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
             .Configure<FirstPartyAadAppConfiguration>(configuration.GetSection("firstPartyAadApp"))
-            .Configure<DGProcessingStorageConfiguration>(configuration.GetSection("dgprocessingStorage"))
             .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
             .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"));
 
@@ -63,7 +62,7 @@ public static class ConfigurationExtensions
             .Configure<AccountStorageTableConfiguration>(configuration.GetSection("accountStorageTable"))
             .Configure<AuxStorageConfiguration>(configuration.GetSection("auxStorage"))
             .Configure<ProcessingStorageConfiguration>(configuration.GetSection("processingStorage"))
-            .Configure<ProcessingStorageAuthConfiguration>(configuration.GetSection("processingStorage"))
+            .Configure<ProcessingStorageAuthConfiguration>(configuration.GetSection("processingStorageAuth"))
             .Configure<MetadataServiceConfiguration>(configuration.GetSection("metadataService"))
             .Configure<ExposureControlConfiguration>(configuration.GetSection("exposureControl"));
         return services;

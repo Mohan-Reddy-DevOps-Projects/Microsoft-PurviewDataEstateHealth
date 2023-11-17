@@ -6,22 +6,30 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using global::Azure.Messaging.EventHubs;
 using global::Azure.Messaging.EventHubs.Processor;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
 {
+    private const string SourcePathFragment = "Source";
+    private const string DeletedPathFragment = "_Deleted";
+
     private readonly EventSourceType eventSourceType;
 
     private readonly AuxStorageConfiguration auxStorageConfiguration;
 
     private readonly IBlobStorageAccessor blobStorageAccessor;
 
-    private readonly AzureCredentialFactory azureCredentialFactory;
+    private readonly IProcessingStorageManager processingStorageManager;
 
     private readonly EventHubConfiguration eventHubConfiguration;
 
@@ -29,32 +37,44 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
 
     private EventProcessorClient EventProcessor;
 
+
     protected readonly IDataEstateHealthRequestLogger DataEstateHealthRequestLogger;
 
-    protected readonly ICollection<ProcessEventArgs> EventsToProcess = new List<ProcessEventArgs>();
+    protected readonly AzureCredentialFactory AzureCredentialFactory;
+
+    protected readonly IDeltaLakeOperatorFactory DeltaWriterFactory;
+
+    protected readonly IDictionary<string, IList<ProcessEventArgs>> EventArgsToCheckpoint;
+
+    protected readonly ICollection<ProcessEventArgs> EventsToProcess;
+
+    protected IDictionary<string, string> ProcessingStorageCache;
 
     protected PartnerEventsProcessor(
-        IDataEstateHealthRequestLogger dataEstateHealthRequestLogger,
-        AuxStorageConfiguration auxStorageConfiguration,
+        IServiceProvider serviceProvider,
         EventHubConfiguration eventHubConfiguration,
-        IBlobStorageAccessor blobStorageAccessor,
-        AzureCredentialFactory azureCredentialFactory,
         EventSourceType eventSourceType)
     {
         this.eventSourceType = eventSourceType;
         this.EventsToProcess = new List<ProcessEventArgs>();
-        this.DataEstateHealthRequestLogger = dataEstateHealthRequestLogger;
-        this.auxStorageConfiguration = auxStorageConfiguration;
+        this.DataEstateHealthRequestLogger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
+        this.auxStorageConfiguration = serviceProvider.GetRequiredService<IOptions<AuxStorageConfiguration>>().Value;
         this.eventHubConfiguration = eventHubConfiguration;
-        this.blobStorageAccessor = blobStorageAccessor;
-        this.azureCredentialFactory = azureCredentialFactory;
+        this.blobStorageAccessor = serviceProvider.GetRequiredService<IBlobStorageAccessor>();
+        this.AzureCredentialFactory = serviceProvider.GetRequiredService<AzureCredentialFactory>();
+        this.processingStorageManager = serviceProvider.GetRequiredService<IProcessingStorageManager>();
+        this.DeltaWriterFactory = serviceProvider.GetRequiredService<IDeltaLakeOperatorFactory>();
+
+        this.EventsToProcess = new List<ProcessEventArgs>();
+        this.ProcessingStorageCache = new Dictionary<string, string>();
+        this.EventArgsToCheckpoint = new Dictionary<string, IList<ProcessEventArgs>>();
     }
 
     public EventSourceType EventProcessorType => this.eventSourceType;
 
     public async Task StartAsync(int maxProcessingTimeInSeconds = 10, int maxTimeoutInSeconds = 120)
     {
-        this.DataEstateHealthRequestLogger.LogError($"Attempting to start {this.EventProcessorType} event processor.");
+        this.DataEstateHealthRequestLogger.LogTrace($"Attempting to start {this.EventProcessorType} event processor.");
 
         try
         {
@@ -75,7 +95,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
 
     public async Task StopAsync()
     {
-        this.DataEstateHealthRequestLogger.LogError($"Attempting to stop {this.EventProcessorType} event processor if running.");
+        this.DataEstateHealthRequestLogger.LogTrace($"Attempting to stop {this.EventProcessorType} event processor if running.");
 
         if (this.EventProcessor?.IsRunning == true)
         {
@@ -86,6 +106,140 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
     }
 
     public abstract Task CommitAsync(IDictionary<string, string> processingStoresCache = null);
+
+    protected void ParseEventPayload<T>(EventHubModel eventHubModel, Dictionary<EventOperationType, List<T>> entityModels)
+    {
+        try
+        {
+            var entityModel = JsonConvert.DeserializeObject<T>(((eventHubModel.Payload.After ?? eventHubModel.Payload.Before) ?? eventHubModel.Payload.Before).ToString());
+            if (!entityModels.ContainsKey(eventHubModel.OperationType))
+            {
+                entityModels.Add(eventHubModel.OperationType, new List<T> { entityModel });
+            }
+            else
+            {
+                entityModels[eventHubModel.OperationType].Add(entityModel);
+            }
+        }
+        catch (JsonException exception)
+        {
+            this.DataEstateHealthRequestLogger.LogError($"Failed to parse event payload of type: {eventHubModel.PayloadKind}.", exception);
+        }
+    }
+
+    protected async Task PersistToStorage<T>(Dictionary<EventOperationType, List<T>> eventHubEntityModels, IDeltaLakeOperator deltaTableWriter, string prefix)
+        where T : BaseEventHubEntityModel
+    {
+        var eventHubEntityModel = eventHubEntityModels.Values.FirstOrDefault()?.FirstOrDefault();
+        if (eventHubEntityModel == null)
+        {
+            return;
+        }
+
+        var schemaDefinition = eventHubEntityModel.GetSchemaDefinition();
+        List<T> mergedCreateEvents = new();
+        if (eventHubEntityModels.TryGetValue(EventOperationType.Create, out List<T> createRows))
+        {
+            mergedCreateEvents.AddRange(createRows);
+        }
+
+        if (eventHubEntityModels.TryGetValue(EventOperationType.Update, out List<T> updateRows))
+        {
+            mergedCreateEvents.AddRange(updateRows);
+        }
+
+        if (mergedCreateEvents.Count > 0)
+        {
+            await deltaTableWriter.CreateOrAppendDataset($"/{SourcePathFragment}/{prefix}/{eventHubEntityModel.GetPayloadKind()}", schemaDefinition, mergedCreateEvents);
+        }
+
+        if (eventHubEntityModels.TryGetValue(EventOperationType.Delete, out List<T> deleteRows))
+        {
+            await deltaTableWriter.CreateOrAppendDataset($"/{SourcePathFragment}/{prefix}/{DeletedPathFragment}/{eventHubEntityModel.GetPayloadKind()}", schemaDefinition, deleteRows);
+        }
+    }
+
+    protected async Task CommitCheckpoints()
+    {
+        if (this.EventArgsToCheckpoint.Count < 1)
+        {
+            return;
+        }
+
+        try
+        {
+            foreach (var eventArgs in this.EventArgsToCheckpoint)
+            {
+                await Task.WhenAll(eventArgs.Value.Select(e => e.UpdateCheckpointAsync()).ToArray());
+            }
+
+            this.DataEstateHealthRequestLogger.LogInformation($"Committed event checkpoint(s) for {this.EventArgsToCheckpoint.Count} accounts(s).");
+        }
+        catch (Exception exception)
+        {
+            // Ideally should not reach here
+            this.DataEstateHealthRequestLogger.LogCritical("Failed to commit event checkpoint(s).", exception);
+        }
+    }
+
+    protected async Task<bool> ProcessingStorageExists(string accountId)
+    {
+        if (!this.ProcessingStorageCache.ContainsKey(accountId))
+        {
+            ProcessingStorageModel storageModel = await processingStorageManager.Get(Guid.Parse(accountId), CancellationToken.None);
+
+            if (storageModel == null)
+            {
+                this.DataEstateHealthRequestLogger.LogError($"Un-provisioned Purview account {accountId} encountered.");
+                this.EventArgsToCheckpoint.Remove(accountId);
+                return false;
+            }
+
+            this.ProcessingStorageCache.Add(accountId, $"{storageModel.GetDfsEndpoint()}/{storageModel.CatalogId}");
+        }
+
+        return true;
+    }
+
+    protected Dictionary<string, List<EventHubModel>> GetEventsByAccount()
+    {
+        Dictionary<string, List<EventHubModel>> eventsByAccount = new Dictionary<string, List<EventHubModel>>();
+        foreach (ProcessEventArgs eventArgs in this.EventsToProcess)
+        {
+            if (eventArgs.Data == null || eventArgs.Partition == null)
+            {
+                continue;
+            }
+
+            this.DataEstateHealthRequestLogger.LogTrace($"Current position Event Props - Partition: {eventArgs.Partition.PartitionId} | Sequence: {eventArgs.Data.SequenceNumber} | Offset: {eventArgs.Data.Offset}.");
+            var eventMessage = Encoding.UTF8.GetString(eventArgs.Data.Body.ToArray());
+
+            try
+            {
+                EventHubModel eventModel = JsonConvert.DeserializeObject<EventHubModel>(eventMessage);
+                string accountId = eventModel.AccountId;
+
+                List<EventHubModel> eventList;
+                if (eventsByAccount.TryGetValue(accountId, out eventList))
+                {
+                    eventList.Add(eventModel);
+                    this.EventArgsToCheckpoint[accountId].Add(eventArgs);
+                }
+                else
+                {
+                    eventsByAccount.Add(accountId, new List<EventHubModel> { eventModel });
+                    this.EventArgsToCheckpoint.Add(accountId, new List<ProcessEventArgs>() { eventArgs });
+                }
+            }
+            catch (JsonException exception)
+            {
+                this.DataEstateHealthRequestLogger.LogError($"Failed to parse event payload: {eventMessage}.", exception);
+                continue;
+            }
+        }
+
+        return eventsByAccount;
+    }
 
     private async Task BuildEventProcessor()
     {
@@ -102,7 +256,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
             this.eventHubConfiguration.ConsumerGroup,
             this.eventHubConfiguration.EventHubNamespace,
             this.eventHubConfiguration.EventHubName,
-            azureCredentialFactory.CreateDefaultAzureCredential(new Uri(this.eventHubConfiguration.Authority)));
+            AzureCredentialFactory.CreateDefaultAzureCredential(new Uri(this.eventHubConfiguration.Authority)));
 
         this.EventProcessor.ProcessEventAsync += this.ProcessEventHandler;
         this.EventProcessor.ProcessErrorAsync += this.ProcessErrorHandler;
@@ -112,7 +266,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
     {
         if (!eventArgs.HasEvent || eventArgs.Data == null || eventArgs.Partition == null)
         {
-            this.DataEstateHealthRequestLogger.LogInformation($"No data read. Trying later.");
+            this.DataEstateHealthRequestLogger.LogWarning($"No data read. Trying later.");
             return;
         }
 

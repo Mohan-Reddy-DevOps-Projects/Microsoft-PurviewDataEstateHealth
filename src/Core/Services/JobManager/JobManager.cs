@@ -318,6 +318,7 @@ public class JobManager : IJobManager
                 DataAccessEventsProcessed = false,
                 DataCatalogEventsProcessed = false,
                 DataQualityEventsProcessed = false,
+                ProcessingStoresCache = new Dictionary<string, string>(),
             };
 
             JobBuilder jobBuilder = JobManager.GetJobBuilderWithDefaultOptions(
@@ -326,8 +327,8 @@ public class JobManager : IJobManager
                     jobPartition,
                     jobId)
                 .WithoutStartTime()
-                .WithRepeatStrategy(TimeSpan.FromMinutes(5))
-                .WithRetryStrategy(TimeSpan.FromMinutes(1));
+                .WithRepeatStrategy(TimeSpan.FromMinutes(15))
+                .WithRetryStrategy(TimeSpan.FromMinutes(5));
 
             await this.CreateJobAsync(jobBuilder);
         }

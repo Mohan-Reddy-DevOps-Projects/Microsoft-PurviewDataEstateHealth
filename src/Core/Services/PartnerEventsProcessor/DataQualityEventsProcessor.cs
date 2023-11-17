@@ -11,16 +11,11 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 internal class DataQualityEventsProcessor : PartnerEventsProcessor
 {
     public DataQualityEventsProcessor(
-        IDataEstateHealthRequestLogger dataEstateHealthRequestLogger,
-        AuxStorageConfiguration auxStorageConfiguration,
-        DataQualityEventHubConfiguration eventHubConfiguration,
-        IBlobStorageAccessor blobStorageAccessor,
-        AzureCredentialFactory azureCredentialFactory)
+        IServiceProvider serviceProvider,
+        DataQualityEventHubConfiguration eventHubConfiguration)
         : base(
-            dataEstateHealthRequestLogger,
-            auxStorageConfiguration,
-            eventHubConfiguration, blobStorageAccessor,
-            azureCredentialFactory,
+            serviceProvider,
+            eventHubConfiguration,
             EventSourceType.DataAccess)
     {
     }

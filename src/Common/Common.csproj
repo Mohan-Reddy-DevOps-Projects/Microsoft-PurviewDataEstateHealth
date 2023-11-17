@@ -14,6 +14,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Http" />
     <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" />
     <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
+    <PackageReference Include="Microsoft.Data.DeltaLake" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime" />
     <PackageReference Include="Microsoft.WindowsAzure.ResourceStack" />

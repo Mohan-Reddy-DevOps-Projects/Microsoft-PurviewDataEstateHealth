@@ -100,6 +100,7 @@ public static class CoreLayer
     public static IServiceCollection AddPartnerEventsProcessor(this IServiceCollection services)
     {
         services.AddSingleton<IPartnerEventsProcessorFactory, PartnerEventsProcessorFactory>();
+        services.AddScoped<IDeltaLakeOperatorFactory, DeltaLakeOperatorFactory>();
 
         return services;
     }

@@ -22,39 +22,22 @@ internal class PartnerEventsProcessorFactory : IPartnerEventsProcessorFactory
 
     public IPartnerEventsProcessor Build(EventSourceType eventSourceType)
     {
-        AuxStorageConfiguration auxStorageConfiguration = this.scope.ServiceProvider.GetRequiredService<IOptions<AuxStorageConfiguration>>().Value;
-        IDataEstateHealthRequestLogger dataEstateHealthRequestLogger = this.scope.ServiceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
-        IBlobStorageAccessor blobStorageAccessor = this.scope.ServiceProvider.GetRequiredService<IBlobStorageAccessor>();
-        AzureCredentialFactory azureCredentialFactory = this.scope.ServiceProvider.GetRequiredService<AzureCredentialFactory>();
-
         switch (eventSourceType)
         {
             case EventSourceType.DataCatalog:
-                DataCatalogEventHubConfiguration dataCatalogEventHubConfiguration = this.scope.ServiceProvider.GetRequiredService<IOptions<DataCatalogEventHubConfiguration>>().Value;
                 return new DataCatalogEventsProcessor(
-                    dataEstateHealthRequestLogger,
-                    auxStorageConfiguration,
-                    dataCatalogEventHubConfiguration,
-                    blobStorageAccessor,
-                    azureCredentialFactory);
+                    this.scope.ServiceProvider,
+                    this.scope.ServiceProvider.GetRequiredService<IOptions<DataCatalogEventHubConfiguration>>().Value);
 
             case EventSourceType.DataAccess:
-                DataAccessEventHubConfiguration dataAccessEventHubConfiguration = this.scope.ServiceProvider.GetRequiredService<IOptions<DataAccessEventHubConfiguration>>().Value;
                 return new DataAccessEventsProcessor(
-                    dataEstateHealthRequestLogger,
-                    auxStorageConfiguration,
-                    dataAccessEventHubConfiguration,
-                    blobStorageAccessor,
-                    azureCredentialFactory);
+                    this.scope.ServiceProvider,
+                    this.scope.ServiceProvider.GetRequiredService<IOptions<DataAccessEventHubConfiguration>>().Value);
 
             case EventSourceType.DataQuality:
-                DataQualityEventHubConfiguration dataQualityEventHubConfiguration = this.scope.ServiceProvider.GetRequiredService<IOptions<DataQualityEventHubConfiguration>>().Value;
                 return new DataQualityEventsProcessor(
-                    dataEstateHealthRequestLogger,
-                    auxStorageConfiguration,
-                    dataQualityEventHubConfiguration,
-                    blobStorageAccessor,
-                    azureCredentialFactory);
+                    this.scope.ServiceProvider,
+                    this.scope.ServiceProvider.GetRequiredService<IOptions<DataQualityEventHubConfiguration>>().Value);
 
             default:
                 throw new ArgumentException($"Unsupported event source type: {eventSourceType}");

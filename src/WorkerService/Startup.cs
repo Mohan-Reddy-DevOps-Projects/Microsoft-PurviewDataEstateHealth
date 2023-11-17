@@ -39,8 +39,6 @@ public static class Startup
             .AddCoreLayer()
             .AddPartnerEventsProcessor();
 
-        services.AddSingleton<IJobManagementStorageAccountBuilder, JobManagementStorageAccountBuilder>();
-        services.AddScoped<IJobManager, JobManager>();
         services.AddHostedService<WorkerService>();
     }
 }

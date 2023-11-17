@@ -47,7 +47,7 @@ internal class DataCatalogEventsProcessingStage : IJobCallbackStage
 
             await processor.StopAsync();
 
-            await processor.CommitAsync();
+            await processor.CommitAsync(this.metadata.ProcessingStoresCache);
 
             jobStageStatus = JobExecutionStatus.Postponed;
             jobStatusMessage = $"Consumed events from {this.StageName}";
