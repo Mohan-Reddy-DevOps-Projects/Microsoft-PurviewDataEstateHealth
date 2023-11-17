@@ -25,18 +25,18 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[BusinessDomain]
         (
-            [BusinessDomainId] nvarchar (64),
+            [BusinessDomainId] nvarchar (36),
             [BusinessDomainDisplayName] nvarchar (256),
-            [HasNotNullDescription] int,
-            [CreatedAt] nvarchar (32),
-            [CreatedBy] nvarchar (256),
-            [ModifiedAt] nvarchar (32),
-            [ModifiedBy] nvarchar (256),
+            [HasDescription] int,
             [GlossaryTermCount] int,
             [DataProductCount] int,
             [IsRootDomain] int,
-            [LastRefreshedAt] int,
-            [HasValidOwner] int
+            [HasValidOwner] int,
+            [CreatedAt] datetime2,
+            [CreatedBy] nvarchar (64),
+            [ModifiedAt] datetime2,
+            [ModifiedBy] nvarchar (64),
+            [LastRefreshedAt] datetime2
         )
         WITH (
             LOCATION='/Sink/BusinessDomainSchema/',
@@ -53,9 +53,9 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[BusinessDomainContactAssociation]
         (
-            [BusinessDomainId] nvarchar (64),
-            [ContactId] nvarchar (64),
-            [ContactRole] nvarchar (64),
+            [BusinessDomainId] nvarchar (36),
+            [ContactId] nvarchar (36),
+            [ContactRole] nvarchar (36),
             [IsActive] int
         )
         WITH (
@@ -65,24 +65,24 @@ BEGIN TRAN
         )
     END
 
-    -- IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'BusinessDomainDataProductAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
-    -- BEGIN
-    --     DROP EXTERNAL TABLE [@schemaName].[BusinessDomainDataProductAssociation]
-    -- END
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'BusinessDomainDataProductAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[BusinessDomainDataProductAssociation]
+    END
 
-    -- BEGIN
-    --     CREATE EXTERNAL TABLE [@schemaName].[BusinessDomainDataProductAssociation]
-    --     (
-    --         [DataProductId] nvarchar (64),
-    --         [BusinessDomainId] nvarchar (64),
-    --         [IsPrimaryDataProduct] int
-    --     )
-    --     WITH (
-    --         LOCATION='/Sink/DataProductDomainAssociation/',
-    --         DATA_SOURCE = [@containerName],
-    --         FILE_FORMAT = [DeltaLakeFormat]
-    --     )
-    -- END
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[BusinessDomainDataProductAssociation]
+        (
+            [DataProductId] nvarchar (36),
+            [BusinessDomainId] nvarchar (36),
+            [IsPrimaryDataProduct] int
+        )
+        WITH (
+            LOCATION='/Sink/DataProductDomainAssociation/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = [DeltaLakeFormat]
+        )
+    END
 
     IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'BusinessDomainTrends' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
     BEGIN
@@ -92,24 +92,25 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[BusinessDomainTrends]
         (
-            [BusinessDomainTrendId] nvarchar (64),
-            [BusinessDomainId] nvarchar (64),
+            [BusinessDomainTrendId] nvarchar (36),
+            [BusinessDomainId] nvarchar (36),
             [DataProductCount] int,
-            [AssetCount] int,
+            [AssetCount] bigint,
+            [TotalOpenActionsCount] int,
             [ClassificationPassCount] int,
             [GlossaryTermPassCount] int,
             [DataQualityScorePassCount] int,
-            [NotNullDataProductDescriptionPassCount] int,
+            [DataProductDescriptionPassCount] int,
             [ValidDataProductOwnerPassCount] int,
             [DataShareAgreementSetOrExemptPassCount] int,
-            [AuthoratativeSourcePassCount] int,
+            [AuthoritativeSourcePassCount] int,
             [ValidUseCasePassCount] int,
             [ValidTermsOfUsePassCount] int,
             [AccessEntitlementPassCount] int,
-            [LastRefreshedAt] int
+            [LastRefreshedAt] datetime2
         )
         WITH (
-            LOCATION = 'Sink/BusinessDomainTrends/',
+            LOCATION = 'Sink/BusinessDomainTrendsById/',
             DATA_SOURCE = [@containerName],
             FILE_FORMAT = [ParquetFormat]
         )
@@ -123,31 +124,20 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[DataAsset]
         (
-            [DataAssetId] nvarchar (64),
-            [_IGNORE_] nvarchar (64),
-            [__IGNORE__] nvarchar (64),
-            [CreatedAt] nvarchar (128),
-            [CreatedBy] nvarchar (256),
-            [ModifiedBy] nvarchar (256),
-            [ModifiedAt] nvarchar (32),
-            [LastRefreshedAt] int,
-            [HasNotNullDescription] int,
-            [CollectionId] nvarchar (64),
-            [DataAssetDisplayName] nvarchar(256),
-            [QualifiedName] nvarchar(512),
-            [SourceType] nvarchar (64),
-            [ObjectType] nvarchar (64),
-            [SourceInstance] nvarchar (64),
-            [CurationLevel] nvarchar (64),
-            [Provider] nvarchar (64),
-            [Platform] nvarchar (64),
-            [HasValidOwner] int,
-            [HasManualClassification] int,
-            [UnclassificationReason] nvarchar(512),
-            [HasSensitiveClassification] int,
+            [DataAssetId] nvarchar (36),
+            [BusinessDomainId] nvarchar (36),
+            [SourceAssetId] nvarchar (36),
+            [DisplayName] nvarchar (256),
+            [ObjectType] nvarchar (256),
+            [SourceType] nvarchar (256),
+            [HasClassification] int,
             [HasSchema] int,
-            [HasScannedClassification] int,
-            [GlossaryTermCount] int
+            [HasDescription] int,
+            [CreatedAt] datetime2,
+            [CreatedBy] nvarchar(64),
+            [ModifiedAt] datetime2,
+            [ModifiedBy] nvarchar (64),
+            [LastRefreshedAt] datetime2
         )
         WITH (
             LOCATION='/Sink/DataAssetSchema/',
@@ -164,9 +154,9 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[DataAssetContactAssociation]
         (
-            [DataAssetId] nvarchar (64),
+            [DataAssetId] nvarchar (36),
             [ContactRole] nvarchar (64),
-            [ContactId] nvarchar (64),
+            [ContactId] nvarchar (36),
             [IsActive] int
         )
         WITH (
@@ -184,26 +174,26 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[DataProduct]
         (
-            [DataProductId] nvarchar (64),
+            [DataProductId] nvarchar (36),
             [DataProductDisplayName] nvarchar (256),
-            [DataProductType] nvarchar (32),
+            [DataProductType] nvarchar (64),
+            [DataPoductStatus] nvarchar (64),
             [HasValidOwner] int,
             [HasValidUseCase] int,
             [HasValidTermsofUse] int,
-            [DataPoductStatus] nvarchar (32),
-            [AssetCount] nvarchar (8), -- BUG BUG
-            [CreatedAt] nvarchar (32),
-            [HasNotNullDescription] int,
-            [CreatedBy] nvarchar (256),
-            [ModifiedAt] nvarchar (32),
-            [ModifiedBy] nvarchar (256),
-            [LastRefreshedAt] int,
+            [AssetCount] bigint,
+            [HasDescription] int,
             [IsAuthoritativeSource] int,
             [HasDataQualityScore] int,
             [ClassificationPassCount] int,
             [HasAccessEntitlement] int,
             [HasDataShareAgreementSetOrExempt] int,
-            [GlossaryTermCount] int
+            [GlossaryTermCount] int,
+            [CreatedAt] datetime2,
+            [CreatedBy] nvarchar (64),
+            [ModifiedAt] datetime2,
+            [ModifiedBy] nvarchar (64),
+            [LastRefreshedAt] datetime2
         )
         WITH (
             LOCATION='/Sink/DataProductSchema/',
@@ -220,9 +210,9 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[DataProductContactAssociation]
         (
-            [DataProductId] nvarchar (64),
-            [ContactRole] nvarchar (64),
-            [ContactId] nvarchar (64),
+            [DataProductId] nvarchar (36),
+            [ContactRole] nvarchar (36),
+            [ContactId] nvarchar (36),
             [IsActive] int
         )
         WITH (
@@ -240,12 +230,11 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[DataProductDataAssetAssociation]
         (
-            [_IGNORE_] nvarchar (64),
-            [DataProductId] nvarchar (64),
-            [DataAssetId] nvarchar (64)
+            [DataAssetId] nvarchar (36),
+            [DataProductId] nvarchar (36)
         )
         WITH (
-            LOCATION='/Sink/AssetDomainProductAssociation/',
+            LOCATION='/Sink/AssetProductAssociation/',
             DATA_SOURCE = [@containerName],
             FILE_FORMAT = DeltaLakeFormat
         )
@@ -259,16 +248,15 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[GlossaryTerm]
         (
-            [TermId] nvarchar (64),
+            [TermId] nvarchar (36),
             [Name] nvarchar (256),
-            [HasFullDescription] bigint,
-            [CreatedAt] nvarchar (32),
-            [ModifiedAt] nvarchar (32),
-            [Status] nvarchar (32),
-            [LastRefreshedAt] bigint,
-            [NickName] nvarchar(256),
-	        [CreatedBy] nvarchar(256),
-        	[ModifiedBy] nvarchar(256)
+            [Status] nvarchar (64),
+            [HasDescription] int,
+            [CreatedAt] datetime2,
+	        [CreatedBy] nvarchar (64),
+            [ModifiedAt] datetime2,
+        	[ModifiedBy] nvarchar (64),
+            [LastRefreshedAt] datetime2
         )
         WITH (
             LOCATION='/Sink/TermSchema/',
@@ -285,8 +273,8 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[GlossaryTermBusinessDomainAssociation]
         (
-            [BusinessDomainId] nvarchar (64),
-            [TermId] nvarchar (64)
+            [TermId] nvarchar (36),
+            [BusinessDomainId] nvarchar (36)
         )
         WITH (
             LOCATION='/Sink/TermDomainAssociation/',
@@ -303,9 +291,9 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[GlossaryTermContactAssociation]
         (
-            [TermId] nvarchar (64),
-            [ContactRole] nvarchar (64),
-            [ContactId] nvarchar (64),
+            [TermId] nvarchar (36),
+            [ContactRole] nvarchar (36),
+            [ContactId] nvarchar (36),
             [IsActive] int
         )
         WITH (
