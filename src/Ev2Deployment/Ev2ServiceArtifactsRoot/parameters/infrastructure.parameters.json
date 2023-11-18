@@ -14,6 +14,9 @@
         "catalogSubscriptionId": {
             "value": "__CATALOG_SUBSCRIPTION_ID__"
         },
+        "commonStorageAccountName": {
+            "value": "__INFRA_COMMON_STORAGE_ACCOUNT_NAME__"
+        },
         "containerAppIdentityName": {
             "value": "__INFRA_CONTAINER_APP_IDENTITY_NAME__"
         },

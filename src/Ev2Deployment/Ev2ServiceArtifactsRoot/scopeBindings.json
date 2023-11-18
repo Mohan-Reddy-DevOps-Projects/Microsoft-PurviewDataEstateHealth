@@ -121,6 +121,10 @@
                 "replaceWith": "$config(subdomainName)"
             },
             {
+                "find": "__INFRA_COMMON_STORAGE_ACCOUNT_NAME__",
+                "replaceWith": "$config(dgh.commonStorageAccountName)"
+            },
+            {
                 "find": "__INFRA_CONTAINER_APP_IDENTITY_NAME__",
                 "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-ca-identity"
             },

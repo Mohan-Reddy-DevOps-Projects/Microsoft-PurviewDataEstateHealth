@@ -2,6 +2,7 @@ param acrName string
 param assistedIdAppObjectId string
 param catalogResourceGroupName string
 param catalogSubscriptionId string
+param commonStorageAccountName string
 param containerAppIdentityName string
 param coreResourceGroupName string
 param eventHubNamespaceName string
@@ -53,19 +54,36 @@ module jobStorageAccount 'storageAccount.bicep' = {
   }
 }
 
-module sparkPoolTableModule 'storageTable.bicep' = {
-  name: 'sparkPoolTableDeploy'
-  params: {
-    storageAccountName: jobStorageAccount.outputs.storageAccountName
-    tableName: sparkPoolTableName
-  }
-}
-
 module storageRoleAssignments 'storageRoleAssignments.bicep' = {
   dependsOn: [jobStorageAccount]
   name: 'storageRoleAssignments'
   params: {
     storageAccountName: jobStorageAccountName
+    principalId: containerAppIdentity.properties.principalId
+  }
+}
+
+module commonStorageAccountModule 'storageAccount.bicep' = {
+  name: 'commonStorageAccountDeploy'
+  params: {
+    location: location
+    storageAccountName: commonStorageAccountName
+    subnetId: vnet.properties.subnets[0].id
+  }
+}
+
+module sparkPoolTableModule 'storageTable.bicep' = {
+  name: 'sparkPoolTableDeploy'
+  params: {
+    storageAccountName: commonStorageAccountModule.outputs.storageAccountName
+    tableName: sparkPoolTableName
+  }
+}
+
+module commonStorageAccountRoleAssignmentsModule 'storageRoleAssignments.bicep' = {
+  name: 'commonStorageAccountRoleAssignmentsDeploy'
+  params: {
+    storageAccountName: commonStorageAccountModule.outputs.storageAccountName
     principalId: containerAppIdentity.properties.principalId
   }
 }
@@ -203,11 +221,11 @@ module processingStorageSubTableDataContributorRoleModule 'subscriptionRoleAssig
 }]
 
 module eventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
-    name: 'eventHubNamespaceRoleDeploy'
-    scope: resourceGroup(catalogSubscriptionId, catalogResourceGroupName)
-    params: {
-      eventHubNamespaceName: eventHubNamespaceName
-      principalId: containerAppIdentity.properties.principalId
-      roleDefinitionName: azureEventHubsDataReceiverRoleDefName
-    }
+  name: 'eventHubNamespaceRoleDeploy'
+  scope: resourceGroup(catalogSubscriptionId, catalogResourceGroupName)
+  params: {
+    eventHubNamespaceName: eventHubNamespaceName
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: azureEventHubsDataReceiverRoleDefName
   }
+}

@@ -30,6 +30,7 @@
             "subscriptionId": "5b48cdcd-b5c7-4730-8477-726ec15a0ff9"
         },
         "dgh": {
+            "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(regionShortName)common",
             "sparkPoolTableName": "SparkPool"
         },
         "processingStorage": {

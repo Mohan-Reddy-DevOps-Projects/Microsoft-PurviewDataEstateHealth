@@ -32,7 +32,7 @@
           },
           {
             "name": "STORAGE_ACCOUNT_NAME",
-            "value": "__INFRA_JOB_STORAGE_ACCOUNT_NAME__"
+            "value": "__INFRA_COMMON_STORAGE_ACCOUNT_NAME__"
           },
           {
             "name": "DESTINATION_CONTAINER_NAME",
