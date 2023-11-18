@@ -59,7 +59,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     {
         await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
         await this.databaseManagementService.Initialize(account, cancellationToken);
-        // await this.CreatePowerBIResources(account, cancellationToken);
+        await this.CreatePowerBIResources(account, cancellationToken);
     }
 
     private async Task CreatePowerBIResources(AccountServiceModel account, CancellationToken cancellationToken)
@@ -107,7 +107,9 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             Parameters = new Dictionary<string, string>()
             {
                 { "SERVER", this.serverlessPoolConfiguration.Value.SqlEndpoint.Split(';').First() },
-                { "DATABASE", $"{owner}_1" }
+                { "DATABASE", $"{owner}_1" },
+                { "DATABASE_SCHEMA", account.Id },
+                { "TENANT_ID", account.TenantId }
             }
         };
 
