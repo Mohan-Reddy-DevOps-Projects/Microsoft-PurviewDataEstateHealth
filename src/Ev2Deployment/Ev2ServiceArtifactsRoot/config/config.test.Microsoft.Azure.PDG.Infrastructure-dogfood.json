@@ -5,7 +5,6 @@
         "dnsZoneName": "purview-dg.azure-test.com",
         "gatewaySubjectName": "gateway-df-client.babylon.azure-test.com",
         "powerBiClientId": "f5257d9c-4ed4-459b-b9e9-61e3e755fcf4",
-        "purviewInsights3PClientId": "28602f49-edf0-45c0-b1fe-ddac9dbdc207",
         "dgFPAClientId": "24676e7f-bd4d-4ae7-8782-dd551f44c6ce",
         "powerBiEnabled": "true",
         "powerBiTenantId": "7d8dbee8-bc7d-4574-a52a-44f5b76c7ecf",
@@ -21,8 +20,6 @@
         "catalogServiceEndpoint": "df-westus2.dgcatalog.purview-service.azure-test.com",
         "dataAccessServiceEndpoint": "df-westus2.dataaccess.dgcatalog.purview-service.azure-test.com",
         "exposureControlEnvironment": "DogfoodWestUS2",
-        "shortLocation": "wus2",
-        "dgEventhubNamespaceRegionSuffix": "wus2",
         "metadataServiceEndpoint": "westus2.rp.purview-service.azure-test.com",
         "catalog": {
             "eventHubNamespaceName": "dg-df-hub-wus2",
@@ -30,8 +27,10 @@
             "subscriptionId": "5b48cdcd-b5c7-4730-8477-726ec15a0ff9"
         },
         "dgh": {
-            "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(regionShortName)common",
-            "sparkPoolTableName": "SparkPool"
+            "shortRegionName": "wus2",
+            "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(dgh.shortRegionName)common",
+            "sparkPoolTableName": "SparkPool",
+            "synapseWorkspaceName": "$(serviceShortName)dogfoodsynapse"
         },
         "processingStorage": {
             "resourceGroupName": "purview-rg-internal-storage",

@@ -81,7 +81,7 @@
     },
     {
       "name":"deployWorkerService",
-      "dependsOn": ["pushApiServiceImage", "pushWorkerServiceImage"],
+      "dependsOn": ["addDnsRecords", "pushWorkerServiceImage"],
       "targetType": "ServiceResourceDefinition",
       "targetName": "workerServiceContainerAppResourceDefinition",
       "actions": ["deploy"]

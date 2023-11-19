@@ -47,9 +47,6 @@
         "synapseStorageAccountUrl": {
             "value": "__INFRA_SYNAPSE_WORKSPACE_STORAGE_ACCOUNT_URL__"
         },
-        "sparkPoolName": {
-            "value": "__INFRA_SYNAPSE_SPARK_POOL_NAME__"
-        },
         "sparkPoolTableName": {
             "value": "__INFRA_SYNAPSE_SPARK_POOL_TABLE_NAME__"
         },

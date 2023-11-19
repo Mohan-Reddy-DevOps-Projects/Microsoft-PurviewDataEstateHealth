@@ -27,7 +27,6 @@ public static class ConfigurationExtensions
             .Configure<ServerlessPoolAuthConfiguration>(configuration.GetSection("serverlessPoolAuth"))
             .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"))
             .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
-            .Configure<FirstPartyAadAppConfiguration>(configuration.GetSection("firstPartyAadApp"))
             .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
             .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"));
 

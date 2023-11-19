@@ -10,15 +10,15 @@ using global::Azure.Identity;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
 
-internal sealed class TableStorageClient : ITableStorageClient
+internal sealed class TableStorageClient<TConfig> : ITableStorageClient<TConfig> where TConfig : StorageTableConfiguration, new()
 {
-    private const string Tag = nameof(TableStorageClient);
+    private const string Tag = nameof(TableStorageClient<TConfig>);
 
-    private readonly AccountStorageTableConfiguration tableConfiguration;
+    private readonly TConfig tableConfiguration;
     private readonly TableServiceClient serviceClient;
     private readonly Func<string, string> getRequestType = (string requestType) => $"{Tag}_{requestType}";
 
-    public TableStorageClient(IOptions<AccountStorageTableConfiguration> tableConfig, AzureCredentialFactory credentialFactory)
+    public TableStorageClient(IOptions<TConfig> tableConfig, AzureCredentialFactory credentialFactory)
     {
         this.tableConfiguration = tableConfig.Value;
         Uri authorityHost = new(this.tableConfiguration.Authority);

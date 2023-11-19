@@ -5,13 +5,12 @@
         "dnsZoneName": "purview-dg.azure.com",
         "gatewaySubjectName": "gateway-prod-client.babylon.azure.com",
         "powerBiClientId": "28456abb-1abf-47c1-abc3-acb68b96484e",
-        "purviewInsights3PClientId": "7ae5382b-86c2-4c34-b805-ebb3d15a79ec",
         "dgFPAClientId": "6afef871-d95c-4232-91b2-62e704ccaafa",
         "powerBiEnabled": "true",
         "powerBiTenantId": "8aebbf05-e60c-4fad-818d-508ad099d7ef",
         "resourceGroupName": "dgh-canary-centraluseuap-rg",
         "rpSubjectName": "rp.babylon-service-ame.azure.com",
-        "serverlessPoolEnabled": "false",
+        "serverlessPoolEnabled": "true",
         "serviceShortName": "dgh",
         "subdomainName": "prod-eastus2euap-health",
         "azureEnvironment": "AzureGlobalCloud",
@@ -21,8 +20,6 @@
         "catalogServiceEndpoint": "prod-eastus2euap.dgcatalog.purview-service.azure.com",
         "dataAccessServiceEndpoint": "prod-eastus2euap.dataaccess.dgcatalog.purview-service.azure.com",
         "exposureControlEnvironment": "CanaryEastUS2EUAP",
-        "shortLocation": "eus2euap",
-        "dgEventhubNamespaceRegionSuffix": "eus2",
         "metadataServiceEndpoint": "eastus2euap.rp.purview-service.azure.com",
         "catalog": {
             "eventHubNamespaceName": "dg-cnry-hub-eus2",
@@ -30,7 +27,10 @@
             "subscriptionId": "d2e1972c-dae3-47cd-9438-d01b75629bec"
         },
         "dgh": {
-            "sparkPoolTableName": "SparkPool"
+            "shortRegionName": "eus2euap",
+            "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(regionShortName)common",
+            "sparkPoolTableName": "SparkPool",
+            "synapseWorkspaceName": "$(serviceShortName)cnrycdmworkspace"
         },
         "processingStorage": {
             "resourceGroupName": "purview-rg-internal-storage",

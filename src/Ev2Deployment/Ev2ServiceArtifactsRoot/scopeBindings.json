@@ -166,19 +166,15 @@
             },
             {
                 "find": "__INFRA_SYNAPSE_WORKSPACE_NAME__",
-                "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)workspace"
+                "replaceWith": "$config(dgh.synapseWorkspaceName)"
             },
             {
                 "find": "__INFRA_SYNAPSE_WORKSPACE_STORAGE_ACCOUNT_NAME__",
-                "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)synapsestorage"
+                "replaceWith": "$config(dgh.synapseWorkspaceName)"
             },
             {
                 "find": "__INFRA_SYNAPSE_WORKSPACE_STORAGE_ACCOUNT_URL__",
-                "replaceWith": "https://$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)synapsestorage.dfs.core.windows.net"
-            },
-            {
-                "find": "__INFRA_SYNAPSE_SPARK_POOL_NAME__",
-                "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)pool"
+                "replaceWith": "https://$config(dgh.synapseWorkspaceName).dfs.core.windows.net"
             },
             {
                 "find": "__INFRA_SYNAPSE_SPARK_POOL_TABLE_NAME__",

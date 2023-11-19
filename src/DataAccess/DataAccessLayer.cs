@@ -42,7 +42,17 @@ public static class DataAccessLayer
         services.AddMetadataServiceHttpClient(MetadataServiceClientFactory.HttpClientName);
         services.AddSingleton<MetadataServiceClientFactory>();
         services.AddSingleton<IMetadataAccessorService, MetadataAccessorService>();
-        services.AddSingleton<ITableStorageClient, TableStorageClient>();
+
+        services.AddSingleton<ITableStorageClient<AccountStorageTableConfiguration>>(
+        serviceProvider => new TableStorageClient<AccountStorageTableConfiguration>(
+            serviceProvider.GetRequiredService<IOptions<AccountStorageTableConfiguration>>(),
+            serviceProvider.GetRequiredService<AzureCredentialFactory>()));
+
+        services.AddSingleton<ITableStorageClient<SparkPoolTableConfiguration>>(
+            serviceProvider => new TableStorageClient<SparkPoolTableConfiguration>(
+                serviceProvider.GetRequiredService<IOptions<SparkPoolTableConfiguration>>(),
+                serviceProvider.GetRequiredService<AzureCredentialFactory>()));
+
         services.AddSingleton<IStorageAccountRepository<ProcessingStorageModel>, ProcessingStorageRepository>();
         services.AddSingleton<IServerlessPoolClient, ServerlessPoolClient>();
         services.AddSingleton<IServerlessQueryRequestBuilder, ServerlessQueryRequestBuilder>();

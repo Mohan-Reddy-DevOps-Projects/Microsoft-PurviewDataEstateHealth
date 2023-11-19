@@ -5,11 +5,12 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using global::Azure.Data.Tables;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 /// <summary>
 /// Table storage client interface
 /// </summary>
-internal interface ITableStorageClient
+internal interface ITableStorageClient<TConfig> where TConfig : StorageTableConfiguration, new()
 {
     /// <summary>
     /// Adds a Table Entity of type T into the Table <paramref name="tableName"/>.

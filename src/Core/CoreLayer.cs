@@ -28,10 +28,6 @@ public static class CoreLayer
         services.AddSingleton<IStorageCredentialsProvider, StorageCredentialsProvider>();
         services.AddSingleton<IKeyVaultAccessorService, KeyVaultAccessorService>();
         services.AddSingleton<IBlobStorageAccessor, BlobStorageAccessor>();
-        services.AddSingleton<IAadAppTokenProviderService<FirstPartyAadAppConfiguration>,
-            AadAppTokenProviderService<FirstPartyAadAppConfiguration>>();
-        services.AddSingleton<IAadAppTokenProviderService<ServerlessPoolAuthConfiguration>,
-            AadAppTokenProviderService<ServerlessPoolAuthConfiguration>>();
         services.AddSingleton<IComponentContextFactory, ComponentContextFactory>();
         services.AddSingleton<ServiceHealthCheck>();
         services.AddSingleton<IProcessingStorageManager, ProcessingStorageManager>();

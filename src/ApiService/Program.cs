@@ -150,25 +150,35 @@ public class Program
 
     private static async Task Initialize(WebApplication app)
     {
-        // Initialize client certificate cache
-        ICertificateLoaderService certificateLoaderService = app.Services.GetRequiredService<ICertificateLoaderService>();
-        await certificateLoaderService.InitializeAsync();
+        try
+        {
+            // Initialize client certificate cache
+            ICertificateLoaderService certificateLoaderService = app.Services.GetRequiredService<ICertificateLoaderService>();
+            await certificateLoaderService.InitializeAsync();
 
-        // Initialize the exposure control client
-        IExposureControlClient exposureControlClient = app.Services.GetRequiredService<IExposureControlClient>();
-        await exposureControlClient.Initialize();
+            // Initialize the exposure control client
+            IExposureControlClient exposureControlClient = app.Services.GetRequiredService<IExposureControlClient>();
+            await exposureControlClient.Initialize();
 
-        // Initialize PowerBI service
-        IPowerBIService powerBIService = app.Services.GetService<IPowerBIService>();
-        await powerBIService.Initialize();
+            // Initialize PowerBI service
+            IPowerBIService powerBIService = app.Services.GetService<IPowerBIService>();
+            await powerBIService.Initialize();
 
-        // Initialize synapse service
-        IServerlessPoolClient serverlessPoolClient = app.Services.GetService<IServerlessPoolClient>();
-        await serverlessPoolClient.Initialize();
+            // Initialize synapse service
+            IServerlessPoolClient serverlessPoolClient = app.Services.GetService<IServerlessPoolClient>();
+            await serverlessPoolClient.Initialize();
 
-        // Initialize metadata service
-        IMetadataAccessorService metadataService = app.Services.GetService<IMetadataAccessorService>();
-        metadataService.Initialize();
+            // Initialize metadata service
+            IMetadataAccessorService metadataService = app.Services.GetService<IMetadataAccessorService>();
+            metadataService.Initialize();
+        }
+        catch (Exception ex)
+        {
+            IDataEstateHealthLogger logger = app.Services.GetRequiredService<IDataEstateHealthLogger>();
+            logger.LogCritical("Failed to initialize services during startup", ex);
+            throw;
+        }
+        
     }
 
     private static void ConfigurePortsAndSsl(WebHostBuilderContext hostingContext, KestrelServerOptions options, WebApplicationBuilder builder)

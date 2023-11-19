@@ -5,9 +5,16 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 /// <summary>
+/// Configuration for processing storage account table
+/// </summary>
+public class AccountStorageTableConfiguration : StorageTableConfiguration
+{
+}
+
+/// <summary>
 /// Configuration for Data Governance Account storage table
 /// </summary>
-public class AccountStorageTableConfiguration : AuthConfiguration
+public abstract class StorageTableConfiguration : AuthConfiguration
 {
     /// <summary>
     /// Table service uri

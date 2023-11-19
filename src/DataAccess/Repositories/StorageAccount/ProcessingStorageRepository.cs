@@ -14,7 +14,7 @@ internal sealed class ProcessingStorageRepository : StorageAccountRepository<Pro
     private static readonly ProcessingStorageEntityAdapter converter = new();
 
     public ProcessingStorageRepository(
-        ITableStorageClient tableStorageClient,
+        ITableStorageClient<AccountStorageTableConfiguration> tableStorageClient,
         IOptions<AccountStorageTableConfiguration> tableConfiguration) : base(tableStorageClient, converter, tableConfiguration)
     {
     }

@@ -12,11 +12,11 @@ using Microsoft.Extensions.Options;
 internal abstract class SparkPoolRepository<T, TEntity> : ISparkPoolRepository<T>
     where TEntity : Models.EntityModel, ITableEntity
 {
-    private readonly ITableStorageClient tableStorageClient;
+    private readonly ITableStorageClient<SparkPoolTableConfiguration> tableStorageClient;
     private readonly TableEntityConverter<T, TEntity> converter;
     private readonly SparkPoolTableConfiguration tableConfiguration;
 
-    public SparkPoolRepository(ITableStorageClient tableStorageClient, TableEntityConverter<T, TEntity> converter, IOptions<SparkPoolTableConfiguration> tableConfiguration)
+    public SparkPoolRepository(ITableStorageClient<SparkPoolTableConfiguration> tableStorageClient, TableEntityConverter<T, TEntity> converter, IOptions<SparkPoolTableConfiguration> tableConfiguration)
     {
         this.tableStorageClient = tableStorageClient;
         this.converter = converter;

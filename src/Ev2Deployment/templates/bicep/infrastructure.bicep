@@ -14,7 +14,6 @@ param vnetName string
 param synapseWorkspaceName string
 param synapseStorageAccountName string
 param synapseStorageAccountUrl string
-param sparkPoolName string
 param sparkPoolTableName string
 param synapseLocation string
 
@@ -159,34 +158,6 @@ resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
     }
     sqlAdministratorLogin: 'sqladminuser'
     sqlAdministratorLoginPassword: null
-  }
-}
-
-resource sparkPool 'Microsoft.Synapse/workspaces/bigDataPools@2021-06-01' = {
-  name: sparkPoolName
-  location: synapseLocation
-  tags: {}
-  parent: synapseWorkspace
-  properties: {
-    autoPause: {
-      delayInMinutes: 5
-      enabled: true
-    }
-    autoScale: {
-      enabled: true
-      minNodeCount: 3
-      maxNodeCount: 10
-    }
-    dynamicExecutorAllocation: {
-      enabled: true
-      minExecutors: 1
-      maxExecutors: 4
-    }
-    isComputeIsolationEnabled: false
-    nodeSize: 'Small'
-    nodeSizeFamily: 'MemoryOptimized'
-    sessionLevelPackagesEnabled: true
-    sparkVersion: '3.3'
   }
 }
 

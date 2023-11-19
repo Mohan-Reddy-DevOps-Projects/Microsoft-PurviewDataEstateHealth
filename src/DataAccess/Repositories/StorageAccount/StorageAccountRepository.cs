@@ -12,11 +12,11 @@ using Microsoft.Extensions.Options;
 internal abstract class StorageAccountRepository<T, TEntity> : IStorageAccountRepository<T>
     where TEntity : Models.EntityModel, ITableEntity
 {
-    private readonly ITableStorageClient tableStorageClient;
+    private readonly ITableStorageClient<AccountStorageTableConfiguration> tableStorageClient;
     private readonly TableEntityConverter<T, TEntity> converter;
     private readonly AccountStorageTableConfiguration tableConfiguration;
 
-    public StorageAccountRepository(ITableStorageClient tableStorageClient, TableEntityConverter<T, TEntity> converter, IOptions<AccountStorageTableConfiguration> tableConfiguration)
+    public StorageAccountRepository(ITableStorageClient<AccountStorageTableConfiguration> tableStorageClient, TableEntityConverter<T, TEntity> converter, IOptions<AccountStorageTableConfiguration> tableConfiguration)
     {
         this.tableStorageClient = tableStorageClient;
         this.converter = converter;

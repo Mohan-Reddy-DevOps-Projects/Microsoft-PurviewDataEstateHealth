@@ -92,7 +92,7 @@ public class EnvironmentConfiguration
                 case Environment.Dev:
                 case Environment.Int:
                 case Environment.Perf:
-                case Environment.Production:
+                case Environment.Prod:
                     return EnvironmentConfiguration.AzureGlobalCloudEnvironment;
                 default:
                     return new AzureEnvironment();
@@ -126,7 +126,7 @@ public class EnvironmentConfiguration
     /// <returns></returns>
     public bool IsProductionEnvironment()
     {
-        return this.Environment == Environment.Production || this.Environment == Environment.Canary;
+        return this.Environment == Environment.Prod || this.Environment == Environment.Canary;
     }
 
     /// <summary>
@@ -135,7 +135,7 @@ public class EnvironmentConfiguration
     /// <returns></returns>
     public bool IsProductionEnvironmentExcludingCanary()
     {
-        return this.Environment == Environment.Production;
+        return this.Environment == Environment.Prod;
     }
 
     /// <summary>
@@ -184,7 +184,7 @@ public class EnvironmentConfiguration
                 case Environment.Dev:
                 case Environment.Int:
                 case Environment.Perf:
-                case Environment.Production:
+                case Environment.Prod:
                     return "purview.azure.com";
                 default:
                     return "purview.azure.com";

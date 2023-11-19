@@ -5,7 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Common;
 
 /// <summary>
-/// Defines the various environments for Purview Share
+/// Defines the various environments for Data Estate Health
 /// </summary>
 public enum Environment
 {
@@ -47,5 +47,5 @@ public enum Environment
     /// <summary>
     /// Production environment
     /// </summary>
-    Production
+    Prod
 }

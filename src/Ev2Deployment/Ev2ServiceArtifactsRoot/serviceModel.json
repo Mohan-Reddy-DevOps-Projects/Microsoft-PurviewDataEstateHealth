@@ -16,7 +16,7 @@
     {
       "name": "dataEstateHealthResourceGroupDefinition",
       "azureResourceGroupName": "$config(resourceGroupName)",
-      "subscriptionKey": "$config(pdg.groupName)-$config(pdg.environment.name)-$location()",
+      "subscriptionKey": "$config(pdg.regionSharedInfrastructure.subscriptionKeyPrefixes.core)$location()",
       "serviceResourceDefinitions": [
         {
           "name": "infrastructureResourceDefinition",

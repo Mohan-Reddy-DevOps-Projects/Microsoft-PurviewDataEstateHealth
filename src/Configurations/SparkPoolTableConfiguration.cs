@@ -7,15 +7,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 /// <summary>
 /// Configuration for Data Governance Spark pool table
 /// </summary>
-public class SparkPoolTableConfiguration : AuthConfiguration
+public class SparkPoolTableConfiguration : StorageTableConfiguration
 {
-    /// <summary>
-    /// Table service uri
-    /// </summary>
-    public string TableServiceUri { get; set; }
-
-    /// <summary>
-    /// Table name
-    /// </summary>
-    public string TableName { get; set; }
 }

@@ -14,7 +14,7 @@ internal sealed class SynapseSparkPoolRepository : SparkPoolRepository<SparkPool
     private static readonly SparkPoolEntityAdapter converter = new();
 
     public SynapseSparkPoolRepository(
-        ITableStorageClient tableStorageClient,
+        ITableStorageClient<SparkPoolTableConfiguration> tableStorageClient,
         IOptions<SparkPoolTableConfiguration> tableConfiguration) : base(tableStorageClient, converter, tableConfiguration)
     {
     }

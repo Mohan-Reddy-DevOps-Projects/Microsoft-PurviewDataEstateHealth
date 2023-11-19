@@ -84,16 +84,27 @@ internal class ExposureControlClient : IExposureControlClient
         bool useEstsr = this.config.UseEstsr;
         this.logger.LogInformation($"{Tag}|Initializing Exposure Control with useESTSR: {useEstsr}.");
 
-        ExposureControlClientCertificateCredential tokenProvider = new(
+        ExposureControlClientCertificateCredential tokenProvider;
+
+        try
+        {
+            tokenProvider = new(
             this.config.ClientId,
             exposureControlEnvironment,
             () => this.certificateManager.LoadAsync(this.config.CertificateName, CancellationToken.None).GetAwaiter().GetResult(),
             useEstsr);
 
-        this.exposureControl = new ExposureControl(
-            exposureControlEnvironment,
-            tokenProvider,
-            logger: new ExposureControlLogger(this.logger, this.config.LoggingLevel));
+            this.exposureControl = new ExposureControl(
+                exposureControlEnvironment,
+                tokenProvider,
+                logger: new ExposureControlLogger(this.logger, this.config.LoggingLevel));
+        }
+        catch(Exception ex)
+        {
+            this.logger.LogCritical($"{Tag}|Exposure control failed to initialize.", ex);
+            throw;
+        }
+        
 
         try
         {
