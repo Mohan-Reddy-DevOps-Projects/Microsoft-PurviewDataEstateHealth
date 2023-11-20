@@ -15,6 +15,24 @@ using Newtonsoft.Json;
 public abstract class BaseEventHubEntityModel
 {
     /// <summary>
+    /// Event Id.
+    /// </summary>
+    [JsonProperty("eventId")]
+    public string EventId { get; set; }
+
+    /// <summary>
+    /// Correlation Id.
+    /// </summary>
+    [JsonProperty("correlationId")]
+    public string EventCorrelationId { get; set; }
+
+    /// <summary>
+    /// Precise timestamp.
+    /// </summary>
+    [JsonProperty("preciseTimestamp")]
+    public DateTime EventCreationTimestamp { get; set; }
+
+    /// <summary>
     /// Get payload kind.
     /// </summary>
     /// <returns></returns>
@@ -24,6 +42,22 @@ public abstract class BaseEventHubEntityModel
     /// Get schema definition.
     /// </summary>
     public abstract StructType GetSchemaDefinition();
+
+    /// <summary>
+    /// Get schema fields common to all.
+    /// </summary>
+    /// <returns></returns>
+    protected StructField[] GetCommonSchemaFields()
+    {
+        var schemaFields = new[]
+        {
+            new StructField("EventId", DataTypes.String),
+            new StructField("EventCorrelationId", DataTypes.String),
+            new StructField("EventCreationTimestamp", DataTypes.String),
+        };
+
+        return schemaFields;
+    }
 }
 
 /// <summary>

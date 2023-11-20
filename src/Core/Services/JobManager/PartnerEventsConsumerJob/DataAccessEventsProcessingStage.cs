@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------
+// -----------------------------------------------------------
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
@@ -48,7 +48,7 @@ internal class DataAccessEventsProcessingStage : IJobCallbackStage
 
             await processor.CommitAsync(this.metadata.ProcessingStoresCache);
 
-            jobStageStatus = JobExecutionStatus.Postponed;
+            jobStageStatus = JobExecutionStatus.Succeeded;
             jobStatusMessage = $"Consumed events from {this.StageName}";
         }
         catch (Exception exception)

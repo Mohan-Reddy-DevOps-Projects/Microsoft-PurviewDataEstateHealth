@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------
+// -----------------------------------------------------------
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
@@ -12,8 +12,14 @@ using Newtonsoft.Json.Linq;
 /// <summary>
 /// The catalog source model for events.
 /// </summary>
-public class EventHubModel
+public abstract class BaseEventHubModel
 {
+    /// <summary>
+    /// Account Id.
+    /// </summary>
+    [JsonProperty("accountId")]
+    public string AccountId { get; set; }
+
     /// <summary>
     /// Event Id.
     /// </summary>
@@ -24,8 +30,20 @@ public class EventHubModel
     /// Correlation Id.
     /// </summary>
     [JsonProperty("correlationId")]
-    public string CorrelationId { get; set; }
+    public string EventCorrelationId { get; set; }
 
+    /// <summary>
+    /// Precise timestamp.
+    /// </summary>
+    [JsonProperty("preciseTimestamp")]
+    public DateTime EventCreationTimestamp { get; set; }
+}
+
+/// <summary>
+/// The catalog source model for events.
+/// </summary>
+public class EventHubModel : BaseEventHubModel
+{
     /// <summary>
     /// Source of event.
     /// </summary>
@@ -48,22 +66,10 @@ public class EventHubModel
     public EventOperationType OperationType { get; set; }
 
     /// <summary>
-    /// Precise timestamp.
-    /// </summary>
-    [JsonProperty("preciseTimestamp")]
-    public DateTime PreciseTimestamp { get; set; }
-
-    /// <summary>
     /// Tenant Id.
     /// </summary>
     [JsonProperty("tenantId")]
     public string TenantId { get; set; }
-
-    /// <summary>
-    /// Account Id.
-    /// </summary>
-    [JsonProperty("accountId")]
-    public string AccountId { get; set; }
 
     /// <summary>
     /// For create, before is null

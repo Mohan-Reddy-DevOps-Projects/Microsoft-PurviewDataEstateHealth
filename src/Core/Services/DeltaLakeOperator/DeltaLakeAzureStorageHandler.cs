@@ -95,7 +95,11 @@ public class DeltaLakeAzureStorageHandler : IStorage
     }
 
     /// <inheritdoc/>
-    public bool TryDeletePath(string partialPath) => throw new NotImplementedException();
+    public bool TryDeletePath(string partialPath)
+    {
+        var adlsGen2Client = adlsGen2Container.GetFileClient(partialPath);
+        return adlsGen2Client.DeleteIfExists();
+    }
 
     /// <summary>
     /// Tries to read the file from the given partial path, and returns a readable stream if successful.

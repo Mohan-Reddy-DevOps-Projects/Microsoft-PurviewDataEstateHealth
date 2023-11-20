@@ -4,11 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Text;
-using global::Azure.Messaging.EventHubs.Processor;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Newtonsoft.Json;
 
 internal class DataAccessEventsProcessor : PartnerEventsProcessor
 {
@@ -37,7 +34,7 @@ internal class DataAccessEventsProcessor : PartnerEventsProcessor
 
         this.DataEstateHealthRequestLogger.LogTrace($"Attempting to commit {this.EventsToProcess.Count} rows of {this.EventProcessorType}.");
 
-        Dictionary<string, List<EventHubModel>> eventsByAccount = this.GetEventsByAccount();
+        Dictionary<string, List<EventHubModel>> eventsByAccount = this.GetEventsByAccount<EventHubModel>();
 
         foreach (var accountEvents in eventsByAccount)
         {
@@ -47,7 +44,7 @@ internal class DataAccessEventsProcessor : PartnerEventsProcessor
             }
             catch (Exception exception)
             {
-                this.DataEstateHealthRequestLogger.LogCritical($"Failed to upload {accountEvents.Value.Count} events for account: {accountEvents.Key}.", exception);
+                this.DataEstateHealthRequestLogger.LogCritical($"Failed to upload {accountEvents.Value.Count} events of {this.EventProcessorType} for account: {accountEvents.Key}.", exception);
                 this.EventArgsToCheckpoint.Remove(accountEvents.Key);
             }
         }

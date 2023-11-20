@@ -16,7 +16,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         : base(
             serviceProvider,
             eventHubConfiguration,
-            EventSourceType.DataAccess)
+            EventSourceType.DataQuality)
     {
     }
 

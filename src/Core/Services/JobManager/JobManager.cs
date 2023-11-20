@@ -326,9 +326,10 @@ public class JobManager : IJobManager
                     jobMetadata,
                     jobPartition,
                     jobId)
-                .WithoutStartTime()
+                .WithStartTime(DateTime.UtcNow.AddMinutes(1))
                 .WithRepeatStrategy(TimeSpan.FromMinutes(15))
-                .WithRetryStrategy(TimeSpan.FromMinutes(5));
+                .WithRetryStrategy(TimeSpan.FromMinutes(5))
+                .WithoutEndTime();
 
             await this.CreateJobAsync(jobBuilder);
         }

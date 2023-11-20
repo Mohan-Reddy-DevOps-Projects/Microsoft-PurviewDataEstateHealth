@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 using System;
 using Microsoft.Data.DeltaLake.Types;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json;
 
 // !!! TODO (TASK 2782067) Find scalable alternative to these classes.
@@ -383,7 +384,7 @@ public class PolicySetEventHubEntityModel : BaseEventHubEntityModel
             new StructField("PolicySetKind", DataTypes.String),
             new StructField("Policies", DataTypes.String),
             new StructField("TargetResource", DataTypes.String),
-       });
+       }.ConcatArray(GetCommonSchemaFields()));
 }
 
 /// <summary>
@@ -513,5 +514,5 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
             new StructField("RequestorIdentity", DataTypes.String),
             new StructField("PolicySetValues", DataTypes.String),
             new StructField("AppliedPolicySet", DataTypes.String),
-       });
+       }.ConcatArray(GetCommonSchemaFields()));
 }

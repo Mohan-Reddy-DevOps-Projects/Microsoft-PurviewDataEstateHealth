@@ -108,10 +108,15 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
     public abstract Task CommitAsync(IDictionary<string, string> processingStoresCache = null);
 
     protected void ParseEventPayload<T>(EventHubModel eventHubModel, Dictionary<EventOperationType, List<T>> entityModels)
+        where T : BaseEventHubEntityModel
     {
         try
         {
-            var entityModel = JsonConvert.DeserializeObject<T>(((eventHubModel.Payload.After ?? eventHubModel.Payload.Before) ?? eventHubModel.Payload.Before).ToString());
+            T entityModel = JsonConvert.DeserializeObject<T>(((eventHubModel.Payload.After ?? eventHubModel.Payload.Before) ?? eventHubModel.Payload.Before).ToString());
+            entityModel.EventId = eventHubModel.EventId;
+            entityModel.EventCorrelationId = eventHubModel.EventCorrelationId;
+            entityModel.EventCreationTimestamp = eventHubModel.EventCreationTimestamp;
+
             if (!entityModels.ContainsKey(eventHubModel.OperationType))
             {
                 entityModels.Add(eventHubModel.OperationType, new List<T> { entityModel });
@@ -201,9 +206,10 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         return true;
     }
 
-    protected Dictionary<string, List<EventHubModel>> GetEventsByAccount()
+    protected Dictionary<string, List<T>> GetEventsByAccount<T>()
+        where T : BaseEventHubModel
     {
-        Dictionary<string, List<EventHubModel>> eventsByAccount = new Dictionary<string, List<EventHubModel>>();
+        Dictionary<string, List<T>> eventsByAccount = new Dictionary<string, List<T>>();
         foreach (ProcessEventArgs eventArgs in this.EventsToProcess)
         {
             if (eventArgs.Data == null || eventArgs.Partition == null)
@@ -216,10 +222,10 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
 
             try
             {
-                EventHubModel eventModel = JsonConvert.DeserializeObject<EventHubModel>(eventMessage);
+                T eventModel = JsonConvert.DeserializeObject<T>(eventMessage);
                 string accountId = eventModel.AccountId;
 
-                List<EventHubModel> eventList;
+                List<T> eventList;
                 if (eventsByAccount.TryGetValue(accountId, out eventList))
                 {
                     eventList.Add(eventModel);
@@ -227,7 +233,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
                 }
                 else
                 {
-                    eventsByAccount.Add(accountId, new List<EventHubModel> { eventModel });
+                    eventsByAccount.Add(accountId, new List<T> { eventModel });
                     this.EventArgsToCheckpoint.Add(accountId, new List<ProcessEventArgs>() { eventArgs });
                 }
             }
