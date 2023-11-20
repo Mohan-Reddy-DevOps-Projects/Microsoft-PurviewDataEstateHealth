@@ -1,0 +1,152 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 673.83157045961639,
+            "y": 691.05548602304339
+          },
+          "nodeIndex": "BusinessDomain",
+          "nodeLineageTag": "ebd61f4f-2f25-49cf-aecd-815b4e3b9150",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 332.62485460296875,
+            "y": 313.77707990403212
+          },
+          "nodeIndex": "BusinessDomainDataProductAssociation",
+          "nodeLineageTag": "f610ad81-f575-4e1e-a28c-50d69c3360fe",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 858.78741805168147,
+            "y": 1048.3014516873222
+          },
+          "nodeIndex": "BusinessDomainTrends",
+          "nodeLineageTag": "4c614cc0-5cb9-4bae-be1d-9d2d1f279780",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 386.31065210809254,
+            "y": 520.92444400990291
+          },
+          "nodeIndex": "DataAsset",
+          "nodeLineageTag": "c3a1c7c4-a00b-4ee7-aff9-a18ff4df4f3e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 94.036940135798545,
+            "y": 517.86992245384363
+          },
+          "nodeIndex": "DataAssetContactAssociation",
+          "nodeLineageTag": "c23dc350-3047-42c3-8ef0-0fb9b853bf7a",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 620.60098451393935,
+            "y": -10
+          },
+          "nodeIndex": "DataProduct",
+          "nodeLineageTag": "4df406be-75ca-4e3d-a76c-d2a10418cc27",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 963.65994487812691,
+            "y": 663.69145245589357
+          },
+          "nodeIndex": "DataProductContactAssociation",
+          "nodeLineageTag": "86ee05fc-f297-4a2a-9e50-ddf8b7c965e9",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 10,
+            "y": 338.54774895613696
+          },
+          "nodeIndex": "DataProductDataAssetAssociation",
+          "nodeLineageTag": "0b406716-3c33-4988-93cd-c291b0eb4c25",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1237.6599448781269,
+            "y": 531.15072584366112
+          },
+          "nodeIndex": "GlossaryTerm",
+          "nodeLineageTag": "ca7611a8-4ce7-4a4f-9ec3-c5b653d0c107",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1521.6599448781269,
+            "y": 627.15072584366112
+          },
+          "nodeIndex": "MeasureTable",
+          "nodeLineageTag": "adb21ce4-46d1-4cc9-93d0-8530ba6faa2d",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 22.135416666666664,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}
