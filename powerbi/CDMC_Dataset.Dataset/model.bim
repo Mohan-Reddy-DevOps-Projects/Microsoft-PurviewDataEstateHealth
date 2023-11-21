@@ -362,10 +362,6 @@
         "name": "TENANT_ID",
         "annotations": [
           {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
-          {
             "name": "PBI_ResultType",
             "value": "Text"
           }
@@ -941,11 +937,11 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "8e39a308-b872-4700-8e7d-ce9bfa97f261",
             "sourceColumn": "IsRootDomain",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "LastRefreshedAt",
@@ -990,11 +986,11 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "d623da40-2e4e-43dc-af07-50e0e3e293b7",
             "sourceColumn": "HasValidOwner",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "HasDescription",
@@ -1004,11 +1000,11 @@
                 "value": "Automatic"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "98e0d34a-2072-4c16-9174-d3ce094482d1",
             "sourceColumn": "HasDescription",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           }
         ],
         "lineageTag": "bb22e2b4-7b67-4278-bc82-0426adf76ee0",
@@ -1557,11 +1553,11 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "5f1f365b-63fe-4264-8e64-8f2e8b0ca6d8",
             "sourceColumn": "HasSchema",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "BusinessDomainId",
@@ -1610,11 +1606,11 @@
                 "value": "Automatic"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "c73d33cd-137a-4338-87f0-0390894a06de",
             "sourceColumn": "HasClassification",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "HasDescription",
@@ -1624,11 +1620,11 @@
                 "value": "Automatic"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "cec1fb47-ccff-4e66-8e4c-735d5bae6563",
             "sourceColumn": "HasDescription",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           }
         ],
         "lineageTag": "e01a6210-45a2-498b-a38a-192cae8264e8",
@@ -1725,11 +1721,11 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "f5837da1-df40-4a24-901c-d8f58ec95f88",
             "sourceColumn": "IsActive",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           }
         ],
         "lineageTag": "f6784168-2d61-407e-a710-15511338caef",
@@ -1756,6 +1752,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "changedProperties": [
@@ -1831,11 +1831,11 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "df42f1c6-5b80-4516-8bf4-e96394cb19cd",
             "sourceColumn": "HasValidOwner",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "HasValidUseCase",
@@ -1850,47 +1850,10 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "ad4067cc-72a9-4c38-a947-45a17093c2e7",
             "sourceColumn": "HasValidUseCase",
-            "summarizeBy": "sum"
-          },
-          {
-            "name": "HasValidTermsofUse",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "dataType": "int64",
-            "formatString": "0",
-            "lineageTag": "0c30efef-65bb-4dc3-a8b1-7d3b96f8240b",
-            "sourceColumn": "HasValidTermsofUse",
-            "summarizeBy": "sum"
-          },
-          {
-            "name": "DataPoductStatus",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "6d8a43f5-30f3-47d7-aefd-2b7e17c78eda",
-            "sourceColumn": "DataPoductStatus",
             "summarizeBy": "none"
           },
           {
@@ -2051,11 +2014,11 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "cea7db2f-53b8-4e69-acb3-fd6b1649028d",
             "sourceColumn": "IsAuthoritativeSource",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "HasDataQualityScore",
@@ -2070,11 +2033,11 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "0ab26c16-e9bf-4c61-8e4d-f486721fd7f4",
             "sourceColumn": "HasDataQualityScore",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "ClassificationPassCount",
@@ -2108,11 +2071,11 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "c59ed45b-910b-4e22-b602-d694829cdf81",
             "sourceColumn": "HasAccessEntitlement",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "HasDataShareAgreementSetOrExempt",
@@ -2127,11 +2090,11 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "79ad4ed1-5623-40f6-8aa7-ad0cbe8e95c0",
             "sourceColumn": "HasDataShareAgreementSetOrExempt",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           },
           {
             "name": "GlossaryTermCount",
@@ -2166,7 +2129,7 @@
               }
             ],
             "dataType": "string",
-            "expression": "IF('DataProduct'[HasAccessEntitlement] = 1,\"Pass\",\"Fail\")",
+            "expression": "IF('DataProduct'[HasAccessEntitlement] = TRUE(),\"Pass\",\"Fail\")",
             "isDataTypeInferred": true,
             "lineageTag": "6c0ec664-d767-456c-b0e1-0a53e842f4ad",
             "summarizeBy": "none",
@@ -2220,7 +2183,7 @@
               }
             ],
             "dataType": "string",
-            "expression": "IF('DataProduct'[IsAuthoritativeSource]= 1,\"Pass\",\"Fail\")",
+            "expression": "IF('DataProduct'[IsAuthoritativeSource]= TRUE(),\"Pass\",\"Fail\")",
             "isDataTypeInferred": true,
             "lineageTag": "91d8f8a6-65af-4f4b-95a4-19b3bb8a1f57",
             "summarizeBy": "none",
@@ -2260,7 +2223,7 @@
               }
             ],
             "dataType": "string",
-            "expression": "IF('DataProduct'[HasDataShareAgreementSetOrExempt] = 1, \"Pass\",\"Fail\")",
+            "expression": "IF('DataProduct'[HasDataShareAgreementSetOrExempt] = TRUE(), \"Pass\",\"Fail\")",
             "isDataTypeInferred": true,
             "lineageTag": "ba828d2a-4632-4b29-896c-d8f6e0d8cd47",
             "summarizeBy": "none",
@@ -2280,7 +2243,7 @@
               }
             ],
             "dataType": "string",
-            "expression": "IF('DataProduct'[HasDataQualityScore] = 1 ,\"Pass\",\"Fail\")",
+            "expression": "IF('DataProduct'[HasDataQualityScore] = TRUE() ,\"Pass\",\"Fail\")",
             "isDataTypeInferred": true,
             "lineageTag": "9811b820-10ba-44d4-b769-3f6304e5d90a",
             "summarizeBy": "none",
@@ -2325,7 +2288,7 @@
               }
             ],
             "dataType": "string",
-            "expression": "IF('DataProduct'[HasValidOwner] = 1, \"Pass\", \"Fail\")",
+            "expression": "IF('DataProduct'[HasValidOwner] = TRUE(), \"Pass\", \"Fail\")",
             "isDataTypeInferred": true,
             "lineageTag": "1116f6a1-d103-4170-bd5b-e588adb8cd8e",
             "summarizeBy": "none",
@@ -2345,7 +2308,7 @@
               }
             ],
             "dataType": "string",
-            "expression": "IF(COALESCE('DataProduct'[HasValidOwner],0) = 1,\"Pass\",\"Fail\")",
+            "expression": "IF(COALESCE('DataProduct'[HasValidOwner],0) = TRUE(),\"Pass\",\"Fail\")",
             "isDataTypeInferred": true,
             "lineageTag": "e56a65f7-dc4d-4a3e-ae24-a41ef7700310",
             "summarizeBy": "none",
@@ -2444,11 +2407,38 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "f02d5487-6225-4e9b-a0c9-b38067c34ce8",
             "sourceColumn": "HasDescription",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataProductStatus",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "7e8f44bf-9d58-4d66-9c63-391fccaaa750",
+            "sourceColumn": "DataProductStatus",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "HasValidTermsOfUse",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
+            "lineageTag": "0ea5692f-10b8-4d07-8843-fa94aae7f127",
+            "sourceColumn": "HasValidTermsOfUse",
+            "summarizeBy": "none"
           }
         ],
         "lineageTag": "5e64d8f2-a51a-4abe-b8b8-86d5ed754fb7",
@@ -3380,11 +3370,11 @@
                 "property": "IsHidden"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "2e75d796-5478-4789-97c4-9f30ecb44d5d",
             "sourceColumn": "IsActive",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           }
         ],
         "lineageTag": "31236631-10ef-425d-ad3a-df87513dc736",
@@ -3666,11 +3656,11 @@
                 "value": "Automatic"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "b3d3da49-29fc-4bc5-b59b-354f9b12dea0",
             "sourceColumn": "HasDescription",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           }
         ],
         "lineageTag": "11eca4bc-37b7-4418-8fab-8a61765a65a3",
@@ -3744,11 +3734,11 @@
                 "value": "Automatic"
               }
             ],
-            "dataType": "int64",
-            "formatString": "0",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
             "lineageTag": "77ce2fd1-dc06-4986-a76c-39943bdb7695",
             "sourceColumn": "IsPrimaryDataProduct",
-            "summarizeBy": "sum"
+            "summarizeBy": "none"
           }
         ],
         "lineageTag": "5f2992b4-bbe7-4efe-87a5-c806188552cd",
@@ -6385,10 +6375,6 @@
       {
         "name": "MeasureTable",
         "annotations": [
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
-          },
           {
             "name": "PBI_ResultType",
             "value": "Table"

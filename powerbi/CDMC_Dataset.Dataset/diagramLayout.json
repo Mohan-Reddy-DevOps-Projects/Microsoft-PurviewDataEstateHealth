@@ -5,7 +5,7 @@
       "ordinal": 0,
       "scrollPosition": {
         "x": 0,
-        "y": 0
+        "y": 63.333333333333336
       },
       "nodes": [
         {
@@ -24,7 +24,7 @@
         {
           "location": {
             "x": 980.532783685537,
-            "y": 582.64494126563091
+            "y": 357.64494126563091
           },
           "nodeIndex": "BusinessDomainTrends",
           "nodeLineageTag": "d6ae76ed-5409-4399-b782-f93c0a38a783",
@@ -140,7 +140,7 @@
         }
       ],
       "name": "All tables",
-      "zoomValue": 22.135416666666664,
+      "zoomValue": 60,
       "pinKeyFieldsToTop": false,
       "showExtraHeaderInfo": false,
       "hideKeyFieldsWhenCollapsed": false,
