@@ -19,6 +19,7 @@ resource acrPushRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-
 // Ditto for the push role assingment.
 resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(acr.id, acrPullRoleDefinition.id, principalId)
+  scope: acr
   properties: {
     roleDefinitionId: acrPullRoleDefinition.id
     principalId: principalId
@@ -28,6 +29,7 @@ resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
 
 resource acrPushRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(acr.id, acrPushRoleDefinition.id, principalId)
+  scope: acr
   properties: {
     roleDefinitionId: acrPushRoleDefinition.id
     principalId: principalId

@@ -12,7 +12,8 @@ resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' exi
 }
 
 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(eventHubNamespace.id, roleDefinition.id, principalId)
+  name: guid(eventHubNamespace.id, roleDefinition.id, principalId)  
+  scope: eventHubNamespace
   properties: {
     roleDefinitionId: roleDefinition.id
     principalId: principalId

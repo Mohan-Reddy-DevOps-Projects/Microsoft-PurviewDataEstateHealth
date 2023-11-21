@@ -22,6 +22,7 @@ resource storageBlobDataContributorRoleDefinition 'Microsoft.Authorization/roleD
 
 resource storageQueueDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(storageAccount.id, storageQueueDataContributorRoleDefinition.id, principalId)
+  scope: storageAccount
   properties: {
     roleDefinitionId: storageQueueDataContributorRoleDefinition.id
     principalId: principalId
@@ -31,6 +32,7 @@ resource storageQueueDataContributorRoleAssignment 'Microsoft.Authorization/role
 
 resource storageTableDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(storageAccount.id, storageTableDataContributorRoleDefinition.id, principalId)
+  scope: storageAccount
   properties: {
     roleDefinitionId: storageTableDataContributorRoleDefinition.id
     principalId: principalId
@@ -40,6 +42,7 @@ resource storageTableDataContributorRoleAssignment 'Microsoft.Authorization/role
 
 resource storageBlobDataContributorRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(storageAccount.id, storageBlobDataContributorRoleDefinition.id, principalId)
+  scope: storageAccount
   properties: {
     roleDefinitionId: storageBlobDataContributorRoleDefinition.id
     principalId: principalId

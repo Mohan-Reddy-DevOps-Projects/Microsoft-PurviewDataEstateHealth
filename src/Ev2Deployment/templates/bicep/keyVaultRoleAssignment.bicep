@@ -13,6 +13,7 @@ resource keyVaultRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04
 
 resource keyVaultRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(keyVault.id, keyVaultRoleDefinition.id, principalId)
+  scope: keyVault
   properties: {
     roleDefinitionId: keyVaultRoleDefinition.id
     principalId: principalId
