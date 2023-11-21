@@ -27,11 +27,11 @@ BEGIN TRAN
         (
             [BusinessDomainId] nvarchar (36),
             [BusinessDomainDisplayName] nvarchar (256),
-            [HasDescription] int,
+            [HasDescription] bit,
             [GlossaryTermCount] int,
             [DataProductCount] int,
-            [IsRootDomain] int,
-            [HasValidOwner] int,
+            [IsRootDomain] bit,
+            [HasValidOwner] bit,
             [CreatedAt] datetime2,
             [CreatedBy] nvarchar (64),
             [ModifiedAt] datetime2,
@@ -56,7 +56,7 @@ BEGIN TRAN
             [BusinessDomainId] nvarchar (36),
             [ContactId] nvarchar (36),
             [ContactRole] nvarchar (36),
-            [IsActive] int
+            [IsActive] bit
         )
         WITH (
             LOCATION='/Sink/BusinessDomainContactAssociation/',
@@ -75,7 +75,7 @@ BEGIN TRAN
         (
             [DataProductId] nvarchar (36),
             [BusinessDomainId] nvarchar (36),
-            [IsPrimaryDataProduct] int
+            [IsPrimaryDataProduct] bit
         )
         WITH (
             LOCATION='/Sink/DataProductDomainAssociation/',
@@ -130,9 +130,9 @@ BEGIN TRAN
             [DisplayName] nvarchar (256),
             [ObjectType] nvarchar (256),
             [SourceType] nvarchar (256),
-            [HasClassification] int,
-            [HasSchema] int,
-            [HasDescription] int,
+            [HasClassification] bit,
+            [HasSchema] bit,
+            [HasDescription] bit,
             [CreatedAt] datetime2,
             [CreatedBy] nvarchar(64),
             [ModifiedAt] datetime2,
@@ -157,7 +157,7 @@ BEGIN TRAN
             [DataAssetId] nvarchar (36),
             [ContactRole] nvarchar (64),
             [ContactId] nvarchar (36),
-            [IsActive] int
+            [IsActive] bit
         )
         WITH (
             LOCATION='/Sink/DataAssetContactAssociation/',
@@ -177,17 +177,17 @@ BEGIN TRAN
             [DataProductId] nvarchar (36),
             [DataProductDisplayName] nvarchar (256),
             [DataProductType] nvarchar (64),
-            [DataPoductStatus] nvarchar (64),
-            [HasValidOwner] int,
-            [HasValidUseCase] int,
-            [HasValidTermsofUse] int,
+            [DataProductStatus] nvarchar (64),
+            [HasValidOwner] bit,
+            [HasValidUseCase] bit,
+            [HasValidTermsOfUse] bit,
             [AssetCount] bigint,
-            [HasDescription] int,
-            [IsAuthoritativeSource] int,
-            [HasDataQualityScore] int,
+            [HasDescription] bit,
+            [IsAuthoritativeSource] bit,
+            [HasDataQualityScore] bit,
             [ClassificationPassCount] int,
-            [HasAccessEntitlement] int,
-            [HasDataShareAgreementSetOrExempt] int,
+            [HasAccessEntitlement] bit,
+            [HasDataShareAgreementSetOrExempt] bit,
             [GlossaryTermCount] int,
             [CreatedAt] datetime2,
             [CreatedBy] nvarchar (64),
@@ -213,7 +213,7 @@ BEGIN TRAN
             [DataProductId] nvarchar (36),
             [ContactRole] nvarchar (36),
             [ContactId] nvarchar (36),
-            [IsActive] int
+            [IsActive] bit
         )
         WITH (
             LOCATION='/Sink/DataProductContactAssociation/',
@@ -251,7 +251,7 @@ BEGIN TRAN
             [TermId] nvarchar (36),
             [Name] nvarchar (256),
             [Status] nvarchar (64),
-            [HasDescription] int,
+            [HasDescription] bit,
             [CreatedAt] datetime2,
 	        [CreatedBy] nvarchar (64),
             [ModifiedAt] datetime2,
@@ -294,7 +294,7 @@ BEGIN TRAN
             [TermId] nvarchar (36),
             [ContactRole] nvarchar (36),
             [ContactId] nvarchar (36),
-            [IsActive] int
+            [IsActive] bit
         )
         WITH (
             LOCATION='/Sink/TermContactAssociation/',

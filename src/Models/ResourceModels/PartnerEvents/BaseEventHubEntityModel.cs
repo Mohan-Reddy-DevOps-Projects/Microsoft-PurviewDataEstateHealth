@@ -30,7 +30,7 @@ public abstract class BaseEventHubEntityModel
     /// Precise timestamp.
     /// </summary>
     [JsonProperty("preciseTimestamp")]
-    public DateTime EventCreationTimestamp { get; set; }
+    public string EventCreationTimestamp { get; set; }
 
     /// <summary>
     /// Get payload kind.
