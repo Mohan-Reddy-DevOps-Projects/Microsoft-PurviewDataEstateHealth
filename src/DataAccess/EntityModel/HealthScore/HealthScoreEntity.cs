@@ -9,7 +9,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Newtonsoft.Json;
 
 [JsonConverter(typeof(HealthScoreEntityConverter))]
-internal class HealthScoreEntity 
+internal class HealthScoreEntity : BaseEntity
 {
     public HealthScoreEntity()
     {

@@ -42,21 +42,23 @@ internal class HealthScoreRepository : IHealthScoreRepository
     {
         string containerPath = await this.ConstructContainerPath(healthScoreKey.CatalogId.ToString(), healthScoreKey.AccountId, cancellationToken);
 
-        IServerlessQueryRequest<HealthScoreRecordForAllBusinessDomains, HealthScoreEntity> query;
+        IServerlessQueryRequest<BaseRecord, BaseEntity> query;
 
         if (healthScoreKey == null || !healthScoreKey.BusinessDomainId.HasValue)
         {
-            query = this.queryRequestBuilder.Build<HealthScoreRecordForAllBusinessDomains, HealthScoreEntity>(containerPath);
+            query = this.queryRequestBuilder.Build<HealthScoreRecordForAllBusinessDomains>(containerPath) as HealthScoresQueryForAllBusinessDomains;
         }
         else
         {
-            query = this.queryRequestBuilder.Build<HealthScoreRecord, HealthScoreEntity>(containerPath, clauseBuilder =>
+            query = this.queryRequestBuilder.Build<HealthScoreRecord>(containerPath, clauseBuilder =>
             {
                 clauseBuilder.WhereClause(QueryConstants.HealthScoresColumnNamesForKey.BusinessDomainId, healthScoreKey.BusinessDomainId.Value.ToString());
-            });
+            }) as HealthScoresQuery;
         }
 
-        var healthScoreEntitiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+
+        var healthScoreEntitiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken) as IList<HealthScoreEntity>;
 
         var healthScoreModelList = new List<IHealthScoreModel<HealthScoreProperties>>();
         foreach (var healthScoresEntity in healthScoreEntitiesList)

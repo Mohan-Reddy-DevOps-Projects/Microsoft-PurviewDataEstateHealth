@@ -15,13 +15,13 @@ public class ServerlessQueryAttribute : Attribute
     /// <summary>
     /// Constructor
     /// </summary>
-    public ServerlessQueryAttribute(Type entityKind)
+    public ServerlessQueryAttribute(Type recordKind)
     {
-        this.EntityKind = entityKind;
+        this.RecordKind = recordKind;
     }
 
     /// <summary>
     /// Entity kind.
     /// </summary>
-    public Type EntityKind  { get; }
+    public Type RecordKind  { get; }
 }

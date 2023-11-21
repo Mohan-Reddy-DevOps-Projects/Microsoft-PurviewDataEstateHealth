@@ -9,7 +9,7 @@ using System.Data;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using static Microsoft.Azure.Purview.DataEstateHealth.Common.QueryUtils;
 
-[ServerlessQuery(typeof(HealthScoreEntity))]
+[ServerlessQuery(typeof(HealthScoreRecord))]
 internal class HealthScoresQuery : BaseQuery, IServerlessQueryRequest<HealthScoreRecord, HealthScoreEntity>
 {
     public string QueryPath => $"{this.ContainerPath}/Sink/DomainHealthScores/";

@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using System.Threading.Tasks;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 using Microsoft.DGP.ServiceBasics.BaseModels;
@@ -42,7 +43,9 @@ internal class BusinessDomainRepository : IBusinessDomainRepository
     {
         string containerPath = await this.ConstructContainerPath(criteria.CatalogId.ToString(), criteria.AccountId, cancellationToken);
 
-        IServerlessQueryRequest<BusinessDomainRecord, BusinessDomainEntity> query = this.queryRequestBuilder.Build<BusinessDomainRecord, BusinessDomainEntity>(containerPath);
+        BusinessDomainQuery query = this.queryRequestBuilder.Build<BusinessDomainRecord>(containerPath) as BusinessDomainQuery;
+
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
 
         IList<BusinessDomainEntity> businessDomainEntitiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 

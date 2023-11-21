@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using static Microsoft.Azure.Purview.DataEstateHealth.Common.QueryUtils;
 
-[ServerlessQuery(typeof(DataEstateHealthSummaryEntity))]
+[ServerlessQuery(typeof(DataEstateHealthSummaryRecord))]
 internal class DataEstateHealthSummaryQuery : BaseQuery, IServerlessQueryRequest<DataEstateHealthSummaryRecord, DataEstateHealthSummaryEntity>
 {
     public string QueryPath => $"{this.ContainerPath}/Sink/DomainHealthSummary/";

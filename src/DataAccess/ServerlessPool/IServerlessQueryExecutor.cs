@@ -12,5 +12,6 @@ public interface IServerlessQueryExecutor
     /// <summary>
     /// Execute query request method.
     /// </summary>
-    Task<IList<TEntity>> ExecuteAsync<TIntermediate, TEntity>(IServerlessQueryRequest<TIntermediate, TEntity> request, CancellationToken cancellationToken);
+    Task<IList<TEntity>> ExecuteAsync<TIntermediate, TEntity>(IServerlessQueryRequest<TIntermediate, TEntity> request, CancellationToken cancellationToken)
+        where TEntity : BaseEntity where TIntermediate : BaseRecord;
 }

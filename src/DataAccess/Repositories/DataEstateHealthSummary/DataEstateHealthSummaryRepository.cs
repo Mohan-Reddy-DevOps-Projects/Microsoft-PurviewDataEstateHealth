@@ -38,21 +38,23 @@ internal class DataEstateHealthSummaryRepository : IDataEstateHealthSummaryRepos
     {
         string containerPath = await this.ConstructContainerPath(summaryKey.CatalogId.ToString(), summaryKey.AccountId, cancellationToken);
 
-        IServerlessQueryRequest<DataEstateHealthSummaryRecordForAllBusinessDomains, DataEstateHealthSummaryEntity> query;
+        IServerlessQueryRequest<BaseRecord, BaseEntity> query;
 
         if (summaryKey == null || !summaryKey.DomainId.HasValue)
         {
-            query = this.queryRequestBuilder.Build<DataEstateHealthSummaryRecordForAllBusinessDomains, DataEstateHealthSummaryEntity>(containerPath);
+            query = this.queryRequestBuilder.Build<DataEstateHealthSummaryRecordForAllBusinessDomains>(containerPath) as DataEstateHealthSummaryQueryForAllBusinessDomains;
         }
         else
         {
-            query = this.queryRequestBuilder.Build<DataEstateHealthSummaryRecord, DataEstateHealthSummaryEntity>(containerPath, clauseBuilder =>
+            query = this.queryRequestBuilder.Build<DataEstateHealthSummaryRecord>(containerPath, clauseBuilder =>
             {
                 clauseBuilder.WhereClause(QueryConstants.DataEstateHealthSummaryColumnNamesForKey.BusinessDomainId, summaryKey.DomainId.Value.ToString());
-            });
+            }) as DataEstateHealthSummaryQuery;
         }
 
-        var dataEstateHealthSummaryEntity = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+
+        var dataEstateHealthSummaryEntity = (IList<DataEstateHealthSummaryEntity>)await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
         return await Task.FromResult(this.modelAdapterRegistry
             .AdapterFor<IDataEstateHealthSummaryModel, DataEstateHealthSummaryEntity>()

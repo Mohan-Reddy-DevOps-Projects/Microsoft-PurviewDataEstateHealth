@@ -7,7 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 /// <summary>
 /// Intermediate record for health actions.
 /// </summary>
-public class HealthActionsRecord 
+public class HealthActionsRecord : BaseRecord
 {
     /// <summary>
     /// Action id.

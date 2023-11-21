@@ -21,19 +21,18 @@ internal class ServerlessQueryRequestBuilder : IServerlessQueryRequestBuilder
     }
 
     /// <inheritdoc/>
-    public IServerlessQueryRequest<TRecord, TEntity> Build<TRecord, TEntity>(string containerPath, Action<ClauseBuilder> buildFilter = null)
-        where TRecord : class
-        where TEntity : class
+    public IServerlessQueryRequest<BaseRecord, BaseEntity> Build<TRecord>(string containerPath, Action<ClauseBuilder> buildFilter = null)
+        where TRecord : BaseRecord, new()
     {
         if (string.IsNullOrEmpty(containerPath))
         {
             throw new InvalidOperationException("Container path must be set before building the query request.");
         }
 
-        Type entityType = typeof(TEntity);
+      
         ClauseBuilder clauseBuilder = new();
         buildFilter?.Invoke(clauseBuilder);
-        IServerlessQueryRequest<TRecord, TEntity> serverlessQueryRequest = ServerlessQueryRegistry<TRecord, TEntity>.Instance.CreateQueryFor(entityType);
+        IServerlessQueryRequest<BaseRecord, BaseEntity> serverlessQueryRequest = ServerlessQueryRegistry.Instance.CreateQueryFor(typeof(TRecord));
         serverlessQueryRequest.Database = this.serverlessPoolConfig.Database;
         serverlessQueryRequest.ContainerPath = containerPath;
         serverlessQueryRequest.FilterClause = clauseBuilder.ToString();

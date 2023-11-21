@@ -6,13 +6,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Microsoft.Azure.Purview.DataEstateHealth.Common.QueryUtils;
 
-[ServerlessQuery(typeof(HealthActionEntity))]
+[ServerlessQuery(typeof(HealthActionsRecord))]
 internal class HealthActionsQuery : BaseQuery, IServerlessQueryRequest<HealthActionsRecord, HealthActionEntity>
 {
     public string QueryPath => $"{this.ContainerPath}/Sink/ActionCenter/";

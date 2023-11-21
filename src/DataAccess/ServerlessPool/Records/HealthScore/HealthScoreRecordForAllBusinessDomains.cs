@@ -7,7 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 /// <summary>
 /// Intermediate record for health scores for al business domains.
 /// </summary>
-public class HealthScoreRecordForAllBusinessDomains
+public class HealthScoreRecordForAllBusinessDomains : BaseRecord
 {
     /// <summary>
     /// Score kind.

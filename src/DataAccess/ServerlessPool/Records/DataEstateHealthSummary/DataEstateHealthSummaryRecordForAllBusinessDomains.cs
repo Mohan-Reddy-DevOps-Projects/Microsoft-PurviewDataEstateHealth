@@ -7,7 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 /// <summary>
 /// Intermediate record for data estate health summary for all business domains.
 /// </summary>
-public class DataEstateHealthSummaryRecordForAllBusinessDomains
+public class DataEstateHealthSummaryRecordForAllBusinessDomains : BaseRecord
 {
     /// <summary>
     /// Total business domains.

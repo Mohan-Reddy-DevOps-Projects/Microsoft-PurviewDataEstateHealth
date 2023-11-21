@@ -4,8 +4,9 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-internal interface IServerlessQueryRequestBuilder
+/// <summary>
+/// Base entity for all entity models.
+/// </summary>
+public class BaseEntity
 {
-    IServerlessQueryRequest<BaseRecord, BaseEntity> Build<TRecord>(string containerPath, Action<ClauseBuilder> buildFilter = null)
-        where TRecord : BaseRecord, new();
 }

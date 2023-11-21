@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Data;
 using static Microsoft.Azure.Purview.DataEstateHealth.Common.QueryUtils;
 
-[ServerlessQuery(typeof(BusinessDomainEntity))]
+[ServerlessQuery(typeof(BusinessDomainRecord))]
 internal class BusinessDomainQuery : BaseQuery, IServerlessQueryRequest<BusinessDomainRecord, BusinessDomainEntity>
 {
     public string QueryPath => $"{this.ContainerPath}/Sink/BusinessDomainSchema/";

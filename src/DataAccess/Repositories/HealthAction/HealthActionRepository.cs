@@ -42,20 +42,22 @@ internal class HealthActionRepository : IHealthActionRepository
     {
         string containerPath = await this.ConstructContainerPath(healthActionKey.CatalogId.ToString(), healthActionKey.AccountId, cancellationToken);
 
-        IServerlessQueryRequest<HealthActionsRecord, HealthActionEntity> query;
+        HealthActionsQuery query;
 
         if (healthActionKey == null || !healthActionKey.BusinessDomainId.HasValue)
         {
-            query =  this.queryRequestBuilder.Build<HealthActionsRecord, HealthActionEntity>(containerPath);
+            query = this.queryRequestBuilder.Build<HealthActionsRecord>(containerPath) as HealthActionsQuery;
 
         }
         else
         {
-            query = this.queryRequestBuilder.Build<HealthActionsRecord, HealthActionEntity>(containerPath, clauseBuilder =>
+            query = this.queryRequestBuilder.Build<HealthActionsRecord>(containerPath, clauseBuilder =>
             {
                 clauseBuilder.WhereClause(QueryConstants.HealthActionColumnNamesForKey.BusinessDomainId, healthActionKey.BusinessDomainId.Value.ToString());
-            });
+            }) as HealthActionsQuery;
         }
+
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
 
         var healthActionEntititiesList =  await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
