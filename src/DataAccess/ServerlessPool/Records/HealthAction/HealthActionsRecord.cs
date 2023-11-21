@@ -12,6 +12,12 @@ public class HealthActionsRecord : BaseRecord
     /// <summary>
     /// Action id.
     /// </summary>
+    [DataColumn("RowId")]
+    public Guid RowId { get; set; }
+
+    /// <summary>
+    /// Action id.
+    /// </summary>
     [DataColumn("ActionId")]
     public Guid ActionId { get; set; }
 

@@ -18,7 +18,7 @@ internal class HealthScoresQueryForAllBusinessDomains : BaseQuery, IServerlessQu
     {
         get => "SELECT ScoreKind, Name, Description, ActualValue " +
                QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) +
-               "WITH(ScoreKind nvarchar(128), Name nvarchar(128), Description nvarchar(1024), ActualValue float" +
+               "WITH (ScoreKind nvarchar(128), Name nvarchar(128), Description nvarchar(1024), ActualValue float)" +
                QueryConstants.ServerlessQuery.AsRows;
     }
 

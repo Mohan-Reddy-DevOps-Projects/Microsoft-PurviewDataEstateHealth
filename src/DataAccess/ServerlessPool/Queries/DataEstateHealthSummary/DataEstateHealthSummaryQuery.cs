@@ -20,10 +20,10 @@ internal class DataEstateHealthSummaryQuery : BaseQuery, IServerlessQueryRequest
                "TotalDataProductsCount, DataProductsTrendLink," +
                "TotalOpenActionsCount, TotalCompletedActionsCount, TotalDismissedActionsCount, HealthActionsTrendLink" +
                QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) +
-               "WITH(BusinessDomainId nvarchar(64),TotalBusinessDomains BIGINT, BusinessDomainsFilterListLink nvarchar(512),BusinessDomainsTrendLink nvarchar(512), LastRefreshDate DATE," +
+               "WITH (BusinessDomainId nvarchar(64),TotalBusinessDomains BIGINT, BusinessDomainsFilterListLink nvarchar(512),BusinessDomainsTrendLink nvarchar(512), LastRefreshDate DATE," +
                "TotalCuratedDataAssetsCount BIGINT, TotalCuratableDataAssetsCount BIGINT, TotalNonCuratableDataAssetsCount BIGINT, DataAssetsTrendLink nvarchar(512)," +
                "TotalDataProductsCount BIGINT, DataProductsTrendLink nvarchar(512)," +
-               "TotalOpenActionsCount BIGINT, TotalCompletedActionsCount BIGINT, TotalDismissedActionsCount BIGINT, HealthActionsTrendLink nvarchar(512)" +
+               "TotalOpenActionsCount BIGINT, TotalCompletedActionsCount BIGINT, TotalDismissedActionsCount BIGINT, HealthActionsTrendLink nvarchar(512))" +
                QueryConstants.ServerlessQuery.AsRows + this.FilterClause;
     }
 

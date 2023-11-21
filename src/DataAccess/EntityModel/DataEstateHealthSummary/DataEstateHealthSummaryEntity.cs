@@ -10,7 +10,6 @@ internal class DataEstateHealthSummaryEntity : BaseEntity
 {
     public DataEstateHealthSummaryEntity()
     {
-
     }
 
     public DataEstateHealthSummaryEntity(DataEstateHealthSummaryEntity entity)

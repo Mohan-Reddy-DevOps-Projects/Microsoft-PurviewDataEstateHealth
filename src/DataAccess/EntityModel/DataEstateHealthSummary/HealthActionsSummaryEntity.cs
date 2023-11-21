@@ -10,7 +10,6 @@ internal class HealthActionsSummaryEntity
 {
    public HealthActionsSummaryEntity()
    {
-
    }
 
    public HealthActionsSummaryEntity(HealthActionsSummaryEntity entity)

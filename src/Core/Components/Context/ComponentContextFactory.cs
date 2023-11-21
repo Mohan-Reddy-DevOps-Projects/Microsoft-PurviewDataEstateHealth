@@ -21,8 +21,8 @@ internal class ComponentContextFactory : IComponentContextFactory
     public IDataEstateHealthSummaryContext CreateDataEstateHealthSummaryContext(
         ServiceVersion version,
         string location,
-        Guid tenantId,
-        Guid accountId)
+        Guid accountId,
+        Guid tenantId)
     {
         return new DataEstateHealthSummaryContext
         {

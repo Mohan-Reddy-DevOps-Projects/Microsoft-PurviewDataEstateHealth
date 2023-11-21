@@ -54,11 +54,11 @@ internal class DataEstateHealthSummaryRepository : IDataEstateHealthSummaryRepos
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-        var dataEstateHealthSummaryEntity = (IList<DataEstateHealthSummaryEntity>)await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+        var dataEstateHealthSummaryEntity = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
         return await Task.FromResult(this.modelAdapterRegistry
             .AdapterFor<IDataEstateHealthSummaryModel, DataEstateHealthSummaryEntity>()
-            .ToModel(dataEstateHealthSummaryEntity.FirstOrDefault()));
+            .ToModel(dataEstateHealthSummaryEntity.FirstOrDefault() as DataEstateHealthSummaryEntity));
     }
 
     public IDataEstateHealthSummaryRepository ByLocation(string location)

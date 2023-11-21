@@ -18,28 +18,29 @@ internal class HealthActionsQuery : BaseQuery, IServerlessQueryRequest<HealthAct
 
     public string Query
     {
-        get => "SELECT ActionId, DisplayName, Description, HealthControlState, HealthControlName," +
+        get => "SELECT RowId, ActionId, DisplayName, Description, HealthControlState, HealthControlName," +
                "BusinessDomainId, TargetType, TargetId, OwnerContactId, OwnerContactDisplayName," +
                "ActionStatus, LastRefreshedAt, CreatedAt" +
                QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) +
-               "WITH(ActionId nvarchar(64), DisplayName nvarchar(128), Description nvarchar(1024), HealthControlState nvarchar(32), HealthControlName nvarchar(64)," +
+               "WITH (RowId nvarchar(64), ActionId nvarchar(128), DisplayName nvarchar(128), Description nvarchar(1024), HealthControlState nvarchar(32), HealthControlName nvarchar(64)," +
                "BusinessDomainId nvarchar(64), TargetType nvarchar(128), TargetId  nvarchar(64), OwnerContactId nvarchar(64), OwnerContactDisplayName nvarchar(128), " +
-               "ActionStatus nvarchar(32), LastRefreshedAt BIGINT, CreatedAt BIGINT)" +
+               "ActionStatus nvarchar(32), LastRefreshedAt DateTime2, CreatedAt DateTime2)" +
                QueryConstants.ServerlessQuery.AsRows + this.FilterClause;
     }
 
     public HealthActionsRecord ParseRow(IDataRecord row)
     {
+        var ownerContactId = row[GetCustomAttribute<DataColumnAttribute, HealthActionsRecord>(x => x.OwnerContactId).Name]?.ToString();
+
         return new HealthActionsRecord()
         {
             BusinessDomainId =
                 (row[GetCustomAttribute<DataColumnAttribute, HealthActionsRecord>(x => x.BusinessDomainId).Name]?.ToString()).AsGuid(),
             ActionId =
-                Guid.Parse(row[GetCustomAttribute<DataColumnAttribute, HealthActionsRecord>(x => x.ActionId).Name].ToString()),
+                (row[GetCustomAttribute<DataColumnAttribute, HealthActionsRecord>(x => x.RowId).Name].ToString()).AsGuid(),
             TargetId =
-                Guid.Parse(row[GetCustomAttribute<DataColumnAttribute, HealthActionsRecord>(x => x.TargetId).Name].ToString()),
-            OwnerContactId =
-                (row[GetCustomAttribute<DataColumnAttribute, HealthActionsRecord>(x => x.OwnerContactId).Name]?.ToString()).AsGuid(),
+                (row[GetCustomAttribute<DataColumnAttribute, HealthActionsRecord>(x => x.TargetId).Name].ToString()).AsGuid(),
+            OwnerContactId = string.IsNullOrEmpty(ownerContactId) ? Guid.Empty : ownerContactId.AsGuid(),
             OwnerContactDisplayName =
                 row[GetCustomAttribute<DataColumnAttribute, HealthActionsRecord>(x => x.OwnerContactDisplayName).Name]?.ToString(),
             DisplayName =
@@ -70,7 +71,7 @@ internal class HealthActionsQuery : BaseQuery, IServerlessQueryRequest<HealthAct
         }
 
         entityList = (records as IList<HealthActionsRecord>)
-            .GroupBy(rec => rec.ActionId)
+            .GroupBy(rec => rec.RowId)
             .Select(group => new HealthActionEntity()
             {
                 Id = group.Key,
@@ -78,8 +79,8 @@ internal class HealthActionsQuery : BaseQuery, IServerlessQueryRequest<HealthAct
                 Description = group.Select(rec => rec.Description).FirstOrDefault(),
                 OwnerContact = new Models.OwnerContact
                 {
-                    ObjectId = group.Key,
-                    DisplayName = group.Select(rec => rec.DisplayName).FirstOrDefault(),
+                    ObjectId = group.Select(rec => rec.OwnerContactId).FirstOrDefault(),
+                    DisplayName = group.Select(rec => rec.OwnerContactDisplayName).FirstOrDefault(),
                 },
                 HealthControlName = group.Select(rec => rec.HealthControlName).FirstOrDefault(),
                 HealthControlState = group.Select(rec => Enum.Parse<HealthControlState>(rec.HealthControlState)).FirstOrDefault(),
@@ -87,6 +88,11 @@ internal class HealthActionsQuery : BaseQuery, IServerlessQueryRequest<HealthAct
                 LastRefreshedAt = group.Select(rec => rec.LastRefreshedAt).FirstOrDefault(),
                 TargetDetailsList = group.Select(rec => new TargetDetails
                 {
+                    OwnerContact = new Models.OwnerContact
+                    {
+                        ObjectId = group.Select(rec => rec.OwnerContactId).FirstOrDefault(),
+                        DisplayName = group.Select(rec => rec.OwnerContactDisplayName).FirstOrDefault(),
+                    },
                     TargetKind = Enum.Parse<TargetKind>(rec.TargetType),
                     TargetId = rec.TargetId
                 }).ToList()

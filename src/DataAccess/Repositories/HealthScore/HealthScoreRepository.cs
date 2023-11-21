@@ -58,14 +58,14 @@ internal class HealthScoreRepository : IHealthScoreRepository
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-        var healthScoreEntitiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken) as IList<HealthScoreEntity>;
+        IList<BaseEntity> healthScoreEntitiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
         var healthScoreModelList = new List<IHealthScoreModel<HealthScoreProperties>>();
         foreach (var healthScoresEntity in healthScoreEntitiesList)
         {
             healthScoreModelList.Add(this.modelAdapterRegistry
                                .AdapterFor<IHealthScoreModel<HealthScoreProperties>, HealthScoreEntity>()
-                                              .ToModel(healthScoresEntity));
+                                              .ToModel(healthScoresEntity as HealthScoreEntity));
         }
 
         return await Task.FromResult(new BaseBatchResults<IHealthScoreModel<HealthScoreProperties>>

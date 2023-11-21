@@ -77,8 +77,7 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
             }
         }, ExceptionPredicate, maxRetries: 1, retryIntervalInMs: TimeoutDelayInMs);
 
-        IList<TEntity> outList =(IList<TEntity>)request.Finalize(recordList);
-
+        IList<TEntity> outList = request.Finalize(recordList).ToList();
         return outList;
     }
 
