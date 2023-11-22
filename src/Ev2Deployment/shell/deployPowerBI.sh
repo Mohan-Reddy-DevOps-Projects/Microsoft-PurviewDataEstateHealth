@@ -6,7 +6,6 @@ if [ -z ${SUBSCRIPTION_ID+x} ]; then
     exit 1;
 fi
 
-
 if [ -z ${POWER_BI_ARCHIVE_SAS+x} ]; then
     echo "POWER_BI_ARCHIVE_SAS is unset, unable to continue"
     exit 1;

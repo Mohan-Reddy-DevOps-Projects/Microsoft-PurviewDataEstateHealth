@@ -44,7 +44,12 @@
           "userAssignedIdentities": [
             "/subscriptions/__INFRA_SUBSCRIPTION_ID__/resourcegroups/__INFRA_RESOURCE_GROUP_NAME__/providers/Microsoft.ManagedIdentity/userAssignedIdentities/__INFRA_CONTAINER_APP_IDENTITY_NAME__"
           ]
+        },
+        "subnetIds": [
+        {
+          "id": "/subscriptions/__INFRA_SUBSCRIPTION_ID__/resourceGroups/__CORE_RESOURCE_GROUP_NAME__/providers/Microsoft.Network/virtualNetworks/__CORE_VNET_NAME__/subnets/deploy"
         }
+      ]
       }
     }
   ],

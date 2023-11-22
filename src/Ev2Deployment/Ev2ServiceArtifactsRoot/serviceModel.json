@@ -82,8 +82,8 @@
                 {
                   "type": "Run",
                   "properties": {
-                    "imageName": "adm-ubuntu-1804-l",
-                    "imageVersion": "v30"
+                    "imageName": "adm-mariner-20-l",
+                    "imageVersion": "v5"
                   }
                 }
               ]
@@ -176,8 +176,8 @@
                 {
                   "type": "Run",
                   "properties": {
-                    "imageName": "adm-ubuntu-1804-l",
-                    "imageVersion": "v30"
+                    "imageName": "adm-mariner-20-l",
+                    "imageVersion": "v5"
                   }
                 }
               ]
@@ -186,7 +186,10 @@
           "scopeTags": [
             {
               "name": "Infrastructure"
-            }
+            },
+            {
+              "name": "Core"
+            },
           ]
         }
       ]
