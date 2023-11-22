@@ -7,6 +7,7 @@ from functools import reduce
 from pyspark.sql import DataFrame
 from DataEstateHealthLibrary.Shared.dedup_helper_function import DedupHelperFunction
 from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
+from pyspark.sql.functions import *
 
 class BuildDataAsset:
     def build_data_asset_schema(dataasset_df):
@@ -17,6 +18,7 @@ class BuildDataAsset:
         dataasset_df = ColumnFunctions.add_new_column_from_col_field(dataasset_df,"SystemData" ,"createdBy", "CreatedBy")
         dataasset_df = ColumnFunctions.add_new_column_from_col_field(dataasset_df,"SystemData" ,"lastModifiedBy", "ModifiedBy")
         dataasset_df = ColumnFunctions.add_new_column_from_col_field(dataasset_df,"SystemData" ,"lastModifiedAt", "ModifiedAt")
+        
         dataasset_df = DataAssetTransformations.calculate_has_description(dataasset_df)
         dataasset_df = DataAssetTransformations.calculate_has_classification(dataasset_df)
         dataasset_df = DataAssetTransformations.calculate_has_schema(dataasset_df)
@@ -27,7 +29,7 @@ class BuildDataAsset:
         dataasset_df = ColumnFunctions.rename_col(dataasset_df, "Domain", "BusinessDomainId")
         dataasset_df = ColumnFunctions.rename_col(dataasset_df, "Name", "DisplayName")
         dataasset_df = ColumnFunctions.rename_col(dataasset_df, "Type", "ObjectType")
-        dataasset_df = HelperFunction.calculate_last_refreshed_at(dataasset_df)
+        dataasset_df = HelperFunction.calculate_last_refreshed_at(dataasset_df,"LastRefreshedAt")
 
         #add timestamp for deduping
         dataasset_df = CatalogTransformationFunctions.add_timestamp_col(dataasset_df)
@@ -42,7 +44,7 @@ class BuildDataAsset:
         #convert it to dataframe with sample ration 1 so as to avoid error with null column values
         final_dataasset_df = dedup_rdd3.toDF(sampleRatio=1.0)
         final_dataasset_df = final_dataasset_df.select("DataAssetId","BusinessDomainId","SourceAssetId","DisplayName","ObjectType","SourceType","HasClassification",
-                                                       "HasSchema","HasDescription","CreatedAt","CreatedBy","ModifiedBy","ModifiedAt", "LastRefreshedAt")
+                                                       "HasSchema","HasDescription","CreatedAt","CreatedBy","ModifiedAt","ModifiedBy", "LastRefreshedAt")
         
         return final_dataasset_df
 
@@ -74,3 +76,17 @@ class BuildDataAsset:
        #drop any row which has a null value
        asset_domain_association_df = asset_domain_association_df.na.drop()
        return asset_domain_association_df
+    
+    def handle_dataasset_deletes(dataasset_df, deleted_dataasset_df):
+        if not deleted_dataasset_df.isEmpty():
+            deleted_dataasset_df = deleted_dataasset_df.select("Id");
+            dataasset_df = dataasset_df.join(deleted_dataasset_df, ["Id"], "leftanti")
+            
+        return dataasset_df
+    
+    def update_boolean_to_int(dataasset_df):
+        dataasset_df = HelperFunction.update_col_to_int(dataasset_df,"HasClassification")
+        dataasset_df = HelperFunction.update_col_to_int(dataasset_df,"HasSchema")
+        dataasset_df = HelperFunction.update_col_to_int(dataasset_df,"HasDescription")
+            
+        return dataasset_df

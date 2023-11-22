@@ -68,11 +68,11 @@ class CatalogSchema:
 
     system_data_schema = StructType(
         [
-            StructField("lastModifiedAt", StringType(), True),
+            StructField("lastModifiedAt", TimestampType(), True),
             StructField("lastModifiedBy", StringType(), True),
-            StructField("createdAt", StringType(), True),
+            StructField("createdAt", TimestampType(), True),
             StructField("createdBy", StringType(), True),
-            StructField("expiredAt", StringType(), True),
+            StructField("expiredAt", TimestampType(), True),
             StructField("expiredBy", StringType(), True),
         ]
     )
@@ -96,7 +96,7 @@ class CatalogSchema:
 
     data_product_additional_properties_schema = StructType(
         [
-            StructField("assetCount", StringType(), True)
+            StructField("assetCount", LongType(), True)
         ]
     )
 

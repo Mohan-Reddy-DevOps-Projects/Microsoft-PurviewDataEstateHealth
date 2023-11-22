@@ -4,8 +4,8 @@ from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
 class TermTransformations:
     def calculate_has_description(term_df):
         has_description_added = term_df.withColumn(
-            "HasDescription", when(col("Description").isNotNull(), 1)
-            .otherwise(0)
+            "HasDescription", when(col("Description").isNotNull(), True)
+            .otherwise(False)
         )
 
         return has_description_added

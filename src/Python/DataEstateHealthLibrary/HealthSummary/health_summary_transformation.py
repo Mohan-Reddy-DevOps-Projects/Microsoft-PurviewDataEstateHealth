@@ -1,6 +1,5 @@
 from pyspark.sql.functions import *
 from DataEstateHealthLibrary.HealthSummary.health_summary_constants import HealthSummaryConstants
-import datetime
 
 class HealthSummaryTransformation:
 
@@ -45,7 +44,7 @@ class HealthSummaryTransformation:
         )
 
         return health_actions_trend_link_added
-       
+    
     def calculate_business_domains_filter_list_link(businessdomain_df):
         business_domains_filter_list_link_added = businessdomain_df.withColumn(
             "BusinessDomainsFilterListLink", concat(lit(HealthSummaryConstants.BUSINESS_DOMAINS_FILTERS_LIST_LINK), col("BusinessDomainId"))
@@ -193,14 +192,11 @@ class HealthSummaryTransformation:
         )
 
         return total_dismissed_actions_added
-    
-    def calculate_last_refresh_date(action_center_df):
-        now = datetime.datetime.now()
-        date_string = now.strftime("%Y%m%d")
-        date_int = int(date_string)
-        
-        last_refresh_date_added = action_center_df.withColumn(
-            "LastRefreshDate", lit(date_int)
-        )
 
-        return last_refresh_date_added
+    def calculate_aggregated_column_sum(aggregated_healthsummary_by_domain_df):
+        aggregated_healthsummary_df = aggregated_healthsummary_by_domain_df.groupBy().sum()
+        aggregated_healthsummary_df = aggregated_healthsummary_df.withColumnRenamed("sum(TotalBusinessDomains)","TotalBusinessDomains")
+        aggregated_healthsummary_df = aggregated_healthsummary_df.withColumnRenamed("sum(TotalDataProductsCount)","TotalDataProductsCount")
+        aggregated_healthsummary_df = aggregated_healthsummary_df.withColumnRenamed("sum(TotalCuratedDataAssetsCount)","TotalCuratedDataAssetsCount")
+        aggregated_healthsummary_df = aggregated_healthsummary_df.withColumnRenamed("sum(TotalOpenActionsCount)","TotalOpenActionsCount")
+        return aggregated_healthsummary_df

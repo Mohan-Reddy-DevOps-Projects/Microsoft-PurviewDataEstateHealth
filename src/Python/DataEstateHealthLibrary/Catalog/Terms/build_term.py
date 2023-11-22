@@ -25,8 +25,9 @@ class BuildTerm:
         term_df = ColumnFunctions.add_new_column_from_col_field(term_df,"SystemData" ,"createdBy", "CreatedBy")
         term_df = ColumnFunctions.add_new_column_from_col_field(term_df,"SystemData" ,"lastModifiedBy", "ModifiedBy")
         term_df = ColumnFunctions.add_new_column_from_col_field(term_df,"SystemData" ,"lastModifiedAt", "ModifiedAt")
+        
         term_df = ColumnFunctions.rename_col(term_df, "Id", "TermId")
-        term_df = HelperFunction.calculate_last_refreshed_at(term_df)
+        term_df = HelperFunction.calculate_last_refreshed_at(term_df,"LastRefreshedAt")
         term_df = TermTransformations.calculate_has_description(term_df)
 
         #add timestamp for deduping
@@ -42,7 +43,7 @@ class BuildTerm:
         #convert it to dataframe with sample ration 1 so as to avoid error with null column values 
         final_term_df = dedup_rdd3.toDF(sampleRatio=1.0)
         
-        final_term_df = final_term_df.select("TermId", "Name", "HasDescription", "CreatedAt", "CreatedBy", "ModifiedAt", "ModifiedBy", "Status", "LastRefreshedAt")
+        final_term_df = final_term_df.select("TermId", "Name","Status", "HasDescription", "CreatedAt", "CreatedBy", "ModifiedAt", "ModifiedBy", "LastRefreshedAt")
         return final_term_df
 
     def build_term_contact_association(term_df):
@@ -76,3 +77,15 @@ class BuildTerm:
         #drop any row which has a null value
         term_business_domain_association_df = term_business_domain_association_df.na.drop()
         return term_business_domain_association_df
+
+    def handle_term_deletes(term_df, deleted_term_df):
+        if not deleted_term_df.isEmpty():
+            deleted_term_df = deleted_term_df.select("Id");
+            term_df = term_df.join(deleted_term_df, ["Id"], "leftanti")
+            
+        return term_df
+    
+    def update_boolean_to_int(term_df):
+        term_df = HelperFunction.update_col_to_int(term_df,"HasDescription")
+            
+        return term_df

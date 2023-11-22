@@ -1,5 +1,4 @@
 from pyspark.sql.functions import *
-from pyspark.sql.types import *
 from DataEstateHealthLibrary.Catalog.catalog_schema import CatalogSchema
 
 class BusinessDomainColumnFunctions:

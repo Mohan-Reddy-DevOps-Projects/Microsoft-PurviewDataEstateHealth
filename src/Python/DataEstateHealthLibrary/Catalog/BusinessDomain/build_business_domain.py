@@ -17,9 +17,9 @@ class BuildBusinessDomain:
     def build_business_domain_schema(businessdomain_df, dataproduct_domain_association_df, term_domain_association_df):
 
         businessdomain_df = CatalogColumnFunctions.add_system_data_schema(businessdomain_df)
-        businessdomain_df = ColumnFunctions.add_new_column_from_col_field(businessdomain_df,"SystemData" ,"createdAt", "CreatedAt")
         businessdomain_df = ColumnFunctions.add_new_column_from_col_field(businessdomain_df,"SystemData" ,"createdBy", "CreatedBy")
         businessdomain_df = ColumnFunctions.add_new_column_from_col_field(businessdomain_df,"SystemData" ,"lastModifiedBy", "ModifiedBy")
+        businessdomain_df = ColumnFunctions.add_new_column_from_col_field(businessdomain_df,"SystemData" ,"createdAt", "CreatedAt")
         businessdomain_df = ColumnFunctions.add_new_column_from_col_field(businessdomain_df,"SystemData" ,"lastModifiedAt", "ModifiedAt")
         
         businessdomain_df = BusinessdomainTransformations.calculate_has_valid_owner(businessdomain_df)
@@ -27,15 +27,25 @@ class BuildBusinessDomain:
         businessdomain_df = ColumnFunctions.rename_col(businessdomain_df, "Id", "BusinessDomainId")
         businessdomain_df = BusinessdomainTransformations.calculate_is_root_domain(businessdomain_df)
         businessdomain_df = BusinessdomainTransformations.calculate_has_description(businessdomain_df)
-        businessdomain_df = HelperFunction.calculate_last_refreshed_at(businessdomain_df)
+        businessdomain_df = HelperFunction.calculate_last_refreshed_at(businessdomain_df,"LastRefreshedAt")
 
         #get count from data product and term
-        businessdomain_dataproduct_count = CatalogColumnFunctions.calculate_count_for_domain(dataproduct_domain_association_df, "DataProductsCount")
-        businessdomain_term_count = CatalogColumnFunctions.calculate_count_for_domain(term_domain_association_df, "GlossaryTermsCount")
+        if dataproduct_domain_association_df.isEmpty():
+            businessdomain_df = BusinessdomainTransformations.calculate_default_dataproducts_count(businessdomain_df)
+        else:
+            businessdomain_dataproduct_count = CatalogColumnFunctions.calculate_count_for_domain(dataproduct_domain_association_df, "DataProductsCount")
+            businessdomain_df = businessdomain_df.join(businessdomain_dataproduct_count,"BusinessDomainId","leftouter")
+            
+        if term_domain_association_df.isEmpty():
+             businessdomain_df = BusinessdomainTransformations.calculate_default_glossaryterms_count(businessdomain_df)
+        else:
+            businessdomain_term_count = CatalogColumnFunctions.calculate_count_for_domain(term_domain_association_df, "GlossaryTermsCount")
+            businessdomain_df = businessdomain_df.join(businessdomain_term_count,"BusinessDomainId","leftouter")
+            
         #join both counts
-        count_df = businessdomain_dataproduct_count.join(businessdomain_term_count,"BusinessDomainId","outer").drop(businessdomain_term_count.BusinessDomainId)
+        #count_df = businessdomain_dataproduct_count.join(businessdomain_term_count,"BusinessDomainId","outer").drop(businessdomain_term_count.BusinessDomainId)
         #join with bussiness domain dataframe
-        businessdomain_df = businessdomain_df.join(count_df,"BusinessDomainId","leftouter")
+        #businessdomain_df = businessdomain_df.join(count_df,"BusinessDomainId","leftouter")
 
         #add timestamp for deduping
         businessdomain_df = CatalogTransformationFunctions.add_timestamp_col(businessdomain_df)
@@ -50,20 +60,38 @@ class BuildBusinessDomain:
         #convert it to dataframe with sample ration 1 so as to avoid error with null column values
         final_businessdomain_df = dedup_rdd3.toDF(sampleRatio=1.0)
         
-        final_businessdomain_df = final_businessdomain_df.select("BusinessDomainId", "BusinessDomainDisplayName", "HasDescription", "CreatedAt", "CreatedBy", "ModifiedAt", "ModifiedBy", "GlossaryTermsCount",
-                                                     "DataProductsCount", "IsRootDomain","HasValidOwner", "LastRefreshedAt")
+        final_businessdomain_df = final_businessdomain_df.select("BusinessDomainId", "BusinessDomainDisplayName", "HasDescription",  "GlossaryTermsCount",
+                                                     "DataProductsCount", "IsRootDomain","HasValidOwner","CreatedAt", "CreatedBy", "ModifiedAt", "ModifiedBy", "LastRefreshedAt")
         return final_businessdomain_df
-    
+
     def build_catalog_association(businessdomain_df,assetproduct_association, termdomain_association_df, productdomain_association):
 
         businessdomain_df = businessdomain_df.select("Id")
         businessdomain_df = ColumnFunctions.rename_col(businessdomain_df, "Id", "BusinessDomainId")
+        
         #joins
-        businessdomain_df = businessdomain_df.join(productdomain_association,"BusinessDomainId","fullouter")
-        businessdomain_df = businessdomain_df.join(assetproduct_association,"BusinessDomainId","fullouter")
-        final_df_association = businessdomain_df.join(termdomain_association_df,"BusinessDomainId","fullouter")
+        if not productdomain_association.isEmpty():
+            businessdomain_df = businessdomain_df.join(productdomain_association,"BusinessDomainId","fullouter")
+        if not assetproduct_association.isEmpty():
+            businessdomain_df = businessdomain_df.join(assetproduct_association,"BusinessDomainId","fullouter")
+        if not termdomain_association_df.isEmpty():
+            businessdomain_df = businessdomain_df.join(termdomain_association_df,"BusinessDomainId","fullouter")
+            
         #remove duplicate rows
-        final_df_association = final_df_association.distinct()
+        final_df_association = businessdomain_df.distinct()
         #drop any row which has a null value
         #final_df_association = final_df_association.na.drop()
         return final_df_association
+    
+    def handle_businessdomain_deletes(businessdomain_df, deleted_businessdomain_df):
+        if not deleted_businessdomain_df.isEmpty():
+            deleted_businessdomain_df = deleted_businessdomain_df.select("Id");
+            businessdomain_df = businessdomain_df.join(deleted_businessdomain_df, ["Id"], "leftanti")
+            
+        return businessdomain_df
+    
+    def update_boolean_to_int(businessdomain_df):
+        businessdomain_df = HelperFunction.update_col_to_int(businessdomain_df,"IsRootDomain")
+        businessdomain_df = HelperFunction.update_col_to_int(businessdomain_df,"HasValidOwner")
+        businessdomain_df = HelperFunction.update_col_to_int(businessdomain_df,"HasDescription")
+        return businessdomain_df

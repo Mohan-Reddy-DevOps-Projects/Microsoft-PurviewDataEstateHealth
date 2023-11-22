@@ -11,7 +11,7 @@ class CatalogColumnFunctions:
         )
 
         return system_data_schema_added
-
+    
     def add_contacts_schema(catalog_df):
         contacts_schema_added = catalog_df.withColumn(
             "Contacts", from_json(col("Contacts"), CatalogSchema.contact_schema)

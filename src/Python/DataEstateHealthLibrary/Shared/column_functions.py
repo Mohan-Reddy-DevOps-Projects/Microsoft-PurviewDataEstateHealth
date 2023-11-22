@@ -1,5 +1,5 @@
 from pyspark.sql.functions import *
-
+import uuid
 class ColumnFunctions:
         
     def explode_column(dataframe, col_name, new_col_name):
@@ -11,6 +11,9 @@ class ColumnFunctions:
 
     def rename_col(dataframe, old_col_name, new_col_name):
        return dataframe.withColumnRenamed(old_col_name, new_col_name)
+
+    def add_new_col(dataframe, exisitng_col_name, new_col_name):
+       return dataframe.withColumn(new_col_name, lit(col(exisitng_col_name)))
     
     def add_new_column_from_col_field(dataframe, col_name, field, new_col_name):
         new_column_from_col_field_added = dataframe.withColumn(

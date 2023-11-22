@@ -8,6 +8,7 @@ from functools import reduce
 from pyspark.sql import DataFrame
 from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
 import uuid
+from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
 
 class ActionCenterTransformations:
     
@@ -21,50 +22,38 @@ class ActionCenterTransformations:
 
         return int_date_added
     
-    def calculate_action_id(action_center_df):
-        uuid_udf = f.udf(lambda : str(uuid.uuid4()), StringType())
-        action_id_added = action_center_df.withColumn(
-            "ActionId", f.expr("uuid()")
-            )
-        
-        return action_id_added
-    
     def calculate_created_at(action_center_df):
-        now = datetime.datetime.now()
-        date_string = now.strftime("%Y%m%d")
-        date_int = int(date_string)
-        
         created_at_added = action_center_df.withColumn(
-            "CreatedAt", lit(date_int)
+            "CreatedAt", lit(current_timestamp())
         )
 
         return created_at_added
-    
-    def calculate_last_refreshed_at(action_center_df):
-        now = datetime.datetime.now()
-        date_string = now.strftime("%Y%m%d")
-        date_int = int(date_string)
-        
-        last_refreshed_at_added = action_center_df.withColumn(
-            "LastRefreshedAt", lit(date_int)
-        )
-
-        return last_refreshed_at_added
 
     def create_health_action_contact(action_df):
         action_df = ColumnFunctions.rename_col(action_df,"ActionId", "HealthActionId")
         action_df = ColumnFunctions.rename_col(action_df,"OwnerContactId", "ContactId")
         return action_df
 
+    def calculate_action_id(action_df):
+        action_id_added = action_df.withColumn(
+            "ActionId", concat(col("DisplayName"),lit("_"),col("TargetType"),lit("_"), col("TargetId"),lit("_"),col("OwnerContactId"),lit("_"),col("OwnerContactDisplayName"))
+            )
+        return action_id_added
+
     def create_actions(asset_action_df):
-        asset_action_df = ActionCenterTransformations.calculate_action_id(asset_action_df)
-        asset_action_df = ActionCenterTransformations.calculate_last_refreshed_at(asset_action_df)
+        asset_action_df = HelperFunction.calculate_uuid_column(asset_action_df, "RowId")
+        asset_action_df = HelperFunction.calculate_last_refreshed_at(asset_action_df,"LastRefreshedAt")
         asset_action_df = ActionCenterTransformations.calculate_created_at(asset_action_df)
         asset_action_df = ActionCenterTransformations.calculate_action_status(asset_action_df)
         asset_action_df = ActionCenterTransformations.calculate_health_control_state(asset_action_df)
         
         asset_action_df = ColumnFunctions.rename_col(asset_action_df,"ContactId", "OwnerContactId")
         asset_action_df = ColumnFunctions.rename_col(asset_action_df,"ContactDescription", "OwnerContactDisplayName")
+        
+        asset_action_df = HelperFunction.update_null_values(asset_action_df,"OwnerContactId", "")
+        asset_action_df = HelperFunction.update_null_values(asset_action_df,"OwnerContactDisplayName", "")
+        
+        asset_action_df = ActionCenterTransformations.calculate_action_id(asset_action_df)
         
         return asset_action_df
     
@@ -107,8 +96,8 @@ class ActionCenterTransformations:
         dataqualityscore_action_df = ActionCenterTransformations.calculate_action_health_control_category(dataqualityscore_action_df,ActionCenterConstants.DATA_QUALITY_STR)
         dataqualityscore_action_df = ActionCenterTransformations.calculate_action_health_control_name(dataqualityscore_action_df,ActionCenterConstants.COMPLETENESS_STR)
 
-        #HasValidTermsofUse
-        termsofuse_action_df = dataproduct_action_df.filter(col("HasValidTermsofUse") < 1)
+        #HasValidTermsOfUse
+        termsofuse_action_df = dataproduct_action_df.filter(col("HasValidTermsOfUse") < 1)
         termsofuse_action_df = ActionCenterTransformations.calculate_action_display_name(termsofuse_action_df,ActionCenterConstants.DP_TERMSOFUSE_DISPLAY_NAME_STR)
         termsofuse_action_df = ActionCenterTransformations.calculate_action_description(termsofuse_action_df,ActionCenterConstants.DP_VALID_TERMSOFUSE_STR)
         termsofuse_action_df = ActionCenterTransformations.calculate_action_health_control_category(termsofuse_action_df,ActionCenterConstants.GOVERNANCE_STR)
@@ -196,7 +185,7 @@ class ActionCenterTransformations:
 
     def calculate_action_status(action_df):
         action_display_name_added = action_df.withColumn(
-            "ActionStatus", lit(random.choice(ActionCenterConstants.ActionStatuses))
+            "ActionStatus", lit("Active")
         )
 
         return action_display_name_added
@@ -250,4 +239,22 @@ class ActionCenterTransformations:
 
         return health_control_state_added
             
+    def generate_final_merged_action_center(merged_action_df,existing_action_df):
+        #keep only new actions
+        existing_action_df = existing_action_df.filter(col("ActionStatus")=="Active")
+        new_merged_action_df = merged_action_df.join(existing_action_df, ["ActionId"], "leftanti")
+        new_merged_action_df = new_merged_action_df.select("RowId","ActionId","DisplayName","Description","TargetType","TargetId","TargetName","OwnerContactId","OwnerContactDisplayName","HealthControlState",
+                                                         "HealthControlName","HealthControlCategory","ActionStatus","BusinessDomainId","DataProductId","DataAssetId","CreatedAt", "LastRefreshedAt")
+
+        merged_action_df = merged_action_df.drop(col("RowId"))
+        merged_action_df = merged_action_df.drop(col("CreatedAt"))
+        existing_action_df = existing_action_df.select("RowId", 'ActionId', "CreatedAt")
+            
+        #merge same actions
+        new_existing_action_df = existing_action_df.join(merged_action_df, ["ActionId"], "leftouter")
+        new_existing_action_df = new_existing_action_df.select("RowId","ActionId","DisplayName","Description","TargetType","TargetId","TargetName","OwnerContactId","OwnerContactDisplayName","HealthControlState",
+                                                         "HealthControlName","HealthControlCategory","ActionStatus","BusinessDomainId","DataProductId","DataAssetId","CreatedAt", "LastRefreshedAt")
+        #union of new and same actions
+        final_merged_action_df = new_existing_action_df.unionByName(new_merged_action_df,allowMissingColumns=True)
+        return final_merged_action_df
 

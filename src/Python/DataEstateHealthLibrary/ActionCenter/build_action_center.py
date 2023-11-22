@@ -2,8 +2,10 @@ from DataEstateHealthLibrary.ActionCenter.action_center_aggregation import Actio
 
 class BuildActionCenter:
     
-    def build_action_center_schema(dataproduct_df,businessdomain_df,dataproduct_contact_association,dataproduct_domain_association,data_asset_df,dataasset_contact_association):
-        action_df = ActionCenterAggregation.aggregate_actions(dataproduct_df,businessdomain_df,dataproduct_contact_association,dataproduct_domain_association,data_asset_df,dataasset_contact_association)
+    def build_action_center_schema(existing_action_df,dataproduct_df,businessdomain_df,dataproduct_contact_association,dataproduct_domain_association,data_asset_df,
+                                   dataasset_contact_association,assetproduct_association_df,empty_action_df):
+        action_df = ActionCenterAggregation.aggregate_actions(existing_action_df,dataproduct_df,businessdomain_df,dataproduct_contact_association,dataproduct_domain_association,data_asset_df,
+                                                              dataasset_contact_association,assetproduct_association_df,empty_action_df,empty_action_df,empty_action_df)
         action_df = action_df.distinct()
         return action_df
     

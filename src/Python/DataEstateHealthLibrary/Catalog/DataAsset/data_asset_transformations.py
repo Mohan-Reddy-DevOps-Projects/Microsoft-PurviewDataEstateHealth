@@ -18,29 +18,31 @@ class DataAssetTransformations:
     
     def calculate_has_classification(dataasset_df):
         has_classification_added = dataasset_df.withColumn(
-            "HasClassification",  when(col("Classifications").isNotNull(), 1)
-            .otherwise(0)
+            "HasClassification",  when(col("Classifications").isNotNull(), True)
+            .otherwise(False)
         ) 
 
         return has_classification_added
     
     def calculate_has_schema(dataasset_df):
         has_schema_added = dataasset_df.withColumn(
-            "HasSchema",  when(col("Schema").isNotNull(), 1)
-            .otherwise(0)
+            "HasSchema",  when(col("Schema").isNotNull(), True)
+            .otherwise(False)
         )
 
         return has_schema_added
     
     def calculate_has_description(dataasset_df):
         has_description_added = dataasset_df.withColumn(
-            "HasDescription", when(col("Description").isNotNull(), 1)
-            .otherwise(0)
+            "HasDescription", when(col("Description").isNotNull(), True)
+            .otherwise(False)
         )
 
         return has_description_added
     
-    def calculate_sum_for_classification_count(dataasset_df):
-        dataasset_df = dataasset_df.groupBy("DataProductId").sum()
-        dataasset_df = dataasset_df.withColumnRenamed("sum(HasClassification)","HasClassification")
-        return dataasset_df
+    def calculate_sum_for_classification_count(dataframe):
+        dataframe = dataframe.groupBy("DataProductId").sum()
+        dataframe = dataframe.withColumnRenamed("sum(HasClassification)","ClassificationPassCount")
+        return dataframe
+    
+

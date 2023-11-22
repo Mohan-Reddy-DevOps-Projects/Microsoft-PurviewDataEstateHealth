@@ -13,7 +13,7 @@ class CdmcControlsTransformations:
     #IsAuthoritativeSource_control3
     def calculate_cdmc_control_3(dataproduct_df):
         cdmc_control_3_added = dataproduct_df.withColumn(
-            "C3_AuhoritativeSource", lit(col("IsAuthoritativeSource"))
+            "C3_AuthoritativeSource", lit(col("IsAuthoritativeSource"))
             )                                                              
         return cdmc_control_3_added
 
@@ -62,7 +62,7 @@ class CdmcControlsTransformations:
     def calculate_cdmc_column_sum_by_domain(dataproduct_df):
         dataproduct_df = dataproduct_df.groupBy("BusinessDomainId").sum()
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(C2_Ownership)","Ownership")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C3_AuhoritativeSource)","AuhoritativeSource")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(C3_AuthoritativeSource)","AuthoritativeSource")
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(C5_Catalog)","Catalog")
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(C6_Classification)","Classification")
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(C7_Access)","Access")
@@ -73,7 +73,7 @@ class CdmcControlsTransformations:
     def calculate_aggregated_cdmc_column_sum(final_aggregated_cdmc_control_domain_df):
         aggregated_scores_df = final_aggregated_cdmc_control_domain_df.groupBy().sum()
         aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Ownership)","Ownership")
-        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(AuhoritativeSource)","AuhoritativeSource")
+        aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(AuthoritativeSource)","AuthoritativeSource")
         aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Catalog)","Catalog")
         aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Classification)","Classification")
         aggregated_scores_df = aggregated_scores_df.withColumnRenamed("sum(Access)","Access")

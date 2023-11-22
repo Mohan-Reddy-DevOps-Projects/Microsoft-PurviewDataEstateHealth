@@ -4,14 +4,6 @@ import datetime
 import pyspark.sql.functions as f
 
 class BusinessDomainTrendTransformations:
-        
-    def calculate_business_domain_trend_id(dataproduct_df):
-        uuid_udf = f.udf(lambda : str(uuid.uuid4()), StringType())
-        trend_id_added = dataproduct_df.withColumn(
-            "BusinessDomainTrendId", f.expr("uuid()")
-            )
-        
-        return trend_id_added
 
     def calculate_has_valid_dp_owner_pass_count(dataproduct_df):
         has_valid_dp_owner_pass_count_added = dataproduct_df.withColumn(
@@ -21,7 +13,7 @@ class BusinessDomainTrendTransformations:
     
     def calculate_authoritative_source_pass_count(dataproduct_df):
         authoritative_source_pass_count_added = dataproduct_df.withColumn(
-            "AuthoratativeSourcePassCount", lit(col("IsAuthoritativeSource"))
+            "AuthoritativeSourcePassCount", lit(col("IsAuthoritativeSource"))
             )                                                              
         return authoritative_source_pass_count_added
 
@@ -53,7 +45,7 @@ class BusinessDomainTrendTransformations:
     
     def calculate_valid_terms_of_use_pass_count(dataproduct_df):
         valid_terms_of_use_pass_count_added = dataproduct_df.withColumn(
-            "ValidTermsOfUsePassCount", lit(col("HasValidTermsofUse"))
+            "ValidTermsOfUsePassCount", lit(col("HasValidTermsOfUse"))
             )
         return valid_terms_of_use_pass_count_added
     
@@ -81,7 +73,7 @@ class BusinessDomainTrendTransformations:
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(AccessEntitlementPassCount)","AccessEntitlementPassCount")
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(ValidTermsOfUsePassCount)","ValidTermsOfUsePassCount")
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(ValidUseCasePassCount)","ValidUseCasePassCount")
-        dataproduct_df = dataproduct_df.withColumnRenamed("sum(AuthoratativeSourcePassCount)","AuthoratativeSourcePassCount")
+        dataproduct_df = dataproduct_df.withColumnRenamed("sum(AuthoritativeSourcePassCount)","AuthoritativeSourcePassCount")
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(ClassificationPassCount)","ClassificationPassCount")
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(DataShareAgreementSetOrExemptPassCount)","DataShareAgreementSetOrExemptPassCount")
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(ValidDataProductOwnerPassCount)","ValidDataProductOwnerPassCount")
@@ -89,3 +81,26 @@ class BusinessDomainTrendTransformations:
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(DataQualityScorePassCount)","DataQualityScorePassCount")
         dataproduct_df = dataproduct_df.withColumnRenamed("sum(GlossaryTermPassCount)","GlossaryTermPassCount")
         return dataproduct_df
+    
+    def calculate_aggregated_sum_for_all_columns(businessdomain_trend_df):
+        businessdomain_trend_df = businessdomain_trend_df.groupBy().sum()
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(DataProductCount)","DataProductCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(AssetCount)","AssetCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(TotalOpenActionsCount)","TotalOpenActionsCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(AccessEntitlementPassCount)","AccessEntitlementPassCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(ValidTermsOfUsePassCount)","ValidTermsOfUsePassCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(ValidUseCasePassCount)","ValidUseCasePassCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(AuthoritativeSourcePassCount)","AuthoritativeSourcePassCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(ClassificationPassCount)","ClassificationPassCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(DataShareAgreementSetOrExemptPassCount)","DataShareAgreementSetOrExemptPassCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(ValidDataProductOwnerPassCount)","ValidDataProductOwnerPassCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(DataProductDescriptionPassCount)","DataProductDescriptionPassCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(DataQualityScorePassCount)","DataQualityScorePassCount")
+        businessdomain_trend_df = businessdomain_trend_df.withColumnRenamed("sum(GlossaryTermPassCount)","GlossaryTermPassCount")
+        return businessdomain_trend_df
+    
+    def calculate_businessdomain_count(businessdomain_trend_df, count):
+        businessdomain_count_added = businessdomain_trend_df.withColumn(
+            "BusinessDomainCount",  lit(count)
+            )
+        return businessdomain_count_added
