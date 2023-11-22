@@ -1,86 +1,106 @@
 {
-    "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
-    "settings": {
-        "cloudShareInfrastructureSubscriptionId": "80476949-ff86-4263-a6a6-7136fa973307",
-        "dnsZoneName": "purview-dg.azure.com",
-        "gatewaySubjectName": "gateway-prod-client.babylon.azure.com",
-        "powerBiClientId": "28456abb-1abf-47c1-abc3-acb68b96484e",
-        "dgFPAClientId": "6afef871-d95c-4232-91b2-62e704ccaafa",
-        "powerBiEnabled": "true",
-        "resourceGroupName": "dgh-prod-$(regionName)-rg",
-        "rpSubjectName": "rp.babylon-service-ame.azure.com",
-        "serverlessPoolEnabled": "true",
-        "serviceShortName": "dgh",
-        "subdomainName": "prod-$(regionName)-health",
-        "azureEnvironment": "AzureGlobalCloud",
-        "synapseRegion": "$(regionName)",
-        "useEstsr": "true",
-        "copilotServiceEndpoint": "prod-$(regionName).copilot.dgcatalog.purview-service.azure.com",
-        "catalogServiceEndpoint": "prod-$(regionName).dgcatalog.purview-service.azure.com",
-        "dataAccessServiceEndpoint": "prod-$(regionName).dataaccess.dgcatalog.purview-service.azure.com",
-        "exposureControlEnvironment": "Production$(regionName)",
-        "metadataServiceEndpoint": "$(regionName).rp.purview-service.azure.com",
-        "catalog": {
-            "eventHubNamespaceName": "dg-prod-hub-$(dgh.shortRegionName)",
-            "resourceGroupName": "dgcatalog-prod-rg-$(dgh.shortRegionName)"
-        },
-        "dgh": {
-            "sparkPoolTableName": "SparkPool",
-            "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(regionShortName)common",
-            "synapseWorkspaceName": "$(serviceShortName)$(pdg.environment.shortName)$(regionShortName)workspace"
-        },
-        "processingStorage": {
-            "resourceGroupName": "purview-rg-internal-storage",
-            "accountName": "dgprocshared$(pdg.environment.shortName)$(regionShortName)",
-            "tableName": "AccountStorageDetails"
-        }
+  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
+  "settings": {
+    "cloudShareInfrastructureSubscriptionId": "80476949-ff86-4263-a6a6-7136fa973307",
+    "dnsZoneName": "purview-dg.azure.com",
+    "gatewaySubjectName": "gateway-prod-client.babylon.azure.com",
+    "powerBiClientId": "28456abb-1abf-47c1-abc3-acb68b96484e",
+    "dgFPAClientId": "6afef871-d95c-4232-91b2-62e704ccaafa",
+    "powerBiEnabled": "true",
+    "resourceGroupName": "dgh-prod-$(regionName)-rg",
+    "rpSubjectName": "rp.babylon-service-ame.azure.com",
+    "serverlessPoolEnabled": "true",
+    "serviceShortName": "dgh",
+    "subdomainName": "prod-$(regionName)-health",
+    "azureEnvironment": "AzureGlobalCloud",
+    "synapseRegion": "$(regionName)",
+    "useEstsr": "true",
+    "copilotServiceEndpoint": "prod-$(regionName).copilot.dgcatalog.purview-service.azure.com",
+    "catalogServiceEndpoint": "prod-$(regionName).dgcatalog.purview-service.azure.com",
+    "dataAccessServiceEndpoint": "prod-$(regionName).dataaccess.dgcatalog.purview-service.azure.com",
+    "exposureControlEnvironment": "Production$(regionName)",
+    "metadataServiceEndpoint": "$(regionName).rp.purview-service.azure.com",
+    "catalog": {
+      "eventHubNamespaceName": "dg-prod-hub-$(dgh.shortRegionName)",
+      "resourceGroupName": "dgcatalog-prod-rg-$(dgh.shortRegionName)"
     },
-    "geographies": [
+    "dgh": {
+      "sparkPoolTableName": "SparkPool",
+      "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(regionShortName)common",
+      "synapseWorkspaceName": "$(serviceShortName)$(pdg.environment.shortName)$(regionShortName)workspace"
+    },
+    "processingStorage": {
+      "resourceGroupName": "purview-rg-internal-storage",
+      "accountName": "dgprocshared$(pdg.environment.shortName)$(regionShortName)",
+      "tableName": "AccountStorageDetails"
+    }
+  },
+  "geographies": [
+    {
+      "name": "Europe",
+      "regions": [
         {
-			"name": "Europe",
-			"regions": [
-				{
-                    "name": "westeurope",
-                    "settings": {
-                        "dgh": {
-                            "shortRegionName": "weu"
-                        },
-                        "powerBiTenantId": "17a306b4-973d-4826-ad48-c43b919395ad",
-                        "catalog": {
-                            "subscriptionId": "9e99a268-6a22-4534-ac13-5459d847b01a"
-                        }
-                    }
-                }
-			]
-		},
-        {
-            "name": "United States",
-            "regions": [
-                {
-                    "name": "centralus",
-                    "settings": {
-                        "dgh": {
-                            "shortRegionName": "cus"
-                        },
-                        "powerBiTenantId": "14fac00d-5774-47e3-bb77-539c50871ced",
-                        "catalog": {
-                            "subscriptionId": "8c87654d-fc98-4aef-92bc-1fbcd34d2ca0"
-                        }
-                    }
-                },
-                {
-                    "name": "eastus2",
-                    "settings": {
-                        "dgh": {
-                            "shortRegionName": "eus2"
-                        },
-                        "powerBiTenantId": "93551489-9dfb-493d-9abe-4ed7c4a028f9",
-                        "catalog": {
-                            "subscriptionId": "01f151cd-675d-42d5-b462-dd6c9a229dbe"
-                        }
-                    }
-                }
-            ]
+          "name": "westeurope",
+          "settings": {
+            "dgh": {
+              "shortRegionName": "weu"
+            },
+            "powerBiTenantId": "17a306b4-973d-4826-ad48-c43b919395ad",
+            "catalog": {
+              "subscriptionId": "9e99a268-6a22-4534-ac13-5459d847b01a"
+            }
+          }
         }
-    ]
+      ]
+    },
+    {
+      "Name": "Canada",
+      "Settings": {
+        "geoShortId": "ca"
+      },
+      "Regions": [
+        {
+          "Name": "canadacentral",
+          "settings": {
+            "dgh": {
+              "shortRegionName": "cc"
+            },
+            "powerBiTenantId": "88b4a52a-d0c8-4248-9079-314b74301184",
+            "catalog": {
+              "subscriptionId": "81725ed3-0d89-4265-a715-a3523d44638a"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "United States",
+      "regions": [
+        {
+          "name": "centralus",
+          "settings": {
+            "dgh": {
+              "shortRegionName": "cus"
+            },
+            "powerBiTenantId": "14fac00d-5774-47e3-bb77-539c50871ced",
+            "catalog": {
+              "subscriptionId": "8c87654d-fc98-4aef-92bc-1fbcd34d2ca0"
+            }
+          }
+        },
+        {
+          "name": "eastus2",
+          "settings": {
+            "dgh": {
+              "shortRegionName": "eus2"
+            },
+            "powerBiTenantId": "93551489-9dfb-493d-9abe-4ed7c4a028f9",
+            "catalog": {
+              "subscriptionId": "01f151cd-675d-42d5-b462-dd6c9a229dbe"
+            }
+          }
+        }
+      ]
+    }
+  ]
 }
