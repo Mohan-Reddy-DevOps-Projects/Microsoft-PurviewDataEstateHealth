@@ -29,9 +29,6 @@ fi
 echo "Folder Contents"
 ls
 
-apt update
-apt-get install -y unzip wget gzip
-
 echo "Login cli using managed identity"
 az login --identity
 
