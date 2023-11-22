@@ -71,7 +71,7 @@ internal class HealthActionsQuery : BaseQuery, IServerlessQueryRequest<HealthAct
         }
 
         entityList = (records as IList<HealthActionsRecord>)
-            .GroupBy(rec => rec.RowId)
+            .GroupBy(rec => rec.ActionId)
             .Select(group => new HealthActionEntity()
             {
                 Id = group.Key,
