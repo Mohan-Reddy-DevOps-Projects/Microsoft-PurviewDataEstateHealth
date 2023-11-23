@@ -11,15 +11,18 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.PowerBI.Api.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 internal sealed class CapacityAssignment : ICapacityAssignment
 {
     private readonly IPowerBIService powerBiService;
+    private readonly IAccountExposureControlConfigProvider exposureControl;
     private readonly IDataEstateHealthLogger logger;
 
-    public CapacityAssignment(IPowerBIService powerBiService, IDataEstateHealthLogger logger)
+    public CapacityAssignment(IPowerBIService powerBiService, IAccountExposureControlConfigProvider exposureControl, IDataEstateHealthLogger logger)
     {
         this.powerBiService = powerBiService;
+        this.exposureControl = exposureControl;
         this.logger = logger;
     }
 
@@ -34,10 +37,7 @@ internal sealed class CapacityAssignment : ICapacityAssignment
     /// <inheritdoc/>
     public async Task<Capacity> GetCapacity(Guid profileId, CancellationToken cancellationToken)
     {
-        Dictionary<string, CapacityModel> capacities = new()
-        {
-            {  "Standard", new CapacityModel(Guid.Parse("35C15849-3693-4012-9372-4BDD5B72B8ED"), "westus2", "standard")}
-        };
+        Dictionary<string, CapacityModel> capacities = this.exposureControl.GetPBICapacities();
         CapacityModel capacity = DetermineAvailableCapacity(capacities);
         Capacities pbiCapacities = await this.powerBiService.ListCapacities(profileId, cancellationToken);
         IEnumerable<Capacity> matchedCapacity = pbiCapacities.Value.Where(x => x.Id == capacity.CapacityId && x.State == CapacityState.Active).ToArray();

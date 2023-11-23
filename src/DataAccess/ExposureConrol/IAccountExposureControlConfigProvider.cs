@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.PowerBI.Api.Models;
 
 /// <summary>
@@ -24,5 +25,5 @@ public interface IAccountExposureControlConfigProvider
     /// Retrieve the capacities that are available.
     /// </summary>
     /// <returns></returns>
-    Dictionary<string, Capacity> GetPBICapacities();
+    Dictionary<string, CapacityModel> GetPBICapacities();
 }
