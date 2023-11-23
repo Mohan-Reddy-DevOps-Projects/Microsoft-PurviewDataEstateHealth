@@ -3,6 +3,27 @@
   "contentVersion": "1.0.0.0",
   "extensions": [
     {
+      "name": "RegisterDghPrereqs",
+      "type": "Microsoft.AzureGlobal/ResourceProviderRegistration",
+      "version": "2019-04-01",
+      "connectionProperties": {
+        "maxExecutionTime": "PT24H",
+        "authentication": {
+          "type": "SystemCertificateAuthentication"
+        }
+      },
+      "payloadProperties": {
+        "waitUntilComplete": {
+          "value": true
+        },
+        "resourceProviderNamespaces": {
+          "value": [
+            "Microsoft.Sql"
+          ]
+        }
+      }
+    },
+    {
       "name": "CreateOneCertV2PublicIssuer",
       "type": "Microsoft.KeyVault.DataPlane/SetCertificateIssuer",
       "version": "2020-03-01",

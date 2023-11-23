@@ -37,6 +37,7 @@
       "targetType": "ServiceResourceDefinition",
       "targetName": "infrastructureResourceDefinition",
       "actions": [
+        "Extension/RegisterDghPrereqs",
         "deploy",
         "Extension/CreateOneCertV2PublicIssuer",
         "Extension/CreateOneCertV2PrivateIssuer",
