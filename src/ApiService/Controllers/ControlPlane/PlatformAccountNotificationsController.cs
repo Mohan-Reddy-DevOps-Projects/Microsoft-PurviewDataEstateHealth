@@ -76,7 +76,6 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         if (!this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
             return this.Ok();
-
         }
 
         await this.processingStorageManager.Provision(account, cancellationToken);

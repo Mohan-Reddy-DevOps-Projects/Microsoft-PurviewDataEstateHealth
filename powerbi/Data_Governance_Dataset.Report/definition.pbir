@@ -2,7 +2,7 @@
   "version": "1.0",
   "datasetReference": {
     "byPath": {
-      "path": "../CDMC_Dataset.Dataset"
+      "path": "../Data_Governance_Dataset.Dataset"
     },
     "byConnection": null
   }

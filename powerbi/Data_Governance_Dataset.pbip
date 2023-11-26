@@ -3,7 +3,7 @@
   "artifacts": [
     {
       "report": {
-        "path": "CDMC_Report.Report"
+        "path": "Data_Governance_Dataset.Report"
       }
     }
   ],

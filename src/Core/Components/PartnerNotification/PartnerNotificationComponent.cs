@@ -81,19 +81,19 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
         }
 
-        string datasetName = "CDMC";
+        string reportName = "Data governance";
         IDatasetRequest datasetRequest = new DatasetRequest()
         {
             ProfileId = profile.Id,
             WorkspaceId = workspace.Id,
             DatasetContainer = "powerbi",
-            DatasetFileName = $"{datasetName}.pbix",
-            DatasetName = datasetName,
+            DatasetFileName = $"{reportName}.pbix",
+            DatasetName = reportName,
             OptimizedDataset = true,
             PowerBICredential = powerBICredential
         };
 
-        string sharedDatasetName = "CDMC_Dataset";
+        string sharedDatasetName = "Data_Governance_Dataset";
         IDatasetRequest sharedDatasetRequest = new DatasetRequest()
         {
             ProfileId = profile.Id,
@@ -132,6 +132,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 
             throw;
         }
+
         Report report = await this.reportCommand.Bind(sharedDataset, datasetRequest, cancellationToken);
     }
 }
