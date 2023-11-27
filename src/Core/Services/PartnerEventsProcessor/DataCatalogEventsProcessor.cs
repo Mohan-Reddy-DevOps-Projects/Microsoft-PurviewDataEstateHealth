@@ -18,8 +18,6 @@ using Newtonsoft.Json;
 
 internal class DataCatalogEventsProcessor : PartnerEventsProcessor
 {
-    private readonly IServiceProvider scopedServiceProvider;
-
     private readonly DataCatalogEventHubConfiguration eventHubConfiguration;
 
     public DataCatalogEventsProcessor(
@@ -31,7 +29,6 @@ internal class DataCatalogEventsProcessor : PartnerEventsProcessor
             eventHubConfiguration,
             EventSourceType.DataCatalog)
     {
-        this.scopedServiceProvider = serviceProvider;
         this.eventHubConfiguration = eventHubConfiguration;
     }
 
@@ -111,6 +108,6 @@ internal class DataCatalogEventsProcessor : PartnerEventsProcessor
         await this.PersistToStorage(dataAssetModels, deltaTableWriter, nameof(EventSourceType.DataCatalog));
         await this.PersistToStorage(relationshipModels, deltaTableWriter, nameof(EventSourceType.DataCatalog));
         await this.PersistToStorage(termModels, deltaTableWriter, nameof(EventSourceType.DataCatalog));
-        this.DataEstateHealthRequestLogger.LogInformation($"Persisted {events.Count} events for account Id: {accountId}.");
+        this.DataEstateHealthRequestLogger.LogInformation($"Persisted {events.Count} {EventSourceType.DataCatalog} events for account Id: {accountId}.");
     }
 }

@@ -9,8 +9,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 internal class DataAccessEventsProcessor : PartnerEventsProcessor
 {
-    private readonly IServiceProvider scopedServiceProvider;
-
     private readonly DataAccessEventHubConfiguration eventHubConfiguration;
 
     public DataAccessEventsProcessor(
@@ -21,7 +19,6 @@ internal class DataAccessEventsProcessor : PartnerEventsProcessor
             eventHubConfiguration,
             EventSourceType.DataAccess)
     {
-        this.scopedServiceProvider = serviceProvider;
         this.eventHubConfiguration = eventHubConfiguration;
     }
 
@@ -86,6 +83,6 @@ internal class DataAccessEventsProcessor : PartnerEventsProcessor
 
         await this.PersistToStorage(policySetModels, deltaTableWriter, nameof(EventSourceType.DataAccess));
         await this.PersistToStorage(dataSubscriptionModels, deltaTableWriter, nameof(EventSourceType.DataAccess));
-        this.DataEstateHealthRequestLogger.LogInformation($"Persisted {events.Count} events for account Id: {accountId}.");
+        this.DataEstateHealthRequestLogger.LogInformation($"Persisted {events.Count} {EventSourceType.DataAccess} events for account Id: {accountId}.");
     }
 }

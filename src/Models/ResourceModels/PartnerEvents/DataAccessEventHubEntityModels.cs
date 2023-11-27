@@ -299,12 +299,6 @@ public class PolicySetEventHubEntityModel : BaseEventHubEntityModel
     public string Id { get; set; }
 
     /// <summary>
-    /// AccountId
-    /// </summary>
-    [JsonProperty("accountId")]
-    public string AccountId { get; set; }
-
-    /// <summary>
     /// Active
     /// </summary>
     [JsonProperty("active")]
@@ -397,12 +391,6 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
     /// </summary>
     [JsonProperty("id")]
     public string Id { get; set; }
-
-    /// <summary>
-    /// AccountId
-    /// </summary>
-    [JsonProperty("AccountId")]
-    public string AccountId { get; set; }
 
     /// <summary>
     /// WriteAccess

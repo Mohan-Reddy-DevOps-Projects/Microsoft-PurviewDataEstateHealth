@@ -4,7 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
-using System;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -40,7 +39,7 @@ public abstract class BaseEventHubModel
 }
 
 /// <summary>
-/// The catalog source model for events.
+/// The access, catalog and quality source model for events.
 /// </summary>
 public class EventHubModel : BaseEventHubModel
 {
@@ -79,6 +78,19 @@ public class EventHubModel : BaseEventHubModel
     public EventPayload Payload { get; set; }
 
     /// <summary>
+    /// Payload format.
+    /// </summary>
+    [JsonProperty("payloadType")]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public PayloadFormat PayloadFormat { get; set; }
+
+    /// <summary>
+    /// Data Quality flattened payload details
+    /// </summary>
+    [JsonProperty("payloadDetails")]
+    public JObject AlternatePayload { get; set; }
+
+    /// <summary>
     /// Person object id who create/update/delete
     /// </summary>
     [JsonProperty("changedBy")]
@@ -115,6 +127,11 @@ public enum EventOperationType
     /// Update
     /// </summary>
     Update,
+
+    /// <summary>
+    /// Upsert
+    /// </summary>
+    Upsert,
 
     /// <summary>
     /// Delete
@@ -178,5 +195,31 @@ public enum PayloadKind
     /// <summary>
     /// Data Subscription
     /// </summary>
-    DataSubscription
+    DataSubscription,
+
+    /// <summary>
+    /// Data Quality Fact
+    /// </summary>
+    DataQualityFact,
+
+    /// <summary>
+    /// Data Quality score
+    /// </summary>
+    DataQualityScore
+}
+
+/// <summary>
+/// Payload Format.
+/// </summary>
+public enum PayloadFormat
+{
+    /// <summary>
+    /// Inline
+    /// </summary>
+    Inline = 1,
+
+    /// <summary>
+    /// Callback
+    /// </summary>
+    Callback
 }

@@ -21,6 +21,7 @@ using Newtonsoft.Json;
 internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
 {
     private const string SourcePathFragment = "Source";
+    private const string SinkPathFragment = "Sink";
     private const string DeletedPathFragment = "_Deleted";
 
     private readonly EventSourceType eventSourceType;
@@ -112,7 +113,8 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
     {
         try
         {
-            T entityModel = JsonConvert.DeserializeObject<T>(((eventHubModel.Payload.After ?? eventHubModel.Payload.Before) ?? eventHubModel.Payload.Before).ToString());
+            T entityModel = JsonConvert.DeserializeObject<T>((eventHubModel.AlternatePayload ?? eventHubModel.Payload.After ?? eventHubModel.Payload.Before).ToString());
+            entityModel.AccountId = eventHubModel.AccountId;
             entityModel.EventId = eventHubModel.EventId;
             entityModel.EventCorrelationId = eventHubModel.EventCorrelationId;
             entityModel.EventCreationTimestamp = eventHubModel.EventCreationTimestamp;
@@ -132,7 +134,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         }
     }
 
-    protected async Task PersistToStorage<T>(Dictionary<EventOperationType, List<T>> eventHubEntityModels, IDeltaLakeOperator deltaTableWriter, string prefix)
+    protected async Task PersistToStorage<T>(Dictionary<EventOperationType, List<T>> eventHubEntityModels, IDeltaLakeOperator deltaTableWriter, string prefix, bool isSourceEvent = true)
         where T : BaseEventHubEntityModel
     {
         var eventHubEntityModel = eventHubEntityModels.Values.FirstOrDefault()?.FirstOrDefault();
@@ -153,14 +155,20 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
             mergedCreateEvents.AddRange(updateRows);
         }
 
+        if (eventHubEntityModels.TryGetValue(EventOperationType.Upsert, out List<T> upsertRows))
+        {
+            mergedCreateEvents.AddRange(upsertRows);
+        }
+
+        string pathFragment = isSourceEvent ? SourcePathFragment : SinkPathFragment;
         if (mergedCreateEvents.Count > 0)
         {
-            await deltaTableWriter.CreateOrAppendDataset($"/{SourcePathFragment}/{prefix}/{eventHubEntityModel.GetPayloadKind()}", schemaDefinition, mergedCreateEvents);
+            await deltaTableWriter.CreateOrAppendDataset($"/{pathFragment}/{prefix}/{eventHubEntityModel.GetPayloadKind()}", schemaDefinition, mergedCreateEvents);
         }
 
         if (eventHubEntityModels.TryGetValue(EventOperationType.Delete, out List<T> deleteRows))
         {
-            await deltaTableWriter.CreateOrAppendDataset($"/{SourcePathFragment}/{prefix}/{DeletedPathFragment}/{eventHubEntityModel.GetPayloadKind()}", schemaDefinition, deleteRows);
+            await deltaTableWriter.CreateOrAppendDataset($"/{pathFragment}/{prefix}/{DeletedPathFragment}/{eventHubEntityModel.GetPayloadKind()}", schemaDefinition, deleteRows);
         }
     }
 
@@ -183,7 +191,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         catch (Exception exception)
         {
             // Ideally should not reach here
-            this.DataEstateHealthRequestLogger.LogCritical("Failed to commit event checkpoint(s).", exception);
+            this.DataEstateHealthRequestLogger.LogCritical($"Failed to commit {this.eventSourceType} event checkpoint(s).", exception);
         }
     }
 

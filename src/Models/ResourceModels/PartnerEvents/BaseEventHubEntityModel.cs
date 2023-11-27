@@ -15,6 +15,12 @@ using Newtonsoft.Json;
 public abstract class BaseEventHubEntityModel
 {
     /// <summary>
+    /// Account Id.
+    /// </summary>
+    [JsonProperty("accountId")]
+    public string AccountId { get; set; }
+
+    /// <summary>
     /// Event Id.
     /// </summary>
     [JsonProperty("eventId")]
@@ -51,6 +57,7 @@ public abstract class BaseEventHubEntityModel
     {
         var schemaFields = new[]
         {
+            new StructField("AccountId", DataTypes.String),
             new StructField("EventId", DataTypes.String),
             new StructField("EventCorrelationId", DataTypes.String),
             new StructField("EventCreationTimestamp", DataTypes.String),
