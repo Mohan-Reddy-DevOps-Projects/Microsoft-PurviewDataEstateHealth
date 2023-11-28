@@ -341,7 +341,7 @@ internal class PowerBIService : IPowerBIService
                     // update to premium dataset
                     await this.UpdateDatasetStorageMode(profileId, dataset.Id, workspaceId, StorageMode.PremiumFiles, cancellationToken);
                 }
-                await this.UpdateDatasetConnectionString(profileId, Guid.Parse(dataset.Id), workspaceId, parameters, powerBiCredential, cancellationToken);
+                await this.UpdateDatasetConnectionString(profileId, Guid.Parse(dataset.Id), workspaceId, parameters, parameters["DATABASE"], parameters["SERVER"], powerBiCredential, cancellationToken);
             }
 
             return import;
@@ -414,10 +414,12 @@ internal class PowerBIService : IPowerBIService
     /// <param name="datasetId"></param>
     /// <param name="workspaceId"></param>
     /// <param name="parameters"></param>
+    /// <param name="databaseName"></param>
+    /// <param name="serverName"></param>
     /// <param name="powerBiCredential"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    private async Task UpdateDatasetConnectionString(Guid profileId, Guid datasetId, Guid workspaceId, Dictionary<string, string> parameters, PowerBICredential powerBiCredential, CancellationToken cancellationToken)
+    private async Task UpdateDatasetConnectionString(Guid profileId, Guid datasetId, Guid workspaceId, Dictionary<string, string> parameters, string databaseName, string serverName, PowerBICredential powerBiCredential, CancellationToken cancellationToken)
     {
         PowerBIClient pbiClient = await this.powerBIFactory.GetClientAsync(cancellationToken);
 
@@ -451,6 +453,29 @@ internal class PowerBIService : IPowerBIService
                 {
                     throw new HttpOperationException();
                 }
+
+                DatasourceConnectionDetails updatedConnectionDetails = new()
+                {
+                    Server = serverName,
+                    Database = databaseName,
+                };
+
+                UpdateDatasourcesRequest updateDatasourceRequest = new()
+                {
+                    UpdateDetails = new List<UpdateDatasourceConnectionRequest>
+                    {
+                        new UpdateDatasourceConnectionRequest
+                        {
+                            ConnectionDetails = updatedConnectionDetails,
+                            DatasourceSelector = dataSource,
+                        }
+                    }
+                };
+                Dictionary<string, string> dimensions = GetDimensions(EntityType.Datasource, PowerBIOperations.Update);
+                this.logger.LogTrace($"{Tag}|Request - {EntityType.Datasource} {PowerBIOperations.Update}: WorkspaceId: {workspaceId}; DatasetId: {datasetId}; ProfileId: {profileId}; Body: {JsonSerializer.Serialize(request)}");
+                HttpOperationResponse response = await pbiClient.Datasets.UpdateDatasourcesInGroupWithHttpMessagesAsync(workspaceId, datasetId.ToString(), updateDatasourceRequest, customHeaders: GetProfileHeader(profileId), cancellationToken: cancellationToken);
+                this.LogResponse(response, dimensions);
+
                 await this.SetCredentials(profileId, (Guid)dataSource.GatewayId, (Guid)dataSource.DatasourceId, powerBiCredential, cancellationToken);
             }
         }

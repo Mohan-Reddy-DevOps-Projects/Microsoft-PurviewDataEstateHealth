@@ -132,7 +132,15 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 
             throw;
         }
-
-        Report report = await this.reportCommand.Bind(sharedDataset, datasetRequest, cancellationToken);
+        IReportRequest reportRequest = new ReportRequest()
+        {
+            ProfileId = datasetRequest.ProfileId,
+            WorkspaceId = datasetRequest.WorkspaceId,
+        };
+        Reports existingReports = await this.reportCommand.List(reportRequest, cancellationToken);
+        if (!existingReports.Value.Any(r => r.Name == datasetRequest.DatasetName))
+        {
+            Report report = await this.reportCommand.Bind(sharedDataset, datasetRequest, cancellationToken);
+        }
     }
 }
