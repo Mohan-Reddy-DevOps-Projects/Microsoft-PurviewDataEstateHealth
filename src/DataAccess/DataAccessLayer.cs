@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Shared;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,7 +65,7 @@ public static class DataAccessLayer
         services.AddScoped<IHealthScoreRepository, HealthScoreRepository>();
         services.AddScoped<IBusinessDomainRepository, BusinessDomainRepository>();
         services.AddScoped<IHealthControlRepository, HealthControlRepository>();
-
+        services.AddScoped<IArtifactStoreAccessorServiceBuilder, ArtifactStoreAccessorServiceBuilder>();
 
         return services;
     }

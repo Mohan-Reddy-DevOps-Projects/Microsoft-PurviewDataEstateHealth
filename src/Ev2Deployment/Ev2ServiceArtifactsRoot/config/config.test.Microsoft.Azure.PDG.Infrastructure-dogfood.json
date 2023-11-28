@@ -36,6 +36,7 @@
             "resourceGroupName": "purview-rg-internal-storage",
             "accountName": "dgprocshared$(pdg.environment.shortName)$(regionShortName)",
             "tableName": "AccountStorageDetails"
-        }
+        },
+        "artifactStoreEndpoint": "https://df.wus3.artifactstore.purview-service.azure-test.com"
     }
 }

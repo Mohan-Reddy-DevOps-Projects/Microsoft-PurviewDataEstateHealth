@@ -63,7 +63,8 @@ public static class ConfigurationExtensions
             .Configure<ProcessingStorageConfiguration>(configuration.GetSection("processingStorage"))
             .Configure<ProcessingStorageAuthConfiguration>(configuration.GetSection("processingStorageAuth"))
             .Configure<MetadataServiceConfiguration>(configuration.GetSection("metadataService"))
-            .Configure<ExposureControlConfiguration>(configuration.GetSection("exposureControl"));
+            .Configure<ExposureControlConfiguration>(configuration.GetSection("exposureControl"))
+            .Configure<ArtifactStoreServiceConfiguration>(configuration.GetSection("artifactStoreServiceConfiguration"));
         return services;
     }
 
