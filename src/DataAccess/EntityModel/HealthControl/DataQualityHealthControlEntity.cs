@@ -16,6 +16,6 @@ internal class DataQualityHealthControlEntity : HealthControlEntity
     public DataQualityHealthControlEntity(DataQualityHealthControlEntity entity)
     {
         this.CurrentScore = entity.CurrentScore;
-        this.LastRefreshDate = entity.LastRefreshDate;
+        this.LastRefreshedAt = entity.LastRefreshedAt;
     }
 }

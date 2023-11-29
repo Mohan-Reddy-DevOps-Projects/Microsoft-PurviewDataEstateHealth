@@ -56,4 +56,13 @@ public interface IProcessingStorageManager
     /// <param name="cancellationToken"></param>
     /// <returns>The processing storage SAS token.</returns>
     Task<Uri> GetProcessingStorageSasUri(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters, string containerName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Constructs the container path.
+    /// </summary>
+    /// <param name="containerName"></param>
+    /// <param name="accountId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<string> ConstructContainerPath(string containerName, Guid accountId, CancellationToken cancellationToken);
 }

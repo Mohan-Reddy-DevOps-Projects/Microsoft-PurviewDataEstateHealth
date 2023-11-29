@@ -58,7 +58,7 @@ public class HealthControlProperties
     /// Current score.
     /// </summary>
     [JsonProperty("currentScore")]
-    public int CurrentScore { get; set; }
+    public double CurrentScore { get; set; }
 
     /// <summary>
     /// Target score.

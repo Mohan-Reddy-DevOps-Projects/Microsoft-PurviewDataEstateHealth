@@ -7,22 +7,29 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using System.Text.Json;
 
 /// <summary>
-/// Holds information needed to retrieve health control by controlId.
+/// Holds information needed to retrieve health controls for an account.
 /// </summary>
-public class HealthControlKey
+public class HealthControlsKey
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="HealthControlKey"/> class.
+    /// Initializes a new instance of the <see cref="HealthControlsKey"/> class.
     /// </summary>
-    public HealthControlKey(Guid controlId)
+    public HealthControlsKey(Guid accountId, Guid catalogId)
     {
-        this.ControlId = controlId;
+        this.AccountId = accountId;
+        this.CatalogId = catalogId;
     }
 
     /// <summary>
-    ///ControlId.
+    /// AccountId.
     /// </summary>
-    public Guid ControlId { get; set; }
+    public Guid AccountId { get; set; }
+
+    /// <summary>
+    /// CatalogId
+    /// </summary>
+    public Guid CatalogId { get; set; }
+
 
     /// <inheritdoc />
     public override string ToString()

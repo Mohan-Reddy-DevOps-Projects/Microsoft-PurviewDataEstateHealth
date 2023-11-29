@@ -46,7 +46,7 @@ public class HealthControlProperties
     /// Current score.
     /// </summary>
     [ReadOnly(true)]
-    public int CurrentScore { get; internal set; }
+    public double CurrentScore { get; internal set; }
 
     /// <summary>
     /// Target score.

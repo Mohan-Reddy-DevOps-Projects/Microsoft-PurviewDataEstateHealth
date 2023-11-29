@@ -139,6 +139,16 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         return await GetUserDelegationSasDirectory(directoryClient, serviceClient, parameters);
     }
 
+    /// <inheritdoc/>
+    public async Task<string> ConstructContainerPath(string containerName, Guid accountId, CancellationToken cancellationToken)
+    {
+        ProcessingStorageModel storageModel = await this.Get(accountId, cancellationToken);
+
+        ArgumentNullException.ThrowIfNull(storageModel, nameof(storageModel));
+
+        return $"{storageModel.GetDfsEndpoint()}/{containerName}";
+    }
+
     /// <summary>
     /// Get a user delegation Sas URI to the data lake directory.
     /// </summary>

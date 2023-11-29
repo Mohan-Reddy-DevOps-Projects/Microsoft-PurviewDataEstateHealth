@@ -17,7 +17,7 @@ internal class HealthControlEntity : BaseEntity
     public HealthControlEntity(HealthControlEntity entity)
     {
         this.CurrentScore = entity.CurrentScore;
-        this.LastRefreshDate = entity.LastRefreshDate;
+        this.LastRefreshedAt = entity.LastRefreshedAt;
         this.Kind = entity.Kind;
     }
 
@@ -25,8 +25,8 @@ internal class HealthControlEntity : BaseEntity
     public HealthControlKind Kind { get; set; }
 
     [JsonProperty("currentScore")]
-    public int CurrentScore { get; set; }
+    public double CurrentScore { get; set; }
 
-    [JsonProperty("LastRefreshDate")]
-    public DateTime LastRefreshDate { get; set; }
+    [JsonProperty("LastRefreshedAt")]
+    public DateTime LastRefreshedAt { get; set; }
 }

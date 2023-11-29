@@ -20,6 +20,10 @@ internal class HealthControlCollectionComponent : BaseComponent<IHealthControlLi
 
     [Inject]
     private IHealthControlRepository healthControlRepository;
+
+    [Inject]
+    private IRequestHeaderContext requestHeaderContext;
+
 #pragma warning restore 649
 
     public HealthControlCollectionComponent(IHealthControlListContext context, int version) : base(context, version)
@@ -46,6 +50,9 @@ internal class HealthControlCollectionComponent : BaseComponent<IHealthControlLi
         if (!this.Context.ControlId.HasValue)
         {
          return await this.healthControlRepository.GetMultiple(
+              new HealthControlsKey(
+                 this.Context.AccountId,
+                 Guid.Parse(this.requestHeaderContext.CatalogId)),
              cancellationToken,
              skipToken);
     }

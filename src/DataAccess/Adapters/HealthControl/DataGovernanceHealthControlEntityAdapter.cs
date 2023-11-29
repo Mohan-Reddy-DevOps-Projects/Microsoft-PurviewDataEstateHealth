@@ -19,7 +19,7 @@ internal class DataGovernanceHealthControlEntityAdapter : BaseModelAdapter<DataG
         {
             CurrentScore = model.Properties.CurrentScore,
             Kind = model.Properties.Kind,
-            LastRefreshDate = model.Properties.LastRefreshedAt
+            LastRefreshedAt = model.Properties.LastRefreshedAt
         };
     }
 
@@ -36,7 +36,7 @@ internal class DataGovernanceHealthControlEntityAdapter : BaseModelAdapter<DataG
             {
                 CurrentScore = entity.CurrentScore,
                 Kind = entity.Kind,
-                LastRefreshedAt = entity.LastRefreshDate
+                LastRefreshedAt = entity.LastRefreshedAt
             }
         };
     }
