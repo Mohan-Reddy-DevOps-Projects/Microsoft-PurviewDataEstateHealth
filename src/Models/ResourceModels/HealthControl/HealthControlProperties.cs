@@ -113,4 +113,10 @@ public class HealthControlProperties
     /// </summary>
     [JsonProperty("businessDomainsListLink")]
     public string BusinessDomainsListLink { get; set; }
+
+    /// <summary>
+    /// Last refreshed at.
+    /// </summary>
+    [JsonProperty("lastRefreshedAt")]
+    public DateTime LastRefreshedAt { get; set; }
 }
