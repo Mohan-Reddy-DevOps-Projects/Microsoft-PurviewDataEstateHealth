@@ -80,19 +80,20 @@ public class PlatformAccountNotificationsController : ControlPlaneController
 
         await this.processingStorageManager.Provision(account, cancellationToken);
 
-        await PartnerNotifier.NotifyPartners(
+        await Task.WhenAll(
+        PartnerNotifier.NotifyPartners(
                 this.logger,
                 this.partnerService,
                 this.partnerConfig,
                 account,
                 ProvisioningService.OperationType.CreateOrUpdate,
-                InitPartnerContext(this.partnerConfig.Partners)).ConfigureAwait(false);
-
-        await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                InitPartnerContext(this.partnerConfig.Partners)),
+         this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
             .CreatePartnerNotificationComponent(
                 Guid.Parse(account.TenantId),
                 Guid.Parse(account.Id))
-            .CreateOrUpdateNotification(account, cancellationToken);
+            .CreateOrUpdateNotification(account, cancellationToken)
+        ).ConfigureAwait(false);
 
         return this.Ok();
     }
