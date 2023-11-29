@@ -49,7 +49,8 @@ module jobStorageAccount 'storageAccount.bicep' = {
   params: {
     location: location
     storageAccountName: jobStorageAccountName
-    subnetId: vnet.properties.subnets[0].id
+    commonSubnetId: vnet.properties.subnets[0].id
+    deploySubnetId: vnet.properties.subnets[1].id
   }
 }
 
@@ -67,7 +68,8 @@ module commonStorageAccountModule 'storageAccount.bicep' = {
   params: {
     location: location
     storageAccountName: commonStorageAccountName
-    subnetId: vnet.properties.subnets[0].id
+    commonSubnetId: vnet.properties.subnets[0].id
+    deploySubnetId: vnet.properties.subnets[1].id
   }
 }
 

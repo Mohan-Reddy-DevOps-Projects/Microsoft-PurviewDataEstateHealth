@@ -1,6 +1,7 @@
 param location string
 param storageAccountName string
-param subnetId string = ''
+param commonSubnetId string = ''
+param deploySubnetId string = ''
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   name: storageAccountName
@@ -15,12 +16,16 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
     allowBlobPublicAccess: false
     supportsHttpsTrafficOnly: true
     minimumTlsVersion: 'TLS1_2'
-    networkAcls: !empty(subnetId) ? {
+    networkAcls: !empty(commonSubnetId) ? {
       defaultAction: 'Deny'
       virtualNetworkRules: [
         {
           action: 'Allow'
-          id: subnetId
+          id: commonSubnetId
+        }
+        {
+          action: 'Allow'
+          id: deploySubnetId
         }
       ]
     } : null
