@@ -8,9 +8,9 @@ using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 /// <summary>
-/// DataEstateHealth Summary repository interface
+/// Health trend repository interface
 /// </summary>
-public interface IDataEstateHealthSummaryRepository : IGetSingleOperation<IDataEstateHealthSummaryModel, SummaryKey>,
-    ILocationBased<IDataEstateHealthSummaryRepository>
+public interface IHealthTrendRepository : IGetSingleOperation<IHealthTrendModel, HealthTrendKey>,
+    ILocationBased<IHealthTrendRepository>
 {
 }

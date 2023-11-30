@@ -83,7 +83,7 @@ public class HealthReportController : DataPlaneController
     [HttpGet]
     [ProducesResponseType(typeof(HealthReportList), 200)]
     public async Task<IActionResult> ListHealthReportsAsync(
-        [FromQuery(Name = "reportKind")] HealthReportKind reportKind,
+        [FromQuery(Name = "reportKind")] DataTransferObjects.HealthReportKind reportKind,
         [FromQuery(Name = "api-version")] string apiVersion,
         [FromQuery(Name = "skipToken")] string skipToken = null)
     {
@@ -91,7 +91,7 @@ public class HealthReportController : DataPlaneController
             .CreateHealthReportCollectionComponent(
                 this.requestHeaderContext.TenantId,
                 this.requestHeaderContext.AccountObjectId)
-            .Get(skipToken, reportKind);
+            .Get(skipToken, reportKind.ToModel());
 
         var healthReports = new HealthReportList
         {

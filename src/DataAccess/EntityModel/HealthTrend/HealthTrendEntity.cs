@@ -7,7 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Newtonsoft.Json;
 
-internal class HealthTrendEntity
+internal class HealthTrendEntity: BaseEntity
 {
     public HealthTrendEntity()
     {

@@ -154,4 +154,18 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
                 tenantId),
             this.version.Numeric);
     }
+
+
+    /// <inheritdoc />
+    public IHealthTrendComponent CreateHealthTrendComponent(
+        Guid tenantId,
+        Guid accountId)
+    {
+        return this.componentRuntime.ResolveLatest<IHealthTrendComponent, IHealthTrendContext>(
+            this.contextFactory.CreateHealthTrendContext(
+                this.version,
+                null,
+                accountId,
+                tenantId));
+    }
 }

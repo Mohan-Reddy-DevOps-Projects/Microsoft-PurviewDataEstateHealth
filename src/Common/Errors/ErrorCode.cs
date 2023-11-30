@@ -196,6 +196,11 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode HealthControl_InvalidKind = new(7005);
 
+    /// <summary>
+    /// Health trends not available.
+    /// </summary>
+    public static readonly ErrorCode HealthTrends_NotAvailable = new(7006);
+
     #endregion
 
     #region Profile

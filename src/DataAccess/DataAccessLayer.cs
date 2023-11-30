@@ -66,6 +66,8 @@ public static class DataAccessLayer
         services.AddScoped<IBusinessDomainRepository, BusinessDomainRepository>();
         services.AddScoped<IHealthControlRepository, HealthControlRepository>();
         services.AddScoped<IArtifactStoreAccessorServiceBuilder, ArtifactStoreAccessorServiceBuilder>();
+        services.AddScoped<IHealthTrendRepository, HealthTrendRepository>();
+
 
         return services;
     }

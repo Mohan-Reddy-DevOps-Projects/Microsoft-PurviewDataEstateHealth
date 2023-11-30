@@ -82,4 +82,12 @@ public interface ICoreLayerFactoryOperations
     public IHealthControlCollectionComponent CreateHealthControlCollectionComponent(
         Guid tenantId,
         Guid accountId);
+
+    /// <summary>
+    /// Creates an instance of HealthTrendComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IHealthTrendComponent"/>.</returns>
+    public IHealthTrendComponent CreateHealthTrendComponent(
+        Guid tenantId,
+        Guid accountId);
 }
