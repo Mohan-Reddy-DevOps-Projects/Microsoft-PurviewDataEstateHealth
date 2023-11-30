@@ -137,6 +137,45 @@
             "width": 234
           },
           "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3125.655042425984,
+            "y": 542.96006386584975
+          },
+          "nodeIndex": "Accountinfo",
+          "nodeLineageTag": "05b549f4-ca5a-4242-85cc-8ab26c3b8062",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3409.655042425984,
+            "y": 542.96006386584975
+          },
+          "nodeIndex": "DATABASE_SCHEMA",
+          "nodeLineageTag": "916e50c5-210d-4ec6-9f78-d28a2c06ebdc",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3693.655042425984,
+            "y": 506.96006386584975
+          },
+          "nodeIndex": "AssetURLTable",
+          "nodeLineageTag": "8aa46b2f-cadf-478b-bc6e-8e12fb4bc6ee",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "All tables",

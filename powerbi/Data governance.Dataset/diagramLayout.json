@@ -137,6 +137,214 @@
             "width": 234
           },
           "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1795.6599448781269,
+            "y": 627.15072584366112
+          },
+          "nodeIndex": "AccountInfo",
+          "nodeLineageTag": "4f40a295-3e80-47f6-816d-72c212d8adc4",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2079.6599448781271,
+            "y": 579.15072584366112
+          },
+          "nodeIndex": "AssetURLTable",
+          "nodeLineageTag": "406dcea1-1def-4cf2-bf28-3cb2f9255bd8",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2363.6599448781271,
+            "y": 627.15072584366112
+          },
+          "nodeIndex": "DATABASE_SCHEMA 2",
+          "nodeLineageTag": "43e92c9e-0636-4349-ba7a-f88203214609",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3875.3198897562543,
+            "y": 627.15072584366112
+          },
+          "nodeIndex": "Accountinfo 2",
+          "nodeLineageTag": "91cbd560-e80f-4830-a9e8-8def9d91ac02",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4159.3198897562543,
+            "y": 579.15072584366112
+          },
+          "nodeIndex": "AssetURLTable 2",
+          "nodeLineageTag": "1e23781e-4041-4db6-b25f-26e590f81eb4",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3311.4915153377433,
+            "y": 691.05548602304339
+          },
+          "nodeIndex": "BusinessDomain 2",
+          "nodeLineageTag": "4ecdaa83-cce6-4fc0-8eef-57368bfd371b",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2970.2847994810959,
+            "y": 313.77707990403212
+          },
+          "nodeIndex": "BusinessDomainDataProductAssociation 2",
+          "nodeLineageTag": "9f528d54-281b-4f5a-9395-38cbf87d135b",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3496.4473629298086,
+            "y": 1048.3014516873222
+          },
+          "nodeIndex": "BusinessDomainTrends 2",
+          "nodeLineageTag": "70df06a3-d561-4ca1-b0c6-379270e77a49",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3023.97059698622,
+            "y": 520.92444400990291
+          },
+          "nodeIndex": "DataAsset 2",
+          "nodeLineageTag": "6ec3d337-a3a6-49ef-a138-a93a72edaaf9",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2731.6968850139256,
+            "y": 517.86992245384363
+          },
+          "nodeIndex": "DataAssetContactAssociation 2",
+          "nodeLineageTag": "8333f422-cd32-4ebb-88e3-bf80f20d78ef",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4443.3198897562543,
+            "y": 627.15072584366112
+          },
+          "nodeIndex": "DATABASE_SCHEMA 3",
+          "nodeLineageTag": "a8f6e14d-0cc4-4a1f-a548-94525f96ad64",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3258.2609293920664,
+            "y": -10
+          },
+          "nodeIndex": "DataProduct 2",
+          "nodeLineageTag": "1283b958-0ef4-44c5-9966-f64a53786049",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3601.3198897562543,
+            "y": 663.69145245589357
+          },
+          "nodeIndex": "DataProductContactAssociation 2",
+          "nodeLineageTag": "008d107d-1082-4ae4-87d5-e18f38ee6a8a",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2647.6599448781271,
+            "y": 338.54774895613696
+          },
+          "nodeIndex": "DataProductDataAssetAssociation 2",
+          "nodeLineageTag": "8063fcbb-3949-4420-95b7-56954eaa9782",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 4727.3198897562543,
+            "y": 531.15072584366112
+          },
+          "nodeIndex": "GlossaryTerm 2",
+          "nodeLineageTag": "5175fbe0-11bc-444c-9a1c-9138508b1f00",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 5011.3198897562543,
+            "y": 627.15072584366112
+          },
+          "nodeIndex": "MeasureTable 2",
+          "nodeLineageTag": "c83e8a72-3f5c-4c02-b78d-09014a72c9f1",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
         }
       ],
       "name": "All tables",
