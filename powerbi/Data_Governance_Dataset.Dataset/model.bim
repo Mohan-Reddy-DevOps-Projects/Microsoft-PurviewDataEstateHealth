@@ -4,7 +4,7 @@
     "annotations": [
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"SERVER\",\"DATABASE\",\"DATABASE_SCHEMA\",\"BusinessDomain\",\"BusinessDomainTrends\",\"DataAsset\",\"DataAssetContactAssociation\",\"DataProduct\",\"DataProductContactAssociation\",\"DataProductDataAssetAssociation\",\"GlossaryTerm\",\"MeasureTable\",\"BusinessDomainDataProductAssociation\",\"TENANT_ID\",\"Accountinfo\",\"AssetURLTable\"]"
+        "value": "[\"SERVER\",\"DATABASE\",\"DATABASE_SCHEMA\",\"BusinessDomain\",\"BusinessDomainTrends\",\"DataAsset\",\"DataAssetContactAssociation\",\"DataProduct\",\"DataProductContactAssociation\",\"DataProductDataAssetAssociation\",\"GlossaryTerm\",\"MeasureTable\",\"BusinessDomainDataProductAssociation\",\"TENANT_ID\"]"
       },
       {
         "name": "__PBI_TimeIntelligenceEnabled",
@@ -223,7 +223,19 @@
                     "ConceptualProperty": "DataProductDisplayName"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Data product name": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "dataproduct.overall_health_score": {
                 "Definition": {
@@ -253,7 +265,19 @@
                     "ConceptualProperty": "Asset count"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Asset count": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "dataproduct.total_dataproducts": {
                 "Definition": {
@@ -296,6 +320,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "expression": "\"dghdogfoodsynapse-ondemand.sql.azuresynapse.net\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
@@ -308,11 +336,27 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "expression": "\"health_1\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "953805ba-bf53-4776-ad5b-7ae663b34473"
+      },
+      {
+        "name": "DATABASE_SCHEMA",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Text"
+          }
+        ],
+        "expression": "\"ecf09339-34e0-464b-a8fb-661209048543\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "cd2727f6-9ba5-499d-ac89-a49a52b25d81"
       },
       {
         "name": "TENANT_ID",
@@ -1290,100 +1334,6 @@
           }
         ],
         "lineageTag": "d6ae76ed-5409-4399-b782-f93c0a38a783",
-        "measures": [
-          {
-            "name": "Trend_Asset Pass count",
-            "expression": [
-              "CALCULATE(COUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Assetcount_catalog P/F] = \"Pass\")"
-            ],
-            "formatString": "0",
-            "lineageTag": "70aef21a-4ab7-4b4f-a7b3-1d5b1221dee6"
-          },
-          {
-            "name": "Trend_Metadata completeness",
-            "expression": "DIVIDE(BusinessDomainTrends[Trend_Metadata completeness pass count],SUM(BusinessDomainTrends[DataProductCount]))",
-            "lineageTag": "de590fe4-4e7f-471e-a56f-24b85ed3fa67"
-          },
-          {
-            "name": "Trend_Metadata completeness pass count",
-            "annotations": [
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "expression": [
-              "(SUM('BusinessDomainTrends'[ClassificationPassCount])+",
-              "SUM('BusinessDomainTrends'[ValidDataProductOwnerPassCount])+SUM(BusinessDomainTrends[DataProductDescriptionPassCount])+SUM(BusinessDomainTrends[GlossaryTermPassCount])+SUM(BusinessDomainTrends[ValidUseCasePassCount])+SUMX(BusinessDomainTrends,BusinessDomainTrends[Trend_Asset Pass count])",
-              ")/6"
-            ],
-            "lineageTag": "8945160e-b9a7-440c-91ca-5fb0c596070e"
-          },
-          {
-            "name": "Trend_Overall health score",
-            "expression": "DIVIDE([Trend_Sum of all metrics],SUM('BusinessDomainTrends'[DataProductCount])*10)",
-            "lineageTag": "369a10e9-628f-41dd-8baa-8e705a3caa8e"
-          },
-          {
-            "name": "Trend_Quality",
-            "expression": "DIVIDE([Trend_Quality pass count],sum('BusinessDomainTrends'[DataProductCount]))",
-            "lineageTag": "6136dc61-dc75-4d04-b522-aa17269ea801"
-          },
-          {
-            "name": "Trend_Quality pass count",
-            "annotations": [
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "expression": [
-              "(SUM('BusinessDomainTrends'[DataQualityScorePassCount])+",
-              "SUM('BusinessDomainTrends'[AuthoritativeSourcePassCount]))/2"
-            ],
-            "lineageTag": "c4add084-a835-41fe-9b99-d33c2164b1c2"
-          },
-          {
-            "name": "Trend_Sum of all metrics",
-            "expression": [
-              "",
-              "SUM(BusinessDomainTrends[ValidDataProductOwnerPassCount])+",
-              "SUM(BusinessDomainTrends[ClassificationPassCount])+",
-              "SUM(BusinessDomainTrends[DataQualityScorePassCount])+",
-              "SUM(BusinessDomainTrends[AuthoritativeSourcePassCount])+",
-              "SUM(BusinessDomainTrends[AccessEntitlementPassCount])+",
-              "SUM(BusinessDomainTrends[DataShareAgreementSetOrExemptPassCount])+",
-              "SUM(BusinessDomainTrends[DataProductDescriptionPassCount])+",
-              "SUM(BusinessDomainTrends[GlossaryTermPassCount])+",
-              "SUM(BusinessDomainTrends[ValidUseCasePassCount])+",
-              "SUMX(BusinessDomainTrends,BusinessDomainTrends[Trend_Asset Pass count])",
-              "",
-              ""
-            ],
-            "formatString": "0",
-            "lineageTag": "6fdf50ba-a624-4cf5-bad2-deda07974ec1"
-          },
-          {
-            "name": "Trend_Use",
-            "expression": "DIVIDE([Trend_Use pass count],sum('BusinessDomainTrends'[DataProductCount]))",
-            "lineageTag": "9715e7aa-6d98-45af-b582-db569cb9070a"
-          },
-          {
-            "name": "Trend_Use pass count",
-            "annotations": [
-              {
-                "name": "PBI_FormatHint",
-                "value": "{\"isGeneralNumber\":true}"
-              }
-            ],
-            "expression": [
-              "(sum('BusinessDomainTrends'[DataShareAgreementSetOrExemptPassCount])+",
-              "sum('BusinessDomainTrends'[AccessEntitlementPassCount]))/2"
-            ],
-            "lineageTag": "cf3805fa-95ec-422d-b604-5b77664fbd6d"
-          }
-        ],
         "partitions": [
           {
             "name": "BusinessDomainTrends",
@@ -1802,6 +1752,10 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
           }
         ],
         "changedProperties": [
@@ -2374,7 +2328,7 @@
               }
             ],
             "dataType": "string",
-            "expression": "IF(COALESCE('DataProduct'[HasValidUseCase],0) = TRUE(), \"Pass\", \"Fail\")",
+            "expression": "IF(COALESCE('DataProduct'[HasValidUseCase],0) =1 , \"Pass\", \"Fail\")",
             "isDataTypeInferred": true,
             "lineageTag": "139fa52e-a368-4695-93c7-436fab867a0f",
             "summarizeBy": "none",
@@ -2414,7 +2368,7 @@
               }
             ],
             "dataType": "string",
-            "expression": "IF(COALESCE('DataProduct'[HasDescription],0) = TRUE(),\"Pass\",\"Fail\")",
+            "expression": "IF(COALESCE('DataProduct'[HasDescription],0) = 1,\"Pass\",\"Fail\")",
             "isDataTypeInferred": true,
             "lineageTag": "46edeabd-ad87-4538-ad4b-c9c6d0498c79",
             "summarizeBy": "none",
@@ -2566,7 +2520,7 @@
               }
             ],
             "expression": [
-              "DIVIDE(([Owner Pass count]+[Catalog Pass count_Without owners pass]+[Classifiaction pass count])/6,",
+              "DIVIDE(([Owner Pass count]+[Catalog Pass count]+[Classifiaction pass count])/7,",
               "[Total DataProducts])"
             ],
             "formatString": "0.0%;-0.0%;0.0%",
@@ -2579,7 +2533,7 @@
                 "property": "IsHidden"
               }
             ],
-            "expression": "DIVIDE([Sum of Pass Metrics],[Total DataProducts]*10)",
+            "expression": "DIVIDE([Sum of Pass Metrics],[Total DataProducts]*11)",
             "formatString": "0.0%;-0.0%;0.0%",
             "lineageTag": "5e767785-8cdd-406c-9a48-d0c068bec8c4"
           },
@@ -3002,7 +2956,7 @@
               }
             ],
             "expression": [
-              "DIVIDE(([Owner Pass count]+[Catalog Pass count_Without owners pass]+[Classifiaction pass count])/6,",
+              "DIVIDE(([Owner Pass count]+[Catalog Pass count]+[Classifiaction pass count])/7,",
               "[Total DataProducts])+0"
             ],
             "formatString": "0.0%;-0.0%;0.0%",
@@ -3061,7 +3015,7 @@
                 "property": "IsHidden"
               }
             ],
-            "expression": "DIVIDE([Sum of Pass Metrics],[Total DataProducts]*10)+0",
+            "expression": "DIVIDE([Sum of Pass Metrics],[Total DataProducts]*11)+0",
             "formatString": "0.0%;-0.0%;0.0%",
             "lineageTag": "01d5ba84-97cc-4e95-9017-5e4f00782ca0"
           },
@@ -3195,14 +3149,13 @@
             ],
             "expression": [
               "[Owner Pass count]+",
-              "[Catalog Pass count_Without owners pass]+",
+              "[Catalog Pass count]+",
               "[Classifiaction pass count]+",
               "[Data Quality Pass count]+",
               "[Authoritative source Pass count]+",
               "[Access entitlement Pass count]+",
               "[Data consumption Purpose Pass count]"
             ],
-            "formatString": "0",
             "lineageTag": "57d81210-f823-42ba-8773-d191d79199f8"
           },
           {
@@ -3304,7 +3257,7 @@
             "lineageTag": "8ddc5f73-4a8d-468d-bf70-0a1fbd9938e0"
           },
           {
-            "name": "Catalog Pass count_Without owners pass",
+            "name": "Catalog Pass count_Overall",
             "expression": [
               "var c1 = CALCULATE(COUNT('DataProduct'[Assetcount_catalog P/F]),'DataProduct'[Assetcount_catalog P/F] = \"Pass\")+0",
               "var c2 = CALCULATE(COUNT('DataProduct'[Glosssary Term count_catalog P/F]),'DataProduct'[Glosssary Term count_catalog P/F] = \"Pass\")+0",
@@ -6454,181 +6407,6 @@
                 "    #\"Changed Type\" = Table.TransformColumnTypes(Source,{{\"Column1\", type text}})",
                 "in",
                 "    #\"Changed Type\""
-              ],
-              "type": "m"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Accountinfo",
-        "annotations": [
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          }
-        ],
-        "columns": [
-          {
-            "name": "TenantId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "ad8b0659-8bd2-4149-98b4-0bda6599afab",
-            "sourceColumn": "TenantId",
-            "summarizeBy": "none"
-          }
-        ],
-        "lineageTag": "05b549f4-ca5a-4242-85cc-8ab26c3b8062",
-        "partitions": [
-          {
-            "name": "Accountinfo",
-            "mode": "import",
-            "source": {
-              "expression": [
-                "let",
-                "    Source = #table({\"TenantId\"}, {{#\"TENANT_ID\"}})",
-                "in",
-                "    Source"
-              ],
-              "type": "m"
-            }
-          }
-        ]
-      },
-      {
-        "name": "DATABASE_SCHEMA",
-        "annotations": [
-          {
-            "name": "PBI_ResultType",
-            "value": "Text"
-          }
-        ],
-        "columns": [
-          {
-            "name": "DATABASE_SCHEMA",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "c3112acf-9952-4aab-bb64-f91f546222a0",
-            "sourceColumn": "DATABASE_SCHEMA",
-            "summarizeBy": "none"
-          }
-        ],
-        "lineageTag": "916e50c5-210d-4ec6-9f78-d28a2c06ebdc",
-        "partitions": [
-          {
-            "name": "DATABASE_SCHEMA",
-            "mode": "import",
-            "source": {
-              "expression": "\"ecf09339-34e0-464b-a8fb-661209048543\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
-              "type": "m"
-            }
-          }
-        ]
-      },
-      {
-        "name": "AssetURLTable",
-        "annotations": [
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          }
-        ],
-        "columns": [
-          {
-            "name": "DataProductId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "cd4e436f-0d54-46d0-b50f-3888732cb574",
-            "sourceColumn": "DataProductId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "BusinessDomainId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "052140c9-9c7d-480d-bf3b-505bdc0bd782",
-            "sourceColumn": "BusinessDomainId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "IsPrimaryDataProduct",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "boolean",
-            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
-            "lineageTag": "f89c19d6-be87-4ccc-9acd-1b6206422484",
-            "sourceColumn": "IsPrimaryDataProduct",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "DataAssetId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "e2e0d199-7797-4f44-bb34-bc7544010770",
-            "sourceColumn": "DataAssetId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "Asset link",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "expression": [
-              "\"https://purview.microsoft.com//datacatalog/governance/main/catalog/dataProducts/dataAssetDetail?tid=\"& 'AccountInfo'[TenantId] &",
-              "\"&feature.tier=RC&dataAssetId=\"&'AssetURLTable'[DataAssetId]&",
-              " \"&sourceDataProductId=\"& AssetURLTable[DataProductId]"
-            ],
-            "lineageTag": "1f761f62-1902-4778-8e4d-3c07cb2ebbc8",
-            "summarizeBy": "none",
-            "type": "calculated"
-          }
-        ],
-        "lineageTag": "8aa46b2f-cadf-478b-bc6e-8e12fb4bc6ee",
-        "partitions": [
-          {
-            "name": "AssetURLTable",
-            "mode": "import",
-            "source": {
-              "expression": [
-                "let",
-                "    Source = Sql.Database(SERVER, DATABASE),",
-                "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainDataProductAssociation\" = Source{[Schema= DATABASE_SCHEMA,Item=\"BusinessDomainDataProductAssociation\"]}[Data],",
-                "    #\"Merged Queries\" = Table.NestedJoin(#\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainDataProductAssociation\", {\"DataProductId\"}, DataProductDataAssetAssociation, {\"DataProductId\"}, \"DataProductDataAssetAssociation\", JoinKind.Inner),",
-                "    #\"Expanded DataProductDataAssetAssociation\" = Table.ExpandTableColumn(#\"Merged Queries\", \"DataProductDataAssetAssociation\", {\"DataAssetId\"}, {\"DataAssetId\"})",
-                "in",
-                "    #\"Expanded DataProductDataAssetAssociation\""
               ],
               "type": "m"
             }
