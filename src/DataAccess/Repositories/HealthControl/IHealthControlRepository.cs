@@ -12,7 +12,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 /// </summary>
 public interface IHealthControlRepository :
     IGetMultipleOperation<IHealthControlModel<HealthControlProperties>, HealthControlsKey>,
-    ILocationBased<IHealthControlRepository>,
     IGetMultipleOperation<IHealthControlModel<HealthControlProperties>, HealthControlKey>
 {
 }

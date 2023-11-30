@@ -33,6 +33,7 @@ public static class CoreLayer
         services.AddSingleton<IProcessingStorageManager, ProcessingStorageManager>();
         services.AddSingleton<ISynapseSparkExecutor, SynapseSparkExecutor>();
         services.AddSingleton<ISparkJobManager, SparkJobManager>();
+        services.AddSingleton<ICommonFieldValidationService, CommonFieldValidationService>();
 
         services.AddPowerBI();
         services.AddCommands();

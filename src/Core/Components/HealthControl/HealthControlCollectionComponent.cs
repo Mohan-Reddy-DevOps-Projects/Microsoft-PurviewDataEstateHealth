@@ -30,12 +30,6 @@ internal class HealthControlCollectionComponent : BaseComponent<IHealthControlLi
     {
     }
 
-    [Initialize]
-    public void Initialize()
-    {
-        this.healthControlRepository = this.healthControlRepository.ByLocation(this.Context.Location);
-    }
-
     public IHealthControlCollectionComponent ById(Guid id)
     {
         this.Context.ControlId = id;

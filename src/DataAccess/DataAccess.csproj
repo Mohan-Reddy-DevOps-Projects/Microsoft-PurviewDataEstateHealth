@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-	  <Platforms>x64</Platforms>
+    <Platforms>x64</Platforms>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.DataAccess</RootNamespace>
-	  <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.DataAccess</AssemblyName>
+    <RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.DataAccess</RootNamespace>
+    <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.DataAccess</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
