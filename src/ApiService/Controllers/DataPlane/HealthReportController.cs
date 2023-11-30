@@ -77,14 +77,14 @@ public class HealthReportController : DataPlaneController
     /// List all health reports.
     /// </summary>
     /// <param name="apiVersion">The api version of the call</param>
-    /// <param name="skipToken">The continuation token to list the next page.</param>
     /// <param name="reportKind">Report kind.</param>
+    /// <param name="skipToken">The continuation token to list the next page.</param>
     /// <returns></returns>
     [HttpGet]
     [ProducesResponseType(typeof(HealthReportList), 200)]
     public async Task<IActionResult> ListHealthReportsAsync(
-        [FromQuery(Name = "reportKind")] DataTransferObjects.HealthReportKind reportKind,
         [FromQuery(Name = "api-version")] string apiVersion,
+        [FromQuery(Name = "reportKind")] DataTransferObjects.HealthReportKind reportKind = DataTransferObjects.HealthReportKind.PowerBIHealthReport,
         [FromQuery(Name = "skipToken")] string skipToken = null)
     {
         IBatchResults<IHealthReportModel<HealthReportProperties>> results = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
