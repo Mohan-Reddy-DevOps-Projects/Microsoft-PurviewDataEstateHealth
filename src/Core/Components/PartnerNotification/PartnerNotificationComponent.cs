@@ -106,9 +106,9 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             SkipReport = true,
             Parameters = new Dictionary<string, string>()
             {
-                { "SERVER", this.serverlessPoolConfiguration.Value.SqlEndpoint.Split(';').First() },
-                { "DATABASE", $"{owner}_1" },
-                { "DATABASE_SCHEMA", account.Id },
+                { SQLConstants.Server, this.serverlessPoolConfiguration.Value.SqlEndpoint.Split(';').First() },
+                { SQLConstants.Database, $"{owner}_1" },
+                { SQLConstants.DatabaseSchema, account.Id },
                 { "TENANT_ID", account.TenantId }
             }
         };

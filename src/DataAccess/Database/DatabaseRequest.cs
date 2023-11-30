@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using System.Security;
+using System.Text.Json;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 /// <inheritdoc/>
@@ -33,4 +34,10 @@ public class DatabaseRequest : IDatabaseRequest
 
     /// <inheritdoc/>
     public ManagedIdentityScopedCredential ScopedCredential { get; init; }
+
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+        return JsonSerializer.Serialize(this);
+    }
 }
