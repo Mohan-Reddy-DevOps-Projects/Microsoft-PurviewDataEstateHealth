@@ -4,8 +4,8 @@
     {
       "ordinal": 0,
       "scrollPosition": {
-        "x": 0,
-        "y": 63.333333333333336
+        "x": 165.03878413019953,
+        "y": 0
       },
       "nodes": [
         {
@@ -24,7 +24,7 @@
         {
           "location": {
             "x": 980.532783685537,
-            "y": 357.64494126563091
+            "y": 582.64494126563091
           },
           "nodeIndex": "BusinessDomainTrends",
           "nodeLineageTag": "d6ae76ed-5409-4399-b782-f93c0a38a783",
@@ -75,8 +75,8 @@
         },
         {
           "location": {
-            "x": 732.01970443349762,
-            "y": 76.898305088916317
+            "x": 971.45499855114474,
+            "y": 334.40418744185752
           },
           "nodeIndex": "DataProductContactAssociation",
           "nodeLineageTag": "31236631-10ef-425d-ad3a-df87513dc736",
@@ -127,11 +127,37 @@
         },
         {
           "location": {
-            "x": 2841.655042425984,
+            "x": 818.60702970738248,
+            "y": 63.089348171701118
+          },
+          "nodeIndex": "AssetURLTable",
+          "nodeLineageTag": "1639e4c0-750f-43a3-8f2b-1074ddd39421",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3125.655042425984,
             "y": 542.96006386584975
           },
-          "nodeIndex": "MeasureTable",
-          "nodeLineageTag": "7f0866e1-4ab8-416f-be70-e2f874c440f0",
+          "nodeIndex": "AccountInfo",
+          "nodeLineageTag": "ad76777b-f72a-4a5b-898b-edb5ce69c480",
+          "size": {
+            "height": 104,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3409.655042425984,
+            "y": 542.96006386584975
+          },
+          "nodeIndex": "DATABASE_SCHEMA",
+          "nodeLineageTag": "4ba41ebe-be7a-456f-804b-e15425e3986e",
           "size": {
             "height": 104,
             "width": 234
@@ -140,7 +166,7 @@
         }
       ],
       "name": "All tables",
-      "zoomValue": 60,
+      "zoomValue": 74,
       "pinKeyFieldsToTop": false,
       "showExtraHeaderInfo": false,
       "hideKeyFieldsWhenCollapsed": false,
