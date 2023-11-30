@@ -25,7 +25,7 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[BusinessDomain]
         (
-            [BusinessDomainId] nvarchar (36),
+            [BusinessDomainId] uniqueidentifier,
             [BusinessDomainDisplayName] nvarchar (256),
             [HasDescription] bit,
             [GlossaryTermCount] int,
@@ -53,9 +53,9 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[BusinessDomainContactAssociation]
         (
-            [BusinessDomainId] nvarchar (36),
-            [ContactId] nvarchar (36),
-            [ContactRole] nvarchar (36),
+            [BusinessDomainId] uniqueidentifier,
+            [ContactId] uniqueidentifier,
+            [ContactRole] uniqueidentifier,
             [IsActive] bit
         )
         WITH (
@@ -73,8 +73,8 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[BusinessDomainDataProductAssociation]
         (
-            [DataProductId] nvarchar (36),
-            [BusinessDomainId] nvarchar (36),
+            [DataProductId] uniqueidentifier,
+            [BusinessDomainId] uniqueidentifier,
             [IsPrimaryDataProduct] bit
         )
         WITH (
@@ -92,8 +92,8 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[BusinessDomainTrends]
         (
-            [BusinessDomainTrendId] nvarchar (36),
-            [BusinessDomainId] nvarchar (36),
+            [BusinessDomainTrendId] uniqueidentifier,
+            [BusinessDomainId] uniqueidentifier,
             [DataProductCount] int,
             [AssetCount] bigint,
             [TotalOpenActionsCount] int,
@@ -124,9 +124,9 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[DataAsset]
         (
-            [DataAssetId] nvarchar (36),
-            [BusinessDomainId] nvarchar (36),
-            [SourceAssetId] nvarchar (36),
+            [DataAssetId] uniqueidentifier,
+            [BusinessDomainId] uniqueidentifier,
+            [SourceAssetId] uniqueidentifier,
             [DisplayName] nvarchar (256),
             [ObjectType] nvarchar (256),
             [SourceType] nvarchar (256),
@@ -154,9 +154,9 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[DataAssetContactAssociation]
         (
-            [DataAssetId] nvarchar (36),
+            [DataAssetId] uniqueidentifier,
             [ContactRole] nvarchar (64),
-            [ContactId] nvarchar (36),
+            [ContactId] uniqueidentifier,
             [IsActive] bit
         )
         WITH (
@@ -174,7 +174,7 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[DataProduct]
         (
-            [DataProductId] nvarchar (36),
+            [DataProductId] uniqueidentifier,
             [DataProductDisplayName] nvarchar (256),
             [DataProductType] nvarchar (64),
             [DataProductStatus] nvarchar (64),
@@ -210,9 +210,9 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[DataProductContactAssociation]
         (
-            [DataProductId] nvarchar (36),
-            [ContactRole] nvarchar (36),
-            [ContactId] nvarchar (36),
+            [DataProductId] uniqueidentifier,
+            [ContactRole] uniqueidentifier,
+            [ContactId] uniqueidentifier,
             [IsActive] bit
         )
         WITH (
@@ -230,8 +230,8 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[DataProductDataAssetAssociation]
         (
-            [DataAssetId] nvarchar (36),
-            [DataProductId] nvarchar (36)
+            [DataAssetId] uniqueidentifier,
+            [DataProductId] uniqueidentifier
         )
         WITH (
             LOCATION='/Sink/AssetProductAssociation/',
@@ -248,7 +248,7 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[GlossaryTerm]
         (
-            [TermId] nvarchar (36),
+            [TermId] uniqueidentifier,
             [Name] nvarchar (256),
             [Status] nvarchar (64),
             [HasDescription] bit,
@@ -273,8 +273,8 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[GlossaryTermBusinessDomainAssociation]
         (
-            [TermId] nvarchar (36),
-            [BusinessDomainId] nvarchar (36)
+            [TermId] uniqueidentifier,
+            [BusinessDomainId] uniqueidentifier
         )
         WITH (
             LOCATION='/Sink/TermDomainAssociation/',
@@ -291,9 +291,9 @@ BEGIN TRAN
     BEGIN
         CREATE EXTERNAL TABLE [@schemaName].[GlossaryTermContactAssociation]
         (
-            [TermId] nvarchar (36),
-            [ContactRole] nvarchar (36),
-            [ContactId] nvarchar (36),
+            [TermId] uniqueidentifier,
+            [ContactRole] uniqueidentifier,
+            [ContactId] uniqueidentifier,
             [IsActive] bit
         )
         WITH (

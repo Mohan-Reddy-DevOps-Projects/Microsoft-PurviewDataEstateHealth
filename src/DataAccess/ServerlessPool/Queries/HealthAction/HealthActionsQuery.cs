@@ -23,7 +23,7 @@ internal class HealthActionsQuery : BaseQuery, IServerlessQueryRequest<HealthAct
                "ActionStatus, LastRefreshedAt, CreatedAt" +
                QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) +
                "WITH (RowId nvarchar(64), ActionId nvarchar(128), DisplayName nvarchar(128), Description nvarchar(1024), HealthControlState nvarchar(32), HealthControlName nvarchar(64)," +
-               "BusinessDomainId nvarchar(64), TargetType nvarchar(128), TargetId  nvarchar(64), OwnerContactId nvarchar(64), OwnerContactDisplayName nvarchar(128), " +
+               "BusinessDomainId uniqueidentifier, TargetType nvarchar(128), TargetId  nvarchar(64), OwnerContactId nvarchar(64), OwnerContactDisplayName nvarchar(128), " +
                "ActionStatus nvarchar(32), LastRefreshedAt DateTime2, CreatedAt DateTime2)" +
                QueryConstants.ServerlessQuery.AsRows + this.FilterClause;
     }
