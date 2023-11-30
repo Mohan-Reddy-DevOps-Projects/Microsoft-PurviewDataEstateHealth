@@ -55,7 +55,7 @@ BEGIN TRAN
         (
             [BusinessDomainId] uniqueidentifier,
             [ContactId] uniqueidentifier,
-            [ContactRole] uniqueidentifier,
+            [ContactRole] nvarchar (36),
             [IsActive] bit
         )
         WITH (
@@ -211,7 +211,7 @@ BEGIN TRAN
         CREATE EXTERNAL TABLE [@schemaName].[DataProductContactAssociation]
         (
             [DataProductId] uniqueidentifier,
-            [ContactRole] uniqueidentifier,
+            [ContactRole] nvarchar (36),
             [ContactId] uniqueidentifier,
             [IsActive] bit
         )
@@ -292,7 +292,7 @@ BEGIN TRAN
         CREATE EXTERNAL TABLE [@schemaName].[GlossaryTermContactAssociation]
         (
             [TermId] uniqueidentifier,
-            [ContactRole] uniqueidentifier,
+            [ContactRole] nvarchar (36),
             [ContactId] uniqueidentifier,
             [IsActive] bit
         )
