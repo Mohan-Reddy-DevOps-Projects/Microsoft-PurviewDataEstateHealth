@@ -78,17 +78,20 @@ internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
 
     private static SparkBatchJobOptions CreateSparkJobRequestOptions(SparkJobRequest sparkJobRequest, SparkPoolConfigProperties poolConfig)
     {
-        string arguments = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(sparkJobRequest.RunManagerArgument)));
         SparkBatchJobOptions request = new(sparkJobRequest.Name, sparkJobRequest.File)
         {
             ClassName = "sample",
-            Arguments = { arguments },
             DriverMemory = poolConfig.DriverMemorySize,
             DriverCores = poolConfig.DriverCores,
             ExecutorMemory = poolConfig.ExecutorMemorySize,
             ExecutorCores = poolConfig.ExecutorCores,
             ExecutorCount = sparkJobRequest.ExecutorCount,
         };
+
+        foreach (string argv in sparkJobRequest.RunManagerArgument)
+        {
+            request.Arguments.Add(argv);
+        }
 
         foreach (KeyValuePair<string, string> item in sparkJobRequest.Configuration)
         {

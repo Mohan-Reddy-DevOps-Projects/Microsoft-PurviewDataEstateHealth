@@ -8,7 +8,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 
-internal interface IPlatformSparkJobComponent
+/// <summary>
+/// Catalog spark job component.
+/// </summary>
+public interface ICatalogSparkJobComponent
 {
     /// <summary>
     /// Submit a spark job.

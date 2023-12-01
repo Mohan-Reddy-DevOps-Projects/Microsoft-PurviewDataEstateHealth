@@ -37,7 +37,7 @@ public static class CoreLayer
 
         services.AddPowerBI();
         services.AddCommands();
-        services.AddScoped<IPlatformSparkJobComponent, PlatformSparkJobComponent>();
+        services.AddScoped<ICatalogSparkJobComponent, CatalogSparkJobComponent>();
 
 
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
