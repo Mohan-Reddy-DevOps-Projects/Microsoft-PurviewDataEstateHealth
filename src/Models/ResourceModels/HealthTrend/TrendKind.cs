@@ -19,7 +19,17 @@ public enum TrendKind
     OpenActions = 1,
 
     /// <summary>
-    /// Activity
+    /// Business domain count
     /// </summary>
-    Activity,
+    BusinessDomainCount,
+
+    /// <summary>
+    /// Data product count
+    /// </summary>
+    DataProductCount,
+
+    /// <summary>
+    /// Data asset count
+    /// </summary>
+    DataAssetCount,
 }

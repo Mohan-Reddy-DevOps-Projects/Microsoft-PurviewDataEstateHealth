@@ -201,6 +201,11 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode HealthTrends_NotAvailable = new(7006);
 
+    /// <summary>
+    /// Invalid health trend column name.
+    /// </summary>
+    public static readonly ErrorCode HealthTrends_InvalidColumnName = new(7007);
+
     #endregion
 
     #region Profile

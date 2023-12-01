@@ -24,6 +24,11 @@ public class HealthTrendKey
     }
 
     /// <summary>
+    /// The range of days to calculate the trend over.
+    /// </summary>
+    public const int TrendDuration = 30;
+
+    /// <summary>
     /// DomainId.
     /// </summary>
     public Guid? DomainId { get; set; }

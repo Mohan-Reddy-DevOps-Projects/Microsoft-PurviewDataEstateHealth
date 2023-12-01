@@ -10,7 +10,7 @@ using Microsoft.DGP.ServiceBasics.Components;
 /// <summary>
 /// Defines a contract for managing health trend collections.
 /// </summary>
-public interface IHealthTrendComponent : IRetrieveEntityOperations<IHealthTrendModel, TrendKind>,
+public interface IHealthTrendComponent : IRetrieveEntityByIdOperation<TrendKind, IHealthTrendModel>,
     INavigable<Guid, IHealthTrendComponent>, IComponent<IHealthTrendContext>
 {
 }

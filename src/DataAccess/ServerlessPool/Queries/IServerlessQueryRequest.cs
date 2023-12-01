@@ -28,7 +28,12 @@ public interface IServerlessQueryRequest<out TIntermediate, out TEntity>
     string Query { get; }
 
     /// <summary>
-    /// Filter clause.
+    /// Select clause
+    /// </summary>
+    string SelectClause { get; set; }
+
+    /// <summary>
+    /// Filter clause
     /// </summary>
     string FilterClause { get; set; }
 
@@ -38,12 +43,12 @@ public interface IServerlessQueryRequest<out TIntermediate, out TEntity>
     string QueryPath { get; }
 
     /// <summary>
-    /// Parse row.
+    /// Parse row
     /// </summary>
     TIntermediate ParseRow(IDataRecord row);
 
     /// <summary>
-    /// Finalize.
+    /// Finalize
     /// </summary>
     public IEnumerable<TEntity> Finalize(dynamic items);
 }

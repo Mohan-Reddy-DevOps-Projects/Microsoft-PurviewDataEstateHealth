@@ -21,7 +21,7 @@ internal class ServerlessQueryRequestBuilder : IServerlessQueryRequestBuilder
     }
 
     /// <inheritdoc/>
-    public IServerlessQueryRequest<BaseRecord, BaseEntity> Build<TRecord>(string containerPath, Action<ClauseBuilder> buildFilter = null)
+    public IServerlessQueryRequest<BaseRecord, BaseEntity> Build<TRecord>(string containerPath, Action<ClauseBuilder> buildFilter = null, string selectClause = "")
         where TRecord : BaseRecord, new()
     {
         if (string.IsNullOrEmpty(containerPath))
@@ -35,6 +35,7 @@ internal class ServerlessQueryRequestBuilder : IServerlessQueryRequestBuilder
         IServerlessQueryRequest<BaseRecord, BaseEntity> serverlessQueryRequest = ServerlessQueryRegistry.Instance.CreateQueryFor(typeof(TRecord));
         serverlessQueryRequest.Database = this.serverlessPoolConfig.Database;
         serverlessQueryRequest.ContainerPath = containerPath;
+        serverlessQueryRequest.SelectClause = selectClause;
         serverlessQueryRequest.FilterClause = clauseBuilder.ToString();
 
         return serverlessQueryRequest;
@@ -55,6 +56,12 @@ internal sealed class ClauseBuilder
     {
         this.AppendClause(QueryConstants.WhereClause, left, right, sqlOperator);
 
+        return this;
+    }
+
+    public ClauseBuilder WhereBetweenClause(string columnName, string left, string right)
+    {
+        this.filterClause.Append($"{QueryConstants.WhereClause} {columnName} BETWEEN '{left}' AND '{right}' ");
         return this;
     }
 

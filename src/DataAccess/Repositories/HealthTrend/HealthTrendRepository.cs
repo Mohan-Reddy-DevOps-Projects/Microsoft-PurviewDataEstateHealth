@@ -34,10 +34,33 @@ internal class HealthTrendRepository : IHealthTrendRepository
         this.location = location;
     }
 
-    public Task<IHealthTrendModel> GetSingle(HealthTrendKey healthTrendKey, CancellationToken cancellationToken)
+    public async Task<IHealthTrendModel> GetSingle(HealthTrendKey healthTrendKey, CancellationToken cancellationToken)
     {
-        // TODO (Hope) - Implement in next PR, for now trigger ResourceNotFound error
-        return null;
+        string containerPath = await this.ConstructContainerPath(healthTrendKey.CatalogId.ToString(), healthTrendKey.AccountId, cancellationToken);
+
+        IServerlessQueryRequest<BaseRecord, BaseEntity> query;
+
+        string selectClause = QueryConstants.HealthTrendKindToColumnName[healthTrendKey.TrendKind];
+        string today = DateTime.UtcNow.Date.ToString();
+        string thirtyDaysAgo = DateTime.UtcNow.Date.AddDays(-1 * HealthTrendKey.TrendDuration).ToString();
+
+        if (healthTrendKey == null || !healthTrendKey.DomainId.HasValue)
+        {
+            query = this.queryRequestBuilder.Build<HealthTrendRecordForAllBusinessDomains>(containerPath, clauseBuilder =>
+            {
+                clauseBuilder.WhereBetweenClause(QueryConstants.HealthTrendsColumnNamesForKey.LastRefreshedAt, thirtyDaysAgo, today);
+            }, selectClause) as HealthTrendsQueryForAllBusinessDomains;
+        } else
+        {
+            // TODO (Hope) - Implement in the next PR, for now trigger ResourceNotFoundException
+            return null;
+        }
+
+        IList<BaseEntity> healthTrendEntity = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+
+        return this.modelAdapterRegistry
+            .AdapterFor<IHealthTrendModel, HealthTrendEntity>()
+            .ToModel(healthTrendEntity.FirstOrDefault() as HealthTrendEntity);
     }
 
     public IHealthTrendRepository ByLocation(string location)

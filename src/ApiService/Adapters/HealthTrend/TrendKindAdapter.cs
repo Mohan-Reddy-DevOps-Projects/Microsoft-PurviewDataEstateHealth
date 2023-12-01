@@ -23,8 +23,12 @@ public static class TrendKindAdapter
         {
             case TrendKind.OpenActions:
                 return DataTransferObjects.TrendKind.OpenActions;
-            case TrendKind.Activity:
-                return DataTransferObjects.TrendKind.Activity;
+            case TrendKind.BusinessDomainCount:
+                return DataTransferObjects.TrendKind.BusinessDomainCount;
+            case TrendKind.DataProductCount:
+                return DataTransferObjects.TrendKind.DataProductCount;
+            case TrendKind.DataAssetCount:
+                return DataTransferObjects.TrendKind.DataAssetCount;
             default:
                 throw new InvalidEnumArgumentException(nameof(model), (int)model, typeof(TrendKind));
         }
@@ -41,8 +45,12 @@ public static class TrendKindAdapter
         {
             case DataTransferObjects.TrendKind.OpenActions:
                 return TrendKind.OpenActions;
-            case DataTransferObjects.TrendKind.Activity:
-                return TrendKind.Activity;
+            case DataTransferObjects.TrendKind.BusinessDomainCount:
+                return TrendKind.BusinessDomainCount;
+            case DataTransferObjects.TrendKind.DataProductCount:
+                return TrendKind.DataProductCount;
+            case DataTransferObjects.TrendKind.DataAssetCount:
+                return TrendKind.DataAssetCount;
             default:
                 throw new InvalidEnumArgumentException(
                     nameof(dto),

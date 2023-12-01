@@ -19,8 +19,6 @@ internal class HealthTrendEntityAdapter : BaseModelAdapter<IHealthTrendModel, He
         {
             Kind = model.Kind,
             Description = model.Description,
-            Duration = model.Duration,
-            Unit = model.Unit,
             Delta = model.Delta,
             TrendValuesList = model.TrendValuesList,
         };
@@ -37,8 +35,6 @@ internal class HealthTrendEntityAdapter : BaseModelAdapter<IHealthTrendModel, He
         {
             Kind = entity.Kind,
             Description = entity.Description,
-            Duration = entity.Duration,
-            Unit = entity.Unit,
             Delta = entity.Delta,
             TrendValuesList = entity.TrendValuesList,
         };

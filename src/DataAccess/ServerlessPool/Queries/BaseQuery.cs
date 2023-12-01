@@ -15,12 +15,17 @@ public class BaseQuery
     public string Database { get; set; }
 
     /// <summary>
-    /// Container path.
+    /// Container path
     /// </summary>
     public string ContainerPath { get; set; }
 
     /// <summary>
-    /// Filter clause.
+    /// Select clause
+    /// </summary>
+    public string SelectClause { get; set; }
+
+    /// <summary>
+    /// Filter clause
     /// </summary>
     public string FilterClause { get; set; }
 }

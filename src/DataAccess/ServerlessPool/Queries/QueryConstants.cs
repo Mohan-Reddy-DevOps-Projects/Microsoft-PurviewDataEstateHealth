@@ -4,6 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
+
 internal class QueryConstants
 {
     // Filter value sent by the API user to filter on empty values
@@ -60,4 +62,20 @@ internal class QueryConstants
     {
         public static readonly string BusinessDomainId = "BusinessDomainId";
     }
+
+    public class HealthTrendsColumnNamesForKey
+    {
+        public static readonly string OpenActions = "TotalOpenActionsCount";
+        public static readonly string BusinessDomainCount = "BusinessDomainCount";
+        public static readonly string DataProductCount = "DataProductCount";
+        public static readonly string DataAssetCount = "AssetCount";
+        public static readonly string LastRefreshedAt = "LastRefreshedAt";
+    }
+
+    public static readonly Dictionary<TrendKind, string> HealthTrendKindToColumnName = new Dictionary<TrendKind, string>() {
+        { TrendKind.OpenActions, HealthTrendsColumnNamesForKey.OpenActions },
+        { TrendKind.BusinessDomainCount, HealthTrendsColumnNamesForKey.BusinessDomainCount },
+        { TrendKind.DataProductCount, HealthTrendsColumnNamesForKey.DataProductCount },
+        { TrendKind.DataAssetCount, HealthTrendsColumnNamesForKey.DataAssetCount },
+    };
 }

@@ -46,6 +46,9 @@ internal class HealthTrendComponent : BaseComponent<IHealthTrendContext>, IHealt
            new HealthTrendKey(this.Context.DomainId, this.Context.AccountId, new Guid(this.requestHeaderContext.CatalogId), trendKind),
            cancellationToken);
 
+        healthTrendModel.Duration = $"{HealthTrendKey.TrendDuration} days";
+        healthTrendModel.Unit = "";
+
         if (healthTrendModel == null)
         {
             throw new ServiceError(
