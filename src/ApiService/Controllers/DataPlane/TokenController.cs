@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
@@ -45,19 +46,24 @@ public class TokenController : DataPlaneController
     /// <summary>
     /// Generates an embed token for multiple reports, datasets, and target workspaces.
     /// </summary>
+    /// <param name="tokenRequest"></param>
     /// <param name="apiVersion">The api version of the call</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpPost]
     [ProducesResponseType(typeof(EmbedToken), 200)]
     public async Task<IActionResult> PostToken(
+        [FromBody] TokenRequest tokenRequest,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        EmbedToken response = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
+        ITokenComponent component = this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
             .CreateTokenComponent(
                 this.requestHeaderContext.TenantId,
-                this.requestHeaderContext.AccountObjectId, "health").Get(cancellationToken);
+                this.requestHeaderContext.AccountObjectId, "health");
+
+
+        EmbedToken response = await component.Get(tokenRequest.ToModel(), cancellationToken);
 
         return this.Ok(response);
     }

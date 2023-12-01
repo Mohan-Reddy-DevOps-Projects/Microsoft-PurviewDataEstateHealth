@@ -69,7 +69,7 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
                 Name = x.Name,
                 ReportKind = HealthReportKind.PowerBIHealthReport,
                 ReportStatus = HealthResourceStatus.Active,
-                ReportType = HealthResourceType.System
+                ReportType = HealthReportNames.System.Contains(x.Name) ? HealthResourceType.System : HealthResourceType.Custom
             }
         });
 

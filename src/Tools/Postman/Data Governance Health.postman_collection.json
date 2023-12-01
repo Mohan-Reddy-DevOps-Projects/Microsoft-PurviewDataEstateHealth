@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "fc49be7c-7c24-48a8-b1e3-9b47421eadc1",
+		"_postman_id": "3b9e2870-f60a-4d9b-a54a-741f62fe4a43",
 		"name": "Data Governance Health",
 		"description": "Creates a Microsoft.Purview.Insights management client.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -73,7 +73,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"id\": \"{{accountId}}\",\r\n    \"tenantId\" : \"{{tenantId}}\",\r\n    \"defaultCatalogId\": \"{{catalogId}}\",\r\n    \"location\": \"westus2\"\r\n}",
+							"raw": "{\r\n    \"id\": \"{{accountId}}\",\r\n    \"tenantId\" : \"{{tenantId}}\",\r\n    \"defaultCatalogId\": \"{{catalogId}}\",\r\n    \"location\": \"westus\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -292,6 +292,15 @@
 						"type": "text"
 					}
 				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"reportIds\": [\r\n        \"c0055cf4-e338-434f-90f9-6a82bdf6bdc2\"\r\n    ],\r\n    \"datasetIds\": [\r\n        \"f9f6d478-9aa0-4ad2-a51d-dd97b7ab467d\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
 					"raw": "{{baseUrl}}/token?api-version={{api-version}}",
 					"host": [

@@ -34,12 +34,17 @@ public sealed class EmbeddedTokenRequest
     public int LifetimeInMinutes { get; set; }
 
     /// <summary>
+    /// Enable writer permission
+    /// </summary>
+    public bool EnableWriterPermission { get; set; }
+
+    /// <summary>
     /// Convert to PowerBI SDK resource
     /// </summary>
     /// <returns></returns>
     public GenerateTokenRequestV2 ToResource()
     {
-        return BuildTokenRequest(this.DatasetIds, this.ReportIds, this.LifetimeInMinutes);
+        return BuildTokenRequest(this.DatasetIds, this.ReportIds, this.LifetimeInMinutes, this.EnableWriterPermission);
     }
 
     /// <summary>
@@ -48,8 +53,9 @@ public sealed class EmbeddedTokenRequest
     /// <param name="datasetIds"></param>
     /// <param name="reportIds"></param>
     /// <param name="lifetimeInMinutes"></param>
+    /// <param name="enableWriterPermission"></param>
     /// <returns></returns>
-    private static GenerateTokenRequestV2 BuildTokenRequest(Guid[] datasetIds, Guid[] reportIds, int lifetimeInMinutes)
+    private static GenerateTokenRequestV2 BuildTokenRequest(Guid[] datasetIds, Guid[] reportIds, int lifetimeInMinutes, bool enableWriterPermission)
     {
         return new GenerateTokenRequestV2()
         {
@@ -60,6 +66,7 @@ public sealed class EmbeddedTokenRequest
             Reports = reportIds.Select(x => new GenerateTokenRequestV2Report()
             {
                 Id = x,
+                AllowEdit = enableWriterPermission,
             }).ToList(),
             LifetimeInMinutes = lifetimeInMinutes,
         };

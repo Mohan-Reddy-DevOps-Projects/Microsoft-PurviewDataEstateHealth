@@ -81,7 +81,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
         }
 
-        string reportName = "Data governance";
+        string reportName = HealthReportNames.DataGovernance;
         IDatasetRequest datasetRequest = new DatasetRequest()
         {
             ProfileId = profile.Id,

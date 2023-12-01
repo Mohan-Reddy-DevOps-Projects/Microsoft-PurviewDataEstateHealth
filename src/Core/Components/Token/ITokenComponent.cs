@@ -4,13 +4,20 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.PowerBI.Api.Models;
 
 /// <summary>
 /// Token Component contract.
 /// </summary>
-public interface ITokenComponent : IRetrieveEntityOperation<EmbedToken>,
-    IComponent<ITokenContext>
+public interface ITokenComponent : IComponent<ITokenContext>
 {
+    /// <summary>
+    /// Get token.
+    /// </summary>
+    /// <param name="tokenModel"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<EmbedToken> Get(TokenModel tokenModel, CancellationToken cancellationToken);
 }

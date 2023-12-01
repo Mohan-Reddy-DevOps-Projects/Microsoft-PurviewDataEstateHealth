@@ -60,7 +60,7 @@ internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHea
                 Name = report.Name,
                 ReportKind = HealthReportKind.PowerBIHealthReport,
                 ReportStatus = HealthResourceStatus.Active,
-                ReportType = HealthResourceType.System
+                ReportType = HealthReportNames.System.Contains(report.Name) ? HealthResourceType.System : HealthResourceType.Custom
             }
         };
     }
