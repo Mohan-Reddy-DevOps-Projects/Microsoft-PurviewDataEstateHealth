@@ -57,16 +57,17 @@ public class RequestHeaderContext : IRequestHeaderContext
     /// </summary>
     public RequestHeaderContext(IHttpContextAccessor httpContextAccessor)
     {
+        this.HttpContent = httpContextAccessor?.HttpContext;   
         IHeaderDictionary headers = httpContextAccessor?.HttpContext?.Request?.Headers;
 
         this.CorrelationId = headers.GetFirstOrDefault(RequestCorrelationContext.HeaderCorrelationRequestId);
-        this.ForwardedUrl = headers.GetFirstOrDefault(RequestHeaderContext.ForwardedUrlHeader);
+        this.ForwardedUrl = headers.GetFirstOrDefault(ForwardedUrlHeader);
 
-        this.AccountName = headers.GetFirstOrDefault(RequestHeaderContext.AccountNameHeader);
-        this.AccountObjectId = headers.GetFirstOrDefaultGuid(RequestHeaderContext.AccountIdHeader);
-        this.AccountUserActions = headers.GetFirstOrDefault(RequestHeaderContext.AccountUserActionsHeader);
-        this.AccountResourceId = headers.GetFirstOrDefault(RequestHeaderContext.AccountResourceIdHeader);
-        this.CatalogId = headers.GetFirstOrDefault(RequestHeaderContext.CatalogIdHeader);
+        this.AccountName = headers.GetFirstOrDefault(AccountNameHeader);
+        this.AccountObjectId = headers.GetFirstOrDefaultGuid(AccountIdHeader);
+        this.AccountUserActions = headers.GetFirstOrDefault(AccountUserActionsHeader);
+        this.AccountResourceId = headers.GetFirstOrDefault(AccountResourceIdHeader);
+        this.CatalogId = headers.GetFirstOrDefault(CatalogIdHeader);
 
         this.ClientAudience = headers.GetFirstOrDefault(RequestCorrelationContext.HeaderClientAudience);
         this.ClientScope = headers.GetFirstOrDefault(RequestCorrelationContext.HeaderClientScope);
@@ -76,35 +77,35 @@ public class RequestHeaderContext : IRequestHeaderContext
             .Last();
         this.ClientAppIdAcr = headers.GetFirstOrDefault(RequestCorrelationContext.HeaderClientAppIdAcr);
         this.ClientAppId = headers.GetFirstOrDefault(RequestCorrelationContext.HeaderClientAppId);
-        this.TenantId = headers.GetFirstOrDefaultGuid(RequestHeaderContext.HeaderClientTenantId);
-        this.ClientSubject = headers.GetFirstOrDefault(RequestHeaderContext.HeaderClientSubject);
+        this.TenantId = headers.GetFirstOrDefaultGuid(HeaderClientTenantId);
+        this.ClientSubject = headers.GetFirstOrDefault(HeaderClientSubject);
         this.ClientIssuer = headers.GetFirstOrDefault(RequestCorrelationContext.HeaderClientIssuer);
-        this.ClientGroups = headers.GetFirstOrDefault(RequestHeaderContext.HeaderClientGroups);
-        this.ClientClaimNames = headers.GetFirstOrDefault(RequestHeaderContext.HeaderClaimNames);
-        this.ClientResourceId = headers.GetFirstOrDefault(RequestHeaderContext.HeaderClientResourceId);
+        this.ClientGroups = headers.GetFirstOrDefault(HeaderClientGroups);
+        this.ClientClaimNames = headers.GetFirstOrDefault(HeaderClaimNames);
+        this.ClientResourceId = headers.GetFirstOrDefault(HeaderClientResourceId);
         this.ApiVersion =
             httpContextAccessor?.HttpContext?.Request?.GetFirstOrDefaultQuery(
                 RequestCorrelationContext.ParameterApiVersion);
-        this.ClientGivenName = RequestHeaderContext.DecodeBase64String(
+        this.ClientGivenName = DecodeBase64String(
             httpContextAccessor?.HttpContext?.Request?.Headers.GetFirstOrDefault(
                 RequestCorrelationContext.HeaderGivenNameEncoded),
             RequestCorrelationContext.HeaderGivenNameEncoded,
             string.Empty);
-        this.ClientFamilyName = RequestHeaderContext.DecodeBase64String(
+        this.ClientFamilyName = DecodeBase64String(
             httpContextAccessor?.HttpContext?.Request?.Headers.GetFirstOrDefault(
                 RequestCorrelationContext.HeaderFamilyNameEncoded),
             RequestCorrelationContext.HeaderFamilyNameEncoded,
             string.Empty);
         this.ClientPuid =
             httpContextAccessor?.HttpContext?.Request?.Headers.GetFirstOrDefault(
-                RequestHeaderContext.HeaderClientPuid);
+                HeaderClientPuid);
 
         this.AuthorizationObligationType =
-            headers.GetFirstOrDefault(RequestHeaderContext.HeaderAccountObligationType);
-        this.AuthorizationObligations = headers.GetFirstOrDefault(RequestHeaderContext.HeaderAccountObligations);
+            headers.GetFirstOrDefault(HeaderAccountObligationType);
+        this.AuthorizationObligations = headers.GetFirstOrDefault(HeaderAccountObligations);
 
-        string accountSkuName = headers.GetFirstOrDefault(RequestHeaderContext.AccountSkuName) ?? "";
-        string accountReconciled = headers.GetFirstOrDefault(RequestHeaderContext.AccountReconciled) ?? "";
+        string accountSkuName = headers.GetFirstOrDefault(AccountSkuName) ?? "";
+        string accountReconciled = headers.GetFirstOrDefault(AccountReconciled) ?? "";
         this.PurviewAccountSku = accountSkuName.EqualsOrdinalInsensitively("Free") 
                             ? PurviewAccountSku.Free 
                             : accountReconciled.EqualsOrdinalInsensitively("1") 
@@ -130,6 +131,9 @@ public class RequestHeaderContext : IRequestHeaderContext
             this.RequestCorrelationContext.SetTenantId(this.TenantId.ToString());
         }
     }
+
+    /// <inheritdoc />
+    public HttpContext HttpContent { get; init; }
 
     /// <inheritdoc />
     public string CorrelationId { get; set; }

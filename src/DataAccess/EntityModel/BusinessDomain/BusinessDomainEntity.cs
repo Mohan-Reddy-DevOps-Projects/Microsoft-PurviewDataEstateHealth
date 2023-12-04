@@ -4,24 +4,22 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 
-internal class BusinessDomainEntity : BaseEntity
+/// <summary>
+/// Business domain entity.
+/// </summary>
+public class BusinessDomainEntity
 {
-    public BusinessDomainEntity()
-    {
-    }
-
-    public BusinessDomainEntity(BusinessDomainEntity entity)
-    {
-        this.BusinessDomainId = entity.BusinessDomainId;
-        this.BusinessDomainName = entity.BusinessDomainName;
-    }
-
-    [JsonProperty("businessDomainName")]
-    public string BusinessDomainName { get; set; }
-
-    [JsonProperty("businessDomainId")]
+    /// <summary>
+    /// Gets or sets the business domain id.
+    /// </summary>
+    [Key]
     public Guid BusinessDomainId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the business domain name.
+    /// </summary>
+    public string BusinessDomainDisplayName { get; set; }
 }
 

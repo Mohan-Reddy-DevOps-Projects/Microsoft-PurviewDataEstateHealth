@@ -58,12 +58,14 @@ public static class DataAccessLayer
         services.AddSingleton<IServerlessPoolClient, ServerlessPoolClient>();
         services.AddSingleton<IServerlessQueryRequestBuilder, ServerlessQueryRequestBuilder>();
         services.AddSingleton<IServerlessQueryExecutor, ServerlessQueryExecutor>();
+        services.AddSingleton<IServerlessPoolDataProvider, ServerlessPoolDataProvider>();
+        services.AddSingleton<SynapseSqlContextFactory>();
+        services.AddSingleton<IODataModelProvider, ODataModelProvider>();
         services.AddSingleton<ISparkPoolRepository<SparkPoolModel>, SynapseSparkPoolRepository>();
 
         services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
         services.AddScoped<IHealthActionRepository, HealthActionRepository>();
         services.AddScoped<IHealthScoreRepository, HealthScoreRepository>();
-        services.AddScoped<IBusinessDomainRepository, BusinessDomainRepository>();
         services.AddScoped<IHealthControlRepository, HealthControlRepository>();
         services.AddScoped<IArtifactStoreAccessorServiceBuilder, ArtifactStoreAccessorServiceBuilder>();
         services.AddScoped<IHealthTrendRepository, HealthTrendRepository>();

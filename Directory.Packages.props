@@ -33,6 +33,7 @@
     <PackageVersion Include="Microsoft.Azure.Purview.ExposureControlLibrary" Version="1.0.325" />
     <PackageVersion Include="Microsoft.Azure.Services.AppAuthentication" Version="1.6.2" />
     <PackageVersion Include="Microsoft.Data.DeltaLake" Version="3.0.0.15" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.14" />
     <PackageVersion Include="Microsoft.Purview.ArtifactStoreClient" Version="3.0.11" />
     <PackageVersion Include="Parquet.Net" Version="4.6.2" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="5.0.0" />

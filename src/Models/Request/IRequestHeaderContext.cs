@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 using System;
+using Microsoft.AspNetCore.Http;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 
 /// <summary>
@@ -12,6 +13,11 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 /// </summary>
 public interface IRequestHeaderContext
 {
+    /// <summary>
+    /// Http Context
+    /// </summary>
+    HttpContext HttpContent { get; }
+
     /// <summary>
     /// Request Correlation Id
     /// </summary>

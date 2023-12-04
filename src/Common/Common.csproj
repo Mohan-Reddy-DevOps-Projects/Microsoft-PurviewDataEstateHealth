@@ -2,16 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-	  <Platforms>x64</Platforms>
+    <Platforms>x64</Platforms>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.Common</RootNamespace>
-	  <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Common</AssemblyName>
+    <RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.Common</RootNamespace>
+    <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Common</AssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Azure.Identity" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" />
     <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" />
     <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
     <PackageReference Include="Microsoft.Data.DeltaLake" />
@@ -21,5 +24,5 @@
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Polly.Contrib.WaitAndRetry" />
   </ItemGroup>
-
+  
 </Project>
