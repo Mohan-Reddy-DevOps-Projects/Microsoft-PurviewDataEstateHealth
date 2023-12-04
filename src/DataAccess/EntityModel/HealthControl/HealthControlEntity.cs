@@ -4,29 +4,69 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using global::Microsoft.Azure.Purview.DataEstateHealth.Models;
+using System;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Newtonsoft.Json;
 
-[JsonConverter(typeof(HealthControlEntityConverter))]
-internal class HealthControlEntity : BaseEntity
+internal class HealthControlEntity : IHealthControlSqlEntity, IHealthControlArtifactStoreEntity
 {
-    public HealthControlEntity()
-    {
-    }
-
-    public HealthControlEntity(HealthControlEntity entity)
-    {
-        this.CurrentScore = entity.CurrentScore;
-        this.LastRefreshedAt = entity.LastRefreshedAt;
-        this.Kind = entity.Kind;
-    }
-
     [JsonProperty("kind")]
-    public HealthControlKind Kind { get; set; }
+    public HealthControlKind HealthControlKind { get; set; }
 
     [JsonProperty("currentScore")]
     public double CurrentScore { get; set; }
 
     [JsonProperty("LastRefreshedAt")]
     public DateTime LastRefreshedAt { get; set; }
+
+    [JsonProperty("objectId")]
+    public Guid ObjectId { get; set; }
+
+    [JsonProperty("version")]
+    public string Version { get; set; }
+
+    [JsonProperty("createdAt")]
+    public DateTime CreatedAt { get; set; }
+
+    [JsonProperty("modifiedAt")]
+    public DateTime ModifiedAt { get; set; }
+
+    [JsonProperty("name")]
+    public string Name { get; set; }
+
+    [JsonProperty("parentControlId")]
+    public Guid ParentControlId { get; set; }
+
+    [JsonProperty("description")]
+    public string Description { get; set; }
+
+    [JsonProperty("isCompositeControl")]
+    public bool IsCompositeControl { get; set; }
+
+    [JsonProperty("controlType")]
+    public HealthResourceType ControlType { get; set; }
+
+    [JsonProperty("ownerContact")]
+    public OwnerContact OwnerContact { get; set; }
+
+    [JsonProperty("targetScore")]
+    public int TargetScore { get; set; }
+
+    [JsonProperty("scoreUnit")]
+    public string ScoreUnit { get; set; }
+
+    [JsonProperty("healthStatus")]
+    public string HealthStatus { get; set; }
+
+    [JsonProperty("controlStatus")]
+    public HealthResourceStatus ControlStatus { get; set; }
+
+    [JsonProperty("startsAt")]
+    public DateTime StartsAt { get; set; }
+
+    [JsonProperty("endsAt")]
+    public DateTime EndsAt { get; set; }
+
+    [JsonProperty("trendUrl")]
+    public string TrendUrl { get; set; }
 }

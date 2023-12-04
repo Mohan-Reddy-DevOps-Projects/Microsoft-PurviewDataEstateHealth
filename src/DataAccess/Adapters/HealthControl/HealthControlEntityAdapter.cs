@@ -4,36 +4,70 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.DGP.ServiceBasics.Adapters;
-using Microsoft.DGP.ServiceBasics.Errors;
+using global::Microsoft.Azure.Purview.DataEstateHealth.Models;
+using global::Microsoft.DGP.ServiceBasics.Adapters;
 
-[ModelAdapter(typeof(IHealthControlModel<HealthControlProperties>), typeof(HealthControlEntity))]
-internal class HealthControlEntityAdapter : BaseModelAdapter<IHealthControlModel<HealthControlProperties>, HealthControlEntity>
+/// <summary>
+/// Adapter for HealthControlEntity to HealthControlModel conversions and vice versa.
+/// </summary>
+[ModelAdapter(typeof(HealthControlModel), typeof(HealthControlEntity))]
+internal class HealthControlEntityAdapter : BaseModelAdapter<HealthControlModel, HealthControlEntity>
 {
-    public override HealthControlEntity FromModel(IHealthControlModel<HealthControlProperties> model)
+    public override HealthControlEntity FromModel(HealthControlModel model)
     {
-        return this.Builder.AdapterFor<IHealthControlModel<HealthControlProperties>, HealthControlEntity>(
-            model.GetType(),
-            HealthControlEntityRegistry.Instance.CreateHealthControlEntity(model.Properties.Kind).GetType())
-            .FromModel<HealthControlEntity>(model);
+        return new HealthControlEntity()
+        {
+            CurrentScore = model.CurrentScore,
+            LastRefreshedAt = model.LastRefreshedAt,
+            ControlStatus = model.ControlStatus,
+            ControlType = model.ControlType,
+            CreatedAt = model.CreatedAt,
+            Description = model.Description,
+            EndsAt = model.EndsAt,
+            HealthStatus = model.HealthStatus,
+            IsCompositeControl = model.IsCompositeControl,
+            ModifiedAt = model.ModifiedAt,
+            Name = model.Name,
+            ObjectId = model.Id,
+            OwnerContact = model.OwnerContact,
+            ParentControlId = model.ParentControlId,
+            ScoreUnit = model.ScoreUnit,
+            StartsAt = model.StartsAt,
+            TargetScore = model.TargetScore,
+            TrendUrl = model.TrendUrl,
+            HealthControlKind = model.Kind,
+            Version = null,
+        };
     }
 
-    public override IHealthControlModel<HealthControlProperties> ToModel(HealthControlEntity entity)
+    public override HealthControlModel ToModel(HealthControlEntity entity)
     {
         if (entity == null)
         {
-            throw new ServiceError(
-                    ErrorCategory.InputError,
-                    ErrorCode.MissingField.Code,
-                    ErrorCode.MissingField.FormatMessage("HealthControl entity"))
-                .ToException();
+            return null;
         }
 
-        return this.Builder.AdapterFor<IHealthControlModel<HealthControlProperties>, HealthControlEntity>(
-            HealthControlModelRegistry.Instance.CreateHealthControlModelFor(entity.Kind).GetType(),
-            entity.GetType())
-            .ToModel<IHealthControlModel<HealthControlProperties>>(entity);
+        return new HealthControlModel()
+        {
+            Kind = entity.HealthControlKind,
+            CurrentScore = entity.CurrentScore,
+            LastRefreshedAt = entity.LastRefreshedAt,
+            Id = entity.ObjectId,
+            ControlStatus = entity.ControlStatus,
+            ControlType = entity.ControlType,
+            CreatedAt = entity.CreatedAt,
+            Description = entity.Description,
+            EndsAt = entity.EndsAt,
+            HealthStatus = entity.HealthStatus,
+            IsCompositeControl = entity.IsCompositeControl,
+            Name = entity.Name,
+            OwnerContact = entity.OwnerContact,
+            ScoreUnit = entity.ScoreUnit,
+            StartsAt = entity.StartsAt,
+            TargetScore = entity.TargetScore,
+            TrendUrl = entity.TrendUrl,
+            ModifiedAt = entity.ModifiedAt,
+            ParentControlId = entity.ParentControlId,
+        };
     }
 }

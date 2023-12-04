@@ -5,17 +5,23 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using global::Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Newtonsoft.Json;
 
-[HealthControlEntity(HealthControlKind.DataGovernance)]
-internal class DataGovernanceHealthControlEntity : HealthControlEntity
+internal class HealthControlSqlEntity : BaseEntity, IHealthControlSqlEntity 
 {
-    public DataGovernanceHealthControlEntity()
+    public HealthControlSqlEntity()
     {
     }
 
-    public DataGovernanceHealthControlEntity(DataGovernanceHealthControlEntity entity)
+    public HealthControlSqlEntity(HealthControlSqlEntity entity)
     {
         this.CurrentScore = entity.CurrentScore;
         this.LastRefreshedAt = entity.LastRefreshedAt;
     }
+
+    [JsonProperty("currentScore")]
+    public double CurrentScore { get; set; }
+
+    [JsonProperty("LastRefreshedAt")]
+    public DateTime LastRefreshedAt { get; set; }
 }

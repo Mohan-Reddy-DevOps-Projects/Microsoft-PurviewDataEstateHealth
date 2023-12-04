@@ -10,7 +10,7 @@ namespace Microsoft.Azure.Purview.DataAccess.DataAccess;
 public enum DataEstateHealthEntityTypes
 {
     /// <summary>
-    /// DataHealthEstateControl type persisted in Artifact store.
+    /// DataEstateHealthControl type persisted in Artifact store.
     /// </summary>
-    DataHealthEstateControl = 1,
+    DataEstateHealthControl = 1,
 }

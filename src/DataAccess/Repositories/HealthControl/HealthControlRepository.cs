@@ -14,7 +14,6 @@ using Microsoft.Purview.ArtifactStoreClient.Models;
 using Microsoft.Purview.ArtifactStoreClient;
 using Newtonsoft.Json;
 using Microsoft.Azure.Purview.DataAccess.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.EntityModel.HealthControl;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 
 internal class HealthControlRepository : IHealthControlRepository
@@ -45,29 +44,29 @@ internal class HealthControlRepository : IHealthControlRepository
         this.artifactStoreAccessorService = artifactStoreAccessorServiceBuilder.Build();
     }
 
-    public async Task<IBatchResults<IHealthControlModel<HealthControlProperties>>> GetMultiple(
+    public async Task<IBatchResults<HealthControlModel>> GetMultiple(
          HealthControlKey healthControlKey,
          CancellationToken cancellationToken,
          string continuationToken = null)
     {
-        var healthControlEntitiesList = JsonConvert.DeserializeObject<IList<HealthControlEntity>>(healthControlChildDataJson);
+        var healthControlSqlEntitiesList = JsonConvert.DeserializeObject<IList<HealthControlSqlEntity>>(healthControlChildDataJson);
 
-        var healthControlsModelList = new List<IHealthControlModel<HealthControlProperties>>();
-        foreach (var healthControlsEntity in healthControlEntitiesList)
+        var healthControlsModelList = new List<HealthControlModel>();
+        foreach (var healthControlsEntity in healthControlSqlEntitiesList)
         {
             healthControlsModelList.Add(this.modelAdapterRegistry
-                               .AdapterFor<IHealthControlModel<HealthControlProperties>, HealthControlEntity>()
+                               .AdapterFor<HealthControlModel, HealthControlSqlEntity>()
                                               .ToModel(healthControlsEntity));
         }
 
-        return await Task.FromResult(new BaseBatchResults<IHealthControlModel<HealthControlProperties>>
+        return await Task.FromResult(new BaseBatchResults<HealthControlModel>
         {
             Results = healthControlsModelList,
             ContinuationToken = null
         });
     }
 
-    public async Task<IBatchResults<IHealthControlModel<HealthControlProperties>>> GetMultiple(
+    public async Task<IBatchResults<HealthControlModel>> GetMultiple(
         HealthControlsKey healthControlsKey,
         CancellationToken cancellationToken,
         string continuationToken = null)
@@ -78,9 +77,9 @@ internal class HealthControlRepository : IHealthControlRepository
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-        IList<DataGovernanceHealthControlEntity> healthControlEntititiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+        IList<HealthControlSqlEntity> healthControlEntititiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
-        var nameFilter = new IndexedPropertyEqualityFilter(
+        var parentControlIdFilter = new IndexedPropertyEqualityFilter(
             $"{nameof(HealthControlArtifactStoreEntity.ParentControlId).UncapitalizeFirstChar()}",
             Guid.Empty.ToString(),
             true);
@@ -88,29 +87,54 @@ internal class HealthControlRepository : IHealthControlRepository
         ArtifactStoreEntityQueryResult<HealthControlArtifactStoreEntity> entityList =
             await this.artifactStoreAccessorService.ListResourcesByCategoryAsync<HealthControlArtifactStoreEntity>(
                 accountId: healthControlsKey.AccountId,
-                entityType: DataEstateHealthEntityTypes.DataHealthEstateControl.ToString(),
-                filterText: new List<string>() { nameFilter.Predicate },
-                parameters: nameFilter.Parameters,
+                entityType: DataEstateHealthEntityTypes.DataEstateHealthControl.ToString(),
+                filterText: new List<string>() { parentControlIdFilter.Predicate },
+                parameters: parentControlIdFilter.Parameters,
                 continuationToken: continuationToken,
                 byPassObligations: true);
 
-        var healthControlModelList = new List<IHealthControlModel<HealthControlProperties>>();
+        HealthControlSqlEntity healthControlSqlEntity = healthControlEntititiesList[0];
+        HealthControlArtifactStoreEntity healthControlArtifactStoreEntity = entityList.Items.First().Properties;
 
-        foreach (var healthControlEntity in healthControlEntititiesList)
+        var healthControlEntity = new HealthControlEntity()
         {
-            healthControlModelList.Add(this.modelAdapterRegistry
-                               .AdapterFor<IHealthControlModel<HealthControlProperties>, HealthControlEntity>()
-                                              .ToModel(healthControlEntity));
-        }
+            CurrentScore = healthControlSqlEntity.CurrentScore,
+            LastRefreshedAt = healthControlSqlEntity.LastRefreshedAt,
+            ControlStatus = healthControlArtifactStoreEntity.ControlStatus,
+            ControlType = healthControlArtifactStoreEntity.ControlType,
+            CreatedAt = healthControlArtifactStoreEntity.CreatedAt,
+            Description = healthControlArtifactStoreEntity.Description,
+            EndsAt = healthControlArtifactStoreEntity.EndsAt,
+            HealthStatus = healthControlArtifactStoreEntity.HealthStatus,
+            IsCompositeControl = healthControlArtifactStoreEntity.IsCompositeControl,
+            ModifiedAt = healthControlArtifactStoreEntity.ModifiedAt,
+            Name = healthControlArtifactStoreEntity.Name,
+            ObjectId = healthControlArtifactStoreEntity.ObjectId,
+            OwnerContact = healthControlArtifactStoreEntity.OwnerContact,
+            ParentControlId = healthControlArtifactStoreEntity.ParentControlId,
+            ScoreUnit = healthControlArtifactStoreEntity.ScoreUnit,
+            StartsAt = healthControlArtifactStoreEntity.StartsAt,
+            TargetScore = healthControlArtifactStoreEntity.TargetScore,
+            TrendUrl = healthControlArtifactStoreEntity.TrendUrl,
+            HealthControlKind = healthControlArtifactStoreEntity.HealthControlKind,
+            Version = null,
+        };
 
-        return await Task.FromResult(new BaseBatchResults<IHealthControlModel<HealthControlProperties>>
+        //Grab the first one and add it for now - "Data governance score". 
+        var healthControlModelList = new List<HealthControlModel>();
+
+        healthControlModelList.Add(this.modelAdapterRegistry
+                           .AdapterFor<HealthControlModel, HealthControlEntity>()
+                                          .ToModel(healthControlEntity));
+
+        return await Task.FromResult(new BaseBatchResults<HealthControlModel>
         {
             Results = healthControlModelList,
             ContinuationToken = null
         });
     }
 
-    private static FilterModel CopyFilterModel(FilterSortModel<HealthControlModel<HealthControlProperties>> filterSortModel)
+    private static FilterModel CopyFilterModel(FilterSortModel<HealthControlModel> filterSortModel)
     {
         IDictionary<string, string> filterDictionary = filterSortModel?.FilterModel?.FilterDictionary ?? new Dictionary<string, string>();
 

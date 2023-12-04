@@ -10,7 +10,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using static Microsoft.Azure.Purview.DataEstateHealth.Common.QueryUtils;
 
 [ServerlessQuery(typeof(HealthControlRecord))]
-internal class HealthControlQuery : BaseQuery, IServerlessQueryRequest<HealthControlRecord, DataGovernanceHealthControlEntity>
+internal class HealthControlQuery : BaseQuery, IServerlessQueryRequest<HealthControlRecord, HealthControlSqlEntity>
 {
     public string QueryPath => $"{this.ContainerPath}/Sink/HealthScores/";
 
@@ -29,13 +29,13 @@ internal class HealthControlQuery : BaseQuery, IServerlessQueryRequest<HealthCon
             ActualValue =
                 Convert.ToDouble(row[GetCustomAttribute<DataColumnAttribute, HealthControlRecord>(x => x.ActualValue).Name].ToString()),
             LastRefreshedAt =
-                Convert.ToDateTime(row[GetCustomAttribute<DataColumnAttribute, HealthControlRecord>(x => x.LastRefreshedAt).Name].ToString())
+                (row[GetCustomAttribute<DataColumnAttribute, HealthActionsRecord>(x => x.LastRefreshedAt).Name]?.ToString()).AsDateTime()
         };
     }
 
-    public IEnumerable<DataGovernanceHealthControlEntity> Finalize(dynamic records)
+    public IEnumerable<HealthControlSqlEntity> Finalize(dynamic records)
     {
-        IList<DataGovernanceHealthControlEntity> entityList = new List<DataGovernanceHealthControlEntity>();
+        IList<HealthControlSqlEntity> entityList = new List<HealthControlSqlEntity>();
         if (records == null)
         {
             return entityList;
@@ -44,7 +44,7 @@ internal class HealthControlQuery : BaseQuery, IServerlessQueryRequest<HealthCon
         foreach (HealthControlRecord record in records)
         {
             //Add parent data governance
-            entityList.Add(new DataGovernanceHealthControlEntity()
+            entityList.Add(new HealthControlSqlEntity()
             {
                 CurrentScore = record.ActualValue,
                 LastRefreshedAt = record.LastRefreshedAt

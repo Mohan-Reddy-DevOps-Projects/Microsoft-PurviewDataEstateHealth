@@ -57,7 +57,7 @@ public class HealthControlsController : DataPlaneController
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        IBatchResults<IHealthControlModel<Models.HealthControlProperties>> healthControlModelResults
+        IBatchResults<HealthControlModel> healthControlModelResults
             = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
                 .CreateHealthControlCollectionComponent(
                     this.requestHeaderContext.TenantId,
@@ -67,7 +67,7 @@ public class HealthControlsController : DataPlaneController
         var healthControls = new HealthControlList
         {
             Value = healthControlModelResults.Results.Select(
-            healthControl => this.adapterRegistry.AdapterFor<IHealthControlModel<Models.HealthControlProperties>, HealthControl>()
+            healthControl => this.adapterRegistry.AdapterFor<HealthControlModel, HealthControl>()
             .FromModel(healthControl))
             .ToList()
         };
@@ -90,7 +90,7 @@ public class HealthControlsController : DataPlaneController
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        IBatchResults<IHealthControlModel<Models.HealthControlProperties>> healthControlModelResults
+        IBatchResults<HealthControlModel> healthControlModelResults
             = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
                 .CreateHealthControlCollectionComponent(
                     this.requestHeaderContext.TenantId,
@@ -101,7 +101,7 @@ public class HealthControlsController : DataPlaneController
         var healthControls = new HealthControlList
         {
             Value = healthControlModelResults.Results.Select(
-            healthControl => this.adapterRegistry.AdapterFor<IHealthControlModel<Models.HealthControlProperties>, HealthControl>()
+            healthControl => this.adapterRegistry.AdapterFor<HealthControlModel, HealthControl>()
             .FromModel(healthControl))
             .ToList()
         };

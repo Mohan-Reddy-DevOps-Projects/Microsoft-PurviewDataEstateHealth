@@ -3,19 +3,36 @@
 // -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+
 using System;
-using System.Collections.Generic;
-using Microsoft.Azure.Purview.DataAccess.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Newtonsoft.Json;
 
-internal class HealthControlArtifactStoreEntity : ArtifactStoreEntity, IHealthControlArtifactStoreEntity
+internal interface IHealthControlArtifactStoreEntity
 {
-    public override DataEstateHealthEntityTypes GetEntityType() => DataEstateHealthEntityTypes.DataEstateHealthControl;
+    /// <summary>
+    /// Object id of the entity
+    /// </summary>
+    [JsonProperty("objectId")]
+    public Guid ObjectId { get; set; }
 
-    [JsonProperty("kind")]
-    public HealthControlKind HealthControlKind { get; set; }
+    /// <summary>
+    /// Version of the entity
+    /// </summary>
+    [JsonProperty("version")]
+    public string Version { get; set; }
+
+    /// <summary>
+    /// Date/Time this entity was created.
+    /// </summary>
+    [JsonProperty("createdAt")]
+    public DateTime CreatedAt { get; set; }
+
+    /// <summary>
+    /// Date/Time this entity was modified.
+    /// </summary>
+    [JsonProperty("modifiedAt")]
+    public DateTime ModifiedAt { get; set; }
 
     [JsonProperty("name")]
     public string Name { get; set; }
@@ -55,14 +72,4 @@ internal class HealthControlArtifactStoreEntity : ArtifactStoreEntity, IHealthCo
 
     [JsonProperty("trendUrl")]
     public string TrendUrl { get; set; }
-
-    public override Dictionary<string, object> GetIndexedProperties()
-    {
-        return new Dictionary<string, object>()
-        {
-            { "parentControlId", this.ParentControlId.ToString() }
-        };
-    }
-
-    public override void Validate(ICommonFieldValidationService fieldValidationService) => base.Validate(fieldValidationService);
 }

@@ -11,7 +11,7 @@ using Microsoft.DGP.ServiceBasics.Components;
 /// Defines a contract for managing health control collections.
 /// </summary>
 public interface IHealthControlCollectionComponent :
-    IRetrieveEntityCollectionOperations<IHealthControlModel<HealthControlProperties>>, INavigable<Guid, IHealthControlCollectionComponent>,
+    IRetrieveEntityCollectionOperations<HealthControlModel>, INavigable<Guid, IHealthControlCollectionComponent>,
     IComponent<IHealthControlListContext>
 {
 }

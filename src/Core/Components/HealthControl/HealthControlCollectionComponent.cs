@@ -37,7 +37,7 @@ internal class HealthControlCollectionComponent : BaseComponent<IHealthControlLi
     }
 
     /// <inheritdoc />
-    public async Task<IBatchResults<IHealthControlModel<HealthControlProperties>>> Get(
+    public async Task<IBatchResults<HealthControlModel>> Get(
         CancellationToken cancellationToken,
         string skipToken = null)
     {

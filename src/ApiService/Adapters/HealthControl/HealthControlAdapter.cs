@@ -4,47 +4,71 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.DGP.ServiceBasics.Adapters;
-using Microsoft.DGP.ServiceBasics.Errors;
+using global::Microsoft.Azure.Purview.DataEstateHealth.Models;
+using global::Microsoft.DGP.ServiceBasics.Adapters;
 
 /// <summary>
-/// Handles health control model and resource conversions.
+/// Handles DataGovernance control model resource conversions.
 /// </summary>
-[ModelAdapter(typeof(IHealthControlModel<Models.HealthControlProperties>), typeof(HealthControl))]
-public class HealthControlAdapter : BaseModelAdapter<IHealthControlModel<Models.HealthControlProperties>, HealthControl>
+[ModelAdapter(typeof(HealthControlModel), typeof(HealthControl))]
+public class HealthControlAdapter : BaseModelAdapter<HealthControlModel, HealthControl>
 {
     /// <inheritdoc />
-    public override IHealthControlModel<Models.HealthControlProperties> ToModel(HealthControl resource)
+    public override HealthControlModel ToModel(HealthControl resource)
     {
-        if (resource == null)
+        return new HealthControlModel
         {
-            throw new ServiceError(
-                    ErrorCategory.InputError,
-                    ErrorCode.MissingField.Code,
-                    ErrorCode.MissingField.FormatMessage("HealthControl information"))
-                .ToException();
-        }
-
-        IHealthControlModel<Models.HealthControlProperties> healthControlModel =
-            HealthControlModelRegistry.Instance.CreateHealthControlModelFor(resource.Kind.ToModel());
-
-        // use the specific health control adapter
-        healthControlModel = this.Builder.AdapterFor<IHealthControlModel<Models.HealthControlProperties>, HealthControl>(
-                healthControlModel.GetType(),
-                resource.GetType())
-            .ToModel<IHealthControlModel<Models.HealthControlProperties>>(resource);
-
-        return healthControlModel;
+            Id = resource.Id,
+            Kind = resource.Kind.ToModel(),
+            Name = resource.Name,
+            Description = resource.Description,
+            IsCompositeControl = resource.IsCompositeControl,
+            ControlType = resource.ControlType.ToModel(),
+            OwnerContact = new Models.OwnerContact
+            {
+                DisplayName = resource.OwnerContact.DisplayName,
+                ObjectId = resource.OwnerContact.ObjectId
+            },
+            CurrentScore = resource.CurrentScore,
+            TargetScore = resource.TargetScore,
+            ScoreUnit = resource.ScoreUnit,
+            HealthStatus = resource.HealthStatus,
+            ControlStatus = resource.ControlStatus.ToModel(),
+            CreatedAt = resource.CreatedAt,
+            StartsAt = resource.StartsAt,
+            EndsAt = resource.EndsAt,
+            TrendUrl = resource.TrendUrl,
+            ParentControlId = resource.ParentControlId,
+            LastRefreshedAt = resource.LastRefreshedAt,
+            ModifiedAt = resource.ModifiedAt
+        };
     }
 
     /// <inheritdoc />
-    public override HealthControl FromModel(IHealthControlModel<Models.HealthControlProperties> model)
+    public override HealthControl FromModel(HealthControlModel model)
     {
-        // use the specific health control adapter to build the resource
-        dynamic adapter =
-            this.Builder.AdapterWhereOtherIsKindOf<IHealthControlModel<Models.HealthControlProperties>, HealthControl>(model.GetType());
-        return adapter.FromModel((dynamic)model) as HealthControl;
+        return new HealthControl
+        {
+            Id = model.Id,
+            Kind = model.Kind.ToDto(),
+            Name = model.Name,
+            Description = model.Description,
+            IsCompositeControl = model.IsCompositeControl,
+            ControlType = model.ControlType.ToDto(),
+            OwnerContact = new DataTransferObjects.OwnerContact
+            {
+                DisplayName = model.OwnerContact.DisplayName,
+                ObjectId = model.OwnerContact.ObjectId
+            },
+            CurrentScore = model.CurrentScore,
+            TargetScore = model.TargetScore,
+            ScoreUnit = model.ScoreUnit,
+            HealthStatus = model.HealthStatus,
+            ControlStatus = model.ControlStatus.ToDto(),
+            CreatedAt = model.CreatedAt,
+            StartsAt = model.StartsAt,
+            EndsAt = model.EndsAt,
+            TrendUrl = model.TrendUrl,
+        };
     }
 }
