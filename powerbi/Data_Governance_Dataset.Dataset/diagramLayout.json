@@ -4,7 +4,7 @@
     {
       "ordinal": 0,
       "scrollPosition": {
-        "x": 165.03878413019953,
+        "x": 164.86486486486487,
         "y": 0
       },
       "nodes": [
@@ -145,19 +145,6 @@
           },
           "nodeIndex": "AccountInfo",
           "nodeLineageTag": "ad76777b-f72a-4a5b-898b-edb5ce69c480",
-          "size": {
-            "height": 104,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 3409.655042425984,
-            "y": 542.96006386584975
-          },
-          "nodeIndex": "DATABASE_SCHEMA",
-          "nodeLineageTag": "4ba41ebe-be7a-456f-804b-e15425e3986e",
           "size": {
             "height": 104,
             "width": 234

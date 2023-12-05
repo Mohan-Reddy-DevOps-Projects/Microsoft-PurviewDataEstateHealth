@@ -10,19 +10,6 @@
       "nodes": [
         {
           "location": {
-            "x": 5740.1226465131858,
-            "y": 991.973634364688
-          },
-          "nodeIndex": "DATABASE_SCHEMA",
-          "nodeLineageTag": "4ba41ebe-be7a-456f-804b-e15425e3986e",
-          "size": {
-            "height": 104,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
             "x": 1772.4676040872014,
             "y": 449.01357049883831
           },
