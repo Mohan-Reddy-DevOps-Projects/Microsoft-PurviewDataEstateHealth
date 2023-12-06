@@ -6,7 +6,10 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Shared;
 
 using Microsoft.Purview.ArtifactStoreClient;
 
-internal interface IArtifactStoreAccessorService
+/// <summary>
+/// Artifact store service class.
+/// </summary>
+public interface IArtifactStoreAccessorService
 {
     /// <summary>
     /// Gets a resource

@@ -48,6 +48,9 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     [Inject]
     private readonly ISparkJobManager sparkJobManager;
 
+    [Inject]
+    private readonly IArtifactStoreAccountComponent artifactStoreAccountComponent;
+
 #pragma warning restore 649
 
     public PartnerNotificationComponent(IPartnerNotificationContext context, int version) : base(context, version)
@@ -60,6 +63,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
         await this.databaseManagementService.Initialize(account, cancellationToken);
         await this.CreatePowerBIResources(account, cancellationToken);
+        await this.artifactStoreAccountComponent.CreateArtifactStoreResources(account, cancellationToken);
     }
 
     private async Task CreatePowerBIResources(AccountServiceModel account, CancellationToken cancellationToken)

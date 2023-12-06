@@ -70,6 +70,7 @@ public static class DataAccessLayer
         services.AddScoped<IArtifactStoreAccessorServiceBuilder, ArtifactStoreAccessorServiceBuilder>();
         services.AddScoped<IHealthTrendRepository, HealthTrendRepository>();
 
+        services.AddScoped<IArtifactStoreAccessorServiceBuilder, ArtifactStoreAccessorServiceBuilder>();
 
         return services;
     }

@@ -11,6 +11,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Options;
 
+/// <inheritdoc/>
 internal class ArtifactStoreAccessorServiceBuilder : IArtifactStoreAccessorServiceBuilder
 {
     private readonly IDataEstateHealthRequestLogger genevaLogger;

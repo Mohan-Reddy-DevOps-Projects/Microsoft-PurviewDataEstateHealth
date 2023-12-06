@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 /// <summary>
 /// Base class for data estate health resource entities that will be persisted in Artifact Store service.
 /// </summary>
-internal abstract class ArtifactStoreEntity
+public abstract class ArtifactStoreEntity
 {
     /// <summary>
     /// Object id of the entity
@@ -43,7 +43,7 @@ internal abstract class ArtifactStoreEntity
     public abstract DataEstateHealthEntityTypes GetEntityType();
 
     /// <inheritdoc />
-    public abstract Dictionary<string, object> GetIndexedProperties();
+    public abstract Dictionary<string, string> GetIndexedProperties();
 
     /// <summary>
     /// Validate payload to be persisted.

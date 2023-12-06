@@ -7,7 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Shared;
 /// <summary>
 /// An interface for classes that can build artifact store accessor services.
 /// </summary>
-internal interface IArtifactStoreAccessorServiceBuilder
+public interface IArtifactStoreAccessorServiceBuilder
 {
     /// <summary>
     /// Builds an artifact store accessor service for the given location.

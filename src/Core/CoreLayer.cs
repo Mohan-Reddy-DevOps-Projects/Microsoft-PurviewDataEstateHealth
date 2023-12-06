@@ -44,6 +44,7 @@ public static class CoreLayer
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
         services.AddScoped<IRequestHeaderContextFactory, RequestHeaderContextFactory>();
         services.AddScoped<ICoreLayerFactory, CoreLayerFactory>();
+        services.AddScoped<IArtifactStoreAccountComponent, ArtifactStoreAccountComponent>();
 
         services.AddScoped<IJobManager, JobManager>();
         services.AddSingleton<IJobManagementStorageAccountBuilder, JobManagementStorageAccountBuilder>();
