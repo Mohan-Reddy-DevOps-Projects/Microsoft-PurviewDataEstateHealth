@@ -39,7 +39,7 @@ public static class CoreLayer
         services.AddCommands();
         services.AddScoped<ICatalogSparkJobComponent, CatalogSparkJobComponent>();
         services.AddScoped<IDatasetsComponent, DatasetsComponent>();
-
+        services.AddScoped<IRefreshComponent, RefreshComponent>();
 
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
         services.AddScoped<IRequestHeaderContextFactory, RequestHeaderContextFactory>();

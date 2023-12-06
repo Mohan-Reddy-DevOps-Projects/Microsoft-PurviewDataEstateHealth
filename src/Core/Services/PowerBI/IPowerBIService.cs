@@ -211,4 +211,41 @@ public interface IPowerBIService
 
     #endregion
 
+    #region Refresh
+
+    /// <summary>
+    /// Triggers a refresh for the specified dataset.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="datasetId"></param>
+    /// <param name="refreshRequest"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<HttpResponseMessage> OnDemandRefresh(Guid profileId, Guid workspaceId, Guid datasetId, DatasetRefreshRequest refreshRequest, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get the refresh history for the specified dataset.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="datasetId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <param name="top"></param>
+    /// <returns></returns>
+    Task<Refreshes> GetRefreshHistory(Guid profileId, Guid workspaceId, Guid datasetId, CancellationToken cancellationToken, int? top = null);
+
+    /// <summary>
+    /// Returns execution details of an enhanced refresh operation for the specified dataset from the specified workspace.
+    /// </summary>
+    /// <param name="profileId"></param>
+    /// <param name="workspaceId"></param>
+    /// <param name="datasetId"></param>
+    /// <param name="refreshId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<DatasetRefreshDetail> GetRefreshStatus(Guid profileId, Guid workspaceId, Guid datasetId, Guid refreshId, CancellationToken cancellationToken);
+
+    #endregion
+
 }

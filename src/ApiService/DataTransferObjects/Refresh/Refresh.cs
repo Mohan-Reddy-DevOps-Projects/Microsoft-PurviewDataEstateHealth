@@ -7,25 +7,29 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using System.ComponentModel;
 
 /// <summary>
-/// PowerBI health report property bag
+/// A refresh data transfer object.
 /// </summary>
-public class PowerBIHealthReportProperties
+public class Refresh
 {
     /// <summary>
-    /// Dataset id.
+    /// Refresh Id
     /// </summary>
     [ReadOnly(true)]
-    public Guid DatasetId { get; set; }
+    public string Id { get; internal set; }
 
     /// <summary>
-    /// Report description.
+    /// Refresh status
     /// </summary>
     [ReadOnly(true)]
-    public string Description { get; set; }
+    public string Status { get; internal set; }
 
     /// <summary>
-    /// Embed Link
+    /// Refresh start time
     /// </summary>
-    [ReadOnly(true)]
-    public string EmbedLink {  get; internal set; } 
+    public DateTime? StartTime { get; internal set; }
+
+    /// <summary>
+    /// Refresh end time
+    /// </summary>
+    public DateTime? EndTime { get; internal set; }
 }

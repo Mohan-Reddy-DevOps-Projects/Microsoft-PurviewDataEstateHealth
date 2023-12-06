@@ -47,10 +47,4 @@ public class HealthReportProperties
     /// </summary>
     [JsonProperty("reportKind")]
     public HealthReportKind ReportKind { get; set; }
-
-    /// <summary>
-    /// Report last refreshed at.
-    /// </summary>
-    [JsonProperty("lastRefreshedAt")]
-    public DateTime LastRefreshedAt { get; set; }
 }

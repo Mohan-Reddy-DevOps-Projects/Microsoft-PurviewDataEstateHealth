@@ -55,10 +55,4 @@ public abstract partial class HealthReport
     [JsonConverter(typeof(StringEnumConverter))]
     [ReadOnly(true)]
     public HealthResourceType ReportType { get; set; }
-
-    /// <summary>
-    /// Report last refreshed at.
-    /// </summary>
-    [ReadOnly(true)]
-    public DateTime LastRefreshedAt { get; internal set; }
 }

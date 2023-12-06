@@ -352,6 +352,47 @@ internal class PowerBIService : IPowerBIService
 
     #endregion
 
+    #region Refresh
+
+
+    /// <inheritdoc/>
+    public async Task<HttpResponseMessage> OnDemandRefresh(Guid profileId, Guid workspaceId, Guid datasetId, DatasetRefreshRequest refreshRequest, CancellationToken cancellationToken)
+    {
+        PowerBIClient pbiClient = await this.powerBIFactory.GetClientAsync(cancellationToken);
+        Dictionary<string, string> dimensions = GetDimensions(EntityType.Refresh, PowerBIOperations.OnDemand);
+        this.logger.LogTrace($"{Tag}|Request - {EntityType.Refresh} {PowerBIOperations.OnDemand}: WorkspaceId: {workspaceId}; DatasetId: {datasetId}; ProfileId: {profileId}; Body: {JsonSerializer.Serialize(refreshRequest)}");
+        using HttpOperationResponse response = await pbiClient.Datasets.RefreshDatasetInGroupWithHttpMessagesAsync(workspaceId, datasetId.ToString(), refreshRequest, GetProfileHeader(profileId), cancellationToken);
+        this.LogResponse(response, dimensions);
+
+        return response.Response;
+    }
+
+    /// <inheritdoc/>
+    public async Task<Refreshes> GetRefreshHistory(Guid profileId, Guid workspaceId, Guid datasetId, CancellationToken cancellationToken, int? top = null)
+    {
+        PowerBIClient pbiClient = await this.powerBIFactory.GetClientAsync(cancellationToken);
+        Dictionary<string, string> dimensions = GetDimensions(EntityType.RefreshHistory, PowerBIOperations.List);
+        this.logger.LogTrace($"{Tag}|Request - {EntityType.RefreshHistory} {PowerBIOperations.List}: WorkspaceId: {workspaceId}; DatasetId: {datasetId}; ProfileId: {profileId}");
+        using HttpOperationResponse<Refreshes> response = await pbiClient.Datasets.GetRefreshHistoryInGroupWithHttpMessagesAsync(workspaceId, datasetId.ToString(), top: top, GetProfileHeader(profileId), cancellationToken: cancellationToken);
+        this.LogResponse(response, dimensions);
+
+        return response.Body;
+    }
+
+    /// <inheritdoc/>
+    public async Task<DatasetRefreshDetail> GetRefreshStatus(Guid profileId, Guid workspaceId, Guid datasetId, Guid refreshId, CancellationToken cancellationToken)
+    {
+        PowerBIClient pbiClient = await this.powerBIFactory.GetClientAsync(cancellationToken);
+        Dictionary<string, string> dimensions = GetDimensions(EntityType.Refresh, PowerBIOperations.Status);
+        this.logger.LogTrace($"{Tag}|Request - {EntityType.Refresh} {PowerBIOperations.Status}: WorkspaceId: {workspaceId}; DatasetId: {datasetId}; ProfileId: {profileId}");
+        using HttpOperationResponse<DatasetRefreshDetail> response = await pbiClient.Datasets.GetRefreshExecutionDetailsInGroupWithHttpMessagesAsync(workspaceId, datasetId, refreshId, GetProfileHeader(profileId), cancellationToken);
+        this.LogResponse(response, dimensions);
+
+        return response.Body;
+    }
+
+    #endregion
+
     private static Dictionary<string, List<string>> GetProfileHeader(Guid profileId)
     {
         return new Dictionary<string, List<string>>()

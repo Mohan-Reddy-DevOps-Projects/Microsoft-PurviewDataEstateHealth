@@ -90,4 +90,14 @@ public interface ICoreLayerFactoryOperations
     public IHealthTrendComponent CreateHealthTrendComponent(
         Guid tenantId,
         Guid accountId);
+
+    /// <summary>
+    /// Creates an instance of RefreshHistoryComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IRefreshHistoryComponent"/>.</returns>
+    public IRefreshHistoryComponent CreateRefreshHistoryComponent(
+        Guid tenantId,
+        Guid accountId,
+        Guid datasetId,
+        int? top = null);
 }

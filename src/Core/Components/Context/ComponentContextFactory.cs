@@ -181,6 +181,26 @@ internal class ComponentContextFactory : IComponentContextFactory
         };
     }
 
+    /// <inheritdoc />
+    public IRefreshHistoryContext CreateRefreshHistoryContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId,
+        Guid datasetId,
+        int? top = null)
+    {
+        return new RefreshHistoryContext
+        {
+            Version = version,
+            Location = this.LocationOf(location),
+            TenantId = tenantId,
+            AccountId = accountId,
+            DatasetId = datasetId,
+            Top = top
+        };
+    }
+
     internal string LocationOf(string location)
     {
         return string.IsNullOrWhiteSpace(location) ? this.environmentConfiguration.Location : location;

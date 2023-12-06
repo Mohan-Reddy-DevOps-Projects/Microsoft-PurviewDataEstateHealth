@@ -151,4 +151,22 @@ internal interface IComponentContextFactory
         string location,
         Guid accountId,
         Guid tenantId);
+
+    /// <summary>
+    /// Creates an <see cref="IRefreshHistoryContext"/>
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="location"></param>
+    /// <param name="accountId"></param>
+    /// <param name="tenantId"></param>
+    /// <param name="datasetId"></param>
+    /// <param name="top"></param>
+    /// <returns></returns>
+    public IRefreshHistoryContext CreateRefreshHistoryContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId,
+        Guid datasetId,
+        int? top = null);
 }

@@ -33,7 +33,7 @@ internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHea
     /// <inheritdoc />
     public async Task<IHealthReportModel<HealthReportProperties>> Get(CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Get(this.Context, CancellationToken.None);
+        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, CancellationToken.None);
         IWorkspaceContext workspaceContext = new WorkspaceContext(this.Context)
         {
             ProfileId = profile.Id,
@@ -52,7 +52,6 @@ internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHea
             Properties = new PowerBIHealthReportProperties()
             {
                 Category = null,
-                LastRefreshedAt = DateTime.UtcNow,
                 DatasetId = Guid.Parse(report.DatasetId),
                 Description = report.Description,
                 EmbedLink = report.EmbedUrl,

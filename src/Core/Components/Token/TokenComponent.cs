@@ -45,7 +45,7 @@ internal sealed class TokenComponent : BaseComponent<ITokenContext>, ITokenCompo
 
     private async Task<EmbedToken> GetReadToken(CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Get(this.Context, cancellationToken);
+        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, cancellationToken);
         IWorkspaceContext workspaceContext = new WorkspaceContext(this.Context)
         {
             ProfileId = profile.Id,
@@ -61,7 +61,7 @@ internal sealed class TokenComponent : BaseComponent<ITokenContext>, ITokenCompo
 
     private async Task<EmbedToken> GetEditToken(TokenModel tokenModel, CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Get(this.Context, cancellationToken);
+        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, cancellationToken);
         IWorkspaceContext workspaceContext = new WorkspaceContext(this.Context)
         {
             ProfileId = profile.Id,

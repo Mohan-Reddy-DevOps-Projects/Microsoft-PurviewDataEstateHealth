@@ -68,7 +68,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 
     private async Task CreatePowerBIResources(AccountServiceModel account, CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Create(this.Context, cancellationToken);
+        IProfileModel profile = await this.profileCommand.Create(this.Context.AccountId, cancellationToken);
         IWorkspaceContext context = new WorkspaceContext(this.Context)
         {
             ProfileId = profile.Id
@@ -97,7 +97,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             PowerBICredential = powerBICredential
         };
 
-        string sharedDatasetName = "Data_Governance_Dataset";
+        string sharedDatasetName = SystemDatasets.Get()[HealthDataset.Dataset.DataGovernance.ToString()].Name;
         IDatasetRequest sharedDatasetRequest = new DatasetRequest()
         {
             ProfileId = profile.Id,

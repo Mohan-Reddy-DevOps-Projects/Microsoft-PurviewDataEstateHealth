@@ -268,6 +268,11 @@ public class ErrorCode : ServiceErrorCode
     /// </summary>
     public static readonly ErrorCode PowerBI_ReportDeleteFailed = new(10004, "Report delete failed.");
 
+    /// <summary>
+    /// PowerBI dataset refresh failed.
+    /// </summary>
+    public static readonly ErrorCode PowerBI_DatasetRefreshFailed = new(10005, "Dataset refresh failed.");
+
     #endregion
 
     #region Partner

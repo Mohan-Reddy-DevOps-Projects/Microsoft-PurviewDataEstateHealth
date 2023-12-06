@@ -28,7 +28,6 @@ public class
                 ReportStatus = resource.ReportStatus.ToModel(),
                 ReportType = resource.ReportType.ToModel(),
                 ReportKind = resource.ReportKind.ToModel(),
-                LastRefreshedAt = resource.LastRefreshedAt,
                 Id = resource.Id,
             },
         };
@@ -44,7 +43,6 @@ public class
             Category = model.Properties?.Category,
             ReportStatus = model.Properties.ReportStatus.ToDto(),
             ReportType = model.Properties.ReportType.ToDto(),
-            LastRefreshedAt = model.Properties.LastRefreshedAt,
             Id = model.Properties.Id,
             Properties = new LegacyHealthReportProperties
             {

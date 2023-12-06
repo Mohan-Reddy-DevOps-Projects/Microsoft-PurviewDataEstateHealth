@@ -53,7 +53,7 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
         string skipToken = null,
         HealthReportKind? reportKind = null)
     {
-        IProfileModel profile = await this.profileCommand.Get(this.Context, CancellationToken.None);
+        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, CancellationToken.None);
         IEnumerable<Report> reports = await this.GetReportsByProfile(profile, CancellationToken.None);
 
         IEnumerable<PowerBIHealthReportModel> values = reports.Select(x => new PowerBIHealthReportModel()
@@ -61,7 +61,6 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
             Properties = new PowerBIHealthReportProperties()
             {
                 Category = null,
-                LastRefreshedAt = DateTime.UtcNow,
                 DatasetId = Guid.Parse(x.DatasetId),
                 Description = x.Description,
                 EmbedLink = x.EmbedUrl,

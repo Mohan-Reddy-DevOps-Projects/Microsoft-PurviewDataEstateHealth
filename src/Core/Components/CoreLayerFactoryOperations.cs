@@ -168,4 +168,21 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
                 accountId,
                 tenantId));
     }
+
+    /// <inheritdoc />
+    public IRefreshHistoryComponent CreateRefreshHistoryComponent(
+        Guid tenantId,
+        Guid accountId,
+        Guid datasetId,
+        int? top = null)
+    {
+        return this.componentRuntime.ResolveLatest<IRefreshHistoryComponent, IRefreshHistoryContext>(
+            this.contextFactory.CreateRefreshHistoryContext(
+                this.version,
+                null,
+                accountId,
+                tenantId,
+                datasetId,
+                top));
+    }
 }

@@ -13,5 +13,4 @@ using Microsoft.DGP.ServiceBasics.Components;
 public interface IHealthReportComponent : IRetrieveEntityOperation<IHealthReportModel<HealthReportProperties>>,
     IComponent<IHealthReportContext>
 {
-
 }

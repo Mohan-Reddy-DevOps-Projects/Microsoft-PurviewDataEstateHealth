@@ -14,9 +14,9 @@ using Microsoft.DGP.ServiceBasics.Errors;
 /// <summary>
 /// Creates a unique profile. If the profile already exists, it will be returned without modification.
 /// </summary>
-internal sealed class HealthProfileCommand : IEntityCreateOperation<IRootComponentContext, IProfileModel>,
-    IRetrieveEntityByIdOperation<IRootComponentContext, IProfileModel>,
-    IEntityDeleteOperation<IRootComponentContext>
+internal sealed class HealthProfileCommand : IEntityCreateOperation<Guid, IProfileModel>,
+    IRetrieveEntityByIdOperation<Guid, IProfileModel>,
+    IEntityDeleteOperation<Guid>
 {
     private const string HealthProfileName = "health";
     private readonly IProfileCommand profileCommand;
@@ -27,11 +27,11 @@ internal sealed class HealthProfileCommand : IEntityCreateOperation<IRootCompone
     }
 
     /// <inheritdoc/>
-    public async Task<IProfileModel> Create(IRootComponentContext context, CancellationToken cancellationToken)
+    public async Task<IProfileModel> Create(Guid accountId, CancellationToken cancellationToken)
     {
         IProfileRequest profileRequest = new ProfileRequest()
         {
-            AccountId = context.AccountId,
+            AccountId = accountId,
             ProfileName = HealthProfileName
         };
 
@@ -39,11 +39,11 @@ internal sealed class HealthProfileCommand : IEntityCreateOperation<IRootCompone
     }
 
     /// <inheritdoc/>
-    public async Task<DeletionResult> Delete(IRootComponentContext context, CancellationToken cancellationToken)
+    public async Task<DeletionResult> Delete(Guid accountId, CancellationToken cancellationToken)
     {
         IProfileRequest profileRequest = new ProfileRequest()
         {
-            AccountId = context.AccountId,
+            AccountId = accountId,
             ProfileName = HealthProfileName
         };
 
@@ -51,11 +51,11 @@ internal sealed class HealthProfileCommand : IEntityCreateOperation<IRootCompone
     }
 
     /// <inheritdoc/>
-    public async Task<IProfileModel> Get(IRootComponentContext context, CancellationToken cancellationToken)
+    public async Task<IProfileModel> Get(Guid accountId, CancellationToken cancellationToken)
     {
         IProfileRequest profileRequest = new ProfileRequest()
         {
-            AccountId = context.AccountId,
+            AccountId = accountId,
             ProfileName = HealthProfileName
         };
 
