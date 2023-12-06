@@ -22,6 +22,15 @@ public interface IAccountExposureControlConfigProvider
     public bool IsDataGovProvisioningEnabled(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
+    /// Determines if provisioning for Data Governance Health is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDataGovHealthProvisioningEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
     /// Retrieve the capacities that are available.
     /// </summary>
     /// <returns></returns>

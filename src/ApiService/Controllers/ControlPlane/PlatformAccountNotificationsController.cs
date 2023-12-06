@@ -79,21 +79,30 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         }
 
         await this.processingStorageManager.Provision(account, cancellationToken);
-
-        await Task.WhenAll(
-        PartnerNotifier.NotifyPartners(
+        Task partnerTask = PartnerNotifier.NotifyPartners(
                 this.logger,
                 this.partnerService,
                 this.partnerConfig,
                 account,
                 ProvisioningService.OperationType.CreateOrUpdate,
-                InitPartnerContext(this.partnerConfig.Partners)),
-         this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
-            .CreatePartnerNotificationComponent(
+                InitPartnerContext(this.partnerConfig.Partners));
+
+        List<Task> tasks = new()
+        {
+            partnerTask
+        };
+
+        if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            Task healthTask = this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                .CreatePartnerNotificationComponent(
                 Guid.Parse(account.TenantId),
                 Guid.Parse(account.Id))
-            .CreateOrUpdateNotification(account, cancellationToken)
-        ).ConfigureAwait(false);
+            .CreateOrUpdateNotification(account, cancellationToken);
+            tasks.Add(healthTask);
+        }
+
+        await Task.WhenAll(tasks);
 
         return this.Ok();
     }
