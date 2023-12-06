@@ -30,6 +30,7 @@ if __name__ == "__main__":
     from DataEstateHealthLibrary.CdmcControls.build_cdmc_controls import BuildCdmcControls
     from DataEstateHealthLibrary.Catalog.catalog_sink_schema import CatalogSinkSchema
     from DataEstateHealthLibrary.DataAccess.PolicySet.build_policy_set import BuildPolicySet
+    from DataEstateHealthLibrary.DataQuality.DataQualityScore.data_quality_sink_schema import DataQualitySinkSchema
 
 
     print(sys.argv[1])
@@ -127,6 +128,12 @@ if __name__ == "__main__":
         existing_action_df = spark.read.option('startingVersion', "latest").load(sink+'ActionCenter', format='delta')
     except Exception as error:
         existing_action_df = spark.createDataFrame([], CatalogSinkSchema.sink_action_center_schema)
+
+    #PRODUCT QUALITY SCORE SINK
+    try:
+        sink_productquality_df = spark.read.option('startingVersion', "latest").load(sink+'ProductQualityScore', format='delta')
+    except Exception as error:
+        sink_productquality_df = spark.createDataFrame([], DataQualitySinkSchema.sink_product_dataqualityscore_schema)
         
     print("fetched_source")
 
@@ -159,7 +166,7 @@ if __name__ == "__main__":
         sink_termcontact_association_df.write.format("delta").mode("overwrite").save(sink+"TermContactAssociation")
         
         sink_termschema_df = spark.createDataFrame([], CatalogSinkSchema.sink_term_schema)
-        sink_termdomain_association_df.write.format("delta").mode("overwrite").save(sink+"TermSchema")
+        sink_termschema_df.write.format("delta").mode("overwrite").save(sink+"TermSchema")
         
         print("GENERATED EMPTY TERM SINK")
         
@@ -272,7 +279,8 @@ if __name__ == "__main__":
     #GENERATE DATA PRODUCT SINK SCHEMA     
     if not source_dataproduct_df.isEmpty():
         #Generate dataproductschema_df
-        dataproductschema_df = BuildDataProduct.build_data_product_schema(source_dataproduct_df,sink_dataassetschema_df,sink_assetproduct_association_df,policyset_df)
+        dataproductschema_df = BuildDataProduct.build_data_product_schema(source_dataproduct_df,sink_dataassetschema_df,sink_assetproduct_association_df,
+                                                                          policyset_df,sink_productquality_df)
         sink_dataproductschema_df = spark.createDataFrame(dataproductschema_df.rdd, schema=CatalogSinkSchema.sink_data_product_schema)
         sink_dataproductschema_df.write.format("delta").mode("overwrite").save(sink+"DataProductSchema")
         sink_dataproductschema_df = BuildDataProduct.update_boolean_to_int(sink_dataproductschema_df)
@@ -317,8 +325,8 @@ if __name__ == "__main__":
 
         #AGGREGATED HEALTH SUMMARY
         health_summary_df = BuildHealthSummary.build_health_summary(sink_health_summary_by_domain_df)
-        health_summary_df = spark.createDataFrame(health_summary_df.rdd, schema=CatalogSinkSchema.sink_health_summary_schema)
-        health_summary_df.write.format("delta").mode("overwrite").save(sink+"HealthSummary")
+        sink_health_summary_df = spark.createDataFrame(health_summary_df.rdd, schema=CatalogSinkSchema.sink_health_summary_schema)
+        sink_health_summary_df.write.format("delta").mode("overwrite").save(sink+"HealthSummary")
         print("GENERATED HEALTH SUMMARY SINK")
 
     #SCORES
@@ -327,8 +335,8 @@ if __name__ == "__main__":
     if sink_dataproductschema_df.isEmpty():
         sink_score_by_domain_df = spark.createDataFrame([], CatalogSinkSchema.sink_scores_by_domain_schema)
         sink_score_by_domain_df.write.format("delta").mode("overwrite").save(sink+"DomainHealthScores")
-        scores_df = spark.createDataFrame([], CatalogSinkSchema.sink_scores_schema)
-        scores_df.write.format("delta").mode("overwrite").save(sink+"HealthScores")
+        sink_scores_df = spark.createDataFrame([], CatalogSinkSchema.sink_scores_schema)
+        sink_scores_df.write.format("delta").mode("overwrite").save(sink+"HealthScores")
         print("GENERATED EMPTY SCORES SINK")
     else:
         #SCORES BY DOMAIN
@@ -338,8 +346,8 @@ if __name__ == "__main__":
 
         #AGGREGATED SCORES
         scores_df = BuildScores.build_score(sink_score_by_domain_df)
-        scores_df = spark.createDataFrame(scores_df.rdd, schema=CatalogSinkSchema.sink_scores_schema)
-        scores_df.write.format("delta").mode("overwrite").save(sink+"HealthScores")
+        sink_scores_df = spark.createDataFrame(scores_df.rdd, schema=CatalogSinkSchema.sink_scores_schema)
+        sink_scores_df.write.format("delta").mode("overwrite").save(sink+"HealthScores")
         
         print("GENERATED SCORES SINK")
 
@@ -360,6 +368,6 @@ if __name__ == "__main__":
 
         #BUSINESS DOMAIN TRENDS
         businessdomain_trend_df = BuildBusinessDomainTrend.build_businessdomain_trend(sink_businessdomain_trend_by_id_df)
-        businessdomain_trend_df = spark.createDataFrame(businessdomain_trend_df.rdd, schema=CatalogSinkSchema.sink_aggregated_business_domain_trends_schema)
-        businessdomain_trend_df.write.format("delta").mode("append").save(sink+"BusinessDomainTrends")
+        sink_businessdomain_trend_df = spark.createDataFrame(businessdomain_trend_df.rdd, schema=CatalogSinkSchema.sink_aggregated_business_domain_trends_schema)
+        sink_businessdomain_trend_df.write.format("delta").mode("append").save(sink+"BusinessDomainTrends")
         print("GENERATED TRENDS SINK")

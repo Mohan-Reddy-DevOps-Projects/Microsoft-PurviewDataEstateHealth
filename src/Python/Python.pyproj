@@ -82,7 +82,15 @@
     <Compile Include="DataEstateHealthLibrary\DataAccess\PolicySet\policy_set_transformations.py" />
     <Compile Include="DataEstateHealthLibrary\DataAccess\PolicySet\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\DataAccess\__init__.py" />
-    <Compile Include="DataEstateHealthLibrary\DataQuality\data_quality_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\DataQualityFact\data_quality_fact_schema.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\DataQualityFact\data_quality_fact_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\DataQualityScore\build_data_quality_scores.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\DataQualityFact\data_quality_fact_column_functions.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\DataQualityFact\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\DataQualityScore\data_quality_sink_schema.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\DataQualityScore\__init__.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\DataQualityScore\data_quality_score_transformations.py" />
+    <Compile Include="DataEstateHealthLibrary\DataQuality\dataquality_spark_job_main.py" />
     <Compile Include="DataEstateHealthLibrary\DataQuality\__init__.py" />
     <Compile Include="DataEstateHealthLibrary\HealthSummary\build_health_summary.py" />
     <Compile Include="DataEstateHealthLibrary\HealthSummary\health_summary_aggregation.py" />
@@ -115,6 +123,8 @@
     <Folder Include="DataEstateHealthLibrary\DataAccess\PolicySet\" />
     <Folder Include="DataEstateHealthLibrary\DataQuality\" />
     <Folder Include="DataEstateHealthLibrary\ActionCenter\" />
+    <Folder Include="DataEstateHealthLibrary\DataQuality\DataQualityFact\" />
+    <Folder Include="DataEstateHealthLibrary\DataQuality\DataQualityScore\" />
     <Folder Include="DataEstateHealthLibrary\HealthSummary\" />
     <Folder Include="DataEstateHealthLibrary\BusinessDomainTrend\" />
     <Folder Include="DataEstateHealthLibrary\CdmcControls\" />

@@ -29,49 +29,49 @@ class ScoreTransformations:
     
     def calculate_c12_score(dataproduct_df):
         c12_score_added = dataproduct_df.withColumn(
-        "C12_Quality", lit((col("C12_Quality")/col("TotalDataProducts"))*100)
+        "C12_Quality", lit((col("C12_Quality")/col("TotalDataProducts")))
         )
 
         return c12_score_added
 
     def calculate_c2_score(dataproduct_df):
         c2_score_added = dataproduct_df.withColumn(
-        "C2_Ownership", lit((col("C2_Ownership")/col("TotalDataProducts"))*100)
+        "C2_Ownership", lit((col("C2_Ownership")/col("TotalDataProducts")))
         )
 
         return c2_score_added
 
     def calculate_c3_score(dataproduct_df):
         c3_score_added = dataproduct_df.withColumn(
-        "C3_AuthoritativeSource", lit((col("C3_AuthoritativeSource")/col("TotalDataProducts"))*100)
+        "C3_AuthoritativeSource", lit((col("C3_AuthoritativeSource")/col("TotalDataProducts")))
         )
 
         return c3_score_added
 
     def calculate_c5_score(dataproduct_df):
         c5_score_added = dataproduct_df.withColumn(
-        "C5_Catalog", lit((col("C5_Catalog")/col("TotalDataProducts"))*100)
+        "C5_Catalog", lit((col("C5_Catalog")/col("TotalDataProducts")))
         )
 
         return c5_score_added
 
     def calculate_c7_score(dataproduct_df):
         c7_score_added = dataproduct_df.withColumn(
-        "C7_Access", lit((col("C7_Access")/col("TotalDataProducts"))*100)
+        "C7_Access", lit((col("C7_Access")/col("TotalDataProducts")))
         )
 
         return c7_score_added
 
     def calculate_c6_score(dataproduct_df):
         c6_score_added = dataproduct_df.withColumn(
-        "C6_Classification", lit((col("C6_Classification")/col("TotalDataProducts"))*100)
+        "C6_Classification", lit((col("C6_Classification")/col("TotalDataProducts")))
         )
 
         return c6_score_added
 
     def calculate_c8_score(dataproduct_df):
         c8_score_added = dataproduct_df.withColumn(
-        "C8_DataConsumptionPurpose", lit((col("C8_DataConsumptionPurpose")/col("TotalDataProducts"))*100)
+        "C8_DataConsumptionPurpose", lit((col("C8_DataConsumptionPurpose")/col("TotalDataProducts")))
         )
 
         return c8_score_added

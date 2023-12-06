@@ -21,7 +21,7 @@ from DataEstateHealthLibrary.DataAccess.PolicySet.policy_set_transformations imp
 
 class BuildDataProduct:
 
-    def build_data_product_schema(dataproduct_df,dataasset_df, assetproduct_association_df, policyset_df):
+    def build_data_product_schema(dataproduct_df,dataasset_df, assetproduct_association_df, policyset_df, productquality_df):
         #needed for owner col
         dataproduct_df = CatalogColumnFunctions.add_contacts_schema(dataproduct_df)
         
@@ -38,7 +38,6 @@ class BuildDataProduct:
         dataproduct_df = DataProductTransformations.calculate_has_valid_owner(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_has_description(dataproduct_df)
         dataproduct_df = DataProductTransformations.calculate_glossary_term_count(dataproduct_df)
-        dataproduct_df = DataProductTransformations.calculate_has_data_quality_score(dataproduct_df)
         dataproduct_df = HelperFunction.calculate_last_refreshed_at(dataproduct_df,"LastRefreshedAt")
         
         dataproduct_df = ColumnFunctions.rename_col(dataproduct_df, "Id", "DataProductId")
@@ -67,6 +66,13 @@ class BuildDataProduct:
             dataproduct_df = dataproduct_df.join(policyset_df,"DataProductId","leftouter")
             
             dataproduct_df = HelperFunction.update_null_values(dataproduct_df, "HasAccessEntitlement", False)
+
+        if productquality_df.isEmpty():
+            dataproduct_df = HelperFunction.calculate_default_column_value(dataproduct_df,"HasDataQualityScore",False)
+        else:
+            productquality_df = productquality_df.select("DataProductId", "QualityScore")
+            dataproduct_df = dataproduct_df.join(productquality_df,"DataProductId","leftouter")
+            dataproduct_df = DataProductTransformations.calculate_has_data_quality_score(dataproduct_df)
         
         #add timestamp for deduping
         dataproduct_df = CatalogTransformationFunctions.add_timestamp_col(dataproduct_df)

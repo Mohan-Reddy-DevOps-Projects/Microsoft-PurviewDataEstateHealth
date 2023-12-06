@@ -31,7 +31,9 @@ class DataProductTransformations:
 
     def calculate_has_data_quality_score(dataproduct_df):
         has_data_quality_score_added = dataproduct_df.withColumn(
-            "HasDataQualityScore", lit(False)
+            "HasDataQualityScore", when((col("QualityScore").isNotNull() &
+                                        (col("QualityScore") > 0)), True)
+            .otherwise(False)
         )
 
         return has_data_quality_score_added
