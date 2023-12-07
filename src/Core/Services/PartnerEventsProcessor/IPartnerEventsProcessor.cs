@@ -12,5 +12,5 @@ internal interface IPartnerEventsProcessor
 
     Task StopAsync();
 
-    Task CommitAsync(IDictionary<string, string> processingStoresCache = null);
+    Task CommitAsync(IDictionary<Guid, string> processingStoresCache = null);
 }

@@ -30,5 +30,5 @@ internal class PartnerEventsConsumerJobMetadata : StagedWorkerJobMetadata
     /// Cache for already retrieved processing store accounts.
     /// </summary>
     [JsonProperty]
-    public IDictionary<string, string> ProcessingStoresCache { get; set; }
+    public IDictionary<Guid, string> ProcessingStoresCache { get; set; }
 }

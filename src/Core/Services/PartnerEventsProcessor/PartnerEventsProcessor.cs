@@ -45,11 +45,11 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
 
     protected readonly IDeltaLakeOperatorFactory DeltaWriterFactory;
 
-    protected readonly IDictionary<string, IList<ProcessEventArgs>> EventArgsToCheckpoint;
+    protected readonly IDictionary<Guid, IList<ProcessEventArgs>> EventArgsToCheckpoint;
 
     protected readonly ICollection<ProcessEventArgs> EventsToProcess;
 
-    protected IDictionary<string, string> ProcessingStorageCache;
+    protected IDictionary<Guid, string> ProcessingStorageCache;
 
     protected PartnerEventsProcessor(
         IServiceProvider serviceProvider,
@@ -67,8 +67,8 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         this.DeltaWriterFactory = serviceProvider.GetRequiredService<IDeltaLakeOperatorFactory>();
 
         this.EventsToProcess = new List<ProcessEventArgs>();
-        this.ProcessingStorageCache = new Dictionary<string, string>();
-        this.EventArgsToCheckpoint = new Dictionary<string, IList<ProcessEventArgs>>();
+        this.ProcessingStorageCache = new Dictionary<Guid, string>();
+        this.EventArgsToCheckpoint = new Dictionary<Guid, IList<ProcessEventArgs>>();
     }
 
     public EventSourceType EventProcessorType => this.eventSourceType;
@@ -106,7 +106,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         }
     }
 
-    public abstract Task CommitAsync(IDictionary<string, string> processingStoresCache = null);
+    public abstract Task CommitAsync(IDictionary<Guid, string> processingStoresCache = null);
 
     protected void ParseEventPayload<T>(EventHubModel eventHubModel, Dictionary<EventOperationType, List<T>> entityModels)
         where T : BaseEventHubEntityModel
@@ -114,9 +114,9 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         try
         {
             T entityModel = JsonConvert.DeserializeObject<T>((eventHubModel.AlternatePayload ?? eventHubModel.Payload.After ?? eventHubModel.Payload.Before).ToString());
-            entityModel.AccountId = eventHubModel.AccountId;
-            entityModel.EventId = eventHubModel.EventId;
-            entityModel.EventCorrelationId = eventHubModel.EventCorrelationId;
+            entityModel.AccountId = eventHubModel.AccountId.ToString();
+            entityModel.EventId = eventHubModel.EventId.ToString();
+            entityModel.EventCorrelationId = eventHubModel.EventCorrelationId.ToString();
             entityModel.EventCreationTimestamp = eventHubModel.EventCreationTimestamp;
 
             if (!entityModels.ContainsKey(eventHubModel.OperationType))
@@ -195,11 +195,11 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         }
     }
 
-    protected async Task<bool> ProcessingStorageExists(string accountId)
+    protected async Task<bool> ProcessingStorageExists(Guid accountId)
     {
         if (!this.ProcessingStorageCache.ContainsKey(accountId))
         {
-            ProcessingStorageModel storageModel = await processingStorageManager.Get(Guid.Parse(accountId), CancellationToken.None);
+            ProcessingStorageModel storageModel = await processingStorageManager.Get(accountId, CancellationToken.None);
 
             if (storageModel == null)
             {
@@ -214,10 +214,10 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         return true;
     }
 
-    protected Dictionary<string, List<T>> GetEventsByAccount<T>()
+    protected Dictionary<Guid, List<T>> GetEventsByAccount<T>()
         where T : BaseEventHubModel
     {
-        Dictionary<string, List<T>> eventsByAccount = new Dictionary<string, List<T>>();
+        Dictionary<Guid, List<T>> eventsByAccount = new();
         foreach (ProcessEventArgs eventArgs in this.EventsToProcess)
         {
             if (eventArgs.Data == null || eventArgs.Partition == null)
@@ -231,7 +231,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
             try
             {
                 T eventModel = JsonConvert.DeserializeObject<T>(eventMessage);
-                string accountId = eventModel.AccountId;
+                Guid accountId = eventModel.AccountId;
 
                 List<T> eventList;
                 if (eventsByAccount.TryGetValue(accountId, out eventList))

@@ -36,7 +36,7 @@ public abstract class BaseEventHubEntityModel
     /// Precise timestamp.
     /// </summary>
     [JsonProperty("preciseTimestamp")]
-    public string EventCreationTimestamp { get; set; }
+    public DateTime EventCreationTimestamp { get; set; }
 
     /// <summary>
     /// Get payload kind.
@@ -55,12 +55,12 @@ public abstract class BaseEventHubEntityModel
     /// <returns></returns>
     protected StructField[] GetCommonSchemaFields()
     {
-        var schemaFields = new[]
+        StructField[] schemaFields = new[]
         {
             new StructField("AccountId", DataTypes.String),
             new StructField("EventId", DataTypes.String),
             new StructField("EventCorrelationId", DataTypes.String),
-            new StructField("EventCreationTimestamp", DataTypes.String),
+            new StructField("EventCreationTimestamp", DataTypes.Timestamp),
         };
 
         return schemaFields;

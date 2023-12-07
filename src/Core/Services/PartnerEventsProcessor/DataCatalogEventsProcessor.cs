@@ -32,7 +32,7 @@ internal class DataCatalogEventsProcessor : PartnerEventsProcessor
         this.eventHubConfiguration = eventHubConfiguration;
     }
 
-    public override async Task CommitAsync(IDictionary<string, string> processingStorageCache = null)
+    public override async Task CommitAsync(IDictionary<Guid, string> processingStorageCache = null)
     {
         if (processingStorageCache != null)
         {
@@ -41,7 +41,7 @@ internal class DataCatalogEventsProcessor : PartnerEventsProcessor
 
         this.DataEstateHealthRequestLogger.LogTrace($"Attempting to commit {this.EventsToProcess.Count} rows of {this.EventProcessorType}.");
 
-        Dictionary<string, List<EventHubModel>> eventsByAccount = this.GetEventsByAccount<EventHubModel>();
+        Dictionary<Guid, List<EventHubModel>> eventsByAccount = this.GetEventsByAccount<EventHubModel>();
 
         foreach (var accountEvents in eventsByAccount)
         {
@@ -59,7 +59,7 @@ internal class DataCatalogEventsProcessor : PartnerEventsProcessor
         await this.CommitCheckpoints();
     }
 
-    private async Task UploadEventsForAccount(string accountId, List<EventHubModel> events)
+    private async Task UploadEventsForAccount(Guid accountId, List<EventHubModel> events)
     {
         if (await this.ProcessingStorageExists(accountId) != true)
         {

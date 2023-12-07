@@ -74,7 +74,7 @@ public class SystemDataEventHubEntityModel
     /// Last Modified At.
     /// </summary>
     [JsonProperty("lastModifiedAt")]
-    public string LastModifiedAt { get; set; }
+    public DateTime LastModifiedAt { get; set; }
 
     /// <summary>
     /// Last Modified By.
@@ -86,7 +86,7 @@ public class SystemDataEventHubEntityModel
     /// Created At.
     /// </summary>
     [JsonProperty("createdAt")]
-    public string CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// Created By.
@@ -98,7 +98,7 @@ public class SystemDataEventHubEntityModel
     /// Expired At.
     /// </summary>
     [JsonProperty("expiredAt")]
-    public string ExpiredAt { get; set; }
+    public DateTime ExpiredAt { get; set; }
 
     /// <summary>
     /// Expired By.
@@ -158,7 +158,7 @@ public class SourceEventHubEntityModel
     /// Last Refreshed At.
     /// </summary>
     [JsonProperty("lastRefreshedAt")]
-    public string LastRefreshedAt { get; set; }
+    public DateTime LastRefreshedAt { get; set; }
 
     /// <summary>
     /// Last Refreshed by
@@ -182,7 +182,7 @@ public class DataProductAdditionalPropertiesEventHubEntityModel
     /// Asset Count.
     /// </summary>
     [JsonProperty("assetCount")]
-    public string AssetCount { get; set; }
+    public long AssetCount { get; set; }
 }
 
 /// <summary>
@@ -595,7 +595,7 @@ public class RelationshipEventHubEntityModel : BaseEventHubEntityModel
             new StructField("TargetId", DataTypes.String),
             new StructField("Description", DataTypes.String),
             new StructField("RelationshipType", DataTypes.String),
-            new StructField("Entityid", DataTypes.String),
+            new StructField("EntityId", DataTypes.String),
    }.ConcatArray(GetCommonSchemaFields()));
 }
 
@@ -650,7 +650,7 @@ public class TermEventHubEntityModel : BaseEventHubEntityModel
     /// Is leaf.
     /// </summary>
     [JsonProperty("isLeaf")]
-    public string IsLeaf { get; set; }
+    public bool IsLeaf { get; set; }
 
     /// <summary>
     /// System data.
@@ -686,7 +686,7 @@ public class TermEventHubEntityModel : BaseEventHubEntityModel
                 new StructField("Domain", DataTypes.String),
                 new StructField("Id", DataTypes.String),
                 new StructField("ParentId", DataTypes.String),
-                new StructField("IsLeaf", DataTypes.String),
+                new StructField("IsLeaf", DataTypes.Boolean),
                 new StructField("SystemData", DataTypes.String),
                 new StructField("Contacts", DataTypes.String),
                 new StructField("Attributes", DataTypes.String),

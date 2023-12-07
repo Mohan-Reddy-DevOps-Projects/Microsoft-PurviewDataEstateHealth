@@ -6,9 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.Identity.Client;
 using Newtonsoft.Json;
-using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 internal class DataQualityEventsProcessor : PartnerEventsProcessor
 {
@@ -25,7 +23,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         this.eventHubConfiguration = eventHubConfiguration;
     }
 
-    public override async Task CommitAsync(IDictionary<string, string> processingStorageCache = null)
+    public override async Task CommitAsync(IDictionary<Guid, string> processingStorageCache = null)
     {
         if (processingStorageCache != null)
         {
@@ -34,7 +32,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
 
         this.DataEstateHealthRequestLogger.LogTrace($"Attempting to commit {this.EventsToProcess.Count} rows of {this.EventProcessorType}.");
 
-        Dictionary<string, List<EventHubModel>> eventsByAccount = this.GetEventsByAccount<EventHubModel>();
+        Dictionary<Guid, List<EventHubModel>> eventsByAccount = this.GetEventsByAccount<EventHubModel>();
 
         foreach (var accountEvents in eventsByAccount)
         {
@@ -53,7 +51,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         this.DataEstateHealthRequestLogger.LogTrace($"Attempting to commit {this.EventsToProcess.Count} rows of {this.EventProcessorType}.");
     }
 
-    private async Task UploadEventsForAccount(string accountId, List<EventHubModel> events)
+    private async Task UploadEventsForAccount(Guid accountId, List<EventHubModel> events)
     {
         if (await this.ProcessingStorageExists(accountId) != true)
         {
@@ -121,7 +119,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
                         DataProductId = jobRunId.DataProductId,
                         DataAssetId = jobRunId.DataAssetId,
                         JobId = jobRunId.JobId,
-                        RowId = sourceModel.EventId,
+                        RowId = sourceModel.EventId.ToString(),
                         ResultedAt = sourceModel.ResultedAt,
                         QualityScore = CalculateDataQualityScore(sourceModel),
                     };
@@ -139,7 +137,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         return dataQualityScoreModels;
     }
 
-    private string CalculateDataQualityScore(DataQualitySourceEventHubEntityModel sourceModel)
+    private double CalculateDataQualityScore(DataQualitySourceEventHubEntityModel sourceModel)
     {
         double qualityScore = 0.0;
 
@@ -165,6 +163,6 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
             }
         }
 
-        return qualityScore.ToString();
+        return qualityScore;
     }
 }

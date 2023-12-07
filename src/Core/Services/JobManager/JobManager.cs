@@ -320,7 +320,7 @@ public class JobManager : IJobManager
                 DataAccessEventsProcessed = false,
                 DataCatalogEventsProcessed = false,
                 DataQualityEventsProcessed = false,
-                ProcessingStoresCache = new Dictionary<string, string>(),
+                ProcessingStoresCache = new Dictionary<Guid, string>(),
             };
 
             JobBuilder jobBuilder = JobManager.GetJobBuilderWithDefaultOptions(

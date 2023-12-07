@@ -16,7 +16,7 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationO
 
 builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment());
 
-Startup.Configure(builder.Services, builder.Configuration);
+Startup.Configure(builder);
 
 builder.WebHost.ConfigureKestrel((hostingContext, options) =>
 {

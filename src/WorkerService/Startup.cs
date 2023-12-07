@@ -23,22 +23,29 @@ public static class Startup
     /// <summary>
     /// Sets up configuration and DI services.
     /// </summary>
-    /// <param name="services">The service collection</param>
-    /// <param name="configurationManager">The configuration manager</param>
-    public static void Configure(IServiceCollection services, ConfigurationManager configurationManager)
+    /// <param name="builder">The builder</param>
+    public static void Configure(WebApplicationBuilder builder)
     {
-        string appSettingsJson = System.Environment.GetEnvironmentVariable("APP_SETTINGS_JSON") ?? throw new Exception("environment variable 'APP_SETTINGS_JSON' is missing");
-        configurationManager.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettingsJson)));
+        builder.Services.AddWorkerServiceConfigurations(builder.Configuration);
+        
+        if (!builder.Environment.IsDevelopment())
+        {
+            ConfigureKestrelServerForProduction(builder);
+        }
 
-        services.AddWorkerServiceConfigurations(configurationManager);
-
-        services
+        builder.Services
             .AddLogger()
             .AddDataAccessLayer()
             .AddServiceBasicsForWorkerService()
             .AddCoreLayer()
             .AddPartnerEventsProcessor();
 
-        services.AddHostedService<WorkerService>();
+        builder.Services.AddHostedService<WorkerService>();
+    }
+
+    private static void ConfigureKestrelServerForProduction(WebApplicationBuilder builder)
+    {
+        string appSettingsJson = System.Environment.GetEnvironmentVariable("APP_SETTINGS_JSON") ?? throw new Exception("environment variable 'APP_SETTINGS_JSON' is missing");
+        builder.Configuration.AddJsonStream(new MemoryStream(Encoding.UTF8.GetBytes(appSettingsJson)));
     }
 }

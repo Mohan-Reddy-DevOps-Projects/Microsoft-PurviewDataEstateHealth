@@ -17,25 +17,25 @@ public abstract class BaseEventHubModel
     /// Account Id.
     /// </summary>
     [JsonProperty("accountId")]
-    public string AccountId { get; set; }
+    public Guid AccountId { get; set; }
 
     /// <summary>
     /// Event Id.
     /// </summary>
     [JsonProperty("eventId")]
-    public string EventId { get; set; }
+    public Guid EventId { get; set; }
 
     /// <summary>
     /// Correlation Id.
     /// </summary>
     [JsonProperty("correlationId")]
-    public string EventCorrelationId { get; set; }
+    public Guid EventCorrelationId { get; set; }
 
     /// <summary>
     /// Precise timestamp.
     /// </summary>
     [JsonProperty("preciseTimestamp")]
-    public string EventCreationTimestamp { get; set; }
+    public DateTime EventCreationTimestamp { get; set; }
 }
 
 /// <summary>
@@ -68,7 +68,7 @@ public class EventHubModel : BaseEventHubModel
     /// Tenant Id.
     /// </summary>
     [JsonProperty("tenantId")]
-    public string TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     /// <summary>
     /// For create, before is null
@@ -94,7 +94,7 @@ public class EventHubModel : BaseEventHubModel
     /// Person object id who create/update/delete
     /// </summary>
     [JsonProperty("changedBy")]
-    public string ChangedBy { get; set; }
+    public Guid ChangedBy { get; set; }
 }
 
 /// <summary>

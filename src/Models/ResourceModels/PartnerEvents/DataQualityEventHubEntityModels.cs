@@ -153,7 +153,7 @@ public class DataQualitySourceEventHubEntityModel : BaseEventHubEntityModel
     /// Job result time.
     /// </summary>
     [JsonProperty("resultedAt")]
-    public string ResultedAt { get; set; }
+    public DateTime ResultedAt { get; set; }
 
     /// <summary>
     /// Job Status.
@@ -227,7 +227,7 @@ public class DataQualitySinkEventHubEntityModel : BaseEventHubEntityModel
     public string DataAssetId { get; set; }
 
     /// <summary>
-    /// DataAssetId.
+    /// JobId.
     /// </summary>
     [JsonProperty("jobId")]
     public string JobId { get; set; }
@@ -236,13 +236,13 @@ public class DataQualitySinkEventHubEntityModel : BaseEventHubEntityModel
     /// QualityScore.
     /// </summary>
     [JsonProperty("qualityScore")]
-    public string QualityScore { get; set; }
+    public double QualityScore { get; set; }
 
     /// <summary>
     /// Score calculation time.
     /// </summary>
     [JsonProperty("resultedAt")]
-    public string ResultedAt { get; set; }
+    public DateTime ResultedAt { get; set; }
 
     /// <inheritdoc/>
     public override PayloadKind GetPayloadKind() => PayloadKind.DataQualityScore;
@@ -256,7 +256,7 @@ public class DataQualitySinkEventHubEntityModel : BaseEventHubEntityModel
             new StructField("DataProductId", DataTypes.String),
             new StructField("DataAssetId", DataTypes.String),
             new StructField("JobId", DataTypes.String),
-            new StructField("QualityScore", DataTypes.String),
-            new StructField("ResultedAt", DataTypes.String),
+            new StructField("QualityScore", DataTypes.Double),
+            new StructField("ResultedAt", DataTypes.Timestamp),
         });
 }
