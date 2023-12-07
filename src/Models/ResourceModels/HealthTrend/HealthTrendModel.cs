@@ -27,10 +27,6 @@ public class HealthTrendModel : IHealthTrendModel
     public string Unit { get; set; }
 
     /// <inheritdoc />
-    [JsonProperty("delta")]
-    public int Delta { get; set; }
-
-    /// <inheritdoc />
     [JsonProperty("trendValuesList")]
     public IEnumerable<TrendValue> TrendValuesList { get; set; }
 }

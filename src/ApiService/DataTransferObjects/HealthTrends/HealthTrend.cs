@@ -42,12 +42,6 @@ public class HealthTrend
     public string Unit { get; internal set; }
 
     /// <summary>
-    /// Health trend delta
-    /// </summary>
-    [ReadOnly(true)]
-    public int Delta { get; internal set; }
-
-    /// <summary>
     /// Health trend values
     /// </summary>
     [ReadOnly(true)]

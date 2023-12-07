@@ -32,7 +32,6 @@ public class HealthTrendAdapter : BaseModelAdapter<IHealthTrendModel, HealthTren
             Description = model.Description,
             Duration = model.Duration,
             Unit = model.Unit,
-            Delta = model.Delta,
             TrendValuesList = trendValuesListDTO,
         };
     }
@@ -56,7 +55,6 @@ public class HealthTrendAdapter : BaseModelAdapter<IHealthTrendModel, HealthTren
             Description = healthTrendDTO.Description,
             Duration = healthTrendDTO.Duration,
             Unit = healthTrendDTO.Unit,
-            Delta = healthTrendDTO.Delta,
             TrendValuesList = trendValuesListModel,
         };
     }

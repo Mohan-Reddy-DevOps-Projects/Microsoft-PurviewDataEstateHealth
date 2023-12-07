@@ -30,11 +30,6 @@ public interface IHealthTrendModel
     string Unit { get; set; }
 
     /// <summary>
-    /// Health trend delta
-    /// </summary>
-    int Delta { get; set; }
-
-    /// <summary>
     /// Health trend values
     /// </summary>
     IEnumerable<TrendValue> TrendValuesList { get; set; }

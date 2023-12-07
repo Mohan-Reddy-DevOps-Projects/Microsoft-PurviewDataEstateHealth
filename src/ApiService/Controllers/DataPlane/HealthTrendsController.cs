@@ -11,6 +11,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 using Asp.Versioning;
 using TrendKind = DataTransferObjects.TrendKind;
+using Microsoft.DGP.ServiceBasics.Errors;
 
 /// <summary>
 /// Health trends controller.
@@ -87,6 +88,13 @@ public class HealthTrendsController : DataPlaneController
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
+
+        if (trendKind == TrendKind.BusinessDomainCount)
+        {
+            // Task 2851222: Explicitly check for unsupported trend kinds using a List of allowed trend kinds
+            throw new ServiceError(ErrorCategory.InputError, ErrorCode.HealthTrends_NotAvailable.Code, $"Invalid trend kind: {trendKind}, not supported for trends by business domain id").ToException();
+        }
+
         IHealthTrendModel healthTrendModel = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
             .CreateHealthTrendComponent(
                 this.requestHeaderContext.TenantId,

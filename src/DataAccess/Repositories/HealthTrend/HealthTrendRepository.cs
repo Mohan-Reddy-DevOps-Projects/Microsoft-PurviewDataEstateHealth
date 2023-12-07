@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using System.Threading.Tasks;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.ServerlessPool.Records.HealthTrend;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 
@@ -52,8 +53,11 @@ internal class HealthTrendRepository : IHealthTrendRepository
             }, selectClause) as HealthTrendsQueryForAllBusinessDomains;
         } else
         {
-            // TODO (Hope) - Implement in the next PR, for now trigger ResourceNotFoundException
-            return null;
+            query = this.queryRequestBuilder.Build<HealthTrendRecord>(containerPath, clauseBuilder =>
+            {
+                clauseBuilder.WhereBetweenClause(QueryConstants.HealthTrendsColumnNamesForKey.LastRefreshedAt, thirtyDaysAgo, today);
+                clauseBuilder.AndClause(QueryConstants.HealthTrendsColumnNamesForKey.BusinessDomainId, healthTrendKey.DomainId.ToString());
+            }, selectClause) as HealthTrendsQuery;
         }
 
         IList<BaseEntity> healthTrendEntity = await this.queryExecutor.ExecuteAsync(query, cancellationToken);

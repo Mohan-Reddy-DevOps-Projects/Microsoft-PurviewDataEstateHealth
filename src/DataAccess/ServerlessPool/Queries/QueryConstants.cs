@@ -70,6 +70,7 @@ internal class QueryConstants
         public static readonly string DataProductCount = "DataProductCount";
         public static readonly string DataAssetCount = "AssetCount";
         public static readonly string LastRefreshedAt = "LastRefreshedAt";
+        public static readonly string BusinessDomainId = "BusinessDomainId";
     }
 
     public static readonly Dictionary<TrendKind, string> HealthTrendKindToColumnName = new Dictionary<TrendKind, string>() {

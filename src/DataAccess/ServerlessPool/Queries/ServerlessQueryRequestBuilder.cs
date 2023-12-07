@@ -61,7 +61,7 @@ internal sealed class ClauseBuilder
 
     public ClauseBuilder WhereBetweenClause(string columnName, string left, string right)
     {
-        this.filterClause.Append($"{QueryConstants.WhereClause} {columnName} BETWEEN '{left}' AND '{right}' ");
+        this.filterClause.Append($"{QueryConstants.WhereClause} ({columnName} BETWEEN '{left}' AND '{right}') ");
         return this;
     }
 

@@ -7,31 +7,32 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.ServerlessPool.Records.HealthTrend;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using static Microsoft.Azure.Purview.DataEstateHealth.Common.QueryUtils;
 
-[ServerlessQuery(typeof(HealthTrendRecordForAllBusinessDomains))]
-internal class HealthTrendsQueryForAllBusinessDomains : BaseQuery, IServerlessQueryRequest<HealthTrendRecordForAllBusinessDomains, HealthTrendEntity>
+[ServerlessQuery(typeof(HealthTrendRecord))]
+internal class HealthTrendsQuery : BaseQuery, IServerlessQueryRequest<HealthTrendRecord, HealthTrendEntity>
 {
-    public string QueryPath => $"{this.ContainerPath}/Sink/BusinessDomainTrends/";
+    public string QueryPath => $"{this.ContainerPath}/Sink/BusinessDomainTrendsById/";
 
     public string Query
     {
-        get => "SELECT " + this.SelectClause + ", LastRefreshedAt" +
+        get => "SELECT " + this.SelectClause + ", LastRefreshedAt, BusinessDomainId" +
                            QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) +
-                           "WITH(" + this.SelectClause + " BIGINT, LastRefreshedAt DateTime2)" +
+                           "WITH(" + this.SelectClause + " BIGINT, LastRefreshedAt DateTime2, BusinessDomainId uniqueidentifier)" +
                            QueryConstants.ServerlessQuery.AsRows +
                             this.FilterClause;
     }
 
-    public HealthTrendRecordForAllBusinessDomains ParseRow(IDataRecord row)
+    public HealthTrendRecord ParseRow(IDataRecord row)
     {
-        return new HealthTrendRecordForAllBusinessDomains()
+        return new HealthTrendRecord()
         {
             HealthTrendDataValue = row[this.SelectClause].ToString().AsInt(),
             LastRefreshedAt =
-                 (row[GetCustomAttribute<DataColumnAttribute, HealthTrendRecordForAllBusinessDomains>(x => x.LastRefreshedAt).Name]?.ToString()).AsDateTime(),
+                 (row[GetCustomAttribute<DataColumnAttribute, HealthTrendRecord>(x => x.LastRefreshedAt).Name]?.ToString()).AsDateTime(),
         };
     }
 
@@ -61,7 +62,7 @@ internal class HealthTrendsQueryForAllBusinessDomains : BaseQuery, IServerlessQu
         }
 
         List<TrendValue> trendValuesList = new();
-        foreach (HealthTrendRecordForAllBusinessDomains record in records)
+        foreach (HealthTrendRecord record in records)
         {
             trendValuesList.Add(new TrendValue()
             {
