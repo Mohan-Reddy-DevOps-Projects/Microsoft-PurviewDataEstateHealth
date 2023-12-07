@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System.Threading;
 using System.Threading.Tasks;
+using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
@@ -22,7 +23,7 @@ public interface ISparkJobManager
     /// <param name="sparkJobRequest"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task SubmitJob(AccountServiceModel accountServiceModel, SparkJobRequest sparkJobRequest, CancellationToken cancellationToken);
+    Task<string> SubmitJob(AccountServiceModel accountServiceModel, SparkJobRequest sparkJobRequest, CancellationToken cancellationToken);
 
     /// <summary>
     /// Cancels the job.
@@ -32,6 +33,15 @@ public interface ISparkJobManager
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task CancelJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the job.
+    /// </summary>
+    /// <param name="accountServiceModel"></param>
+    /// <param name="batchId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Creates or updates the spark pool.

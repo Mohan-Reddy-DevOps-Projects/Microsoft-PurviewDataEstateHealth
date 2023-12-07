@@ -4,8 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Text;
-using System.Text.Json;
 using System.Threading;
 using global::Azure.Analytics.Synapse.Spark;
 using global::Azure.Analytics.Synapse.Spark.Models;
@@ -68,6 +66,12 @@ internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
     {
         SparkBatchClient client = this.GetSparkBatchClient(sparkPoolName);
         await client.CancelSparkBatchJobAsync(batchId, cancellationToken: cancellationToken);
+    }
+
+    public async Task<SparkBatchJob> GetJob(string sparkPoolName, int batchId, CancellationToken cancellationToken)
+    {
+        SparkBatchClient client = this.GetSparkBatchClient(sparkPoolName);
+        return (await client.GetSparkBatchJobAsync(batchId)).Value;
     }
 
     private SparkBatchClient GetSparkBatchClient(string sparkPoolName)

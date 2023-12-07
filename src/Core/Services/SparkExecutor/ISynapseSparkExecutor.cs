@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System.Threading;
 using System.Threading.Tasks;
+using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.ResourceManager.Synapse;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 
@@ -55,4 +56,13 @@ public interface ISynapseSparkExecutor
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task CancelJob(string sparkPoolName, int batchId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the job details.
+    /// </summary>
+    /// <param name="sparkPoolName"></param>
+    /// <param name="batchId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<SparkBatchJob> GetJob(string sparkPoolName, int batchId, CancellationToken cancellationToken);
 }

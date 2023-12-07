@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 
@@ -98,8 +99,15 @@ public interface IJobManager
         ErrorCode errorCode);
 
     /// <summary>
-    /// Provisions event processing job
+    /// Provisions event processing job.
     /// </summary>
     /// <returns></returns>
     Task ProvisionEventProcessorJob();
+
+    /// <summary>
+    /// Provisions catalog SPARK job per account.
+    /// </summary>
+    /// <param name="accountServiceModel"></param>
+    /// <returns></returns>
+    Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel);
 }

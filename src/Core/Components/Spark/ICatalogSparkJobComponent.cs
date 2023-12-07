@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System.Threading;
 using System.Threading.Tasks;
+using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 
 /// <summary>
@@ -19,5 +20,14 @@ public interface ICatalogSparkJobComponent
     /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
+    Task<string> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get details for a spark job.
+    /// </summary>
+    /// <param name="accountServiceModel"></param>
+    /// <param name="batchId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken);
 }

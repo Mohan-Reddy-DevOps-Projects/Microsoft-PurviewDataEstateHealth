@@ -13,7 +13,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.WindowsAzure.Storage;
+using global::Azure.Analytics.Synapse.Spark.Models;
 
 internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
 {
@@ -32,14 +32,16 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     }
 
     /// <inheritdoc/>
-    public async Task SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
+    public async Task<string> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
     {
         Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
         string containerName = accountServiceModel.DefaultCatalogId;
         Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
         SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, containerName, sinkSasUri.Host);
-        await this.sparkJobManager.SubmitJob(accountServiceModel, sparkJobRequest, cancellationToken);
+        return await this.sparkJobManager.SubmitJob(accountServiceModel, sparkJobRequest, cancellationToken);
     }
+
+    public async Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken) => await this.sparkJobManager.GetJob(accountServiceModel, batchId, cancellationToken);
 
     private async Task<Uri> GetSinkSasUri(Models.ProcessingStorageModel processingStorageModel, string containerName, CancellationToken cancellationToken)
     {

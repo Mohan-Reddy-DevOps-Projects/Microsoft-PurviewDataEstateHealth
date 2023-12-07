@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using global::Azure.Core;
 using global::Azure.ResourceManager.Synapse;
+using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
@@ -35,13 +36,13 @@ internal sealed class SparkJobManager : ISparkJobManager
     }
 
     /// <inheritdoc/>
-    public async Task SubmitJob(AccountServiceModel accountServiceModel, SparkJobRequest sparkJobRequest, CancellationToken cancellationToken)
+    public async Task<string> SubmitJob(AccountServiceModel accountServiceModel, SparkJobRequest sparkJobRequest, CancellationToken cancellationToken)
     {
         SparkPoolModel sparkPool = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
         ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(sparkPool);
 
         this.logger.LogInformation($"Submitting spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}");
-        await this.synapseSparkExecutor.SubmitJob(sparkPoolId.Name, sparkJobRequest, cancellationToken);
+        return await this.synapseSparkExecutor.SubmitJob(sparkPoolId.Name, sparkJobRequest, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -51,6 +52,15 @@ internal sealed class SparkJobManager : ISparkJobManager
         ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(sparkPool);
         this.logger.LogInformation($"Cancelling spark job {batchId} in pool={sparkPoolId.Name}");
         await this.synapseSparkExecutor.CancelJob(sparkPoolId.Name, batchId, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken)
+    {
+        SparkPoolModel sparkPool = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
+        ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(sparkPool);
+        this.logger.LogInformation($"Get spark job {batchId} in pool={sparkPoolId.Name}");
+        return await this.synapseSparkExecutor.GetJob(sparkPoolId.Name, batchId, cancellationToken);
     }
 
     /// <inheritdoc/>

@@ -26,9 +26,7 @@ public static class ConfigurationExtensions
             .Configure<PowerBIAuthConfiguration>(configuration.GetSection("powerBIAuth"))
             .Configure<ServerlessPoolAuthConfiguration>(configuration.GetSection("serverlessPoolAuth"))
             .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"))
-            .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
-            .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
-            .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"));
+            .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"));
 
         return services;
     }
@@ -64,7 +62,9 @@ public static class ConfigurationExtensions
             .Configure<ProcessingStorageAuthConfiguration>(configuration.GetSection("processingStorageAuth"))
             .Configure<MetadataServiceConfiguration>(configuration.GetSection("metadataService"))
             .Configure<ExposureControlConfiguration>(configuration.GetSection("exposureControl"))
-            .Configure<ArtifactStoreServiceConfiguration>(configuration.GetSection("artifactStoreServiceConfiguration"));
+            .Configure<ArtifactStoreServiceConfiguration>(configuration.GetSection("artifactStoreServiceConfiguration"))
+            .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"))
+            .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"));
         return services;
     }
 

@@ -23,6 +23,8 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
 using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using global::Azure.Analytics.Synapse.Spark.Models;
 
 /// <inheritdoc />
 public class JobManager : IJobManager
@@ -329,6 +331,44 @@ public class JobManager : IJobManager
                 .WithStartTime(DateTime.UtcNow.AddMinutes(1))
                 .WithRepeatStrategy(TimeSpan.FromMinutes(15))
                 .WithRetryStrategy(TimeSpan.FromMinutes(5))
+                .WithoutEndTime();
+
+            await this.CreateJobAsync(jobBuilder);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel)
+    {
+        string accountId = accountServiceModel.Id;
+        string jobPartition = $"{accountId}-SPARK-JOBS";
+        string jobId = $"{accountId}-CATALOG-SPARK-JOB";
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null && job.State == JobState.Faulted)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new CatalogSparkJobMetadata
+            {
+                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                AccountServiceModel = accountServiceModel,
+                SparkJobBatchId = string.Empty,
+                SparkJobResult = SparkBatchJobResultType.Uncertain,
+            };
+
+            JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
+                    nameof(CatalogSparkJobCallback),
+                    jobMetadata,
+                    jobPartition,
+                    jobId)
+                .WithStartTime(DateTime.UtcNow.AddHours(1))
+                .WithRepeatStrategy(TimeSpan.FromDays(1))
+                .WithRetryStrategy(TimeSpan.FromMinutes(15))
                 .WithoutEndTime();
 
             await this.CreateJobAsync(jobBuilder);
