@@ -41,7 +41,7 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.5.1-beta.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.0.0-rc9.14" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.5.1" />
-    <PackageVersion Include="Parquet.Net" Version="4.7.1" />
+    <PackageVersion Include="Parquet.Net" Version="4.17.0" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="7.0.11" />
@@ -62,6 +62,6 @@
     <PackageVersion Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
     <PackageVersion Include="Azure.Messaging.EventHubs" Version="5.10.0" />
     <PackageVersion Include="Azure.Messaging.EventHubs.Processor" Version="5.10.0" />
-     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
   </ItemGroup>
 </Project>

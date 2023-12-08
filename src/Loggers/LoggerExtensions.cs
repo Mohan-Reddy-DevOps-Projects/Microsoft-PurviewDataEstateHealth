@@ -47,8 +47,8 @@ public static class LoggerExtensions
 
         // Mdm Loggers
 
-        var purviewShareOtelInstrumentation = new DataEstateHealthOtelInstrumentation();
-        serviceCollection.AddSingleton<IOtelInstrumentation>(purviewShareOtelInstrumentation);
+        var purviewOtelInstrumentation = new DataEstateHealthOtelInstrumentation();
+        serviceCollection.AddSingleton<IOtelInstrumentation>(purviewOtelInstrumentation);
 
         // Mds Loggers
         serviceCollection.AddScoped<IDataEstateHealthRequestLogger, DataEstateHealthRequestLogger>();
@@ -217,7 +217,7 @@ public static class LoggerExtensions
 
     private static string GetRoleName()
     {
-        return "PurviewShare" + GetSanitizedEnvironmentVariable("CONTAINER_NAME");
+        return "DGHealth" + GetSanitizedEnvironmentVariable("CONTAINER_NAME");
     }
 
     /// <summary>
