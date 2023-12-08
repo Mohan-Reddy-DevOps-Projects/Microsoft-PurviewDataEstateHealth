@@ -6,15 +6,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using global::Azure.Messaging.EventHubs.Processor;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Newtonsoft.Json;
 
 internal class DataCatalogEventsProcessor : PartnerEventsProcessor
 {

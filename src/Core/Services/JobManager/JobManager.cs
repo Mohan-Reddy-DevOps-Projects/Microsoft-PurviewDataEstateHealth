@@ -353,9 +353,13 @@ public class JobManager : IJobManager
 
         if (job == null)
         {
+            var requestHeaderContext = new RequestHeaderContext(new HttpContextAccessor());
+            requestHeaderContext.SetCorrelationIdInRequestContext(Guid.NewGuid().ToString());
+
             var jobMetadata = new CatalogSparkJobMetadata
             {
                 WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                RequestHeaderContext = requestHeaderContext,
                 AccountServiceModel = accountServiceModel,
                 SparkJobBatchId = string.Empty,
                 SparkJobResult = SparkBatchJobResultType.Uncertain,
