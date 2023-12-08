@@ -21,14 +21,14 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 internal abstract class StorageManager<TConfig>
     where TConfig : ProcessingStorageConfiguration
 {
-    protected readonly IDataEstateHealthLogger logger;
+    protected readonly IDataEstateHealthRequestLogger logger;
     protected readonly IAzureResourceManager azureResourceManager;
     protected readonly TConfig storageConfiguration;
 
     public StorageManager(
         IAzureResourceManager azureResourceManager,
         IOptions<TConfig> storageConfiguration,
-        IDataEstateHealthLogger logger)
+        IDataEstateHealthRequestLogger logger)
     {
         this.logger = logger;
         this.storageConfiguration = storageConfiguration.Value;

@@ -30,7 +30,7 @@ public static class PartnerNotifier
     /// <param name="partnerContext">Context about each partner.</param>
     /// <returns>Async task.</returns>
     public static async Task NotifyPartners(
-        IDataEstateHealthLogger logger,
+        IDataEstateHealthRequestLogger logger,
         IPartnerService<AccountServiceModel, IPartnerDetails> partnerService,
         PartnerConfig<IPartnerDetails> partnerConfig,
         AccountServiceModel serviceModel,
@@ -64,7 +64,7 @@ public static class PartnerNotifier
     /// <param name="partnerContext">The existing context fo partners already notified.</param>
     /// <returns>Async task.</returns>
     private static async Task NotifyPartnersHelper(
-        IDataEstateHealthLogger logger,
+        IDataEstateHealthRequestLogger logger,
         IPartnerService<AccountServiceModel, IPartnerDetails> partnerService,
         IPartnerDetails[] partners,
         AccountServiceModel serviceModel,

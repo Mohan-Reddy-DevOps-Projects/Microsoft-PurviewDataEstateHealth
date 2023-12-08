@@ -23,12 +23,12 @@ internal sealed class SparkJobManager : ISparkJobManager
     private const string sparkPoolPrefix = "health";
     private readonly ISparkPoolRepository<SparkPoolModel> sparkPoolRepository;
     private readonly ISynapseSparkExecutor synapseSparkExecutor;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     public SparkJobManager(
         ISparkPoolRepository<SparkPoolModel> sparkPoolRepository,
         ISynapseSparkExecutor synapseSparkExecutor,
-        IDataEstateHealthLogger logger)
+        IDataEstateHealthRequestLogger logger)
     {
         this.sparkPoolRepository = sparkPoolRepository;
         this.synapseSparkExecutor = synapseSparkExecutor;

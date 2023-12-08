@@ -15,10 +15,10 @@ using Microsoft.PowerBI.Api.Models;
 
 internal sealed class WorkspaceCommand : IWorkspaceCommand
 {
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBIService powerBiService;
 
-    public WorkspaceCommand(IDataEstateHealthLogger logger, IPowerBIService powerBiService)
+    public WorkspaceCommand(IDataEstateHealthRequestLogger logger, IPowerBIService powerBiService)
     {
         this.logger = logger;
         this.powerBiService = powerBiService;

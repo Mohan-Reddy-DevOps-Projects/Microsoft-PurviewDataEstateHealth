@@ -33,14 +33,14 @@ public interface IDatasetsComponent
 internal sealed class DatasetsComponent : IDatasetsComponent
 {
     private readonly IServerlessPoolDataProvider serverlessPoolDataProvider;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
     private readonly SynapseSqlContextFactory contextFactory;
     private readonly IRequestHeaderContext requestHeaderContext;
 
     public DatasetsComponent(
         IServerlessPoolDataProvider serverlessPoolDataProvider,
-        IDataEstateHealthLogger logger,
+        IDataEstateHealthRequestLogger logger,
         IPowerBICredentialComponent powerBICredentialComponent,
         SynapseSqlContextFactory contextFactory,
         IRequestHeaderContext requestHeaderContext)

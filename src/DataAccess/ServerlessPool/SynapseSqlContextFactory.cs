@@ -18,14 +18,14 @@ public class SynapseSqlContextFactory : IDbContextFactory<SynapseSqlContext>
 {
     private readonly IServiceProvider provider;
     private readonly IServerlessPoolClient serverlessPoolClient;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SynapseSqlContextFactory"/> class.
     /// </summary>
     /// <param name="provider"></param>
     /// <param name="logger"></param>
-    public SynapseSqlContextFactory(IServiceProvider provider, IDataEstateHealthLogger logger)
+    public SynapseSqlContextFactory(IServiceProvider provider, IDataEstateHealthRequestLogger logger)
     {
         this.provider = provider;
         this.serverlessPoolClient = this.provider.GetService<IServerlessPoolClient>();

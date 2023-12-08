@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 public sealed class SynapseSqlContext : DbContext
 {
     private readonly SqlConnection sqlConnection;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     /// <summary>
     /// The database schema to use for the context.
@@ -30,7 +30,7 @@ public sealed class SynapseSqlContext : DbContext
     /// <param name="logger"></param>
     /// <param name="sqlConnection"></param>
     /// <param name="databaseSchema"></param>
-    public SynapseSqlContext(DbContextOptions<SynapseSqlContext> options, IDataEstateHealthLogger logger, SqlConnection sqlConnection, string databaseSchema)
+    public SynapseSqlContext(DbContextOptions<SynapseSqlContext> options, IDataEstateHealthRequestLogger logger, SqlConnection sqlConnection, string databaseSchema)
         : base(options)
     {
         this.logger = logger;

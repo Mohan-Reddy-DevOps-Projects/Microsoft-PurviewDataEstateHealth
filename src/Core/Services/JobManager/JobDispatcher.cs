@@ -20,7 +20,7 @@ using Microsoft.WindowsAzure.Storage;
 /// </summary>
 public class JobDispatcher : JobDispatcherClient, IJobDispatcher
 {
-    private readonly IDataEstateHealthLogger dataEstateHealthLogger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     private readonly EnvironmentConfiguration environmentConfiguration;
 
@@ -48,7 +48,7 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
             instrumentationSource: null)
     {
         this.environmentConfiguration = environmentConfiguration;
-        this.dataEstateHealthLogger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
+        this.logger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
         this.scopedServiceProvider = serviceProvider.CreateScope().ServiceProvider;
 
         // All JobCallbacks should be available in the same assembly as the JobDispatcher.
@@ -78,7 +78,7 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
     {
         try
         {
-            this.dataEstateHealthLogger.LogInformation("Starting job dispatcher.");
+            this.logger.LogInformation("Starting job dispatcher.");
 
             this.Start();
 
@@ -92,11 +92,11 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
             // All jobs to be provisioned when service comes up...
             await jobManager.ProvisionEventProcessorJob();
 
-            this.dataEstateHealthLogger.LogInformation("Job dispatcher started successfully.");
+            this.logger.LogInformation("Job dispatcher started successfully.");
         }
         catch (Exception exception)
         {
-            this.dataEstateHealthLogger.LogCritical("Failed to start Job Dispatcher", exception);
+            this.logger.LogCritical("Failed to start Job Dispatcher", exception);
 
             throw new ServiceException(
                     new ServiceError(

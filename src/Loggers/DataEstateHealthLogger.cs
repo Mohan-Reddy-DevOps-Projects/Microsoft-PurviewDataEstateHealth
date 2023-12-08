@@ -12,7 +12,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 /// <summary>
 /// Logger for singleton services that does not log scoped parameters
 /// </summary>
-public class DataEstateHealthLogger : IDataEstateHealthLogger, IDataEstateHealthRequestLogger
+public abstract class DataEstateHealthLogger
 {
     private readonly ILogger logger;
 

@@ -48,7 +48,7 @@ app.Lifetime.ApplicationStarted.Register(
         ServiceHealthCheck readinessCheck = app.Services.GetRequiredService<ServiceHealthCheck>();
         readinessCheck.Initialized = true;
 
-        IDataEstateHealthLogger logger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
+        IDataEstateHealthRequestLogger logger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
         EnvironmentConfiguration environmentConfiguration = serviceProvider.GetRequiredService<IOptions<EnvironmentConfiguration>>().Value;
         logger.LogInformation($"Worker service started successfully.");
     });

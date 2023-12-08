@@ -51,8 +51,8 @@ public static class LoggerExtensions
         serviceCollection.AddSingleton<IOtelInstrumentation>(purviewOtelInstrumentation);
 
         // Mds Loggers
-        serviceCollection.AddScoped<IDataEstateHealthRequestLogger, DataEstateHealthRequestLogger>();
-        serviceCollection.AddSingleton<IDataEstateHealthLogger, DataEstateHealthLogger>();
+        serviceCollection.AddSingleton<IRequestContextAccessor, RequestContextAccessor>();
+        serviceCollection.AddSingleton<IDataEstateHealthRequestLogger, DataEstateHealthRequestLogger>();
 
         Action<ResourceBuilder> configureResource = r => r.AddService(
            serviceName: GetRoleName(),

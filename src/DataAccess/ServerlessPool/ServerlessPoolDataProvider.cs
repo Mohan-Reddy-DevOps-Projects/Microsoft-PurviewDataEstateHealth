@@ -37,9 +37,9 @@ internal class ServerlessPoolDataProvider : IServerlessPoolDataProvider
         PageSize = ODataPageSize,
         EnsureStableOrdering = true,
     };
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
-    public ServerlessPoolDataProvider(IDataEstateHealthLogger logger)
+    public ServerlessPoolDataProvider(IDataEstateHealthRequestLogger logger)
     {
         this.logger = logger;
     }

@@ -16,12 +16,12 @@ using Microsoft.Rest;
 
 internal class MetadataAccessorService : IMetadataAccessorService
 {
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly MetadataServiceClientFactory metadataServiceClientFactory;
 
     public MetadataAccessorService(
         MetadataServiceClientFactory metadataServiceClientFactory,
-        IDataEstateHealthLogger logger)
+        IDataEstateHealthRequestLogger logger)
     {
         this.metadataServiceClientFactory = metadataServiceClientFactory;
         this.logger = logger;

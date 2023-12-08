@@ -20,11 +20,11 @@ using Microsoft.Rest;
 
 internal sealed class ProfileCommand : IProfileCommand
 {
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBIService powerBiService;
     private readonly PowerBIAuthConfiguration powerBIAuthConfig;
 
-    public ProfileCommand(IDataEstateHealthLogger logger, IPowerBIService powerBiService, IOptions<PowerBIAuthConfiguration> powerBIAuthConfig)
+    public ProfileCommand(IDataEstateHealthRequestLogger logger, IPowerBIService powerBiService, IOptions<PowerBIAuthConfiguration> powerBIAuthConfig)
     {
         this.logger = logger;
         this.powerBiService = powerBiService;

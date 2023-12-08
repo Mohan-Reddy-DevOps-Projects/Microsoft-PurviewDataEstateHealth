@@ -29,7 +29,7 @@ internal abstract class PartnerServiceBase
     private const int MinPollingIntervalSeconds = 1;
     private const int MaxPollingIntervalSeconds = DefaultPollingTimeoutSeconds;
 
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly IHttpClientFactory httpClientFactory;
 
     /// <summary>
@@ -50,7 +50,7 @@ internal abstract class PartnerServiceBase
     /// <param name="httpClientFactory">The http client factory.</param>
     public PartnerServiceBase(
         IRequestHeaderContext requestHeaderContext,
-        IDataEstateHealthLogger logger,
+        IDataEstateHealthRequestLogger logger,
         IHttpClientFactory httpClientFactory)
     {
         this.RequestHeaderContext = requestHeaderContext;

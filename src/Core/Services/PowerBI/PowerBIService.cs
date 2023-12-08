@@ -29,14 +29,14 @@ internal class PowerBIService : IPowerBIService
 {
     private readonly PowerBIFactory powerBIFactory;
     private readonly PowerBIAuthConfiguration authConfiguration;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     private const string Tag = nameof(PowerBIService);
 
     public PowerBIService(
         PowerBIFactory powerBIFactory,
         IOptions<PowerBIAuthConfiguration> authConfiguration,
-        IDataEstateHealthLogger logger)
+        IDataEstateHealthRequestLogger logger)
     {
         this.powerBIFactory = powerBIFactory;
         this.authConfiguration = authConfiguration.Value;

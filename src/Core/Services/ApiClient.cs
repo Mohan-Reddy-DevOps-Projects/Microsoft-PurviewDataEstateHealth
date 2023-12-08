@@ -16,11 +16,11 @@ internal class ApiClient : IApiClient
 {
     private readonly HttpClient client;
 
-    private readonly IDataEstateHealthLogger dataEstateHealthLogger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
-    public ApiClient(HttpClient httpClient, IDataEstateHealthLogger dataEstateHealthLogger)
+    public ApiClient(HttpClient httpClient, IDataEstateHealthRequestLogger logger)
     {
-        this.dataEstateHealthLogger = dataEstateHealthLogger;
+        this.logger = logger;
         this.client = httpClient;
     }
 
@@ -82,13 +82,13 @@ internal class ApiClient : IApiClient
         string operationName,
         Func<Task<HttpResponseMessage>> operation)
     {
-        this.dataEstateHealthLogger.LogInformation(
+        this.logger.LogInformation(
             $"httpRequestMessage for endPointType - {endPointType}, {operationName} in ApiClient requestUri :{httpRequestMessage.RequestUri.ToJson()}, method : {httpRequestMessage.Method.ToJson()}",
             isSensitive: true);
 
         return await PollyRetryPolicies
             .GetHttpClientTransientRetryPolicy(
-                LoggerRetryActionFactory.CreateHttpClientRetryAction(this.dataEstateHealthLogger, nameof(EndPointType)))
+                LoggerRetryActionFactory.CreateHttpClientRetryAction(this.logger, nameof(EndPointType)))
             .ExecuteAsync(
                 async () =>
                 {
@@ -100,7 +100,7 @@ internal class ApiClient : IApiClient
                     }
                     catch (Exception exception)
                     {
-                        this.dataEstateHealthLogger.LogError(
+                        this.logger.LogError(
                             $"Api client {operationName} operation failed for endPointType - {endPointType}",
                             exception);
 

@@ -23,7 +23,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 internal class PowerBIFactory : IDisposable
 {
     private static readonly TimeSpan maxCacheBlockingTime = TimeSpan.FromSeconds(10);
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly PowerBIAuthConfiguration authConfiguration;
     /*private readonly ICounter callCounter;
     private readonly ICounter errorCounter;*/
@@ -56,7 +56,7 @@ internal class PowerBIFactory : IDisposable
     /// <param name="authConfiguration"></param>
     /// <param name="aadService"></param>
     public PowerBIFactory(
-        IDataEstateHealthLogger logger,
+        IDataEstateHealthRequestLogger logger,
         IOptions<PowerBIAuthConfiguration> authConfiguration,
         IAadAppTokenProviderService<PowerBIAuthConfiguration> aadService)
         // IRequestContextAccessor requestContextAccessor,

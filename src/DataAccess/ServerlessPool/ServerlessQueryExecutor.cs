@@ -20,7 +20,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 public class ServerlessQueryExecutor : IServerlessQueryExecutor
 {
     private readonly IServerlessPoolClient client;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     /// <summary>
     /// The amount of time to wait between retries.
@@ -30,7 +30,7 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
     /// <inheritdoc />
     public ServerlessQueryExecutor(
         IServerlessPoolClient client,
-        IDataEstateHealthLogger logger)
+        IDataEstateHealthRequestLogger logger)
     {
         this.client = client;
         this.logger = logger;

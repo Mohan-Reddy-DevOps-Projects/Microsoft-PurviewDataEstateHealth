@@ -39,14 +39,14 @@ internal abstract class ClientFactory<T> : IDisposable
     private long instanceCreationTime;
     private bool disposedValue;
     private readonly IHttpClientFactory httpClientFactory;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ClientFactory{T}"/> class.
     /// </summary>
     public ClientFactory(
         IHttpClientFactory httpClientFactory,
-        IDataEstateHealthLogger logger)
+        IDataEstateHealthRequestLogger logger)
     {
         this.httpClientFactory = httpClientFactory;
         this.logger = logger;

@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 /// <summary>
 /// Worker service implementation.
@@ -27,8 +28,8 @@ public class WorkerService : BackgroundService
         JobDispatcher jobDispatcher = await JobDispatcher.CreateAsync(this.serviceProvider);
         await jobDispatcher.Initialize();
 
-        //IDataEstateHealthLogger dataEstateHealthLogger = this.serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
-        //dataEstateHealthLogger.LogInformation("WorkerService initialized and setting up infinite loop.");
+        IDataEstateHealthRequestLogger logger = this.serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
+        logger.LogInformation("WorkerService initialized and setting up infinite loop.");
 
         while (!cancellationToken.IsCancellationRequested)
         {

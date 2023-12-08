@@ -30,7 +30,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 public class PlatformAccountNotificationsController : ControlPlaneController
 {
     private readonly ICoreLayerFactory coreLayerFactory;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPartnerService<AccountServiceModel, IPartnerDetails> partnerService;
     private readonly PartnerConfig<IPartnerDetails> partnerConfig;
     private readonly IAccountExposureControlConfigProvider exposureControl;
@@ -44,7 +44,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         IPartnerService<AccountServiceModel, IPartnerDetails> partnerService,
         IAccountExposureControlConfigProvider exposureControl,
         IOptions<PartnerConfiguration> partnerConfiguration,
-        IDataEstateHealthLogger logger,
+        IDataEstateHealthRequestLogger logger,
         IProcessingStorageManager processingStorageManager,
         ControllerContext controllerContext = null)
     {

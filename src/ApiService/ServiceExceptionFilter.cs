@@ -18,7 +18,7 @@ using Microsoft.DGP.ServiceBasics.Errors;
 /// </summary>
 public class ServiceExceptionFilter : IExceptionFilter
 {
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     private readonly IExceptionAdapterService exceptionAdapter;
 
@@ -28,7 +28,7 @@ public class ServiceExceptionFilter : IExceptionFilter
     /// Initializes a new instance of the <see cref="ServiceExceptionFilter" /> class.
     /// </summary>
     public ServiceExceptionFilter(
-        IDataEstateHealthLogger purviewShareRequestLogger,
+        IDataEstateHealthRequestLogger purviewShareRequestLogger,
         IExceptionAdapterService exceptionAdapter,
         IRequestHeaderContext requestHeaderContext)
     {

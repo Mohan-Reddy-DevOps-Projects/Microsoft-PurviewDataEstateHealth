@@ -14,25 +14,25 @@ using Microsoft.Extensions.Logging;
 /// </summary>
 internal class DataEstateHealthRequestLogger : DataEstateHealthLogger, IDataEstateHealthRequestLogger
 {
-    private readonly IRequestHeaderContext requestHeaderContext;
+    private readonly IRequestContextAccessor requestContextAccessor;
 
     /// <inheritdoc />
     /// <summary>
     /// Initializes a new instance of the <see cref="DataEstateHealthRequestLogger" /> class.
     /// </summary>
     /// <param name="loggerFactory">The logger factory to use</param>
-    /// <param name="requestHeaderContext">The correlation context.</param>
+    /// <param name="requestContextAccessor">The correlation context.</param>
     public DataEstateHealthRequestLogger(
         ILoggerFactory loggerFactory,
-        IRequestHeaderContext requestHeaderContext)
+        IRequestContextAccessor requestContextAccessor)
         : base(loggerFactory)
     {
-        this.requestHeaderContext = requestHeaderContext;
+        this.requestContextAccessor = requestContextAccessor;
     }
 
     /// <inheritdoc />
     protected override IRequestHeaderContext GetRequestHeaderContext()
     {
-        return this.requestHeaderContext;
+        return this.requestContextAccessor?.GetRequestContext();
     }
 }

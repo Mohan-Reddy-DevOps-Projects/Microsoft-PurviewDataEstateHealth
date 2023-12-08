@@ -17,9 +17,9 @@ internal sealed class CapacityAssignment : ICapacityAssignment
 {
     private readonly IPowerBIService powerBiService;
     private readonly IAccountExposureControlConfigProvider exposureControl;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
-    public CapacityAssignment(IPowerBIService powerBiService, IAccountExposureControlConfigProvider exposureControl, IDataEstateHealthLogger logger)
+    public CapacityAssignment(IPowerBIService powerBiService, IAccountExposureControlConfigProvider exposureControl, IDataEstateHealthRequestLogger logger)
     {
         this.powerBiService = powerBiService;
         this.exposureControl = exposureControl;

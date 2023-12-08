@@ -23,7 +23,7 @@ using JobLogger = WindowsAzure.ResourceStack.Common.BackgroundJobs.JobLogger;
 internal class WorkerJobCallbackFactory : JobCallbackFactory
 {
     private readonly IServiceProvider serviceProvider;
-    private readonly IDataEstateHealthLogger dataEstateHealthLogger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     /// <summary>
     /// Constructor for the <see cref="WorkerJobCallbackFactory"/>.
@@ -32,7 +32,7 @@ internal class WorkerJobCallbackFactory : JobCallbackFactory
     public WorkerJobCallbackFactory(IServiceProvider serviceProvider)
     {
         this.serviceProvider = serviceProvider;
-        this.dataEstateHealthLogger = this.serviceProvider.GetService<IDataEstateHealthLogger>();
+        this.logger = this.serviceProvider.GetService<IDataEstateHealthRequestLogger>();
     }
 
     public override JobDelegate CreateInstance(JobLogger jobLogger, Type callbackType, BackgroundJob job)
@@ -55,7 +55,7 @@ internal class WorkerJobCallbackFactory : JobCallbackFactory
             }
             catch (SerializationException exception)
             {
-                this.dataEstateHealthLogger.LogCritical(
+                this.logger.LogCritical(
                     "Unable to parse WorkerJobMetadata - " + job.Metadata?.ToJson(),
                     exception);
                 jobDelegate = new FaultedJobDelegate(job);
@@ -95,7 +95,7 @@ internal class WorkerJobCallbackFactory : JobCallbackFactory
 
             if (workerJobMetadata?.RequestHeaderContext == null)
             {
-                this.dataEstateHealthLogger.LogCritical(
+                this.logger.LogCritical(
                     "Unable to get requestHeaderContext from metadata - " + metadata.ToJson());
             }
             else

@@ -19,13 +19,13 @@ using Microsoft.PowerBI.Api.Models;
 
 internal sealed class DatasetCommand : IDatasetCommand
 {
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBIService powerBiService;
     private readonly IBlobStorageAccessor blobStorageAccessor;
     private readonly AuxStorageConfiguration storageConfiguration;
     private readonly BlobServiceClient blobServiceClient;
 
-    public DatasetCommand(IDataEstateHealthLogger logger, IPowerBIService powerBiService, IBlobStorageAccessor blobStorageAccessor, IOptions<AuxStorageConfiguration> storageConfiguration)
+    public DatasetCommand(IDataEstateHealthRequestLogger logger, IPowerBIService powerBiService, IBlobStorageAccessor blobStorageAccessor, IOptions<AuxStorageConfiguration> storageConfiguration)
     {
         this.logger = logger;
         this.powerBiService = powerBiService;

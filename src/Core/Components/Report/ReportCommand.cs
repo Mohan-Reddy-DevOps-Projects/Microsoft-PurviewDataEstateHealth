@@ -15,11 +15,11 @@ using Microsoft.PowerBI.Api.Models;
 
 internal sealed class ReportCommand : IReportCommand
 {
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBIService powerBIService;
     private readonly IDatasetCommand datasetCommand;
 
-    public ReportCommand(IDataEstateHealthLogger logger, IPowerBIService powerBIService, IDatasetCommand datasetCommand)
+    public ReportCommand(IDataEstateHealthRequestLogger logger, IPowerBIService powerBIService, IDatasetCommand datasetCommand)
     {
         this.logger = logger;
         this.powerBIService = powerBIService;

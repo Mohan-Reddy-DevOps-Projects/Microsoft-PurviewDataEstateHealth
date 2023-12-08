@@ -25,7 +25,7 @@ using Microsoft.Extensions.Options;
 internal sealed class BlobStorageAccessor : IBlobStorageAccessor
 {
     private const string Tag = nameof(BlobStorageAccessor);
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly AuxStorageConfiguration storageConfiguration;
     private readonly DefaultAzureCredential tokenCredential;
 
@@ -46,7 +46,7 @@ internal sealed class BlobStorageAccessor : IBlobStorageAccessor
     /// <param name="logger">logger</param>
     /// <param name="credentialFactory"></param>
     /// <param name="storageConfiguration">Storage configuration</param>
-    public BlobStorageAccessor(IDataEstateHealthLogger logger, AzureCredentialFactory credentialFactory, IOptions<AuxStorageConfiguration> storageConfiguration)
+    public BlobStorageAccessor(IDataEstateHealthRequestLogger logger, AzureCredentialFactory credentialFactory, IOptions<AuxStorageConfiguration> storageConfiguration)
     {
         this.logger = logger;
         this.storageConfiguration = storageConfiguration.Value;

@@ -18,12 +18,12 @@ internal class ExposureControlClient : IExposureControlClient
 {
     private const string Tag = "ExposureControl";
     private IExposureControl exposureControl;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly ICertificateLoaderService certificateManager;
     private readonly ExposureControlConfiguration config;
 
     public ExposureControlClient(
-        IDataEstateHealthLogger logger,
+        IDataEstateHealthRequestLogger logger,
         ICertificateLoaderService certificateManager,
         IOptions<ExposureControlConfiguration> config)
     {

@@ -16,16 +16,16 @@ public static class LoggerRetryActionFactory
     /// <summary>
     /// Creates an Action that logs retries of service cause as an error.
     /// </summary>
-    /// <param name="dataEstateHealthLogger"></param>
+    /// <param name="logger"></param>
     /// <param name="serviceName"></param>
     /// <returns></returns>
     public static Action<DelegateResult<HttpResponseMessage>, TimeSpan, int, Context> CreateHttpClientRetryAction(
-        IDataEstateHealthLogger dataEstateHealthLogger,
+        IDataEstateHealthRequestLogger logger,
         string serviceName)
     {
         return (result, _, retryCount, _) =>
         {
-            dataEstateHealthLogger.LogError($"Retry attempt {retryCount} for {serviceName} after failure.",
+            logger.LogError($"Retry attempt {retryCount} for {serviceName} after failure.",
                 exception: result?.Exception);
         };
     }
@@ -33,16 +33,16 @@ public static class LoggerRetryActionFactory
     /// <summary>
     /// Creates an Action that logs retries of service cause as an error.
     /// </summary>
-    /// <param name="dataEstateHealthLogger"></param>
+    /// <param name="logger"></param>
     /// <param name="serviceName"></param>
     /// <returns></returns>
     public static Action<Exception, TimeSpan, int, Context> CreateWorkerRetryAction(
-        IDataEstateHealthLogger dataEstateHealthLogger,
+        IDataEstateHealthRequestLogger logger,
         string serviceName)
     {
         return (result, _, retryCount, _) =>
         {
-            dataEstateHealthLogger.LogError(
+            logger.LogError(
                 $"Retry attempt {retryCount} for {serviceName} after failure.",
                 result);
         };

@@ -26,13 +26,13 @@ internal sealed class ServerlessPoolClient : IServerlessPoolClient
     private readonly ServerlessPoolAuthConfiguration authConfig;
     private readonly ServerlessPoolConfiguration config;
     private readonly List<string> sqlEndpoints;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     public ServerlessPoolClient(
         AzureCredentialFactory credentialFactory,
         IOptions<ServerlessPoolAuthConfiguration> authConfig,
         IOptions<ServerlessPoolConfiguration> config,
-        IDataEstateHealthLogger logger)
+        IDataEstateHealthRequestLogger logger)
     {
         this.authConfig = authConfig.Value;
         this.config = config.Value;

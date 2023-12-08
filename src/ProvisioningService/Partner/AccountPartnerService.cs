@@ -25,7 +25,7 @@ internal sealed class AccountPartnerService : PartnerServiceBase, IPartnerServic
     public AccountPartnerService(
         IRequestHeaderContext requestHeaderContext,
         IHttpClientFactory httpClientFactory,
-        IDataEstateHealthLogger logger)
+        IDataEstateHealthRequestLogger logger)
         : base(requestHeaderContext, logger, httpClientFactory)
     {
     }

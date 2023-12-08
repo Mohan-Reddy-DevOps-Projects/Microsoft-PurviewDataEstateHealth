@@ -13,11 +13,11 @@ using Microsoft.PowerBI.Api.Models;
 
 internal sealed class OnDemandRefreshStrategy
 {
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBIService powerBIService;
     private readonly ICapacityAssignment capacityAssignment;
 
-    public OnDemandRefreshStrategy(IDataEstateHealthLogger logger, IPowerBIService powerBIService, ICapacityAssignment capacityAssignment)
+    public OnDemandRefreshStrategy(IDataEstateHealthRequestLogger logger, IPowerBIService powerBIService, ICapacityAssignment capacityAssignment)
     {
         this.logger = logger;
         this.powerBIService = powerBIService;

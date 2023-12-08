@@ -15,13 +15,13 @@ using Microsoft.PowerBI.Api.Models;
 
 internal class RefreshComponent : IRefreshComponent
 {
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBIService powerBIService;
     private readonly ICapacityAssignment capacityAssignment;
     private readonly HealthProfileCommand profileCommand;
     private static readonly IEnumerable<IDataset> allowedDatasets = SystemDatasets.Get().Values;
 
-    public RefreshComponent(IDataEstateHealthLogger logger, IPowerBIService powerBIService, ICapacityAssignment capacityAssignment, HealthProfileCommand profileCommand)
+    public RefreshComponent(IDataEstateHealthRequestLogger logger, IPowerBIService powerBIService, ICapacityAssignment capacityAssignment, HealthProfileCommand profileCommand)
     {
         this.logger = logger;
         this.powerBIService = powerBIService;

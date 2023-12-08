@@ -137,7 +137,7 @@ public static class DataAccessLayer
                 IOptions<TConfig> configOptions = serviceProvider.GetRequiredService<IOptions<TConfig>>();
                 var messageHandler = new CertificateHandler<TConfig>(certificateLoaderService, configOptions);
 
-                IDataEstateHealthLogger logger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
+                IDataEstateHealthRequestLogger logger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
                 logger.LogInformation($"Created a new {nameof(SocketsHttpHandler)} instance named '{settings.Name}' for outbound calls");
 
                 return messageHandler;

@@ -22,7 +22,7 @@ internal sealed class AadAppTokenProviderService<TAadConfig> : IAadAppTokenProvi
     where TAadConfig : AadAppConfiguration
 {
     private readonly TAadConfig configuration;
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly IMemoryCache cache;
     private readonly ICertificateLoaderService certificateLoaderService;
     private readonly TimeSpan timeSpanToRenewTokenBeforeExpiry;
@@ -31,7 +31,7 @@ internal sealed class AadAppTokenProviderService<TAadConfig> : IAadAppTokenProvi
         IOptions<TAadConfig> configuration,
         ICertificateLoaderService certManager,
         IMemoryCache cache,
-        IDataEstateHealthLogger logger)
+        IDataEstateHealthRequestLogger logger)
     {
         this.configuration = configuration.Value;
         this.certificateLoaderService = certManager;

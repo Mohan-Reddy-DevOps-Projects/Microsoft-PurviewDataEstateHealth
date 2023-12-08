@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 internal sealed class ExposureControlLogger : IExposureControlLogger
 {
-    private readonly IDataEstateHealthLogger logger;
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly TraceEventType logLevel;
 
     /// <summary>
@@ -18,7 +18,7 @@ internal sealed class ExposureControlLogger : IExposureControlLogger
     /// </summary>
     /// <param name="logger">Logger supplied by the service, exposed to the EC library through its own interface.</param>
     /// <param name="loggingLevel">Logging level for this logger.</param>
-    public ExposureControlLogger(IDataEstateHealthLogger logger, string loggingLevel)
+    public ExposureControlLogger(IDataEstateHealthRequestLogger logger, string loggingLevel)
     {
         this.logger = logger;
         try
