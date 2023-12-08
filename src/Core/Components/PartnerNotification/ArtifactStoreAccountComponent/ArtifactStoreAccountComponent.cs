@@ -35,10 +35,7 @@ internal sealed class ArtifactStoreAccountComponent : IArtifactStoreAccountCompo
 
         var nameFilters = new IndexedPropertyListEqualityFilter(
                $"{nameof(HealthControlArtifactStoreEntity.Name).UncapitalizeFirstChar()}",
-               new List<string>() { "Data governance score", "Metadata completeness", "Ownership",
-                    "Cataloging", "Classification", "Use",
-                    "Data consumption purpose", "Access entitlement", "Quality",
-                    "Data quality", "Authoritative data source" });
+               OOTBControlTypes.GetListOfNames());
 
         List<ArtifactStoreEntityDocument<HealthControlArtifactStoreEntity>> existingEntityList =
             (await this.artifactStoreAccessorService.ListResourcesByCategoryAsync<HealthControlArtifactStoreEntity>(
@@ -56,70 +53,70 @@ internal sealed class ArtifactStoreAccountComponent : IArtifactStoreAccountCompo
             healthControlEntities.Add(entity.Properties.Name, entity.Properties);
         }
 
-        if (!healthControlEntities.ContainsKey("Data governance score"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.DataGovernanceScore.Name))
         {
-            var dataGovernanceEntity = await CreateHealthControlEntity(account, true, "Data governance score", Guid.Empty);
-            healthControlEntities.Add("Data governance score", dataGovernanceEntity);
+            var dataGovernanceEntity = await CreateHealthControlEntity(account, true, OOTBControlTypes.DataGovernanceScore.Name, Guid.Empty);
+            healthControlEntities.Add(OOTBControlTypes.DataGovernanceScore.Name, dataGovernanceEntity);
         }
 
-        if (!healthControlEntities.ContainsKey("Metadata completeness"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.MetadataCompleteness.Name))
         {
-            var metadataCompletenessEntity = await CreateHealthControlEntity(account, true, "Metadata completeness", healthControlEntities["Data governance score"].ObjectId);
-            healthControlEntities.Add("Metadata completeness", metadataCompletenessEntity);
+            var metadataCompletenessEntity = await CreateHealthControlEntity(account, true, OOTBControlTypes.MetadataCompleteness.Name, healthControlEntities[OOTBControlTypes.DataGovernanceScore.Name].ObjectId);
+            healthControlEntities.Add(OOTBControlTypes.MetadataCompleteness.Name, metadataCompletenessEntity);
         }
 
-        if (!healthControlEntities.ContainsKey("Ownership"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.Ownership.Name))
         {
-            var ownershipEntity = await CreateHealthControlEntity(account, false, "Ownership", healthControlEntities["Metadata completeness"].ObjectId);
-            healthControlEntities.Add("Ownership", ownershipEntity);
+            var ownershipEntity = await CreateHealthControlEntity(account, false, OOTBControlTypes.Ownership.Name, healthControlEntities[OOTBControlTypes.MetadataCompleteness.Name].ObjectId);
+            healthControlEntities.Add(OOTBControlTypes.Ownership.Name, ownershipEntity);
         }
 
-        if (!healthControlEntities.ContainsKey("Cataloging"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.Cataloging.Name))
         {
-            var catalogingEntity = await CreateHealthControlEntity(account, false, "Cataloging", healthControlEntities["Metadata completeness"].ObjectId);
-            healthControlEntities.Add("Cataloging", catalogingEntity);
+            var catalogingEntity = await CreateHealthControlEntity(account, false, OOTBControlTypes.Cataloging.Name, healthControlEntities[OOTBControlTypes.MetadataCompleteness.Name].ObjectId);
+            healthControlEntities.Add(OOTBControlTypes.Cataloging.Name, catalogingEntity);
         }
 
-        if (!healthControlEntities.ContainsKey("Classification"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.Classification.Name))
         {
-            var classificationEntity = await CreateHealthControlEntity(account, false, "Classification", healthControlEntities["Metadata completeness"].ObjectId);
-            healthControlEntities.Add("Classification", classificationEntity);
+            var classificationEntity = await CreateHealthControlEntity(account, false, OOTBControlTypes.Classification.Name, healthControlEntities[OOTBControlTypes.MetadataCompleteness.Name].ObjectId);
+            healthControlEntities.Add(OOTBControlTypes.Classification.Name, classificationEntity);
         }
 
-        if (!healthControlEntities.ContainsKey("Use"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.Use.Name))
         {
-            var useEntity = await CreateHealthControlEntity(account, true, "Use", healthControlEntities["Data governance score"].ObjectId);
-            healthControlEntities.Add("Use", useEntity);
+            var useEntity = await CreateHealthControlEntity(account, true, OOTBControlTypes.Use.Name, healthControlEntities[OOTBControlTypes.DataGovernanceScore.Name].ObjectId);
+            healthControlEntities.Add(OOTBControlTypes.Use.Name, useEntity);
         }
 
-        if (!healthControlEntities.ContainsKey("Data consumption purpose"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.DataConsumptionPurpose.Name))
         {
-            var dataConsumptionPurposeEntity = await CreateHealthControlEntity(account, false, "Data consumption purpose", healthControlEntities["Use"].ObjectId);
-            healthControlEntities.Add("Data consumption purpose", dataConsumptionPurposeEntity);
+            var dataConsumptionPurposeEntity = await CreateHealthControlEntity(account, false, OOTBControlTypes.DataConsumptionPurpose.Name, healthControlEntities[OOTBControlTypes.Use.Name].ObjectId);
+            healthControlEntities.Add(OOTBControlTypes.DataConsumptionPurpose.Name, dataConsumptionPurposeEntity);
         }
 
-        if (!healthControlEntities.ContainsKey("Access entitlement"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.AccessEntitlement.Name))
         {
-            var accessEntitlementEntity = await CreateHealthControlEntity(account, false, "Access entitlement", healthControlEntities["Use"].ObjectId);
-            healthControlEntities.Add("Access entitlement", accessEntitlementEntity);
+            var accessEntitlementEntity = await CreateHealthControlEntity(account, false, OOTBControlTypes.AccessEntitlement.Name, healthControlEntities[OOTBControlTypes.Use.Name].ObjectId);
+            healthControlEntities.Add(OOTBControlTypes.AccessEntitlement.Name, accessEntitlementEntity);
         }
 
-        if (!healthControlEntities.ContainsKey("Quality"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.Quality.Name))
         {
-            var qualityEntity = await CreateHealthControlEntity(account, true, "Quality", healthControlEntities["Data governance score"].ObjectId);
-            healthControlEntities.Add("Quality", qualityEntity);
+            var qualityEntity = await CreateHealthControlEntity(account, true, OOTBControlTypes.Quality.Name, healthControlEntities[OOTBControlTypes.DataGovernanceScore.Name].ObjectId);
+            healthControlEntities.Add(OOTBControlTypes.Quality.Name, qualityEntity);
         }
 
-        if (!healthControlEntities.ContainsKey("Data quality"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.DataQuality.Name))
         {
-            var dataQualityEntity = await CreateHealthControlEntity(account, false, "Data quality", healthControlEntities["Quality"].ObjectId);
-            healthControlEntities.Add("Data quality", dataQualityEntity);
+            var dataQualityEntity = await CreateHealthControlEntity(account, false, OOTBControlTypes.DataQuality.Name, healthControlEntities[OOTBControlTypes.Quality.Name].ObjectId);
+            healthControlEntities.Add(OOTBControlTypes.DataQuality.Name, dataQualityEntity);
         }
 
-        if (!healthControlEntities.ContainsKey("Authoritative data source"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.AuthoritativeDataSource.Name))
         {
-            var authoritativeDataSourceEntity = await CreateHealthControlEntity(account, false, "Authoritative data source", healthControlEntities["Quality"].ObjectId);
-            healthControlEntities.Add("Authoritative data source", authoritativeDataSourceEntity);
+            var authoritativeDataSourceEntity = await CreateHealthControlEntity(account, false, OOTBControlTypes.AuthoritativeDataSource.Name, healthControlEntities[OOTBControlTypes.Quality.Name].ObjectId);
+            healthControlEntities.Add(OOTBControlTypes.AuthoritativeDataSource.Name, authoritativeDataSourceEntity);
         }
 
         this.dataEstateHealthRequestLogger.LogInformation("Insert OOTB controls ran successfully.");
@@ -146,7 +143,7 @@ internal sealed class ArtifactStoreAccountComponent : IArtifactStoreAccountCompo
                 DisplayName = "System",
             },
             ParentControlId = parentControlId,
-            ScoreUnit = "Percentage",
+            ScoreUnit = "%",
             StartsAt = DateTime.MinValue,
             TargetScore = 80,
             TrendUrl = null,

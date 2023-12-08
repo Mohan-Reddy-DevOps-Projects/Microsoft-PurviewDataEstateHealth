@@ -10,7 +10,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Shared;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 using Microsoft.DGP.ServiceBasics.BaseModels;
-using Microsoft.Purview.ArtifactStoreClient.Models;
 using Microsoft.Purview.ArtifactStoreClient;
 using Newtonsoft.Json;
 using Microsoft.Azure.Purview.DataAccess.DataAccess;
@@ -80,8 +79,8 @@ internal class HealthControlRepository : IHealthControlRepository
         IList<HealthControlSqlEntity> healthControlEntititiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
         var parentControlIdFilter = new IndexedPropertyEqualityFilter(
-            $"{nameof(HealthControlArtifactStoreEntity.ParentControlId).UncapitalizeFirstChar()}",
-            Guid.Empty.ToString(),
+            $"{nameof(HealthControlArtifactStoreEntity.HealthControlKind).UncapitalizeFirstChar()}",
+            HealthControlKind.DataGovernance.ToString(),
             true);
 
         ArtifactStoreEntityQueryResult<HealthControlArtifactStoreEntity> entityList =
@@ -94,44 +93,77 @@ internal class HealthControlRepository : IHealthControlRepository
                 byPassObligations: true);
 
         HealthControlSqlEntity healthControlSqlEntity = healthControlEntititiesList[0];
-        HealthControlArtifactStoreEntity healthControlArtifactStoreEntity = entityList.Items.First().Properties;
 
-        var healthControlEntity = new HealthControlEntity()
-        {
-            CurrentScore = healthControlSqlEntity.CurrentScore,
-            LastRefreshedAt = healthControlSqlEntity.LastRefreshedAt,
-            ControlStatus = healthControlArtifactStoreEntity.ControlStatus,
-            ControlType = healthControlArtifactStoreEntity.ControlType,
-            CreatedAt = healthControlArtifactStoreEntity.CreatedAt,
-            Description = healthControlArtifactStoreEntity.Description,
-            EndsAt = healthControlArtifactStoreEntity.EndsAt,
-            HealthStatus = healthControlArtifactStoreEntity.HealthStatus,
-            IsCompositeControl = healthControlArtifactStoreEntity.IsCompositeControl,
-            ModifiedAt = healthControlArtifactStoreEntity.ModifiedAt,
-            Name = healthControlArtifactStoreEntity.Name,
-            ObjectId = healthControlArtifactStoreEntity.ObjectId,
-            OwnerContact = healthControlArtifactStoreEntity.OwnerContact,
-            ParentControlId = healthControlArtifactStoreEntity.ParentControlId,
-            ScoreUnit = healthControlArtifactStoreEntity.ScoreUnit,
-            StartsAt = healthControlArtifactStoreEntity.StartsAt,
-            TargetScore = healthControlArtifactStoreEntity.TargetScore,
-            TrendUrl = healthControlArtifactStoreEntity.TrendUrl,
-            HealthControlKind = healthControlArtifactStoreEntity.HealthControlKind,
-            Version = null,
-        };
+        List<HealthControlEntity> healthControlEntities = this.CreateHealthControlEntities(entityList.Items.Select(x => x.Properties).ToList(), healthControlSqlEntity);
 
-        //Grab the first one and add it for now - "Data governance score". 
         var healthControlModelList = new List<HealthControlModel>();
 
-        healthControlModelList.Add(this.modelAdapterRegistry
-                           .AdapterFor<HealthControlModel, HealthControlEntity>()
-                                          .ToModel(healthControlEntity));
+        foreach(HealthControlEntity healthControlEntity in healthControlEntities)
+        {
+            healthControlModelList.Add(this.modelAdapterRegistry
+                   .AdapterFor<HealthControlModel, HealthControlEntity>()
+                                  .ToModel(healthControlEntity));
+        }
 
         return await Task.FromResult(new BaseBatchResults<HealthControlModel>
         {
             Results = healthControlModelList,
             ContinuationToken = null
         });
+    }
+
+    private List<HealthControlEntity> CreateHealthControlEntities(List<HealthControlArtifactStoreEntity> healthControlArtifactStoreEntities, HealthControlSqlEntity healthControlSqlEntity)
+    {
+        List<HealthControlEntity> healthControlEntities = new();
+
+        Dictionary<string, double> controlNameScoreDictionary = this.CreateControlNameScoreDictionary(healthControlSqlEntity);
+
+        foreach (HealthControlArtifactStoreEntity healthControlArtifactStoreEntity in healthControlArtifactStoreEntities)
+        {
+            healthControlEntities.Add(new HealthControlEntity()
+            {
+                CurrentScore = controlNameScoreDictionary[healthControlArtifactStoreEntity.Name],
+                LastRefreshedAt = healthControlSqlEntity.LastRefreshedAt,
+                ControlStatus = healthControlArtifactStoreEntity.ControlStatus,
+                ControlType = healthControlArtifactStoreEntity.ControlType,
+                CreatedAt = healthControlArtifactStoreEntity.CreatedAt,
+                Description = healthControlArtifactStoreEntity.Description,
+                EndsAt = healthControlArtifactStoreEntity.EndsAt,
+                HealthStatus = healthControlArtifactStoreEntity.HealthStatus,
+                IsCompositeControl = healthControlArtifactStoreEntity.IsCompositeControl,
+                ModifiedAt = healthControlArtifactStoreEntity.ModifiedAt,
+                Name = healthControlArtifactStoreEntity.Name,
+                ObjectId = healthControlArtifactStoreEntity.ObjectId,
+                OwnerContact = healthControlArtifactStoreEntity.OwnerContact,
+                ParentControlId = healthControlArtifactStoreEntity.ParentControlId,
+                ScoreUnit = healthControlArtifactStoreEntity.ScoreUnit,
+                StartsAt = healthControlArtifactStoreEntity.StartsAt,
+                TargetScore = healthControlArtifactStoreEntity.TargetScore,
+                TrendUrl = healthControlArtifactStoreEntity.TrendUrl,
+                HealthControlKind = healthControlArtifactStoreEntity.HealthControlKind,
+                Version = null,
+            });
+        }
+
+        return healthControlEntities;
+    }
+
+    private Dictionary<string, double> CreateControlNameScoreDictionary(HealthControlSqlEntity healthControlSqlEntity)
+    {
+        return new Dictionary<string, double>()
+        {
+            {OOTBControlTypes.DataGovernanceScore.Name, healthControlSqlEntity.CurrentScore },
+            {OOTBControlTypes.AccessEntitlement.Name, healthControlSqlEntity.AccessEntitlementScore },
+            {OOTBControlTypes.MetadataCompleteness.Name, healthControlSqlEntity.MetadataCompletenessScore },
+            {OOTBControlTypes.DataQuality.Name, healthControlSqlEntity.DataQualityScore },
+            {OOTBControlTypes.Classification.Name, healthControlSqlEntity.ClassificationScore },
+            {OOTBControlTypes.DataConsumptionPurpose.Name, healthControlSqlEntity.DataConsumptionPurposeScore },
+            {OOTBControlTypes.AuthoritativeDataSource.Name, healthControlSqlEntity.AuthoritativeDataSourceScore },
+            {OOTBControlTypes.Quality.Name, healthControlSqlEntity.QualityScore },
+            {OOTBControlTypes.Use.Name, healthControlSqlEntity.UseScore },
+            {OOTBControlTypes.Cataloging.Name, healthControlSqlEntity.CatalogingScore },
+            {OOTBControlTypes.Ownership.Name, healthControlSqlEntity.OwnershipScore },
+        };
     }
 
     private static FilterModel CopyFilterModel(FilterSortModel<HealthControlModel> filterSortModel)
