@@ -26,13 +26,13 @@ public class AppliedPolicySetEventHubEntityModel
     /// Id
     /// </summary>
     [JsonProperty("id")]
-    public string Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// AccountId
     /// </summary>
     [JsonProperty("accountId")]
-    public string AccountId { get; set; }
+    public Guid AccountId { get; set; }
 
     /// <summary>
     /// TargetResource
@@ -62,7 +62,7 @@ public class AppliedPolicySetEventHubEntityModel
     /// CreatedBy
     /// </summary>
     [JsonProperty("createdBy")]
-    public string CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// ModifiedAt
@@ -74,7 +74,7 @@ public class AppliedPolicySetEventHubEntityModel
     /// ModifiedBy
     /// </summary>
     [JsonProperty("modifiedBy")]
-    public string ModifiedBy { get; set; }
+    public Guid ModifiedBy { get; set; }
 
     /// <summary>
     /// ProvisioningState
@@ -254,7 +254,7 @@ public class IdentityEventHubEntityModel
     /// TenantId
     /// </summary>
     [JsonProperty("tenantId")]
-    public string TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     /// <summary>
     /// DisplayName
@@ -278,7 +278,7 @@ public class TargetResourceEventHubEntityModel
     /// TargetId
     /// </summary>
     [JsonProperty("TargetId")]
-    public string TargetId { get; set; }
+    public Guid TargetId { get; set; }
 
     /// <summary>
     /// TargetType
@@ -296,7 +296,7 @@ public class PolicySetEventHubEntityModel : BaseEventHubEntityModel
     /// Id
     /// </summary>
     [JsonProperty("id")]
-    public string Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Active
@@ -314,25 +314,25 @@ public class PolicySetEventHubEntityModel : BaseEventHubEntityModel
     /// CreatedAt
     /// </summary>
     [JsonProperty("createdAt")]
-    public string CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// CreatedBy
     /// </summary>
     [JsonProperty("createdBy")]
-    public string CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// ModifiedAt
     /// </summary>
     [JsonProperty("modifiedAt")]
-    public string ModifiedAt { get; set; }
+    public DateTime ModifiedAt { get; set; }
 
     /// <summary>
     /// ModifiedBy
     /// </summary>
     [JsonProperty("modifiedBy")]
-    public string ModifiedBy { get; set; }
+    public Guid ModifiedBy { get; set; }
 
     /// <summary>
     /// ProvisioningState
@@ -390,7 +390,7 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
     /// Id
     /// </summary>
     [JsonProperty("id")]
-    public string Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// WriteAccess
@@ -408,13 +408,13 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
     /// DomainId
     /// </summary>
     [JsonProperty("domainId")]
-    public string DomainId { get; set; }
+    public Guid DomainId { get; set; }
 
     /// <summary>
     /// DataProductId
     /// </summary>
     [JsonProperty("dataProductId")]
-    public string DataProductId { get; set; }
+    public Guid DataProductId { get; set; }
 
     /// <summary>
     /// ProvisioningState
@@ -426,25 +426,25 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
     /// CreatedAt
     /// </summary>
     [JsonProperty("createdAt")]
-    public string CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
     /// <summary>
     /// CreatedBy
     /// </summary>
     [JsonProperty("createdBy")]
-    public string CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// ModifiedAt
     /// </summary>
     [JsonProperty("modifiedAt")]
-    public string ModifiedAt { get; set; }
+    public DateTime ModifiedAt { get; set; }
 
     /// <summary>
     /// ModifiedBy
     /// </summary>
     [JsonProperty("modifiedBy")]
-    public string ModifiedBy { get; set; }
+    public Guid ModifiedBy { get; set; }
 
     /// <summary>
     /// Version
@@ -493,9 +493,9 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
             new StructField("DomainId", DataTypes.String),
             new StructField("DataProductId", DataTypes.String),
             new StructField("ProvisioningState", DataTypes.String),
-            new StructField("CreatedAt", DataTypes.String),
+            new StructField("CreatedAt", DataTypes.Timestamp),
             new StructField("CreatedBy", DataTypes.String),
-            new StructField("ModifiedAt", DataTypes.String),
+            new StructField("ModifiedAt", DataTypes.Timestamp),
             new StructField("ModifiedBy", DataTypes.String),
             new StructField("Version", DataTypes.String),
             new StructField("SubscriberIdentity", DataTypes.String),

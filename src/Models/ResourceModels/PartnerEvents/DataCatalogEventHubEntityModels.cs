@@ -80,7 +80,7 @@ public class SystemDataEventHubEntityModel
     /// Last Modified By.
     /// </summary>
     [JsonProperty("lastModifiedBy")]
-    public string LastModifiedBy { get; set; }
+    public Guid LastModifiedBy { get; set; }
 
     /// <summary>
     /// Created At.
@@ -92,7 +92,7 @@ public class SystemDataEventHubEntityModel
     /// Created By.
     /// </summary>
     [JsonProperty("createdBy")]
-    public string CreatedBy { get; set; }
+    public Guid CreatedBy { get; set; }
 
     /// <summary>
     /// Expired At.
@@ -104,7 +104,7 @@ public class SystemDataEventHubEntityModel
     /// Expired By.
     /// </summary>
     [JsonProperty("expiredBy")]
-    public string ExpiredBy { get; set; }
+    public Guid ExpiredBy { get; set; }
 }
 
 /// <summary>
@@ -146,7 +146,7 @@ public class SourceEventHubEntityModel
     /// Asset Id.
     /// </summary>
     [JsonProperty("assetId")]
-    public string AssetId { get; set; }
+    public Guid AssetId { get; set; }
 
     /// <summary>
     /// Asset Type.
@@ -164,7 +164,7 @@ public class SourceEventHubEntityModel
     /// Last Refreshed by
     /// </summary>
     [JsonProperty("lastRefreshedBy")]
-    public string LastRefreshedBy { get; set; }
+    public Guid LastRefreshedBy { get; set; }
 
     /// <summary>
     /// type.
@@ -200,7 +200,7 @@ public class DataProductExternalLinkEventHubEntityModel
     /// Data Asset Id.
     /// </summary>
     [JsonProperty("dataAssetId")]
-    public string DataAssetId { get; set; }
+    public Guid DataAssetId { get; set; }
 
     /// <summary>
     /// Url.
@@ -254,13 +254,13 @@ public class BusinessDomainEventHubEntityModel : BaseEventHubEntityModel
     /// Id of business domain.
     /// </summary>
     [JsonProperty("id")]
-    public string Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Parent Id of business domain.
     /// </summary>
     [JsonProperty("parentId")]
-    public string ParentId { get; set; }
+    public Guid ParentId { get; set; }
 
     /// <summary>
     /// System data of business domain.
@@ -333,7 +333,7 @@ public class DataAssetEventHubEntityModel : BaseEventHubEntityModel
     /// Id of data asset.
     /// </summary>
     [JsonProperty("id")]
-    public string Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Sensitivity Label.
@@ -457,7 +457,7 @@ public class DataProductEventHubEntityModel : BaseEventHubEntityModel
     /// Id of data product.
     /// </summary>
     [JsonProperty("id")]
-    public string Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// Sensitivity Label.
@@ -550,7 +550,7 @@ public class RelationshipEventHubEntityModel : BaseEventHubEntityModel
     /// SourceId.
     /// </summary>
     [JsonProperty("sourceId")]
-    public string SourceId { get; set; }
+    public Guid SourceId { get; set; }
 
     /// <summary>
     /// TargetType.
@@ -562,7 +562,7 @@ public class RelationshipEventHubEntityModel : BaseEventHubEntityModel
     /// TargetId.
     /// </summary>
     [JsonProperty("targetId")]
-    public string TargetId { get; set; }
+    public Guid TargetId { get; set; }
 
     /// <summary>
     /// Description.
@@ -580,7 +580,7 @@ public class RelationshipEventHubEntityModel : BaseEventHubEntityModel
     /// entityId.
     /// </summary>
     [JsonProperty("entityId")]
-    public string EntityId { get; set; }
+    public Guid EntityId { get; set; }
 
     /// <inheritdoc/>
     public override PayloadKind GetPayloadKind() => PayloadKind.Relationship;
@@ -638,13 +638,13 @@ public class TermEventHubEntityModel : BaseEventHubEntityModel
     /// Id of term.
     /// </summary>
     [JsonProperty("id")]
-    public string Id { get; set; }
+    public Guid Id { get; set; }
 
     /// <summary>
     /// ParentId of term.
     /// </summary>
     [JsonProperty("parentId")]
-    public string ParentId { get; set; }
+    public Guid ParentId { get; set; }
 
     /// <summary>
     /// Is leaf.

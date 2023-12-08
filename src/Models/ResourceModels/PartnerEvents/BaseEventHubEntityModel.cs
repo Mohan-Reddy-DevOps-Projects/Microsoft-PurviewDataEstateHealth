@@ -57,10 +57,10 @@ public abstract class BaseEventHubEntityModel
     {
         StructField[] schemaFields = new[]
         {
-            new StructField("AccountId", DataTypes.String),
-            new StructField("EventId", DataTypes.String),
-            new StructField("EventCorrelationId", DataTypes.String),
-            new StructField("EventCreationTimestamp", DataTypes.Timestamp),
+            new StructField("AccountId", DataTypes.String, false),
+            new StructField("EventId", DataTypes.String, false),
+            new StructField("EventCorrelationId", DataTypes.String, false),
+            new StructField("EventCreationTimestamp", DataTypes.Timestamp, false),
         };
 
         return schemaFields;

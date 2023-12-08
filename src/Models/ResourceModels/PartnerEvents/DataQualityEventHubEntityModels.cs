@@ -190,7 +190,7 @@ public class DataQualitySourceEventHubEntityModel : BaseEventHubEntityModel
         {
             new StructField("ResultId", DataTypes.String),
             new StructField("JobStatus", DataTypes.String),
-            new StructField("ResultedAt", DataTypes.String),
+            new StructField("ResultedAt", DataTypes.Timestamp),
             new StructField("Region", DataTypes.String),
             new StructField("Results", DataTypes.String),
             new StructField("Dimensions", DataTypes.String),
