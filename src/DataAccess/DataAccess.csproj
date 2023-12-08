@@ -18,7 +18,6 @@
     <PackageReference Include="Azure.Data.Tables" />
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="Microsoft.AspNetCore.OData" />
-    <PackageReference Include="Microsoft.Azure.ProjectBabylon.LoggerBase" />
     <PackageReference Include="Microsoft.Azure.Purview.ExposureControlLibrary" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
     <PackageReference Include="Microsoft.PowerBI.Api" />

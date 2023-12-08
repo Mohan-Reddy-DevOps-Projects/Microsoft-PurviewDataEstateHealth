@@ -20,6 +20,9 @@
       "containerAppName":{
         "value": "__INFRA_API_SERVICE_CONTAINER_APP_NAME__"
       },
+      "readinessPort":{
+        "value": "__INFRA_API_SERVICE_CONTAINER_APP_READINESS_PORT__"
+      },
       "dnsZoneName":{
         "value": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_DNS_ZONE_NAME__"
       },

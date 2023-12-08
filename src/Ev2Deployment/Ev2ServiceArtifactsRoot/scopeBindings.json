@@ -113,6 +113,10 @@
                 "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-apiservice-ca"
             },
             {
+              "find": "\"__INFRA_API_SERVICE_CONTAINER_APP_READINESS_PORT__\"",
+              "replaceWith": "$config(dgh.apiServiceReadinessProbePort)"
+            },
+            {
                 "find": "__INFRA_API_SERVICE_IMAGE_NAME__",
                 "replaceWith": "$config(serviceShortName)-apiservice"
             },
@@ -159,6 +163,10 @@
             {
                 "find": "__INFRA_WORKER_SERVICE_CONTAINER_APP_NAME__",
                 "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-workerservice-ca"
+            },
+            {
+              "find": "\"__INFRA_WORKER_SERVICE_CONTAINER_APP_READINESS_PORT__\"",
+              "replaceWith": "$config(dgh.workerServiceReadinessProbePort)"
             },
             {
                 "find": "__INFRA_WORKER_SERVICE_IMAGE_NAME__",

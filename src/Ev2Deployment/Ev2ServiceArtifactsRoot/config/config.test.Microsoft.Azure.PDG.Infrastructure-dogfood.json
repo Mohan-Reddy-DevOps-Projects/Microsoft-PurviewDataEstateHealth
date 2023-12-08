@@ -30,7 +30,9 @@
             "shortRegionName": "wus2",
             "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(dgh.shortRegionName)common",
             "sparkPoolTableName": "SparkPool",
-            "synapseWorkspaceName": "$(serviceShortName)dogfoodsynapse"
+            "synapseWorkspaceName": "$(serviceShortName)dogfoodsynapse",
+            "apiServiceReadinessProbePort": 8081,
+            "workerServiceReadinessProbePort": 8082
         },
         "processingStorage": {
             "resourceGroupName": "purview-rg-internal-storage",

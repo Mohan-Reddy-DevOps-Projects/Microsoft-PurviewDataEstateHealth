@@ -33,8 +33,12 @@ public static class Startup
             ConfigureKestrelServerForProduction(builder);
         }
 
+        var genevaConfiguration = builder.Configuration.GetSection("geneva").Get<GenevaConfiguration>();
+
+        var serviceConfiguration = builder.Configuration.GetSection("service").Get<ServiceConfiguration>();
+
         builder.Services
-            .AddLogger()
+            .AddLogger(genevaConfiguration,serviceConfiguration,builder.Environment.IsDevelopment())
             .AddDataAccessLayer()
             .AddServiceBasicsForWorkerService()
             .AddCoreLayer()

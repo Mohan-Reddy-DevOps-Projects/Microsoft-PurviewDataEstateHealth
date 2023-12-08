@@ -7,6 +7,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -25,14 +26,31 @@ builder.WebHost.ConfigureKestrel((hostingContext, options) =>
     options.Listen(
         IPAddress.IPv6Any,
         serverConfig.WorkerServicePort);
+
+    if (serverConfig.WorkerServiceReadinessProbePort.HasValue)
+    {
+        options.Listen(
+            IPAddress.IPv6Any,
+            serverConfig.WorkerServiceReadinessProbePort.Value);
+    }
 });
 
 WebApplication app = builder.Build();
 
+var serviceConfig = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>().Value;
+
+app.UseHealthChecks(serviceConfig.ReadinessProbePath, serviceConfig.WorkerServiceReadinessProbePort.Value);
+
 app.Lifetime.ApplicationStarted.Register(
     () =>
     {
-        // TODO(zachmadsen): Add logging here to mark successful startup.
+        IServiceProvider serviceProvider = app.Services.GetRequiredService<IServiceProvider>();
+        ServiceHealthCheck readinessCheck = app.Services.GetRequiredService<ServiceHealthCheck>();
+        readinessCheck.Initialized = true;
+
+        IDataEstateHealthLogger logger = serviceProvider.GetRequiredService<IDataEstateHealthLogger>();
+        EnvironmentConfiguration environmentConfiguration = serviceProvider.GetRequiredService<IOptions<EnvironmentConfiguration>>().Value;
+        logger.LogInformation($"Worker service started successfully.");
     });
 
 await app.RunAsync();

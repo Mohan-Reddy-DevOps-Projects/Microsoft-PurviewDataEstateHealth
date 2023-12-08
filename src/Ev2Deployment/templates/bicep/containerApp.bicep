@@ -12,6 +12,7 @@ param location string = resourceGroup().location
 param maxReplicas int = 10
 param minReplicas int = 1
 param subdomainName string = ''
+param readinessPort int
 
 resource acaEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing = {
   name: acaEnvironmentName
@@ -32,7 +33,7 @@ resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   name: containerAppIdentityName
 }
 
-resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
+resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
   name: containerAppName
   location: location
   identity: {
@@ -68,6 +69,26 @@ resource containerApp 'Microsoft.App/containerApps@2022-11-01-preview' = {
         {
           image: '${acr.properties.loginServer}/${imageName}:${imageTagName}'
           name: imageName
+          probes: [
+            {
+              type: 'readiness'
+              timeoutSeconds: 3
+              failureThreshold: 3
+              httpGet: {
+                port: readinessPort
+                path: '/healthz/ready'
+              }
+             }
+             {
+              type: 'startup'
+              timeoutSeconds: 3
+              failureThreshold: 3
+              httpGet: {
+                port: readinessPort
+                path: '/healthz/ready'
+              }
+             }
+          ]
           env: [
             {
               name: 'APP_SETTINGS_JSON'

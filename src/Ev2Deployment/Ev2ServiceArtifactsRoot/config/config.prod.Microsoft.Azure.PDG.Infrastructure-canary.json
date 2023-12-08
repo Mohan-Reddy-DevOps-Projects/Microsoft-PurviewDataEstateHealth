@@ -30,7 +30,9 @@
             "shortRegionName": "eus2euap",
             "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(regionShortName)common",
             "sparkPoolTableName": "SparkPool",
-            "synapseWorkspaceName": "$(serviceShortName)cnrycdmworkspace"
+            "synapseWorkspaceName": "$(serviceShortName)cnrycdmworkspace",
+            "apiServiceReadinessProbePort": 8081,
+            "workerServiceReadinessProbePort": 8082
         },
         "processingStorage": {
             "resourceGroupName": "purview-rg-internal-storage",

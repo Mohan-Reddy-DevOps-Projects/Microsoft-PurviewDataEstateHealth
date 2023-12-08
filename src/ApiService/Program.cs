@@ -46,11 +46,15 @@ public class Program
 
         builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment());
 
+        var genevaConfiguration = builder.Configuration.GetSection("geneva").Get<GenevaConfiguration>();
+
+        var serviceConfiguration = builder.Configuration.GetSection("service").Get<ServiceConfiguration>();
+
         // Add services to the container.
         builder.Services.AddApiVersioning();
 
         builder.Services
-            .AddLogger()
+            .AddLogger(genevaConfiguration, serviceConfiguration, builder.Environment.IsDevelopment())
             .AddApiServiceConfigurations(builder.Configuration)
             .AddApiServices()
             .AddProvisioningService()
@@ -207,11 +211,7 @@ public class Program
 
         options.Listen(
             IPAddress.IPv6Any,
-            serverConfig.ApiServicePort.Value,
-            listenOptions =>
-            {
-                listenOptions.Protocols = HttpProtocols.Http1;
-            });
+            serverConfig.ApiServicePort.Value);
     }
 
     private static void ConfigureKestrelServerForDevelopment(KestrelServerOptions options)
