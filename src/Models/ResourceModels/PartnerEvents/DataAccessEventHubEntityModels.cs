@@ -26,13 +26,13 @@ public class AppliedPolicySetEventHubEntityModel
     /// Id
     /// </summary>
     [JsonProperty("id")]
-    public Guid Id { get; set; }
+    public string Id { get; set; }
 
     /// <summary>
     /// AccountId
     /// </summary>
     [JsonProperty("accountId")]
-    public Guid AccountId { get; set; }
+    public string AccountId { get; set; }
 
     /// <summary>
     /// TargetResource
@@ -62,7 +62,7 @@ public class AppliedPolicySetEventHubEntityModel
     /// CreatedBy
     /// </summary>
     [JsonProperty("createdBy")]
-    public Guid CreatedBy { get; set; }
+    public string CreatedBy { get; set; }
 
     /// <summary>
     /// ModifiedAt
@@ -74,7 +74,7 @@ public class AppliedPolicySetEventHubEntityModel
     /// ModifiedBy
     /// </summary>
     [JsonProperty("modifiedBy")]
-    public Guid ModifiedBy { get; set; }
+    public string ModifiedBy { get; set; }
 
     /// <summary>
     /// ProvisioningState
@@ -254,7 +254,7 @@ public class IdentityEventHubEntityModel
     /// TenantId
     /// </summary>
     [JsonProperty("tenantId")]
-    public Guid TenantId { get; set; }
+    public string TenantId { get; set; }
 
     /// <summary>
     /// DisplayName
@@ -278,7 +278,7 @@ public class TargetResourceEventHubEntityModel
     /// TargetId
     /// </summary>
     [JsonProperty("TargetId")]
-    public Guid TargetId { get; set; }
+    public string TargetId { get; set; }
 
     /// <summary>
     /// TargetType
@@ -296,7 +296,7 @@ public class PolicySetEventHubEntityModel : BaseEventHubEntityModel
     /// Id
     /// </summary>
     [JsonProperty("id")]
-    public Guid Id { get; set; }
+    public string Id { get; set; }
 
     /// <summary>
     /// Active
@@ -320,7 +320,7 @@ public class PolicySetEventHubEntityModel : BaseEventHubEntityModel
     /// CreatedBy
     /// </summary>
     [JsonProperty("createdBy")]
-    public Guid CreatedBy { get; set; }
+    public string CreatedBy { get; set; }
 
     /// <summary>
     /// ModifiedAt
@@ -332,7 +332,7 @@ public class PolicySetEventHubEntityModel : BaseEventHubEntityModel
     /// ModifiedBy
     /// </summary>
     [JsonProperty("modifiedBy")]
-    public Guid ModifiedBy { get; set; }
+    public string ModifiedBy { get; set; }
 
     /// <summary>
     /// ProvisioningState
@@ -390,7 +390,7 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
     /// Id
     /// </summary>
     [JsonProperty("id")]
-    public Guid Id { get; set; }
+    public string Id { get; set; }
 
     /// <summary>
     /// WriteAccess
@@ -408,13 +408,13 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
     /// DomainId
     /// </summary>
     [JsonProperty("domainId")]
-    public Guid DomainId { get; set; }
+    public string DomainId { get; set; }
 
     /// <summary>
     /// DataProductId
     /// </summary>
     [JsonProperty("dataProductId")]
-    public Guid DataProductId { get; set; }
+    public string DataProductId { get; set; }
 
     /// <summary>
     /// ProvisioningState
@@ -432,7 +432,7 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
     /// CreatedBy
     /// </summary>
     [JsonProperty("createdBy")]
-    public Guid CreatedBy { get; set; }
+    public string CreatedBy { get; set; }
 
     /// <summary>
     /// ModifiedAt
@@ -444,7 +444,7 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
     /// ModifiedBy
     /// </summary>
     [JsonProperty("modifiedBy")]
-    public Guid ModifiedBy { get; set; }
+    public string ModifiedBy { get; set; }
 
     /// <summary>
     /// Version
