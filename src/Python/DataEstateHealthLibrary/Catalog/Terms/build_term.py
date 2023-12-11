@@ -1,18 +1,14 @@
 from re import S
 import sys
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, Window
 from pyspark.sql.functions import *
+from pyspark.sql.functions import col, row_number
 from pyspark.sql.types import *
 from functools import reduce
-from pyspark.sql import DataFrame
-import DataEstateHealthLibrary.Catalog.catalog_constants as constants
-from DataEstateHealthLibrary.Catalog.catalog_schema import CatalogSchema
 from DataEstateHealthLibrary.Catalog.catalog_column_functions import CatalogColumnFunctions
-from DataEstateHealthLibrary.Catalog.DataProduct.data_product_column_functions import DataProductColumnFunctions
 from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
 from DataEstateHealthLibrary.Catalog.catalog_transformation_functions import CatalogTransformationFunctions
 from DataEstateHealthLibrary.Catalog.Terms.term_transformations import TermTransformations
-from DataEstateHealthLibrary.Shared.dedup_helper_function import DedupHelperFunction
 from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
 
 
@@ -36,12 +32,8 @@ class BuildTerm:
         term_df = term_df.distinct()
         
         #map by term id and reduce by timestamp
-        dedup_rdd = term_df.rdd.map(lambda x: (x["TermId"], x))
-        dedup_rdd2 = dedup_rdd.reduceByKey(lambda x,y : DedupHelperFunction.dedup_by_timestamp(x,y))
-        dedup_rdd3 = dedup_rdd2.map(lambda x: x[1])
-        
-        #convert it to dataframe with sample ration 1 so as to avoid error with null column values 
-        final_term_df = dedup_rdd3.toDF(sampleRatio=1.0)
+        window_spec = Window.partitionBy("TermId").orderBy(col("Timestamp").desc())
+        final_term_df = term_df.withColumn("row_num", row_number().over(window_spec)).filter("row_num = 1").drop("row_num")
         
         final_term_df = final_term_df.select("TermId", "Name","Status", "HasDescription", "CreatedAt", "CreatedBy", "ModifiedAt", "ModifiedBy", "LastRefreshedAt")
         return final_term_df

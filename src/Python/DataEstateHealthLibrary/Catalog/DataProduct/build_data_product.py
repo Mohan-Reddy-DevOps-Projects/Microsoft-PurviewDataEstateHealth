@@ -1,23 +1,15 @@
-import sys
-from pyspark.sql import SparkSession
-import DataEstateHealthLibrary
-from DataEstateHealthLibrary.Catalog.DataProduct.data_product_transformations import DataProductTransformations
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 from functools import reduce
-from pyspark.sql import DataFrame
-import DataEstateHealthLibrary.Catalog.catalog_constants as constants
-from DataEstateHealthLibrary.Catalog.catalog_schema import CatalogSchema
+from pyspark.sql import DataFrame, Window
+from pyspark.sql.functions import col, row_number
+from DataEstateHealthLibrary.Catalog.DataProduct.data_product_transformations import DataProductTransformations
 from DataEstateHealthLibrary.Catalog.catalog_column_functions import CatalogColumnFunctions
-from DataEstateHealthLibrary.Catalog.DataProduct.data_product_column_functions import DataProductColumnFunctions
-from DataEstateHealthLibrary.Catalog.DataProduct.data_product_config import DataProductConfig
 from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
 from DataEstateHealthLibrary.Catalog.catalog_transformation_functions import CatalogTransformationFunctions
-from DataEstateHealthLibrary.Shared.dedup_helper_function import DedupHelperFunction
 from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
 from DataEstateHealthLibrary.Catalog.DataAsset.data_asset_transformations import DataAssetTransformations
 from DataEstateHealthLibrary.Catalog.Relationship.relationship_transformations import RelationshipTransformations
-from DataEstateHealthLibrary.DataAccess.PolicySet.policy_set_transformations import PolicySetTransformations
 
 class BuildDataProduct:
 
@@ -82,12 +74,9 @@ class BuildDataProduct:
                                        "CreatedBy","ModifiedAt","ModifiedBy","LastRefreshedAt","IsAuthoritativeSource","HasDataQualityScore","ClassificationPassCount","HasAccessEntitlement","HasDataShareAgreementSetOrExempt","GlossaryTermCount")
        
         #map by data product id and reduce by timestamp
-        dedup_rdd = dataproduct_df.rdd.map(lambda x: (x["DataProductId"], x))
-        dedup_rdd2 = dedup_rdd.reduceByKey(lambda x,y : DedupHelperFunction.dedup_by_timestamp(x,y))
-        dedup_rdd3 = dedup_rdd2.map(lambda x: x[1])
-        
-        #convert it to dataframe with sample ration 1 so as to avoid error with null column values
-        final_dataproduct_df = dedup_rdd3.toDF(sampleRatio=1.0)
+        window_spec = Window.partitionBy("DataProductId").orderBy(col("Timestamp").desc())
+        final_dataproduct_df = dataproduct_df.withColumn("row_num", row_number().over(window_spec)).filter("row_num = 1").drop("row_num")
+
         final_dataproduct_df = final_dataproduct_df.select("DataProductId","DataProductDisplayName","DataProductType","DataProductStatus","HasValidOwner","HasValidUseCase","HasValidTermsOfUse",
                                                            "AssetCount","HasDescription","IsAuthoritativeSource","HasDataQualityScore","ClassificationPassCount","HasAccessEntitlement",
                                                            "HasDataShareAgreementSetOrExempt","GlossaryTermCount","CreatedAt","CreatedBy","ModifiedAt","ModifiedBy","LastRefreshedAt")

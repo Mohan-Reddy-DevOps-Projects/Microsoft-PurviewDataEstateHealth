@@ -1,20 +1,17 @@
-from DataEstateHealthLibrary.AtlasRdd.atlas_rdd_schemas import AtlasRddScehmas
+from pyspark.sql.functions import col
+from pyspark.sql import Window
+from pyspark.sql.functions import col, row_number
 from DataEstateHealthLibrary.AtlasRdd.atlas_rdd_column_functions import AtlasRddColumnFunctions
-from DataEstateHealthLibrary.AtlasRdd.atlas_rdd_transformations import AtlasRddTransformations
-from DataEstateHealthLibrary.Shared.dedup_helper_function import DedupHelperFunction
 from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
-from pyspark.sql.functions import get_json_object,col
 
 class BuildAtlasRdd:
     
     def build_atlas_rdd(atlas_rdd_df):
         
         """Dedup : Merge assets having multiple instances based on timestamp. Will keep the latest instance of the asset"""
-        merged_atlas_rdd = atlas_rdd_df.rdd.map(lambda x: (x["Guid"], x))
-        merged_atlas_rdd2 = merged_atlas_rdd.reduceByKey(lambda x,y : DedupHelperFunction.dedup_by_timestamp(x,y))
-        merged_atlas_rdd3 = merged_atlas_rdd2.map(lambda x: x[1])
+        window_spec = Window.partitionBy("Guid").orderBy(col("Timestamp").desc())
+        final_atlas_rdd = atlas_rdd_df.withColumn("row_num", row_number().over(window_spec)).filter("row_num = 1").drop("row_num")
 
-        final_atlas_rdd = merged_atlas_rdd3.toDF(sampleRatio=1.0)
         return final_atlas_rdd
     
     def build_classification_schema(atlas_rdd_df):

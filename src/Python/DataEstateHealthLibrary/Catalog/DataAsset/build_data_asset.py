@@ -1,13 +1,13 @@
+from functools import reduce
+from pyspark.sql import DataFrame, Window
+from pyspark.sql.functions import *
+from pyspark.sql.functions import col, row_number
 from DataEstateHealthLibrary.Catalog.DataAsset.data_asset_column_functions import DataAssetColumnFunctions
 from DataEstateHealthLibrary.Catalog.DataAsset.data_asset_transformations import DataAssetTransformations
 from DataEstateHealthLibrary.Catalog.catalog_column_functions import CatalogColumnFunctions
 from DataEstateHealthLibrary.Catalog.catalog_transformation_functions import CatalogTransformationFunctions
 from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
-from functools import reduce
-from pyspark.sql import DataFrame
-from DataEstateHealthLibrary.Shared.dedup_helper_function import DedupHelperFunction
 from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
-from pyspark.sql.functions import *
 
 class BuildDataAsset:
     def build_data_asset_schema(dataasset_df):
@@ -36,13 +36,10 @@ class BuildDataAsset:
         #remove duplicate rows
         dataasset_df = dataasset_df.distinct()
         
-        #map by business domain id and reduce by timestamp
-        dedup_rdd = dataasset_df.rdd.map(lambda x: (x["DataAssetId"], x))
-        dedup_rdd2 = dedup_rdd.reduceByKey(lambda x,y : DedupHelperFunction.dedup_by_timestamp(x,y))
-        dedup_rdd3 = dedup_rdd2.map(lambda x: x[1])
-        
-        #convert it to dataframe with sample ration 1 so as to avoid error with null column values
-        final_dataasset_df = dedup_rdd3.toDF(sampleRatio=1.0)
+        #map by data asset id id and reduce by timestamp
+        window_spec = Window.partitionBy("DataAssetId").orderBy(col("Timestamp").desc())
+        final_dataasset_df = dataasset_df.withColumn("row_num", row_number().over(window_spec)).filter("row_num = 1").drop("row_num")
+
         final_dataasset_df = final_dataasset_df.select("DataAssetId","BusinessDomainId","SourceAssetId","DisplayName","ObjectType","SourceType","HasClassification",
                                                        "HasSchema","HasDescription","CreatedAt","CreatedBy","ModifiedAt","ModifiedBy", "LastRefreshedAt")
         

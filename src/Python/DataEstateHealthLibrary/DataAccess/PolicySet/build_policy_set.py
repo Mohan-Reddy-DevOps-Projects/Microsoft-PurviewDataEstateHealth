@@ -1,9 +1,9 @@
+from pyspark.sql.functions import *
+from pyspark.sql import Window
+from pyspark.sql.functions import col, row_number
 from DataEstateHealthLibrary.DataAccess.PolicySet.policy_set_column_functions import PolicySetColumnFunctions
 from DataEstateHealthLibrary.DataAccess.PolicySet.policy_set_transformations import PolicySetTransformations
-from pyspark.sql.functions import *
 from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
-from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
-from DataEstateHealthLibrary.Shared.dedup_helper_function import DedupHelperFunction
 
 class BuildPolicySet:
     def build_policy_set(policyset_df):
@@ -29,12 +29,9 @@ class BuildPolicySet:
         policyset_df = policyset_df.distinct()
         
         #map by data product id and reduce by timestamp
-        dedup_rdd = policyset_df.rdd.map(lambda x: (x["DataProductId"], x))
-        dedup_rdd2 = dedup_rdd.reduceByKey(lambda x,y : DedupHelperFunction.dedup_by_timestamp(x,y))
-        dedup_rdd3 = dedup_rdd2.map(lambda x: x[1])
-        
-        #convert it to dataframe with sample ration 1 so as to avoid error with null column values
-        final_policyset_df = dedup_rdd3.toDF(sampleRatio=1.0)
+        window_spec = Window.partitionBy("DataProductId").orderBy(col("Timestamp").desc())
+        final_policyset_df = policyset_df.withColumn("row_num", row_number().over(window_spec)).filter("row_num = 1").drop("row_num")
+
         final_policyset_df = final_policyset_df.select("DataProductId", "HasAccessEntitlement")
         return final_policyset_df
     

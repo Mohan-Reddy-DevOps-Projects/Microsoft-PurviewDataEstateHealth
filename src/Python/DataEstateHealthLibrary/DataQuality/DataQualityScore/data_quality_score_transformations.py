@@ -1,7 +1,7 @@
 from pyspark.sql.functions import *
-from pyspark.sql.types import DoubleType
+from pyspark.sql import Window
+from pyspark.sql.functions import col, row_number
 from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
-from DataEstateHealthLibrary.Shared.dedup_helper_function import DedupHelperFunction
 
 class DataQualityScoreTransformations:
     def calculate_has_data_quality_score(dataquality_df):
@@ -38,11 +38,8 @@ class DataQualityScoreTransformations:
         dataquality_df = dataquality_df.distinct()
         
         #map by job id and reduce by timestamp
-        dedup_rdd = dataquality_df.rdd.map(lambda x: (x["JobId"], x))
-        dedup_rdd2 = dedup_rdd.reduceByKey(lambda x,y : DedupHelperFunction.dedup_by_timestamp(x,y))
-        dedup_rdd3 = dedup_rdd2.map(lambda x: x[1])
+        window_spec = Window.partitionBy("JobId").orderBy(col("Timestamp").desc())
+        deduped_qualityscore_df = dataquality_df.withColumn("row_num", row_number().over(window_spec)).filter("row_num = 1").drop("row_num")
 
-        #convert it to dataframe with sample ration 1 so as to avoid error with null column values 
-        deduped_qualityscore_df = dedup_rdd3.toDF(sampleRatio=1.0)
         return deduped_qualityscore_df
     

@@ -1,14 +1,11 @@
-from DataEstateHealthLibrary.Catalog.catalog_schema import CatalogSchema
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
+from pyspark.sql import Window
+from pyspark.sql.functions import col, row_number
 from DataEstateHealthLibrary.Catalog.catalog_column_functions import CatalogColumnFunctions
-from DataEstateHealthLibrary.Catalog.BusinessDomain.business_domain_column_functions import BusinessDomainColumnFunctions
 from DataEstateHealthLibrary.Catalog.BusinessDomain.business_domain_transformations import BusinessdomainTransformations
 from DataEstateHealthLibrary.Shared.column_functions import ColumnFunctions
 from DataEstateHealthLibrary.Catalog.catalog_transformation_functions import CatalogTransformationFunctions
-from DataEstateHealthLibrary.Catalog.DataProduct.data_product_transformations import DataProductTransformations
-from DataEstateHealthLibrary.Catalog.Terms.term_transformations import TermTransformations
-from DataEstateHealthLibrary.Shared.dedup_helper_function import DedupHelperFunction
-from pyspark.sql.functions import *
-from pyspark.sql.types import *
 
 from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
 
@@ -51,14 +48,10 @@ class BuildBusinessDomain:
         businessdomain_df = CatalogTransformationFunctions.add_timestamp_col(businessdomain_df)
         #remove duplicate rows
         businessdomain_df = businessdomain_df.distinct()
-        
+
         #map by business domain id and reduce by timestamp
-        dedup_rdd = businessdomain_df.rdd.map(lambda x: (x["BusinessDomainId"], x))
-        dedup_rdd2 = dedup_rdd.reduceByKey(lambda x,y : DedupHelperFunction.dedup_by_timestamp(x,y))
-        dedup_rdd3 = dedup_rdd2.map(lambda x: x[1])
-        
-        #convert it to dataframe with sample ration 1 so as to avoid error with null column values
-        final_businessdomain_df = dedup_rdd3.toDF(sampleRatio=1.0)
+        window_spec = Window.partitionBy("BusinessDomainId").orderBy(col("Timestamp").desc())
+        final_businessdomain_df = businessdomain_df.withColumn("row_num", row_number().over(window_spec)).filter("row_num = 1").drop("row_num")
         
         final_businessdomain_df = final_businessdomain_df.select("BusinessDomainId", "BusinessDomainDisplayName", "HasDescription",  "GlossaryTermsCount",
                                                      "DataProductsCount", "IsRootDomain","HasValidOwner","CreatedAt", "CreatedBy", "ModifiedAt", "ModifiedBy", "LastRefreshedAt")
