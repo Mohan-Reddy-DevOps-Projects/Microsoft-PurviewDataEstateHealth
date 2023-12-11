@@ -201,6 +201,22 @@ internal class ComponentContextFactory : IComponentContextFactory
         };
     }
 
+    /// <inheritdoc />
+    public IDataQualityScoreContext CreateDataQualityScoreContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId)
+    {
+        return new DataQualityScoreContext
+        {
+            Version = version,
+            Location = this.LocationOf(location),
+            TenantId = tenantId,
+            AccountId = accountId
+        };
+    }
+
     internal string LocationOf(string location)
     {
         return string.IsNullOrWhiteSpace(location) ? this.environmentConfiguration.Location : location;

@@ -100,4 +100,20 @@ public interface ICoreLayerFactoryOperations
         Guid accountId,
         Guid datasetId,
         int? top = null);
+
+    /// <summary>
+    /// Creates an instance of HealthScoreCollectionComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IHealthScoreCollectionComponent"/>.</returns>
+    public IDataQualityScoreCollectionComponent CreateDataQualityScoresCollectionComponent(
+        Guid tenantId,
+        Guid accountId);
+
+    /// <summary>
+    /// Creates an instance of HealthScoreCollectionComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IHealthScoreCollectionComponent"/>.</returns>
+    public IDataQualityScoreComponent CreateDataQualityScoresComponent(
+        Guid tenantId,
+        Guid accountId);
 }

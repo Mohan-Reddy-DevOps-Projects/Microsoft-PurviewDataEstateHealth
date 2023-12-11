@@ -169,4 +169,18 @@ internal interface IComponentContextFactory
         Guid tenantId,
         Guid datasetId,
         int? top = null);
+
+    /// <summary>
+    /// Creates an <see cref="IDataQualityScoreContext"/>
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="location"></param>
+    /// <param name="accountId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public IDataQualityScoreContext CreateDataQualityScoreContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId);
 }

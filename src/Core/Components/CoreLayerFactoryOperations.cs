@@ -185,4 +185,30 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
                 datasetId,
                 top));
     }
+
+    /// <inheritdoc />
+    public IDataQualityScoreCollectionComponent CreateDataQualityScoresCollectionComponent(
+        Guid tenantId,
+        Guid accountId)
+    {
+        return this.componentRuntime.ResolveLatest<IDataQualityScoreCollectionComponent, IDataQualityScoreContext>(
+            this.contextFactory.CreateDataQualityScoreContext(
+            this.version,
+            null,
+            accountId,
+            tenantId));
+    }
+
+    /// <inheritdoc />
+    public IDataQualityScoreComponent CreateDataQualityScoresComponent(
+        Guid tenantId,
+        Guid accountId)
+    {
+        return this.componentRuntime.ResolveLatest<IDataQualityScoreComponent, IDataQualityScoreContext>(
+            this.contextFactory.CreateDataQualityScoreContext(
+                this.version,
+                null,
+                accountId,
+                tenantId));
+    }
 }

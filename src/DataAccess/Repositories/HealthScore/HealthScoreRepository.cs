@@ -75,6 +75,12 @@ internal class HealthScoreRepository : IHealthScoreRepository
         });
     }
 
+    public async Task<IHealthScoreModel<HealthScoreProperties>> GetSingleOrDefault(
+         HealthScoreKey healthScoreKey)
+    {
+        return await Task.FromResult(new HealthScoreModel<HealthScoreProperties>());
+    }
+
     public IHealthScoreRepository ByLocation(string location)
     {
         return new HealthScoreRepository(

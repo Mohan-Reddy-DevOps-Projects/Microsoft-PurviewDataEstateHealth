@@ -106,5 +106,129 @@ public class HealthTrendsController : DataPlaneController
                 this.adapterRegistry.AdapterFor<IHealthTrendModel, HealthTrend>()
                 .FromModel(healthTrendModel));
     }
+
+    /// <summary>
+    /// Get health trends for a specific business domain based on the trend kind.
+    /// </summary>
+    /// <param name="apiVersion">The api version of the call.</param>
+    /// <param name="trendKind">Trend Kind. </param>
+    /// <param name="businessDomainId">Business domain id.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(HealthTrend), 200)]
+    [Route("{businessDomainId}/dataProducts")]
+    public async Task<IActionResult> ListDataProductsHealthTrendsByDomainIdAsync(
+        [FromRoute] TrendKind trendKind,
+        [FromRoute] Guid businessDomainId,
+        [FromQuery(Name = "api-version")] string apiVersion,
+        CancellationToken cancellationToken)
+    {
+        IHealthTrendModel healthTrendModel = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
+            .CreateHealthTrendComponent(
+                this.requestHeaderContext.TenantId,
+                this.requestHeaderContext.AccountObjectId)
+            .ById(businessDomainId)
+            .Get(trendKind.ToModel(), cancellationToken);
+
+        return this.Ok(
+                this.adapterRegistry.AdapterFor<IHealthTrendModel, HealthTrend>()
+                .FromModel(healthTrendModel));
+    }
+
+    /// <summary>
+    /// Get health trends for a specific business domain based on the trend kind.
+    /// </summary>
+    /// <param name="apiVersion">The api version of the call.</param>
+    /// <param name="trendKind">Trend Kind. </param>
+    /// <param name="businessDomainId">Business domain id.</param>
+    /// <param name="dataProductId">Data product id.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(HealthTrend), 200)]
+    [Route("{businessDomainId}/dataProducts/{dataProductsId}")]
+    public async Task<IActionResult> GetHealthTrendByDataProductIdIdAsync(
+        [FromRoute] TrendKind trendKind,
+        [FromRoute] Guid businessDomainId,
+        [FromRoute] Guid dataProductId,
+        [FromQuery(Name = "api-version")] string apiVersion,
+        CancellationToken cancellationToken)
+    {
+        IHealthTrendModel healthTrendModel = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
+            .CreateHealthTrendComponent(
+                this.requestHeaderContext.TenantId,
+                this.requestHeaderContext.AccountObjectId)
+            .ById(businessDomainId)
+            .Get(trendKind.ToModel(), cancellationToken);
+
+        return this.Ok(
+                this.adapterRegistry.AdapterFor<IHealthTrendModel, HealthTrend>()
+                .FromModel(healthTrendModel));
+    }
+
+    /// <summary>
+    /// Get health trends for a specific business domain based on the trend kind.
+    /// </summary>
+    /// <param name="apiVersion">The api version of the call.</param>
+    /// <param name="trendKind">Trend Kind. </param>
+    /// <param name="businessDomainId">Business domain id.</param>
+    /// <param name="dataProductId"> Data product id.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(HealthTrend), 200)]
+    [Route("{businessDomainId}/dataProducts/{dataProductsId}/dataAssets")]
+    public async Task<IActionResult> ListDataAssetHealthTrendsByDataProductIdAsync(
+        [FromRoute] TrendKind trendKind,
+        [FromRoute] Guid businessDomainId,
+        [FromRoute] Guid dataProductId,
+        [FromQuery(Name = "api-version")] string apiVersion,
+        CancellationToken cancellationToken)
+    {
+        IHealthTrendModel healthTrendModel = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
+            .CreateHealthTrendComponent(
+                this.requestHeaderContext.TenantId,
+                this.requestHeaderContext.AccountObjectId)
+            .ById(businessDomainId)
+            .Get(trendKind.ToModel(), cancellationToken);
+
+        return this.Ok(
+                this.adapterRegistry.AdapterFor<IHealthTrendModel, HealthTrend>()
+                .FromModel(healthTrendModel));
+    }
+
+    /// <summary>
+    /// Get health trends for a specific business domain based on the trend kind.
+    /// </summary>
+    /// <param name="apiVersion">The api version of the call.</param>
+    /// <param name="trendKind">Trend Kind. </param>
+    /// <param name="businessDomainId">Business domain id.</param>
+    /// <param name="dataProductId"> Data product id.</param>
+    /// <param name="dataAssetId">Data asset id.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns></returns>
+    [HttpGet]
+    [ProducesResponseType(typeof(HealthTrend), 200)]
+    [Route("{businessDomainId}/dataProducts/{dataProductsId}/dataAssets/{dataAssetId}")]
+    public async Task<IActionResult> GetHealthTrendByDataAssetIdAsync(
+        [FromRoute] TrendKind trendKind,
+        [FromRoute] Guid businessDomainId,
+        [FromRoute] Guid dataProductId,
+        [FromRoute] Guid dataAssetId,
+        [FromQuery(Name = "api-version")] string apiVersion,
+        CancellationToken cancellationToken)
+    {
+        IHealthTrendModel healthTrendModel = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
+            .CreateHealthTrendComponent(
+                this.requestHeaderContext.TenantId,
+                this.requestHeaderContext.AccountObjectId)
+            .ById(businessDomainId)
+            .Get(trendKind.ToModel(), cancellationToken);
+
+        return this.Ok(
+                this.adapterRegistry.AdapterFor<IHealthTrendModel, HealthTrend>()
+                .FromModel(healthTrendModel));
+    }
 }
 
