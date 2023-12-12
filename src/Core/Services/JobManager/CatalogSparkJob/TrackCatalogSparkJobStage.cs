@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using global::Azure.Analytics.Synapse.Spark.Models;
 using System.Text.Json;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 
 internal class TrackCatalogSparkJobStage : IJobCallbackStage
 {
@@ -21,6 +22,8 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
 
     private readonly ICatalogSparkJobComponent catalogSparkJobComponent;
 
+    private readonly IJobManager backgroundJobManager;
+
     public TrackCatalogSparkJobStage(
     IServiceScope scope,
     CatalogSparkJobMetadata metadata,
@@ -30,6 +33,7 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
         this.jobCallbackUtils = jobCallbackUtils;
         this.dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
         this.catalogSparkJobComponent = scope.ServiceProvider.GetService<ICatalogSparkJobComponent>();
+        this.backgroundJobManager = scope.ServiceProvider.GetService<IJobManager>();
     }
 
     public string StageName => nameof(TrackCatalogSparkJobStage);
@@ -52,6 +56,8 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
                 jobStageStatus = JobExecutionStatus.Succeeded;
                 jobStatusMessage = $"Catalog SPARK job succeeded for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}.";
                 this.dataEstateHealthRequestLogger.LogTrace(jobStatusMessage);
+
+                await this.ProvisionPBIRefreshJob(this.metadata.AccountServiceModel);
             }
             else if (jobDetails?.Result == SparkBatchJobResultType.Failed || jobDetails?.State == LivyStates.Dead)
             {
@@ -73,6 +79,11 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
         }
 
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(30)));
+    }
+
+    private async Task ProvisionPBIRefreshJob(AccountServiceModel account)
+    {
+        await backgroundJobManager.StartPBIRefreshJob(account);
     }
 
     public bool IsStageComplete()
