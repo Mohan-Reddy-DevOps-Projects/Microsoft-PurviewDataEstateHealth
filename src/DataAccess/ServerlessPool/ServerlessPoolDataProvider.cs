@@ -78,11 +78,8 @@ internal class ServerlessPoolDataProvider : IServerlessPoolDataProvider
         }
         catch (Exception ex)
         {
-            this.logger.LogError("Failed to query synapse views.", ex);
-            throw new ServiceError(
-                ErrorCategory.ServiceError,
-                ServiceErrorCode.Unknown.Code,
-                ex.Message).ToException();
+            this.logger.LogError("Failed to query synapse.", ex);
+            throw;
         }
     }
 }

@@ -24,6 +24,8 @@ using System.Text.Json;
 using System.Text;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 /// <summary>
 /// The Data Estate Health API service.
@@ -71,10 +73,7 @@ public class Program
             .AddAuthentication();
 
         builder.Services
-            .AddControllers(options =>
-            {
-                options.Filters.Add(typeof(ServiceExceptionFilter));
-            })
+            .AddControllers()
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
@@ -122,6 +121,11 @@ public class Program
             app.UseForwardedHeaders();
             app.UseHsts();
         }
+
+        IDataEstateHealthRequestLogger logger = app.Services.GetRequiredService<IDataEstateHealthRequestLogger>();
+        IRequestContextAccessor requestContextAccessor = app.Services.GetRequiredService<IRequestContextAccessor>();
+        IOptions<EnvironmentConfiguration> envConfig = app.Services.GetRequiredService<IOptions<EnvironmentConfiguration>>();
+        app.ConfigureExceptionHandler(logger, envConfig, requestContextAccessor);
 
         // The readiness probe for the AKS pod
         ServiceConfiguration serverConfig = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>().Value;

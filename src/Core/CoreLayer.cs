@@ -22,7 +22,6 @@ public static class CoreLayer
     /// <param name="services">Gives the core layer a chance to configure its dependency injection.</param>
     public static IServiceCollection AddCoreLayer(this IServiceCollection services)
     {
-        services.AddSingleton<IExceptionAdapterService, ExceptionAdapterService>();
         services.AddSingleton<ICertificateLoaderService, CertificateLoaderService>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IStorageCredentialsProvider, StorageCredentialsProvider>();

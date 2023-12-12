@@ -22,11 +22,6 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     where TMetadata : StagedWorkerJobMetadata
 {
     /// <summary>
-    /// Exception Adapter
-    /// </summary>
-    protected IExceptionAdapterService ExceptionAdapter;
-
-    /// <summary>
     /// Indicate if job pre-condition(s) met.
     /// </summary>
     protected bool IsJobPreconditionValid;
@@ -71,7 +66,6 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     {
         this.Scope = scope;
         this.DataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
-        this.ExceptionAdapter = scope.ServiceProvider.GetService<IExceptionAdapterService>();
     }
 
     /// <summary>
@@ -244,19 +238,14 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
 
             if (this.Metadata?.ServiceExceptions != null)
             {
-                bool hasTerminatedOnClientError = this.HasTerminatedOnClientError();
-
                 foreach (ServiceException serviceException in this.Metadata.ServiceExceptions)
                 {
                     string errorMessage = $"Error encountered in job with ID '{this.JobId}'";
 
                     // Only log a critical when the error isn't a client error and the job is faulted. Otherwise, we
                     // can get an IcM for a job that ended up succeeding.
-                    if (this.ExceptionAdapter.IsTransientError(serviceException) ||
-                        this.ExceptionAdapter.IsClientError(serviceException) ||
-                        !this.IsJobPreconditionValid ||
-                        result.Status != JobExecutionStatus.Faulted ||
-                        hasTerminatedOnClientError)
+                    if (!this.IsJobPreconditionValid ||
+                        result.Status != JobExecutionStatus.Faulted)
                     {
                         this.DataEstateHealthRequestLogger.LogError(errorMessage, serviceException, operationName: this.GetType().Name);
                     }
@@ -404,16 +393,5 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     private bool HasReachedMaxPostponeCount()
     {
         return !this.IsRecurringJob && this.BackgroundJob.TotalPostponedCount >= this.MaxPostponeCount;
-    }
-
-    /// <summary>
-    /// Returns true if the last exception thrown by the job is a client error. This check helps determine
-    /// if a client error was encountered when retrying the job after a transient error.
-    /// </summary>
-    /// <returns>True if the last <see cref="ServiceException"/> is a client error; otherwise false.</returns>
-    private bool HasTerminatedOnClientError()
-    {
-        ServiceException lastException = this.Metadata?.ServiceExceptions?.LastOrDefault();
-        return lastException is not null && this.ExceptionAdapter.IsClientError(lastException);
     }
 }

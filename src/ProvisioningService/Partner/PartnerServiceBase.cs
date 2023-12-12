@@ -17,6 +17,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 using Newtonsoft.Json;
+using ErrorModel = Common.ErrorModel;
 
 /// <summary>
 /// The Partner Service implementation.

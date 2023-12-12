@@ -9,12 +9,12 @@ using Newtonsoft.Json;
 /// <summary>
 /// Additional info of errors returned from the service.
 /// </summary>
-public class DataEstateHealthErrorInfo
+public class ErrorModel
 {
     /// <summary>
-    /// Constructor for the <see cref="DataEstateHealthErrorInfo"/> type.
+    /// Constructor for the <see cref="ErrorModel"/> type.
     /// </summary>
-    public DataEstateHealthErrorInfo(string code, string message)
+    public ErrorModel(string code, string message)
     {
         this.Code = code;
         this.Message = message;
@@ -42,5 +42,5 @@ public class DataEstateHealthErrorInfo
     /// Nested details of the error.
     /// </summary>
     [JsonProperty(PropertyName = "details", NullValueHandling = NullValueHandling.Ignore)]
-    public DataEstateHealthErrorInfo[] Details { get; set; }
+    public ErrorModel[] Details { get; set; }
 }

@@ -51,9 +51,9 @@ public class ApiVersionGuardMiddleware
 
         if (!this.environmentConfiguration.PermittedApiVersions.ContainsInsensitively(requestHeaderContext.ApiVersion))
         {
-            var responseBody = new DataEstateHealthError
+            var responseBody = new ErrorResponseModel
             {
-                Error = new DataEstateHealthErrorInfo(
+                Error = new ErrorModel(
                     ErrorCode.UnsupportedApiVersionParameter.Code.ToString(),
                     ErrorCode.UnsupportedApiVersionParameter.FormatMessage(requestHeaderContext.ApiVersion ?? "", string.Join(',', this.environmentConfiguration.PermittedApiVersions)))
             };

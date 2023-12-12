@@ -9,11 +9,11 @@ using Newtonsoft.Json;
 /// <summary>
 /// An error returned from the service.
 /// </summary>
-public class DataEstateHealthError
+public class ErrorResponseModel
 {
     /// <summary>
     /// The error body.
     /// </summary>
     [JsonProperty(PropertyName = "error", Required = Required.Always)]
-    public DataEstateHealthErrorInfo Error { get; set; }
+    public ErrorModel Error { get; set; }
 }
