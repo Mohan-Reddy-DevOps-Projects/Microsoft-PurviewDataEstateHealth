@@ -370,7 +370,7 @@ public class JobManager : IJobManager
                     jobMetadata,
                     jobPartition,
                     jobId)
-                .WithStartTime(DateTime.UtcNow.AddHours(1))
+                .WithStartTime(DateTime.UtcNow.AddMinutes(15))
                 .WithRepeatStrategy(TimeSpan.FromDays(1))
                 .WithRetryStrategy(TimeSpan.FromMinutes(15))
                 .WithoutEndTime();

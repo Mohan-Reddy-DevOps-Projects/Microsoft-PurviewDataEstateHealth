@@ -63,16 +63,16 @@ public class KeyVaultAccessorService : IKeyVaultAccessorService, IDisposable
         }
         catch (RequestFailedException keyVaultException)
         {
-            this.logger.LogError(
-                FormattableString.Invariant($"Failed to read secret {secretName} from {this.secretClient.VaultUri}."),
-                keyVaultException);
-
             if (keyVaultException.Status == (int)HttpStatusCode.NotFound)
             {
-                this.logger.LogWarning("Secret not found in key vault.");
+                this.logger.LogWarning($"Secret {secretName} not found in key vault {this.secretClient.VaultUri}.");
 
                 return null;
             }
+
+            this.logger.LogError(
+                FormattableString.Invariant($"Failed to read secret {secretName} from {this.secretClient.VaultUri}."),
+                keyVaultException);
 
             throw new ServiceError(
                     ErrorCategory.ServiceError,

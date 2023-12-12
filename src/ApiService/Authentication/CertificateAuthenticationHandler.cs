@@ -69,7 +69,7 @@ internal class CertificateAuthenticationHandler : AuthenticationHandler<Certific
     {
         try
         {
-            this.logger.LogInformation("Verifying claims and certificates");
+            this.logger.LogTrace("Verifying claims and certificates");
             X509Certificate2 clientCertificate = this.Context.Connection.ClientCertificate;
             this.ValidateClientCertificate(clientCertificate);
         }
@@ -102,7 +102,7 @@ internal class CertificateAuthenticationHandler : AuthenticationHandler<Certific
     /// <param name="clientCertificate"></param>
     protected void ValidateClientCertificate(X509Certificate2 clientCertificate)
     {
-        this.logger.LogInformation($"Verifying client certificate subject [{clientCertificate?.SubjectName?.Name}], issuer [{clientCertificate?.IssuerName?.Name}]");
+        this.logger.LogTrace($"Verifying client certificate subject [{clientCertificate?.SubjectName?.Name}], issuer [{clientCertificate?.IssuerName?.Name}]");
 
         if (clientCertificate == null && this.environmentConfig.IsDevelopmentEnvironment())
         {
