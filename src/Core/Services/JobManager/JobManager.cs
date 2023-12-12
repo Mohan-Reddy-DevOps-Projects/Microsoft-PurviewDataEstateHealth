@@ -294,6 +294,23 @@ public class JobManager : IJobManager
         return false;
     }
 
+    /// <inheritdoc />
+    public async Task StartPBIRefreshJob(AccountServiceModel accountModel)
+    {
+        string jobPartition = "PBI-REFRESH-CALLBACK";
+        HttpContextAccessor httpContextAccessor = new();
+        RequestHeaderContext requestHeaderContext = new(httpContextAccessor);
+        requestHeaderContext.SetCorrelationIdInRequestContext(Guid.NewGuid().ToString());
+
+        StartPBIRefreshMetadata jobMetadata = new()
+        {
+            WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+            Account = accountModel,
+            RefreshLookups = new List<RefreshLookup>()
+        };
+
+        await this.CreateOneTimeJob(jobMetadata, nameof(PBIRefreshCallback), jobPartition);
+    }
 
     /// <inheritdoc />
     public async Task ProvisionEventProcessorJob()
@@ -323,9 +340,16 @@ public class JobManager : IJobManager
                 ProcessingStoresCache = new Dictionary<Guid, string>(),
             };
 
-            JobBuilder jobBuilder = JobManager.GetJobBuilderWithDefaultOptions(
-                    nameof(PartnerEventsConsumerJobCallback),
-                    jobMetadata,
+            await this.CreateOneTimeJob(jobMetadata, nameof(PartnerEventsConsumerJobCallback), jobPartition, jobId);
+        }
+    }
+
+    private async Task CreateOneTimeJob<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, string jobId = null)
+        where TMetadata : StagedWorkerJobMetadata
+    {
+        JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
+                    jobCallbackName,
+                    metadata,
                     jobPartition,
                     jobId)
                 .WithStartTime(DateTime.UtcNow.AddMinutes(1))
@@ -333,8 +357,7 @@ public class JobManager : IJobManager
                 .WithRetryStrategy(TimeSpan.FromMinutes(5))
                 .WithoutEndTime();
 
-            await this.CreateJobAsync(jobBuilder);
-        }
+        await this.CreateJobAsync(jobBuilder);
     }
 
     /// <inheritdoc />

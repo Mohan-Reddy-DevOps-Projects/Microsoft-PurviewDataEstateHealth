@@ -46,7 +46,7 @@ public static class Startup
 
         builder.Services.AddHostedService<WorkerService>();
     }
-
+    
     private static void ConfigureKestrelServerForProduction(WebApplicationBuilder builder)
     {
         string appSettingsJson = System.Environment.GetEnvironmentVariable("APP_SETTINGS_JSON") ?? throw new Exception("environment variable 'APP_SETTINGS_JSON' is missing");

@@ -20,13 +20,8 @@ public static class ConfigurationExtensions
         IConfiguration configuration)
     {
         services.AddCommonConfigurations(configuration)
-            .AddProvisioningConfigurations(configuration)
             .Configure<AllowListedCertificateConfiguration>(configuration.GetSection("allowListedCertificate"))
-            .Configure<CertificateSetConfiguration>(configuration.GetSection("apiServiceCertificateSet"))
-            .Configure<PowerBIAuthConfiguration>(configuration.GetSection("powerBIAuth"))
-            .Configure<ServerlessPoolAuthConfiguration>(configuration.GetSection("serverlessPoolAuth"))
-            .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"))
-            .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"));
+            .AddProvisioningConfigurations(configuration);
 
         return services;
     }
@@ -52,6 +47,7 @@ public static class ConfigurationExtensions
         IConfiguration configuration)
     {
         services.AddOptions()
+            .Configure<CertificateSetConfiguration>(configuration.GetSection("apiServiceCertificateSet"))
             .Configure<GenevaConfiguration>(configuration.GetSection("geneva"))
             .Configure<EnvironmentConfiguration>(configuration.GetSection("environment"))
             .Configure<JobConfiguration>(configuration.GetSection("jobManagerConfiguration"))
@@ -63,8 +59,13 @@ public static class ConfigurationExtensions
             .Configure<MetadataServiceConfiguration>(configuration.GetSection("metadataService"))
             .Configure<ExposureControlConfiguration>(configuration.GetSection("exposureControl"))
             .Configure<ArtifactStoreServiceConfiguration>(configuration.GetSection("artifactStoreServiceConfiguration"))
-            .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"))
-            .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"));
+            .Configure<PowerBIAuthConfiguration>(configuration.GetSection("powerBIAuth"))
+            .Configure<ServerlessPoolAuthConfiguration>(configuration.GetSection("serverlessPoolAuth"))
+            .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"))
+            .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
+            .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
+            .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"));
+
         return services;
     }
 

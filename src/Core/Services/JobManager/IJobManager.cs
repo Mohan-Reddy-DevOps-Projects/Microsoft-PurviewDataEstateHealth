@@ -105,6 +105,12 @@ public interface IJobManager
     Task ProvisionEventProcessorJob();
 
     /// <summary>
+    /// Start PBI refresh job
+    /// </summary>
+    /// <returns></returns>
+    Task StartPBIRefreshJob(AccountServiceModel accountModel);
+
+    /// <summary>
     /// Provisions catalog SPARK job per account.
     /// </summary>
     /// <param name="accountServiceModel"></param>

@@ -7,6 +7,8 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -36,6 +38,7 @@ builder.WebHost.ConfigureKestrel((hostingContext, options) =>
 });
 
 WebApplication app = builder.Build();
+await Initialize(app);
 
 var serviceConfig = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>().Value;
 
@@ -54,3 +57,36 @@ app.Lifetime.ApplicationStarted.Register(
     });
 
 await app.RunAsync();
+
+
+static async Task Initialize(WebApplication app)
+{
+    try
+    {
+        // Initialize client certificate cache
+        ICertificateLoaderService certificateLoaderService = app.Services.GetRequiredService<ICertificateLoaderService>();
+        await certificateLoaderService.InitializeAsync();
+
+        // Initialize the exposure control client
+        IExposureControlClient exposureControlClient = app.Services.GetRequiredService<IExposureControlClient>();
+        await exposureControlClient.Initialize();
+
+        // Initialize PowerBI service
+        IPowerBIService powerBIService = app.Services.GetService<IPowerBIService>();
+        await powerBIService.Initialize();
+
+        // Initialize synapse service
+        IServerlessPoolClient serverlessPoolClient = app.Services.GetService<IServerlessPoolClient>();
+        await serverlessPoolClient.Initialize();
+
+        // Initialize metadata service
+        IMetadataAccessorService metadataService = app.Services.GetService<IMetadataAccessorService>();
+        metadataService.Initialize();
+    }
+    catch (Exception ex)
+    {
+        IDataEstateHealthRequestLogger logger = app.Services.GetRequiredService<IDataEstateHealthRequestLogger>();
+        logger.LogCritical("Failed to initialize services during startup", ex);
+        throw;
+    }
+}

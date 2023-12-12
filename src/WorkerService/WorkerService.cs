@@ -13,35 +13,52 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 public class WorkerService : BackgroundService
 {
     private readonly IServiceProvider serviceProvider;
+    private readonly IDataEstateHealthRequestLogger logger;
+    private readonly CancellationTokenSource cancellationTokenSource = new();
+    private readonly ManualResetEvent runCompleteEvent = new(false);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="WorkerService" /> class.
     /// </summary>
-    public WorkerService(IServiceProvider serviceProvider)
+    public WorkerService(IServiceProvider serviceProvider, IDataEstateHealthRequestLogger logger)
     {
         this.serviceProvider = serviceProvider;
+        this.logger = logger;
     }
 
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        JobDispatcher jobDispatcher = await JobDispatcher.CreateAsync(this.serviceProvider);
-        await jobDispatcher.Initialize();
-
-        IDataEstateHealthRequestLogger logger = this.serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
-        logger.LogInformation("WorkerService initialized and setting up infinite loop.");
-
-        while (!cancellationToken.IsCancellationRequested)
+        this.logger.LogInformation("WorkerService is running");
+        try
         {
-            await Task.Delay(10000, cancellationToken).ConfigureAwait(false);
-            await Task.FromResult(true);
+            JobDispatcher jobDispatcher = await JobDispatcher.CreateAsync(this.serviceProvider);
+            await jobDispatcher.Initialize();
+
+            this.logger.LogInformation("WorkerService initialized and setting up infinite loop.");
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                await Task.Delay(10000, cancellationToken).ConfigureAwait(false);
+                await Task.FromResult(true);
+            }
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError("Exception occurred in Dispatcher", ex);
+            throw;
+        }
+        finally
+        {
+            this.runCompleteEvent.Set();
         }
     }
 
     /// <inheritdoc />
     public override async Task StopAsync(CancellationToken cancellationToken)
     {
-        // TODO(zachmadsen): Do we need to do something with jobDispatcher here?
+        this.cancellationTokenSource.Cancel();
+        this.runCompleteEvent.WaitOne();
         await base.StopAsync(cancellationToken);
     }
 }

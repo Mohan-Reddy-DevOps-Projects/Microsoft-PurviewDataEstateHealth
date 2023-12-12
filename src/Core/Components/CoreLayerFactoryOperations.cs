@@ -155,7 +155,6 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
             this.version.Numeric);
     }
 
-
     /// <inheritdoc />
     public IHealthTrendComponent CreateHealthTrendComponent(
         Guid tenantId,
