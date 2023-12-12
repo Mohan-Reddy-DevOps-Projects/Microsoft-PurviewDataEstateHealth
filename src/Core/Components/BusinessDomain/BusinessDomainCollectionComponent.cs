@@ -43,18 +43,22 @@ internal class BusinessDomainCollectionComponent : BaseComponent<IBusinessDomain
         IQueryable<BusinessDomainEntity> businessDomainEntitiesList = await this.GetDataset(query, cancellationToken) as IQueryable<BusinessDomainEntity>;
 
         List<IBusinessDomainModel> businessDomainModelList = new();
-        businessDomainModelList.AddRange(businessDomainEntitiesList.Select(businessDomainsEntity =>
-            new BusinessDomainModel()
-            {
-                BusinessDomainId = businessDomainsEntity.BusinessDomainId,
-                BusinessDomainName = businessDomainsEntity.BusinessDomainDisplayName
-            }));
-
-        return new BaseBatchResults<IBusinessDomainModel>
+        BaseBatchResults<IBusinessDomainModel> result = new()
         {
             Results = businessDomainModelList,
             ContinuationToken = null
         };
+        if (businessDomainEntitiesList != null)
+        {
+            businessDomainModelList.AddRange(businessDomainEntitiesList.Select(businessDomainsEntity =>
+                new BusinessDomainModel()
+                {
+                    BusinessDomainId = businessDomainsEntity.BusinessDomainId,
+                    BusinessDomainName = businessDomainsEntity.BusinessDomainDisplayName
+                }));
+        }
+
+        return result;
     }
 
     private async Task<IQueryable> GetDataset<T>(ODataQueryOptions<T> query, CancellationToken cancellationToken)
