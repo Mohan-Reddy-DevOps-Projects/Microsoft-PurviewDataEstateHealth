@@ -5,7 +5,6 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 
 /// <summary>

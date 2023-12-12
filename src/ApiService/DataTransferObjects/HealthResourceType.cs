@@ -4,9 +4,13 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
 
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
 /// <summary>
 /// Health resource Type.
 /// </summary>
+[JsonConverter(typeof(StringEnumConverter))]
 public enum HealthResourceType
 {
     /// <summary>

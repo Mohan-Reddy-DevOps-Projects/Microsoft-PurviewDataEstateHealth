@@ -92,7 +92,30 @@ internal class HealthControlRepository : IHealthControlRepository
                 continuationToken: continuationToken,
                 byPassObligations: true);
 
-        HealthControlSqlEntity healthControlSqlEntity = healthControlEntititiesList[0];
+        HealthControlSqlEntity healthControlSqlEntity = null;
+
+        if (healthControlEntititiesList.Count == 0)
+        {
+            healthControlSqlEntity = new HealthControlSqlEntity()
+            {
+                AccessEntitlementScore = -1,
+                AuthoritativeDataSourceScore = -1,
+                CatalogingScore = -1,
+                ClassificationScore = -1,
+                CurrentScore = -1,
+                DataConsumptionPurposeScore = -1,
+                DataQualityScore = -1,
+                MetadataCompletenessScore = -1,
+                OwnershipScore = -1,
+                QualityScore = -1,
+                UseScore = -1,
+                LastRefreshedAt = DateTime.MinValue
+            };
+        }
+        else
+        {
+            healthControlSqlEntity = healthControlEntititiesList[0];
+        }
 
         List<HealthControlEntity> healthControlEntities = this.CreateHealthControlEntities(entityList.Items.Select(x => x.Properties).ToList(), healthControlSqlEntity);
 
@@ -120,16 +143,18 @@ internal class HealthControlRepository : IHealthControlRepository
 
         foreach (HealthControlArtifactStoreEntity healthControlArtifactStoreEntity in healthControlArtifactStoreEntities)
         {
+            double currentScore = controlNameScoreDictionary[healthControlArtifactStoreEntity.Name];
+
             healthControlEntities.Add(new HealthControlEntity()
             {
-                CurrentScore = controlNameScoreDictionary[healthControlArtifactStoreEntity.Name],
+                CurrentScore = currentScore,
                 LastRefreshedAt = healthControlSqlEntity.LastRefreshedAt,
-                ControlStatus = healthControlArtifactStoreEntity.ControlStatus,
+                ControlStatus = currentScore < 0 ? HealthResourceStatus.NotStarted : healthControlArtifactStoreEntity.ControlStatus,
                 ControlType = healthControlArtifactStoreEntity.ControlType,
                 CreatedAt = healthControlArtifactStoreEntity.CreatedAt,
                 Description = healthControlArtifactStoreEntity.Description,
                 EndsAt = healthControlArtifactStoreEntity.EndsAt,
-                HealthStatus = healthControlArtifactStoreEntity.HealthStatus,
+                HealthStatus = this.GenerateHealthStatus(currentScore),
                 IsCompositeControl = healthControlArtifactStoreEntity.IsCompositeControl,
                 ModifiedAt = healthControlArtifactStoreEntity.ModifiedAt,
                 Name = healthControlArtifactStoreEntity.Name,
@@ -146,6 +171,22 @@ internal class HealthControlRepository : IHealthControlRepository
         }
 
         return healthControlEntities;
+    }
+
+    private string GenerateHealthStatus(double score)
+    {
+        if (score >= 80)
+        {
+            return "Healthy";
+        }
+        else if (score >= 50)
+        {
+            return "Fair";
+        }
+        else
+        {
+            return "Not healthy";
+        }
     }
 
     private Dictionary<string, double> CreateControlNameScoreDictionary(HealthControlSqlEntity healthControlSqlEntity)

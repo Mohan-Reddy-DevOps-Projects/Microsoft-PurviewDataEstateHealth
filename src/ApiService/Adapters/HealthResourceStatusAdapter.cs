@@ -25,6 +25,8 @@ public static class HealthResourceStatusAdapter
                 return DataTransferObjects.HealthResourceStatus.Draft;
             case HealthResourceStatus.Active:
                 return DataTransferObjects.HealthResourceStatus.Active;
+            case HealthResourceStatus.NotStarted:
+                return DataTransferObjects.HealthResourceStatus.NotStarted;
             default:
                 throw new InvalidEnumArgumentException(nameof(model), (int)model, typeof(HealthResourceStatus));
         }
@@ -43,6 +45,8 @@ public static class HealthResourceStatusAdapter
                 return HealthResourceStatus.Active;
             case DataTransferObjects.HealthResourceStatus.Draft:
                 return HealthResourceStatus.Draft;
+            case DataTransferObjects.HealthResourceStatus.NotStarted:
+                return HealthResourceStatus.NotStarted;
             default:
                 throw new InvalidEnumArgumentException(
                     nameof(dto),

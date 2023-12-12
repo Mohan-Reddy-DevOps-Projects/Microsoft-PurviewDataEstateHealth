@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
+using System.ComponentModel;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json.Converters;
 
@@ -16,10 +17,18 @@ public enum HealthResourceStatus
     /// <summary>
     /// Active health report
     /// </summary>
+    [Description("Active")]
     Active = 1,
 
     /// <summary>
     /// Draft report.
     /// </summary>
-    Draft
+    [Description("Draft")]
+    Draft,
+
+    /// <summary>
+    /// Not started
+    /// </summary>
+    [Description("Not started")]
+    NotStarted
 }

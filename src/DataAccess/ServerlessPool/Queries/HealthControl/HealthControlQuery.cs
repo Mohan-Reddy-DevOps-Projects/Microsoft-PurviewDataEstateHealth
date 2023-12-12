@@ -15,9 +15,9 @@ internal class HealthControlQuery : BaseQuery, IServerlessQueryRequest<HealthCon
 
     public string Query
     {
-        get => "SELECT ActualValue, C2_Ownership, C3_AuthoritativeSource, MetadataCompleteness, C5_Catalog, C6_Classification, C7_Access, C8_DataConsumptionPurpose, C12_Quality, Use, Quality, LastRefreshDate " +
+        get => "SELECT ActualValue, C2_Ownership, C3_AuthoritativeSource, MetadataCompleteness, C5_Catalog, C6_Classification, C7_Access, C8_DataConsumptionPurpose, C12_Quality, [Use], Quality, LastRefreshDate " +
             QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) +
-            "WITH (ActualValue float, C2_Ownership float, C3_AuthoritativeSource float, MetadataCompleteness float, C5_Catalog float, C6_Classification float, C7_Access float, C8_DataConsumptionPurpose float, C12_Quality float, Use float, Quality float, LastRefreshDate DateTime2)" +
+            "WITH (ActualValue float, C2_Ownership float, C3_AuthoritativeSource float, MetadataCompleteness float, C5_Catalog float, C6_Classification float, C7_Access float, C8_DataConsumptionPurpose float, C12_Quality float, [Use] float, Quality float, LastRefreshDate DateTime2)" +
             QueryConstants.ServerlessQuery.AsRows;
     }
 
