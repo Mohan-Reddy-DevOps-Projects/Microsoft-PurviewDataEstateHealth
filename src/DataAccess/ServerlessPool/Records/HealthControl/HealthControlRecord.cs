@@ -54,8 +54,8 @@ public class HealthControlRecord : BaseRecord
     /// <summary>
     /// Data quality
     /// </summary>
-    [DataColumn("C12_DataQuality")]
-    public double C12_DataQuality { get; set; }
+    [DataColumn("C12_Quality")]
+    public double C12_Quality { get; set; }
 
     /// <summary>
     /// Use

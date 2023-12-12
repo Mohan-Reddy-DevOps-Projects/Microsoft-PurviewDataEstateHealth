@@ -40,7 +40,7 @@ public class HealthControlAdapter : BaseModelAdapter<HealthControlModel, HealthC
             TrendUrl = resource.TrendUrl,
             ParentControlId = resource.ParentControlId,
             LastRefreshedAt = resource.LastRefreshedAt,
-            ModifiedAt = resource.ModifiedAt
+            ModifiedAt = resource.ModifiedAt,
         };
     }
 
@@ -69,6 +69,9 @@ public class HealthControlAdapter : BaseModelAdapter<HealthControlModel, HealthC
             StartsAt = model.StartsAt,
             EndsAt = model.EndsAt,
             TrendUrl = model.TrendUrl,
+            LastRefreshedAt = model.LastRefreshedAt,
+            ModifiedAt = model.ModifiedAt,
+            ParentControlId = model.ParentControlId
         };
     }
 }

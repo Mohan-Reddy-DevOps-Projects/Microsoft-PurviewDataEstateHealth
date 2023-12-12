@@ -15,9 +15,9 @@ internal class HealthControlQuery : BaseQuery, IServerlessQueryRequest<HealthCon
 
     public string Query
     {
-        get => "SELECT ActualValue, C2_Ownership, C3_AuthoritativeSource, MetadataCompleteness, C5_Catalog, C6_Classification, C7_Access, C8_DataConsumptionPurpose, C12_Quality, [Use], Quality, LastRefreshDate " +
+        get => "SELECT ActualValue, C2_Ownership, C3_AuthoritativeSource, MetadataCompleteness, C5_Catalog, C6_Classification, C7_Access, C8_DataConsumptionPurpose, C12_Quality, [Use], Quality, LastRefreshedAt " +
             QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) +
-            "WITH (ActualValue float, C2_Ownership float, C3_AuthoritativeSource float, MetadataCompleteness float, C5_Catalog float, C6_Classification float, C7_Access float, C8_DataConsumptionPurpose float, C12_Quality float, [Use] float, Quality float, LastRefreshDate DateTime2)" +
+            "WITH (ActualValue float, C2_Ownership float, C3_AuthoritativeSource float, MetadataCompleteness float, C5_Catalog float, C6_Classification float, C7_Access float, C8_DataConsumptionPurpose float, C12_Quality float, [Use] float, Quality float, LastRefreshedAt DateTime2)" +
             QueryConstants.ServerlessQuery.AsRows;
     }
 
@@ -27,8 +27,8 @@ internal class HealthControlQuery : BaseQuery, IServerlessQueryRequest<HealthCon
         {
             ActualValue =
                 Convert.ToDouble(row[GetCustomAttribute<DataColumnAttribute, HealthControlRecord>(x => x.ActualValue).Name].ToString()),
-            C12_DataQuality =
-                Convert.ToDouble(row[GetCustomAttribute<DataColumnAttribute, HealthControlRecord>(x => x.C12_DataQuality).Name].ToString()),
+            C12_Quality =
+                Convert.ToDouble(row[GetCustomAttribute<DataColumnAttribute, HealthControlRecord>(x => x.C12_Quality).Name].ToString()),
             C2_Ownership =
                 Convert.ToDouble(row[GetCustomAttribute<DataColumnAttribute, HealthControlRecord>(x => x.C2_Ownership).Name].ToString()),
             C3_AuthoritativeSource =
@@ -48,7 +48,7 @@ internal class HealthControlQuery : BaseQuery, IServerlessQueryRequest<HealthCon
             MetadataCompleteness =
                 Convert.ToDouble(row[GetCustomAttribute<DataColumnAttribute, HealthControlRecord>(x => x.MetadataCompleteness).Name].ToString()),
             LastRefreshedAt =
-                (row[GetCustomAttribute<DataColumnAttribute, HealthActionsRecord>(x => x.LastRefreshedAt).Name]?.ToString()).AsDateTime()
+                (row[GetCustomAttribute<DataColumnAttribute, HealthControlRecord>(x => x.LastRefreshedAt).Name]?.ToString()).AsDateTime()
         };
     }
 
@@ -71,7 +71,7 @@ internal class HealthControlQuery : BaseQuery, IServerlessQueryRequest<HealthCon
                 CatalogingScore = record.C5_Catalog,
                 ClassificationScore = record.C6_Classification,
                 DataConsumptionPurposeScore = record.C8_DataConsumptionPurpose,
-                DataQualityScore = record.C12_DataQuality,
+                DataQualityScore = record.C12_Quality,
                 MetadataCompletenessScore = record.MetadataCompleteness,
                 OwnershipScore = record.C2_Ownership,
                 QualityScore = record.Quality,
