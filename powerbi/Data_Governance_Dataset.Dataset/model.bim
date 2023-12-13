@@ -4,7 +4,7 @@
     "annotations": [
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"SERVER\",\"DATABASE\",\"DATABASE_SCHEMA\",\"BusinessDomain\",\"BusinessDomainTrends\",\"DataAsset\",\"DataAssetContactAssociation\",\"DataProduct\",\"DataProductContactAssociation\",\"DataProductDataAssetAssociation\",\"GlossaryTerm\",\"BusinessDomainDataProductAssociation\",\"TENANT_ID\",\"AssetURLTable\",\"AccountInfo\"]"
+        "value": "[\"SERVER\",\"DATABASE\",\"DATABASE_SCHEMA\",\"BusinessDomain\",\"BusinessDomainTrends\",\"DataAsset\",\"DataAssetContactAssociation\",\"DataProduct\",\"DataProductContactAssociation\",\"DataProductDataAssetAssociation\",\"GlossaryTerm\",\"BusinessDomainDataProductAssociation\",\"TENANT_ID\",\"AccountInfo\"]"
       },
       {
         "name": "__PBI_TimeIntelligenceEnabled",
@@ -12,7 +12,7 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.124.581.0 (23.12)"
+        "value": "2.124.779.0 (23.12)"
       },
       {
         "name": "PBI_ProTooling",
@@ -34,7 +34,19 @@
                     "ConceptualProperty": "BusinessDomainDisplayName"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Business domain name": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "businessdomain.businessdomainid": {
                 "Definition": {
@@ -129,6 +141,24 @@
                   }
                 ]
               },
+              "dataasset.displayname": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "DataAsset",
+                    "ConceptualProperty": "DisplayName"
+                  }
+                },
+                "State": "Generated"
+              },
+              "dataproduct.asset_count": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "DataProduct",
+                    "ConceptualProperty": "Asset count"
+                  }
+                },
+                "State": "Generated"
+              },
               "dataproduct.c2_ownership": {
                 "Definition": {
                   "Binding": {
@@ -136,7 +166,19 @@
                     "ConceptualProperty": "C2_Ownership"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Ownership": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "dataproduct.c3_authoritative_source": {
                 "Definition": {
@@ -145,7 +187,19 @@
                     "ConceptualProperty": "C3_Authoritative source"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Authoritative source": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "dataproduct.c5_catalog": {
                 "Definition": {
@@ -154,7 +208,19 @@
                     "ConceptualProperty": "C5_Catalog"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Catalog": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "dataproduct.c6_classification": {
                 "Definition": {
@@ -163,7 +229,19 @@
                     "ConceptualProperty": "C6_Classification"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Classification": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "dataproduct.c7_access_entitlement": {
                 "Definition": {
@@ -172,7 +250,19 @@
                     "ConceptualProperty": "C7_Access entitlement"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Access entitlement": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "dataproduct.c8_data_consumption_purpose": {
                 "Definition": {
@@ -181,7 +271,19 @@
                     "ConceptualProperty": "C8_Data consumption purpose"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Data consumption purpose": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "dataproduct.c_12_data_quality": {
                 "Definition": {
@@ -190,7 +292,19 @@
                     "ConceptualProperty": "C_12 Data quality"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Data quality": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "dataproduct.dataproductdisplayname": {
                 "Definition": {
@@ -208,12 +322,24 @@
                     "ConceptualProperty": "Overall health score"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Governance score": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               },
               "dataproduct.total_assets": {
                 "Definition": {
                   "Binding": {
-                    "ConceptualEntity": "DataProduct",
+                    "ConceptualEntity": "DataAsset",
                     "ConceptualProperty": "Asset count"
                   }
                 },
@@ -226,7 +352,19 @@
                     "ConceptualProperty": "Total DataProducts"
                   }
                 },
-                "State": "Generated"
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Data products": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
               }
             },
             "Language": "en-US",
@@ -248,10 +386,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Text"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "expression": "\"dghdogfoodsynapse-ondemand.sql.azuresynapse.net\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
@@ -278,7 +412,7 @@
             "value": "Text"
           }
         ],
-        "expression": "\"79e7043b-2d89-4454-9f07-1d8ceb3f0399\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\"12d98746-0b5a-4778-8bd0-449994469062\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "17e0cb58-b472-4281-a56f-7015df8fa2d7"
       },
@@ -348,13 +482,6 @@
         "name": "98b23a6e-7285-414b-8dc9-fb1f2ff58bfe",
         "fromColumn": "DataProductId",
         "fromTable": "DataProductContactAssociation",
-        "toColumn": "DataProductId",
-        "toTable": "BusinessDomainDataProductAssociation"
-      },
-      {
-        "name": "397fcb5c-e901-4e65-b897-8345c62b5eeb",
-        "fromColumn": "DataProductId",
-        "fromTable": "AssetURLTable",
         "toColumn": "DataProductId",
         "toTable": "BusinessDomainDataProductAssociation"
       },
@@ -759,10 +886,6 @@
           {
             "name": "PBI_ResultType",
             "value": "Table"
-          },
-          {
-            "name": "PBI_NavigationStepName",
-            "value": "Navigation"
           }
         ],
         "columns": [
@@ -1211,18 +1334,9 @@
           },
           {
             "name": "Trend_Asset Pass count",
-            "expression": [
-              "CALCULATE(COUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Assetcount_catalog P/F] = \"Pass\")"
-            ],
+            "expression": "CALCULATE(COUNT('DataProduct'[DataProductId]),DataProduct[AssetCount] > 0)",
             "formatString": "0",
             "lineageTag": "f539233d-7090-4b2c-bd5a-b10780f26066"
-          },
-          {
-            "name": "Sum of Asset pass count",
-            "expression": "SUMX(BusinessDomainTrends,BusinessDomainTrends[Trend_Asset Pass count])",
-            "formatString": "0",
-            "lineageTag": "533391d1-545e-45af-9d0c-996f3251658f"
           }
         ],
         "partitions": [
@@ -1523,6 +1637,19 @@
           }
         ],
         "lineageTag": "e01a6210-45a2-498b-a38a-192cae8264e8",
+        "measures": [
+          {
+            "name": "Asset count",
+            "changedProperties": [
+              {
+                "property": "IsHidden"
+              }
+            ],
+            "expression": "DISTINCTCOUNT(DataAsset[DataAssetId])",
+            "formatString": "0",
+            "lineageTag": "ac7da6b6-b54c-4b0d-97bc-443dfff75361"
+          }
+        ],
         "partitions": [
           {
             "name": "DataAsset",
@@ -2157,7 +2284,7 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [Overall health score] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [Overall health score] > [Min_Tresh hold] && [Overall health score] <=[Max_Thresh hold] , \"Fair\",",
+              "                            [Overall health score] > [Min_Thresh hold] && [Overall health score] <=[Max_Thresh hold] , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "isDataTypeInferred": true,
@@ -2182,26 +2309,6 @@
             "expression": "IF('DataProduct'[HasValidOwner] = TRUE(), \"Pass\", \"Fail\")",
             "isDataTypeInferred": true,
             "lineageTag": "1116f6a1-d103-4170-bd5b-e588adb8cd8e",
-            "summarizeBy": "none",
-            "type": "calculated"
-          },
-          {
-            "name": "Owner_catalog P/F",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "dataType": "string",
-            "expression": "IF(COALESCE('DataProduct'[HasValidOwner],0) = TRUE(),\"Pass\",\"Fail\")",
-            "isDataTypeInferred": true,
-            "lineageTag": "e56a65f7-dc4d-4a3e-ae24-a41ef7700310",
             "summarizeBy": "none",
             "type": "calculated"
           },
@@ -2239,7 +2346,7 @@
               }
             ],
             "dataType": "string",
-            "expression": "IF(COALESCE('DataProduct'[Asset count],0) >= 1,\"Pass\",\"Fail\")",
+            "expression": "IF(COALESCE('DataProduct'[AssetCount],0) >= 1,\"Pass\",\"Fail\")",
             "isDataTypeInferred": true,
             "lineageTag": "239fc81e-0ed9-4c93-91be-4b1f38cce209",
             "summarizeBy": "none",
@@ -2335,122 +2442,6 @@
         "lineageTag": "5e64d8f2-a51a-4abe-b8b8-86d5ed754fb7",
         "measures": [
           {
-            "name": "1C2_Ownership",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": "DIVIDE([Owner Pass count],[Total DataProducts])",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "ab20c77a-ed22-412c-9aee-96f1d4093cbc"
-          },
-          {
-            "name": "1C3_Authoritative source",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": "DIVIDE([Authoritative source Pass count],[Total DataProducts])",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "635f12d3-631e-4325-9a8a-8e8e3ea0c0de"
-          },
-          {
-            "name": "1C5_Catalog",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": "DIVIDE([Catalog Pass count]/5,[Total DataProducts])",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "2ab18bee-5cb3-41cc-b2a9-e3ffe7150910"
-          },
-          {
-            "name": "1C6_Classification",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": "DIVIDE([Classifiaction pass count],[Total DataProducts])",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "257a6f65-ca40-4a25-b60b-478186ade7b3"
-          },
-          {
-            "name": "1C7_Access entitlement",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": "DIVIDE([Access entitlement Pass count],[Total DataProducts])",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "19dfa957-b968-4be9-bcaa-896dfe9fc6d5"
-          },
-          {
-            "name": "1C8_Data consumption purpose",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": [
-              "DIVIDE([Data consumption Purpose Pass count],[Total DataProducts])",
-              ""
-            ],
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "c3686e9a-4c21-4611-83dd-4fb0d92b4188"
-          },
-          {
-            "name": "1Metadata completeness",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": [
-              "DIVIDE(([Owner Pass count]+[Catalog Pass count_without owner pass]+[Classifiaction pass count])/6,",
-              "[Total DataProducts])"
-            ],
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "650c41d3-8546-4ba5-8be9-4014a82b1e24"
-          },
-          {
-            "name": "1Overall health score",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": "DIVIDE([Sum of Pass Metrics],[Total DataProducts]*10)",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "5e767785-8cdd-406c-9a48-d0c068bec8c4"
-          },
-          {
-            "name": "1Quality",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": "DIVIDE(([Authoritative source Pass count]+[Data Quality Pass count])/2,[Total DataProducts])",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "30116691-0393-410a-b703-19c76e84b690"
-          },
-          {
-            "name": "1Use",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": "DIVIDE(([Data consumption Purpose Pass count]+[Access entitlement Pass count])/2,[Total DataProducts])",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "ddd54794-cd9b-4f80-90a3-8a2a29048a01"
-          },
-          {
             "name": "Access entitlement health staus",
             "changedProperties": [
               {
@@ -2459,9 +2450,9 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [C7_Access entitlement] > 0.5, \"Healthy\", ",
-              "                            [C7_Access entitlement] > 0.2 && [C7_Access entitlement] <= 0.5 , \"Fair\",",
-              "                            [C7_Access entitlement] <= 0.2, \"Not healthy\")"
+              "                            [C7_Access entitlement] > [Max_Thresh hold], \"Healthy\", ",
+              "                            [C7_Access entitlement] > [Min_Thresh hold] && [C7_Access entitlement] <= [Max_Thresh hold] , \"Fair\",",
+              "                            \"Not healthy\")"
             ],
             "lineageTag": "b7ffffc4-0719-43cb-a79d-53279abc5873"
           },
@@ -2473,14 +2464,14 @@
               }
             ],
             "expression": [
-              "CALCULATE(DISTINCTCOUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Access entitlement P/F] = \"Pass\")+0"
+              "CALCULATE(COALESCE(DISTINCTCOUNT('DataProduct'[DataProductId]),0),",
+              "'DataProduct'[HasAccessEntitlement] = TRUE())"
             ],
             "formatString": "0",
             "lineageTag": "40fa872f-835e-4679-9052-8f8547a37610"
           },
           {
-            "name": "Access entitlement tresh hold",
+            "name": "Access entitlement thresh hold",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -2490,7 +2481,7 @@
               "SWITCH(TRUE(),",
               "                            ",
               "                            [C7_Access entitlement] > [Max_Thresh hold], \"#80D091\", ",
-              "                            [C7_Access entitlement] >[Min_Tresh hold] && [C7_Access entitlement] <=[Max_Thresh hold],\"#E8CC78\",",
+              "                            [C7_Access entitlement] >[Min_Thresh hold] && [C7_Access entitlement] <=[Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "ab5ad6bc-ff85-4d61-9b24-bd5c3772d3c2"
@@ -2516,8 +2507,8 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [C3_Authoritative source] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [C3_Authoritative source] >[Min_Tresh hold] && [C3_Authoritative source] <= 0.5 , \"Fair\",",
-              "                            [C3_Authoritative source] <= 0.2, \"Not healthy\")"
+              "                            [C3_Authoritative source] >[Min_Thresh hold] && [C3_Authoritative source] <= 0.5 , \"Fair\",",
+              "                             \"Not healthy\")"
             ],
             "lineageTag": "444d4604-3386-4cd4-846d-c320bf253902"
           },
@@ -2529,14 +2520,14 @@
               }
             ],
             "expression": [
-              "CALCULATE(DISTINCTCOUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Authoritative source P/F] = \"Pass\")+0"
+              "CALCULATE(COALESCE(DISTINCTCOUNT('DataProduct'[DataProductId]),0),",
+              "'DataProduct'[IsAuthoritativeSource] = TRUE())"
             ],
             "formatString": "0",
             "lineageTag": "887ea7f2-bcf9-4962-8f16-bc744e1906ca"
           },
           {
-            "name": "Authoritative tresh hold",
+            "name": "Authoritative thresh hold",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -2546,7 +2537,7 @@
               "SWITCH(TRUE(),",
               "                            ",
               "                            [C3_Authoritative source] > [Max_Thresh hold], \" #80D091\", ",
-              "                            [C3_Authoritative source] > [Min_Tresh hold] && [C3_Authoritative source] <= [Max_Thresh hold],\"#E8CC78\",",
+              "                            [C3_Authoritative source] > [Min_Thresh hold] && [C3_Authoritative source] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "359dfd36-0299-4bb5-b9d1-2e77a355652e"
@@ -2591,7 +2582,7 @@
                 "property": "IsHidden"
               }
             ],
-            "expression": "DIVIDE([Catalog Pass count]/5,[Total DataProducts])+0",
+            "expression": "DIVIDE([Catalog Pass count]/4,[Total DataProducts])+0",
             "formatString": "0.0%;-0.0%;0.0%",
             "lineageTag": "566f3007-80ea-4c64-990d-790539da87d1"
           },
@@ -2638,7 +2629,7 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [C5_Catalog] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [C5_Catalog] > [Min_Tresh hold] && [C5_Catalog] <=[Max_Thresh hold] , \"Fair\",",
+              "                            [C5_Catalog] > [Min_Thresh hold] && [C5_Catalog] <=[Max_Thresh hold] , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "2a781147-eb50-4ffd-8e3e-a8281d71e158"
@@ -2651,19 +2642,22 @@
               }
             ],
             "expression": [
-              "var c1 = CALCULATE(COUNT('DataProduct'[Assetcount_catalog P/F]),'DataProduct'[Assetcount_catalog P/F] = \"Pass\")+0",
-              "var c2 = CALCULATE(COUNT('DataProduct'[Glosssary Term count_catalog P/F]),'DataProduct'[Glosssary Term count_catalog P/F] = \"Pass\")+0",
-              "var c3 = CALCULATE(COUNT('DataProduct'[Description_catalog P/F]),'DataProduct'[Description_catalog P/F] = \"Pass\")+0",
-              "var c4 = CALCULATE(COUNT('DataProduct'[Owner_catalog P/F]),'DataProduct'[Owner_catalog P/F] = \"Pass\")+0",
-              "var c5 = CALCULATE(COUNT('DataProduct'[Valid use case_catalog P/F]),'DataProduct'[Valid use case_catalog P/F] = \"Pass\")+0",
+              "var c1 = CALCULATE(COALESCE(DISTINCTCOUNT('DataProduct'[DataProductId]),0),",
+              "'DataProduct'[AssetCount] > 0)",
+              "var c2 = CALCULATE(COALESCE(DISTINCTCOUNT('DataProduct'[DataProductId]),0),",
+              "'DataProduct'[GlossaryTermCount] >0)",
+              "var c3 = CALCULATE(COALESCE(DISTINCTCOUNT('DataProduct'[DataProductId]),0),",
+              "'DataProduct'[HasDescription] = TRUE())",
+              "var c4 = CALCULATE(COALESCE(DISTINCTCOUNT('DataProduct'[DataProductId]),0),",
+              "'DataProduct'[HasValidUseCase] = TRUE())",
               "RETURN",
-              "c1+c2+c3+c4+c5"
+              "c1+c2+c3+c4"
             ],
             "formatString": "0",
             "lineageTag": "799eeb76-a960-45bc-b976-1b177791ec26"
           },
           {
-            "name": "Catalog tresh hold",
+            "name": "Catalog thresh hold",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -2673,7 +2667,7 @@
               "SWITCH(TRUE(),",
               "                            ",
               "                            [C5_Catalog] > [Max_Thresh hold], \" #80D091\", ",
-              "                            [C5_Catalog] > [Min_Tresh hold] && [C5_Catalog] <= [Max_Thresh hold],\"#E8CC78\",",
+              "                            [C5_Catalog] > [Min_Thresh hold] && [C5_Catalog] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "3bb0813d-0b95-41cb-8b4f-431a75220e91"
@@ -2686,10 +2680,8 @@
               }
             ],
             "expression": [
-              "IF(ISBLANK(CALCULATE(DISTINCTCOUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Classification_Product P/F] = \"Pass\")),0,",
-              "CALCULATE(DISTINCTCOUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Classification_Product P/F] = \"Pass\"))"
+              "CALCULATE(COALESCE(DISTINCTCOUNT('DataProduct'[DataProductId]),0),",
+              "'DataProduct'[ClassificationPassCount] > 0) "
             ],
             "formatString": "0",
             "lineageTag": "88716b25-a863-4e04-82b3-6d65fd5d6a5e"
@@ -2704,13 +2696,13 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [C6_Classification] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [C6_Classification] >[Min_Tresh hold]&& [C6_Classification] <= [Max_Thresh hold], \"Fair\",",
+              "                            [C6_Classification] >[Min_Thresh hold]&& [C6_Classification] <= [Max_Thresh hold], \"Fair\",",
               "                            \"Not healthy\")"
             ],
             "lineageTag": "e84628c8-ec41-4236-859e-21354ed88f44"
           },
           {
-            "name": "Classification tresh hold",
+            "name": "Classification thresh hold",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -2720,7 +2712,7 @@
               "SWITCH(TRUE(),",
               "                           ",
               "                            [C6_Classification] > [Max_Thresh hold], \" #80D091\", ",
-              "                            [C6_Classification] > [Min_Tresh hold] && [C6_Classification] <= [Max_Thresh hold],\"#E8CC78\",",
+              "                            [C6_Classification] > [Min_Thresh hold] && [C6_Classification] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "836b6889-86bd-4a9a-bcb6-0ad1a4aac353"
@@ -2735,7 +2727,7 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [C8_Data consumption purpose] >[Max_Thresh hold], \"Healthy\", ",
-              "                            [C8_Data consumption purpose] >[Min_Tresh hold] && [C8_Data consumption purpose] <= [Max_Thresh hold], \"Fair\",",
+              "                            [C8_Data consumption purpose] >[Min_Thresh hold] && [C8_Data consumption purpose] <= [Max_Thresh hold], \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "dace400e-2202-4a1b-9219-705a20357aa3"
@@ -2748,14 +2740,14 @@
               }
             ],
             "expression": [
-              "CALCULATE(DISTINCTCOUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Data consumption purpse P/F] = \"Pass\")+0"
+              "CALCULATE(COALESCE(DISTINCTCOUNT('DataProduct'[DataProductId]),0),",
+              "'DataProduct'[HasDataShareAgreementSetOrExempt] = TRUE())"
             ],
             "formatString": "0",
             "lineageTag": "7855a0ec-41a3-4265-b313-0bf7207d60ca"
           },
           {
-            "name": "Data consumption tresh hold",
+            "name": "Data consumption thresh hold",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -2765,7 +2757,7 @@
               "SWITCH(TRUE(),",
               "                           ",
               "                            [C8_Data consumption purpose] > [Max_Thresh hold], \" #80D091\", ",
-              "                            [C8_Data consumption purpose] > [Min_Tresh hold] && [C8_Data consumption purpose] <= [Max_Thresh hold],\"#E8CC78\",",
+              "                            [C8_Data consumption purpose] > [Min_Thresh hold] && [C8_Data consumption purpose] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "81caf6f8-0f01-4a0b-a430-909b617658e0"
@@ -2780,7 +2772,7 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [C_12 Data quality] >[Max_Thresh hold], \"Healthy\", ",
-              "                            [C_12 Data quality] > [Min_Tresh hold] && [C_12 Data quality] <= [Max_Thresh hold], \"Fair\",",
+              "                            [C_12 Data quality] > [Min_Thresh hold] && [C_12 Data quality] <= [Max_Thresh hold], \"Fair\",",
               "                            \"Not healthy\")"
             ],
             "lineageTag": "416e646a-07c2-4fc1-bfe7-acee39ce095d"
@@ -2793,16 +2785,14 @@
               }
             ],
             "expression": [
-              "IF(ISBLANK(CALCULATE(DISTINCTCOUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Data Qualiy P/F] = \"Pass\")),0,",
-              "CALCULATE(DISTINCTCOUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Data Qualiy P/F] = \"Pass\"))"
+              "CALCULATE(COALESCE(DISTINCTCOUNT('DataProduct'[DataProductId]),0),",
+              "'DataProduct'[HasDataQualityScore] = TRUE())"
             ],
             "formatString": "0",
             "lineageTag": "8de7c777-329d-47d5-8454-a6299c3491a4"
           },
           {
-            "name": "Data quality tresh hold",
+            "name": "Data quality thresh hold",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -2812,13 +2802,13 @@
               "SWITCH(TRUE(),",
               "",
               "                            [C_12 Data quality] > [Max_Thresh hold], \" #80D091\", ",
-              "                            [C_12 Data quality] > [Min_Tresh hold] && [C_12 Data quality] <= [Max_Thresh hold],\"#E8CC78\",",
+              "                            [C_12 Data quality] > [Min_Thresh hold] && [C_12 Data quality] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "1bbf4b86-b8ab-409f-b8d7-5ae433350070"
           },
           {
-            "name": "DummyTarget",
+            "name": "Target",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -2847,7 +2837,7 @@
               }
             ],
             "expression": [
-              "DIVIDE(([Owner Pass count]+[Catalog Pass count_without owner pass]+[Classifiaction pass count])/6,",
+              "DIVIDE(([Owner Pass count]+[Catalog Pass count]+[Classifiaction pass count])/6,",
               "[Total DataProducts])+0"
             ],
             "formatString": "0.0%;-0.0%;0.0%",
@@ -2863,13 +2853,13 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [Metadata completeness] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [Metadata completeness] > [Min_Tresh hold] && [Metadata completeness] <= [Max_Thresh hold] , \"Fair\",",
+              "                            [Metadata completeness] > [Min_Thresh hold] && [Metadata completeness] <= [Max_Thresh hold] , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "b4cb6f86-f8f9-49ee-9c09-f9bad0b250f7"
           },
           {
-            "name": "Metadata completeness tresh hold",
+            "name": "Metadata completeness thresh hold",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -2878,13 +2868,13 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [Metadata completeness] > [Max_Thresh hold], \" #80D091\", ",
-              "                            [Metadata completeness] > [Min_Tresh hold] && [Metadata completeness] <= [Max_Thresh hold],\"#E8CC78\",",
+              "                            [Metadata completeness] > [Min_Thresh hold] && [Metadata completeness] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "090cf046-3d2f-45ef-aa54-51b8fe474c28"
           },
           {
-            "name": "Min_Tresh hold",
+            "name": "Min_Thresh hold",
             "annotations": [
               {
                 "name": "PBI_FormatHint",
@@ -2920,7 +2910,7 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [Overall health score] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [Overall health score] > [Min_Tresh hold] && [Overall health score] <= [Max_Thresh hold], \"Fair\",",
+              "                            [Overall health score] > [Min_Thresh hold] && [Overall health score] <= [Max_Thresh hold], \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "33398188-377a-4f82-a59c-b2033adfe038"
@@ -2936,7 +2926,7 @@
               "SWITCH(TRUE(),",
               "                           ",
               "                            [Overall health score] > [Max_Thresh hold], \" #80D091\", ",
-              "                            [Overall health score] > [Min_Tresh hold] && [Overall health score] <= [Max_Thresh hold],\"#E8CC78\",",
+              "                            [Overall health score] > [Min_Thresh hold] && [Overall health score] <= [Max_Thresh hold],\"#E8CC78\",",
               "                            ",
               "                             \"#F1BBBC\")"
             ],
@@ -2950,10 +2940,8 @@
               }
             ],
             "expression": [
-              "IF(ISBLANK(CALCULATE(DISTINCTCOUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Owner P/F] = \"Pass\")),0,",
-              "CALCULATE(DISTINCTCOUNT('DataProduct'[DataProductId]),",
-              "'DataProduct'[Owner P/F] = \"Pass\"))"
+              "CALCULATE(COALESCE(DISTINCTCOUNT('DataProduct'[DataProductId]),0),",
+              "'DataProduct'[HasValidOwner] = TRUE())"
             ],
             "formatString": "0",
             "lineageTag": "d9c88924-6f6f-4069-9fcd-3ab22c711971"
@@ -2968,13 +2956,13 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [C2_Ownership] >[Max_Thresh hold], \"Healthy\", ",
-              "                            [C2_Ownership] > [Min_Tresh hold] && [C2_Ownership] <=[Max_Thresh hold] , \"Fair\",",
+              "                            [C2_Ownership] > [Min_Thresh hold] && [C2_Ownership] <=[Max_Thresh hold] , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "a7988ff8-6a26-4a75-9e5f-9c989dd2227d"
           },
           {
-            "name": "Ownership tresh hold",
+            "name": "Ownership thresh hold",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -2984,7 +2972,7 @@
               "SWITCH(TRUE(),",
               "                            ",
               "                            [C2_Ownership] > [Max_Thresh hold], \" #80D091\", ",
-              "                            [C2_Ownership] > [Min_Tresh hold] && [C2_Ownership] <= [Max_Thresh hold],\"#E8CC78\",",
+              "                            [C2_Ownership] > [Min_Thresh hold] && [C2_Ownership] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "14a55b68-dcfc-479a-acd4-5f9472bd377e"
@@ -2996,7 +2984,7 @@
                 "property": "IsHidden"
               }
             ],
-            "expression": "IF(DIVIDE(([Authoritative source Pass count]+[Data Quality Pass count])/2,[Total DataProducts])<> BLANK(),DIVIDE(([Authoritative source Pass count]+[Data Quality Pass count])/2,[Total DataProducts]),0)",
+            "expression": "DIVIDE(([Authoritative source Pass count]+[Data Quality Pass count])/2,[Total DataProducts])+0",
             "formatString": "0.0%;-0.0%;0.0%",
             "lineageTag": "19a378de-e683-4eb8-9dd6-789066e5383a"
           },
@@ -3010,13 +2998,13 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [Quality] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [Quality] > [Min_Tresh hold] && [Quality] <= [Max_Thresh hold] , \"Fair\",",
+              "                            [Quality] > [Min_Thresh hold] && [Quality] <= [Max_Thresh hold] , \"Fair\",",
               "                            \"Not healthy\")"
             ],
             "lineageTag": "ac883693-c0ec-4efd-b2c1-0b2702982e90"
           },
           {
-            "name": "Quality tresh hold",
+            "name": "Quality thresh hold",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -3026,7 +3014,7 @@
               "SWITCH(TRUE(),",
               "                            ",
               "                            [Quality] > [Max_Thresh hold], \" #80D091\", ",
-              "                            [Quality] > [Min_Tresh hold] && [Quality] <= [Max_Thresh hold],\"#E8CC78\",",
+              "                            [Quality] > [Min_Thresh hold] && [Quality] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "e685dd30-db6a-4c37-9b1b-584a4af55873"
@@ -3040,7 +3028,7 @@
             ],
             "expression": [
               "[Owner Pass count]+",
-              "[Catalog Pass count_without owner pass]+",
+              "[Catalog Pass count]+",
               "[Classifiaction pass count]+",
               "[Data Quality Pass count]+",
               "[Authoritative source Pass count]+",
@@ -3049,17 +3037,6 @@
             ],
             "formatString": "0",
             "lineageTag": "57d81210-f823-42ba-8773-d191d79199f8"
-          },
-          {
-            "name": "Asset count",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": "DISTINCTCOUNT(DataAsset[DataAssetId])",
-            "formatString": "0",
-            "lineageTag": "ac7da6b6-b54c-4b0d-97bc-443dfff75361"
           },
           {
             "name": "Total DataProducts",
@@ -3079,7 +3056,7 @@
                 "property": "IsHidden"
               }
             ],
-            "expression": "COUNT('BusinessDomain'[BusinessDomainId])",
+            "expression": "DISTINCTCOUNT('BusinessDomain'[BusinessDomainId])+0",
             "formatString": "0",
             "lineageTag": "8d3cc3df-6ae9-457d-befc-956cc7244cdc"
           },
@@ -3090,7 +3067,7 @@
                 "property": "IsHidden"
               }
             ],
-            "expression": "IF(DIVIDE(([Data consumption Purpose Pass count]+[Access entitlement Pass count])/2,[Total DataProducts])<>BLANK(),DIVIDE(([Data consumption Purpose Pass count]+[Access entitlement Pass count])/2,[Total DataProducts]),0)",
+            "expression": "DIVIDE(([Data consumption Purpose Pass count]+[Access entitlement Pass count])/2, [Total DataProducts])+0",
             "formatString": "0.0%;-0.0%;0.0%",
             "lineageTag": "90258d2d-877d-4687-bf47-dc06ea0b7bff"
           },
@@ -3104,13 +3081,13 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [Use] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [Use] > [Min_Tresh hold]&& [Use] <= [Max_Thresh hold], \"Fair\",",
+              "                            [Use] > [Min_Thresh hold]&& [Use] <= [Max_Thresh hold], \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "457163e4-529f-40d5-8a95-ed5577b57980"
           },
           {
-            "name": "Use tresh hold",
+            "name": "Use thresh hold",
             "changedProperties": [
               {
                 "property": "IsHidden"
@@ -3120,47 +3097,16 @@
               "SWITCH(TRUE(),",
               "                            ",
               "                            [Use] > [Max_Thresh hold], \" #80D091\", ",
-              "                            [Use] > [Min_Tresh hold] && [Use] <= [Max_Thresh hold],\"#E8CC78\",",
+              "                            [Use] > [Min_Thresh hold] && [Use] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "e7e0f6a9-3468-40be-8dbd-8e07ae198037"
           },
           {
-            "name": "1C_12 Data quality",
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "expression": "DIVIDE([Data Quality Pass count],[Total DataProducts])",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "39f71e58-9d38-47a8-9813-15580d99a782"
-          },
-          {
             "name": "Total assets",
-            "expression": "SUMX(DataProduct,[Asset count])+0",
+            "expression": "SUMX(DataProduct,[AssetCount])+0",
             "formatString": "0",
             "lineageTag": "8ddc5f73-4a8d-468d-bf70-0a1fbd9938e0"
-          },
-          {
-            "name": "Catalog Pass count_without owner pass",
-            "expression": [
-              "var c1 = CALCULATE(COUNT('DataProduct'[Assetcount_catalog P/F]),'DataProduct'[Assetcount_catalog P/F] = \"Pass\")+0",
-              "var c2 = CALCULATE(COUNT('DataProduct'[Glosssary Term count_catalog P/F]),'DataProduct'[Glosssary Term count_catalog P/F] = \"Pass\")+0",
-              "var c3 = CALCULATE(COUNT('DataProduct'[Description_catalog P/F]),'DataProduct'[Description_catalog P/F] = \"Pass\")+0",
-              "//var c4 = CALCULATE(COUNT('DataProduct'[Owner_catalog P/F]),'DataProduct'[Owner_catalog P/F] = \"Pass\")+0//",
-              "var c5 = CALCULATE(COUNT('DataProduct'[Valid use case_catalog P/F]),'DataProduct'[Valid use case_catalog P/F] = \"Pass\")+0",
-              "RETURN",
-              "c1+c2+c3+c5"
-            ],
-            "formatString": "0",
-            "lineageTag": "9a73f50a-95ec-4eab-84d6-ba5b3e2f0f54"
-          },
-          {
-            "name": "1c4",
-            "expression": "CALCULATE(COUNT('DataProduct'[Owner_catalog P/F]),'DataProduct'[Owner_catalog P/F] = \"Pass\")+0",
-            "formatString": "0",
-            "lineageTag": "538807c9-76df-4838-9b63-bf2647439f9c"
           }
         ],
         "partitions": [
@@ -3334,11 +3280,12 @@
                 "value": "Automatic"
               }
             ],
+            "dataCategory": "WebUrl",
             "dataType": "string",
             "expression": [
-              "\"https://purview.microsoft.com/datacatalog/governance/main/catalog/dataProducts/dataAssetDetail?tid=\" & FIRSTNONBLANK(AccountInfo[TenantId], True()) &",
-              "\"&dataAssetId=\"&'DataProductDataAssetAssociation'[DataAssetId]&",
-              " \"&sourceDataProductId=\"& DataProductDataAssetAssociation[DataProductId]"
+              "\"https://purview.microsoft.com/datacatalog/governance/main/catalog/dataProducts/dataAssetDetail?tid=\" & LOWER(FIRSTNONBLANK(AccountInfo[TenantId], True())) &",
+              "\"&dataAssetId=\"&LOWER(DataProductDataAssetAssociation[DataAssetId])&",
+              " \"&sourceDataProductId=\"& LOWER(DataProductDataAssetAssociation[DataProductId])"
             ],
             "isDataTypeInferred": true,
             "lineageTag": "65c7227d-d1ac-49fc-8e55-5041cba8751f",
@@ -3658,119 +3605,6 @@
                 "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainDataProductAssociation\" = Source{[Schema= DATABASE_SCHEMA,Item=\"BusinessDomainDataProductAssociation\"]}[Data]",
                 "in",
                 "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainDataProductAssociation\""
-              ],
-              "type": "m"
-            }
-          }
-        ]
-      },
-      {
-        "name": "AssetURLTable",
-        "annotations": [
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          }
-        ],
-        "changedProperties": [
-          {
-            "property": "IsHidden"
-          }
-        ],
-        "columns": [
-          {
-            "name": "DataProductId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "dataType": "string",
-            "isHidden": true,
-            "lineageTag": "30837126-41ed-462f-939f-cdc00c960993",
-            "sourceColumn": "DataProductId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "BusinessDomainId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "dataType": "string",
-            "isHidden": true,
-            "lineageTag": "aa401f1b-7db5-4011-a573-99d6d054dd13",
-            "sourceColumn": "BusinessDomainId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "IsPrimaryDataProduct",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "dataType": "boolean",
-            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
-            "isHidden": true,
-            "lineageTag": "2a0bbd88-06c4-4644-ab26-7d0721f5e531",
-            "sourceColumn": "IsPrimaryDataProduct",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "DataAssetId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "changedProperties": [
-              {
-                "property": "IsHidden"
-              }
-            ],
-            "dataType": "string",
-            "isHidden": true,
-            "lineageTag": "30ae45dd-59e6-4e33-bc1b-1efce4ca13fb",
-            "sourceColumn": "DataAssetId",
-            "summarizeBy": "none"
-          }
-        ],
-        "isHidden": true,
-        "lineageTag": "1639e4c0-750f-43a3-8f2b-1074ddd39421",
-        "partitions": [
-          {
-            "name": "AssetURLTable",
-            "mode": "import",
-            "source": {
-              "expression": [
-                "let",
-                "    Source = Sql.Database(SERVER, DATABASE),",
-                "    #\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainDataProductAssociation\" = Source{[Schema= DATABASE_SCHEMA,Item=\"BusinessDomainDataProductAssociation\"]}[Data],",
-                "    #\"Merged Queries\" = Table.NestedJoin(#\"ecf09339-34e0-464b-a8fb-661209048543_BusinessDomainDataProductAssociation\", {\"DataProductId\"}, DataProductDataAssetAssociation, {\"DataProductId\"}, \"DataProductDataAssetAssociation\", JoinKind.Inner),",
-                "    #\"Expanded DataProductDataAssetAssociation\" = Table.ExpandTableColumn(#\"Merged Queries\", \"DataProductDataAssetAssociation\", {\"DataAssetId\"}, {\"DataAssetId\"})",
-                "in",
-                "    #\"Expanded DataProductDataAssetAssociation\""
               ],
               "type": "m"
             }

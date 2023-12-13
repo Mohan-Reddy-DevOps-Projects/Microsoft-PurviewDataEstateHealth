@@ -23,19 +23,6 @@
         },
         {
           "location": {
-            "x": 640.57487243249557,
-            "y": 792.02714099767661
-          },
-          "nodeIndex": "AssetURLTable",
-          "nodeLineageTag": "005ed478-d2c7-4b3d-84bd-09c9018dea53",
-          "size": {
-            "height": 200,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
             "x": 1498.4676040872016,
             "y": 362.43114933536293
           },

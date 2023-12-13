@@ -12,7 +12,7 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.124.581.0 (23.12)"
+        "value": "2.124.779.0 (23.12)"
       },
       {
         "name": "PBI_ProTooling",
@@ -122,27 +122,6 @@
                 "Terms": [
                   {
                     "Use": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.asset_count": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "Asset count"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Asset count": {
                       "Source": {
                         "Agent": "PowerBI.VisualColumnRename",
                         "Type": "External"
@@ -300,247 +279,6 @@
                   }
                 ]
               },
-              "dataproduct.column1c2_ownership": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1C2_Ownership"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Ownership": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.column1c3_authoritative_source": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1C3_Authoritative source"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Authoritative source": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.column1c5_catalog": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1C5_Catalog"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Catalog": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.column1c6_classification": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1C6_Classification"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Classification": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.column1c7_access_entitlement": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1C7_Access entitlement"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Access entitlement": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.column1c8_data_consumption_purpose": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1C8_Data consumption purpose"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Data consumption purpose": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.column1c_12_data_quality": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1C_12 Data quality"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Data quality": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.column1metadata_completeness": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1Metadata completeness"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Metadata completeness": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.column1overall_health_score": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1Overall health score"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Governance score": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  },
-                  {
-                    "Overall health score": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.column1quality": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1Quality"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Quality": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
-              "dataproduct.column1use": {
-                "Definition": {
-                  "Binding": {
-                    "ConceptualEntity": "DataProduct",
-                    "ConceptualProperty": "1Use"
-                  }
-                },
-                "State": "Generated",
-                "Terms": [
-                  {
-                    "Use": {
-                      "Source": {
-                        "Agent": "PowerBI.VisualColumnRename",
-                        "Type": "External"
-                      },
-                      "State": "Suggested",
-                      "Weight": 0.9
-                    }
-                  }
-                ]
-              },
               "dataproduct.dataproductdisplayname": {
                 "Definition": {
                   "Binding": {
@@ -650,7 +388,7 @@
             "value": "Text"
           }
         ],
-        "expression": "\"79e7043b-2d89-4454-9f07-1d8ceb3f0399\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "expression": "\"12d98746-0b5a-4778-8bd0-449994469062\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
         "kind": "m",
         "lineageTag": "17e0cb58-b472-4281-a56f-7015df8fa2d7"
       },
@@ -741,13 +479,6 @@
         "fromTable": "BusinessDomainDataProductAssociation",
         "toColumn": "DataProductId",
         "toTable": "DataProduct"
-      },
-      {
-        "name": "a3d04a5d-5ddf-420f-be35-76b8aff0271d",
-        "fromColumn": "DataProductId",
-        "fromTable": "AssetURLTable",
-        "toColumn": "DataProductId",
-        "toTable": "BusinessDomainDataProductAssociation"
       },
       {
         "name": "066d7b4a-7a87-4f5f-b2ba-2f07a4047264",
@@ -1472,14 +1203,6 @@
             "formatString": "0",
             "lineageTag": "8c871eb8-5609-4446-a523-cd0f7887ee5d",
             "sourceLineageTag": "f539233d-7090-4b2c-bd5a-b10780f26066"
-          },
-          {
-            "name": "Sum of Asset pass count",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Sum of Asset pass count\", INTEGER, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0",
-            "lineageTag": "6d9c3566-c844-4dff-b153-7c8ace9a26a1",
-            "sourceLineageTag": "533391d1-545e-45af-9d0c-996f3251658f"
           }
         ],
         "partitions": [
@@ -1750,6 +1473,16 @@
           }
         ],
         "lineageTag": "6bb717ae-399d-4e66-9a2c-bced42b25153",
+        "measures": [
+          {
+            "name": "Asset count",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"Asset count\", INTEGER, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "formatString": "0",
+            "lineageTag": "d3f781c7-1847-4bb6-ab42-8cd1ca1d3bcd",
+            "sourceLineageTag": "ac7da6b6-b54c-4b0d-97bc-443dfff75361"
+          }
+        ],
         "partitions": [
           {
             "name": "DataAsset",
@@ -2268,21 +2001,6 @@
             "summarizeBy": "none"
           },
           {
-            "name": "Owner_catalog P/F",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "User"
-              }
-            ],
-            "dataCategory": "Uncategorized",
-            "dataType": "string",
-            "lineageTag": "61d0321b-2549-4c08-a670-1271afcbcb82",
-            "sourceColumn": "Owner_catalog P/F",
-            "sourceLineageTag": "e56a65f7-dc4d-4a3e-ae24-a41ef7700310",
-            "summarizeBy": "none"
-          },
-          {
             "name": "Valid use case_catalog P/F",
             "annotations": [
               {
@@ -2393,86 +2111,6 @@
         "lineageTag": "e898a223-127c-4b89-9067-b9fa2f5e9d4a",
         "measures": [
           {
-            "name": "1C2_Ownership",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1C2_Ownership\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "4ac01e1f-a2e4-441e-bcca-c3eb9ec5b22a",
-            "sourceLineageTag": "ab20c77a-ed22-412c-9aee-96f1d4093cbc"
-          },
-          {
-            "name": "1C3_Authoritative source",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1C3_Authoritative source\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "3024d490-7903-4f04-a272-608cfa13fe11",
-            "sourceLineageTag": "635f12d3-631e-4325-9a8a-8e8e3ea0c0de"
-          },
-          {
-            "name": "1C5_Catalog",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1C5_Catalog\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "7adacdc7-2b65-4136-843d-11988d51cd74",
-            "sourceLineageTag": "2ab18bee-5cb3-41cc-b2a9-e3ffe7150910"
-          },
-          {
-            "name": "1C6_Classification",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1C6_Classification\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "b04ac020-7077-4e57-8feb-3dcb4780aef3",
-            "sourceLineageTag": "257a6f65-ca40-4a25-b60b-478186ade7b3"
-          },
-          {
-            "name": "1C7_Access entitlement",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1C7_Access entitlement\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "3305edb2-7a49-4d90-ae75-c5c1d558cba0",
-            "sourceLineageTag": "19dfa957-b968-4be9-bcaa-896dfe9fc6d5"
-          },
-          {
-            "name": "1C8_Data consumption purpose",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1C8_Data consumption purpose\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "414bbd50-9f1f-4786-8a2a-abc4af95d839",
-            "sourceLineageTag": "c3686e9a-4c21-4611-83dd-4fb0d92b4188"
-          },
-          {
-            "name": "1Metadata completeness",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1Metadata completeness\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "dee74d16-ac3c-4350-ba7e-714a4b0fdffa",
-            "sourceLineageTag": "650c41d3-8546-4ba5-8be9-4014a82b1e24"
-          },
-          {
-            "name": "1Overall health score",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1Overall health score\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "8c43773a-94ba-4397-a3a7-67a67d659dac",
-            "sourceLineageTag": "5e767785-8cdd-406c-9a48-d0c068bec8c4"
-          },
-          {
-            "name": "1Quality",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1Quality\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "e6c5b7c1-117d-41c5-8564-82cc02eebc8d",
-            "sourceLineageTag": "30116691-0393-410a-b703-19c76e84b690"
-          },
-          {
-            "name": "1Use",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1Use\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "2cb84f3a-db77-422c-baf8-2d4de6173d28",
-            "sourceLineageTag": "ddd54794-cd9b-4f80-90a3-8a2a29048a01"
-          },
-          {
             "name": "Access entitlement health staus",
             "dataCategory": "Uncategorized",
             "expression": "EXTERNALMEASURE(\"Access entitlement health staus\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
@@ -2488,9 +2126,9 @@
             "sourceLineageTag": "40fa872f-835e-4679-9052-8f8547a37610"
           },
           {
-            "name": "Access entitlement tresh hold",
+            "name": "Access entitlement thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Access entitlement tresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Access entitlement thresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "c5b9663c-2577-4d55-b0ec-d88732e86a65",
             "sourceLineageTag": "ab5ad6bc-ff85-4d61-9b24-bd5c3772d3c2"
           },
@@ -2518,9 +2156,9 @@
             "sourceLineageTag": "887ea7f2-bcf9-4962-8f16-bc744e1906ca"
           },
           {
-            "name": "Authoritative tresh hold",
+            "name": "Authoritative thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Authoritative tresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Authoritative thresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "baf31c8c-68c0-411f-b955-cbdb92004c6a",
             "sourceLineageTag": "359dfd36-0299-4bb5-b9d1-2e77a355652e"
           },
@@ -2596,9 +2234,9 @@
             "sourceLineageTag": "799eeb76-a960-45bc-b976-1b177791ec26"
           },
           {
-            "name": "Catalog tresh hold",
+            "name": "Catalog thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Catalog tresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Catalog thresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "ad3dc0ff-58c7-473b-8ac0-332d3313b46d",
             "sourceLineageTag": "3bb0813d-0b95-41cb-8b4f-431a75220e91"
           },
@@ -2618,9 +2256,9 @@
             "sourceLineageTag": "e84628c8-ec41-4236-859e-21354ed88f44"
           },
           {
-            "name": "Classification tresh hold",
+            "name": "Classification thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Classification tresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Classification thresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "206c29ec-adea-40ba-b750-64e7a0453443",
             "sourceLineageTag": "836b6889-86bd-4a9a-bcb6-0ad1a4aac353"
           },
@@ -2640,9 +2278,9 @@
             "sourceLineageTag": "7855a0ec-41a3-4265-b313-0bf7207d60ca"
           },
           {
-            "name": "Data consumption tresh hold",
+            "name": "Data consumption thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Data consumption tresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Data consumption thresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "6f6bc286-e7d5-4ee5-b3b5-1babbc29d1d6",
             "sourceLineageTag": "81caf6f8-0f01-4a0b-a430-909b617658e0"
           },
@@ -2662,16 +2300,16 @@
             "sourceLineageTag": "8de7c777-329d-47d5-8454-a6299c3491a4"
           },
           {
-            "name": "Data quality tresh hold",
+            "name": "Data quality thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Data quality tresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Data quality thresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "c71887bc-9e4a-435d-a1c5-b36a1cadd86a",
             "sourceLineageTag": "1bbf4b86-b8ab-409f-b8d7-5ae433350070"
           },
           {
-            "name": "DummyTarget",
+            "name": "Target",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"DummyTarget\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Target\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "formatString": "0.0%;-0.0%;0.0%",
             "lineageTag": "7f6f129a-810d-4f98-9ca9-e56b719ade92",
             "sourceLineageTag": "bbf2d5af-8953-4ec0-8fcf-1047219c5f74"
@@ -2700,16 +2338,16 @@
             "sourceLineageTag": "b4cb6f86-f8f9-49ee-9c09-f9bad0b250f7"
           },
           {
-            "name": "Metadata completeness tresh hold",
+            "name": "Metadata completeness thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Metadata completeness tresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Metadata completeness thresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "c59f1e89-66f3-4010-9a0e-efa2f469a126",
             "sourceLineageTag": "090cf046-3d2f-45ef-aa54-51b8fe474c28"
           },
           {
-            "name": "Min_Tresh hold",
+            "name": "Min_Thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Min_Tresh hold\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Min_Thresh hold\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "1aca2493-9202-4eb2-a186-86c59bddcb16",
             "sourceLineageTag": "e380079a-7aa7-45db-9608-733f7581af21"
           },
@@ -2751,9 +2389,9 @@
             "sourceLineageTag": "a7988ff8-6a26-4a75-9e5f-9c989dd2227d"
           },
           {
-            "name": "Ownership tresh hold",
+            "name": "Ownership thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Ownership tresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Ownership thresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "be6cc990-c30f-4aa1-90f8-1b77ccb0f486",
             "sourceLineageTag": "14a55b68-dcfc-479a-acd4-5f9472bd377e"
           },
@@ -2773,9 +2411,9 @@
             "sourceLineageTag": "ac883693-c0ec-4efd-b2c1-0b2702982e90"
           },
           {
-            "name": "Quality tresh hold",
+            "name": "Quality thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Quality tresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Quality thresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "b5ddb0e8-0170-42f6-b8c3-2d5d3cd76137",
             "sourceLineageTag": "e685dd30-db6a-4c37-9b1b-584a4af55873"
           },
@@ -2786,14 +2424,6 @@
             "formatString": "0",
             "lineageTag": "ba3a37d3-099d-4413-9883-0cfc24fcd5ed",
             "sourceLineageTag": "57d81210-f823-42ba-8773-d191d79199f8"
-          },
-          {
-            "name": "Asset count",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Asset count\", INTEGER, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0",
-            "lineageTag": "2671b8b3-8d9c-45e0-b94e-71dfcfea2ffd",
-            "sourceLineageTag": "ac7da6b6-b54c-4b0d-97bc-443dfff75361"
           },
           {
             "name": "Total DataProducts",
@@ -2827,19 +2457,11 @@
             "sourceLineageTag": "457163e4-529f-40d5-8a95-ed5577b57980"
           },
           {
-            "name": "Use tresh hold",
+            "name": "Use thresh hold",
             "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Use tresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
+            "expression": "EXTERNALMEASURE(\"Use thresh hold\", STRING, \"DirectQuery to AS - Data_Governance_Dataset\")",
             "lineageTag": "53e1abc0-737e-4ea1-86d2-91259a2544bd",
             "sourceLineageTag": "e7e0f6a9-3468-40be-8dbd-8e07ae198037"
-          },
-          {
-            "name": "1C_12 Data quality",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1C_12 Data quality\", DOUBLE, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0.0%;-0.0%;0.0%",
-            "lineageTag": "00dc7d05-6fb5-4b76-9f68-ec9ce356a712",
-            "sourceLineageTag": "39f71e58-9d38-47a8-9813-15580d99a782"
           },
           {
             "name": "Total assets",
@@ -2848,22 +2470,6 @@
             "formatString": "0",
             "lineageTag": "8aef164c-c31a-44ab-a176-498ce8f26bfc",
             "sourceLineageTag": "8ddc5f73-4a8d-468d-bf70-0a1fbd9938e0"
-          },
-          {
-            "name": "Catalog Pass count_without owner pass",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"Catalog Pass count_without owner pass\", INTEGER, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0",
-            "lineageTag": "e0467e02-2071-4772-9f89-7ec7862a5039",
-            "sourceLineageTag": "9a73f50a-95ec-4eab-84d6-ba5b3e2f0f54"
-          },
-          {
-            "name": "1c4",
-            "dataCategory": "Uncategorized",
-            "expression": "EXTERNALMEASURE(\"1c4\", INTEGER, \"DirectQuery to AS - Data_Governance_Dataset\")",
-            "formatString": "0",
-            "lineageTag": "ecdf78ca-de45-49c6-afd9-81b57c6c3c27",
-            "sourceLineageTag": "538807c9-76df-4838-9b63-bf2647439f9c"
           }
         ],
         "partitions": [
@@ -2997,11 +2603,6 @@
               {
                 "name": "SummarizationSetBy",
                 "value": "User"
-              }
-            ],
-            "changedProperties": [
-              {
-                "property": "DataCategory"
               }
             ],
             "dataCategory": "WebUrl",
@@ -3280,90 +2881,6 @@
           }
         ],
         "sourceLineageTag": "5f2992b4-bbe7-4efe-87a5-c806188552cd"
-      },
-      {
-        "name": "AssetURLTable",
-        "columns": [
-          {
-            "name": "DataProductId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "User"
-              }
-            ],
-            "dataCategory": "Uncategorized",
-            "dataType": "string",
-            "isHidden": true,
-            "lineageTag": "79d506a3-3877-4218-b8f3-a2750f33322b",
-            "sourceColumn": "DataProductId",
-            "sourceLineageTag": "30837126-41ed-462f-939f-cdc00c960993",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "BusinessDomainId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "User"
-              }
-            ],
-            "dataCategory": "Uncategorized",
-            "dataType": "string",
-            "isHidden": true,
-            "lineageTag": "65820294-475b-498e-8bb7-1b64b7caeb8d",
-            "sourceColumn": "BusinessDomainId",
-            "sourceLineageTag": "aa401f1b-7db5-4011-a573-99d6d054dd13",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "IsPrimaryDataProduct",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "User"
-              }
-            ],
-            "dataCategory": "Uncategorized",
-            "dataType": "boolean",
-            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
-            "isHidden": true,
-            "lineageTag": "c8e27e9a-ed41-4b66-a0d2-b0e85fcf935a",
-            "sourceColumn": "IsPrimaryDataProduct",
-            "sourceLineageTag": "2a0bbd88-06c4-4644-ab26-7d0721f5e531",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "DataAssetId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "User"
-              }
-            ],
-            "dataCategory": "Uncategorized",
-            "dataType": "string",
-            "isHidden": true,
-            "lineageTag": "2eefb169-1f1c-401d-a10e-22a6da9080a2",
-            "sourceColumn": "DataAssetId",
-            "sourceLineageTag": "30ae45dd-59e6-4e33-bc1b-1efce4ca13fb",
-            "summarizeBy": "none"
-          }
-        ],
-        "isHidden": true,
-        "lineageTag": "005ed478-d2c7-4b3d-84bd-09c9018dea53",
-        "partitions": [
-          {
-            "name": "AssetURLTable",
-            "mode": "directQuery",
-            "source": {
-              "entityName": "AssetURLTable",
-              "expressionSource": "DirectQuery to AS - Data_Governance_Dataset",
-              "type": "entity"
-            }
-          }
-        ],
-        "sourceLineageTag": "1639e4c0-750f-43a3-8f2b-1074ddd39421"
       },
       {
         "name": "AccountInfo",
