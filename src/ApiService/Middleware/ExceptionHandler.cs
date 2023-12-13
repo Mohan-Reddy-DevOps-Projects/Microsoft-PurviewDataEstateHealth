@@ -12,7 +12,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using System.Text;
 using System.Net.Http.Headers;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 
 internal static class ExceptionHandler

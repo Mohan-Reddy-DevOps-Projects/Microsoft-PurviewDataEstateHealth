@@ -30,7 +30,7 @@ internal static class ExceptionConverter
         else if (ex == null || !envConfig.IsDevelopmentEnvironment())
         {
             // by default do not throw unhandled exceptions to customer.
-            return new(HttpStatusCode.InternalServerError.ToString(), serviceException.Message)
+            return new(HttpStatusCode.InternalServerError.ToString(), "Unknown error")
             {
                 Target = $"correlation ID: {requestHeaderContext.CorrelationId}",
             };
