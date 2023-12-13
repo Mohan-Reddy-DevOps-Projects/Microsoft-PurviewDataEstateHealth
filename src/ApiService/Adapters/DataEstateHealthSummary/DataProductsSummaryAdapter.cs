@@ -16,6 +16,11 @@ public class DataProductsSummaryAdapter : BaseModelAdapter<IDataProductsSummaryM
     /// <inheritdoc />
     public override DataProductsSummary FromModel(IDataProductsSummaryModel model)
     {
+        if (model == null)
+        {
+            return null;
+        }
+
         return new DataProductsSummary
         {
             TotalDataProductsCount = model.TotalDataProductsCount,

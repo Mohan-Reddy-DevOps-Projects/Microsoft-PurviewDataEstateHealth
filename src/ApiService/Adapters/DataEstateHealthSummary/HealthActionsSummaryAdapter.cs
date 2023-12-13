@@ -16,6 +16,11 @@ public class HealthActionsSummaryAdapter : BaseModelAdapter<IHealthActionsSummar
     /// <inheritdoc />
     public override HealthActionsSummary FromModel(IHealthActionsSummaryModel model)
     {
+        if (model == null)
+        {
+            return null;
+        }
+
         return new HealthActionsSummary
         {
             TotalCompletedActionsCount = model.TotalCompletedActionsCount,

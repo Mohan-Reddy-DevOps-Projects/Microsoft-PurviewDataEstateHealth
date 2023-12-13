@@ -16,6 +16,11 @@ public class DataAssetsSummaryAdapter : BaseModelAdapter<IDataAssetsSummaryModel
     /// <inheritdoc />
     public override DataAssetsSummary FromModel(IDataAssetsSummaryModel model)
     {
+        if (model == null)
+        {
+            return null;
+        }
+
         return new DataAssetsSummary
         {
             TotalCuratedDataAssetsCount = model.TotalCuratedDataAssetsCount,

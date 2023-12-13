@@ -16,6 +16,11 @@ public class BusinessDomainsSummaryAdapter : BaseModelAdapter<IBusinessDomainsSu
     /// <inheritdoc />
     public override BusinessDomainsSummary FromModel(IBusinessDomainsSummaryModel model)
     {
+        if (model == null)
+        {
+            return null;
+        }
+
         return new BusinessDomainsSummary
         {
             TotalBusinessDomainsCount = model.TotalBusinessDomainsCount,
