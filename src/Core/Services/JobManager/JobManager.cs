@@ -25,6 +25,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using global::Azure.Analytics.Synapse.Spark.Models;
+using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 
 /// <inheritdoc />
 public class JobManager : IJobManager
@@ -45,9 +46,9 @@ public class JobManager : IJobManager
     protected Lazy<Task<JobManagementClient>> JobManagementClient;
 
     /// <summary>
-    /// Request header context
+    /// Request header context accessor
     /// </summary>
-    protected RequestHeaderContext RequestHeaderContext;
+    protected IRequestContextAccessor requestContextAccessor;
 
     /// <summary>
     /// Logger
@@ -63,7 +64,7 @@ public class JobManager : IJobManager
     /// Initializes a new instance of the <see cref="JobManager" /> class.
     /// </summary>
     public JobManager(
-        IRequestHeaderContext requestHeaderContext,
+        IRequestContextAccessor requestContextAccessor,
         IDataEstateHealthRequestLogger dataEstateHealthRequestLogger,
         IOptions<EnvironmentConfiguration> environmentConfiguration,
         IJobManagementStorageAccountBuilder jobStorageAccountBuilder,
@@ -92,7 +93,7 @@ public class JobManager : IJobManager
                 notificationChannel: null);
         });
 
-        this.RequestHeaderContext = (RequestHeaderContext)requestHeaderContext;
+        this.requestContextAccessor = requestContextAccessor;
         this.dataEstateHealthRequestLogger = dataEstateHealthRequestLogger;
         this.WorkerJobExecutionContext = workerJobExecutionContext;
     }
@@ -298,9 +299,6 @@ public class JobManager : IJobManager
     public async Task StartPBIRefreshJob(AccountServiceModel accountModel)
     {
         string jobPartition = "PBI-REFRESH-CALLBACK";
-        HttpContextAccessor httpContextAccessor = new();
-        RequestHeaderContext requestHeaderContext = new(httpContextAccessor);
-        requestHeaderContext.SetCorrelationIdInRequestContext(Guid.NewGuid().ToString());
 
         StartPBIRefreshMetadata jobMetadata = new()
         {
@@ -327,13 +325,10 @@ public class JobManager : IJobManager
 
         if (job == null)
         {
-            var requestHeaderContext = new RequestHeaderContext(new HttpContextAccessor());
-            requestHeaderContext.SetCorrelationIdInRequestContext(Guid.NewGuid().ToString());
-
             var jobMetadata = new PartnerEventsConsumerJobMetadata
             {
                 WorkerJobExecutionContext = WorkerJobExecutionContext.None,
-                RequestHeaderContext = requestHeaderContext,
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
                 DataAccessEventsProcessed = false,
                 DataCatalogEventsProcessed = false,
                 DataQualityEventsProcessed = false,
@@ -347,6 +342,8 @@ public class JobManager : IJobManager
     private async Task CreateOneTimeJob<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, string jobId = null)
         where TMetadata : StagedWorkerJobMetadata
     {
+        UpdateDerivedMetadataProperties(metadata);
+
         JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
                     jobCallbackName,
                     metadata,
@@ -379,23 +376,41 @@ public class JobManager : IJobManager
             var jobMetadata = new CatalogSparkJobMetadata
             {
                 WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
                 AccountServiceModel = accountServiceModel,
                 SparkJobBatchId = string.Empty,
                 SparkJobResult = SparkBatchJobResultType.Uncertain,
             };
+            this.UpdateDerivedMetadataProperties(jobMetadata);
 
             JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
                     nameof(CatalogSparkJobCallback),
                     jobMetadata,
                     jobPartition,
                     jobId)
-                .WithStartTime(DateTime.UtcNow.AddMinutes(15))
+                .WithStartTime(DateTime.UtcNow.AddMinutes(7))
                 .WithRepeatStrategy(TimeSpan.FromDays(1))
                 .WithRetryStrategy(TimeSpan.FromMinutes(15))
                 .WithoutEndTime();
 
             await this.CreateJobAsync(jobBuilder);
         }
+    }
+
+    private void UpdateDerivedMetadataProperties<TMetadata>(TMetadata metadata) where TMetadata : JobMetadataBase
+    {
+        // Set correlation-id if not set in the payload.
+        if (string.IsNullOrEmpty(metadata.RequestContext.CorrelationId))
+        {
+            Guid correlationId = Guid.NewGuid();
+            metadata.RequestContext.CorrelationId = correlationId.ToString();
+        }
+
+        RequestCorrelationContext requestCorrelationContext = new RequestCorrelationContext()
+        {
+            CorrelationId = metadata.RequestContext.CorrelationId
+        };
+        RequestCorrelationContext.Current.Initialize(requestCorrelationContext);
     }
 
     /// <summary>

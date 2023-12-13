@@ -6,9 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
 using System.Runtime.Serialization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
@@ -18,12 +16,15 @@ using JobLogger = WindowsAzure.ResourceStack.Common.BackgroundJobs.JobLogger;
 
 /// <summary>
 /// Callback factory fo creating jobs
-/// TODO 1151182 Inject request header context when we have the worker service and put back GetRequestHeaderContext()
 /// </summary>
 internal class WorkerJobCallbackFactory : JobCallbackFactory
 {
     private readonly IServiceProvider serviceProvider;
     private readonly IDataEstateHealthRequestLogger logger;
+    private static readonly JsonSerializerSettings jsonSerializerSettings = new()
+    {
+        MissingMemberHandling = MissingMemberHandling.Ignore
+    };
 
     /// <summary>
     /// Constructor for the <see cref="WorkerJobCallbackFactory"/>.
@@ -40,17 +41,12 @@ internal class WorkerJobCallbackFactory : JobCallbackFactory
         if (this.IsWorkerJobCallback(callbackType))
         {
             IServiceScope scope = this.serviceProvider.CreateScope();
-            IRequestHeaderContextFactory requestContextFactory =
-                scope.ServiceProvider.GetRequiredService<IRequestHeaderContextFactory>();
 
             JobDelegate jobDelegate = null;
 
             try
             {
-                RequestHeaderContext requestHeaderContext = this.GetRequestHeaderContext(job.Metadata);
-                requestContextFactory.SetContext(requestHeaderContext);
-                RequestCorrelationContext.Current.Initialize(requestHeaderContext.RequestCorrelationContext);
-
+                this.UpdateDerivedMetadataProperties(job);
                 jobDelegate = (JobDelegate)Activator.CreateInstance(callbackType, scope);
             }
             catch (SerializationException exception)
@@ -67,6 +63,16 @@ internal class WorkerJobCallbackFactory : JobCallbackFactory
         return base.CreateInstance(jobLogger, callbackType, job);
     }
 
+    private void UpdateDerivedMetadataProperties(BackgroundJob job)
+    {
+        CallbackRequestContext requestHeaderContext = this.GetRequestHeaderContext(job.Metadata);
+        RequestCorrelationContext context = new()
+        {
+            CorrelationId = requestHeaderContext.CorrelationId
+        };
+        RequestCorrelationContext.Current.Initialize(context);
+    }
+
     private bool IsWorkerJobCallback(Type callbackType)
     {
         if (callbackType.IsGenericType)
@@ -81,29 +87,14 @@ internal class WorkerJobCallbackFactory : JobCallbackFactory
         return callbackType.BaseType != null && this.IsWorkerJobCallback(callbackType.BaseType);
     }
 
-    private RequestHeaderContext GetRequestHeaderContext(string metadata)
+    private CallbackRequestContext GetRequestHeaderContext(string metadata)
     {
-        if (!string.IsNullOrWhiteSpace(metadata))
+        StagedWorkerJobMetadata workerJobMetadata = JsonConvert.DeserializeObject<StagedWorkerJobMetadata>(metadata, jsonSerializerSettings);
+        if (workerJobMetadata?.RequestContext == null)
         {
-            var jsonSerializerSettings = new JsonSerializerSettings
-            {
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-
-            StagedWorkerJobMetadata workerJobMetadata =
-                JsonConvert.DeserializeObject<StagedWorkerJobMetadata>(metadata, jsonSerializerSettings);
-
-            if (workerJobMetadata?.RequestHeaderContext == null)
-            {
-                this.logger.LogCritical(
-                    "Unable to get requestHeaderContext from metadata - " + metadata.ToJson());
-            }
-            else
-            {
-                return workerJobMetadata.RequestHeaderContext;
-            }
+            this.logger.LogCritical("Unable to get requestHeaderContext from metadata - " + metadata.ToJson());
         }
 
-        return new RequestHeaderContext(new HttpContextAccessor());
+        return workerJobMetadata.RequestContext;
     }
 }

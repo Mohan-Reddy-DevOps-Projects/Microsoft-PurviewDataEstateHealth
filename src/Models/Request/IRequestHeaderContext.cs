@@ -6,7 +6,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 using System;
 using Microsoft.AspNetCore.Http;
-using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 
 /// <summary>
 /// The scoped service for request header handling.
@@ -164,7 +163,8 @@ public interface IRequestHeaderContext
     public PurviewAccountSku PurviewAccountSku { get; set; }
 
     /// <summary>
-    /// Request Correlation Context
+    /// Set Correlation Id in Request Context
     /// </summary>
-    RequestCorrelationContext RequestCorrelationContext { get; }
+    /// <param name="correlationId"></param>
+    void SetCorrelationIdInRequestContext(string correlationId);
 }

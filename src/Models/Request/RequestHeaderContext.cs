@@ -85,7 +85,7 @@ public class RequestHeaderContext : IRequestHeaderContext
         this.ClientResourceId = headers.GetFirstOrDefault(HeaderClientResourceId);
         this.ApiVersion =
             httpContextAccessor?.HttpContext?.Request?.GetFirstOrDefaultQuery(
-                RequestCorrelationContext.ParameterApiVersion);
+                RequestCorrelationContext.ParameterApiVersion) ?? string.Empty;
         this.ClientGivenName = DecodeBase64String(
             httpContextAccessor?.HttpContext?.Request?.Headers.GetFirstOrDefault(
                 RequestCorrelationContext.HeaderGivenNameEncoded),
@@ -111,25 +111,6 @@ public class RequestHeaderContext : IRequestHeaderContext
                             : accountReconciled.EqualsOrdinalInsensitively("1") 
                                 ? PurviewAccountSku.Enterprise
                                 : PurviewAccountSku.Classic;
-
-        this.RequestCorrelationContext = new RequestCorrelationContext();
-        this.RequestCorrelationContext.Initialize(
-            null,
-            this.TenantId.ToString(),
-            this.ApiVersion,
-            null,
-            null,
-            null,
-            null,
-            this.CorrelationId,
-            null,
-            null,
-            null);
-
-        if (!string.IsNullOrWhiteSpace(this.TenantId.ToString()))
-        {
-            this.RequestCorrelationContext.SetTenantId(this.TenantId.ToString());
-        }
     }
 
     /// <inheritdoc />
@@ -219,9 +200,6 @@ public class RequestHeaderContext : IRequestHeaderContext
     /// <inheritdoc />
     public PurviewAccountSku PurviewAccountSku { get; set; }
 
-    /// <inheritdoc />
-    public RequestCorrelationContext RequestCorrelationContext { get; set; }
-
     /// <summary>
     /// Set Correlation Id override
     /// </summary>
@@ -229,7 +207,6 @@ public class RequestHeaderContext : IRequestHeaderContext
     public void SetCorrelationIdInRequestContext(string correlationId)
     {
         this.CorrelationId = correlationId;
-        this.RequestCorrelationContext.CorrelationId = correlationId;
     }
 
     /// <summary>

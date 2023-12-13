@@ -114,7 +114,7 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
 
         if (this.TraceActivity != null)
         {
-            if (!string.IsNullOrEmpty(this.Metadata?.TraceId))
+            if (!string.IsNullOrEmpty(this.Metadata.TraceId))
             {
                 var parentTrace = ActivityTraceId.CreateFromString(this.Metadata.TraceId);
                 var parentSpan = ActivitySpanId.CreateFromString(this.Metadata.SpanId);
@@ -123,10 +123,10 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
                 this.TraceActivity.SetRootIdTag(this.Metadata.RootTraceId);
             }
 
-            this.TraceActivity.SetTag("TenantId", this.Metadata.RequestHeaderContext.TenantId);
-            this.TraceActivity.SetTag("AccountId", this.Metadata.RequestHeaderContext.AccountObjectId);
-            this.TraceActivity.SetTag("ApiVersion", this.Metadata.RequestHeaderContext.ApiVersion);
-            this.TraceActivity.SetTag("CorrelationId", this.Metadata.RequestHeaderContext.CorrelationId);
+            this.TraceActivity.SetTag("TenantId", this.Metadata.RequestContext.TenantId);
+            this.TraceActivity.SetTag("AccountId", this.Metadata.RequestContext.AccountId);
+            this.TraceActivity.SetTag("ApiVersion", this.Metadata.RequestContext.ApiVersion);
+            this.TraceActivity.SetTag("CorrelationId", this.Metadata.RequestContext.CorrelationId);
             this.TraceActivity.IsAllDataRequested = true;
             this.TraceActivity.ActivityTraceFlags = ActivityTraceFlags.Recorded;
         }
