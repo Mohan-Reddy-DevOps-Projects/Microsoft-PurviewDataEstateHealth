@@ -49,9 +49,9 @@ internal class DataEstateHealthSummaryComponent : BaseComponent<IDataEstateHealt
         if (dataEstateHealthSummaryModel == null)
         {
             throw new ServiceError(
-                    ErrorCategory.ResourceNotFound,
-                    ErrorCode.HealthSummary_NotAvailable.Code,
-                    ErrorCode.HealthSummary_NotAvailable.FormatMessage(this.Context.DomainId.ToString()))
+                ErrorCategory.ResourceNotFound,
+                ErrorCode.HealthSummary_NotAvailable.Code,
+                ErrorCode.HealthSummary_NotAvailable.Message)
                 .ToException();
         }
 

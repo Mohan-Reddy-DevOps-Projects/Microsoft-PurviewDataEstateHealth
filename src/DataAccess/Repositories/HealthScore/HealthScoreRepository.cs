@@ -68,11 +68,11 @@ internal class HealthScoreRepository : IHealthScoreRepository
                                               .ToModel(healthScoresEntity as HealthScoreEntity));
         }
 
-        return await Task.FromResult(new BaseBatchResults<IHealthScoreModel<HealthScoreProperties>>
+        return new BaseBatchResults<IHealthScoreModel<HealthScoreProperties>>
         {
             Results = healthScoreModelList,
             ContinuationToken = null
-        });
+        };
     }
 
     public async Task<IHealthScoreModel<HealthScoreProperties>> GetSingleOrDefault(

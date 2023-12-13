@@ -207,6 +207,11 @@
 								"key": "x-ms-client-tenant-id",
 								"value": "{{tenantId}}",
 								"type": "text"
+							},
+							{
+								"key": "x-ms-catalog-id",
+								"value": "{{catalogId}}",
+								"type": "text"
 							}
 						],
 						"url": {

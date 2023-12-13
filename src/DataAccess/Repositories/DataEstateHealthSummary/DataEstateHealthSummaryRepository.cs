@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
+using Microsoft.DGP.ServiceBasics.BaseModels;
 
 internal class DataEstateHealthSummaryRepository : IDataEstateHealthSummaryRepository
 {
@@ -54,11 +55,48 @@ internal class DataEstateHealthSummaryRepository : IDataEstateHealthSummaryRepos
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-        var dataEstateHealthSummaryEntity = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+        IList<BaseEntity> dataEstateHealthSummaryEntity = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
-        return await Task.FromResult(this.modelAdapterRegistry
+        return this.modelAdapterRegistry
             .AdapterFor<IDataEstateHealthSummaryModel, DataEstateHealthSummaryEntity>()
-            .ToModel(dataEstateHealthSummaryEntity.FirstOrDefault() as DataEstateHealthSummaryEntity));
+            .ToModel(dataEstateHealthSummaryEntity.FirstOrDefault() as DataEstateHealthSummaryEntity);
+    }
+
+    public async Task<IBatchResults<IHealthActionModel>> GetMultiple(
+          HealthActionKey healthActionKey,
+          CancellationToken cancellationToken,
+          string continuationToken = null)
+    {
+        string containerPath = await this.ConstructContainerPath(healthActionKey.CatalogId.ToString(), healthActionKey.AccountId, cancellationToken);
+
+        HealthActionsQuery query;
+
+        if (healthActionKey == null || !healthActionKey.BusinessDomainId.HasValue)
+        {
+            query = this.queryRequestBuilder.Build<HealthActionsRecord>(containerPath) as HealthActionsQuery;
+
+        }
+        else
+        {
+            query = this.queryRequestBuilder.Build<HealthActionsRecord>(containerPath, clauseBuilder =>
+            {
+                clauseBuilder.WhereClause(QueryConstants.HealthActionColumnNamesForKey.BusinessDomainId, healthActionKey.BusinessDomainId.Value.ToString());
+            }) as HealthActionsQuery;
+        }
+
+        ArgumentNullException.ThrowIfNull(query, nameof(query));
+
+        IList<HealthActionEntity> healthActionEntititiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+
+        List<IHealthActionModel> healthActionModelList = healthActionEntititiesList.Select(healthActionsEntity =>
+        this.modelAdapterRegistry.AdapterFor<IHealthActionModel, HealthActionEntity>().ToModel(healthActionsEntity))
+            .ToList();
+
+        return new BaseBatchResults<IHealthActionModel>
+        {
+            Results = healthActionModelList,
+            ContinuationToken = null
+        };
     }
 
     public IDataEstateHealthSummaryRepository ByLocation(string location)

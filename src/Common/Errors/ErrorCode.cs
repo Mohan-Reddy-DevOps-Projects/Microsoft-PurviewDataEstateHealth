@@ -174,7 +174,7 @@ public class ErrorCode : ServiceErrorCode
     /// <summary>
     /// Health summary does not exist.
     /// </summary>
-    public static readonly ErrorCode HealthSummary_NotAvailable = new(7001);
+    public static readonly ErrorCode HealthSummary_NotAvailable = new(7001, "Health summary is not available.");
 
     /// <summary>
     /// Health actions not available.

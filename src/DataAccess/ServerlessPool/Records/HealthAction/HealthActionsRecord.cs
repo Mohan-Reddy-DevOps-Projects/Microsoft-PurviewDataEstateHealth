@@ -46,6 +46,12 @@ public class HealthActionsRecord : BaseRecord
     public Guid TargetId { get; set; }
 
     /// <summary>
+    /// Health action target name.
+    /// </summary>
+    [DataColumn("TargetName")]
+    public string TargetName { get; set; }
+
+    /// <summary>
     /// Health action owner id.
     /// </summary>
     [DataColumn("OwnerContactId")]

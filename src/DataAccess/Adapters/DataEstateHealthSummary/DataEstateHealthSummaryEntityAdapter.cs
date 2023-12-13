@@ -33,6 +33,11 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// <inheritdoc />
         public override IDataEstateHealthSummaryModel ToModel(DataEstateHealthSummaryEntity entity)
         {
+            if (entity == null)
+            {
+                return null;
+            }
+
             var businessDomainsSummaryAdapter = this.Builder.AdapterFor<IBusinessDomainsSummaryModel, BusinessDomainsSummaryEntity>();
             var dataProductsSummaryAdapter = this.Builder.AdapterFor<IDataProductsSummaryModel, DataProductsSummaryEntity>();
             var dataAssetsSummaryAdapter = this.Builder.AdapterFor<IDataAssetsSummaryModel, DataAssetsSummaryEntity>();

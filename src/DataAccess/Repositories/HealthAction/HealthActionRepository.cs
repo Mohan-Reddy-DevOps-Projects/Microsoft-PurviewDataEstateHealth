@@ -59,21 +59,17 @@ internal class HealthActionRepository : IHealthActionRepository
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-        var healthActionEntititiesList =  await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+        IList<HealthActionEntity> healthActionEntititiesList = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
-        var healthActionModelList = new List<IHealthActionModel>();
-        foreach (var healthActionsEntity in healthActionEntititiesList)
-        {
-            healthActionModelList.Add(this.modelAdapterRegistry
-                               .AdapterFor<IHealthActionModel, HealthActionEntity>()
-                                              .ToModel(healthActionsEntity));
-        }
+        List<IHealthActionModel> healthActionModelList = healthActionEntititiesList.Select(healthActionsEntity =>
+        this.modelAdapterRegistry.AdapterFor<IHealthActionModel, HealthActionEntity>().ToModel(healthActionsEntity))
+            .ToList();
 
-        return await Task.FromResult(new BaseBatchResults<IHealthActionModel>
+        return new BaseBatchResults<IHealthActionModel>
         {
             Results = healthActionModelList,
             ContinuationToken = null
-        });
+        };
     }
 
     public IHealthActionRepository ByLocation(string location)

@@ -128,11 +128,11 @@ internal class HealthControlRepository : IHealthControlRepository
                                   .ToModel(healthControlEntity));
         }
 
-        return await Task.FromResult(new BaseBatchResults<HealthControlModel>
+        return new BaseBatchResults<HealthControlModel>
         {
             Results = healthControlModelList,
             ContinuationToken = null
-        });
+        };
     }
 
     private List<HealthControlEntity> CreateHealthControlEntities(List<HealthControlArtifactStoreEntity> healthControlArtifactStoreEntities, HealthControlSqlEntity healthControlSqlEntity)
