@@ -1,0 +1,78 @@
+{
+    "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/rolloutParameters.json",
+    "contentVersion": "1.0.0.0",
+    "shellExtensions": [
+        {
+            "name": "Run",
+            "type": "Run",
+            "properties": {
+                "maxExecutionTime": "PT50M"
+            },
+            "package": {
+                "reference": {
+                    "path": "shell.tar.gz"
+                }
+            },
+            "launch": {
+                "command": [
+                    "/bin/bash",
+                    "deployPythonScripts.sh"
+                ],
+                "environmentVariables": [
+                    {
+                        "name": "SUBSCRIPTION_ID",
+                        "value": "__INFRA_SUBSCRIPTION_ID__"
+                    },
+                    {
+                        "name": "PYTHON_CATALOG_SPARK_JOB_MAIN",
+                        "reference": {
+                            "path": "Catalog.tar"
+                        },
+                        "asSecureValue": "true"
+                    },
+                    {
+                        "name": "PYTHON_DATAQUALITY_SPARK_JOB_MAIN",
+                        "reference": {
+                            "path": "DataQuality.tar"
+                        },
+                        "asSecureValue": "true"
+                    },
+                    {
+                        "name": "PYTHON_DATA_ESTATE_HEALTH_LIBRARY",
+                        "reference": {
+                            "path": "DataEstateHealthLibrary.zip"
+                        },
+                        "asSecureValue": "true"
+                    },
+                    {
+                        "name": "STORAGE_ACCOUNT_NAME",
+                        "value": "__INFRA_SYNAPSE_WORKSPACE_STORAGE_ACCOUNT_NAME__"
+                    },
+                    {
+                        "name": "DESTINATION_CONTAINER_NAME",
+                        "value": "dghsynapse"
+                    }
+                ],
+                "identity": {
+                    "type": "userAssigned",
+                    "userAssignedIdentities": [
+                        "/subscriptions/__INFRA_SUBSCRIPTION_ID__/resourcegroups/__INFRA_RESOURCE_GROUP_NAME__/providers/Microsoft.ManagedIdentity/userAssignedIdentities/__INFRA_CONTAINER_APP_IDENTITY_NAME__"
+                    ]
+                },
+                "subnetIds": [
+                    {
+                        "id": "/subscriptions/__INFRA_SUBSCRIPTION_ID__/resourceGroups/__CORE_RESOURCE_GROUP_NAME__/providers/Microsoft.Network/virtualNetworks/__CORE_VNET_NAME__/subnets/deploy"
+                    }
+                ]
+            }
+        }
+    ],
+    "wait": [
+        {
+            "name": "skip",
+            "properties": {
+                "duration": "PT1M"
+            }
+        }
+    ]
+}

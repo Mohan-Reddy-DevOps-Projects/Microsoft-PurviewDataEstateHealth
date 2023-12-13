@@ -22,70 +22,76 @@
       }
     }
   },
-  "orchestratedSteps": [
-    {
-      "name":"deployProcessingStorage",
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "processingStorageResourceDefinition",
-      "actions": [
-        "deploy"
-      ]
-    },
-    {
-      "name":"deployInfrastructure",
-      "dependsOn": ["deployProcessingStorage"],
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "infrastructureResourceDefinition",
-      "actions": [
-        "Extension/RegisterDghPrereqs",
-        "deploy",
-        "Extension/CreateOneCertV2PublicIssuer",
-        "Extension/CreateOneCertV2PrivateIssuer",
-        "Extension/CreateCertificate-Client",
-        "Extension/CreateCertificate-ArtifactStore"
-      ]
-    },
-    {
-      "name": "deployPowerBIFiles",
-      "dependsOn": ["deployInfrastructure"],
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "powerBIFilesResourceDefintion",
-      "actions": ["wait/skip"]
-    },
-    {
-      "name": "pushApiServiceImage",
-      "dependsOn": ["deployInfrastructure"],
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "apiServiceImageResourceDefinition",
-      "actions": ["Shell/Run"]
-    },
-    {
-      "name": "pushWorkerServiceImage",
-      "dependsOn": ["deployInfrastructure"],
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "workerServiceImageResourceDefinition",
-      "actions": ["Shell/Run"]
-    },
-    {
-      "name": "addDnsRecords",
-      "dependsOn": ["pushApiServiceImage"],
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "apiServiceContainerAppDnsRecordsResourceDefinition",
-      "actions": ["deploy"]
-    },
-    {
-      "name":"deployApiService",
-      "dependsOn": ["addDnsRecords",  "pushWorkerServiceImage"],
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "apiServiceContainerAppResourceDefinition",
-      "actions": ["deploy"]
-    },
-    {
-      "name":"deployWorkerService",
-      "dependsOn": ["addDnsRecords", "pushWorkerServiceImage"],
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "workerServiceContainerAppResourceDefinition",
-      "actions": ["deploy"]
-    }
-  ]
+    "orchestratedSteps": [
+        {
+            "name":"deployProcessingStorage",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "processingStorageResourceDefinition",
+            "actions": [
+                "deploy"
+            ]
+        },
+        {
+            "name":"deployInfrastructure",
+            "dependsOn": ["deployProcessingStorage"],
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "infrastructureResourceDefinition",
+            "actions": [
+                "Extension/RegisterDghPrereqs",
+                "deploy",
+                "Extension/CreateOneCertV2PublicIssuer",
+                "Extension/CreateOneCertV2PrivateIssuer",
+                "Extension/CreateCertificate-Client",
+                "Extension/CreateCertificate-ArtifactStore"
+            ]
+        },
+        {
+            "name": "deployPowerBIFiles",
+            "dependsOn": ["deployInfrastructure"],
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "powerBIFilesResourceDefintion",
+            "actions": ["wait/skip"]
+        },
+        {
+            "name": "deployPythonFiles",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "pythonFilesResourceDefintion",
+            "actions": [ "Shell/Run" ]
+        },
+        {
+            "name": "pushApiServiceImage",
+            "dependsOn": ["deployInfrastructure"],
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "apiServiceImageResourceDefinition",
+            "actions": ["Shell/Run"]
+        },
+        {
+            "name": "pushWorkerServiceImage",
+            "dependsOn": ["deployInfrastructure"],
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "workerServiceImageResourceDefinition",
+            "actions": ["Shell/Run"]
+        },
+        {
+            "name": "addDnsRecords",
+            "dependsOn": ["pushApiServiceImage"],
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "apiServiceContainerAppDnsRecordsResourceDefinition",
+            "actions": ["deploy"]
+        },
+        {
+            "name":"deployApiService",
+            "dependsOn": ["addDnsRecords",  "pushWorkerServiceImage"],
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "apiServiceContainerAppResourceDefinition",
+            "actions": ["deploy"]
+        },
+        {
+            "name":"deployWorkerService",
+            "dependsOn": ["addDnsRecords", "pushWorkerServiceImage"],
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "workerServiceContainerAppResourceDefinition",
+            "actions": ["deploy"]
+        }
+    ]
 }

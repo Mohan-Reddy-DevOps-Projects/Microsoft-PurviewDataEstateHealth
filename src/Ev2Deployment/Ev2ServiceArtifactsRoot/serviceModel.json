@@ -191,6 +191,31 @@
               "name": "Core"
             },
           ]
+        },
+        {
+          "name": "pythonFilesResourceDefintion",
+          "composedOf": {
+            "extension": {
+              "rolloutParametersPath": "Parameters\\deployPythonScripts.rollout.parameters.json",
+              "shell": [
+                {
+                  "type": "Run",
+                  "properties": {
+                    "imageName": "adm-mariner-20-l",
+                    "imageVersion": "v5"
+                  }
+                }
+              ]
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "Infrastructure"
+            },
+            {
+              "name": "Core"
+            }
+          ]
         }
       ]
     },

@@ -209,6 +209,38 @@ extends:
               replaceExistingArchive: true
               verbose: true
 
+          - task: ArchiveFiles@2
+            displayName: "Archive DataQuality"
+            inputs:
+              rootFolderOrFile: '$(Build.SourcesDirectory)/src/Python/DataEstateHealthLibrary/DataQuality'
+              includeRootFolder: false
+              archiveType: "tar"
+              tarCompression: none
+              archiveFile: '$(Build.SourcesDirectory)/target/Release/x64/Ev2Deployment/Ev2ServiceArtifactsRoot/DataQuality.tar'
+              replaceExistingArchive: true
+              verbose: true
+
+          - task: ArchiveFiles@2
+            displayName: "Archive Catalog"
+            inputs:
+              rootFolderOrFile: '$(Build.SourcesDirectory)/src/Python/DataEstateHealthLibrary/Catalog'
+              includeRootFolder: false
+              archiveType: "tar"
+              tarCompression: none
+              archiveFile: '$(Build.SourcesDirectory)/target/Release/x64/Ev2Deployment/Ev2ServiceArtifactsRoot/Catalog.tar'
+              replaceExistingArchive: true
+              verbose: true  
+
+          - task: ArchiveFiles@2
+            displayName: "Archive DataEstateHealthLibrary"
+            inputs:
+              rootFolderOrFile: '$(Build.SourcesDirectory)/src/Python/DataEstateHealthLibrary'
+              includeRootFolder: false
+              archiveType: "zip"
+              archiveFile: '$(Build.SourcesDirectory)/target/Release/x64/Ev2Deployment/Ev2ServiceArtifactsRoot/DataEstateHealthLibrary.zip'
+              replaceExistingArchive: true
+              verbose: true
+
           - task: onebranch.pipeline.imagebuildinfo@1
             inputs:
               repositoryName: apiservice
