@@ -152,7 +152,37 @@
           "value": "false"
         }
       }
-    }
+    },
+    {
+      "Name": "ManageSynapseRBAC",
+      "Type": "Microsoft.Azure.Synapse/ManageSynapseRBAC",
+      "Version": "2016-11-01",
+      "ConnectionProperties": {
+        "MaxExecutionTime": "PT1H",
+        "Authentication": {
+          "Type": "SystemCertificateAuthentication"
+        }
+      },
+      "Payloadproperties": {
+        "ClientCertificate": {
+          "reference": {
+            "parameters": {
+              "secretId": "__ASSISTED_ID_APP_SECRET_URI__"
+            },
+            "provider": "AzureKeyVault"
+          }
+        },
+        "ApplicationId": {
+          "Value": "__ASSISTED_ID_APP_CLIENT_ID__"
+        },
+        "SynapseWorkspaceName": {
+          "Value": "__INFRA_SYNAPSE_WORKSPACE_NAME__"
+        },
+        "RoleMapping": {
+          "Value": {"6e4bf58a-b8e1-4cc3-bbf9-d73143322b78": ["__INFRA_CONTAINER_APP_OBJECT_ID__"]}
+        }
+      }
+  }
   ],
   "wait": [
     {

@@ -191,6 +191,10 @@
             {
                 "find": "__INFRA_SYNAPSE_LOCATION__",
                 "replaceWith": "$config(synapseRegion)"
+            },
+            {
+                "find": "__INFRA_CONTAINER_APP_OBJECT_ID__",
+                "replaceWith": "$serviceResourceDefinition(infrastructureResourceDefinition).action(deploy).outputs(containerAppIdentityObjectId.value)"
             }
 
         ]

@@ -24,6 +24,7 @@ var keyVaultSecretsUserRoleDefName = '4633458b-17de-408a-b874-0445c86b69e6'
 var keyVaultCertificatesOfficerRoleDefName = 'a4417e6f-fecd-4de8-b567-7b0420556985'
 var storageBlobDataContributorRoleDefName = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var storageTableDataContributorRoleDefName = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
+var ownerRoleDefName = '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
 
 resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
   name: containerAppIdentityName
@@ -148,7 +149,6 @@ module synapseStorageAccount 'synapseStorageAccount.bicep' = {
 }
 
 resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
-  dependsOn: [synapseStorageAccount]
   name: synapseWorkspaceName
   location: synapseLocation
   tags: {}
@@ -159,8 +159,6 @@ resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
     azureADOnlyAuthentication: false
     publicNetworkAccess: 'Enabled'
     managedVirtualNetwork: 'default'
-    cspWorkspaceAdminProperties: {
-    }
     defaultDataLakeStorage: {
       accountUrl: synapseStorageAccountUrl
       createManagedPrivateEndpoint: true
@@ -171,6 +169,33 @@ resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
     sqlAdministratorLoginPassword: null
   }
 }
+
+resource synapseWorkspaceAdmin 'Microsoft.Synapse/workspaces/administrators@2021-06-01' = {
+  name: 'activeDirectory'
+  parent: synapseWorkspace
+  properties: {
+    administratorType: 'Enterprise application'
+    login: 'PDG Buildout App'
+    sid: assistedIdAppObjectId
+    tenantId: tenant().tenantId
+  }
+}
+
+resource synapseOwnerRoleDef 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
+  scope: synapseWorkspace
+  name: ownerRoleDefName
+}
+
+resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(synapseWorkspaceName, ownerRoleDefName, assistedIdAppObjectId)
+  scope: synapseWorkspace
+  properties: {
+    roleDefinitionId: synapseOwnerRoleDef.id
+    principalId: assistedIdAppObjectId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 
 module processingStorageSubContributorRoleModule 'subscriptionRoleAssignment.bicep' = [for processingStorageSubscription in processingStorageSubscriptions: {
   name: 'processingStorageSubContributorRoleModuleDeploy_${processingStorageSubscription.stamp}'
@@ -211,3 +236,5 @@ module eventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
     roleDefinitionName: azureEventHubsDataReceiverRoleDefName
   }
 }
+
+output containerAppIdentityObjectId string = containerAppIdentity.properties.principalId
