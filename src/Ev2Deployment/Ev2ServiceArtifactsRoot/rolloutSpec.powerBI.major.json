@@ -43,9 +43,10 @@
         },
         {
             "name": "deployPythonFiles",
+            "dependsOn": [ "deployInfrastructure" ],
             "targetType": "ServiceResourceDefinition",
             "targetName": "pythonFilesResourceDefintion",
-            "actions": [ "Shell/Run" ]
+            "actions": [ "wait/skip" ]
         },
         {
             "name": "pushApiServiceImage",

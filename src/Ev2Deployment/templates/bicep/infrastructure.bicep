@@ -63,6 +63,15 @@ module storageRoleAssignments 'storageRoleAssignments.bicep' = {
   }
 }
 
+module synapseStorageRoleAssignments 'synapseStorageRoleAssignments.bicep' = {
+  dependsOn: [synapseStorageAccount]
+  name: 'synapseStorageRoleAssignments'
+  params: {
+    storageAccountName: synapseStorageAccountName
+    principalId: containerAppIdentity.properties.principalId
+  }
+}
+
 module commonStorageAccountModule 'storageAccount.bicep' = {
   name: 'commonStorageAccountDeploy'
   params: {
