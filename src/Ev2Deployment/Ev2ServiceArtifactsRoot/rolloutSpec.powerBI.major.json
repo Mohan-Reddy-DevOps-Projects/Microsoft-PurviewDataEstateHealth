@@ -22,54 +22,60 @@
       }
     }
   },
-  "orchestratedSteps": [
-    {
-      "name":"deployProcessingStorage",
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "processingStorageResourceDefinition",
-      "actions": ["wait/skip"]
-    },
-    {
-      "name":"deployInfrastructure",
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "infrastructureResourceDefinition",
-      "actions": ["wait/skip"]
-    },
-    {
-      "name": "deployPowerBIFiles",
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "powerBIFilesResourceDefintion",
-      "actions": ["Shell/Run"]
-    },
-    {
-      "name": "pushApiServiceImage",
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "apiServiceImageResourceDefinition",
-      "actions": ["wait/skip"]
-    },
-    {
-      "name": "pushWorkerServiceImage",
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "workerServiceImageResourceDefinition",
-      "actions": ["wait/skip"]
-    },
-    {
-      "name": "addDnsRecords",
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "apiServiceContainerAppDnsRecordsResourceDefinition",
-      "actions": ["wait/skip"]
-    },
-    {
-      "name":"deployApiService",
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "apiServiceContainerAppResourceDefinition",
-      "actions": ["wait/skip"]
-    },
-    {
-      "name":"deployWorkerService",
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "workerServiceContainerAppResourceDefinition",
-      "actions": ["wait/skip"]
-    }
-  ]
+    "orchestratedSteps": [
+        {
+            "name": "deployProcessingStorage",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "processingStorageResourceDefinition",
+            "actions": [ "wait/skip" ]
+        },
+        {
+            "name": "deployInfrastructure",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "infrastructureResourceDefinition",
+            "actions": [ "wait/skip" ]
+        },
+        {
+            "name": "deployPowerBIFiles",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "powerBIFilesResourceDefintion",
+            "actions": [ "Shell/Run" ]
+        },
+        {
+            "name": "deployPythonFiles",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "pythonFilesResourceDefintion",
+            "actions": [ "Shell/Run" ]
+        },
+        {
+            "name": "pushApiServiceImage",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "apiServiceImageResourceDefinition",
+            "actions": [ "wait/skip" ]
+        },
+        {
+            "name": "pushWorkerServiceImage",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "workerServiceImageResourceDefinition",
+            "actions": [ "wait/skip" ]
+        },
+        {
+            "name": "addDnsRecords",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "apiServiceContainerAppDnsRecordsResourceDefinition",
+            "actions": [ "wait/skip" ]
+        },
+        {
+            "name": "deployApiService",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "apiServiceContainerAppResourceDefinition",
+            "actions": [ "wait/skip" ]
+        },
+        {
+            "name": "deployWorkerService",
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "workerServiceContainerAppResourceDefinition",
+            "actions": [ "wait/skip" ]
+        }
+    ]
 }
