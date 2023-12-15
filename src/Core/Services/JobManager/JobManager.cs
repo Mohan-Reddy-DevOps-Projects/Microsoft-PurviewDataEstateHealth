@@ -296,13 +296,14 @@ public class JobManager : IJobManager
     }
 
     /// <inheritdoc />
-    public async Task StartPBIRefreshJob(AccountServiceModel accountModel)
+    public async Task StartPBIRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountModel)
     {
         string jobPartition = "PBI-REFRESH-CALLBACK";
 
         StartPBIRefreshMetadata jobMetadata = new()
         {
             WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+            RequestContext = metadata.RequestContext,
             Account = accountModel,
             RefreshLookups = new List<RefreshLookup>()
         };
@@ -379,7 +380,7 @@ public class JobManager : IJobManager
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
                 AccountServiceModel = accountServiceModel,
                 SparkJobBatchId = string.Empty,
-                SparkJobResult = SparkBatchJobResultType.Uncertain,
+                IsCompleted = false
             };
             this.UpdateDerivedMetadataProperties(jobMetadata);
 
@@ -399,18 +400,25 @@ public class JobManager : IJobManager
 
     private void UpdateDerivedMetadataProperties<TMetadata>(TMetadata metadata) where TMetadata : JobMetadataBase
     {
-        // Set correlation-id if not set in the payload.
-        if (string.IsNullOrEmpty(metadata.RequestContext.CorrelationId))
+        if (RequestCorrelationContext.Current.CorrelationId == null)
         {
-            Guid correlationId = Guid.NewGuid();
-            metadata.RequestContext.CorrelationId = correlationId.ToString();
-        }
+            // Set correlation-id if not set in the payload.
+            if (string.IsNullOrEmpty(metadata.RequestContext.CorrelationId))
+            {
+                Guid correlationId = Guid.NewGuid();
+                metadata.RequestContext.CorrelationId = correlationId.ToString();
+            }
 
-        RequestCorrelationContext requestCorrelationContext = new RequestCorrelationContext()
+            RequestCorrelationContext requestCorrelationContext = new RequestCorrelationContext()
+            {
+                CorrelationId = metadata.RequestContext.CorrelationId
+            };
+            RequestCorrelationContext.Current.Initialize(requestCorrelationContext);
+        }
+        else
         {
-            CorrelationId = metadata.RequestContext.CorrelationId
-        };
-        RequestCorrelationContext.Current.Initialize(requestCorrelationContext);
+            metadata.RequestContext.CorrelationId = RequestCorrelationContext.Current.CorrelationId;
+        }
     }
 
     /// <summary>

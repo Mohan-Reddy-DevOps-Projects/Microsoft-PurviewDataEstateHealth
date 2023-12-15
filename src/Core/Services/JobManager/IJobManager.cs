@@ -108,7 +108,7 @@ public interface IJobManager
     /// Start PBI refresh job
     /// </summary>
     /// <returns></returns>
-    Task StartPBIRefreshJob(AccountServiceModel accountModel);
+    Task StartPBIRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountModel);
 
     /// <summary>
     /// Provisions catalog SPARK job per account.

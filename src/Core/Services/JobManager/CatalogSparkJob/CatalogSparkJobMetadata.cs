@@ -4,7 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Newtonsoft.Json;
 
@@ -26,5 +25,5 @@ internal class CatalogSparkJobMetadata : StagedWorkerJobMetadata
     /// Spark job result. 
     /// </summary>
     [JsonProperty]
-    public SparkBatchJobResultType? SparkJobResult { get; set; }
+    public bool IsCompleted { get; set; }
 }

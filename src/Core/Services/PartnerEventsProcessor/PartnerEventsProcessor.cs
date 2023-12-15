@@ -16,14 +16,12 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using Newtonsoft.Json;
+using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
 {
-    private const string SourcePathFragment = "Source";
-    private const string SinkPathFragment = "Sink";
-    private const string DeletedPathFragment = "_Deleted";
-
     private readonly EventSourceType eventSourceType;
 
     private readonly AuxStorageConfiguration auxStorageConfiguration;
@@ -38,6 +36,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
 
     private EventProcessorClient EventProcessor;
 
+    private readonly IDeltaTableEventProcessor deltaTableEventProcessor;
 
     protected readonly IDataEstateHealthRequestLogger DataEstateHealthRequestLogger;
 
@@ -58,6 +57,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
     {
         this.eventSourceType = eventSourceType;
         this.EventsToProcess = new List<ProcessEventArgs>();
+        this.deltaTableEventProcessor = serviceProvider.GetRequiredService<IDeltaTableEventProcessor>();
         this.DataEstateHealthRequestLogger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
         this.auxStorageConfiguration = serviceProvider.GetRequiredService<IOptions<AuxStorageConfiguration>>().Value;
         this.eventHubConfiguration = eventHubConfiguration;
@@ -134,42 +134,17 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         }
     }
 
+    /// <summary>
+    /// Persists data to storage based on event operation types.
+    /// </summary>
+    /// <param name="eventHubEntityModels">A dictionary of event hub entity models.</param>
+    /// <param name="deltaTableWriter">The Delta Lake table writer.</param>
+    /// <param name="prefix">Prefix for the path.</param>
+    /// <param name="isSourceEvent">Flag to determine source event.</param>
     protected async Task PersistToStorage<T>(Dictionary<EventOperationType, List<T>> eventHubEntityModels, IDeltaLakeOperator deltaTableWriter, string prefix, bool isSourceEvent = true)
         where T : BaseEventHubEntityModel
     {
-        var eventHubEntityModel = eventHubEntityModels.Values.FirstOrDefault()?.FirstOrDefault();
-        if (eventHubEntityModel == null)
-        {
-            return;
-        }
-
-        var schemaDefinition = eventHubEntityModel.GetSchemaDefinition();
-        List<T> mergedCreateEvents = new();
-        if (eventHubEntityModels.TryGetValue(EventOperationType.Create, out List<T> createRows))
-        {
-            mergedCreateEvents.AddRange(createRows);
-        }
-
-        if (eventHubEntityModels.TryGetValue(EventOperationType.Update, out List<T> updateRows))
-        {
-            mergedCreateEvents.AddRange(updateRows);
-        }
-
-        if (eventHubEntityModels.TryGetValue(EventOperationType.Upsert, out List<T> upsertRows))
-        {
-            mergedCreateEvents.AddRange(upsertRows);
-        }
-
-        string pathFragment = isSourceEvent ? SourcePathFragment : SinkPathFragment;
-        if (mergedCreateEvents.Count > 0)
-        {
-            await deltaTableWriter.CreateOrAppendDataset($"/{pathFragment}/{prefix}/{eventHubEntityModel.GetPayloadKind()}", schemaDefinition, mergedCreateEvents);
-        }
-
-        if (eventHubEntityModels.TryGetValue(EventOperationType.Delete, out List<T> deleteRows))
-        {
-            await deltaTableWriter.CreateOrAppendDataset($"/{pathFragment}/{prefix}/{DeletedPathFragment}/{eventHubEntityModel.GetPayloadKind()}", schemaDefinition, deleteRows);
-        }
+        await this.deltaTableEventProcessor.PersistToStorage(eventHubEntityModels, deltaTableWriter, prefix, isSourceEvent);
     }
 
     protected async Task CommitCheckpoints()

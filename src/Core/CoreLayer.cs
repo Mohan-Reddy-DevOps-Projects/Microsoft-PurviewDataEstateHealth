@@ -33,6 +33,7 @@ public static class CoreLayer
         services.AddSingleton<ISynapseSparkExecutor, SynapseSparkExecutor>();
         services.AddSingleton<ISparkJobManager, SparkJobManager>();
         services.AddSingleton<ICommonFieldValidationService, CommonFieldValidationService>();
+        services.AddSingleton<IDeltaTableEventProcessor, DeltaTableEventProcessor>();
 
         services.AddPowerBI();
         services.AddCommands();

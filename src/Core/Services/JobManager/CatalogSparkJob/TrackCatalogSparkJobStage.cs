@@ -4,25 +4,26 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using global::Azure.Analytics.Synapse.Spark.Models;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
-using global::Azure.Analytics.Synapse.Spark.Models;
-using System.Text.Json;
-using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 
 internal class TrackCatalogSparkJobStage : IJobCallbackStage
 {
     private readonly JobCallbackUtils<CatalogSparkJobMetadata> jobCallbackUtils;
-
     private readonly CatalogSparkJobMetadata metadata;
-
-    private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
-
+    private readonly IDataEstateHealthRequestLogger logger;
     private readonly ICatalogSparkJobComponent catalogSparkJobComponent;
-
     private readonly IJobManager backgroundJobManager;
+    private static readonly JsonSerializerOptions jsonOptions = new()
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     public TrackCatalogSparkJobStage(
     IServiceScope scope,
@@ -31,7 +32,7 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
     {
         this.metadata = metadata;
         this.jobCallbackUtils = jobCallbackUtils;
-        this.dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
+        this.logger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
         this.catalogSparkJobComponent = scope.ServiceProvider.GetService<ICatalogSparkJobComponent>();
         this.backgroundJobManager = scope.ServiceProvider.GetService<IJobManager>();
     }
@@ -46,53 +47,85 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
         try
         {
             SparkBatchJob jobDetails = await this.catalogSparkJobComponent.GetJob(
-            this.metadata.AccountServiceModel,
-            int.Parse(this.metadata.SparkJobBatchId),
-            new CancellationToken());
-            this.metadata.SparkJobResult = jobDetails?.Result;
+                this.metadata.AccountServiceModel,
+                int.Parse(this.metadata.SparkJobBatchId),
+                new CancellationToken());
 
-            if (jobDetails?.Result == SparkBatchJobResultType.Succeeded)
-            {
-                jobStageStatus = JobExecutionStatus.Succeeded;
-                jobStatusMessage = $"Catalog SPARK job succeeded for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}.";
-                this.dataEstateHealthRequestLogger.LogTrace(jobStatusMessage);
+            jobStageStatus = DetermineJobStageStatus(jobDetails);
+            jobStatusMessage = this.GenerateStatusMessage(jobDetails, jobStageStatus);
+            this.logger.LogTrace(jobStatusMessage);
 
-                await this.ProvisionPBIRefreshJob(this.metadata.AccountServiceModel);
-            }
-            else if (jobDetails?.Result == SparkBatchJobResultType.Failed || jobDetails?.State == LivyStates.Dead)
+            if (IsSuccess(jobDetails))
             {
-                jobStageStatus = JobExecutionStatus.Completed;
-                jobStatusMessage = $"Catalog SPARK job failed for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with details: {JsonSerializer.Serialize(jobDetails)}";
-                this.dataEstateHealthRequestLogger.LogError(jobStatusMessage);
+                await this.ProvisionPBIRefreshJob(this.metadata, this.metadata.AccountServiceModel);
             }
-            else
-            {
-                jobStageStatus = JobExecutionStatus.Postponed;
-                jobStatusMessage = $"Catalog SPARK job for account: {this.metadata.AccountServiceModel.Id} is still in progress with status: {this.metadata.SparkJobResult}";
-            }
+
+            this.metadata.IsCompleted = IsJobCompleted(jobDetails);
         }
         catch (Exception exception)
         {
             jobStageStatus = JobExecutionStatus.Completed;
-            jobStatusMessage = $"Failed to submit Catalog SPARK job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}";
-            this.dataEstateHealthRequestLogger.LogError(jobStatusMessage, exception);
+            jobStatusMessage = $"{this.StageName}|Failed to track Catalog SPARK job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}";
+            this.logger.LogError(jobStatusMessage, exception);
         }
 
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(30)));
     }
 
-    private async Task ProvisionPBIRefreshJob(AccountServiceModel account)
+    private async Task ProvisionPBIRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel account)
     {
-        await backgroundJobManager.StartPBIRefreshJob(account);
+        await this.backgroundJobManager.StartPBIRefreshJob(metadata, account);
     }
 
     public bool IsStageComplete()
     {
-        return this.metadata.SparkJobResult == SparkBatchJobResultType.Succeeded || this.metadata.SparkJobResult == SparkBatchJobResultType.Failed;
+        return this.metadata.IsCompleted;
     }
 
     public bool IsStagePreconditionMet()
     {
         return int.TryParse(this.metadata.SparkJobBatchId, out int _);
+    }
+
+    private static JobExecutionStatus DetermineJobStageStatus(SparkBatchJob jobDetails)
+    {
+        if (IsSuccess(jobDetails))
+        {
+            return JobExecutionStatus.Succeeded;
+        }
+        if (IsFailure(jobDetails))
+        {
+            return JobExecutionStatus.Completed;
+        }
+
+        return JobExecutionStatus.Postponed;
+    }
+
+    private static bool IsSuccess(SparkBatchJob jobDetails)
+    {
+        return jobDetails != null && (jobDetails.Result == SparkBatchJobResultType.Succeeded || jobDetails.State == LivyStates.Success);
+    }
+
+    private static bool IsFailure(SparkBatchJob jobDetails)
+    {
+        return jobDetails != null && (jobDetails.Result == SparkBatchJobResultType.Failed || jobDetails.State == LivyStates.Dead || jobDetails.State == LivyStates.Killed);
+    }
+
+    private static bool IsJobCompleted(SparkBatchJob jobDetails)
+    {
+        return IsSuccess(jobDetails) || IsFailure(jobDetails);
+    }
+
+    private string GenerateStatusMessage(SparkBatchJob jobDetails, JobExecutionStatus status)
+    {
+        string accountId = this.metadata.AccountServiceModel.Id;
+        string detail = status switch
+        {
+            JobExecutionStatus.Succeeded => $"{this.StageName}|{status} for account: {accountId}.",
+            JobExecutionStatus.Completed => $"{this.StageName}|failed for account: {accountId} with details: {JsonSerializer.Serialize(jobDetails, jsonOptions)}",
+            JobExecutionStatus.Postponed => $"{this.StageName}|{status} for account: {accountId}.",
+            _ => $"Unknown status for {this.StageName} for account: {accountId}."
+        };
+        return detail;
     }
 }

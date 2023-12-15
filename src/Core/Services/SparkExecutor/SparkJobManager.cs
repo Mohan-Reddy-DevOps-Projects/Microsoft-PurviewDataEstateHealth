@@ -17,6 +17,8 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.DGP.ServiceBasics.Errors;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 internal sealed class SparkJobManager : ISparkJobManager
 {
@@ -24,6 +26,12 @@ internal sealed class SparkJobManager : ISparkJobManager
     private readonly ISparkPoolRepository<SparkPoolModel> sparkPoolRepository;
     private readonly ISynapseSparkExecutor synapseSparkExecutor;
     private readonly IDataEstateHealthRequestLogger logger;
+
+    private readonly JsonSerializerOptions jsonOptions = new()
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
+
 
     public SparkJobManager(
         ISparkPoolRepository<SparkPoolModel> sparkPoolRepository,
@@ -60,7 +68,10 @@ internal sealed class SparkJobManager : ISparkJobManager
         SparkPoolModel sparkPool = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
         ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(sparkPool);
         this.logger.LogInformation($"Get spark job {batchId} in pool={sparkPoolId.Name}");
-        return await this.synapseSparkExecutor.GetJob(sparkPoolId.Name, batchId, cancellationToken);
+        SparkBatchJob response = await this.synapseSparkExecutor.GetJob(sparkPoolId.Name, batchId, cancellationToken);
+        this.logger.LogInformation($"Retrieved spark job {JsonSerializer.Serialize(response, jsonOptions)} in pool={sparkPoolId.Name}");
+
+        return response;
     }
 
     /// <inheritdoc/>

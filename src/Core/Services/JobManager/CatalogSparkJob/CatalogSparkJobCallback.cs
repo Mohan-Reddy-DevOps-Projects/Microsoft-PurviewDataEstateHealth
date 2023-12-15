@@ -6,7 +6,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
 using System.Threading.Tasks;
-using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
@@ -65,6 +64,6 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<CatalogSparkJob
     private void ResetJobWorkingState()
     {
         this.Metadata.SparkJobBatchId = string.Empty;
-        this.Metadata.SparkJobResult = SparkBatchJobResultType.Uncertain;
+        this.Metadata.IsCompleted = false;
     }
 }

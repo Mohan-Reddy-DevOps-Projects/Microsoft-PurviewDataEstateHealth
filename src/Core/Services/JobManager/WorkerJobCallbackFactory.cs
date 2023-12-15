@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 using JobLogger = WindowsAzure.ResourceStack.Common.BackgroundJobs.JobLogger;
 
 /// <summary>
-/// Callback factory fo creating jobs
+/// Callback factory for creating jobs
 /// </summary>
 internal class WorkerJobCallbackFactory : JobCallbackFactory
 {
