@@ -486,7 +486,6 @@ public class DataSubscriptionEventHubEntityModel : BaseEventHubEntityModel
     public override StructType GetSchemaDefinition() => new(new StructField[]
        {
             new StructField("Id", DataTypes.String),
-            new StructField("AccountId", DataTypes.String),
             new StructField("WriteAccess", DataTypes.String),
             new StructField("SubscriptionStatus", DataTypes.String),
             new StructField("DomainId", DataTypes.String),
