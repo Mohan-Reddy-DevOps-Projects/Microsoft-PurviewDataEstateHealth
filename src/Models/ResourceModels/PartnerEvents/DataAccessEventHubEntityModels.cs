@@ -367,7 +367,6 @@ public class PolicySetEventHubEntityModel : BaseEventHubEntityModel
     public override StructType GetSchemaDefinition() => new(new StructField[]
        {
             new StructField("Id", DataTypes.String),
-            new StructField("AccountId", DataTypes.String),
             new StructField("Active", DataTypes.String),
             new StructField("Version", DataTypes.String),
             new StructField("CreatedAt", DataTypes.Timestamp),
