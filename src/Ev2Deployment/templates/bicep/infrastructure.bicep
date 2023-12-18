@@ -181,6 +181,15 @@ resource synapseWorkspaceAdmin 'Microsoft.Synapse/workspaces/administrators@2021
   }
 }
 
+resource synapseAllowEv2 'Microsoft.Synapse/workspaces/firewallRules@2021-06-01' = {
+  name: 'AllowAllWindowsAzureIps'
+  parent: synapseWorkspace
+  properties: {
+    endIpAddress: '0.0.0.0'
+    startIpAddress: '0.0.0.0'
+  }
+}
+
 resource synapseOwnerRoleDef 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   scope: synapseWorkspace
   name: ownerRoleDefName
