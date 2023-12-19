@@ -33,7 +33,7 @@ internal class DeltaTableEventProcessor : IDeltaTableEventProcessor
     {
         if (!TryGetFirstEntityModel(models, out T model))
         {
-            this.logger.LogTrace($"{Tag}No entity models found to persist.");
+            this.logger.LogTrace($"{Tag}|No entity models found to persist.");
             return;
         }
 

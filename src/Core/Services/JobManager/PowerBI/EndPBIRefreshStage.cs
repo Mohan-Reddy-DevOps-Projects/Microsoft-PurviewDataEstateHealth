@@ -64,23 +64,26 @@ internal class EndPBIRefreshStage : IJobCallbackStage
                 this.metadata.RefreshLookups.Clear();
                 if (refreshDetails.All(ReachedSuccessfulStatus))
                 {
-                    jobStageStatus = JobExecutionStatus.Succeeded;
+                    jobStageStatus = JobExecutionStatus.Completed;
                     jobStatusMessage = $"Completed stage {this.StageName}";
+                    this.logger.LogTrace(jobStatusMessage);
 
-                    return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
+                    return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage);
                 }
                 else
                 {
                     jobStageStatus = JobExecutionStatus.Faulted;
                     jobStatusMessage = $"Faulted stage {this.StageName}";
+                    this.logger.LogTrace(jobStatusMessage);
 
-                    return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
+                    return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage);
                 }
             }
             this.metadata.RefreshLookups = this.metadata.RefreshLookups.Where(x => datasetsPendingRefresh.Contains(x.DatasetId)).ToArray();
 
             jobStageStatus = JobExecutionStatus.Postponed;
             jobStatusMessage = $"Postponed stage {this.StageName}";
+            this.logger.LogTrace(jobStatusMessage);
 
             return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(postPoneTime));
         }
@@ -88,7 +91,8 @@ internal class EndPBIRefreshStage : IJobCallbackStage
         {
             this.logger.LogError($"Error starting PBI refresh from {this.StageName}", exception);
             jobStageStatus = JobExecutionStatus.Failed;
-            jobStatusMessage = FormattableString.Invariant($"Errored starting PBI refresh from {this.StageName}, proceeding to next stage.");
+            jobStatusMessage = FormattableString.Invariant($"Errored tracking PBI refresh from {this.StageName}.");
+            this.logger.LogTrace(jobStatusMessage);
 
             return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
 
@@ -118,6 +122,9 @@ internal class EndPBIRefreshStage : IJobCallbackStage
         {
             return refreshDetail.DatasetId;
         }
+        TimeSpan? elapsedTime = refreshDetail.EndTime - refreshDetail.StartTime;
+        this.logger.LogInformation($"{this.StageName}|Completed refresh in {elapsedTime.Value.TotalMinutes} minutes. Details={refreshDetail}");
+
 
         return Guid.Empty;
     }
