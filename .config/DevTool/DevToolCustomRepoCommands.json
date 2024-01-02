@@ -1,0 +1,32 @@
+{
+  "DevMinimumVersion": "1.0.0.0",
+  "RepoRootEnvironmentVariable": "RepoRoot",
+  "TabExpansionVariables": [],
+  "CommandMap": [
+    {
+      "Command": "StartLocalDependencies",
+      "Aliases": ["sld"],
+      "HelpText": "Start local dependencies - emulators, etc.",
+      "Target": "Scripts\\Start-Dependencies.ps1",
+      "FromRoot": true,
+      "CompatibilityMode": false,
+      "Owner": "pdginfrastructureeng@microsoft.com"
+    },
+    {
+      "Command": "init",
+      "Aliases": ["in"],
+      "HelpText": "Initialize repository",
+      "Target": "Scripts\\Init.ps1",
+      "FromRoot": true,
+      "Owner": "pdginfrastructureeng@microsoft.com"
+    },    
+    {
+      "Command": "buildproj",
+      "Aliases": ["bp"],
+      "HelpText": "Build project using msbuild",
+      "Target": "Scripts\\Build-Project.ps1",
+      "FromRoot": true,
+      "Owner": "pdginfrastructureeng@microsoft.com"
+    }
+  ]
+}

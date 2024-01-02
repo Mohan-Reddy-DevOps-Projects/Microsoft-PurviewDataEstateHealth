@@ -1,0 +1,1 @@
+"%localappdata%\programs\Microsoft Azure Storage Explorer\StorageExplorer.exe"

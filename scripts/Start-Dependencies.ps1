@@ -1,0 +1,1 @@
+azurite -l "C:\azurite"
