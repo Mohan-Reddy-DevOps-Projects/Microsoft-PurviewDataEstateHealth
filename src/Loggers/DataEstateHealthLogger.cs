@@ -8,6 +8,9 @@ using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using System.Diagnostics;
+using Microsoft.Extensions.Options;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 /// <summary>
 /// Logger for singleton services that does not log scoped parameters
@@ -16,12 +19,15 @@ public abstract class DataEstateHealthLogger
 {
     private readonly ILogger logger;
 
+    private readonly EnvironmentConfiguration environmentConfiguration;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DataEstateHealthLogger" /> class.
     /// </summary>
-    public DataEstateHealthLogger(ILoggerFactory loggerFactory)
+    public DataEstateHealthLogger(ILoggerFactory loggerFactory, IOptions<EnvironmentConfiguration> environmentConfiguration)
     {
         this.logger = loggerFactory.CreateLogger("Log");
+        this.environmentConfiguration = environmentConfiguration.Value;
     }
 
     /// <inheritdoc/>
@@ -33,7 +39,14 @@ public abstract class DataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        this.logger.LogTrace(exception, message);
+        var state = this.GetAdditionalColumns(operationName, sourceFilePath, sourceLineNumber);
+
+        this.Log(
+            LogLevel.Trace,
+            default,
+            state,
+            null,
+            (state, ex) => message);
     }
 
     /// <inheritdoc/>
@@ -45,7 +58,14 @@ public abstract class DataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        this.logger.LogInformation(exception, message);
+        var state = this.GetAdditionalColumns(operationName, sourceFilePath, sourceLineNumber);
+
+        this.Log(
+            LogLevel.Information,
+            default,
+            state,
+            null,
+            (state, ex) => message);
     }
 
     /// <inheritdoc/>
@@ -57,7 +77,14 @@ public abstract class DataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        this.logger.LogWarning(exception, message);
+        var state = this.GetAdditionalColumns(operationName, sourceFilePath, sourceLineNumber);
+
+        this.Log(
+            LogLevel.Warning,
+            default,
+            state,
+            null,
+            (state, ex) => message);
     }
 
     /// <inheritdoc/>
@@ -69,7 +96,14 @@ public abstract class DataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        this.logger.LogError(exception, message);
+        var state = this.GetAdditionalColumns(operationName, sourceFilePath, sourceLineNumber);
+
+        this.Log(
+            LogLevel.Error,
+            default,
+            state,
+            null,
+            (state, ex) => message);
     }
 
     /// <inheritdoc/>
@@ -81,7 +115,25 @@ public abstract class DataEstateHealthLogger
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0)
     {
-        this.logger.LogCritical(exception, message);
+        var state = this.GetAdditionalColumns(operationName, sourceFilePath, sourceLineNumber);
+
+        this.Log(
+            LogLevel.Critical,
+            default,
+            state,
+            null,
+            (state, ex) => message);
+    }
+
+    /// <inheritdoc/>
+    private void Log(
+        LogLevel logLevel,
+        EventId eventId,
+        List<KeyValuePair<string, object>> state,
+        Exception exception,
+        Func<List<KeyValuePair<string, object>>, Exception, string> formatter)
+    {
+        this.logger.Log(logLevel, eventId, state, exception, formatter);
     }
 
     /// <inheritdoc/>
@@ -104,7 +156,24 @@ public abstract class DataEstateHealthLogger
     /// <inheritdoc/>
     public IDisposable BeginScope<TState>(TState state) where TState : notnull
     {
-        return null;
+        return this.logger.BeginScope(state);
+    }
+
+    private List<KeyValuePair<string, object>> GetAdditionalColumns(string operationName, string sourceFilePath, int sourceLineNumber)
+    {
+        var requestHeaderContext = this.GetRequestHeaderContext();
+
+        return new List<KeyValuePair<string, object>>
+        {
+            new KeyValuePair<string, object>("OperationName", operationName),
+            new KeyValuePair<string, object>("FileName", sourceFilePath),
+            new KeyValuePair<string, object>("LineNumber", sourceLineNumber),
+            new KeyValuePair<string, object>("AccountId", requestHeaderContext?.AccountObjectId ?? Guid.Empty),
+            new KeyValuePair<string, object>("TenantId", requestHeaderContext?.TenantId ?? Guid.Empty),
+            new KeyValuePair<string, object>("CorrelationId", requestHeaderContext?.CorrelationId ?? string.Empty),
+            new KeyValuePair<string, object>("RootTraceId", Activity.Current?.GetRootId() ?? string.Empty),
+            new KeyValuePair<string, object>("Location", this.environmentConfiguration.Location)
+        };
     }
 
     /// <summary>
