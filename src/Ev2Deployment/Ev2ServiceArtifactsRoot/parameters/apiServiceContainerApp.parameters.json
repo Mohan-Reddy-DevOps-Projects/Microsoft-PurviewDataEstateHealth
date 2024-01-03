@@ -9,7 +9,7 @@
         "value": "__CORE_RESOURCE_GROUP_NAME__"
       },
       "acrName":{
-        "value": "__CORE_ACR_NAME__"
+        "value": "__INFRA_ACR_NAME__"
       },
       "appSettingsJson":{
         "value": "__CONFIG_APP_SETTINGS_JSON__"
@@ -37,6 +37,9 @@
       },
       "subdomainName":{
         "value": "__INFRA_API_SERVICE_SUBDOMAIN_NAME__"
+      },
+      "serviceId":{
+        "value": "__INFRA_SERVICE_ID__"
       }
     }
   }

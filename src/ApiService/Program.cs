@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using System.Collections;
 
 /// <summary>
 /// The Data Estate Health API service.
@@ -41,22 +42,25 @@ public class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+        SetAksConfiguration(builder);
+
         builder.WebHost.ConfigureKestrel((hostingContext, options) =>
         {
             ConfigurePortsAndSsl(hostingContext, options, builder);
         });
 
-        builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment());
-
         var genevaConfiguration = builder.Configuration.GetSection("geneva").Get<GenevaConfiguration>();
 
         var serviceConfiguration = builder.Configuration.GetSection("service").Get<ServiceConfiguration>();
+        var environmentConfiguration = builder.Configuration.GetSection("environment").Get<EnvironmentConfiguration>();
+
+        builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment(),environmentConfiguration);
 
         // Add services to the container.
         builder.Services.AddApiVersioning();
 
         builder.Services
-            .AddLogger(genevaConfiguration, serviceConfiguration, builder.Environment.IsDevelopment())
+            .AddLogger(genevaConfiguration, serviceConfiguration, environmentConfiguration, builder.Environment.IsDevelopment())
             .AddApiServiceConfigurations(builder.Configuration)
             .AddApiServices()
             .AddProvisioningService()
@@ -202,8 +206,6 @@ public class Program
 
     private static void ConfigureKestrelServerForProduction(KestrelServerOptions options, WebApplicationBuilder builder)
     {
-        SetAksConfiguration(builder);
-
         var serverConfig = options.ApplicationServices.GetService<IOptions<ServiceConfiguration>>().Value;
 
         if (serverConfig.ApiServiceReadinessProbePort.HasValue)

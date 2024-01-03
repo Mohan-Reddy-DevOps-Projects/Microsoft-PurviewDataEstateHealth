@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.Build.NoTargets">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Platforms>x64</Platforms>
     <BUILD_BUILDNUMBER Condition=" '$(BUILD_BUILDNUMBER)' == '' ">1.0.0.0</BUILD_BUILDNUMBER>
     <BUILD_SOURCEVERSION Condition=" '$(BUILD_SOURCEVERSION)' == '' ">localcommit</BUILD_SOURCEVERSION>

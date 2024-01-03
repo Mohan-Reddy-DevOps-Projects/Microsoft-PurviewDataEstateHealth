@@ -31,11 +31,37 @@ resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   location: location
 }
 
+resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' = {
+  name: toLower(acrName)
+  location: location
+  sku: {
+    name: 'Premium'
+  }
+  properties: {
+    adminUserEnabled: true
+    policies: {
+      quarantinePolicy: {
+        status: 'disabled'
+      }
+      trustPolicy: {
+        type: 'Notary'
+        status: 'disabled'
+      }
+      retentionPolicy: {
+        days: 7
+        status: 'enabled'
+      }
+    }
+    dataEndpointEnabled: false
+    publicNetworkAccess: 'Enabled'
+    zoneRedundancy: 'Disabled'
+  }
+}
+
 module acrRoleAssignments 'acrRoleAssignments.bicep' = {
   name: 'acrRoleAssignments'
-  scope: resourceGroup(coreResourceGroupName)
   params: {
-    acrName: acrName
+    acrName: acr.name
     principalId: containerAppIdentity.properties.principalId
   }
 }

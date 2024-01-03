@@ -36,10 +36,9 @@ internal class CertificateAuthenticationHandler : AuthenticationHandler<Certific
         IOptions<EnvironmentConfiguration> environmentConfig,
         ILoggerFactory loggerFactory,
         UrlEncoder encoder,
-        ISystemClock clock,
         IDataEstateHealthRequestLogger logger,
         CertificateValidationService certificateValidationService)
-        : base(options, loggerFactory, encoder, clock)
+        : base(options, loggerFactory, encoder)
     {
         this.environmentConfig = environmentConfig.Value;
         this.logger = logger;

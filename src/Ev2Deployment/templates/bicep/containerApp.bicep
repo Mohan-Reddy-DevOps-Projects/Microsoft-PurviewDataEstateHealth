@@ -13,6 +13,7 @@ param maxReplicas int = 10
 param minReplicas int = 1
 param subdomainName string = ''
 param readinessPort int
+param serviceId string
 
 resource acaEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing = {
   name: acaEnvironmentName
@@ -25,8 +26,6 @@ resource acaEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing 
 
 resource acr 'Microsoft.ContainerRegistry/registries@2022-12-01' existing = {
   name: acrName
-  // The ACR is in the same RG as the ACA.
-  scope: resourceGroup(acaResourceGroupName)
 }
 
 resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
@@ -45,10 +44,11 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
   properties: {
     managedEnvironmentId: acaEnvironment.id
     configuration: {
+      maxInactiveRevisions: 5
       ingress: externalIngress ? {
         clientCertificateMode: 'require'
         external: true
-        targetPort: 80
+        targetPort: 8080
         customDomains: [
           {
             name: '${subdomainName}.${dnsZoneName}'
@@ -77,6 +77,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
               httpGet: {
                 port: readinessPort
                 path: '/healthz/ready'
+                scheme: 'HTTP'
               }
              }
              {
@@ -86,6 +87,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
               httpGet: {
                 port: readinessPort
                 path: '/healthz/ready'
+                scheme: 'HTTP'
               }
              }
           ]
@@ -97,6 +99,14 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
             {
               name: 'AZURE_CLIENT_ID'
               value: containerAppIdentity.properties.clientId
+            }
+            {
+              name: 'BUILD_VERSION'
+              value: imageTagName
+            }
+            {
+              name: 'SERVICE_ID'
+              value: serviceId
             }
           ]
           resources: {

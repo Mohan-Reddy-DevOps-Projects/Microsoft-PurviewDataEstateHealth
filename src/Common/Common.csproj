@@ -1,28 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Platforms>x64</Platforms>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.Common</RootNamespace>
     <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Common</AssemblyName>
   </PropertyGroup>
-
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Azure.Core" />
     <PackageReference Include="Azure.Identity" />
     <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" />
     <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
     <PackageReference Include="Microsoft.Data.DeltaLake" />
-    <PackageReference Include="Microsoft.Extensions.Http.Polly" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime" />
     <PackageReference Include="Microsoft.WindowsAzure.ResourceStack" />
-    <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Polly.Contrib.WaitAndRetry" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly"/>
+    <PackageReference Include="Newtonsoft.Json"/>
   </ItemGroup>
-  
 </Project>

@@ -80,10 +80,6 @@
                 "replaceWith": "$config(pdg.regionSharedInfrastructure.acaEnvironmentPrefix)$config(regionShortName)"
             },
             {
-                "find": "__CORE_ACR_NAME__",
-                "replaceWith": "$config(pdg.regionSharedInfrastructure.acrPrefix)$config(regionShortName)"
-            },
-            {
                 "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_DNS_ZONE_NAME__",
                 "replaceWith": "$config(dnsZoneName)"
             },
@@ -161,6 +157,10 @@
                 "replaceWith": "$subscriptionId()"
             },
             {
+              "find": "__INFRA_ACR_NAME__",
+              "replaceWith": "$config(dgh.acrName)"
+          },
+            {
                 "find": "__INFRA_WORKER_SERVICE_CONTAINER_APP_NAME__",
                 "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-workerservice-ca"
             },
@@ -195,7 +195,11 @@
             {
                 "find": "__INFRA_CONTAINER_APP_OBJECT_ID__",
                 "replaceWith": "$serviceResourceDefinition(infrastructureResourceDefinition).action(deploy).outputs(containerAppIdentityObjectId.value)"
-            }
+            },
+            {
+              "find": "__INFRA_SERVICE_ID__",
+              "replaceWith": "$config(pdg.genevaAccountProvisioning.serviceIds.dgHealth)"
+          }
 
         ]
     },

@@ -21,7 +21,7 @@
         "environmentVariables": [
           {
             "name": "DESTINATION_ACR_NAME",
-            "value": "__CORE_ACR_NAME__"
+            "value": "__INFRA_ACR_NAME__"
           },
           {
             "name": "TARBALL_IMAGE_FILE_SAS",

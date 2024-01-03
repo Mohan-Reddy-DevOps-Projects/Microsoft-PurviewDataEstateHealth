@@ -9,7 +9,7 @@
         "value": "__CORE_RESOURCE_GROUP_NAME__"
       },
       "acrName":{
-        "value": "__CORE_ACR_NAME__"
+        "value": "__INFRA_ACR_NAME__"
       },
       "appSettingsJson":{
         "value": "__CONFIG_APP_SETTINGS_JSON__"
@@ -28,6 +28,9 @@
       },
       "imageTagName":{
         "value": "__INFRA_IMAGE_TAG_NAME__"
+      },
+      "serviceId":{
+        "value": "__INFRA_SERVICE_ID__"
       }
     }
   }

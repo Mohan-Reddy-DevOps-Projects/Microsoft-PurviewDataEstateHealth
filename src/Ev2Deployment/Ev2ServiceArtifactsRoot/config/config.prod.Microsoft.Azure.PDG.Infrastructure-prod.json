@@ -26,6 +26,7 @@
         },
         "dgh": {
             "sparkPoolTableName": "SparkPool",
+            "acrName":"$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
             "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(regionShortName)common",
             "synapseWorkspaceName": "$(serviceShortName)$(pdg.environment.shortName)$(regionShortName)workspace",
             "apiServiceReadinessProbePort": 8081,

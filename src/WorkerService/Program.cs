@@ -17,9 +17,12 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationO
     WebRootPath = Directory.GetCurrentDirectory()
 });
 
-builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment());
-
 Startup.Configure(builder);
+
+var environmentConfiguration = builder.Configuration.GetSection("environment").Get<EnvironmentConfiguration>();
+
+builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment(), environmentConfiguration);
+
 
 builder.WebHost.ConfigureKestrel((hostingContext, options) =>
 {

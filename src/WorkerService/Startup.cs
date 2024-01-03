@@ -37,8 +37,10 @@ public static class Startup
 
         var serviceConfiguration = builder.Configuration.GetSection("service").Get<ServiceConfiguration>();
 
+        var environmentConfiguration = builder.Configuration.GetSection("environment").Get<EnvironmentConfiguration>();
+
         builder.Services
-            .AddLogger(genevaConfiguration,serviceConfiguration,builder.Environment.IsDevelopment())
+            .AddLogger(genevaConfiguration, serviceConfiguration, environmentConfiguration, builder.Environment.IsDevelopment())
             .AddDataAccessLayer()
             .AddServiceBasicsForWorkerService()
             .AddCoreLayer()

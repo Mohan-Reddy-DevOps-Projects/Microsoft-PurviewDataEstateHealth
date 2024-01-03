@@ -28,6 +28,7 @@
         },
         "dgh": {
             "shortRegionName": "eus2euap",
+            "acrName":"$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
             "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(regionShortName)common",
             "sparkPoolTableName": "SparkPool",
             "synapseWorkspaceName": "$(serviceShortName)cnrycdmworkspace",

@@ -4,15 +4,12 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
-using System.Diagnostics;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Logs;
@@ -20,7 +17,6 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Environment = System.Environment;
-using HttpProtocol = AspNetCore.Http.HttpProtocol;
 
 /// <summary>
 /// Add logger services
@@ -39,9 +35,13 @@ public static class LoggerExtensions
     /// <param name="serviceCollection"></param>
     /// <param name="genevaConfiguration"></param>
     /// <param name="serviceConfiguration"></param>
+    /// <param name="environmentConfiguration"></param>
     /// <param name="isDevEnvironment"></param>
     public static IServiceCollection AddLogger(this IServiceCollection serviceCollection,
-        GenevaConfiguration genevaConfiguration, ServiceConfiguration serviceConfiguration, bool isDevEnvironment)
+        GenevaConfiguration genevaConfiguration,
+        ServiceConfiguration serviceConfiguration,
+        EnvironmentConfiguration environmentConfiguration,
+        bool isDevEnvironment)
     {
         AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
@@ -56,27 +56,35 @@ public static class LoggerExtensions
 
         Action<ResourceBuilder> configureResource = r => r.AddService(
            serviceName: GetRoleName(),
-           serviceVersion: GetSanitizedEnvironmentVariable("ROLE_VERSION"),
-           serviceInstanceId: GetSanitizedEnvironmentVariable("NODE_NAME"));
+           serviceVersion: GetSanitizedEnvironmentVariable("BUILD_VERSION"),
+           serviceInstanceId: GetSanitizedEnvironmentVariable("CONTAINER_APP_REVISION"));
 
         serviceCollection.AddOpenTelemetry()
             .ConfigureResource(configureResource)
+         
             .WithTracing(builder =>
             {
                 builder.SetSampler(new AlwaysOnSampler())
+                    .AddProcessor(new AddEnvStateActivityProcessor(environmentConfiguration))
                     .AddSource(DataEstateHealthOtelInstrumentation.InstrumentationName)
+                    .SetErrorStatusOnException()
                     .AddHttpClientInstrumentation(options =>
                     {
                         options.RecordException = true;
 
                         options.EnrichWithHttpRequestMessage = (activity, request) =>
                         {
-                           activity.AddTag(RootTraceID, activity.GetRootId());
-
                             if (request.RequestUri is not null)
                             {
                                 activity.SetTag("http.url", request.RequestUri.GetComponents(UriComponents.AbsoluteUri ^ UriComponents.Query, UriFormat.Unescaped));
+
+                                activity.SetTag(RootTraceID, activity.GetRootId());
                             }
+                        };
+
+                        options.EnrichWithHttpResponseMessage = (activity, response) =>
+                        {
+                            activity.SetTag(RootTraceID, activity.GetRootId());
                         };
                     })
                     .AddAspNetCoreInstrumentation(options =>
@@ -90,23 +98,21 @@ public static class LoggerExtensions
                         options.EnrichWithHttpRequest = (activity, request) =>
                         {
                             var context = request.HttpContext;
-                            activity.AddTag("http.flavor", GetHttpFlavor(request.Protocol));
-                            activity.AddTag("http.scheme", request.Scheme);
-                            activity.AddTag("http.request_content_length", request.ContentLength);
-                            activity.AddTag("http.request_content_type", request.ContentType);
-                            activity.AddTag("TenantId", request.Headers.GetFirstOrDefault(HeaderClientTenantId));
-                            activity.AddTag("AccountId", request.Headers.GetFirstOrDefault(AccountIdHeader));
-                            activity.AddTag("ApiVersion", request.GetFirstOrDefaultQuery(ParameterApiVersion));
-                            activity.AddTag("ErrorType", ErrorType.GetErrorType(context?.Response?.StatusCode));
-                            activity.AddTag("CorrelationId", request.Headers.GetFirstOrDefault(HeaderCorrelationRequestId));
-                            activity.AddTag(RootTraceID, activity.GetRootId());
+                            activity.SetTag("http.request_content_length", request.ContentLength);
+                            activity.SetTag("http.request_content_type", request.ContentType);
+                            activity.SetTag("TenantId", request.Headers.GetFirstOrDefault(HeaderClientTenantId));
+                            activity.SetTag("AccountId", request.Headers.GetFirstOrDefault(AccountIdHeader));
+                            activity.SetTag("ApiVersion", request.GetFirstOrDefaultQuery(ParameterApiVersion));
+                            activity.SetTag("ErrorType", ErrorType.GetErrorType(context?.Response?.StatusCode));
+                            activity.SetTag("CorrelationId", request.Headers.GetFirstOrDefault(HeaderCorrelationRequestId));
+                            activity.SetTag(RootTraceID, activity.GetRootId());
                         };
                         options.EnrichWithHttpResponse = (activity, response) =>
                         {
-                            activity.AddTag("http.response_content_length", response.ContentLength);
-                            activity.AddTag("http.response_content_type", response.ContentType);
-                            activity.AddTag("ErrorType", ErrorType.GetErrorType(response?.StatusCode));
-                            activity.AddTag(RootTraceID, activity.GetRootId());
+                            activity.SetTag("http.response_content_length", response.ContentLength);
+                            activity.SetTag("http.response_content_type", response.ContentType);
+                            activity.SetTag("ErrorType", ErrorType.GetErrorType(response?.StatusCode));
+                            activity.SetTag(RootTraceID, activity.GetRootId());
                         };
                     });
 
@@ -126,14 +132,16 @@ public static class LoggerExtensions
             })
             .WithMetrics(builder =>
             {
-                builder.AddMeter(DataEstateHealthOtelInstrumentation.InstrumentationName)
+                builder
+                    .ConfigureResource(configureResource)
+                    .AddMeter(DataEstateHealthOtelInstrumentation.InstrumentationName)
                     .AddRuntimeInstrumentation()
-                    .AddAspNetCoreInstrumentation(options => options.Enrich = EnrichMetrics)
+                    .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation();
 
                 if (!isDevEnvironment)
                 {
-                    var prepopulatedDimensions = GetPrepopulatedFields();
+                    var prepopulatedDimensions = GetPrepopulatedFields(environmentConfiguration);
 
                     if (genevaConfiguration != null)
                     {
@@ -170,54 +178,30 @@ public static class LoggerExtensions
             value = value[..Math.Min(value.Length, 255)];
         }
 
+        if (string.IsNullOrEmpty(value))
+        {
+            value = "_empty";
+        }
+
         return value;
     }
 
-    private static Dictionary<string, object> GetPrepopulatedFields()
+    private static Dictionary<string, object> GetPrepopulatedFields(EnvironmentConfiguration environmentConfiguration)
     {
         return new Dictionary<string, object>
         {
-            ["PodName"] = GetSanitizedEnvironmentVariable("POD_NAME"),
             ["cloud.role"] = GetRoleName(),
-            ["cloud.roleInstance"] = GetSanitizedEnvironmentVariable("NODE_NAME"),
-            ["cloud.roleVer"] = GetSanitizedEnvironmentVariable("ROLE_VERSION")
+            ["cloud.roleInstance"] = GetSanitizedEnvironmentVariable("CONTAINER_APP_REVISION"),
+            ["cloud.roleVer"] = GetSanitizedEnvironmentVariable("BUILD_VERSION"),
+            ["env.name"] = environmentConfiguration.Environment.ToString(),
+            ["RoleLocation"] = environmentConfiguration.Location,
+            ["ServiceId"] = GetSanitizedEnvironmentVariable("SERVICE_ID")
         };
-    }
-
-    private static void EnrichMetrics(string name, HttpContext context, ref TagList tags)
-    {
-        tags.Add("TenantId", context?.Request?.Headers.GetFirstOrDefault(HeaderClientTenantId));
-        tags.Add("AccountId", context?.Request?.Headers.GetFirstOrDefault(AccountIdHeader));
-        tags.Add("ApiVersion", context?.Request?.GetFirstOrDefaultQuery(ParameterApiVersion));
-        tags.Add("ErrorType", ErrorType.GetErrorType(context?.Response?.StatusCode));
-        tags.Add("CorrelationId", context?.Request?.Headers.GetFirstOrDefault(HeaderCorrelationRequestId));
-    }
-
-    private static string GetHttpFlavor(string protocol)
-    {
-        if (HttpProtocol.IsHttp10(protocol))
-        {
-            return "1.0";
-        }
-        else if (HttpProtocol.IsHttp11(protocol))
-        {
-            return "1.1";
-        }
-        else if (HttpProtocol.IsHttp2(protocol))
-        {
-            return "2.0";
-        }
-        else if (HttpProtocol.IsHttp3(protocol))
-        {
-            return "3.0";
-        }
-
-        throw new InvalidOperationException($"Protocol {protocol} not recognised.");
     }
 
     private static string GetRoleName()
     {
-        return "DGHealth" + GetSanitizedEnvironmentVariable("CONTAINER_NAME");
+        return GetSanitizedEnvironmentVariable("CONTAINER_APP_NAME");
     }
 
     /// <summary>
@@ -225,12 +209,19 @@ public static class LoggerExtensions
     /// </summary>
     /// <param name="builder"></param>
     /// <param name="isDevelopmentEnvironment"></param>
+    /// <param name="environmentConfiguration"></param>
     /// <returns></returns>
-    public static ILoggingBuilder AddOltpExporter(this ILoggingBuilder builder, bool isDevelopmentEnvironment)
+    public static ILoggingBuilder AddOltpExporter(this ILoggingBuilder builder,
+        bool isDevelopmentEnvironment,
+        EnvironmentConfiguration environmentConfiguration)
     {
         builder.ClearProviders();
         builder.AddOpenTelemetry(options =>
         {
+            options.AddProcessor(new AddEnvStateLogProcessor(environmentConfiguration));
+            options.IncludeScopes = true;
+            options.ParseStateValues = true;
+
             if (isDevelopmentEnvironment)
             {
                 options.AddConsoleExporter();
