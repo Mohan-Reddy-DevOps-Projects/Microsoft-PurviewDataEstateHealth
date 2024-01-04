@@ -302,4 +302,25 @@ BEGIN TRAN
             FILE_FORMAT = DeltaLakeFormat
         )
     END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataQualityScore' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[DataQualityScore]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[DataQualityScore]
+        (
+            [BusinessDomainId] uniqueidentifier,
+            [DataProductId] uniqueidentifier,
+            [DataAssetId] uniqueidentifier,
+            [QualityScore] float,
+            [ResultedAt] datetime2
+        )
+        WITH (
+            LOCATION='/Sink/DataQualityScore/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
 COMMIT TRAN
