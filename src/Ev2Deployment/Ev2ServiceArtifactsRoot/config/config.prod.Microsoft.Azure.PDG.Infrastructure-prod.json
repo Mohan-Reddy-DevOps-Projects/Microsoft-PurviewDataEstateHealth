@@ -54,6 +54,30 @@
                             "subscriptionId": "9e99a268-6a22-4534-ac13-5459d847b01a"
                         }
                     }
+                },
+                {
+                    "name": "northeurope",
+                    "settings": {
+                        "dgh": {
+                            "shortRegionName": "ne"
+                        },
+                        "powerBiTenantId": "f714eeed-e483-4560-8a79-95fdc1e854d5",
+                        "catalog": {
+                            "subscriptionId": "72f0600c-2d83-4499-8920-e47c2f35bd2a"
+                        }
+                    }
+                },
+                {
+                    "name": "uksouth",
+                    "settings": {
+                        "dgh": {
+                            "shortRegionName": "uks"
+                        },
+                        "powerBiTenantId": "fab5bc8d-b059-4e80-8be9-b9db928fe10e",
+                        "catalog": {
+                            "subscriptionId": "81f5b92d-6aae-4f35-ba87-7ef01a1c909b"
+                        }
+                    }
                 }
             ]
         },
