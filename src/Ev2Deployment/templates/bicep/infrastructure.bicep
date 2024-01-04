@@ -156,6 +156,15 @@ module keyVaultSecretsUserRoleModule 'keyVaultRoleAssignment.bicep' = {
   }
 }
 
+module synapseRoleAssignmentsModule 'synapseRoleAssignment.bicep' = {
+  name: 'synapseRoleAssignment'
+  params: {
+    synapseWorkspaceName: synapseWorkspace.name
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: contributorRoleDefName
+  }
+}
+
 // The assisted ID app needs Key Vault Certificate Officer to create certificates.
 module keyVaultCertificatesOfficerRoleModule 'keyVaultRoleAssignment.bicep' = {
   name: 'keyVaultCertificatesOfficerRoleDeploy'
