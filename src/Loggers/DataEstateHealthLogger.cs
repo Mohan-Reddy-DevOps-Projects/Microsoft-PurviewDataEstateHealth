@@ -83,7 +83,7 @@ public abstract class DataEstateHealthLogger
             LogLevel.Warning,
             default,
             state,
-            null,
+            exception,
             (state, ex) => message);
     }
 
@@ -102,7 +102,7 @@ public abstract class DataEstateHealthLogger
             LogLevel.Error,
             default,
             state,
-            null,
+            exception,
             (state, ex) => message);
     }
 
@@ -121,7 +121,7 @@ public abstract class DataEstateHealthLogger
             LogLevel.Critical,
             default,
             state,
-            null,
+            exception,
             (state, ex) => message);
     }
 
@@ -133,6 +133,17 @@ public abstract class DataEstateHealthLogger
         Exception exception,
         Func<List<KeyValuePair<string, object>>, Exception, string> formatter)
     {
+        if (logLevel == LogLevel.Error || logLevel == LogLevel.Critical || logLevel == LogLevel.Warning)
+        {
+            var currentActivity = Activity.Current;
+
+            if (currentActivity != null)
+            {
+                currentActivity.SetTag("env_ex_msg", exception?.Message ?? string.Empty);
+                currentActivity.SetTag("env_ex_stack", exception?.StackTrace ?? string.Empty);
+            }
+        }
+
         this.logger.Log(logLevel, eventId, state, exception, formatter);
     }
 
@@ -171,8 +182,7 @@ public abstract class DataEstateHealthLogger
             new KeyValuePair<string, object>("AccountId", requestHeaderContext?.AccountObjectId ?? Guid.Empty),
             new KeyValuePair<string, object>("TenantId", requestHeaderContext?.TenantId ?? Guid.Empty),
             new KeyValuePair<string, object>("CorrelationId", requestHeaderContext?.CorrelationId ?? string.Empty),
-            new KeyValuePair<string, object>("RootTraceId", Activity.Current?.GetRootId() ?? string.Empty),
-            new KeyValuePair<string, object>("Location", this.environmentConfiguration.Location)
+            new KeyValuePair<string, object>("RootTraceId", Activity.Current?.GetRootId() ?? string.Empty)
         };
     }
 
