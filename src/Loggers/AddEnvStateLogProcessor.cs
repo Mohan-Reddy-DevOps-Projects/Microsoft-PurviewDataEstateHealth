@@ -37,8 +37,8 @@ public class AddEnvStateLogProcessor : BaseProcessor<LogRecord>
             ["cloud.roleInstance"] = Environment.GetEnvironmentVariable("CONTAINER_APP_REVISION"),
             ["cloud.roleVer"] = Environment.GetEnvironmentVariable("BUILD_VERSION"),
             ["ServiceID"] = Environment.GetEnvironmentVariable("SERVICE_ID"),
-            ["env_ex_msg"] = data?.Exception?.GetType().FullName,
-            ["env_ex_type"] = data?.Exception?.Message,
+            ["env_ex_msg"] = data?.Exception?.Message,
+            ["env_ex_type"] = data?.Exception?.GetType().FullName,
             ["env_ex_stack"] = data?.Exception?.ToString(),
         };
 
