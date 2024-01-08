@@ -7,9 +7,11 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -75,8 +77,8 @@ static async Task Initialize(WebApplication app)
         await exposureControlClient.Initialize();
 
         // Initialize PowerBI service
-        IPowerBIService powerBIService = app.Services.GetService<IPowerBIService>();
-        await powerBIService.Initialize();
+        PowerBIProvider powerBIProvider = app.Services.GetService<PowerBIProvider>();
+        await powerBIProvider.PowerBIService.Initialize();
 
         // Initialize synapse service
         IServerlessPoolClient serverlessPoolClient = app.Services.GetService<IServerlessPoolClient>();

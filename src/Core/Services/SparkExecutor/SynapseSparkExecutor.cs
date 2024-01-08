@@ -14,6 +14,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.Common;
 
 internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
 {

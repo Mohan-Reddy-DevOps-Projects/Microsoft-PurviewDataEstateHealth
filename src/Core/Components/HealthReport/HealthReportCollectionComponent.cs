@@ -12,6 +12,8 @@ using Microsoft.DGP.ServiceBasics.BaseModels;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using Microsoft.PowerBI.Api.Models;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 /// <inheritdoc />
 [Component(typeof(IHealthReportCollectionComponent), ServiceVersion.V1)]
@@ -22,7 +24,7 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
     protected readonly IComponentContextFactory contextFactory;
 
     [Inject]
-    private readonly IReportCommand reportCommand;
+    private readonly ReportProvider reportCommand;
 
     [Inject]
     private readonly HealthProfileCommand profileCommand;
@@ -99,12 +101,7 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
     /// <returns></returns>
     private async Task<IEnumerable<Report>> GetReportsByWorkspace(Guid profileId, Guid workspaceId, CancellationToken cancellationToken)
     {
-        IReportRequest reportRequest = new ReportRequest()
-        {
-            ProfileId = profileId,
-            WorkspaceId = workspaceId
-        };
-        Reports reports = await this.reportCommand.List(reportRequest, cancellationToken);
+        Reports reports = await this.reportCommand.List(profileId, workspaceId, cancellationToken);
 
         return reports.Value.GroupBy(x => x.Name).Select(g => g.First());
     }

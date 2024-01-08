@@ -11,7 +11,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 using Microsoft.DGP.ServiceBasics.BaseModels;
 using Asp.Versioning;
-using Microsoft.PowerBI.Api.Models;
 using System.Data;
 using System.Threading;
 

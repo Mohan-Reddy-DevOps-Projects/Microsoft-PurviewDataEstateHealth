@@ -7,7 +7,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Rest;
 

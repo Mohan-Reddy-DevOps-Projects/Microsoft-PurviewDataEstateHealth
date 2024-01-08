@@ -4,6 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
+using Microsoft.Purview.DataGovernance.Common;
+
 /// <summary>
 /// Configuration for processing storage account table
 /// </summary>

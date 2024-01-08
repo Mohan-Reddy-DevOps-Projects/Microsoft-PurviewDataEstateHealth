@@ -3,9 +3,6 @@
 // -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-
-using System.Collections.Generic;
-
 /// <summary>
 /// Configurations related to metadata service
 /// </summary>

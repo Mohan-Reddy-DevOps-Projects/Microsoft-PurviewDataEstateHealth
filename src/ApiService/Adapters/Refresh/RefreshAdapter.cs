@@ -3,11 +3,6 @@
 // -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
-
-using Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
-
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-
 /// <summary>
 /// Adapter to convert refresh between model and DTO.
 /// </summary>

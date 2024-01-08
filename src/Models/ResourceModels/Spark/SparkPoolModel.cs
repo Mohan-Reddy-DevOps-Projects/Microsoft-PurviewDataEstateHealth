@@ -5,7 +5,6 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 using System.Text.Json;
-using global::Azure.Core;
 
 /// <summary>
 /// Spark pool model.

@@ -6,10 +6,9 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.DGP.ServiceBasics.Errors;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 /// <summary>
 /// Creates a unique profile. If the profile already exists, it will be returned without modification.
@@ -19,9 +18,9 @@ internal sealed class HealthProfileCommand : IEntityCreateOperation<Guid, IProfi
     IEntityDeleteOperation<Guid>
 {
     private const string HealthProfileName = "health";
-    private readonly IProfileCommand profileCommand;
+    private readonly ProfileProvider profileCommand;
 
-    public HealthProfileCommand(IProfileCommand profileCommand)
+    public HealthProfileCommand(ProfileProvider profileCommand)
     {
         this.profileCommand = profileCommand;
     }
@@ -41,28 +40,12 @@ internal sealed class HealthProfileCommand : IEntityCreateOperation<Guid, IProfi
     /// <inheritdoc/>
     public async Task<DeletionResult> Delete(Guid accountId, CancellationToken cancellationToken)
     {
-        IProfileRequest profileRequest = new ProfileRequest()
-        {
-            AccountId = accountId,
-            ProfileName = HealthProfileName
-        };
-
-        return await this.profileCommand.Delete(profileRequest, cancellationToken);
+        return await this.profileCommand.Delete(HealthProfileName, accountId, cancellationToken);
     }
 
     /// <inheritdoc/>
     public async Task<IProfileModel> Get(Guid accountId, CancellationToken cancellationToken)
     {
-        IProfileRequest profileRequest = new ProfileRequest()
-        {
-            AccountId = accountId,
-            ProfileName = HealthProfileName
-        };
-
-        return await this.profileCommand.Get(profileRequest, cancellationToken) ?? throw new ServiceError(
-                ErrorCategory.ServiceError,
-                ErrorCode.Profile_NotFound.Code,
-                ErrorCode.Profile_NotFound.Message)
-                .ToException();
+        return await this.profileCommand.Get(HealthProfileName, accountId, cancellationToken);
     }
 }

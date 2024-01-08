@@ -6,13 +6,14 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 using System;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
-using Environment = Common.Environment;
 using System.Collections.Generic;
+using Microsoft.Purview.DataGovernance.Common;
+using Environment = Microsoft.Purview.DataGovernance.Common.Environment;
 
 /// <summary>
 /// Environment Configurations
 /// </summary>
-public class EnvironmentConfiguration
+public class EnvironmentConfiguration : IEnvironmentConfiguration
 {
     private static readonly AzureEnvironment LocalhostAzureEnvironment = new AzureEnvironment
     {

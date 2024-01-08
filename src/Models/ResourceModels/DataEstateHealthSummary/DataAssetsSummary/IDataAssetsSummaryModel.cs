@@ -3,9 +3,6 @@
 // -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
-
-using Newtonsoft.Json;
-
 /// <summary>
 /// Defines the data asset summary model
 /// </summary>

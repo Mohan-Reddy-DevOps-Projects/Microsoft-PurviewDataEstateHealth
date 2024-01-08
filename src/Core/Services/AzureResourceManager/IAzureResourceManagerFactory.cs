@@ -4,7 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Purview.DataGovernance.Common;
 
 internal interface IAzureResourceManagerFactory
 {

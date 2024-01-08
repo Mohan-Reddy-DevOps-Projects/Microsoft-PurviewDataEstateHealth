@@ -25,6 +25,9 @@ using Microsoft.Extensions.Options;
 using ProcessingStorageModel = Models.ProcessingStorageModel;
 using StorageAccountKey = global::Azure.ResourceManager.Storage.Models.StorageAccountKey;
 using StorageSasRequest = Models.StorageSasRequest;
+using DeletionResult = ProjectBabylon.Metadata.Models.DeletionResult;
+using DeletionStatus = ProjectBabylon.Metadata.Models.DeletionStatus;
+using Microsoft.Purview.DataGovernance.Common;
 
 /// <summary>
 /// Processing storage manager.

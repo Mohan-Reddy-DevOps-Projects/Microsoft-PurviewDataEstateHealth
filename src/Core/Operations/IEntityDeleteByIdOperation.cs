@@ -4,7 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
 
 /// <summary>
 /// The contract for components capable of deleting entities.

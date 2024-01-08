@@ -3,10 +3,6 @@
 // -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.PowerBI.Api.Models;
-
 /// <summary>
 /// Expose Exposure Control APIs
 /// </summary>
@@ -29,10 +25,4 @@ public interface IAccountExposureControlConfigProvider
     /// <param name="tenantId"></param>
     /// <returns></returns>
     public bool IsDataGovHealthProvisioningEnabled(string accountId, string subscriptionId, string tenantId);
-
-    /// <summary>
-    /// Retrieve the capacities that are available.
-    /// </summary>
-    /// <returns></returns>
-    Dictionary<string, CapacityModel> GetPBICapacities();
 }

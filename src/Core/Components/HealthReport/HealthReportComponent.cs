@@ -5,11 +5,12 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using Microsoft.PowerBI.Api.Models;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 /// <inheritdoc />
 [Component(typeof(IHealthReportComponent), ServiceVersion.V1)]
@@ -17,7 +18,7 @@ internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHea
 {
 #pragma warning disable 649
     [Inject]
-    private readonly IReportCommand reportCommand;
+    private readonly ReportProvider reportCommand;
 
     [Inject]
     private readonly HealthProfileCommand profileCommand;
@@ -39,13 +40,7 @@ internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHea
             ProfileId = profile.Id,
         };
         Group workspace = await this.workspaceCommand.Get(workspaceContext, cancellationToken);
-        IReportRequest reportRequest = new ReportRequest()
-        {
-            ProfileId = profile.Id,
-            WorkspaceId = workspace.Id,
-            ReportId = this.Context.ReportId
-        };
-        Report report = await this.reportCommand.Get(reportRequest, cancellationToken);
+        Report report = await this.reportCommand.Get(profile.Id, workspace.Id, this.Context.ReportId, cancellationToken);
 
         return new PowerBIHealthReportModel()
         {

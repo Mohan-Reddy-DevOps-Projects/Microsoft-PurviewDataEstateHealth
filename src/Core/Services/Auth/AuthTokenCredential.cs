@@ -5,9 +5,9 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Core;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Identity.Client;
+using Microsoft.Purview.DataGovernance.Common;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
 
 /// <summary>
 /// Certificate credential class that consistently refreshes auth token upon expiration.

@@ -4,8 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Purview.DataGovernance.Common;
 
 internal sealed class AzureResourceManagerFactory : IAzureResourceManagerFactory
 {

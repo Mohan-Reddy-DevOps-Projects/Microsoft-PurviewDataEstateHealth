@@ -6,7 +6,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Options;
 
 internal static class ExceptionMiddlewareExtensions

@@ -5,19 +5,20 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.PowerBI.Api.Models;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
+using Microsoft.Purview.DataGovernance.Reporting.Services;
 
 internal sealed class OnDemandRefreshStrategy
 {
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBIService powerBIService;
-    private readonly ICapacityAssignment capacityAssignment;
+    private readonly CapacityProvider capacityAssignment;
 
-    public OnDemandRefreshStrategy(IDataEstateHealthRequestLogger logger, IPowerBIService powerBIService, ICapacityAssignment capacityAssignment)
+    public OnDemandRefreshStrategy(IDataEstateHealthRequestLogger logger, IPowerBIService powerBIService, CapacityProvider capacityAssignment)
     {
         this.logger = logger;
         this.powerBIService = powerBIService;
@@ -50,7 +51,7 @@ internal sealed class OnDemandRefreshStrategy
                 this.logger.LogWarning($"Active refresh in progress. Skip refresh of dataset.");
                 return null;
             }
-            Capacity capacity = await this.capacityAssignment.GetCapacity(datasetRequest.ProfileId, cancellationToken);
+            Capacity capacity = await this.capacityAssignment.Get(datasetRequest.ProfileId, cancellationToken);
             using (HttpResponseMessage response = await this.powerBIService.OnDemandRefresh(datasetRequest.ProfileId, datasetRequest.WorkspaceId, datasetRequest.DatasetId, refreshRequest, cancellationToken))
             {
                 response.EnsureSuccessStatusCode();

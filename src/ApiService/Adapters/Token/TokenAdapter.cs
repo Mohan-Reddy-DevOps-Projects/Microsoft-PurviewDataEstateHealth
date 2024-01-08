@@ -4,9 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
-using System.ComponentModel;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.DataTransferObjects;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 /// <summary>
 /// Adapter to convert Health report type between model and DTO.

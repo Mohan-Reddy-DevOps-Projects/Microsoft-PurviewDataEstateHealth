@@ -8,8 +8,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Services;
+using Microsoft.Purview.DataGovernance.Common;
 
 /// <summary>
 /// Provides behavior on the core layer level.
@@ -26,7 +32,6 @@ public static class CoreLayer
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton<IStorageCredentialsProvider, StorageCredentialsProvider>();
         services.AddSingleton<IKeyVaultAccessorService, KeyVaultAccessorService>();
-        services.AddSingleton<IBlobStorageAccessor, BlobStorageAccessor>();
         services.AddSingleton<IComponentContextFactory, ComponentContextFactory>();
         services.AddSingleton<ServiceHealthCheck>();
         services.AddSingleton<IProcessingStorageManager, ProcessingStorageManager>();
@@ -65,9 +70,30 @@ public static class CoreLayer
     {
         services.AddSingleton<IAadAppTokenProviderService<PowerBIAuthConfiguration>,
             AadAppTokenProviderService<PowerBIAuthConfiguration>>();
-        services.AddSingleton<IPowerBIService, PowerBIService>();
-        services.AddSingleton<ICapacityAssignment, CapacityAssignment>();
-        services.AddSingleton<PowerBIFactory>();
+        services.AddSingleton(provider =>
+        {
+            var powerBIProvider = provider.GetRequiredService<PowerBIProvider>();
+            var certificateLoader = provider.GetRequiredService<ICertificateLoaderService>();
+            var exposureControlConfig = provider.GetRequiredService<IOptions<ExposureControlConfiguration>>();
+            return new CapacityProvider(powerBIProvider, certificateLoader, exposureControlConfig.Value);
+
+        });
+        services.AddSingleton<IBlobStorageAccessor, BlobStorageAccessor>(provider =>
+        {
+            var auxStorage = provider.GetRequiredService<IOptions<AuxStorageConfiguration>>();
+            var logger = provider.GetRequiredService<IDataEstateHealthRequestLogger>();
+            var credentialFactory = provider.GetRequiredService<AzureCredentialFactory>();
+
+            return new BlobStorageAccessor(logger, credentialFactory, auxStorage.Value);
+
+        });
+        services.AddSingleton(provider =>
+        {
+            var logger = provider.GetRequiredService<IDataEstateHealthRequestLogger>();
+            var aadService = provider.GetRequiredService<IAadAppTokenProviderService<PowerBIAuthConfiguration>>();
+            var authConfig = provider.GetRequiredService<IOptions<PowerBIAuthConfiguration>>();
+            return new PowerBIProvider(logger, aadService, authConfig.Value);
+        });
 
         return services;
     }
@@ -79,10 +105,33 @@ public static class CoreLayer
     public static IServiceCollection AddCommands(this IServiceCollection services)
     {
         services.AddScoped<IPowerBICredentialComponent, PowerBICredentialComponent>();
-        services.AddScoped<IDatasetCommand, DatasetCommand>();
-        services.AddScoped<IReportCommand, ReportCommand>();
-        services.AddScoped<IProfileCommand, ProfileCommand>();
-        services.AddScoped<IWorkspaceCommand, WorkspaceCommand>();
+        services.AddScoped(provider =>
+        {
+            var powerBIProvider = provider.GetRequiredService<PowerBIProvider>();
+            return new TokenProvider(powerBIProvider);
+        });
+        services.AddScoped(provider =>
+        {
+            var powerBIProvider = provider.GetRequiredService<PowerBIProvider>();
+            var datasetProvider = provider.GetRequiredService<DatasetProvider>();
+            return new ReportProvider(powerBIProvider, datasetProvider);
+        });
+        services.AddScoped(provider =>
+        {
+            var powerBIProvider = provider.GetRequiredService<PowerBIProvider>();
+            var blobStorageAccessor = provider.GetRequiredService<IBlobStorageAccessor>();
+            var auxStorage = provider.GetRequiredService<IOptions<AuxStorageConfiguration>>();
+            return new DatasetProvider(powerBIProvider, blobStorageAccessor, auxStorage.Value);
+        }); services.AddScoped(provider =>
+        {
+            var powerBIProvider = provider.GetRequiredService<PowerBIProvider>();
+            return new ProfileProvider(powerBIProvider);
+        });
+        services.AddScoped(provider =>
+        {
+            var powerBIProvider = provider.GetRequiredService<PowerBIProvider>();
+            return new WorkspaceProvider(powerBIProvider);
+        });
         services.AddScoped<IDatabaseCommand, DatabaseCommand>();
         services.AddScoped<HealthProfileCommand>();
         services.AddScoped<HealthWorkspaceCommand>();

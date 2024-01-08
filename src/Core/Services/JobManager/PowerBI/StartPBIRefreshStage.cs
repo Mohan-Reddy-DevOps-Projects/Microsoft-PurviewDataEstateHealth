@@ -8,8 +8,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 
 internal class StartPBIRefreshStage : IJobCallbackStage
@@ -19,7 +19,6 @@ internal class StartPBIRefreshStage : IJobCallbackStage
     private readonly StartPBIRefreshMetadata metadata;
 
     private readonly IDataEstateHealthRequestLogger logger;
-    private readonly IPowerBIService powerBIService;
     private readonly IRefreshComponent refreshComponent;
 
     public StartPBIRefreshStage(
@@ -31,7 +30,6 @@ internal class StartPBIRefreshStage : IJobCallbackStage
         this.metadata = metadata;
         this.jobCallbackUtils = jobCallbackUtils;
         this.logger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
-        this.powerBIService = scope.ServiceProvider.GetService<IPowerBIService>();
         this.refreshComponent = scope.ServiceProvider.GetService<IRefreshComponent>();
     }
 

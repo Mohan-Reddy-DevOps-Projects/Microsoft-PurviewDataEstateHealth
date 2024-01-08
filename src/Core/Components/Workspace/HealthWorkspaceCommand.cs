@@ -6,10 +6,11 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.PowerBI.Api.Models;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
+using ErrorCode = Common.ErrorCode;
 
 /// <summary>
 /// Creates a unique workspace. If the workspace already exists, it will be returned without modification.
@@ -19,9 +20,9 @@ internal sealed class HealthWorkspaceCommand : IEntityCreateOperation<IWorkspace
     IEntityDeleteOperation<IWorkspaceContext>
 {
     private const string HealthWorkspaceName = "health";
-    private readonly IWorkspaceCommand workspaceCommand;
+    private readonly WorkspaceProvider workspaceCommand;
 
-    public HealthWorkspaceCommand(IWorkspaceCommand workspaceCommand)
+    public HealthWorkspaceCommand(WorkspaceProvider workspaceCommand)
     {
         this.workspaceCommand = workspaceCommand;
     }
@@ -42,30 +43,16 @@ internal sealed class HealthWorkspaceCommand : IEntityCreateOperation<IWorkspace
     /// <inheritdoc/>
     public async Task<DeletionResult> Delete(IWorkspaceContext context, CancellationToken cancellationToken)
     {
-        IWorkspaceRequest workspaceRequest = new WorkspaceRequest()
-        {
-            AccountId = context.AccountId,
-            ProfileId = context.ProfileId,
-            WorkspaceName = HealthWorkspaceName
-        };
-
-        return await this.workspaceCommand.Delete(workspaceRequest, cancellationToken);
+        return await this.workspaceCommand.Delete(context.ProfileId, context.AccountId, HealthWorkspaceName, cancellationToken);
     }
 
     /// <inheritdoc/>
     public async Task<Group> Get(IWorkspaceContext context, CancellationToken cancellationToken)
     {
-        IWorkspaceRequest workspaceRequest = new WorkspaceRequest()
-        {
-            AccountId = context.AccountId,
-            ProfileId = context.ProfileId,
-            WorkspaceName = HealthWorkspaceName
-        };
-
-        return await this.workspaceCommand.Get(workspaceRequest, cancellationToken) ?? throw new ServiceError(
-                ErrorCategory.ServiceError,
-                ErrorCode.Workspace_NotFound.Code,
-                ErrorCode.Workspace_NotFound.Message)
-                .ToException();
+        return await this.workspaceCommand.Get(context.ProfileId, context.AccountId, HealthWorkspaceName, cancellationToken) ?? throw new ServiceError(
+            ErrorCategory.ServiceError,
+            ErrorCode.Workspace_NotFound.Code,
+            ErrorCode.Workspace_NotFound.Message)
+            .ToException();
     }
 }

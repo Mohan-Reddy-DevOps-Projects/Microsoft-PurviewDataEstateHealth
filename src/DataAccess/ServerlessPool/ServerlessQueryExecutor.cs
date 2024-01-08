@@ -7,12 +7,13 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Data.SqlClient;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 
 /// <summary>
 /// Serverless query executor

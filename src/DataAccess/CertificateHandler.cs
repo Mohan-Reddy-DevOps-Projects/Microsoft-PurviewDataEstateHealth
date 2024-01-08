@@ -10,7 +10,7 @@ using System.Net.Security;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
 
 /// <summary>
 /// A handler to fetch a certificate.

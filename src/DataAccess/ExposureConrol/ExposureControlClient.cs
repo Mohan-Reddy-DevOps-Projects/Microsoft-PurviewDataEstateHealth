@@ -10,9 +10,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.ExposureControlLibrary;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
 
 internal class ExposureControlClient : IExposureControlClient
 {

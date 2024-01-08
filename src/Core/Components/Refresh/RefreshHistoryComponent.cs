@@ -6,19 +6,21 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.BaseModels;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using Microsoft.PowerBI.Api.Models;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
+using Microsoft.Rest;
 
 [Component(typeof(IRefreshHistoryComponent), ServiceVersion.V1)]
 internal sealed class RefreshHistoryComponent : BaseComponent<IRefreshHistoryContext>, IRefreshHistoryComponent
 {
 #pragma warning disable 649
     [Inject]
-    private readonly IPowerBIService powerBIService;
+    private readonly PowerBIProvider powerBIProvider;
 
     [Inject]
     private readonly HealthProfileCommand profileCommand;
@@ -46,9 +48,20 @@ internal sealed class RefreshHistoryComponent : BaseComponent<IRefreshHistoryCon
             ProfileId = profile.Id,
         };
         Group workspace = await this.workspaceCommand.Get(workspaceContext, cancellationToken);
+        Refreshes response;
 
-        Refreshes response = await this.powerBIService.GetRefreshHistory(profile.Id, workspace.Id, this.Context.DatasetId, cancellationToken, top: this.Context.Top);
-
+        try
+        {
+            response = await this.powerBIProvider.PowerBIService.GetRefreshHistory(profile.Id, workspace.Id, this.Context.DatasetId, cancellationToken, top: this.Context.Top);
+        }
+        catch (HttpOperationException ex) when (ex.Response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            throw new ServiceError(
+                ErrorCategory.ResourceNotFound,
+                ErrorCode.AsyncOperation_NotFound.Code,
+                "Dataset not found.")
+                .ToException();
+        }
         return new BaseBatchResults<Refresh>()
         {
             Results = response.Value,

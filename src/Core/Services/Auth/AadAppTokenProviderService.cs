@@ -7,13 +7,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
+using Microsoft.Purview.DataGovernance.Common;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
 
 /// <summary>
 /// The token service provider for 1P or 3P Aad application.

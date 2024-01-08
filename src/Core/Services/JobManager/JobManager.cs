@@ -14,7 +14,6 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Polly;
 using System.Collections.Concurrent;
@@ -22,10 +21,9 @@ using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
 using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
-using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 /// <inheritdoc />
 public class JobManager : IJobManager

@@ -5,7 +5,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System.Security;
 using System.Threading.Tasks;
-using global::Azure.Security.KeyVault.Certificates;
 using global::Azure.Security.KeyVault.Secrets;
 
 /// <summary>

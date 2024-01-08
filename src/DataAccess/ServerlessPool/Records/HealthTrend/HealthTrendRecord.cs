@@ -3,9 +3,6 @@
 // -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess.ServerlessPool.Records.HealthTrend;
-using System;
-
-
 internal class HealthTrendRecord : HealthTrendRecordForAllBusinessDomains
 {
 }

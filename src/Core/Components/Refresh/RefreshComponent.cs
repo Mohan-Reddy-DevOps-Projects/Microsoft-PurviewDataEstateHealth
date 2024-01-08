@@ -8,23 +8,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.PowerBI.Api.Models;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
+using Microsoft.Purview.DataGovernance.Reporting.Services;
 
 internal class RefreshComponent : IRefreshComponent
 {
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBIService powerBIService;
-    private readonly ICapacityAssignment capacityAssignment;
+    private readonly CapacityProvider capacityAssignment;
     private readonly HealthProfileCommand profileCommand;
     private static readonly IEnumerable<IDataset> allowedDatasets = SystemDatasets.Get().Values;
 
-    public RefreshComponent(IDataEstateHealthRequestLogger logger, IPowerBIService powerBIService, ICapacityAssignment capacityAssignment, HealthProfileCommand profileCommand)
+    public RefreshComponent(IDataEstateHealthRequestLogger logger, PowerBIProvider powerBIProvider, CapacityProvider capacityAssignment, HealthProfileCommand profileCommand)
     {
         this.logger = logger;
-        this.powerBIService = powerBIService;
+        this.powerBIService = powerBIProvider.PowerBIService;
         this.capacityAssignment = capacityAssignment;
         this.profileCommand = profileCommand;
     }
@@ -47,7 +48,7 @@ internal class RefreshComponent : IRefreshComponent
                 Type = refreshStatus.Type,
                 CurrentRefreshType = refreshStatus.CurrentRefreshType,
                 NumberOfAttempts = refreshStatus.NumberOfAttempts,
-                Messages = refreshStatus.Messages?.Select(x => new Models.EngineMessage()
+                Messages = refreshStatus.Messages?.Select(x => new Microsoft.Purview.DataGovernance.Reporting.Models.EngineMessage()
                 {
                     Code = x.Code,
                     Message = x.Message,

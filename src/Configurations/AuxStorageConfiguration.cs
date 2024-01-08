@@ -4,10 +4,13 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
+using Microsoft.Purview.DataGovernance.Common;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
+
 /// <summary>
 /// Represents the configuration settings for Azure Storage related to the internal management of the service.
 /// </summary>
-public class AuxStorageConfiguration : AuthConfiguration
+public class AuxStorageConfiguration : AuthConfiguration, IAuxStorageConfiguration
 {
     /// <summary>
     /// Gets or sets the name of the Azure Storage account.

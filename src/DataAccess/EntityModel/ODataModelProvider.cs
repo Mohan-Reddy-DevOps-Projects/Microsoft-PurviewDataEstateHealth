@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
+using Microsoft.Purview.DataGovernance.DataLakeAPI.Entities;
 
 /// <summary>
 /// The OData model provider. Used to retrieve the data model

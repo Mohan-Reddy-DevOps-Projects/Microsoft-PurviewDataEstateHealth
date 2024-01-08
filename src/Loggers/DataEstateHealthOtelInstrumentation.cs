@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 /// <inheritdoc />
 public class DataEstateHealthOtelInstrumentation : IOtelInstrumentation, IDisposable

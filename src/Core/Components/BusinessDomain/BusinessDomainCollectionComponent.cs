@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.OData.Query;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.OData.Edm;
 using Microsoft.OData.UriParser;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Purview.DataGovernance.DataLakeAPI.Entities;
 
 [Component(typeof(IBusinessDomainCollectionComponent), ServiceVersion.V1)]
 internal class BusinessDomainCollectionComponent : BaseComponent<IBusinessDomainListContext>, IBusinessDomainCollectionComponent
@@ -40,7 +42,9 @@ internal class BusinessDomainCollectionComponent : BaseComponent<IBusinessDomain
         string skipToken = null)
     {
         ODataQueryOptions<BusinessDomainEntity> query = this.GetOptions();
-        IQueryable<BusinessDomainEntity> businessDomainEntitiesList = await this.GetDataset(query, cancellationToken) as IQueryable<BusinessDomainEntity>;
+        SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
+        Func<IQueryable<BusinessDomainEntity>> x = () => query.ApplyTo(context.BusinessDomains.AsQueryable()) as IQueryable<BusinessDomainEntity>;
+        IQueryable<BusinessDomainEntity> businessDomainEntitiesList = this.datasetsComponent.GetDataset(x) as IQueryable<BusinessDomainEntity>;
 
         List<IBusinessDomainModel> businessDomainModelList = new();
         BaseBatchResults<IBusinessDomainModel> result = new()
@@ -59,11 +63,6 @@ internal class BusinessDomainCollectionComponent : BaseComponent<IBusinessDomain
         }
 
         return result;
-    }
-
-    private async Task<IQueryable> GetDataset<T>(ODataQueryOptions<T> query, CancellationToken cancellationToken)
-    {
-        return await this.datasetsComponent.GetDataset(query, cancellationToken);
     }
 
     private ODataQueryOptions<BusinessDomainEntity> GetOptions()

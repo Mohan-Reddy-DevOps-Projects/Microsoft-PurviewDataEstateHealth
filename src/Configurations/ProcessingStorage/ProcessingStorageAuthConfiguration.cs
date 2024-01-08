@@ -4,6 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
+using Microsoft.Purview.DataGovernance.Common;
+
 /// <summary>
 /// Processing storage auth configuration.
 /// </summary>

@@ -35,6 +35,8 @@
     <PackageVersion Include="Microsoft.Data.DeltaLake" Version="3.0.0.15" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Purview.ArtifactStoreClient" Version="3.0.13" />
+    <PackageVersion Include="Microsoft.Purview.DataGovernance.DataLakeAPI" Version="1.0.2" />
+    <PackageVersion Include="Microsoft.Purview.DataGovernance.Reporting" Version="1.0.2" />
     <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.7.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.7.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.7.0" />

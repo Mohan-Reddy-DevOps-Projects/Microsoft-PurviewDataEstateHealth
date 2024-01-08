@@ -5,17 +5,15 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.OData.Query;
-using Microsoft.Azure.ProjectBabylon.Metadata.Models;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.DGP.ServiceBasics.Errors;
-using Microsoft.Identity.Client;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Purview.DataGovernance.DataLakeAPI.Entities;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 /// <summary>
 /// OData component interface for dataset
@@ -25,55 +23,68 @@ public interface IDatasetsComponent
     /// <summary>
     /// Gets the dataset using the OData query options
     /// </summary>
+    /// <typeparam name="T"></typeparam>
     /// <param name="query"></param>
+    /// <returns></returns>
+    IQueryable GetDataset<T>(Func<IQueryable<T>> query) where T : class;
+
+    /// <summary>
+    /// Gets the context for the dataset
+    /// </summary>
     /// <param name="cancellationToken"></param>
-    Task<IQueryable> GetDataset<T>(ODataQueryOptions<T> query, CancellationToken cancellationToken);
+    /// <returns></returns>
+    Task<SynapseSqlContext> GetContext(CancellationToken cancellationToken);
 }
 
 internal sealed class DatasetsComponent : IDatasetsComponent
 {
-    private readonly IServerlessPoolDataProvider serverlessPoolDataProvider;
+    private readonly IDatasetsProvider datasetsProvider;
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
-    private readonly SynapseSqlContextFactory contextFactory;
     private readonly IRequestHeaderContext requestHeaderContext;
 
     public DatasetsComponent(
-        IServerlessPoolDataProvider serverlessPoolDataProvider,
+        IDatasetsProvider datasetsProvider,
         IDataEstateHealthRequestLogger logger,
         IPowerBICredentialComponent powerBICredentialComponent,
-        SynapseSqlContextFactory contextFactory,
         IRequestHeaderContext requestHeaderContext)
     {
-        this.serverlessPoolDataProvider = serverlessPoolDataProvider;
+        this.datasetsProvider = datasetsProvider;
         this.logger = logger;
         this.powerBICredentialComponent = powerBICredentialComponent;
-        this.contextFactory = contextFactory;
         this.requestHeaderContext = requestHeaderContext;
     }
+    public IQueryable GetDataset<T>(Func<IQueryable<T>> query) where T : class
+    {
+        return this.datasetsProvider.GetDataset(query);
+    }
 
-    /// <inheritdoc/>
-    public async Task<IQueryable> GetDataset<T>(ODataQueryOptions<T> query, CancellationToken cancellationToken)
+    public async Task<SynapseSqlContext> GetContext(CancellationToken cancellationToken)
     {
         Guid accountId = this.requestHeaderContext.AccountObjectId;
         PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(accountId, "health", cancellationToken);
         powerBICredential.Password.MakeReadOnly();
         SqlCredential sqlCredential = new(powerBICredential.UserName, powerBICredential.Password);
-        IDatabaseRequest request = new DatabaseRequest
+
+        return await this.datasetsProvider.GetContext(new DataLakeQueryContext()
         {
             DatabaseName = "health_1",
-            SchemaName = accountId.ToString()
-        };
+            SchemaName = accountId.ToString(),
+            SqlCredenial = sqlCredential,
+            EntityConfigurations = new List<IEntityConfiguration>()
+            {
+                new EntityConfiguration()
+            }
+        }, cancellationToken);
+    }
+}
 
-        using SynapseSqlContext dbContext = await this.contextFactory.CreateDbContextAsync(request.DatabaseName, request.SchemaName, sqlCredential, cancellationToken);
-
-        return typeof(T) switch
-        {
-            Type t when t == typeof(BusinessDomainEntity) => this.serverlessPoolDataProvider.Query(query as ODataQueryOptions<BusinessDomainEntity>, dbContext.BusinessDomains),
-            _ => throw new ServiceError(
-                ErrorCategory.Forbidden,
-                ErrorCode.NotAuthorized.Code,
-                $"Dataset {typeof(T).Name} is not supported for querying").ToException(),
-        };
+internal class EntityConfiguration : IEntityConfiguration
+{
+    /// <inheritdoc/>
+    public void Configure(ModelBuilder modelBuilder, string databaseSchema)
+    {
+        modelBuilder.Entity<BusinessDomainEntity>()
+            .ToTable("BusinessDomain", databaseSchema);
     }
 }

@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 /// <summary>
 /// Component to manage a sql login and user for the workspaces.

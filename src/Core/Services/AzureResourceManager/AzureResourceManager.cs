@@ -12,9 +12,8 @@ using global::Azure.ResourceManager.Resources;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Purview.DataGovernance.Common;
 
 internal sealed partial class AzureResourceManager<TAuthConfig> : IAzureResourceManager where TAuthConfig : AuthConfiguration
 {

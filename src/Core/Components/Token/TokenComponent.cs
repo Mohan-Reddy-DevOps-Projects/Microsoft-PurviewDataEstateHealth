@@ -7,18 +7,21 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using Microsoft.PowerBI.Api.Models;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 [Component(typeof(ITokenComponent), ServiceVersion.V1)]
 internal sealed class TokenComponent : BaseComponent<ITokenContext>, ITokenComponent
 {
 #pragma warning disable 649
     [Inject]
-    private readonly IPowerBIService powerBIService;
+    private readonly ReportProvider reportProvider;
+
+    [Inject]
+    private readonly TokenProvider tokenProvider;
 
     [Inject]
     private readonly HealthProfileCommand profileCommand;
@@ -35,68 +38,59 @@ internal sealed class TokenComponent : BaseComponent<ITokenContext>, ITokenCompo
     /// <inheritdoc/>
     public async Task<EmbedToken> Get(TokenModel tokenModel, CancellationToken cancellationToken)
     {
+        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, cancellationToken);
+        TokenModel request;
         if (tokenModel == null || tokenModel.ReportIds == null || tokenModel.ReportIds.Count == 0 || tokenModel.DatasetIds == null || tokenModel.DatasetIds.Count == 0)
         {
-            return await this.GetReadToken(cancellationToken);
+            request = await this.GetReadToken(profile, cancellationToken);
+        }
+        else
+        {
+            request = await this.GetEditToken(profile, tokenModel, cancellationToken);
         }
 
-        return await this.GetEditToken(tokenModel, cancellationToken);
+        return await this.tokenProvider.Get(profile, request, cancellationToken);
     }
 
-    private async Task<EmbedToken> GetReadToken(CancellationToken cancellationToken)
+    private async Task<TokenModel> GetReadToken(IProfileModel profile, CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, cancellationToken);
-        IWorkspaceContext workspaceContext = new WorkspaceContext(this.Context)
+        WorkspaceContext workspaceContext = new WorkspaceContext(this.Context)
         {
             ProfileId = profile.Id,
         };
         Group workspace = await this.workspaceCommand.Get(workspaceContext, cancellationToken);
-        Reports reports = await this.powerBIService.GetReports(profile.Id, workspace.Id, cancellationToken);
+        Reports reports = await this.reportProvider.List(profile.Id, workspace.Id, cancellationToken);
 
         IEnumerable<Guid> datasetIds = reports.Value.Select(x => Guid.Parse(x.DatasetId));
         IEnumerable<Guid> reportIds = reports.Value.Select(x => x.Id);
 
-        return await this.GenerateEmbeddedToken(datasetIds, reportIds, profile.Id, false, cancellationToken);
+        return new TokenModel()
+        {
+            DatasetIds = datasetIds.ToHashSet(),
+            ReportIds = reportIds.ToHashSet(),
+            IsEdit = false
+        };
     }
 
-    private async Task<EmbedToken> GetEditToken(TokenModel tokenModel, CancellationToken cancellationToken)
+    private async Task<TokenModel> GetEditToken(IProfileModel profile, TokenModel tokenModel, CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, cancellationToken);
         IWorkspaceContext workspaceContext = new WorkspaceContext(this.Context)
         {
             ProfileId = profile.Id,
         };
         Group workspace = await this.workspaceCommand.Get(workspaceContext, cancellationToken);
-        Reports reports = await this.powerBIService.GetReports(profile.Id, workspace.Id, cancellationToken);
+        Reports reports = await this.reportProvider.List(profile.Id, workspace.Id, cancellationToken);
         HashSet<string> excludedNames = HealthReportNames.System;
         IEnumerable<Report> filteredReports = reports.Value.Where(report => !excludedNames.Contains(report.Name));
         HashSet<Guid> filteredIds = new(filteredReports.Select(x => x.Id));
         IEnumerable<Guid> editableReportIds = filteredIds.Intersect(tokenModel.ReportIds).Distinct();
         IEnumerable<Guid> editableDatasetIds = filteredReports.Select(x => Guid.Parse(x.DatasetId)).Intersect(tokenModel.DatasetIds).Distinct();
 
-        return await this.GenerateEmbeddedToken(editableDatasetIds, editableReportIds, profile.Id, true, cancellationToken);
-    }
-
-    /// <summary>
-    /// Get the embedded
-    /// </summary>
-    /// <param name="datasets"></param>
-    /// <param name="reports"></param>
-    /// <param name="profileId"></param>
-    /// <param name="enableWriterPermission"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    private async Task<EmbedToken> GenerateEmbeddedToken(IEnumerable<Guid> datasets, IEnumerable<Guid> reports, Guid profileId, bool enableWriterPermission, CancellationToken cancellationToken)
-    {
-        EmbeddedTokenRequest request = new()
+        return new TokenModel()
         {
-            DatasetIds = datasets.ToArray(),
-            ReportIds = reports.ToArray(),
-            LifetimeInMinutes = 60,
-            ProfileId = profileId,
-            EnableWriterPermission = enableWriterPermission
+            DatasetIds = editableDatasetIds.ToHashSet(),
+            ReportIds = editableReportIds.ToHashSet(),
+            IsEdit = true
         };
-
-        return await this.powerBIService.GenerateEmbeddedToken(request, cancellationToken);
     }
 }

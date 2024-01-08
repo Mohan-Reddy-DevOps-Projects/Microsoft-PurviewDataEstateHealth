@@ -9,6 +9,7 @@ using global::Azure.Data.Tables;
 using global::Azure.Identity;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.Common;
 
 internal sealed class TableStorageClient<TConfig> : ITableStorageClient<TConfig> where TConfig : StorageTableConfiguration, new()
 {

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Data.DeltaLake.Types;
 
 internal class DeltaTableEventProcessor : IDeltaTableEventProcessor
 {
@@ -59,7 +60,7 @@ internal class DeltaTableEventProcessor : IDeltaTableEventProcessor
             try
             {
                 PayloadKind payloadKind = events.First().GetPayloadKind();
-                Data.DeltaLake.Types.StructType schemaDefinition = events.First().GetSchemaDefinition();
+                StructType schemaDefinition = events.First().GetSchemaDefinition();
                 await deltaTableWriter.CreateOrAppendDataset(tableRelativePath, schemaDefinition, events);
             }
             catch (Exception ex)

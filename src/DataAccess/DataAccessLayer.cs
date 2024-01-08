@@ -11,7 +11,10 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
 using Polly;
+using AzureCredentialFactory = Microsoft.Purview.DataGovernance.Common.AzureCredentialFactory;
 
 /// <summary>
 /// Provides behavior on the data access layer level.
@@ -55,11 +58,22 @@ public static class DataAccessLayer
                 serviceProvider.GetRequiredService<AzureCredentialFactory>()));
 
         services.AddSingleton<IStorageAccountRepository<ProcessingStorageModel>, ProcessingStorageRepository>();
-        services.AddSingleton<IServerlessPoolClient, ServerlessPoolClient>();
+        services.AddSingleton<IServerlessPoolClient, ServerlessPoolClient>(provider =>
+        {
+            var azureCredentialFactory = provider.GetService<AzureCredentialFactory>();
+            var logger = provider.GetService<IDataEstateHealthRequestLogger>();
+            var authConfig = provider.GetService<IOptions<ServerlessPoolAuthConfiguration>>();
+            var config = provider.GetService<IOptions<ServerlessPoolConfiguration>>();
+
+            return new ServerlessPoolClient(azureCredentialFactory, authConfig.Value, config.Value, logger);
+        });
         services.AddSingleton<IServerlessQueryRequestBuilder, ServerlessQueryRequestBuilder>();
         services.AddSingleton<IServerlessQueryExecutor, ServerlessQueryExecutor>();
-        services.AddSingleton<IServerlessPoolDataProvider, ServerlessPoolDataProvider>();
-        services.AddSingleton<SynapseSqlContextFactory>();
+        services.AddSingleton<IDatasetsProvider, DatasetsProvider>(provider =>
+        {
+            var logger = provider.GetService<IDataEstateHealthRequestLogger>();
+            return new DatasetsProvider(provider, logger);
+        });
         services.AddSingleton<IODataModelProvider, ODataModelProvider>();
         services.AddSingleton<ISparkPoolRepository<SparkPoolModel>, SynapseSparkPoolRepository>();
 
@@ -85,7 +99,12 @@ public static class DataAccessLayer
     {
         services
             .AddSingleton<IExposureControlClient, ExposureControlClient>()
-            .AddSingleton<IAccountExposureControlConfigProvider, AccountExposureControlConfigProvider>();
+            .AddSingleton<IAccountExposureControlConfigProvider, AccountExposureControlConfigProvider>(provider =>
+            {
+                var logger = provider.GetService<IDataEstateHealthRequestLogger>();
+                var exposureControlClient = provider.GetService<IExposureControlClient>();
+                return new AccountExposureControlConfigProvider(logger, exposureControlClient);
+            });
 
         return services;
     }

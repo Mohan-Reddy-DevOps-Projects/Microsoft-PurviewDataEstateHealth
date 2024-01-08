@@ -12,8 +12,8 @@ using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Extensions.Options;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using global::Azure.Analytics.Synapse.Spark.Models;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 
 internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
 {

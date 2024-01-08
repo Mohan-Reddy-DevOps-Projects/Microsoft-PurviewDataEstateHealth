@@ -9,7 +9,6 @@ using System.Text.Json.Serialization;
 using System.Text.Json;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.ExposureControlLibrary;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 internal sealed class AccountExposureControlConfigProvider : IAccountExposureControlConfigProvider
 {
@@ -128,20 +127,6 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
             TenantId = tenantId
         };
         return this.IsFeatureEnabled(options);
-    }
-
-    /// <inheritdoc/>
-    public Dictionary<string, CapacityModel> GetPBICapacities()
-    {
-        ExposureControlOptions dictionaryOptions = new(Dictionaries.InsightsPBICapacities.ToString());
-        Dictionary<string, string> value = this.GetDictionnary(dictionaryOptions);
-        Dictionary<string, CapacityModel> capacities = new();
-        foreach (KeyValuePair<string, string> item in value)
-        {
-            capacities.Add(item.Key, JsonSerializer.Deserialize<CapacityModel>(item.Value, this.options));
-        }
-
-        return capacities;
     }
 
     private bool IsFeatureEnabled(ExposureControlOptions options)

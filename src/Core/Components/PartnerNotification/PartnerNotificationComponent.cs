@@ -8,14 +8,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.PowerBI.Api.Models;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 [Component(typeof(IPartnerNotificationComponent), ServiceVersion.V1)]
 internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotificationContext>, IPartnerNotificationComponent
@@ -31,10 +31,10 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     private readonly IDatabaseManagementService databaseManagementService;
 
     [Inject]
-    private readonly IReportCommand reportCommand;
+    private readonly ReportProvider reportCommand;
 
     [Inject]
-    private readonly IDatasetCommand datasetCommand;
+    private readonly DatasetProvider datasetCommand;
 
     [Inject]
     private readonly IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration;
@@ -43,7 +43,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
 
     [Inject]
-    private readonly ICapacityAssignment capacityAssignment;
+    private readonly CapacityProvider capacityAssignment;
 
     [Inject]
     private readonly ISparkJobManager sparkJobManager;
@@ -136,16 +136,12 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
                 ProfileId = profile.Id,
                 WorkspaceId = workspace.Id
             };
-            await this.datasetCommand.Delete(deleteRequest, cancellationToken);
+            await this.datasetCommand.Delete(deleteRequest.ProfileId, deleteRequest.WorkspaceId, deleteRequest.DatasetId, cancellationToken);
 
             throw;
         }
-        IReportRequest reportRequest = new ReportRequest()
-        {
-            ProfileId = datasetRequest.ProfileId,
-            WorkspaceId = datasetRequest.WorkspaceId,
-        };
-        Reports existingReports = await this.reportCommand.List(reportRequest, cancellationToken);
+
+        Reports existingReports = await this.reportCommand.List(datasetRequest.ProfileId, datasetRequest.WorkspaceId, cancellationToken);
         if (!existingReports.Value.Any(r => r.Name == datasetRequest.DatasetName))
         {
             Report report = await this.reportCommand.Bind(sharedDataset, datasetRequest, cancellationToken);

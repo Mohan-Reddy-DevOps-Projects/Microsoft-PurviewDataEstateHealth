@@ -5,7 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Newtonsoft.Json;
 
 internal sealed class StartPBIRefreshMetadata : StagedWorkerJobMetadata

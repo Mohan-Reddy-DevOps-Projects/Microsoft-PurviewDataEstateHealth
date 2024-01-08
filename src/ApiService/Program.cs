@@ -24,9 +24,9 @@ using System.Text.Json;
 using System.Text;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using System.Collections;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 
 /// <summary>
 /// The Data Estate Health API service.
@@ -41,8 +41,6 @@ public class Program
     public static async Task Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
-        SetAksConfiguration(builder);
 
         builder.WebHost.ConfigureKestrel((hostingContext, options) =>
         {
@@ -172,8 +170,8 @@ public class Program
             await exposureControlClient.Initialize();
 
             // Initialize PowerBI service
-            IPowerBIService powerBIService = app.Services.GetService<IPowerBIService>();
-            await powerBIService.Initialize();
+            PowerBIProvider powerBIProvider = app.Services.GetService<PowerBIProvider>();
+            await powerBIProvider.PowerBIService.Initialize();
 
             // Initialize synapse service
             IServerlessPoolClient serverlessPoolClient = app.Services.GetService<IServerlessPoolClient>();
@@ -206,6 +204,8 @@ public class Program
 
     private static void ConfigureKestrelServerForProduction(KestrelServerOptions options, WebApplicationBuilder builder)
     {
+        SetAksConfiguration(builder);
+
         var serverConfig = options.ApplicationServices.GetService<IOptions<ServiceConfiguration>>().Value;
 
         if (serverConfig.ApiServiceReadinessProbePort.HasValue)

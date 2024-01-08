@@ -6,8 +6,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 

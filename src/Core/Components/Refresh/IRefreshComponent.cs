@@ -7,7 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 internal interface IRefreshComponent
 {

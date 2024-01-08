@@ -5,13 +5,14 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
-using System.Data.SqlClient;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Data.SqlClient;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 
 internal class DatabaseCommand : IDatabaseCommand
 {

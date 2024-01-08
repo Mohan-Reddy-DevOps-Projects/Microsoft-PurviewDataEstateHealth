@@ -12,14 +12,14 @@ using System.Threading;
 using global::Azure;
 using global::Azure.Identity;
 using global::Azure.Security.KeyVault.Secrets;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using ErrorCode = Common.ErrorCode;
+using Microsoft.Purview.DataGovernance.Common;
 
 /// <summary>
 /// Access an Azure key vault using a managed identity

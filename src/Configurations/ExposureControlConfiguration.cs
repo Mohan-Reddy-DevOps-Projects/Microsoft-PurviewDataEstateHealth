@@ -4,10 +4,12 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
+using Microsoft.Purview.DataGovernance.Reporting.Common;
+
 /// <summary>
 /// The configuration for exposure control service.
 /// </summary>
-public class ExposureControlConfiguration : BaseCertificateConfiguration
+public class ExposureControlConfiguration : BaseCertificateConfiguration, IExposureControlConfiguration
 {
     /// <summary>
     /// Gets or sets a value indicating whether the exposure control service is enabled.

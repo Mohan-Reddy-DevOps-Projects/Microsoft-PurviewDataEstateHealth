@@ -6,6 +6,9 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Purview.DataGovernance.Common;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
 
 /// <summary>
 /// Extension methods for adding configurations
@@ -65,6 +68,8 @@ public static class ConfigurationExtensions
             .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
             .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
             .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"));
+
+        services.AddSingleton<IEnvironmentConfiguration, EnvironmentConfiguration>();
 
         return services;
     }

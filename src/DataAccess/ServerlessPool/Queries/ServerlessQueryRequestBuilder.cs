@@ -6,8 +6,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using System;
 using System.Text;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using static Microsoft.Azure.Purview.DataEstateHealth.DataAccess.QueryConstants;
 
 internal class ServerlessQueryRequestBuilder : IServerlessQueryRequestBuilder

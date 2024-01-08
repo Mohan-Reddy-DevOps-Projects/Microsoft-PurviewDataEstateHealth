@@ -5,13 +5,12 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
-using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using global::Azure.Core;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 internal class DatabaseManagementService : IDatabaseManagementService
 {

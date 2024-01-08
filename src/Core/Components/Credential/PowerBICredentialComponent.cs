@@ -7,9 +7,10 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System.Threading.Tasks;
 using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 /// <inheritdoc/>
 internal class PowerBICredentialComponent : IPowerBICredentialComponent
