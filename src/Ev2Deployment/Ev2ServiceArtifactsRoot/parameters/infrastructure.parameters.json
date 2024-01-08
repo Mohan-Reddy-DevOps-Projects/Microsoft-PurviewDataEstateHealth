@@ -52,6 +52,9 @@
         },
         "synapseLocation": {
             "value": "__INFRA_SYNAPSE_LOCATION__"
+        },
+        "synapseDatabaseName": {
+            "value": "__INFRA_SYNAPSE_DB_NAME__"
         }
     }
 }

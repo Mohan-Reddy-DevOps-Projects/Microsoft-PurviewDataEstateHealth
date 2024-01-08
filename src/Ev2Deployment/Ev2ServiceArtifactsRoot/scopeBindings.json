@@ -199,7 +199,11 @@
             {
               "find": "__INFRA_SERVICE_ID__",
               "replaceWith": "$config(pdg.genevaAccountProvisioning.serviceIds.dgHealth)"
-          }
+          },
+          {
+            "find": "__INFRA_SYNAPSE_DB_NAME__",
+            "replaceWith": "dgh$config(pdg.environment.name)db"
+        }
 
         ]
     },

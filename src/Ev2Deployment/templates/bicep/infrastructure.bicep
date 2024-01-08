@@ -16,6 +16,7 @@ param synapseStorageAccountName string
 param synapseStorageAccountUrl string
 param sparkPoolTableName string
 param synapseLocation string
+param synapseDatabaseName string
 
 var contributorRoleDefName = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 var azureEventHubsDataReceiverRoleDefName = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'
@@ -214,6 +215,12 @@ resource synapseWorkspaceAdmin 'Microsoft.Synapse/workspaces/administrators@2021
     sid: assistedIdAppObjectId
     tenantId: tenant().tenantId
   }
+}
+
+resource synapseWorkspaceDatabase 'Microsoft.Synapse/workspaces/sqlDatabases@2020-04-01-preview' = {
+    name: synapseDatabaseName
+    parent: synapseWorkspace
+    location: location
 }
 
 resource synapseAllowEv2 'Microsoft.Synapse/workspaces/firewallRules@2021-06-01' = {
