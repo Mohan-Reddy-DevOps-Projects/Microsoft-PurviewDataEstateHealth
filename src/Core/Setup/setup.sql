@@ -318,7 +318,7 @@ BEGIN TRAN
             [ResultedAt] datetime2
         )
         WITH (
-            LOCATION='/Sink/DataQualityScore/',
+            LOCATION='/Sink/DataQuality/DataQualityScore/',
             DATA_SOURCE = [@containerName],
             FILE_FORMAT = DeltaLakeFormat
         )
