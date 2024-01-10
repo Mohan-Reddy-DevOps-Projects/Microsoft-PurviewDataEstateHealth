@@ -303,22 +303,61 @@ BEGIN TRAN
         )
     END
 
-    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DataQualityScore' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'ProductQualityScore' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
     BEGIN
-        DROP EXTERNAL TABLE [@schemaName].[DataQualityScore]
+        DROP EXTERNAL TABLE [@schemaName].[ProductQualityScore]
     END
 
     BEGIN
-        CREATE EXTERNAL TABLE [@schemaName].[DataQualityScore]
+        CREATE EXTERNAL TABLE [@schemaName].[ProductQualityScore]
         (
-            [BusinessDomainId] uniqueidentifier,
             [DataProductId] uniqueidentifier,
-            [DataAssetId] uniqueidentifier,
+            [BusinessDomainId] uniqueidentifier,
             [QualityScore] float,
-            [ResultedAt] datetime2
+            [LastRefreshedAt] datetime2
         )
         WITH (
-            LOCATION='/Sink/DataQuality/DataQualityScore/',
+            LOCATION='/Sink/ProductQualityScore/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'AssetQualityScore' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[AssetQualityScore]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[AssetQualityScore]
+        (
+            [DataProductId] uniqueidentifier,
+            [BusinessDomainId] uniqueidentifier,
+            [DataAssetId] uniqueidentifier,
+            [QualityScore] float,
+            [LastRefreshedAt] datetime2
+        )
+        WITH (
+            LOCATION='/Sink/AssetQualityScore/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DomainQualityScore' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[DomainQualityScore]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[DomainQualityScore]
+        (
+            [BusinessDomainId] uniqueidentifier,
+            [QualityScore] float,
+            [LastRefreshedAt] datetime2
+        )
+        WITH (
+            LOCATION='/Sink/DomainQualityScore/',
             DATA_SOURCE = [@containerName],
             FILE_FORMAT = DeltaLakeFormat
         )

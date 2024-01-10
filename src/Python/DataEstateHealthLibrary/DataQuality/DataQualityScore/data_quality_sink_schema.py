@@ -17,6 +17,8 @@ class DataQualitySinkSchema:
     
     sink_asset_dataqualityscore_schema = StructType(
         [
+            StructField("DataProductId", StringType(), False),
+            StructField("BusinessDomainId", StringType(), False),
             StructField("DataAssetId", StringType(), False),
             StructField("QualityScore", DoubleType(), False),
             StructField("LastRefreshedAt", TimestampType(), False),
@@ -26,6 +28,7 @@ class DataQualitySinkSchema:
     sink_product_dataqualityscore_schema = StructType(
         [
             StructField("DataProductId", StringType(), False),
+            StructField("BusinessDomainId", StringType(), False),
             StructField("QualityScore", DoubleType(), False),
             StructField("LastRefreshedAt", TimestampType(), False),
         ]

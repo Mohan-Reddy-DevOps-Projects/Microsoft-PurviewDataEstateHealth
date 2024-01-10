@@ -8,16 +8,14 @@ from DataEstateHealthLibrary.Shared.helper_function import HelperFunction
 class BuildDataQualityScores:
     def build_product_score(dataqualityscore_df):
         
-        dataqualityscore_df = dataqualityscore_df.select("DataProductId","JobId", "QualityScore", "ResultedAt")
+        dataqualityscore_df = dataqualityscore_df.select("DataProductId","BusinessDomainId","JobId", "QualityScore", "ResultedAt")
 
         productquality_score_df = DataQualityScoreTransformations.dedup_quality_score(dataqualityscore_df)
         
         productquality_score_df = productquality_score_df.withColumn("QualityScore",productquality_score_df['QualityScore'].cast(DoubleType()))
-        productquality_score_df = DataQualityScoreTransformations.calculate_total_count_col(productquality_score_df)
-        productquality_score_df = DataQualityScoreTransformations.calculate_column_sum(productquality_score_df, "DataProductId")
-        productquality_score_df = DataQualityScoreTransformations.calculate_score(productquality_score_df)
+        productquality_score_df = DataQualityScoreTransformations.calculate_product_score(productquality_score_df)
         productquality_score_df = HelperFunction.calculate_last_refreshed_at(productquality_score_df,"LastRefreshedAt")
-        productquality_score_df = productquality_score_df.select("DataProductId","QualityScore","LastRefreshedAt")
+        productquality_score_df = productquality_score_df.select("DataProductId","BusinessDomainId","QualityScore","LastRefreshedAt")
         return productquality_score_df
 
     def build_domain_score(dataqualityscore_df):
@@ -26,9 +24,7 @@ class BuildDataQualityScores:
         
         domainquality_score_df = DataQualityScoreTransformations.dedup_quality_score(dataqualityscore_df)
         domainquality_score_df = domainquality_score_df.withColumn("QualityScore",domainquality_score_df['QualityScore'].cast(DoubleType()))
-        domainquality_score_df = DataQualityScoreTransformations.calculate_total_count_col(domainquality_score_df)
-        domainquality_score_df = DataQualityScoreTransformations.calculate_column_sum(domainquality_score_df, "BusinessDomainId")
-        domainquality_score_df = DataQualityScoreTransformations.calculate_score(domainquality_score_df)
+        domainquality_score_df = DataQualityScoreTransformations.calculate_domain_score(domainquality_score_df)
         domainquality_score_df = HelperFunction.calculate_last_refreshed_at(domainquality_score_df,"LastRefreshedAt")
         domainquality_score_df = domainquality_score_df.select("BusinessDomainId","QualityScore","LastRefreshedAt")
         
@@ -36,17 +32,14 @@ class BuildDataQualityScores:
 
     def build_asset_score(dataqualityscore_df):
         
-        dataqualityscore_df = dataqualityscore_df.select("DataAssetId","JobId", "QualityScore", "ResultedAt")
+        dataqualityscore_df = dataqualityscore_df.select("DataProductId","BusinessDomainId","DataAssetId", "QualityScore","JobId", "ResultedAt")
 
         assetquality_score_df = DataQualityScoreTransformations.dedup_quality_score(dataqualityscore_df)
-
+        assetquality_score_df = DataQualityScoreTransformations.dedup_quality_score_by_identifiers(assetquality_score_df)
         #need to explicitly cast it since we get it as string from source. we cannot calculate sum on string columns types.
         assetquality_score_df = assetquality_score_df.withColumn("QualityScore",assetquality_score_df['QualityScore'].cast(DoubleType()))
-        assetquality_score_df = DataQualityScoreTransformations.calculate_total_count_col(assetquality_score_df)
-        assetquality_score_df = DataQualityScoreTransformations.calculate_column_sum(assetquality_score_df, "DataAssetId")
-        assetquality_score_df = DataQualityScoreTransformations.calculate_score(assetquality_score_df)
         assetquality_score_df = HelperFunction.calculate_last_refreshed_at(assetquality_score_df,"LastRefreshedAt")
-        assetquality_score_df = assetquality_score_df.select("DataAssetId","QualityScore","LastRefreshedAt")
+        assetquality_score_df = assetquality_score_df.select("DataProductId","BusinessDomainId","DataAssetId","QualityScore","LastRefreshedAt")
         
         return assetquality_score_df
         

@@ -11,25 +11,17 @@ class DataQualityScoreTransformations:
 
         return has_data_quality_score_added
 
-    def calculate_total_count_col(dataquality_df):
-        total_count_col_added = dataquality_df.withColumn(
-            "TotalCount", lit(1)
-        )
+    def calculate_product_score(dataquality_df):
+        dataquality_df = dataquality_df.groupBy("DataProductId", "BusinessDomainId").agg(avg("QualityScore"), count("*"))
+        dataquality_df = dataquality_df.withColumnRenamed("avg(QualityScore)","QualityScore")
 
-        return total_count_col_added
-    
-    def calculate_column_sum(dataquality_df, groupByColumnName):
-        dataquality_df = dataquality_df.groupBy(groupByColumnName).sum()
-        dataquality_df = dataquality_df.withColumnRenamed("sum(QualityScore)","QualityScore")
-        dataquality_df = dataquality_df.withColumnRenamed("sum(TotalCount)","TotalCount")
         return dataquality_df
-    
-    def calculate_score(dataquality_df):
-        score_added = dataquality_df.withColumn(
-        "QualityScore", lit((col("QualityScore")/col("TotalCount")))
-        )
+        
+    def calculate_domain_score(dataquality_df):
+        dataquality_df = dataquality_df.groupBy("BusinessDomainId").agg(avg("QualityScore"), count("*"))
+        dataquality_df = dataquality_df.withColumnRenamed("avg(QualityScore)","QualityScore")
 
-        return score_added
+        return dataquality_df
     
     def dedup_quality_score(dataquality_df):
         #add timestamp for deduping
@@ -39,6 +31,16 @@ class DataQualityScoreTransformations:
         
         #map by job id and reduce by timestamp
         window_spec = Window.partitionBy("JobId").orderBy(col("Timestamp").desc())
+        deduped_qualityscore_df = dataquality_df.withColumn("row_num", row_number().over(window_spec)).filter("row_num = 1").drop("row_num")
+
+        return deduped_qualityscore_df
+    
+    def dedup_quality_score_by_identifiers(dataquality_df):
+        #remove duplicate rows
+        dataquality_df = dataquality_df.distinct()
+        
+        #map by job id and reduce by timestamp
+        window_spec = Window.partitionBy("DataProductId","BusinessDomainId","DataAssetId").orderBy(col("Timestamp").desc())
         deduped_qualityscore_df = dataquality_df.withColumn("row_num", row_number().over(window_spec)).filter("row_num = 1").drop("row_num")
 
         return deduped_qualityscore_df
