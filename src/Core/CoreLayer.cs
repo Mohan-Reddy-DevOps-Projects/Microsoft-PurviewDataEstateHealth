@@ -16,6 +16,8 @@ using Microsoft.Purview.DataGovernance.Reporting.Common;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Services;
 using Microsoft.Purview.DataGovernance.Common;
+using Microsoft.Purview.DataGovernance.DeltaWriter;
+using Microsoft.Purview.DataEstateHealth.Core;
 
 /// <summary>
 /// Provides behavior on the core layer level.
@@ -147,7 +149,20 @@ public static class CoreLayer
     public static IServiceCollection AddPartnerEventsProcessor(this IServiceCollection services)
     {
         services.AddSingleton<IPartnerEventsProcessorFactory, PartnerEventsProcessorFactory>();
-        services.AddScoped<IDeltaLakeOperatorFactory, DeltaLakeOperatorFactory>();
+        services.AddSingleton<DeltaWriterConfiguration>(provider =>
+        {
+            IOptions<EnvironmentConfiguration> envConfig = provider.GetRequiredService<IOptions<EnvironmentConfiguration>>();
+            return new DeltaWriterConfiguration
+            {
+                IsDevelopmentEnvironment = envConfig.Value.IsDevelopmentEnvironment(),
+            };
+        });
+        services.AddScoped<IDeltaLakeOperatorFactory, DeltaLakeOperatorFactory>(provider =>
+        {
+            var logger = provider.GetRequiredService<IDataEstateHealthRequestLogger>();
+            var deltaWriterConfiguration = provider.GetRequiredService<DeltaWriterConfiguration>();
+            return new DeltaLakeOperatorFactory(deltaWriterConfiguration, logger);
+        });
 
         return services;
     }

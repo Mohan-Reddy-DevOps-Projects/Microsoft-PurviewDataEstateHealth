@@ -16,7 +16,9 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataEstateHealth.Core;
 using Microsoft.Purview.DataGovernance.Common;
+using Microsoft.Purview.DataGovernance.DeltaWriter;
 using Microsoft.Purview.DataGovernance.Reporting.Services;
 using Newtonsoft.Json;
 

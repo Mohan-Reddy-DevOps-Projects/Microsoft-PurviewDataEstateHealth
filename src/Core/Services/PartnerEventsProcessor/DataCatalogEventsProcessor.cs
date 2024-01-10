@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataGovernance.DeltaWriter;
 
 internal class DataCatalogEventsProcessor : PartnerEventsProcessor
 {

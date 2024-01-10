@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataGovernance.DeltaWriter;
 using Newtonsoft.Json;
 
 internal class DataQualityEventsProcessor : PartnerEventsProcessor

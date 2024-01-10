@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Data.DeltaLake.Types;
+using Microsoft.Purview.DataEstateHealth.Core;
+using Microsoft.Purview.DataGovernance.DeltaWriter;
 
 internal class DeltaTableEventProcessor : IDeltaTableEventProcessor
 {
