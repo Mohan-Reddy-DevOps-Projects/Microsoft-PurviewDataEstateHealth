@@ -190,8 +190,8 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
         Guid tenantId,
         Guid accountId)
     {
-        return this.componentRuntime.ResolveLatest<IDataQualityScoreCollectionComponent, IDataQualityScoreContext>(
-            this.contextFactory.CreateDataQualityScoreContext(
+        return this.componentRuntime.ResolveLatest<IDataQualityScoreCollectionComponent, IDataQualityListContext>(
+            this.contextFactory.CreateDataQualityListContext(
             this.version,
             null,
             accountId,
@@ -201,13 +201,19 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
     /// <inheritdoc />
     public IDataQualityScoreComponent CreateDataQualityScoresComponent(
         Guid tenantId,
-        Guid accountId)
+        Guid accountId,
+        Guid domainId,
+        Guid dataProductId,
+        Guid dataAssetId)
     {
-        return this.componentRuntime.ResolveLatest<IDataQualityScoreComponent, IDataQualityScoreContext>(
-            this.contextFactory.CreateDataQualityScoreContext(
+        return this.componentRuntime.ResolveLatest<IDataQualityScoreComponent, IDataQualityContext>(
+            this.contextFactory.CreateDataQualityContext(
                 this.version,
                 null,
                 accountId,
-                tenantId));
+                tenantId,
+                domainId,
+                dataProductId,
+                dataAssetId));
     }
 }

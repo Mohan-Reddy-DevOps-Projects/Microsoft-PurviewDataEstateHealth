@@ -102,18 +102,21 @@ public interface ICoreLayerFactoryOperations
         int? top = null);
 
     /// <summary>
-    /// Creates an instance of HealthScoreCollectionComponent. 
+    /// Creates an instance of DataQualityScoreCollectionComponent. 
     /// </summary>
-    /// <returns>An <see cref="IHealthScoreCollectionComponent"/>.</returns>
+    /// <returns>An <see cref="IDataQualityScoreCollectionComponent"/>.</returns>
     public IDataQualityScoreCollectionComponent CreateDataQualityScoresCollectionComponent(
         Guid tenantId,
         Guid accountId);
 
     /// <summary>
-    /// Creates an instance of HealthScoreCollectionComponent. 
+    /// Creates an instance of DataQualityScoresComponent. 
     /// </summary>
-    /// <returns>An <see cref="IHealthScoreCollectionComponent"/>.</returns>
+    /// <returns>An <see cref="IDataQualityScoreComponent"/>.</returns>
     public IDataQualityScoreComponent CreateDataQualityScoresComponent(
         Guid tenantId,
-        Guid accountId);
+        Guid accountId,
+        Guid domainId,
+        Guid dataProductId,
+        Guid dataAssetId);
 }

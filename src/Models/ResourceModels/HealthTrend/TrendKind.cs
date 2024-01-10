@@ -31,5 +31,5 @@ public enum TrendKind
     /// <summary>
     /// Data asset count
     /// </summary>
-    DataAssetCount,
+    DataAssetCount
 }

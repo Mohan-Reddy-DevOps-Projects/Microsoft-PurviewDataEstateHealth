@@ -4,14 +4,9 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.DGP.ServiceBasics.Components;
-
 /// <summary>
-/// Data Quality 
+/// The interface for the data quality list context.
 /// </summary>
-public interface IDataQualityScoreComponent :
-    IRetrieveEntityOperation<DataQualityScoresModel>,
-    IComponent<IDataQualityContext>
+public interface IDataQualityListContext : IRootComponentContext
 {
 }

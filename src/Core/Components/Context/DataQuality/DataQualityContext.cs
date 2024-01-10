@@ -6,13 +6,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
 
-/// <summary>
-/// Data Quality Score List Context
-/// </summary>
-public interface IDataQualityScoreContext : IRootComponentContext
+/// <inheritdoc cref="IDataQualityContext" />
+internal class DataQualityContext : ComponentContext, IDataQualityContext
 {
-    /// <summary>
-    /// Business domain id
-    /// </summary>
-    Guid BusinessDomainId { get; set; }
+    public Guid BusinessDomainId { get; set; }
+
+    public Guid DataProductId { get; set; }
+
+    public Guid DataAssetId { get; set; }
 }

@@ -171,16 +171,36 @@ internal interface IComponentContextFactory
         int? top = null);
 
     /// <summary>
-    /// Creates an <see cref="IDataQualityScoreContext"/>
+    /// Creates an <see cref="IDataQualityListContext"/>
     /// </summary>
     /// <param name="version"></param>
     /// <param name="location"></param>
     /// <param name="accountId"></param>
     /// <param name="tenantId"></param>
     /// <returns></returns>
-    public IDataQualityScoreContext CreateDataQualityScoreContext(
+    public IDataQualityListContext CreateDataQualityListContext(
         ServiceVersion version,
         string location,
         Guid accountId,
         Guid tenantId);
+
+    /// <summary>
+    /// Creates an <see cref="IDataQualityContext"/>
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="location"></param>
+    /// <param name="accountId"></param>
+    /// <param name="tenantId"></param>
+    /// <param name="domainId"></param>
+    /// <param name="dataProductId"></param>
+    /// <param name="dataAssetId"></param>
+    /// <returns></returns>
+    public IDataQualityContext CreateDataQualityContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId,
+        Guid domainId,
+        Guid dataProductId,
+        Guid dataAssetId);
 }

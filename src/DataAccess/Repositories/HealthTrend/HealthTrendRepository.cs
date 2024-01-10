@@ -51,7 +51,8 @@ internal class HealthTrendRepository : IHealthTrendRepository
             {
                 clauseBuilder.WhereBetweenClause(QueryConstants.HealthTrendsColumnNamesForKey.LastRefreshedAt, thirtyDaysAgo, today);
             }, selectClause) as HealthTrendsQueryForAllBusinessDomains;
-        } else
+        }
+        else
         {
             query = this.queryRequestBuilder.Build<HealthTrendRecord>(containerPath, clauseBuilder =>
             {
@@ -68,7 +69,7 @@ internal class HealthTrendRepository : IHealthTrendRepository
     }
 
     public IHealthTrendRepository ByLocation(string location)
-    { 
+    {
         return new HealthTrendRepository(
             this.modelAdapterRegistry,
             this.processingStorageManager,

@@ -36,6 +36,7 @@ public class ODataModelProvider : IODataModelProvider
     {
         ODataConventionModelBuilder modelBuilder = new ODataConventionModelBuilder();
         modelBuilder.EntitySet<BusinessDomainEntity>("BusinessDomain");
+        modelBuilder.EntitySet<DataQualityScoreEntity>("DataQualityScore");
         return modelBuilder.GetEdmModel();
     }
 }

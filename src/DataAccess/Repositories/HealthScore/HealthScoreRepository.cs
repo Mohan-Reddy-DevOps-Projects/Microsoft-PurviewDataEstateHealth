@@ -44,7 +44,7 @@ internal class HealthScoreRepository : IHealthScoreRepository
 
         IServerlessQueryRequest<BaseRecord, BaseEntity> query;
 
-        if (healthScoreKey == null || !healthScoreKey.BusinessDomainId.HasValue)
+        if (healthScoreKey == null || !(healthScoreKey.BusinessDomainId  == Guid.Empty))
         {
             query = this.queryRequestBuilder.Build<HealthScoreRecordForAllBusinessDomains>(containerPath) as HealthScoresQueryForAllBusinessDomains;
         }
@@ -52,7 +52,7 @@ internal class HealthScoreRepository : IHealthScoreRepository
         {
             query = this.queryRequestBuilder.Build<HealthScoreRecord>(containerPath, clauseBuilder =>
             {
-                clauseBuilder.WhereClause(QueryConstants.HealthScoresColumnNamesForKey.BusinessDomainId, healthScoreKey.BusinessDomainId.Value.ToString());
+                clauseBuilder.WhereClause(QueryConstants.HealthScoresColumnNamesForKey.BusinessDomainId, healthScoreKey.BusinessDomainId.ToString());
             }) as HealthScoresQuery;
         }
 

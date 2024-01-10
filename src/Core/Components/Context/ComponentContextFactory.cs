@@ -202,18 +202,40 @@ internal class ComponentContextFactory : IComponentContextFactory
     }
 
     /// <inheritdoc />
-    public IDataQualityScoreContext CreateDataQualityScoreContext(
+    public IDataQualityListContext CreateDataQualityListContext(
         ServiceVersion version,
         string location,
         Guid accountId,
         Guid tenantId)
     {
-        return new DataQualityScoreContext
+        return new DataQualityListContext
         {
             Version = version,
             Location = this.LocationOf(location),
             TenantId = tenantId,
             AccountId = accountId
+        };
+    }
+
+    /// <inheritdoc />
+    public IDataQualityContext CreateDataQualityContext(
+        ServiceVersion version,
+        string location,
+        Guid accountId,
+        Guid tenantId,
+        Guid domainId,
+        Guid dataProductId,
+        Guid dataAssetId)
+    {
+        return new DataQualityContext
+        {
+            Version = version,
+            Location = this.LocationOf(location),
+            TenantId = tenantId,
+            AccountId = accountId,
+            BusinessDomainId = domainId,
+            DataProductId = dataProductId,
+            DataAssetId = dataAssetId
         };
     }
 

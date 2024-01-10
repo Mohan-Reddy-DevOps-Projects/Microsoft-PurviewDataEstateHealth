@@ -3,10 +3,8 @@
 // -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
-using System;
 
-/// <inheritdoc cref="IDataQualityScoreContext" />
-internal class DataQualityScoreContext : ComponentContext, IDataQualityScoreContext
+/// <inheritdoc/>
+internal class DataQualityListContext : ComponentContext, IDataQualityListContext
 {
-    public Guid BusinessDomainId { get; set; }
 }

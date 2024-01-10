@@ -71,6 +71,7 @@ internal sealed class DatasetsComponent : IDatasetsComponent
             DatabaseName = "health_1",
             SchemaName = accountId.ToString(),
             SqlCredenial = sqlCredential,
+            ConnectionTimeout = 360,
             EntityConfigurations = new List<IEntityConfiguration>()
             {
                 new EntityConfiguration()
@@ -86,5 +87,7 @@ internal class EntityConfiguration : IEntityConfiguration
     {
         modelBuilder.Entity<BusinessDomainEntity>()
             .ToTable("BusinessDomain", databaseSchema);
+        modelBuilder.Entity<DataQualityScoreEntity>()
+            .ToTable("DataQualityScore", databaseSchema);
     }
 }

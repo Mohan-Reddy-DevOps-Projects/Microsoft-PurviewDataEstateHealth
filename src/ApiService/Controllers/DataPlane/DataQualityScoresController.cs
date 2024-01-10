@@ -13,11 +13,11 @@ using Microsoft.DGP.ServiceBasics.BaseModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 
 /// <summary>
-/// Data Quality scores controller.
+/// Data quality scores controller.
 /// </summary>
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV1)]
-[Route("/scores/dataQuality/businessDomains/")]
+[Route("/scores/dataQuality/")]
 public class DataQualityScoresController : DataPlaneController
 {
     private readonly ICoreLayerFactory coreLayerFactory;
@@ -53,30 +53,22 @@ public class DataQualityScoresController : DataPlaneController
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpGet]
-    [Route("{businessDomainId}")]
+    [Route("businessDomains")]
     [ProducesResponseType(typeof(DataQualityScore), 200)]
-    public async Task<IActionResult> GetDataQualityScoreByIDomainIdAsync(
-        [FromRoute] Guid businessDomainId,
+    public async Task<IActionResult> GetDataQualityScoreByDomainIdAsync(
+        [FromQuery(Name = "businessDomainId")] Guid businessDomainId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        IBatchResults<IHealthScoreModel<HealthScoreProperties>> healthScoreModelResults
+        DataQualityScoresModel results
             = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
-                .CreateHealthScoreCollectionComponent(
+                .CreateDataQualityScoresCollectionComponent(
                     this.requestHeaderContext.TenantId,
                     this.requestHeaderContext.AccountObjectId)
-                .ById(businessDomainId)
+                .GetDomainScoreById(businessDomainId)
                 .Get(cancellationToken);
 
-        var healthScores = new HealthScoreList
-        {
-            Value = healthScoreModelResults.Results.Select(
-            healthScore => this.adapterRegistry.AdapterFor<IHealthScoreModel<HealthScoreProperties>, HealthScore>()
-            .FromModel(healthScore))
-            .ToList()
-        };
-
-        return this.Ok(healthScores);
+        return this.Ok(results);
     }
 
     /// <summary>
@@ -93,11 +85,12 @@ public class DataQualityScoresController : DataPlaneController
         CancellationToken cancellationToken,
         [FromQuery(Name = "skipToken")] string skipToken = null)
     {
-        IBatchResults<IHealthScoreModel<HealthScoreProperties>> results = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
-            .CreateHealthScoreCollectionComponent(
+        IBatchResults<DataQualityScoreModel> results = await this.coreLayerFactory
+            .Of(ServiceVersion.From(apiVersion))
+            .CreateDataQualityScoresCollectionComponent(
                 this.requestHeaderContext.TenantId,
                 this.requestHeaderContext.AccountObjectId)
-            .Get(cancellationToken, skipToken);
+            .GetDomainScores(cancellationToken, skipToken);
 
         var healthScores = new HealthScoreList
         {
@@ -113,37 +106,28 @@ public class DataQualityScoresController : DataPlaneController
     /// <summary>
     /// Get data quality score for a given data product.
     /// </summary>
-    /// <param name="businessDomainId">Business domain id.</param>
     /// <param name="dataProductId">Data product id.</param>
     /// <param name="apiVersion">The api version of the call.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpGet]
-    [Route("{businessDomainId}/dataProducts/{dataProductId}")]
+    [Route("dataProducts")]
     [ProducesResponseType(typeof(DataQualityScore), 200)]
     public async Task<IActionResult> GetDataQualityScoresByDataProductIdAsync(
-        [FromRoute] Guid businessDomainId,
-        [FromRoute] Guid dataProductId,
+        [FromQuery(Name = "dataProductId")] Guid dataProductId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        IBatchResults<IHealthScoreModel<HealthScoreProperties>> healthScoreModelResults
-            = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
-                .CreateHealthScoreCollectionComponent(
-                    this.requestHeaderContext.TenantId,
-                    this.requestHeaderContext.AccountObjectId)
-                .ById(businessDomainId)
-                .Get(cancellationToken);
+        DataQualityScoresModel score = await this.coreLayerFactory
+            .Of(ServiceVersion.From(apiVersion))
+            .CreateDataQualityScoresCollectionComponent(
+                this.requestHeaderContext.TenantId,
+                this.requestHeaderContext.AccountObjectId)
+            .GetDataProductScoreById(
+                dataProductId)
+            .Get(cancellationToken);
 
-        var healthScores = new HealthScoreList
-        {
-            Value = healthScoreModelResults.Results.Select(
-            healthScore => this.adapterRegistry.AdapterFor<IHealthScoreModel<HealthScoreProperties>, HealthScore>()
-            .FromModel(healthScore))
-            .ToList()
-        };
-
-        return this.Ok(healthScores);
+        return this.Ok(score);
     }
 
     /// <summary>
@@ -158,16 +142,20 @@ public class DataQualityScoresController : DataPlaneController
     [Route("{businessDomainId}/dataProducts")]
     [ProducesResponseType(typeof(HealthScoreList), 200)]
     public async Task<IActionResult> ListDataQualityDataProductScoresAsync(
-        [FromRoute] string businessDomainId,
+        [FromRoute] Guid businessDomainId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken,
         [FromQuery(Name = "skipToken")] string skipToken = null)
     {
-        IBatchResults<IHealthScoreModel<HealthScoreProperties>> results = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
-            .CreateHealthScoreCollectionComponent(
+        IBatchResults<DataQualityScoreModel> results = await this.coreLayerFactory
+            .Of(ServiceVersion.From(apiVersion))
+            .CreateDataQualityScoresCollectionComponent(
                 this.requestHeaderContext.TenantId,
                 this.requestHeaderContext.AccountObjectId)
-            .Get(cancellationToken, skipToken);
+            .GetDataProductScores(
+                businessDomainId,
+                cancellationToken,
+                skipToken);
 
         var healthScores = new HealthScoreList
         {
@@ -177,45 +165,33 @@ public class DataQualityScoresController : DataPlaneController
             .ToList()
         };
 
-        return this.Ok(healthScores);
+        return this.Ok(results);
     }
 
     /// <summary>
     /// Get data quality scores for a given asset.
     /// </summary>
-    /// <param name="businessDomainId">Business Domain id.</param>
-    /// <param name="dataProductId">Data product id.</param>
     /// <param name="dataAssetId">Data asset id.</param>
     /// <param name="apiVersion">The api version of the call.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpGet]
-    [Route("{businessDomainId}/dataProducts/{dataProductId}/dataAssets/{dataAssetId}")]
+    [Route("dataAssets")]
     [ProducesResponseType(typeof(DataQualityScore), 200)]
-    public async Task<IActionResult> GetHealthScoreByIDomainIdAsync(
-        [FromRoute] Guid businessDomainId,
-        [FromRoute] Guid dataProductId,
-        [FromRoute] Guid dataAssetId,
+    public async Task<IActionResult> GetDataQualityScoresByDataAssetIdAsync(
+        [FromQuery(Name = "dataAssetId")] Guid dataAssetId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        IBatchResults<IHealthScoreModel<HealthScoreProperties>> healthScoreModelResults
-            = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
-                .CreateHealthScoreCollectionComponent(
-                    this.requestHeaderContext.TenantId,
-                    this.requestHeaderContext.AccountObjectId)
-                .ById(businessDomainId)
-                .Get(cancellationToken);
+        DataQualityScoresModel healthScoreModelResults = await this.coreLayerFactory
+            .Of(ServiceVersion.From(apiVersion))
+            .CreateDataQualityScoresCollectionComponent(
+                this.requestHeaderContext.TenantId,
+                this.requestHeaderContext.AccountObjectId)
+            .GetDataAssetScoreById(dataAssetId)
+            .Get(cancellationToken);
 
-        var healthScores = new HealthScoreList
-        {
-            Value = healthScoreModelResults.Results.Select(
-            healthScore => this.adapterRegistry.AdapterFor<IHealthScoreModel<HealthScoreProperties>, HealthScore>()
-            .FromModel(healthScore))
-            .ToList()
-        };
-
-        return this.Ok(healthScores);
+        return this.Ok(healthScoreModelResults);
     }
 
     /// <summary>
@@ -230,18 +206,23 @@ public class DataQualityScoresController : DataPlaneController
     [HttpGet]
     [Route("{businessDomainId}/dataProducts/{dataProductId}/dataAssets")]
     [ProducesResponseType(typeof(HealthScoreList), 200)]
-    public async Task<IActionResult> ListHealthScoresAsync(
+    public async Task<IActionResult> ListDataQualityDataAssetScoresAsync(
         [FromRoute] Guid businessDomainId,
         [FromRoute] Guid dataProductId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken,
         [FromQuery(Name = "skipToken")] string skipToken = null)
     {
-        IBatchResults<IHealthScoreModel<HealthScoreProperties>> results = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
-            .CreateHealthScoreCollectionComponent(
+        IBatchResults<IHealthScoreModel<HealthScoreProperties>> results = await this.coreLayerFactory
+            .Of(ServiceVersion.From(apiVersion))
+            .CreateDataQualityScoresCollectionComponent(
                 this.requestHeaderContext.TenantId,
                 this.requestHeaderContext.AccountObjectId)
-            .Get(cancellationToken, skipToken);
+            .GetDataAssetScores(
+                businessDomainId,
+                dataProductId,
+                cancellationToken,
+                skipToken);
 
         var healthScores = new HealthScoreList
         {
