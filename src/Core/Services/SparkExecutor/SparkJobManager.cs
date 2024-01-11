@@ -17,8 +17,8 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.DGP.ServiceBasics.Errors;
-using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 
 internal sealed class SparkJobManager : ISparkJobManager
 {
@@ -31,7 +31,6 @@ internal sealed class SparkJobManager : ISparkJobManager
     {
         Converters = { new JsonStringEnumConverter() }
     };
-
 
     public SparkJobManager(
         ISparkPoolRepository<SparkPoolModel> sparkPoolRepository,

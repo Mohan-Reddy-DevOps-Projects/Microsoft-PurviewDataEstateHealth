@@ -18,6 +18,15 @@ public interface IAccountExposureControlConfigProvider
     public bool IsDataGovProvisioningEnabled(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
+    /// Determines if provisioning for Data Quality is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId">The accountId</param>
+    /// <param name="subscriptionId">The subscription id</param>
+    /// <param name="tenantId">The tenant id</param>
+    /// <returns></returns>
+    public bool IsDataQualityProvisioningEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
     /// Determines if provisioning for Data Governance Health is enabled. By default this is false.
     /// </summary>
     /// <param name="accountId"></param>

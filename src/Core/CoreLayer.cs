@@ -45,6 +45,7 @@ public static class CoreLayer
         services.AddPowerBI();
         services.AddCommands();
         services.AddScoped<ICatalogSparkJobComponent, CatalogSparkJobComponent>();
+        services.AddScoped<IDataQualitySparkJobComponent, DataQualitySparkJobComponent>();
         services.AddScoped<IDatasetsComponent, DatasetsComponent>();
         services.AddScoped<IRefreshComponent, RefreshComponent>();
 

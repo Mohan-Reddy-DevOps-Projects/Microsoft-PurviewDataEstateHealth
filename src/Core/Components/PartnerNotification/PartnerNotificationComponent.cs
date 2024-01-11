@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
@@ -53,6 +54,9 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     
     [Inject]
     private readonly IJobManager backgroundJobManager;
+
+    [Inject]
+    private readonly IAccountExposureControlConfigProvider exposureControl;
 
 #pragma warning restore 649
 
@@ -150,6 +154,14 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 
     private async Task ProvisionSparkJobs(AccountServiceModel account)
     {
-        await backgroundJobManager.ProvisionCatalogSparkJob(account);
+        if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            await this.backgroundJobManager.ProvisionCatalogSparkJob(account);
+        }
+
+        if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            await this.backgroundJobManager.ProvisionDataQualitySparkJob(account);
+        }
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 /// <summary>
 /// Spark job component.
 /// </summary>
-public interface ICatalogSparkJobComponent
+public interface IDataQualitySparkJobComponent
 {
     /// <summary>
     /// Submit a spark job.

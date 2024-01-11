@@ -116,4 +116,11 @@ public interface IJobManager
     /// <param name="accountServiceModel"></param>
     /// <returns></returns>
     Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel);
+
+    /// <summary>
+    /// Provisions data quality SPARK job per account.
+    /// </summary>
+    /// <param name="accountServiceModel"></param>
+    /// <returns></returns>
+    Task ProvisionDataQualitySparkJob(AccountServiceModel accountServiceModel);
 }

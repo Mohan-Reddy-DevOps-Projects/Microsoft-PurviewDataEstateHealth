@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -12,18 +13,17 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
-using Polly;
-using System.Collections.Concurrent;
-using Microsoft.DGP.ServiceBasics.Errors;
-using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
-using Microsoft.Extensions.Options;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
-using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.DGP.ServiceBasics.Errors;
+using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
+using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
+using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
+using Polly;
 
 /// <inheritdoc />
 public class JobManager : IJobManager
@@ -58,6 +58,9 @@ public class JobManager : IJobManager
     /// </summary>
     protected readonly WorkerJobExecutionContext WorkerJobExecutionContext;
 
+    private const int SparkJobsStartTime = 7; //Minutes
+    private const int SparkJobsRetryStrategyTime = 15; //Minutes
+
     /// <summary>
     /// Initializes a new instance of the <see cref="JobManager" /> class.
     /// </summary>
@@ -76,7 +79,8 @@ public class JobManager : IJobManager
                 ReplicationEnabled = false
             };
 
-            var cloudStorageAccount = await jobStorageAccountBuilder.Build();
+            WindowsAzure.Storage.CloudStorageAccount cloudStorageAccount = await jobStorageAccountBuilder.Build();
+
             return new JobManagementClient(
                 storageAccount: cloudStorageAccount,
                 executionAffinity: environmentConfiguration.Value.Location,
@@ -300,8 +304,8 @@ public class JobManager : IJobManager
 
         StartPBIRefreshMetadata jobMetadata = new()
         {
-            WorkerJobExecutionContext = WorkerJobExecutionContext.None,
             RequestContext = metadata.RequestContext,
+            WorkerJobExecutionContext = WorkerJobExecutionContext.None,
             Account = accountModel,
             RefreshLookups = new List<RefreshLookup>()
         };
@@ -359,9 +363,12 @@ public class JobManager : IJobManager
     /// <inheritdoc />
     public async Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel)
     {
+        const int catalogRepeatStrategyTime = 1; // Days
+
         string accountId = accountServiceModel.Id;
         string jobPartition = $"{accountId}-SPARK-JOBS";
         string jobId = $"{accountId}-CATALOG-SPARK-JOB";
+
         BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
 
         if (job != null && job.State == JobState.Faulted)
@@ -372,7 +379,7 @@ public class JobManager : IJobManager
 
         if (job == null)
         {
-            var jobMetadata = new CatalogSparkJobMetadata
+            var jobMetadata = new SparkJobMetadata
             {
                 WorkerJobExecutionContext = WorkerJobExecutionContext.None,
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
@@ -387,9 +394,53 @@ public class JobManager : IJobManager
                     jobMetadata,
                     jobPartition,
                     jobId)
-                .WithStartTime(DateTime.UtcNow.AddMinutes(7))
-                .WithRepeatStrategy(TimeSpan.FromDays(1))
-                .WithRetryStrategy(TimeSpan.FromMinutes(15))
+                .WithStartTime(DateTime.UtcNow.AddMinutes(SparkJobsStartTime))
+                .WithRepeatStrategy(TimeSpan.FromDays(catalogRepeatStrategyTime))
+                .WithRetryStrategy(TimeSpan.FromMinutes(SparkJobsRetryStrategyTime))
+                .WithoutEndTime();
+
+            await this.CreateJobAsync(jobBuilder);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task ProvisionDataQualitySparkJob(AccountServiceModel accountServiceModel)
+    {
+        const int dqRepeatStrategyTime = 1; // Hours
+
+        string accountId = accountServiceModel.Id;
+        string jobPartition = $"{accountId}-SPARK-JOBS";
+        string jobId = $"{accountId}-DATAQUALITY-SPARK-JOB";
+
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null && job.State == JobState.Faulted)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new SparkJobMetadata
+            {
+                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+                AccountServiceModel = accountServiceModel,
+                SparkJobBatchId = string.Empty,
+                IsCompleted = false
+            };
+
+            this.UpdateDerivedMetadataProperties(jobMetadata);
+
+            JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
+                    nameof(DataQualitySparkJobCallback),
+                    jobMetadata,
+                    jobPartition,
+                    jobId)
+                .WithStartTime(DateTime.UtcNow.AddMinutes(SparkJobsStartTime))
+                .WithRepeatStrategy(TimeSpan.FromHours(dqRepeatStrategyTime))
+                .WithRetryStrategy(TimeSpan.FromMinutes(SparkJobsRetryStrategyTime))
                 .WithoutEndTime();
 
             await this.CreateJobAsync(jobBuilder);
@@ -411,6 +462,7 @@ public class JobManager : IJobManager
             {
                 CorrelationId = metadata.RequestContext.CorrelationId
             };
+
             RequestCorrelationContext.Current.Initialize(requestCorrelationContext);
         }
         else
