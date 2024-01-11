@@ -21,7 +21,7 @@ public interface IDataQualityScoreCollectionComponent :
     /// <param name="cancellationToken"></param>
     /// <param name="skipToken"></param>
     /// <returns></returns>
-    public Task<IBatchResults<DataQualityScoreModel>> GetDomainScores(
+    public Task<IBatchResults<IDataQualityScoresModel>> GetDomainScores(
         CancellationToken cancellationToken,
         string skipToken = null);
 
@@ -36,12 +36,10 @@ public interface IDataQualityScoreCollectionComponent :
     /// <summary>
     /// Get all data product scores from a specific domain.
     /// </summary>
-    /// <param name="domainId"></param>
     /// <param name="cancellationToken"></param>
     /// <param name="skipToken"></param>
     /// <returns></returns>
-    public Task<IBatchResults<DataQualityScoreModel>> GetDataProductScores(
-        Guid domainId,
+    public Task<IBatchResults<IDataQualityScoresModel>> GetDataProductScores(
         CancellationToken cancellationToken,
         string skipToken = null);
 
@@ -56,14 +54,10 @@ public interface IDataQualityScoreCollectionComponent :
     /// <summary>
     /// Get all data asset scores from a specific data product.
     /// </summary>
-    /// <param name="domainId"></param>
-    /// <param name="dataProductId"></param>
     /// <param name="cancellationToken"></param>
     /// <param name="skipToken"></param>
     /// <returns></returns>
-    public Task<IBatchResults<DataQualityScoreModel>> GetDataAssetScores(
-        Guid domainId,
-        Guid dataProductId,
+    public Task<IBatchResults<IDataQualityScoresModel>> GetDataAssetScores(
         CancellationToken cancellationToken,
         string skipToken = null);
 

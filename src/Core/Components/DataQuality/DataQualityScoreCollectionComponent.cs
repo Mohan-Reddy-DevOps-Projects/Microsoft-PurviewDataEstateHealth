@@ -6,13 +6,17 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.OData.Query;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.BaseModels;
 using Microsoft.DGP.ServiceBasics.Components;
-using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
+using Microsoft.Purview.DataGovernance.DataLakeAPI.Entities;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.OData.Edm;
+using Microsoft.OData.UriParser;
 
 [Component(typeof(IDataQualityScoreCollectionComponent), ServiceVersion.V1)]
 internal class DataQualityScoreCollectionComponent :
@@ -24,10 +28,13 @@ internal class DataQualityScoreCollectionComponent :
     protected readonly IComponentContextFactory contextFactory;
 
     [Inject]
-    private IDataQualityScoreRepository dataQualityScoreRepository;
+    private readonly IRequestHeaderContext requestHeaderContext;
 
     [Inject]
-    private readonly IRequestHeaderContext requestHeaderContext;
+    private readonly IDatasetsComponent datasetsComponent;
+
+    [Inject]
+    private readonly IODataModelProvider modelProvider;
 #pragma warning restore 649
 
     public DataQualityScoreCollectionComponent(IDataQualityListContext context, int version) : base(context, version)
@@ -37,32 +44,37 @@ internal class DataQualityScoreCollectionComponent :
     [Initialize]
     public void Initialize()
     {
-        this.dataQualityScoreRepository = this.dataQualityScoreRepository.ByLocation(this.Context.Location);
     }
 
     /// <inheritdoc />
-    public async Task<IBatchResults<DataQualityScoreModel>> GetDomainScores(
+    public async Task<IBatchResults<IDataQualityScoresModel>> GetDomainScores(
         CancellationToken cancellationToken,
-        string skipToken = null)
+    string skipToken = null)
     {
-        IBatchResults<DataQualityScoreModel> actionResults = await this.dataQualityScoreRepository.GetMultiple(
-            new DomainDataQualityScoreKey(
-                Guid.Empty,
-                this.Context.AccountId,
-                new Guid(this.requestHeaderContext.CatalogId)),
-            cancellationToken,
-            skipToken);
+        ODataQueryOptions<BusinessDomainQualityScoreEntity> query = this.GetDomainOptions();
+        SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
+        Func<IQueryable<BusinessDomainQualityScoreEntity>> x = () => query.ApplyTo(context.BusinessDomainQualityScores.AsQueryable()) as IQueryable<BusinessDomainQualityScoreEntity>;
+        IQueryable<BusinessDomainQualityScoreEntity> businessDomainQualityScoresEntitiesList = this.datasetsComponent.GetDataset(x) as IQueryable<BusinessDomainQualityScoreEntity>;
 
-        if (actionResults == null)
+        List<IDataQualityScoresModel> businessDomainQualityScoresModelList = new();
+        BaseBatchResults<IDataQualityScoresModel> result = new()
         {
-            throw new ServiceError(
-               ErrorCategory.ResourceNotFound,
-               ErrorCode.HealthScores_NotAvailable.Code,
-               ErrorCode.HealthScores_NotAvailable.FormatMessage("Data quality not available for all business domains."))
-           .ToException();
+            Results = businessDomainQualityScoresModelList,
+            ContinuationToken = null
+        };
+
+        if (businessDomainQualityScoresModelList != null)
+        {
+            businessDomainQualityScoresModelList.AddRange(businessDomainQualityScoresEntitiesList.Select(businessDomainsQualityScoreEntity =>
+                new DataQualityScoresModel()
+                {
+                    BusinessDomainId = businessDomainsQualityScoreEntity.BusinessDomainId,
+                    LastRefreshedAt = businessDomainsQualityScoreEntity.LastRefreshedAt,
+                    QualityScore = businessDomainsQualityScoreEntity.QualityScore,
+                }));
         }
 
-        return actionResults;
+        return result;
     }
 
     /// <inheritdoc/>
@@ -82,29 +94,35 @@ internal class DataQualityScoreCollectionComponent :
     }
 
     /// <inheritdoc/>
-    public async Task<IBatchResults<DataQualityScoreModel>> GetDataProductScores(
-        Guid domainId,
+    public async Task<IBatchResults<IDataQualityScoresModel>> GetDataProductScores(
         CancellationToken cancellationToken,
         string skipToken = null)
     {
-        IBatchResults<DataQualityScoreModel> actionResults = await this.dataQualityScoreRepository.GetMultiple(
-            new DataProductDataQualityScoreKey(
-                Guid.Empty,
-                domainId,
-                this.Context.AccountId,
-                new Guid(this.requestHeaderContext.CatalogId)),
-            cancellationToken, skipToken);
+        ODataQueryOptions<DataProductQualityScoreEntity> query = this.GetProductOptions();
+        SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
+        Func<IQueryable<DataProductQualityScoreEntity>> x = () => query.ApplyTo(context.DataProductQualityScores.AsQueryable()) as IQueryable<DataProductQualityScoreEntity>;
+        IQueryable<DataProductQualityScoreEntity> dataProductQualityScoresEntitiesList = this.datasetsComponent.GetDataset(x) as IQueryable<DataProductQualityScoreEntity>;
 
-        if (actionResults == null)
+        List<IDataQualityScoresModel> dataProductQualityScoresModelList = new();
+        BaseBatchResults<IDataQualityScoresModel> result = new()
         {
-            throw new ServiceError(
-               ErrorCategory.ResourceNotFound,
-               ErrorCode.HealthScores_NotAvailable.Code,
-               ErrorCode.HealthScores_NotAvailable.FormatMessage("Data quality not available for all data products."))
-           .ToException();
+            Results = dataProductQualityScoresModelList,
+            ContinuationToken = null
+        };
+
+        if (dataProductQualityScoresModelList != null)
+        {
+            dataProductQualityScoresModelList.AddRange(dataProductQualityScoresEntitiesList.Select(dataProductsQualityScoreEntity =>
+                new DataQualityScoresModel()
+                {
+                    BusinessDomainId = dataProductsQualityScoreEntity.BusinessDomainId,
+                    DataProductId = dataProductsQualityScoreEntity.DataProductId,
+                    LastRefreshedAt = dataProductsQualityScoreEntity.LastRefreshedAt,
+                    QualityScore = dataProductsQualityScoreEntity.QualityScore,
+                }));
         }
 
-        return actionResults;
+        return result;
     }
 
     public IDataQualityScoreComponent GetDataProductScoreById(
@@ -123,31 +141,36 @@ internal class DataQualityScoreCollectionComponent :
     }
 
     /// <inheritdoc/>
-    public async Task<IBatchResults<DataQualityScoreModel>> GetDataAssetScores(
-        Guid domainId,
-        Guid dataProductId,
+    public async Task<IBatchResults<IDataQualityScoresModel>> GetDataAssetScores(
         CancellationToken cancellationToken,
         string skipToken = null)
     {
-        IBatchResults<DataQualityScoreModel> actionResults = await this.dataQualityScoreRepository.GetMultiple(
-            new DataAssetDataQualityScoreKey(
-                Guid.Empty,
-                dataProductId,
-                domainId,
-                this.Context.AccountId,
-                new Guid(this.requestHeaderContext.CatalogId)),
-            cancellationToken, skipToken);
+        ODataQueryOptions<AssetQualityScoreEntity> query = this.GetAssetOptions();
+        SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
+        Func<IQueryable<AssetQualityScoreEntity>> x = () => query.ApplyTo(context.AssetQualityScores.AsQueryable()) as IQueryable<AssetQualityScoreEntity>;
+        IQueryable<AssetQualityScoreEntity> assetQualityScoresEntitiesList = this.datasetsComponent.GetDataset(x) as IQueryable<AssetQualityScoreEntity>;
 
-        if (actionResults == null)
+        List<IDataQualityScoresModel> assetQualityScoresModelList = new();
+        BaseBatchResults<IDataQualityScoresModel> result = new()
         {
-            throw new ServiceError(
-               ErrorCategory.ResourceNotFound,
-               ErrorCode.HealthScores_NotAvailable.Code,
-               ErrorCode.HealthScores_NotAvailable.FormatMessage("Data quality not available for all data assets."))
-           .ToException();
+            Results = assetQualityScoresModelList,
+            ContinuationToken = null
+        };
+
+        if (assetQualityScoresModelList != null)
+        {
+            assetQualityScoresModelList.AddRange(assetQualityScoresEntitiesList.Select(assetQualityScoreEntity =>
+                new DataQualityScoresModel()
+                {
+                    DataAssetId = assetQualityScoreEntity.DataAssetId,
+                    BusinessDomainId = assetQualityScoreEntity.BusinessDomainId,
+                    DataProductId = assetQualityScoreEntity.DataProductId,
+                    LastRefreshedAt = assetQualityScoreEntity.LastRefreshedAt,
+                    QualityScore = assetQualityScoreEntity.QualityScore,
+                }));
         }
 
-        return actionResults;
+        return result;
     }
 
     public IDataQualityScoreComponent GetDataAssetScoreById(
@@ -163,5 +186,38 @@ internal class DataQualityScoreCollectionComponent :
                 Guid.Empty,
                 dataAssetId),
             this.Context.Version.Numeric);
+    }
+
+    private ODataQueryOptions<BusinessDomainQualityScoreEntity> GetDomainOptions()
+    {
+        IEdmModel model = this.modelProvider.GetEdmModel(this.requestHeaderContext.ApiVersion);
+        IEdmEntitySet entitySet = model.FindDeclaredEntitySet("DomainQualityScore");
+
+        ODataPath odataPath = new(new EntitySetSegment(entitySet));
+        ODataQueryContext context = new(model, typeof(BusinessDomainQualityScoreEntity), odataPath);
+
+        return new(context, this.requestHeaderContext.HttpContent.Request);
+    }
+
+    private ODataQueryOptions<DataProductQualityScoreEntity> GetProductOptions()
+    {
+        IEdmModel model = this.modelProvider.GetEdmModel(this.requestHeaderContext.ApiVersion);
+        IEdmEntitySet entitySet = model.FindDeclaredEntitySet("ProductQualityScore");
+
+        ODataPath odataPath = new(new EntitySetSegment(entitySet));
+        ODataQueryContext context = new(model, typeof(DataProductQualityScoreEntity), odataPath);
+
+        return new(context, this.requestHeaderContext.HttpContent.Request);
+    }
+
+    private ODataQueryOptions<AssetQualityScoreEntity> GetAssetOptions()
+    {
+        IEdmModel model = this.modelProvider.GetEdmModel(this.requestHeaderContext.ApiVersion);
+        IEdmEntitySet entitySet = model.FindDeclaredEntitySet("AssetQualityScore");
+
+        ODataPath odataPath = new(new EntitySetSegment(entitySet));
+        ODataQueryContext context = new(model, typeof(AssetQualityScoreEntity), odataPath);
+
+        return new(context, this.requestHeaderContext.HttpContent.Request);
     }
 }

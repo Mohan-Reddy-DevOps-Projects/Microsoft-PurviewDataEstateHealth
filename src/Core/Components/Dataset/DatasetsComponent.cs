@@ -87,7 +87,11 @@ internal class EntityConfiguration : IEntityConfiguration
     {
         modelBuilder.Entity<BusinessDomainEntity>()
             .ToTable("BusinessDomain", databaseSchema);
-        modelBuilder.Entity<DataQualityScoreEntity>()
-            .ToTable("DataQualityScore", databaseSchema);
+        modelBuilder.Entity<AssetQualityScoreEntity>()
+            .ToTable("AssetQualityScore", databaseSchema);
+        modelBuilder.Entity<BusinessDomainQualityScoreEntity>()
+            .ToTable("DomainQualityScore", databaseSchema);
+        modelBuilder.Entity<DataProductQualityScoreEntity>()
+            .ToTable("ProductQualityScore", databaseSchema);
     }
 }

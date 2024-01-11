@@ -32,9 +32,6 @@ internal class DataQualityScoreComponent :
 
     [Inject]
     private readonly IRequestHeaderContext requestHeaderContext;
-
-    [Inject]
-    private readonly IDataQualityScoreRepository dataQualityScoreRepository;
 #pragma warning restore 649
 
     public DataQualityScoreComponent(IDataQualityContext context, int version)
@@ -52,53 +49,99 @@ internal class DataQualityScoreComponent :
     {
         if (this.Context.DataAssetId != Guid.Empty)
         {
-            ODataQueryOptions<DataQualityScoreEntity> query = this.GetOptions();
+            ODataQueryOptions<AssetQualityScoreEntity> assetQuery = this.GetAssetOptions();
 
-            SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
-            Func<IQueryable<DataQualityScoreEntity>> x = () => query.ApplyTo(this.GetScoreForAssetId(context, this.Context.DataAssetId)) as IQueryable<DataQualityScoreEntity>;
-            IQueryable <DataQualityScoreEntity> score = this.datasetsComponent.GetDataset(x) as IQueryable<DataQualityScoreEntity>;
+            SynapseSqlContext assetContext = await this.datasetsComponent.GetContext(cancellationToken);
+            Func<IQueryable<AssetQualityScoreEntity>> x = () => assetQuery.ApplyTo(this.GetScoreForAssetId(assetContext, this.Context.DataAssetId)) as IQueryable<AssetQualityScoreEntity>;
+            IQueryable <AssetQualityScoreEntity> assetScore = this.datasetsComponent.GetDataset(x) as IQueryable<AssetQualityScoreEntity>;
 
-            return score.Select(x => new DataQualityScoresModel()
+            return assetScore.Select(x => new DataQualityScoresModel()
             {
                     QualityScore = x.QualityScore,
+                    LastRefreshedAt = x.LastRefreshedAt,
+                    BusinessDomainId = x.BusinessDomainId,
+                    DataAssetId = x.DataAssetId,
+                    DataProductId = x.DataProductId,
                 
             }).Single();
         }
 
         if (this.Context.DataProductId != Guid.Empty)
         {
-            // Fetch data product's data quality score by id
-            return await this.dataQualityScoreRepository.GetSingle(
-                new DataProductDataQualityScoreKey(
-                    this.Context.DataProductId,
-                    this.Context.BusinessDomainId,
-                    this.Context.AccountId,
-                    new Guid(this.requestHeaderContext.CatalogId)),
-                cancellationToken);
+            ODataQueryOptions<DataProductQualityScoreEntity> productQuery = this.GetProductOptions();
+
+            SynapseSqlContext productContext = await this.datasetsComponent.GetContext(cancellationToken);
+            Func<IQueryable<DataProductQualityScoreEntity>> y = () => productQuery.ApplyTo(this.GetScoreForDataProductId(productContext, this.Context.DataProductId)) as IQueryable<DataProductQualityScoreEntity>;
+            IQueryable<DataProductQualityScoreEntity> productScore = this.datasetsComponent.GetDataset(y) as IQueryable<DataProductQualityScoreEntity>;
+
+            return productScore.Select(y => new DataQualityScoresModel()
+            {
+                QualityScore = y.QualityScore,
+                LastRefreshedAt = y.LastRefreshedAt,
+                BusinessDomainId = y.BusinessDomainId,
+                DataProductId = y.DataProductId
+            }).Single();
         }
 
-        // Fetch business domain's data quality score by id
-        return await this.dataQualityScoreRepository.GetSingle(
-            new DomainDataQualityScoreKey(
-                this.Context.BusinessDomainId,
-                this.Context.AccountId,
-                new Guid(this.requestHeaderContext.CatalogId)),
-            cancellationToken);
+        ODataQueryOptions<BusinessDomainQualityScoreEntity> query = this.GetBusinessDomainOptions();
+
+        SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
+        Func<IQueryable<BusinessDomainQualityScoreEntity>> z = () => query.ApplyTo(this.GetScoreForBusinessDomainId(context, this.Context.BusinessDomainId)) as IQueryable<BusinessDomainQualityScoreEntity>;
+        IQueryable<BusinessDomainQualityScoreEntity> score = this.datasetsComponent.GetDataset(z) as IQueryable<BusinessDomainQualityScoreEntity>;
+
+        return score.Select(z => new DataQualityScoresModel()
+        {
+            QualityScore = z.QualityScore,
+            LastRefreshedAt = z.LastRefreshedAt,
+            BusinessDomainId = z.BusinessDomainId
+        }).Single();
     }
 
-    private ODataQueryOptions<DataQualityScoreEntity> GetOptions()
+    private ODataQueryOptions<AssetQualityScoreEntity> GetAssetOptions()
     {
         IEdmModel model = this.modelProvider.GetEdmModel(this.requestHeaderContext.ApiVersion);
-        IEdmEntitySet entitySet = model.FindDeclaredEntitySet("DataQualityScore");
+        IEdmEntitySet entitySet = model.FindDeclaredEntitySet("AssetQualityScore");
 
         ODataPath odataPath = new(new EntitySetSegment(entitySet));
-        ODataQueryContext context = new(model, typeof(DataQualityScoreEntity), odataPath);
+        ODataQueryContext context = new(model, typeof(AssetQualityScoreEntity), odataPath);
+
+        return new(context, this.requestHeaderContext.HttpContent.Request);
+    }
+
+    private ODataQueryOptions<DataProductQualityScoreEntity> GetProductOptions()
+    {
+        IEdmModel model = this.modelProvider.GetEdmModel(this.requestHeaderContext.ApiVersion);
+        IEdmEntitySet entitySet = model.FindDeclaredEntitySet("ProductQualityScore");
+
+        ODataPath odataPath = new(new EntitySetSegment(entitySet));
+        ODataQueryContext context = new(model, typeof(DataProductQualityScoreEntity), odataPath);
+
+        return new(context, this.requestHeaderContext.HttpContent.Request);
+    }
+
+    private ODataQueryOptions<BusinessDomainQualityScoreEntity> GetBusinessDomainOptions()
+    {
+        IEdmModel model = this.modelProvider.GetEdmModel(this.requestHeaderContext.ApiVersion);
+        IEdmEntitySet entitySet = model.FindDeclaredEntitySet("DomainQualityScore");
+
+        ODataPath odataPath = new(new EntitySetSegment(entitySet));
+        ODataQueryContext context = new(model, typeof(BusinessDomainQualityScoreEntity), odataPath);
 
         return new(context, this.requestHeaderContext.HttpContent.Request);
     }
 
     private IQueryable GetScoreForAssetId(SynapseSqlContext dbContext, Guid assetId)
     {
-        return dbContext.DataQualityScores.Where(score => score.DataAssetId == assetId);
+        return dbContext.AssetQualityScores.Where(score => score.DataAssetId == assetId);
+    }
+
+    private IQueryable GetScoreForDataProductId(SynapseSqlContext dbContext, Guid dataProductId)
+    {
+        return dbContext.DataProductQualityScores.Where(score => score.DataProductId == dataProductId);
+    }
+
+    private IQueryable GetScoreForBusinessDomainId(SynapseSqlContext dbContext, Guid businessDomainId)
+    {
+        return dbContext.BusinessDomainQualityScores.Where(score => score.BusinessDomainId == businessDomainId);
     }
 }

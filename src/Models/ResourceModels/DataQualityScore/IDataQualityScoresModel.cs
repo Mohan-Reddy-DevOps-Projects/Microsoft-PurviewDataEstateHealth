@@ -18,4 +18,19 @@ public interface IDataQualityScoresModel
     /// Last refreshed at
     /// </summary>
     DateTime LastRefreshedAt { get; }
+
+    /// <summary>
+    /// Business domain Id
+    /// </summary>
+    Guid BusinessDomainId { get; }
+
+    /// <summary>
+    /// Data Product Id
+    /// </summary>
+    Guid DataProductId { get; }
+
+    /// <summary>
+    /// Data asset Id
+    /// </summary>
+    Guid DataAssetId { get; }
 }

@@ -53,14 +53,14 @@ public class DataQualityScoresController : DataPlaneController
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpGet]
-    [Route("businessDomains")]
-    [ProducesResponseType(typeof(DataQualityScore), 200)]
+    [Route("businessDomains/{businessDomainId}")]
+    [ProducesResponseType(typeof(BusinessDomainDataQualityScore), 200)]
     public async Task<IActionResult> GetDataQualityScoreByDomainIdAsync(
-        [FromQuery(Name = "businessDomainId")] Guid businessDomainId,
+        [FromRoute] Guid businessDomainId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        DataQualityScoresModel results
+        DataQualityScoresModel dataQualityScoresModel
             = await this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
                 .CreateDataQualityScoresCollectionComponent(
                     this.requestHeaderContext.TenantId,
@@ -68,7 +68,9 @@ public class DataQualityScoresController : DataPlaneController
                 .GetDomainScoreById(businessDomainId)
                 .Get(cancellationToken);
 
-        return this.Ok(results);
+        return this.Ok(
+                   this.adapterRegistry.AdapterFor<IDataQualityScoresModel, BusinessDomainDataQualityScore>()
+                   .FromModel(dataQualityScoresModel));
     }
 
     /// <summary>
@@ -79,28 +81,29 @@ public class DataQualityScoresController : DataPlaneController
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpGet]
-    [ProducesResponseType(typeof(HealthScoreList), 200)]
+    [Route("businessDomains")]
+    [ProducesResponseType(typeof(BusinessDomainDataQualityScoreList), 200)]
     public async Task<IActionResult> ListDataQualityDomainScoresAsync(
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken,
         [FromQuery(Name = "skipToken")] string skipToken = null)
     {
-        IBatchResults<DataQualityScoreModel> results = await this.coreLayerFactory
+        IBatchResults<IDataQualityScoresModel> results = await this.coreLayerFactory
             .Of(ServiceVersion.From(apiVersion))
             .CreateDataQualityScoresCollectionComponent(
                 this.requestHeaderContext.TenantId,
                 this.requestHeaderContext.AccountObjectId)
             .GetDomainScores(cancellationToken, skipToken);
 
-        var healthScores = new HealthScoreList
+        var businessDomainQualityScores = new BusinessDomainDataQualityScoreList
         {
             Value = results.Results.Select(
-            healthScore => this.adapterRegistry.AdapterFor<IHealthScoreModel<HealthScoreProperties>, HealthScore>()
-            .FromModel(healthScore))
+            businessDomainDataQualityScore => this.adapterRegistry.AdapterFor<IDataQualityScoresModel, BusinessDomainDataQualityScore>()
+            .FromModel(businessDomainDataQualityScore))
             .ToList()
         };
 
-        return this.Ok(healthScores);
+        return this.Ok(businessDomainQualityScores);
     }
 
     /// <summary>
@@ -111,14 +114,14 @@ public class DataQualityScoresController : DataPlaneController
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpGet]
-    [Route("dataProducts")]
-    [ProducesResponseType(typeof(DataQualityScore), 200)]
+    [Route("dataProducts/{dataProductId}")]
+    [ProducesResponseType(typeof(ProductDataQualityScore), 200)]
     public async Task<IActionResult> GetDataQualityScoresByDataProductIdAsync(
-        [FromQuery(Name = "dataProductId")] Guid dataProductId,
+        [FromRoute] Guid dataProductId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        DataQualityScoresModel score = await this.coreLayerFactory
+        DataQualityScoresModel dataQualityScoresModel = await this.coreLayerFactory
             .Of(ServiceVersion.From(apiVersion))
             .CreateDataQualityScoresCollectionComponent(
                 this.requestHeaderContext.TenantId,
@@ -127,45 +130,44 @@ public class DataQualityScoresController : DataPlaneController
                 dataProductId)
             .Get(cancellationToken);
 
-        return this.Ok(score);
+        return this.Ok(
+                  this.adapterRegistry.AdapterFor<IDataQualityScoresModel, ProductDataQualityScore>()
+                  .FromModel(dataQualityScoresModel));
     }
 
     /// <summary>
     /// Get data quality scores for all data products in a given domain.
     /// </summary>
-    /// <param name="businessDomainId">Business Domain Id</param>
     /// <param name="apiVersion">The api version of the call</param>
     /// <param name="skipToken">The continuation token to list the next page.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpGet]
-    [Route("{businessDomainId}/dataProducts")]
-    [ProducesResponseType(typeof(HealthScoreList), 200)]
+    [Route("dataProducts")]
+    [ProducesResponseType(typeof(ProductDataQualityScoreList), 200)]
     public async Task<IActionResult> ListDataQualityDataProductScoresAsync(
-        [FromRoute] Guid businessDomainId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken,
         [FromQuery(Name = "skipToken")] string skipToken = null)
     {
-        IBatchResults<DataQualityScoreModel> results = await this.coreLayerFactory
+        IBatchResults<IDataQualityScoresModel> results = await this.coreLayerFactory
             .Of(ServiceVersion.From(apiVersion))
             .CreateDataQualityScoresCollectionComponent(
                 this.requestHeaderContext.TenantId,
                 this.requestHeaderContext.AccountObjectId)
             .GetDataProductScores(
-                businessDomainId,
                 cancellationToken,
                 skipToken);
 
-        var healthScores = new HealthScoreList
+        var dataProductQualityScores = new ProductDataQualityScoreList
         {
             Value = results.Results.Select(
-            healthScore => this.adapterRegistry.AdapterFor<IHealthScoreModel<HealthScoreProperties>, HealthScore>()
-            .FromModel(healthScore))
-            .ToList()
+           dataProductQualityScore => this.adapterRegistry.AdapterFor<IDataQualityScoresModel, ProductDataQualityScore>()
+           .FromModel(dataProductQualityScore))
+           .ToList()
         };
 
-        return this.Ok(results);
+        return this.Ok(dataProductQualityScores);
     }
 
     /// <summary>
@@ -176,14 +178,14 @@ public class DataQualityScoresController : DataPlaneController
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpGet]
-    [Route("dataAssets")]
-    [ProducesResponseType(typeof(DataQualityScore), 200)]
+    [Route("dataAssets/{dataAssetId}")]
+    [ProducesResponseType(typeof(AssetDataQualityScore), 200)]
     public async Task<IActionResult> GetDataQualityScoresByDataAssetIdAsync(
-        [FromQuery(Name = "dataAssetId")] Guid dataAssetId,
+        [FromRoute] Guid dataAssetId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken)
     {
-        DataQualityScoresModel healthScoreModelResults = await this.coreLayerFactory
+        DataQualityScoresModel dataQualityScoresModel = await this.coreLayerFactory
             .Of(ServiceVersion.From(apiVersion))
             .CreateDataQualityScoresCollectionComponent(
                 this.requestHeaderContext.TenantId,
@@ -191,47 +193,43 @@ public class DataQualityScoresController : DataPlaneController
             .GetDataAssetScoreById(dataAssetId)
             .Get(cancellationToken);
 
-        return this.Ok(healthScoreModelResults);
+        return this.Ok(
+                  this.adapterRegistry.AdapterFor<IDataQualityScoresModel, AssetDataQualityScore>()
+                  .FromModel(dataQualityScoresModel));
     }
 
     /// <summary>
     /// Get data quality scores for all assets in a given data product.
     /// </summary>
-    /// <param name="businessDomainId">Business domain id.</param>
-    /// <param name="dataProductId">Data product id.</param>
     /// <param name="apiVersion">The api version of the call</param>
     /// <param name="skipToken">The continuation token to list the next page.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns></returns>
     [HttpGet]
-    [Route("{businessDomainId}/dataProducts/{dataProductId}/dataAssets")]
-    [ProducesResponseType(typeof(HealthScoreList), 200)]
+    [Route("dataAssets")]
+    [ProducesResponseType(typeof(AssetDataQualityScoreList), 200)]
     public async Task<IActionResult> ListDataQualityDataAssetScoresAsync(
-        [FromRoute] Guid businessDomainId,
-        [FromRoute] Guid dataProductId,
         [FromQuery(Name = "api-version")] string apiVersion,
         CancellationToken cancellationToken,
         [FromQuery(Name = "skipToken")] string skipToken = null)
     {
-        IBatchResults<IHealthScoreModel<HealthScoreProperties>> results = await this.coreLayerFactory
+        IBatchResults<IDataQualityScoresModel> results = await this.coreLayerFactory
             .Of(ServiceVersion.From(apiVersion))
             .CreateDataQualityScoresCollectionComponent(
                 this.requestHeaderContext.TenantId,
                 this.requestHeaderContext.AccountObjectId)
             .GetDataAssetScores(
-                businessDomainId,
-                dataProductId,
                 cancellationToken,
                 skipToken);
 
-        var healthScores = new HealthScoreList
+        var assetQualityScores = new AssetDataQualityScoreList
         {
             Value = results.Results.Select(
-            healthScore => this.adapterRegistry.AdapterFor<IHealthScoreModel<HealthScoreProperties>, HealthScore>()
-            .FromModel(healthScore))
-            .ToList()
+          assetQualityScore => this.adapterRegistry.AdapterFor<IDataQualityScoresModel, AssetDataQualityScore>()
+          .FromModel(assetQualityScore))
+          .ToList()
         };
 
-        return this.Ok(healthScores);
+        return this.Ok(assetQualityScores);
     }
 }

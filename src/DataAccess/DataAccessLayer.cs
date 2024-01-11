@@ -78,7 +78,6 @@ public static class DataAccessLayer
         services.AddSingleton<ISparkPoolRepository<SparkPoolModel>, SynapseSparkPoolRepository>();
 
         services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
-        services.AddScoped<IDataQualityScoreRepository, DataQualityScoreRepository>();
         services.AddScoped<IHealthActionRepository, HealthActionRepository>();
         services.AddScoped<IHealthScoreRepository, HealthScoreRepository>();
         services.AddScoped<IHealthControlRepository, HealthControlRepository>();

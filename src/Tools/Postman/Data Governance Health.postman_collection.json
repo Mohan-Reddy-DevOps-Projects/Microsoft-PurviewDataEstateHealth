@@ -6,419 +6,674 @@
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "11463983"
 	},
-	"item": [
-		{
-			"name": "PartnerNotifications",
-			"item": [
-				{
-					"name": "Account deletion",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "x-ms-account-id",
-								"value": "{{accountId}}",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-catalog-id",
-								"value": "{{catalogId}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"id\": \"{{accountId}}\",\r\n    \"tenantId\" : \"{{tenantId}}\",\r\n    \"defaultCatalogId\": \"{{catalogId}}\",\r\n    \"location\": \"westus2\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/controlplane/account/{{accountId}}?api-version={{api-version}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"controlplane",
-								"account",
-								"{{accountId}}"
-							],
-							"query": [
-								{
-									"key": "api-version",
-									"value": "{{api-version}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Account create or update",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "x-ms-account-id",
-								"value": "{{accountId}}",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-catalog-id",
-								"value": "{{catalogId}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"id\": \"{{accountId}}\",\r\n    \"tenantId\" : \"{{tenantId}}\",\r\n    \"defaultCatalogId\": \"{{catalogId}}\",\r\n    \"location\": \"westus\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/controlplane/account?api-version={{api-version}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"controlplane",
-								"account"
-							],
-							"query": [
-								{
-									"key": "api-version",
-									"value": "{{api-version}}"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Reports",
-			"item": [
-				{
-					"name": "Reports",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-account-id",
-								"value": "{{accountId}}",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-client-tenant-id",
-								"value": "{{tenantId}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/reports?api-version={{api-version}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"reports"
-							],
-							"query": [
-								{
-									"key": "api-version",
-									"value": "{{api-version}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Report",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-account-id",
-								"value": "{{accountId}}",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-client-tenant-id",
-								"value": "{{tenantId}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/reports/{{reportId}}?api-version={{api-version}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"reports",
-								"{{reportId}}"
-							],
-							"query": [
-								{
-									"key": "api-version",
-									"value": "{{api-version}}"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Scores",
-			"item": [
-				{
-					"name": "Scores",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-account-id",
-								"value": "{{accountId}}",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-client-tenant-id",
-								"value": "{{tenantId}}",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-catalog-id",
-								"value": "{{catalogId}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/scores/businessDomains?api-version={{api-version}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"scores",
-								"businessDomains"
-							],
-							"query": [
-								{
-									"key": "api-version",
-									"value": "{{api-version}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Scores by BusinessDomain",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-account-id",
-								"value": "{{accountId}}",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-client-tenant-id",
-								"value": "{{tenantId}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/scores/businessDomains/{{businessDomainId}}?api-version={{api-version}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"scores",
-								"businessDomains",
-								"{{businessDomainId}}"
-							],
-							"query": [
-								{
-									"key": "api-version",
-									"value": "{{api-version}}"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Datasets",
-			"item": [
-				{
-					"name": "Refresh History",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-account-id",
-								"value": "{{accountId}}",
-								"type": "text"
-							},
-							{
-								"key": "x-ms-client-tenant-id",
-								"value": "{{tenantId}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/datasets/1a21153b-e3d6-4ede-80c6-1bcbc234ddf4/refreshes?api-version={{api-version}}&top=1",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"datasets",
-								"1a21153b-e3d6-4ede-80c6-1bcbc234ddf4",
-								"refreshes"
-							],
-							"query": [
-								{
-									"key": "api-version",
-									"value": "{{api-version}}"
-								},
-								{
-									"key": "top",
-									"value": "1"
-								}
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Token",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "x-ms-account-id",
-						"value": "{{accountId}}",
-						"type": "text"
-					},
-					{
-						"key": "x-ms-client-tenant-id",
-						"value": "{{tenantId}}",
-						"type": "text"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"reportIds\": [\r\n        \"c0055cf4-e338-434f-90f9-6a82bdf6bdc2\"\r\n    ],\r\n    \"datasetIds\": [\r\n        \"f9f6d478-9aa0-4ad2-a51d-dd97b7ab467d\"\r\n    ]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{baseUrl}}/token?api-version={{api-version}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"token"
-					],
-					"query": [
-						{
-							"key": "api-version",
-							"value": "{{api-version}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "BusinessDomains",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Accept",
-						"value": "application/json",
-						"type": "text"
-					},
-					{
-						"key": "x-ms-account-id",
-						"value": "{{accountId}}",
-						"type": "text"
-					},
-					{
-						"key": "x-ms-client-tenant-id",
-						"value": "{{tenantId}}",
-						"type": "text"
-					},
-					{
-						"key": "x-ms-catalog-id",
-						"value": "{{catalogId}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "{{baseUrl}}/businessDomains?api-version={{api-version}}",
-					"host": [
-						"{{baseUrl}}"
-					],
-					"path": [
-						"businessDomains"
-					],
-					"query": [
-						{
-							"key": "api-version",
-							"value": "{{api-version}}"
-						}
-					]
-				}
-			},
-			"response": []
-		}
-	],
+    "item": [
+        {
+            "name": "PartnerNotifications",
+            "item": [
+                {
+                    "name": "Account deletion",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-catalog-id",
+                                "value": "{{catalogId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"id\": \"{{accountId}}\",\r\n    \"tenantId\" : \"{{tenantId}}\",\r\n    \"defaultCatalogId\": \"{{catalogId}}\",\r\n    \"location\": \"westus2\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/controlplane/account/{{accountId}}?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "controlplane",
+                                "account",
+                                "{{accountId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Account create or update",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-catalog-id",
+                                "value": "{{catalogId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\r\n    \"id\": \"{{accountId}}\",\r\n    \"tenantId\" : \"{{tenantId}}\",\r\n    \"defaultCatalogId\": \"{{catalogId}}\",\r\n    \"location\": \"westus\"\r\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/controlplane/account?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "controlplane",
+                                "account"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Reports",
+            "item": [
+                {
+                    "name": "Reports",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "reports"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Report",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/reports/{{reportId}}?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "reports",
+                                "{{reportId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "DQScores",
+            "item": [
+                {
+                    "name": "AssetScore",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/scores/dataQuality/dataAssets/{{dataAssetId}}?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "scores",
+                                "dataQuality",
+                                "dataAssets",
+                                "{{dataAssetId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "AssetScoreList",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/scores/dataQuality/dataAssets?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "scores",
+                                "dataQuality",
+                                "dataAssets"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "ProductScore",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/scores/dataQuality/dataProducts/{{dataProductId}}?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "scores",
+                                "dataQuality",
+                                "dataProducts",
+                                "{{dataProductId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "ProductScoreList",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/scores/dataQuality/dataProducts?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "scores",
+                                "dataQuality",
+                                "dataProducts"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "DomainScore",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/scores/dataQuality/businessDomains/{{businessDomainId}}?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "scores",
+                                "dataQuality",
+                                "businessDomains",
+                                "{{businessDomainId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "DomainScoreList",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/scores/dataQuality/businessDomains?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "scores",
+                                "dataQuality",
+                                "businessDomains"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Scores",
+            "item": [
+                {
+                    "name": "Scores",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-catalog-id",
+                                "value": "{{catalogId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/scores/businessDomains?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "scores",
+                                "businessDomains"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Scores by BusinessDomain",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/scores/businessDomains/{{businessDomainId}}?api-version={{api-version}}",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "scores",
+                                "businessDomains",
+                                "{{businessDomainId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Datasets",
+            "item": [
+                {
+                    "name": "Refresh History",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-account-id",
+                                "value": "{{accountId}}",
+                                "type": "text"
+                            },
+                            {
+                                "key": "x-ms-client-tenant-id",
+                                "value": "{{tenantId}}",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{baseUrl}}/datasets/1a21153b-e3d6-4ede-80c6-1bcbc234ddf4/refreshes?api-version={{api-version}}&top=1",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "datasets",
+                                "1a21153b-e3d6-4ede-80c6-1bcbc234ddf4",
+                                "refreshes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "api-version",
+                                    "value": "{{api-version}}"
+                                },
+                                {
+                                    "key": "top",
+                                    "value": "1"
+                                }
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Token",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-ms-account-id",
+                        "value": "{{accountId}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-ms-client-tenant-id",
+                        "value": "{{tenantId}}",
+                        "type": "text"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n    \"reportIds\": [\r\n        \"c0055cf4-e338-434f-90f9-6a82bdf6bdc2\"\r\n    ],\r\n    \"datasetIds\": [\r\n        \"f9f6d478-9aa0-4ad2-a51d-dd97b7ab467d\"\r\n    ]\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/token?api-version={{api-version}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "token"
+                    ],
+                    "query": [
+                        {
+                            "key": "api-version",
+                            "value": "{{api-version}}"
+                        }
+                    ]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "BusinessDomains",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-ms-account-id",
+                        "value": "{{accountId}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-ms-client-tenant-id",
+                        "value": "{{tenantId}}",
+                        "type": "text"
+                    },
+                    {
+                        "key": "x-ms-catalog-id",
+                        "value": "{{catalogId}}",
+                        "type": "text"
+                    }
+                ],
+                "url": {
+                    "raw": "{{baseUrl}}/businessDomains?api-version={{api-version}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "businessDomains"
+                    ],
+                    "query": [
+                        {
+                            "key": "api-version",
+                            "value": "{{api-version}}"
+                        }
+                    ]
+                }
+            },
+            "response": []
+        }
+
+    ],
 	"auth": {
 		"type": "bearer",
 		"bearer": [

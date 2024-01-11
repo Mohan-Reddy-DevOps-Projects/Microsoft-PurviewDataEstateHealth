@@ -7,10 +7,28 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using System.ComponentModel;
 
 /// <summary>
-/// A quality scores class.
+/// A quality scores class for assets.
 /// </summary>
-public class DataQualityScores
+public class AssetDataQualityScore
 {
+    /// <summary>
+    /// Business DomainId 
+    /// </summary>
+    [ReadOnly(true)]
+    public Guid BusinessDomainId { get; internal set; }
+
+    /// <summary>
+    /// Data Product Id
+    /// </summary>
+    [ReadOnly(true)]
+    public Guid DataProductId { get; internal set; }
+
+    /// <summary>
+    /// Data asset Id
+    /// </summary>
+    [ReadOnly(true)]
+    public Guid DataAssetId { get; internal set; }
+
     /// <summary>
     /// Quality score 
     /// </summary>

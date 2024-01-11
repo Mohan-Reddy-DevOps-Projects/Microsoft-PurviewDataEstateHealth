@@ -18,4 +18,19 @@ public class DataQualityScoresModel : IDataQualityScoresModel
     /// Last refreshed at
     /// </summary>
     public DateTime LastRefreshedAt { get; set; }
+
+    /// <summary>
+    /// Business domain Id
+    /// </summary>
+    public Guid BusinessDomainId { get; set; }
+
+    /// <summary>
+    /// Data Product Id
+    /// </summary>
+    public Guid DataProductId { get; set; }
+
+    /// <summary>
+    /// Data asset Id
+    /// </summary>
+    public Guid DataAssetId { get; set; }
 }
