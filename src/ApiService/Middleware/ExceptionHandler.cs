@@ -13,6 +13,8 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using System.Text;
 using System.Net.Http.Headers;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.DGP.ServiceBasics.Errors;
+using Microsoft.Data.SqlClient;
 
 internal static class ExceptionHandler
 {
@@ -38,10 +40,13 @@ internal static class ExceptionHandler
         {
             return;
         }
-        HttpStatusCode statusCode = ExceptionConverter.GetHttpStatusCode(contextFeature.Error);
+       
+        Exception exception = GetSqlDataNotFoundException(contextFeature.Error);
+        HttpStatusCode statusCode = ExceptionConverter.GetHttpStatusCode(exception);
+
         ErrorResponseModel errorResponse = new()
         {
-            Error = ExceptionConverter.CreateErrorModel(contextFeature.Error, statusCode, envConfig, requestContextAccessor.GetRequestContext())
+            Error = ExceptionConverter.CreateErrorModel(exception, statusCode, envConfig, requestContextAccessor.GetRequestContext())
         };
 
         await ModifyHttpResponse(context, statusCode, errorResponse);
@@ -64,6 +69,17 @@ internal static class ExceptionHandler
         await context.Response.WriteAsync(JsonConvert.SerializeObject(
             errorResponse,
             jsonSerializerSettings), Encoding.UTF8);
+    }
+
+    private static Exception GetSqlDataNotFoundException(Exception ex)
+    {
+        SqlException sqlException = ex.InnerException as SqlException;
+        if (sqlException.Number == 13807 || (sqlException.InnerException is SqlException innerSqlException && innerSqlException.Number == 13807))
+        {
+            return new ServiceError(ErrorCategory.ResourceNotFound, ErrorCode.AsyncOperation_ResultNotFound.Code, "The requested data could not be found.").ToException();
+        }
+
+        return ex;
     }
 }
 
