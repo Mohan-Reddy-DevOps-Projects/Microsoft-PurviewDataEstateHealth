@@ -42,6 +42,11 @@ public class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+        if (!builder.Environment.IsDevelopment())
+        {
+            SetAksConfiguration(builder);
+        }
+
         builder.WebHost.ConfigureKestrel((hostingContext, options) =>
         {
             ConfigurePortsAndSsl(hostingContext, options, builder);
@@ -204,8 +209,6 @@ public class Program
 
     private static void ConfigureKestrelServerForProduction(KestrelServerOptions options, WebApplicationBuilder builder)
     {
-        SetAksConfiguration(builder);
-
         var serverConfig = options.ApplicationServices.GetService<IOptions<ServiceConfiguration>>().Value;
 
         if (serverConfig.ApiServiceReadinessProbePort.HasValue)
