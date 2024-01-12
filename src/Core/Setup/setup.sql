@@ -112,7 +112,7 @@ BEGIN TRAN
         WITH (
             LOCATION = 'Sink/BusinessDomainTrendsById/',
             DATA_SOURCE = [@containerName],
-            FILE_FORMAT = [ParquetFormat]
+            FILE_FORMAT = DeltaLakeFormat
         )
     END
 
@@ -298,6 +298,213 @@ BEGIN TRAN
         )
         WITH (
             LOCATION='/Sink/TermContactAssociation/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'ActionCenter' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[ActionCenter]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[ActionCenter]
+        (
+            [RowId] uniqueidentifier,
+            [ActionId] nvarchar (512),
+            [DisplayName] nvarchar (128),
+            [Description] nvarchar (1024),
+            [TargetType] nvarchar (128),
+            [TargetId] uniqueidentifier,
+            [TargetName] nvarchar (128),
+            [OwnerContactId] nvarchar (36),
+            [OwnerContactDisplayName] nvarchar (128),
+            [HealthControlState] nvarchar (32),
+            [HealthControlName] nvarchar (64),
+            [HealthControlCategory] nvarchar (128),
+            [ActionStatus] nvarchar (32),
+            [BusinessDomainId] uniqueidentifier,
+            [DataProductId] nvarchar (36),
+            [DataAssetId] nvarchar (36),
+            [CreatedAt] datetime2,
+            [LastRefreshedAt] datetime2
+        )
+        WITH (
+            LOCATION = 'Sink/ActionCenter/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DomainHealthScores' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[DomainHealthScores]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[DomainHealthScores]
+        (
+            [BusinessDomainId] uniqueidentifier,
+            [Description] nvarchar (1024),
+            [Name] nvarchar (128),
+            [ScoreKind] nvarchar (128),
+            [ActualValue] float,
+            [TotalDataProducts] int,
+            [C2_Ownership] float,
+            [C3_AuthoritativeSource] float,
+            [C5_Catalog] float,
+            [C6_Classification] float,
+            [C7_Access] float,
+            [C8_DataConsumptionPurpose] float,
+            [C12_Quality] float,
+            [DataHealth] float,
+            [MetadataCompleteness] float,
+            [Use] float,
+            [Quality] float,
+            [LastRefreshedAt] datetime2
+        )
+        WITH (
+            LOCATION = 'Sink/DomainHealthScores/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'HealthScores' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[HealthScores]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[HealthScores]
+        (
+            [RowId] uniqueidentifier,
+            [Description] nvarchar (1024),
+            [Name] nvarchar (128),
+            [ScoreKind] nvarchar (128),
+            [ActualValue] float,
+            [TotalDataProducts] int,
+            [C2_Ownership] float,
+            [C3_AuthoritativeSource] float,
+            [C5_Catalog] float,
+            [C6_Classification] float,
+            [C7_Access] float,
+            [C8_DataConsumptionPurpose] float,
+            [C12_Quality] float,
+            [DataHealth] float,
+            [MetadataCompleteness] float,
+            [Use] float,
+            [Quality] float,
+            [LastRefreshedAt] datetime2
+        )
+        WITH (
+            LOCATION = 'Sink/HealthScores/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'DomainHealthSummary' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[DomainHealthSummary]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[DomainHealthSummary]
+        (
+            [BusinessDomainId] uniqueidentifier,
+            [BusinessDomainDisplayName] nvarchar (128),
+            [TotalBusinessDomains] int,
+            [TotalDataProductsCount] int,
+            [TotalCuratedDataAssetsCount] bigint,
+            [TotalOpenActionsCount] bigint,
+            [BusinessDomainsFilterListLink] nvarchar (512),
+            [BusinessDomainsTrendLink] nvarchar (512),
+            [DataProductsTrendLink] nvarchar (512),
+            [DataAssetsTrendLink] nvarchar (512),
+            [HealthActionsTrendLink] nvarchar (512),
+            [TotalReportsCount] int,
+            [ActiveReportsCount] int,
+            [DraftReportsCount] int,
+            [TotalCuratableDataAssetsCount] bigint,
+            [TotalNonCuratableDataAssetsCount] bigint,
+            [TotalCompletedActionsCount] int,
+            [TotalDismissedActionsCount] int,
+            [LastRefreshDate] datetime2
+        )
+        WITH (
+            LOCATION = 'Sink/DomainHealthSummary/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'HealthSummary' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[HealthSummary]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[HealthSummary]
+        (
+            [RowId] uniqueidentifier,
+            [TotalBusinessDomains] int,
+            [TotalDataProductsCount] int,
+            [TotalCuratedDataAssetsCount] bigint,
+            [TotalOpenActionsCount] int,
+            [BusinessDomainsFilterListLink] nvarchar (512),
+            [BusinessDomainsTrendLink] nvarchar (512),
+            [DataProductsTrendLink] nvarchar (512),
+            [DataAssetsTrendLink] nvarchar (512),
+            [HealthActionsTrendLink] nvarchar (512),
+            [TotalReportsCount] int,
+            [ActiveReportsCount] int,
+            [DraftReportsCount] int,
+            [TotalCuratableDataAssetsCount] bigint,
+            [TotalNonCuratableDataAssetsCount] bigint,
+            [TotalCompletedActionsCount] int,
+            [TotalDismissedActionsCount] int,
+            [LastRefreshDate] datetime2
+        )
+        WITH (
+            LOCATION = 'Sink/HealthSummary/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'AssetDomainAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[AssetDomainAssociation]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[AssetDomainAssociation]
+        (
+            [DataAssetId] uniqueidentifier,
+            [BusinessDomainId] uniqueidentifier
+        )
+        WITH (
+            LOCATION='/Sink/AssetDomainAssociation/',
+            DATA_SOURCE = [@containerName],
+            FILE_FORMAT = DeltaLakeFormat
+        )
+    END
+
+    IF EXISTS(SELECT [name] FROM sys.tables WHERE [name] = 'AssetProductAssociation' AND schema_id IN (select schema_id from sys.schemas where name = '@schemaName'))
+    BEGIN
+        DROP EXTERNAL TABLE [@schemaName].[AssetProductAssociation]
+    END
+
+    BEGIN
+        CREATE EXTERNAL TABLE [@schemaName].[AssetProductAssociation]
+        (
+            [DataAssetId] uniqueidentifier,
+            [DataProductId] uniqueidentifier
+        )
+        WITH (
+            LOCATION='/Sink/AssetProductAssociation/',
             DATA_SOURCE = [@containerName],
             FILE_FORMAT = DeltaLakeFormat
         )
