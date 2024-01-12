@@ -329,22 +329,33 @@ resource generateSqlAdminCreds 'Microsoft.Resources/deploymentScripts@2023-08-01
       Set-AzContext -subscription ${Env:subscriptionId}
 
       $symbols = '!@#$%^&*'.ToCharArray()
-      $characterList = 'a'..'z' + 'A'..'Z' + '0'..'9' + $symbols
+      $alphaNumericCharacterList =  'a'..'z' + 'A'..'Z' + '0'..'9'
+      $symbolCharacterList = $alphaNumericCharacterList + $symbols
 
       #Generates a secure random value with a default length of 14
       function GeneratePassword {
           param(
               [ValidateRange(12, 256)]
               [int]
-              $length = 14
+              $length = 14,
+              [switch]
+              $useSymbols
           )
+
+          if ($useSymbols)
+          {
+              $characterList = $symbolCharacterList
+          }
+          else {
+              $characterList = $alphaNumericCharacterList
+          }
 
           do {
               $password = -join (0..$length | % { $characterList | Get-Random })
               [int]$hasLowerChar = $password -cmatch '[a-z]'
               [int]$hasUpperChar = $password -cmatch '[A-Z]'
               [int]$hasDigit = $password -match '[0-9]'
-              [int]$hasSymbol = $password.IndexOfAny($symbols) -ne -1
+              [int]$hasSymbol = ($password.IndexOfAny($symbols) -ne -1) -or !$useSymbols
 
           }
           until (($hasLowerChar + $hasUpperChar + $hasDigit + $hasSymbol) -ge 3)
@@ -353,6 +364,7 @@ resource generateSqlAdminCreds 'Microsoft.Resources/deploymentScripts@2023-08-01
       }
 
       $kvUserName = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminUserSecretName} -AsPlainText
+      
       if(!$kvUserName)
       {
           $userName = GeneratePassword
@@ -365,7 +377,7 @@ resource generateSqlAdminCreds 'Microsoft.Resources/deploymentScripts@2023-08-01
       $kvSqlPassword = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminPassSecretName} -AsPlainText
       if(!$kvSqlPassword)
       {
-          $sqlPassword = GeneratePassword
+          $sqlPassword = GeneratePassword -useSymbols
           Set-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminPassSecretName} -SecretValue $sqlPassword
       }
       else {
