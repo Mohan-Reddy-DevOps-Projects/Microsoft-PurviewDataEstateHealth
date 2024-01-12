@@ -8,6 +8,8 @@ param coreResourceGroupName string
 param eventHubNamespaceName string
 param jobStorageAccountName string
 param keyVaultName string
+param sqlAdminUserSecretName string
+param sqlAdminPassSecretName string
 param location string = resourceGroup().location
 param processingStorageSubscriptions array
 param vnetName string
@@ -17,6 +19,8 @@ param synapseStorageAccountUrl string
 param sparkPoolTableName string
 param synapseLocation string
 param synapseDatabaseName string
+param subscriptionId string = subscription().subscriptionId
+param forceUpdateTag string = utcNow()
 
 var contributorRoleDefName = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 var azureEventHubsDataReceiverRoleDefName = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'
@@ -201,8 +205,8 @@ resource synapseWorkspace 'Microsoft.Synapse/workspaces@2021-06-01' = {
       filesystem: synapseStorageAccount.outputs.StorageContainerName
       resourceId: synapseStorageAccount.outputs.StorageAccountResourceId
     }
-    sqlAdministratorLogin: 'sqladminuser'
-    sqlAdministratorLoginPassword: null
+    sqlAdministratorLogin: generateSqlAdminCreds.properties.outputs.username
+    sqlAdministratorLoginPassword: generateSqlAdminCreds.properties.outputs.password
   }
 }
 
@@ -217,10 +221,164 @@ resource synapseWorkspaceAdmin 'Microsoft.Synapse/workspaces/administrators@2021
   }
 }
 
-resource synapseWorkspaceDatabase 'Microsoft.Synapse/workspaces/sqlDatabases@2020-04-01-preview' = {
-    name: synapseDatabaseName
-    parent: synapseWorkspace
-    location: location
+resource createSynapseDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
+  name: 'createDatabaseScript'
+  location: location
+  kind: 'AzurePowerShell'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerAppIdentity.id}' : {}
+    }
+  }
+  dependsOn: [
+    generateSqlAdminCreds
+  ]
+  properties: {
+    azPowerShellVersion: '10.0'
+    forceUpdateTag: forceUpdateTag
+    environmentVariables: [
+      {
+        name: 'serverFQName'
+        value: synapseWorkspace.properties.connectivityEndpoints.sqlOnDemand
+      }
+      {
+        name: 'databaseName'
+        value: synapseDatabaseName
+      }
+      {
+        name: 'subscriptionId'
+        value: subscriptionId
+      }
+      {
+        name: 'keyVaultName'
+        value: keyVault.name
+      }
+      {
+        name: 'sqlAdminPassSecretName'
+        value: sqlAdminPassSecretName
+      }
+      {
+        name: 'sqlAdminUserSecretName'
+        value: sqlAdminUserSecretName
+      }
+    ]
+    scriptContent: '''
+      Set-AzContext -subscription ${Env:subscriptionId}
+
+      $userName = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminUserSecretName} -AsPlainText
+      $sqlPassword = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminPassSecretName} -AsPlainText
+
+      # Connect to the Synapse Analytics server
+      $connStr = "Server=tcp:${Env:serverFQName};Initial Catalog=master;Persist Security Info=False;User ID=$userName;Password=$sqlPassword;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+      $conn = New-Object System.Data.SqlClient.SqlConnection
+      $conn.ConnectionString = $connStr
+      $conn.Open()
+
+      # Execute the CREATE DATABASE command
+      $sqlCommand = @"
+
+      IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '${Env:databaseName}')
+      BEGIN
+      CREATE DATABASE [${Env:databaseName}]
+      END
+"@
+      $cmd = $conn.CreateCommand()
+      $cmd.CommandText = $sqlCommand
+      $cmd.ExecuteNonQuery()
+
+      # Clean up
+      $conn.Close()
+    '''
+    retentionInterval: 'PT1H'
+  }
+}
+
+resource generateSqlAdminCreds 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
+  name: 'generateSqlUsernamePassword'
+  location: location
+  kind: 'AzurePowerShell'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerAppIdentity.id}' : {}
+    }
+  }
+  properties: {
+    azPowerShellVersion: '10.0'
+    forceUpdateTag: forceUpdateTag
+    environmentVariables: [
+      {
+        name: 'keyVaultName'
+        value: keyVault.name
+      }
+      {
+        name: 'sqlAdminPassSecretName'
+        value: sqlAdminPassSecretName
+      }
+      {
+        name: 'sqlAdminUserSecretName'
+        value: sqlAdminUserSecretName
+      }
+      {
+        name: 'subscriptionId'
+        value: subscriptionId
+      }
+    ]
+    scriptContent: '''
+      Set-AzContext -subscription ${Env:subscriptionId}
+
+      $symbols = '!@#$%^&*'.ToCharArray()
+      $characterList = 'a'..'z' + 'A'..'Z' + '0'..'9' + $symbols
+
+      #Generates a secure random value with a default length of 14
+      function GeneratePassword {
+          param(
+              [ValidateRange(12, 256)]
+              [int]
+              $length = 14
+          )
+
+          do {
+              $password = -join (0..$length | % { $characterList | Get-Random })
+              [int]$hasLowerChar = $password -cmatch '[a-z]'
+              [int]$hasUpperChar = $password -cmatch '[A-Z]'
+              [int]$hasDigit = $password -match '[0-9]'
+              [int]$hasSymbol = $password.IndexOfAny($symbols) -ne -1
+
+          }
+          until (($hasLowerChar + $hasUpperChar + $hasDigit + $hasSymbol) -ge 3)
+
+          $password | ConvertTo-SecureString -AsPlainText
+      }
+
+      $kvUserName = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminUserSecretName} -AsPlainText
+      if(!$kvUserName)
+      {
+          $userName = GeneratePassword
+          Set-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminUserSecretName} -SecretValue $userName
+      }
+      else {
+        $userName = $kvUserName | ConvertTo-SecureString -AsPlainText
+      }
+
+      $kvSqlPassword = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminPassSecretName} -AsPlainText
+      if(!$kvSqlPassword)
+      {
+          $sqlPassword = GeneratePassword
+          Set-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminPassSecretName} -SecretValue $sqlPassword
+      }
+      else {
+        $sqlPassword = $kvSqlPassword | ConvertTo-SecureString -AsPlainText
+      }
+
+      $DeploymentScriptOutputs = @{}
+      $DeploymentScriptOutputs['username'] = (ConvertFrom-SecureString -SecureString $username -AsPlainText)
+      $DeploymentScriptOutputs['password'] = (ConvertFrom-SecureString -SecureString $sqlPassword -AsPlainText)
+
+    '''
+    retentionInterval: 'PT1H'
+  }
 }
 
 resource synapseAllowEv2 'Microsoft.Synapse/workspaces/firewallRules@2021-06-01' = {
@@ -246,7 +404,6 @@ resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
     principalType: 'ServicePrincipal'
   }
 }
-
 
 module processingStorageSubContributorRoleModule 'subscriptionRoleAssignment.bicep' = [for processingStorageSubscription in processingStorageSubscriptions: {
   name: 'processingStorageSubContributorRoleModuleDeploy_${processingStorageSubscription.stamp}'

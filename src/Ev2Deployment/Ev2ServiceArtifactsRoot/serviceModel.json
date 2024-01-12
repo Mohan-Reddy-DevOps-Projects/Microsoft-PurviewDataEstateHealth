@@ -57,8 +57,8 @@
                 {
                   "type": "Run",
                   "properties": {
-                    "imageName": "adm-ubuntu-1804-l",
-                    "imageVersion": "v30"
+                    "imageName": "adm-mariner-20-l",
+                    "imageVersion": "v6"
                   }
                 }
               ]
@@ -83,7 +83,7 @@
                   "type": "Run",
                   "properties": {
                     "imageName": "adm-mariner-20-l",
-                    "imageVersion": "v5"
+                    "imageVersion": "v6"
                   }
                 }
               ]
@@ -177,7 +177,7 @@
                   "type": "Run",
                   "properties": {
                     "imageName": "adm-mariner-20-l",
-                    "imageVersion": "v5"
+                    "imageVersion": "v6"
                   }
                 }
               ]
@@ -189,7 +189,7 @@
             },
             {
               "name": "Core"
-            },
+            }
           ]
         },
         {
@@ -202,7 +202,7 @@
                   "type": "Run",
                   "properties": {
                     "imageName": "adm-mariner-20-l",
-                    "imageVersion": "v5"
+                    "imageVersion": "v6"
                   }
                 }
               ]

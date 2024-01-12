@@ -55,6 +55,12 @@
         },
         "synapseDatabaseName": {
             "value": "__INFRA_SYNAPSE_DB_NAME__"
+        },
+        "sqlAdminUserSecretName": {
+            "value": "__INFRA_SQL_ADMIN_USER_SECRET_NAME__"
+        },
+        "sqlAdminPassSecretName": {
+            "value": "__INFRA_SQL_ADMIN_PASS_SECRET_NAME__"
         }
     }
 }

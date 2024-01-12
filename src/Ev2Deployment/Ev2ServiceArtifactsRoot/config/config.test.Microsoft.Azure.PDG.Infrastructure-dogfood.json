@@ -27,13 +27,15 @@
             "subscriptionId": "5b48cdcd-b5c7-4730-8477-726ec15a0ff9"
         },
         "dgh": {
-            "shortRegionName": "wus2",            
+            "shortRegionName": "wus2",
             "acrName":"$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
             "commonStorageAccountName": "$(serviceShortName)$(pdg.environment.name)$(dgh.shortRegionName)common",
             "sparkPoolTableName": "SparkPool",
             "synapseWorkspaceName": "$(serviceShortName)dogfoodsynapse",
             "apiServiceReadinessProbePort": 8081,
-            "workerServiceReadinessProbePort": 8082
+            "workerServiceReadinessProbePort": 8082,
+            "sqlAdminUserSecretName": "synapseSqlAdminUsername",
+            "sqlAdminPassSecretName": "synapseSqlAdminPassword"
         },
         "processingStorage": {
             "resourceGroupName": "purview-rg-internal-storage",

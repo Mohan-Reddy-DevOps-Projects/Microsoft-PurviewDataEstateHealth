@@ -49,9 +49,7 @@
               "continue": {
                 "conditions": {
                   "errorsContainAny": [
-                    "RoleAssignmentAlreadyExists",
-                    "ProvisioningDisabled", //Temporary SQL database provisioning issue in WUS2, will be resolved by end of Jan 2024
-                    "ActionExecutionFailed" //Remove this once the SQL database provisioning issue is resolved
+                    "RoleAssignmentAlreadyExists"
                 ]
                 }
               }

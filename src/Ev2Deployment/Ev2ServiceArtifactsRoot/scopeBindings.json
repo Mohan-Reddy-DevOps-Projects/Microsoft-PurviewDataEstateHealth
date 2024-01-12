@@ -159,7 +159,7 @@
             {
               "find": "__INFRA_ACR_NAME__",
               "replaceWith": "$config(dgh.acrName)"
-          },
+            },
             {
                 "find": "__INFRA_WORKER_SERVICE_CONTAINER_APP_NAME__",
                 "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-workerservice-ca"
@@ -199,12 +199,19 @@
             {
               "find": "__INFRA_SERVICE_ID__",
               "replaceWith": "$config(pdg.genevaAccountProvisioning.serviceIds.dgHealth)"
-          },
-          {
-            "find": "__INFRA_SYNAPSE_DB_NAME__",
-            "replaceWith": "dgh$config(pdg.environment.name)db"
-        }
-
+            },
+            {
+                "find": "__INFRA_SYNAPSE_DB_NAME__",
+                "replaceWith": "dgh$config(pdg.environment.name)db"
+            },
+            {
+                "find": "__INFRA_SQL_ADMIN_USER_SECRET_NAME__",
+                "replaceWith": "$config(dgh.sqlAdminUserSecretName)"
+            },
+            {
+                "find": "__INFRA_SQL_ADMIN_PASS_SECRET_NAME__",
+                "replaceWith": "$config(dgh.sqlAdminPassSecretName)"
+            }
         ]
     },
     {

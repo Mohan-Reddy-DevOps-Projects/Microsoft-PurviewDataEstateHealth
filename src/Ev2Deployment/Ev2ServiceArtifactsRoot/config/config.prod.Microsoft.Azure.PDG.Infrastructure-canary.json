@@ -33,7 +33,9 @@
             "sparkPoolTableName": "SparkPool",
             "synapseWorkspaceName": "$(serviceShortName)cnrycdmworkspace",
             "apiServiceReadinessProbePort": 8081,
-            "workerServiceReadinessProbePort": 8082
+            "workerServiceReadinessProbePort": 8082,
+            "sqlAdminUserSecretName": "synapseSqlAdminUsername",
+            "sqlAdminPassSecretName": "synapseSqlAdminPassword"
         },
         "processingStorage": {
             "resourceGroupName": "purview-rg-internal-storage",
