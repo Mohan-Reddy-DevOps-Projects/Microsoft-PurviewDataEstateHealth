@@ -25,7 +25,7 @@ param forceUpdateTag string = utcNow()
 var contributorRoleDefName = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 var azureEventHubsDataReceiverRoleDefName = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'
 var keyVaultReaderRoleDefName = '21090545-7ca7-4776-b22c-e363652d74d2'
-var keyVaultSecretsUserRoleDefName = '4633458b-17de-408a-b874-0445c86b69e6'
+var keyVaultSecretsOfficerRoleDefName = 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7'
 var keyVaultCertificatesOfficerRoleDefName = 'a4417e6f-fecd-4de8-b567-7b0420556985'
 var storageBlobDataContributorRoleDefName = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 var storageTableDataContributorRoleDefName = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
@@ -152,12 +152,12 @@ module keyVaultReaderRoleModule 'keyVaultRoleAssignment.bicep' = {
   }
 }
 
-module keyVaultSecretsUserRoleModule 'keyVaultRoleAssignment.bicep' = {
-  name: 'keyVaultSecretsUserRoleDeploy'
+module keyVaultSecretsOfficerRoleModule 'keyVaultRoleAssignment.bicep' = {
+  name: 'keyVaultSecretsOfficerRoleDeploy'
   params: {
     keyVaultName: keyVault.name
     principalId: containerAppIdentity.properties.principalId
-    roleDefinitionName: keyVaultSecretsUserRoleDefName
+    roleDefinitionName: keyVaultSecretsOfficerRoleDefName
   }
 }
 
@@ -304,6 +304,9 @@ resource generateSqlAdminCreds 'Microsoft.Resources/deploymentScripts@2023-08-01
       '${containerAppIdentity.id}' : {}
     }
   }
+  dependsOn: [
+    keyVaultSecretsOfficerRoleModule
+  ]
   properties: {
     azPowerShellVersion: '10.0'
     forceUpdateTag: forceUpdateTag
@@ -351,7 +354,7 @@ resource generateSqlAdminCreds 'Microsoft.Resources/deploymentScripts@2023-08-01
           }
 
           do {
-              $password = -join (0..$length | % { $characterList | Get-Random })
+              $password = "pdg" + -join (0..$length | % { $characterList | Get-Random }) #Need prefix for username restrictions
               [int]$hasLowerChar = $password -cmatch '[a-z]'
               [int]$hasUpperChar = $password -cmatch '[A-Z]'
               [int]$hasDigit = $password -match '[0-9]'
