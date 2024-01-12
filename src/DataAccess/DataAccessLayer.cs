@@ -41,7 +41,11 @@ public static class DataAccessLayer
     /// <param name="services">Gives the data access layer a chance to configure its dependency injection.</param>
     public static IServiceCollection AddDataAccessLayer(this IServiceCollection services)
     {
-        services.AddSingleton<AzureCredentialFactory>();
+        services.AddSingleton<AzureCredentialFactory>(provider =>
+        {
+            IOptions<EnvironmentConfiguration> environmentConfiguration = provider.GetService<IOptions<EnvironmentConfiguration>>();
+            return new AzureCredentialFactory(environmentConfiguration.Value.IsDevelopmentEnvironment());
+        });
         services.AddExposureControl();
         services.AddMetadataServiceHttpClient(MetadataServiceClientFactory.HttpClientName);
         services.AddSingleton<MetadataServiceClientFactory>();

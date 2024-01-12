@@ -71,7 +71,7 @@ internal sealed class DatasetsComponent : IDatasetsComponent
             DatabaseName = "health_1",
             SchemaName = accountId.ToString(),
             SqlCredenial = sqlCredential,
-            ConnectionTimeout = 360,
+            ConnectionTimeout = 30,
             EntityConfigurations = new List<IEntityConfiguration>()
             {
                 new EntityConfiguration()

@@ -69,8 +69,6 @@ public static class ConfigurationExtensions
             .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
             .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"));
 
-        services.AddSingleton<IEnvironmentConfiguration, EnvironmentConfiguration>();
-
         return services;
     }
 
