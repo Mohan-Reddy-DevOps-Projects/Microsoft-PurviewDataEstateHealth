@@ -4,29 +4,29 @@
 
 namespace Microsoft.Azure.Purview.DataAccess.ApiService;
 
-using System.Net;
-using System.Security.Authentication;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
-using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System.Text.Json.Serialization;
-using System.Text.Json;
-using System.Text;
-using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Newtonsoft.Json;
+using System.Net;
+using System.Security.Authentication;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 /// <summary>
 /// The Data Estate Health API service.
@@ -57,7 +57,7 @@ public class Program
         var serviceConfiguration = builder.Configuration.GetSection("service").Get<ServiceConfiguration>();
         var environmentConfiguration = builder.Configuration.GetSection("environment").Get<EnvironmentConfiguration>();
 
-        builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment(),environmentConfiguration);
+        builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment(), environmentConfiguration);
 
         // Add services to the container.
         builder.Services.AddApiVersioning();
@@ -192,7 +192,7 @@ public class Program
             logger.LogCritical("Failed to initialize services during startup", ex);
             throw;
         }
-        
+
     }
 
     private static void ConfigurePortsAndSsl(WebHostBuilderContext hostingContext, KestrelServerOptions options, WebApplicationBuilder builder)

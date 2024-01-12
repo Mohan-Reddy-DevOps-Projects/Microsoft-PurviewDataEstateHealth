@@ -4,10 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 using global::Azure.Messaging.EventHubs;
 using global::Azure.Messaging.EventHubs.Processor;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
@@ -21,11 +17,13 @@ using Microsoft.Purview.DataGovernance.Common;
 using Microsoft.Purview.DataGovernance.DeltaWriter;
 using Microsoft.Purview.DataGovernance.Reporting.Services;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading.Tasks;
 
 internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
 {
-    private readonly EventSourceType eventSourceType;
-
     private readonly AuxStorageConfiguration auxStorageConfiguration;
 
     private readonly IBlobStorageAccessor blobStorageAccessor;
@@ -57,7 +55,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         EventHubConfiguration eventHubConfiguration,
         EventSourceType eventSourceType)
     {
-        this.eventSourceType = eventSourceType;
+        this.EventProcessorType = eventSourceType;
         this.EventsToProcess = new List<ProcessEventArgs>();
         this.deltaTableEventProcessor = serviceProvider.GetRequiredService<IDeltaTableEventProcessor>();
         this.DataEstateHealthRequestLogger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
@@ -73,7 +71,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         this.EventArgsToCheckpoint = new Dictionary<Guid, IList<ProcessEventArgs>>();
     }
 
-    public EventSourceType EventProcessorType => this.eventSourceType;
+    public EventSourceType EventProcessorType { get; }
 
     public async Task StartAsync(int maxProcessingTimeInSeconds = 10, int maxTimeoutInSeconds = 120)
     {
@@ -103,8 +101,8 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         if (this.EventProcessor?.IsRunning == true)
         {
             await this.EventProcessor.StopProcessingAsync();
-            this.EventProcessor.ProcessEventAsync -= ProcessEventHandler;
-            this.EventProcessor.ProcessErrorAsync -= ProcessErrorHandler;
+            this.EventProcessor.ProcessEventAsync -= this.ProcessEventHandler;
+            this.EventProcessor.ProcessErrorAsync -= this.ProcessErrorHandler;
         }
     }
 
@@ -168,7 +166,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
         catch (Exception exception)
         {
             // Ideally should not reach here
-            this.DataEstateHealthRequestLogger.LogCritical($"Failed to commit {this.eventSourceType} event checkpoint(s).", exception);
+            this.DataEstateHealthRequestLogger.LogCritical($"Failed to commit {this.EventProcessorType} event checkpoint(s).", exception);
         }
     }
 
@@ -176,7 +174,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
     {
         if (!this.ProcessingStorageCache.ContainsKey(accountId))
         {
-            ProcessingStorageModel storageModel = await processingStorageManager.Get(accountId, CancellationToken.None);
+            ProcessingStorageModel storageModel = await this.processingStorageManager.Get(accountId, CancellationToken.None);
 
             if (storageModel == null)
             {
@@ -234,7 +232,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
 
     private async Task BuildEventProcessor()
     {
-        var blobServiceClient = blobStorageAccessor.GetBlobServiceClient(
+        var blobServiceClient = this.blobStorageAccessor.GetBlobServiceClient(
                 this.auxStorageConfiguration.AccountName,
                 this.auxStorageConfiguration.EndpointSuffix,
                 this.auxStorageConfiguration.BlobStorageResource);
@@ -247,7 +245,7 @@ internal abstract class PartnerEventsProcessor : IPartnerEventsProcessor
             this.eventHubConfiguration.ConsumerGroup,
             this.eventHubConfiguration.EventHubNamespace,
             this.eventHubConfiguration.EventHubName,
-            AzureCredentialFactory.CreateDefaultAzureCredential(new Uri(this.eventHubConfiguration.Authority)));
+            this.AzureCredentialFactory.CreateDefaultAzureCredential(new Uri(this.eventHubConfiguration.Authority)));
 
         this.EventProcessor.ProcessEventAsync += this.ProcessEventHandler;
         this.EventProcessor.ProcessErrorAsync += this.ProcessErrorHandler;

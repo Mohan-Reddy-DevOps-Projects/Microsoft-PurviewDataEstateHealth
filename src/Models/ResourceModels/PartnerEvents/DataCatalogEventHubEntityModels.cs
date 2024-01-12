@@ -297,7 +297,7 @@ public class BusinessDomainEventHubEntityModel : BaseEventHubEntityModel
             new StructField("SystemData", DataTypes.String),
             new StructField("Thumbnail", DataTypes.String),
             new StructField("RelatedCollections", DataTypes.String),
-        }.ConcatArray(GetCommonSchemaFields()));
+        }.ConcatArray(this.GetCommonSchemaFields()));
 }
 
 /// <summary>
@@ -409,7 +409,7 @@ public class DataAssetEventHubEntityModel : BaseEventHubEntityModel
             new StructField("Lineage", DataTypes.String),
             new StructField("TypeProperties", DataTypes.String),
             new StructField("Schema", DataTypes.String),
-       }.ConcatArray(GetCommonSchemaFields()));
+       }.ConcatArray(this.GetCommonSchemaFields()));
 }
 
 /// <summary>
@@ -526,7 +526,7 @@ public class DataProductEventHubEntityModel : BaseEventHubEntityModel
             new StructField("Contacts", DataTypes.String),
             new StructField("TermsOfUse", DataTypes.String),
             new StructField("Documentation", DataTypes.String),
-       }.ConcatArray(GetCommonSchemaFields()));
+       }.ConcatArray(this.GetCommonSchemaFields()));
 }
 
 /// <summary>
@@ -596,7 +596,7 @@ public class RelationshipEventHubEntityModel : BaseEventHubEntityModel
             new StructField("Description", DataTypes.String),
             new StructField("RelationshipType", DataTypes.String),
             new StructField("EntityId", DataTypes.String),
-   }.ConcatArray(GetCommonSchemaFields()));
+   }.ConcatArray(this.GetCommonSchemaFields()));
 }
 
 /// <summary>
@@ -690,5 +690,5 @@ public class TermEventHubEntityModel : BaseEventHubEntityModel
                 new StructField("SystemData", DataTypes.String),
                 new StructField("Contacts", DataTypes.String),
                 new StructField("Attributes", DataTypes.String),
-    }.ConcatArray(GetCommonSchemaFields()));
+    }.ConcatArray(this.GetCommonSchemaFields()));
 }

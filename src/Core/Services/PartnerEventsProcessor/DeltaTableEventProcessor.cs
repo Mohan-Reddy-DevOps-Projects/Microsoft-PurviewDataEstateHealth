@@ -4,16 +4,16 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Data.DeltaLake.Types;
 using Microsoft.Purview.DataEstateHealth.Core;
 using Microsoft.Purview.DataGovernance.DeltaWriter;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
 internal class DeltaTableEventProcessor : IDeltaTableEventProcessor
 {
@@ -53,8 +53,15 @@ internal class DeltaTableEventProcessor : IDeltaTableEventProcessor
     private async Task WriteEvents<T>(IDeltaLakeOperator deltaTableWriter, IList<T> events, string tableRelativePath)
         where T : BaseEventHubEntityModel
     {
-        if (deltaTableWriter == null) throw new ArgumentNullException(nameof(deltaTableWriter));
-        if (string.IsNullOrEmpty(tableRelativePath)) throw new ArgumentException("TableRelativePath cannot be null or empty.", nameof(tableRelativePath));
+        if (deltaTableWriter == null)
+        {
+            throw new ArgumentNullException(nameof(deltaTableWriter));
+        }
+
+        if (string.IsNullOrEmpty(tableRelativePath))
+        {
+            throw new ArgumentException("TableRelativePath cannot be null or empty.", nameof(tableRelativePath));
+        }
 
         if (events.Count > 0)
         {
