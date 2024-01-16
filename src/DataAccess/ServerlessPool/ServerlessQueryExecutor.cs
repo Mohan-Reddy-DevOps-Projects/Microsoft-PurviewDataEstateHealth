@@ -28,6 +28,11 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
     /// </summary>
     private const int TimeoutDelayInMs = 5000;
 
+    /// <summary>
+    /// Max retry count.
+    /// </summary>
+    private const int MaxRetries = 2;
+
     /// <inheritdoc />
     public ServerlessQueryExecutor(
         IServerlessPoolClient client,
@@ -49,6 +54,8 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
         IServerlessQueryRequest<TIntermediate, TEntity> request,
         CancellationToken cancellationToken) where TEntity : BaseEntity where TIntermediate : BaseRecord
     {
+        this.logger.LogInformation($"Query is {request.Query}");
+
         IList<TIntermediate> recordList = await RetryUtil.ExecuteWithRetryAsync<IList<TIntermediate>, Exception>(async retryCount =>
         {
             try
@@ -76,7 +83,7 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
                 this.logger.LogError("Error in executing synapse query", ex);
                 throw;
             }
-        }, ExceptionPredicate, maxRetries: 1, retryIntervalInMs: TimeoutDelayInMs);
+        }, ExceptionPredicate, maxRetries: MaxRetries, retryIntervalInMs: TimeoutDelayInMs);
 
         IList<TEntity> outList = request.Finalize(recordList).ToList();
         return outList;

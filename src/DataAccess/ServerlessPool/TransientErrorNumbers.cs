@@ -12,6 +12,10 @@ internal static class TransientErrorNumbers
     /// </summary>
     public static readonly HashSet<int> ErrorCodes = new()
     {
+        // SQL Error Code: 2
+        // Cannot connect to < server name >
+        -2,
+
         // SQL Error Code: 4060
         // Cannot open database "%.*ls" requested by the login. The login failed.
         4060,
