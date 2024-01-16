@@ -78,6 +78,11 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
                 this.logger.LogInformation("Error in executing synapse query; content of directory on path '%ls' cannot be listed - case when data doesn't exist", sqlException);
                 return Array.Empty<TIntermediate>();
             }
+            catch (SqlException sqlException)
+            {
+                this.logger.LogError($"SQLException error in executing synapse query. Error number is {sqlException.Number}", sqlException);
+                throw;
+            }
             catch (Exception ex)
             {
                 this.logger.LogError("Error in executing synapse query", ex);
