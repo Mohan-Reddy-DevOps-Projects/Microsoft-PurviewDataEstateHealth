@@ -82,6 +82,29 @@ public class OOTBControlTypes
     private static List<string> names = null;
 
     /// <summary>
+    /// Temporary method to parse the name and return an instance of OOTBControlTypes.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public static OOTBControlTypes Parse(string name)
+    {
+        if (name == "Data governance score")
+        {
+            return new OOTBControlTypes(OOTBControlTypesEnum.DataGovernanceScore);
+        }
+
+        foreach (OOTBControlTypesEnum enumValue in Enum.GetValues(typeof(OOTBControlTypesEnum)))
+        {
+            if (name == enumValue.GetDescription())
+            {
+                return new OOTBControlTypes(enumValue);
+            }
+        }
+
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
     /// Get all the names of the OOTB controls as a list of string
     /// </summary>
     /// <returns></returns>
@@ -102,7 +125,7 @@ public class OOTBControlTypes
 
     private enum OOTBControlTypesEnum
     {
-        [Description("Data governance score")]
+        [Description("Governance score")]
         DataGovernanceScore,
         [Description("Metadata completeness")]
         MetadataCompleteness,
@@ -124,5 +147,24 @@ public class OOTBControlTypes
         DataQuality,
         [Description("Authoritative data source")]
         AuthoritativeDataSource
+    }
+
+    /// <inheritdoc/>
+    public override bool Equals(object obj)
+    {
+        if (obj == null || obj.GetType() != GetType())
+        {
+            return false;
+        }
+
+        var castObject = (OOTBControlTypes)obj;
+
+        return castObject.value == value;
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+        return this.value.GetHashCode();
     }
 }

@@ -139,11 +139,11 @@ internal class HealthControlRepository : IHealthControlRepository
     {
         List<HealthControlEntity> healthControlEntities = new();
 
-        Dictionary<string, double> controlNameScoreDictionary = this.CreateControlNameScoreDictionary(healthControlSqlEntity);
+        Dictionary<OOTBControlTypes, double> controlNameScoreDictionary = this.CreateControlNameScoreDictionary(healthControlSqlEntity);
 
         foreach (HealthControlArtifactStoreEntity healthControlArtifactStoreEntity in healthControlArtifactStoreEntities)
         {
-            double currentScore = controlNameScoreDictionary[healthControlArtifactStoreEntity.Name];
+            double currentScore = controlNameScoreDictionary[OOTBControlTypes.Parse(healthControlArtifactStoreEntity.Name)];
 
             healthControlEntities.Add(new HealthControlEntity()
             {
@@ -189,21 +189,21 @@ internal class HealthControlRepository : IHealthControlRepository
         }
     }
 
-    private Dictionary<string, double> CreateControlNameScoreDictionary(HealthControlSqlEntity healthControlSqlEntity)
+    private Dictionary<OOTBControlTypes, double> CreateControlNameScoreDictionary(HealthControlSqlEntity healthControlSqlEntity)
     {
-        return new Dictionary<string, double>()
+        return new Dictionary<OOTBControlTypes, double>()
         {
-            {OOTBControlTypes.DataGovernanceScore.Name, healthControlSqlEntity.CurrentScore },
-            {OOTBControlTypes.AccessEntitlement.Name, healthControlSqlEntity.AccessEntitlementScore },
-            {OOTBControlTypes.MetadataCompleteness.Name, healthControlSqlEntity.MetadataCompletenessScore },
-            {OOTBControlTypes.DataQuality.Name, healthControlSqlEntity.DataQualityScore },
-            {OOTBControlTypes.Classification.Name, healthControlSqlEntity.ClassificationScore },
-            {OOTBControlTypes.DataConsumptionPurpose.Name, healthControlSqlEntity.DataConsumptionPurposeScore },
-            {OOTBControlTypes.AuthoritativeDataSource.Name, healthControlSqlEntity.AuthoritativeDataSourceScore },
-            {OOTBControlTypes.Quality.Name, healthControlSqlEntity.QualityScore },
-            {OOTBControlTypes.Use.Name, healthControlSqlEntity.UseScore },
-            {OOTBControlTypes.Cataloging.Name, healthControlSqlEntity.CatalogingScore },
-            {OOTBControlTypes.Ownership.Name, healthControlSqlEntity.OwnershipScore },
+            {OOTBControlTypes.DataGovernanceScore, healthControlSqlEntity.CurrentScore },
+            {OOTBControlTypes.AccessEntitlement, healthControlSqlEntity.AccessEntitlementScore },
+            {OOTBControlTypes.MetadataCompleteness, healthControlSqlEntity.MetadataCompletenessScore },
+            {OOTBControlTypes.DataQuality, healthControlSqlEntity.DataQualityScore },
+            {OOTBControlTypes.Classification, healthControlSqlEntity.ClassificationScore },
+            {OOTBControlTypes.DataConsumptionPurpose, healthControlSqlEntity.DataConsumptionPurposeScore },
+            {OOTBControlTypes.AuthoritativeDataSource, healthControlSqlEntity.AuthoritativeDataSourceScore },
+            {OOTBControlTypes.Quality, healthControlSqlEntity.QualityScore },
+            {OOTBControlTypes.Use, healthControlSqlEntity.UseScore },
+            {OOTBControlTypes.Cataloging, healthControlSqlEntity.CatalogingScore },
+            {OOTBControlTypes.Ownership, healthControlSqlEntity.OwnershipScore },
         };
     }
 

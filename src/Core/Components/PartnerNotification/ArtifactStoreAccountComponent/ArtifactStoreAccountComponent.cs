@@ -15,6 +15,7 @@ using Microsoft.Azure.Purview.DataAccess.DataAccess;
 using Microsoft.Purview.ArtifactStoreClient;
 using Microsoft.Azure.Purview.DataAccess.DataAccess.Shared;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using System.Linq;
 
 internal sealed class ArtifactStoreAccountComponent : IArtifactStoreAccountComponent
 {
@@ -33,16 +34,17 @@ internal sealed class ArtifactStoreAccountComponent : IArtifactStoreAccountCompo
     {
         Dictionary<string, HealthControlArtifactStoreEntity> healthControlEntities = new Dictionary<string, HealthControlArtifactStoreEntity>();
 
-        var nameFilters = new IndexedPropertyListEqualityFilter(
-               $"{nameof(HealthControlArtifactStoreEntity.Name).UncapitalizeFirstChar()}",
-               OOTBControlTypes.GetListOfNames());
+        var healthControlKindFilter = new IndexedPropertyEqualityFilter(
+           $"{nameof(HealthControlArtifactStoreEntity.HealthControlKind).UncapitalizeFirstChar()}",
+           HealthControlKind.DataGovernance.ToString(),
+           true);
 
         List<ArtifactStoreEntityDocument<HealthControlArtifactStoreEntity>> existingEntityList =
             (await this.artifactStoreAccessorService.ListResourcesByCategoryAsync<HealthControlArtifactStoreEntity>(
                 accountId: Guid.Parse(account.Id),
                 entityType: DataEstateHealthEntityTypes.DataEstateHealthControl.ToString(),
-                filterText: new List<string>() { nameFilters.Predicate },
-                parameters: new Dictionary<string, string>(nameFilters.Parameters),
+                filterText: new List<string>() { healthControlKindFilter.Predicate },
+                parameters: new Dictionary<string, string>(healthControlKindFilter.Parameters),
                 continuationToken: null,
                 byPassObligations: true)).Items.ToList();
 
@@ -53,10 +55,29 @@ internal sealed class ArtifactStoreAccountComponent : IArtifactStoreAccountCompo
             healthControlEntities.Add(entity.Properties.Name, entity.Properties);
         }
 
-        if (!healthControlEntities.ContainsKey(OOTBControlTypes.DataGovernanceScore.Name))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.DataGovernanceScore.Name) && !healthControlEntities.ContainsKey("Data governance score"))
         {
             var dataGovernanceEntity = await CreateHealthControlEntity(account, true, OOTBControlTypes.DataGovernanceScore.Name, Guid.Empty);
             healthControlEntities.Add(OOTBControlTypes.DataGovernanceScore.Name, dataGovernanceEntity);
+        }
+        else if (healthControlEntities.ContainsKey("Data governance score"))
+        {
+            var entityToUpdate = healthControlEntities["Data governance score"];
+
+            entityToUpdate.Name = OOTBControlTypes.DataGovernanceScore.Name;
+
+            var indexedProperties = entityToUpdate.GetIndexedProperties();
+
+            await this.artifactStoreAccessorService.CreateOrUpdateResourceAsync(
+                        Guid.Parse(account.Id),
+                        entityToUpdate.ObjectId.ToString(),
+                        entityToUpdate.GetEntityType().ToString(),
+                        entityToUpdate,
+                        null,
+                        indexedProperties);
+
+            healthControlEntities.Remove("Data governance score");
+            healthControlEntities.Add(OOTBControlTypes.DataGovernanceScore.Name, entityToUpdate);
         }
 
         if (!healthControlEntities.ContainsKey(OOTBControlTypes.MetadataCompleteness.Name))
@@ -119,7 +140,39 @@ internal sealed class ArtifactStoreAccountComponent : IArtifactStoreAccountCompo
             healthControlEntities.Add(OOTBControlTypes.AuthoritativeDataSource.Name, authoritativeDataSourceEntity);
         }
 
+        var dataGovernanceControlId = healthControlEntities[OOTBControlTypes.DataGovernanceScore.Name].ObjectId;
+
+        //Update ownership.ParentControlId to data governance control id
+        var ownershipUpdate = healthControlEntities[OOTBControlTypes.Ownership.Name];
+        await this.UpdateParentControlIdOnMetadataCompletenessChildren(ownershipUpdate, account.Id, dataGovernanceControlId);
+
+        //Update cataloging.ParentControlId to data governance control id
+        var catalogingUpdate = healthControlEntities[OOTBControlTypes.Cataloging.Name];
+        await this.UpdateParentControlIdOnMetadataCompletenessChildren(catalogingUpdate, account.Id, dataGovernanceControlId);
+
+        //Update classification.ParentControlId to data governance control id
+        var classificationUpdate = healthControlEntities[OOTBControlTypes.Classification.Name];
+        await this.UpdateParentControlIdOnMetadataCompletenessChildren(classificationUpdate, account.Id, dataGovernanceControlId);
+
         this.dataEstateHealthRequestLogger.LogInformation("Insert OOTB controls ran successfully.");
+    }
+
+    private async Task UpdateParentControlIdOnMetadataCompletenessChildren(HealthControlArtifactStoreEntity healthControlArtifactStoreEntity, string accountId, Guid dataGovernanceControlId)
+    {
+        if (healthControlArtifactStoreEntity.ParentControlId != dataGovernanceControlId)
+        {
+            healthControlArtifactStoreEntity.ParentControlId = dataGovernanceControlId;
+
+            var indexedProperties = healthControlArtifactStoreEntity.GetIndexedProperties();
+
+            await this.artifactStoreAccessorService.CreateOrUpdateResourceAsync(
+                        Guid.Parse(accountId),
+                        healthControlArtifactStoreEntity.ObjectId.ToString(),
+                        healthControlArtifactStoreEntity.GetEntityType().ToString(),
+                        healthControlArtifactStoreEntity,
+                        null,
+                        indexedProperties);
+        }
     }
 
     private async Task<HealthControlArtifactStoreEntity> CreateHealthControlEntity(AccountServiceModel account, bool isCompositeControl, string name, Guid parentControlId)

@@ -11,7 +11,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 /// <summary>
 /// An equality filter for indexed properties in the ArtifactStore.
 /// </summary>
-internal class IndexedPropertyEqualityFilter
+public class IndexedPropertyEqualityFilter
 {
     /// <summary>
     /// A constructor for a <see cref="IndexedPropertyEqualityFilter"/>.

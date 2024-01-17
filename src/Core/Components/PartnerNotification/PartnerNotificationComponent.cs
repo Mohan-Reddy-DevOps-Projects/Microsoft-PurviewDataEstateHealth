@@ -67,10 +67,10 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     /// <inheritdoc/>
     public async Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
+        await this.artifactStoreAccountComponent.CreateArtifactStoreResources(account, cancellationToken);
         await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
         await this.databaseManagementService.Initialize(account, cancellationToken);
         await this.CreatePowerBIResources(account, cancellationToken);
-        await this.artifactStoreAccountComponent.CreateArtifactStoreResources(account, cancellationToken);
         await this.ProvisionSparkJobs(account);
     }
 
