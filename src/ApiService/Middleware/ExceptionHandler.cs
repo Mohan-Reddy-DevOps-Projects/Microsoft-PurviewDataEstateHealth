@@ -74,7 +74,7 @@ internal static class ExceptionHandler
     private static Exception GetSqlDataNotFoundException(Exception ex)
     {
         SqlException sqlException = ex.InnerException as SqlException;
-        if (sqlException.Number == 13807 || (sqlException.InnerException is SqlException innerSqlException && innerSqlException.Number == 13807))
+        if (sqlException != null && (sqlException.Number == 13807 || (sqlException.InnerException is SqlException innerSqlException && innerSqlException.Number == 13807)))
         {
             return new ServiceError(ErrorCategory.ResourceNotFound, ErrorCode.AsyncOperation_ResultNotFound.Code, "The requested data could not be found.").ToException();
         }
