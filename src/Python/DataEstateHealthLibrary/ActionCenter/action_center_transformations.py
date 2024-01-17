@@ -83,25 +83,29 @@ class ActionCenterTransformations:
         validusecase_action_df = ActionCenterTransformations.calculate_action_health_control_name(validusecase_action_df,ActionCenterConstants.COMPLETENESS_STR)
 
         #HasDataShareAgreementSetOrExempt
+        """
         datashareagreementsetorexempt_action_df = dataproduct_action_df.filter(col("HasDataShareAgreementSetOrExempt") < 1)
         datashareagreementsetorexempt_action_df = ActionCenterTransformations.calculate_action_display_name(datashareagreementsetorexempt_action_df,ActionCenterConstants.DP_DATASHARESETOREXEMPT_DISPLAY_NAME_STR)
         datashareagreementsetorexempt_action_df = ActionCenterTransformations.calculate_action_description(datashareagreementsetorexempt_action_df,ActionCenterConstants.DP_VALID_DATASHARESETOREXEMPT_STR)
         datashareagreementsetorexempt_action_df = ActionCenterTransformations.calculate_action_health_control_category(datashareagreementsetorexempt_action_df,ActionCenterConstants.GOVERNANCE_STR)
         datashareagreementsetorexempt_action_df = ActionCenterTransformations.calculate_action_health_control_name(datashareagreementsetorexempt_action_df,ActionCenterConstants.COMPLETENESS_STR)
-        
+        """
         #HasDataQualityScore
+        """
         dataqualityscore_action_df = dataproduct_action_df.filter(col("HasDataQualityScore") < 1)
         dataqualityscore_action_df = ActionCenterTransformations.calculate_action_display_name(dataqualityscore_action_df,ActionCenterConstants.DP_DATAQUALITY_DISPLAY_NAME_STR)
         dataqualityscore_action_df = ActionCenterTransformations.calculate_action_description(dataqualityscore_action_df,ActionCenterConstants.DP_VALID_DATAQUALITY_STR)
         dataqualityscore_action_df = ActionCenterTransformations.calculate_action_health_control_category(dataqualityscore_action_df,ActionCenterConstants.DATA_QUALITY_STR)
         dataqualityscore_action_df = ActionCenterTransformations.calculate_action_health_control_name(dataqualityscore_action_df,ActionCenterConstants.COMPLETENESS_STR)
-
+        """
         #HasValidTermsOfUse
+        """
         termsofuse_action_df = dataproduct_action_df.filter(col("HasValidTermsOfUse") < 1)
         termsofuse_action_df = ActionCenterTransformations.calculate_action_display_name(termsofuse_action_df,ActionCenterConstants.DP_TERMSOFUSE_DISPLAY_NAME_STR)
         termsofuse_action_df = ActionCenterTransformations.calculate_action_description(termsofuse_action_df,ActionCenterConstants.DP_VALID_TERMSOFUSE_STR)
         termsofuse_action_df = ActionCenterTransformations.calculate_action_health_control_category(termsofuse_action_df,ActionCenterConstants.GOVERNANCE_STR)
         termsofuse_action_df = ActionCenterTransformations.calculate_action_health_control_name(termsofuse_action_df,ActionCenterConstants.COMPLETENESS_STR)
+        """
         
         #HasDescription
         hasdescription_action_df = dataproduct_action_df.filter(col("HasDescription") < 1)
@@ -109,6 +113,27 @@ class ActionCenterTransformations:
         hasdescription_action_df = ActionCenterTransformations.calculate_action_description(hasdescription_action_df,ActionCenterConstants.DP_VALID_DESCRIPTION_STR)
         hasdescription_action_df = ActionCenterTransformations.calculate_action_health_control_category(hasdescription_action_df,ActionCenterConstants.GOVERNANCE_STR)
         hasdescription_action_df = ActionCenterTransformations.calculate_action_health_control_name(hasdescription_action_df,ActionCenterConstants.COMPLETENESS_STR)
+        
+        #HasClassification
+        classificationpasscount_action_df = dataproduct_action_df.filter(col("ClassificationPassCount") > 0)
+        classificationpasscount_action_df = ActionCenterTransformations.calculate_action_display_name(classificationpasscount_action_df,ActionCenterConstants.DP_CLASSIFICATION_DISPLAY_NAME_STR)
+        classificationpasscount_action_df = ActionCenterTransformations.calculate_action_description(classificationpasscount_action_df,ActionCenterConstants.DP_VALID_CLASSIFICATION_STR)
+        classificationpasscount_action_df = ActionCenterTransformations.calculate_action_health_control_category(classificationpasscount_action_df,ActionCenterConstants.GOVERNANCE_STR)
+        classificationpasscount_action_df = ActionCenterTransformations.calculate_action_health_control_name(classificationpasscount_action_df,ActionCenterConstants.COMPLETENESS_STR)
+        
+        #GlossaryTermCount
+        glossarytermcount_action_df = dataproduct_action_df.filter(col("GlossaryTermCount") > 0)
+        glossarytermcount_action_df = ActionCenterTransformations.calculate_action_display_name(glossarytermcount_action_df,ActionCenterConstants.DP_GLOSSARY_TERM_DISPLAY_NAME_STR)
+        glossarytermcount_action_df = ActionCenterTransformations.calculate_action_description(glossarytermcount_action_df,ActionCenterConstants.DP_VALID_GLOSSARY_TERM_STR)
+        glossarytermcount_action_df = ActionCenterTransformations.calculate_action_health_control_category(glossarytermcount_action_df,ActionCenterConstants.GOVERNANCE_STR)
+        glossarytermcount_action_df = ActionCenterTransformations.calculate_action_health_control_name(glossarytermcount_action_df,ActionCenterConstants.COMPLETENESS_STR)
+
+        #AssetCount
+        assetcount_action_df = dataproduct_action_df.filter(col("AssetCount") > 0)
+        assetcount_action_df = ActionCenterTransformations.calculate_action_display_name(assetcount_action_df,ActionCenterConstants.DP_ASSET_COUNT_DISPLAY_NAME_STR)
+        assetcount_action_df = ActionCenterTransformations.calculate_action_description(assetcount_action_df,ActionCenterConstants.DP_VALID_ASSET_COUNT_STR)
+        assetcount_action_df = ActionCenterTransformations.calculate_action_health_control_category(assetcount_action_df,ActionCenterConstants.GOVERNANCE_STR)
+        assetcount_action_df = ActionCenterTransformations.calculate_action_health_control_name(assetcount_action_df,ActionCenterConstants.COMPLETENESS_STR)
         
         #HasValidOwner
         validowner_action_df = dataproduct_action_df.filter(col("HasValidOwner") < 1)
@@ -118,13 +143,14 @@ class ActionCenterTransformations:
         validowner_action_df = ActionCenterTransformations.calculate_action_health_control_name(validowner_action_df,ActionCenterConstants.COMPLETENESS_STR)
         
         #HasAccessEntitlement
+        """
         accessentitlement_action_df = dataproduct_action_df.filter(col("HasAccessEntitlement") < 1)
         accessentitlement_action_df = ActionCenterTransformations.calculate_action_display_name(accessentitlement_action_df,ActionCenterConstants.DP_ACCESSENTITLEMENT_DISPLAY_NAME_STR)
         accessentitlement_action_df = ActionCenterTransformations.calculate_action_description(accessentitlement_action_df,ActionCenterConstants.DP_VALID_ACCESSENTITLEMENT_STR)
         accessentitlement_action_df = ActionCenterTransformations.calculate_action_health_control_category(accessentitlement_action_df,ActionCenterConstants.GOVERNANCE_STR)
         accessentitlement_action_df = ActionCenterTransformations.calculate_action_health_control_name(accessentitlement_action_df,ActionCenterConstants.COMPLETENESS_STR)
-        
-        union_df = [validusecase_action_df,datashareagreementsetorexempt_action_df,dataqualityscore_action_df,termsofuse_action_df,hasdescription_action_df,validowner_action_df,accessentitlement_action_df]
+        """
+        union_df = [validusecase_action_df,hasdescription_action_df,validowner_action_df,classificationpasscount_action_df,glossarytermcount_action_df,assetcount_action_df]
         merged_dataproduct_action_df = reduce(DataFrame.unionAll, union_df)
 
         #common transformations

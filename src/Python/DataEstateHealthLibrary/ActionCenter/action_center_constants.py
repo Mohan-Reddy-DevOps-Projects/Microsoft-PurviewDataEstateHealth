@@ -6,8 +6,8 @@ class ActionCenterConstants:
 
     ActionStatuses=["Active","Resolved"]
     
-    OWNER_DISPLAY_NAME_STR = "Owner not set"
-    DESCRIPTION_DISPLAY_NAME_STR = "Description not set"
+    OWNER_DISPLAY_NAME_STR = "Missing Owner"
+    DESCRIPTION_DISPLAY_NAME_STR = "Description is null"
     
     #DataAsset
     DATA_ASSET_STR = "DataAsset"
@@ -26,7 +26,13 @@ class ActionCenterConstants:
     DP_DATASHARESETOREXEMPT_DISPLAY_NAME_STR = "Invalid data share agreement"
     DP_ACCESSENTITLEMENT_DISPLAY_NAME_STR = "Needs access entitlement"
     DP_TERMSOFUSE_DISPLAY_NAME_STR = "Invalid terms of use"
-    DP_USECASE_DISPLAY_NAME_STR = "Invalid use case"
+    DP_USECASE_DISPLAY_NAME_STR = "Missing valid use case"
+    DP_CLASSIFICATION_DISPLAY_NAME_STR = "Missing classification"
+    DP_VALID_CLASSIFICATION_STR = "Data Product needs valid classification"
+    DP_GLOSSARY_TERM_DISPLAY_NAME_STR = "Missing glossary term"
+    DP_VALID_GLOSSARY_TERM_STR = "Data Product needs valid glossary terms"
+    DP_ASSET_COUNT_DISPLAY_NAME_STR = "Assets not attached"
+    DP_VALID_ASSET_COUNT_STR = "Data Product needs valid assets attached"
     
     #BusinessDomain
     BUSINESS_DOMAIN_STR = "BusinessDomain"

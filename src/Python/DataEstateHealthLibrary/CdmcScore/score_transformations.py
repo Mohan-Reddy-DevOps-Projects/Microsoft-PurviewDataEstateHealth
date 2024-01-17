@@ -29,49 +29,49 @@ class ScoreTransformations:
     
     def calculate_c12_score(dataproduct_df):
         c12_score_added = dataproduct_df.withColumn(
-        "C12_Quality", lit((col("C12_Quality")/col("TotalDataProducts")))
+        "C12_Quality", lit(((col("C12_Quality")/col("TotalDataProducts"))*100))
         )
 
         return c12_score_added
 
     def calculate_c2_score(dataproduct_df):
         c2_score_added = dataproduct_df.withColumn(
-        "C2_Ownership", lit((col("C2_Ownership")/col("TotalDataProducts")))
+        "C2_Ownership", lit(((col("C2_Ownership")/col("TotalDataProducts"))*100))
         )
 
         return c2_score_added
 
     def calculate_c3_score(dataproduct_df):
         c3_score_added = dataproduct_df.withColumn(
-        "C3_AuthoritativeSource", lit((col("C3_AuthoritativeSource")/col("TotalDataProducts")))
+        "C3_AuthoritativeSource", lit(((col("C3_AuthoritativeSource")/col("TotalDataProducts"))*100))
         )
 
         return c3_score_added
 
     def calculate_c5_score(dataproduct_df):
         c5_score_added = dataproduct_df.withColumn(
-        "C5_Catalog", lit((col("C5_Catalog")/col("TotalDataProducts")))
+        "C5_Catalog", lit(((col("C5_Catalog")/col("TotalDataProducts"))*100))
         )
 
         return c5_score_added
 
     def calculate_c7_score(dataproduct_df):
         c7_score_added = dataproduct_df.withColumn(
-        "C7_Access", lit((col("C7_Access")/col("TotalDataProducts")))
+        "C7_Access", lit(((col("C7_Access")/col("TotalDataProducts"))*100))
         )
 
         return c7_score_added
 
     def calculate_c6_score(dataproduct_df):
         c6_score_added = dataproduct_df.withColumn(
-        "C6_Classification", lit((col("C6_Classification")/col("TotalDataProducts")))
+        "C6_Classification", lit(((col("C6_Classification")/col("TotalDataProducts"))*100))
         )
 
         return c6_score_added
 
     def calculate_c8_score(dataproduct_df):
         c8_score_added = dataproduct_df.withColumn(
-        "C8_DataConsumptionPurpose", lit((col("C8_DataConsumptionPurpose")/col("TotalDataProducts")))
+        "C8_DataConsumptionPurpose", lit(((col("C8_DataConsumptionPurpose")/col("TotalDataProducts"))*100))
         )
 
         return c8_score_added
@@ -182,10 +182,9 @@ class ScoreTransformations:
 
     #Data Health score    
     def calculate_data_health_score(dataproduct_df):
-        data_health_score_added = dataproduct_df.withColumn(
-            "DataHealth", lit((col("C12_Quality")+col("C2_Ownership")+col("C3_AuthoritativeSource")+col("C5_Catalog")+col("C7_Access")+
-                                col("C8_DataConsumptionPurpose")+col("C6_Classification"))/(col("TotalDataProducts")*7))
-                        )
+        data_health_score_added = dataproduct_df.withColumn("DataHealth", lit((col("C2_Ownership")+col("C5_Catalog")\
+        +col("C6_Classification"))/(col("TotalDataProducts")*3))
+            )
 
         return data_health_score_added
     
