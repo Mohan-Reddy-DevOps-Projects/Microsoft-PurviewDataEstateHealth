@@ -75,6 +75,10 @@ internal sealed class DatasetsComponent : IDatasetsComponent
             EntityConfigurations = new List<IEntityConfiguration>()
             {
                 new EntityConfiguration()
+            },
+            ErrorNumbersToAdd = new List<int>()
+            {
+                -2
             }
         }, cancellationToken);
     }
