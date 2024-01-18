@@ -27,8 +27,8 @@ public class AddEnvStateActivityProcessor : BaseProcessor<Activity>
     public override void OnEnd(Activity data)
     {
         // Custom state information
-        data.AddTag("env.name", environmentConfiguration.Environment.ToString());
-        data.AddTag("RoleLocation", environmentConfiguration.Location);
+        data.AddTag("env.name", this.environmentConfiguration.Environment.ToString());
+        data.AddTag("RoleLocation", this.environmentConfiguration.Location);
         data.AddTag("cloud.role", Environment.GetEnvironmentVariable("CONTAINER_APP_NAME"));
         data.AddTag("cloud.roleInstance", Environment.GetEnvironmentVariable("CONTAINER_APP_REVISION"));
         data.AddTag("cloud.roleVer", Environment.GetEnvironmentVariable("BUILD_VERSION"));

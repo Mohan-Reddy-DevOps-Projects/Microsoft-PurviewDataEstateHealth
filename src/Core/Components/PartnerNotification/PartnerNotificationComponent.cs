@@ -10,11 +10,8 @@ using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.DGP.ServiceBasics.Components;
-using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.PowerBI.Api.Models;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 
@@ -32,19 +29,13 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     private readonly IDatabaseManagementService databaseManagementService;
 
     [Inject]
-    private readonly ReportProvider reportCommand;
-
-    [Inject]
-    private readonly DatasetProvider datasetCommand;
-
-    [Inject]
-    private readonly IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration;
-
-    [Inject]
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
 
     [Inject]
     private readonly CapacityProvider capacityAssignment;
+
+    [Inject]
+    private readonly IHealthPBIReportComponent healthPBIReportComponent;
 
     [Inject]
     private readonly ISparkJobManager sparkJobManager;
@@ -67,11 +58,11 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     /// <inheritdoc/>
     public async Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
-        await this.artifactStoreAccountComponent.CreateArtifactStoreResources(account, cancellationToken);
         await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
         await this.databaseManagementService.Initialize(account, cancellationToken);
         await this.CreatePowerBIResources(account, cancellationToken);
         await this.ProvisionSparkJobs(account);
+        await this.artifactStoreAccountComponent.CreateArtifactStoreResources(account, cancellationToken);
     }
 
     private async Task CreatePowerBIResources(AccountServiceModel account, CancellationToken cancellationToken)
@@ -84,72 +75,15 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
 
         await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
-        string owner = "health";
-        PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(context.AccountId, owner, cancellationToken);
+        PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(context.AccountId, OwnerNames.Health, cancellationToken);
         if (powerBICredential == null)
         {
             // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
-            powerBICredential = this.powerBICredentialComponent.CreateCredential(context.AccountId, owner);
+            powerBICredential = this.powerBICredentialComponent.CreateCredential(context.AccountId, OwnerNames.Health);
             await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
         }
 
-        string reportName = HealthReportNames.DataGovernance;
-        IDatasetRequest datasetRequest = new DatasetRequest()
-        {
-            ProfileId = profile.Id,
-            WorkspaceId = workspace.Id,
-            DatasetContainer = "powerbi",
-            DatasetFileName = $"{reportName}.pbix",
-            DatasetName = reportName,
-            OptimizedDataset = true,
-            PowerBICredential = powerBICredential
-        };
-
-        string sharedDatasetName = SystemDatasets.Get()[HealthDataset.Dataset.DataGovernance.ToString()].Name;
-        IDatasetRequest sharedDatasetRequest = new DatasetRequest()
-        {
-            ProfileId = profile.Id,
-            WorkspaceId = workspace.Id,
-            DatasetContainer = "powerbi",
-            DatasetFileName = $"{sharedDatasetName}.pbix",
-            DatasetName = sharedDatasetName,
-            OptimizedDataset = true,
-            PowerBICredential = powerBICredential,
-            SkipReport = true,
-            Parameters = new Dictionary<string, string>()
-            {
-                { SQLConstants.Server, this.serverlessPoolConfiguration.Value.SqlEndpoint.Split(';').First() },
-                { SQLConstants.Database, $"{owner}_1" },
-                { SQLConstants.DatabaseSchema, account.Id },
-                { "TENANT_ID", account.TenantId }
-            }
-        };
-
-        Datasets datasets = await this.datasetCommand.List(sharedDatasetRequest, cancellationToken);
-        Dataset sharedDataset = datasets.Value.FirstOrDefault(d => d.Name == sharedDatasetName);
-
-        try
-        {
-            sharedDataset ??= await this.datasetCommand.Create(sharedDatasetRequest, cancellationToken);
-        }
-        catch (ServiceException ex) when (ex.ServiceError.Category == ErrorCategory.ServiceError && ex.ServiceError.Code == ErrorCode.PowerBI_ReportDeleteFailed.Code)
-        {
-            IDatasetRequest deleteRequest = new DatasetRequest()
-            {
-                DatasetId = Guid.Parse(sharedDataset.Id),
-                ProfileId = profile.Id,
-                WorkspaceId = workspace.Id
-            };
-            await this.datasetCommand.Delete(deleteRequest.ProfileId, deleteRequest.WorkspaceId, deleteRequest.DatasetId, cancellationToken);
-
-            throw;
-        }
-
-        Reports existingReports = await this.reportCommand.List(datasetRequest.ProfileId, datasetRequest.WorkspaceId, cancellationToken);
-        if (!existingReports.Value.Any(r => r.Name == datasetRequest.DatasetName))
-        {
-            Report report = await this.reportCommand.Bind(sharedDataset, datasetRequest, cancellationToken);
-        }
+        await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken);
     }
 
     private async Task ProvisionSparkJobs(AccountServiceModel account)

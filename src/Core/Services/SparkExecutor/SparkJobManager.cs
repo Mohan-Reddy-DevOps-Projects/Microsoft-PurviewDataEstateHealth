@@ -22,7 +22,6 @@ using System.Text.Json;
 
 internal sealed class SparkJobManager : ISparkJobManager
 {
-    private const string sparkPoolPrefix = "health";
     private readonly ISparkPoolRepository<SparkPoolModel> sparkPoolRepository;
     private readonly ISynapseSparkExecutor synapseSparkExecutor;
     private readonly IDataEstateHealthRequestLogger logger;
@@ -68,7 +67,7 @@ internal sealed class SparkJobManager : ISparkJobManager
         ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(sparkPool);
         this.logger.LogInformation($"Get spark job {batchId} in pool={sparkPoolId.Name}");
         SparkBatchJob response = await this.synapseSparkExecutor.GetJob(sparkPoolId.Name, batchId, cancellationToken);
-        this.logger.LogInformation($"Retrieved spark job {JsonSerializer.Serialize(response, jsonOptions)} in pool={sparkPoolId.Name}");
+        this.logger.LogInformation($"Retrieved spark job {JsonSerializer.Serialize(response, this.jsonOptions)} in pool={sparkPoolId.Name}");
 
         return response;
     }
@@ -83,7 +82,7 @@ internal sealed class SparkJobManager : ISparkJobManager
         SparkPoolModel newModel;
         if (existingModel == null)
         {
-            string sparkPoolName = await this.GenerateSparkPoolName(sparkPoolPrefix, cancellationToken);
+            string sparkPoolName = await this.GenerateSparkPoolName(OwnerNames.Health, cancellationToken);
             synapseSparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolName, cancellationToken);
             newModel = ToModel(synapseSparkPool, null, accountServiceModel);
 
@@ -103,7 +102,7 @@ internal sealed class SparkJobManager : ISparkJobManager
     public async Task<SparkPoolModel> GetSparkPool(Guid accountId, CancellationToken cancellationToken)
     {
         this.logger.LogInformation($"Getting spark pool");
-        SparkPoolLocator storageAccountKey = new(accountId.ToString(), sparkPoolPrefix);
+        SparkPoolLocator storageAccountKey = new(accountId.ToString(), OwnerNames.Health);
 
         return await this.sparkPoolRepository.GetSingle(storageAccountKey, cancellationToken);
     }
@@ -156,7 +155,7 @@ internal sealed class SparkJobManager : ISparkJobManager
         {
             AccountId = Guid.Parse(accountServiceModel.Id),
             Id = existingModel?.Id ?? Guid.NewGuid(),
-            Name = sparkPoolPrefix,
+            Name = OwnerNames.Health,
             TenantId = Guid.Parse(accountServiceModel.TenantId),
             Properties = new()
             {

@@ -15,7 +15,6 @@
     <PackageReference Include="Microsoft.Azure.Management.ResourceManager.Fluent" />
     <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
     <PackageReference Include="Microsoft.Data.DeltaLake" />
-    <PackageReference Include="Microsoft.Purview.DataGovernance.Common" />
     <PackageReference Include="Microsoft.Purview.DataGovernance.Reporting" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime" />
     <PackageReference Include="Microsoft.WindowsAzure.ResourceStack" />

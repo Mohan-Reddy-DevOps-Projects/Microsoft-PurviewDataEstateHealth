@@ -11,6 +11,7 @@ using Microsoft.PowerBI.Api.Models;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.Purview.DataGovernance.Reporting.Services;
+using Microsoft.Rest;
 
 internal sealed class OnDemandRefreshStrategy
 {
@@ -66,6 +67,11 @@ internal sealed class OnDemandRefreshStrategy
                 RefreshRequestId = refreshRequestId,
                 WorkspaceId = datasetRequest.WorkspaceId,
             };
+        }
+        catch (HttpOperationException httpEx) when (httpEx.Response.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            this.logger.LogWarning($"Dataset={datasetRequest} not found. Skip refresh of dataset.");
+            return null;
         }
         catch (Exception ex)
         {

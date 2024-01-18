@@ -34,4 +34,13 @@ public interface IAccountExposureControlConfigProvider
     /// <param name="tenantId"></param>
     /// <returns></returns>
     public bool IsDataGovHealthProvisioningEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
+    /// Determines if upgrading PBI reports for Data Governance Health is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDataGovHealthPBIUpgradeEnabled(string accountId, string subscriptionId, string tenantId);
 }

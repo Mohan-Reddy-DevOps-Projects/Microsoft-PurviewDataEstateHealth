@@ -82,7 +82,7 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
 
             this.Start();
 
-            if (!environmentConfiguration.IsDevelopmentEnvironment())
+            if (!this.environmentConfiguration.IsDevelopmentEnvironment())
             {
                 await this.ProvisionSystemConsistencyJob();
             }

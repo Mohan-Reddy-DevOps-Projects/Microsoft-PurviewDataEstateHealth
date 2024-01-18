@@ -62,7 +62,7 @@ internal sealed class DatasetsComponent : IDatasetsComponent
     public async Task<SynapseSqlContext> GetContext(CancellationToken cancellationToken)
     {
         Guid accountId = this.requestHeaderContext.AccountObjectId;
-        PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(accountId, "health", cancellationToken);
+        PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(accountId, OwnerNames.Health, cancellationToken);
         powerBICredential.Password.MakeReadOnly();
         SqlCredential sqlCredential = new(powerBICredential.UserName, powerBICredential.Password);
 

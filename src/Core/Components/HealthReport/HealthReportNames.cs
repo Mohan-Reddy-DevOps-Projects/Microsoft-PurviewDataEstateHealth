@@ -14,3 +14,14 @@ internal static class HealthReportNames
         DataGovernance
     };
 }
+
+/// <summary>
+/// Names of the owners of the reports.
+/// </summary>
+public static class OwnerNames
+{
+    /// <summary>
+    /// The name of the owner of the health report.
+    /// </summary>
+    public const string Health = "health";
+}

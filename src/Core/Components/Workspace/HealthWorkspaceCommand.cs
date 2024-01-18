@@ -19,7 +19,6 @@ internal sealed class HealthWorkspaceCommand : IEntityCreateOperation<IWorkspace
     IRetrieveEntityByIdOperation<IWorkspaceContext, Group>,
     IEntityDeleteOperation<IWorkspaceContext>
 {
-    private const string HealthWorkspaceName = "health";
     private readonly WorkspaceProvider workspaceCommand;
 
     public HealthWorkspaceCommand(WorkspaceProvider workspaceCommand)
@@ -34,7 +33,7 @@ internal sealed class HealthWorkspaceCommand : IEntityCreateOperation<IWorkspace
         {
             AccountId = context.AccountId,
             ProfileId = context.ProfileId,
-            WorkspaceName = HealthWorkspaceName
+            WorkspaceName = OwnerNames.Health
         };
 
         return await this.workspaceCommand.Create(workspaceRequest, cancellationToken);
@@ -43,13 +42,13 @@ internal sealed class HealthWorkspaceCommand : IEntityCreateOperation<IWorkspace
     /// <inheritdoc/>
     public async Task<DeletionResult> Delete(IWorkspaceContext context, CancellationToken cancellationToken)
     {
-        return await this.workspaceCommand.Delete(context.ProfileId, context.AccountId, HealthWorkspaceName, cancellationToken);
+        return await this.workspaceCommand.Delete(context.ProfileId, context.AccountId, OwnerNames.Health, cancellationToken);
     }
 
     /// <inheritdoc/>
     public async Task<Group> Get(IWorkspaceContext context, CancellationToken cancellationToken)
     {
-        return await this.workspaceCommand.Get(context.ProfileId, context.AccountId, HealthWorkspaceName, cancellationToken) ?? throw new ServiceError(
+        return await this.workspaceCommand.Get(context.ProfileId, context.AccountId, OwnerNames.Health, cancellationToken) ?? throw new ServiceError(
             ErrorCategory.ServiceError,
             ErrorCode.Workspace_NotFound.Code,
             ErrorCode.Workspace_NotFound.Message)

@@ -17,7 +17,6 @@ internal sealed class HealthProfileCommand : IEntityCreateOperation<Guid, IProfi
     IRetrieveEntityByIdOperation<Guid, IProfileModel>,
     IEntityDeleteOperation<Guid>
 {
-    private const string HealthProfileName = "health";
     private readonly ProfileProvider profileCommand;
 
     public HealthProfileCommand(ProfileProvider profileCommand)
@@ -31,7 +30,7 @@ internal sealed class HealthProfileCommand : IEntityCreateOperation<Guid, IProfi
         IProfileRequest profileRequest = new ProfileRequest()
         {
             AccountId = accountId,
-            ProfileName = HealthProfileName
+            ProfileName = OwnerNames.Health
         };
 
         return await this.profileCommand.Create(profileRequest, cancellationToken);
@@ -40,12 +39,12 @@ internal sealed class HealthProfileCommand : IEntityCreateOperation<Guid, IProfi
     /// <inheritdoc/>
     public async Task<DeletionResult> Delete(Guid accountId, CancellationToken cancellationToken)
     {
-        return await this.profileCommand.Delete(HealthProfileName, accountId, cancellationToken);
+        return await this.profileCommand.Delete(OwnerNames.Health, accountId, cancellationToken);
     }
 
     /// <inheritdoc/>
     public async Task<IProfileModel> Get(Guid accountId, CancellationToken cancellationToken)
     {
-        return await this.profileCommand.Get(HealthProfileName, accountId, cancellationToken);
+        return await this.profileCommand.Get(OwnerNames.Health, accountId, cancellationToken);
     }
 }

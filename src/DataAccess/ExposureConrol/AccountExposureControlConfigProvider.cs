@@ -129,6 +129,17 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
         return this.IsFeatureEnabled(options);
     }
 
+    public bool IsDataGovHealthPBIUpgradeEnabled(string accountId, string subscriptionId, string tenantId)
+    {
+        ExposureControlOptions options = new(Features.DataGovHealthPBIUpgrade.ToString(), false)
+        {
+            AccountId = accountId,
+            SubscriptionId = subscriptionId,
+            TenantId = tenantId
+        };
+        return this.IsFeatureEnabled(options);
+    }
+
     private bool IsFeatureEnabled(ExposureControlOptions options)
     {
         try

@@ -7,12 +7,15 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.PowerBI.Api.Models;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.Purview.DataGovernance.Reporting.Services;
+using Microsoft.Rest;
 
 internal class RefreshComponent : IRefreshComponent
 {
@@ -35,7 +38,11 @@ internal class RefreshComponent : IRefreshComponent
     {
         IEnumerable<Task<RefreshDetailsModel>> refreshTasks = refreshLookups.Select(async refreshLookup =>
         {
-            DatasetRefreshDetail refreshStatus = await this.powerBIService.GetRefreshStatus(refreshLookup.ProfileId, refreshLookup.WorkspaceId, refreshLookup.DatasetId, refreshLookup.RefreshRequestId, cancellationToken);
+            DatasetRefreshDetail refreshStatus = await this.GetRefreshStatus(refreshLookup, cancellationToken);
+            if (refreshStatus == null)
+            {
+                return null;
+            }
 
             return new RefreshDetailsModel()
             {
@@ -57,8 +64,9 @@ internal class RefreshComponent : IRefreshComponent
             };
         });
 
-        return await Task.WhenAll(refreshTasks);
+        RefreshDetailsModel[] results = await Task.WhenAll(refreshTasks);
 
+        return results.Where(x => x != null).ToList();
     }
 
     /// <inheritdoc/>
@@ -96,6 +104,19 @@ internal class RefreshComponent : IRefreshComponent
         IEnumerable<IDatasetRequest> flattenedDatasets = allDatasetRequests.SelectMany(x => x);
 
         return await this.RefreshDatasets(flattenedDatasets.ToArray(), cancellationToken);
+    }
+
+    private async Task<DatasetRefreshDetail> GetRefreshStatus(RefreshLookup refreshLookup, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await this.powerBIService.GetRefreshStatus(refreshLookup.ProfileId, refreshLookup.WorkspaceId, refreshLookup.DatasetId, refreshLookup.RefreshRequestId, cancellationToken);
+        }
+        catch (HttpOperationException httpEx) when (httpEx.Response.StatusCode == HttpStatusCode.NotFound)
+        {
+            this.logger.LogWarning($"Refresh history is not found for ProfileId={refreshLookup.ProfileId};WorkspaceId={refreshLookup.WorkspaceId};DatasetId={refreshLookup.DatasetId}.");
+            return null;
+        }
     }
 
     private static IEnumerable<string> AllowedDatasets() => allowedDatasets.Select(x => x.Name);

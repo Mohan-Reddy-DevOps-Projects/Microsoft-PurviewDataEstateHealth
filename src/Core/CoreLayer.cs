@@ -18,6 +18,7 @@ using Microsoft.Purview.DataGovernance.Reporting.Services;
 using Microsoft.Purview.DataGovernance.Common;
 using Microsoft.Purview.DataGovernance.DeltaWriter;
 using Microsoft.Purview.DataEstateHealth.Core;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 
 /// <summary>
 /// Provides behavior on the core layer level.
@@ -97,6 +98,7 @@ public static class CoreLayer
             var authConfig = provider.GetRequiredService<IOptions<PowerBIAuthConfiguration>>();
             return new PowerBIProvider(logger, aadService, authConfig.Value);
         });
+        services.AddScoped<IHealthPBIReportComponent, HealthPBIReportComponent>();
 
         return services;
     }

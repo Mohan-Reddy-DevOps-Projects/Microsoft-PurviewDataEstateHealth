@@ -41,6 +41,7 @@ internal class PBIRefreshCallback : StagedWorkerJobCallback<StartPBIRefreshMetad
     {
         this.JobStages = new List<IJobCallbackStage>
         {
+            new StartPBIReportUpgradeStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new StartPBIRefreshStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new EndPBIRefreshStage(this.Scope, this.Metadata, this.JobCallbackUtils)
         };

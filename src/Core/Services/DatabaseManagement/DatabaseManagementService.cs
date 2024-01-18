@@ -36,13 +36,12 @@ internal class DatabaseManagementService : IDatabaseManagementService
         };
         await this.databaseCommand.AddDatabaseAsync(databaseRequest, cancellationToken);
 
-        string owner = "health";
         Guid accountId = Guid.Parse(accountModel.Id);
-        PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(accountId, owner, cancellationToken);
+        PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(accountId, OwnerNames.Health, cancellationToken);
         if (powerBICredential == null)
         {
             // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
-            powerBICredential = this.powerBICredentialComponent.CreateCredential(accountId, owner);
+            powerBICredential = this.powerBICredentialComponent.CreateCredential(accountId, OwnerNames.Health);
             await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
         }
 

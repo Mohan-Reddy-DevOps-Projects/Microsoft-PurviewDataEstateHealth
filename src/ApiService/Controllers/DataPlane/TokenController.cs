@@ -60,7 +60,7 @@ public class TokenController : DataPlaneController
         ITokenComponent component = this.coreLayerFactory.Of(ServiceVersion.From(apiVersion))
             .CreateTokenComponent(
                 this.requestHeaderContext.TenantId,
-                this.requestHeaderContext.AccountObjectId, "health");
+                this.requestHeaderContext.AccountObjectId, OwnerNames.Health);
 
 
         EmbedToken response = await component.Get(tokenRequest.ToModel(), cancellationToken);

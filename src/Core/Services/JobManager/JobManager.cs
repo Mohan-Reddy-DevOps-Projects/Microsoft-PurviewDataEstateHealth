@@ -345,7 +345,7 @@ public class JobManager : IJobManager
     private async Task CreateOneTimeJob<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, string jobId = null)
         where TMetadata : StagedWorkerJobMetadata
     {
-        UpdateDerivedMetadataProperties(metadata);
+        this.UpdateDerivedMetadataProperties(metadata);
 
         JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
                     jobCallbackName,

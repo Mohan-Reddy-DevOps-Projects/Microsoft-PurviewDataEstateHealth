@@ -7,8 +7,10 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 
@@ -20,6 +22,7 @@ internal class StartPBIRefreshStage : IJobCallbackStage
 
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly IRefreshComponent refreshComponent;
+    private readonly IAccountExposureControlConfigProvider exposureControl;
 
     public StartPBIRefreshStage(
         IServiceScope scope,
@@ -31,6 +34,7 @@ internal class StartPBIRefreshStage : IJobCallbackStage
         this.jobCallbackUtils = jobCallbackUtils;
         this.logger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
         this.refreshComponent = scope.ServiceProvider.GetService<IRefreshComponent>();
+        this.exposureControl = scope.ServiceProvider.GetService<IAccountExposureControlConfigProvider>();
     }
 
     public string StageName => nameof(StartPBIRefreshStage);
@@ -41,12 +45,28 @@ internal class StartPBIRefreshStage : IJobCallbackStage
         string jobStatusMessage;
         try
         {
-            IList<RefreshLookup> refreshLookups = await this.refreshComponent.RefreshDatasets(Guid.Parse(this.metadata.Account.Id), CancellationToken.None);
-
-            this.metadata.RefreshLookups = refreshLookups;
+            IList<RefreshLookup> refreshLookups;
+            if (this.exposureControl.IsDataGovProvisioningEnabled(this.metadata.Account.Id, this.metadata.Account.SubscriptionId, this.metadata.Account.TenantId))
+            {
+                IDatasetRequest[] datasetRequests = this.metadata.DatasetUpgrades.Keys.Select(datasetId =>
+                {
+                    return new DatasetRequest()
+                    {
+                        DatasetId = datasetId,
+                        ProfileId = this.metadata.ProfileId,
+                        WorkspaceId = this.metadata.WorkspaceId,
+                    };
+                }).ToArray();
+                refreshLookups = await this.refreshComponent.RefreshDatasets(datasetRequests, CancellationToken.None);
+            }
+            else
+            {
+                refreshLookups = await this.refreshComponent.RefreshDatasets(Guid.Parse(this.metadata.Account.Id), CancellationToken.None);
+            }
 
             jobStageStatus = JobExecutionStatus.Succeeded;
-            jobStatusMessage = $"Completed stage {this.StageName}";
+            jobStatusMessage = $"{this.StageName}|Succeeded with {refreshLookups.Count} refresh requests";
+            this.metadata.RefreshLookups = refreshLookups;
         }
         catch (Exception exception)
         {
