@@ -4,8 +4,8 @@
     {
       "ordinal": 0,
       "scrollPosition": {
-        "x": 2.211816050456191,
-        "y": 326.24286258089069
+        "x": 0,
+        "y": 218.80588386262184
       },
       "nodes": [
         {
@@ -49,19 +49,6 @@
         },
         {
           "location": {
-            "x": 6.849315068493155,
-            "y": 0
-          },
-          "nodeIndex": "DataAssetContactAssociation",
-          "nodeLineageTag": "f6784168-2d61-407e-a710-15511338caef",
-          "size": {
-            "height": 176,
-            "width": 234
-          },
-          "zIndex": 6
-        },
-        {
-          "location": {
             "x": 294.45252197023569,
             "y": 476.2142214226464
           },
@@ -72,19 +59,6 @@
             "width": 234
           },
           "zIndex": 7
-        },
-        {
-          "location": {
-            "x": 971.45499855114474,
-            "y": 334.40418744185752
-          },
-          "nodeIndex": "DataProductContactAssociation",
-          "nodeLineageTag": "31236631-10ef-425d-ad3a-df87513dc736",
-          "size": {
-            "height": 176,
-            "width": 234
-          },
-          "zIndex": 2
         },
         {
           "location": {
@@ -101,19 +75,6 @@
         },
         {
           "location": {
-            "x": 1648.8954536466242,
-            "y": 261.01744643672544
-          },
-          "nodeIndex": "GlossaryTerm",
-          "nodeLineageTag": "11eca4bc-37b7-4418-8fab-8a61765a65a3",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 3
-        },
-        {
-          "location": {
             "x": 311.0639094210577,
             "y": 52.654645146637833
           },
@@ -127,13 +88,13 @@
         },
         {
           "location": {
-            "x": 3125.655042425984,
-            "y": 542.96006386584975
+            "x": 741.04085637438038,
+            "y": 284.45406682082194
           },
           "nodeIndex": "AccountInfo",
           "nodeLineageTag": "ad76777b-f72a-4a5b-898b-edb5ce69c480",
           "size": {
-            "height": 104,
+            "height": 124.73577516403969,
             "width": 234
           },
           "zIndex": 0
