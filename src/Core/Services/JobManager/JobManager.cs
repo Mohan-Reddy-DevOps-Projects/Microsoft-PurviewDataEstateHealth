@@ -449,6 +449,7 @@ public class JobManager : IJobManager
 
     private void UpdateDerivedMetadataProperties<TMetadata>(TMetadata metadata) where TMetadata : JobMetadataBase
     {
+        metadata.TenantId = metadata.RequestContext.TenantId.ToString();
         if (RequestCorrelationContext.Current.CorrelationId == null)
         {
             // Set correlation-id if not set in the payload.

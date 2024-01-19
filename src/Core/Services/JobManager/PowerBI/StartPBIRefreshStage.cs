@@ -46,7 +46,7 @@ internal class StartPBIRefreshStage : IJobCallbackStage
         try
         {
             IList<RefreshLookup> refreshLookups;
-            if (this.exposureControl.IsDataGovProvisioningEnabled(this.metadata.Account.Id, this.metadata.Account.SubscriptionId, this.metadata.Account.TenantId))
+            if (this.exposureControl.IsDataGovHealthPBIUpgradeEnabled(this.metadata.Account.Id, this.metadata.Account.SubscriptionId, this.metadata.Account.TenantId))
             {
                 IDatasetRequest[] datasetRequests = this.metadata.DatasetUpgrades.Keys.Select(datasetId =>
                 {

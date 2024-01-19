@@ -34,7 +34,7 @@ internal class RequestContextAccessor : IRequestContextAccessor
 
         var requestContext = new RequestHeaderContext(this.httpContextAccessor);
 
-        SetRequestContext(requestContext);
+        this.SetRequestContext(requestContext);
 
         return requestContext;
     }

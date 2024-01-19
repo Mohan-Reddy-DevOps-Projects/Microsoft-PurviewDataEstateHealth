@@ -60,7 +60,7 @@ public class RequestHeaderContext : IRequestHeaderContext
         this.HttpContent = httpContextAccessor?.HttpContext;   
         IHeaderDictionary headers = httpContextAccessor?.HttpContext?.Request?.Headers;
 
-        this.CorrelationId = headers.GetFirstOrDefault(RequestCorrelationContext.HeaderCorrelationRequestId);
+        this.CorrelationId = headers.GetFirstOrDefault(RequestCorrelationContext.HeaderCorrelationRequestId) ?? Guid.NewGuid().ToString();
         this.ForwardedUrl = headers.GetFirstOrDefault(ForwardedUrlHeader);
 
         this.AccountName = headers.GetFirstOrDefault(AccountNameHeader);

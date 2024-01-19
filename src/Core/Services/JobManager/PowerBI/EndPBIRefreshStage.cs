@@ -155,7 +155,7 @@ internal class EndPBIRefreshStage : IJobCallbackStage
     /// <returns></returns>
     private async Task ProcessSuccessfulRefreshDetails(IEnumerable<RefreshDetailsModel> refreshDetails, PowerBICredential credential, CancellationToken cancellationToken)
     {
-        IEnumerable<RefreshDetailsModel> successfulRefreshes = refreshDetails.Where(refreshDetail => ReachedSuccessfulStatus(refreshDetail) && this.exposureControl.IsDataGovProvisioningEnabled(this.metadata.Account.Id, this.metadata.Account.SubscriptionId, this.metadata.Account.TenantId));
+        IEnumerable<RefreshDetailsModel> successfulRefreshes = refreshDetails.Where(refreshDetail => ReachedSuccessfulStatus(refreshDetail) && this.exposureControl.IsDataGovHealthPBIUpgradeEnabled(this.metadata.Account.Id, this.metadata.Account.SubscriptionId, this.metadata.Account.TenantId));
         foreach (RefreshDetailsModel refreshDetail in successfulRefreshes)
         {
             await this.CreateNewReport(refreshDetail, credential, cancellationToken);

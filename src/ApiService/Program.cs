@@ -2,14 +2,13 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataAccess.ApiService;
+namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
-using Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
@@ -143,6 +142,7 @@ public class Program
             .UseCors(CorsPolicyName)
             .UseAuthentication()
             .UseAuthorization()
+            .UseMiddleware<MdmMiddleware>()
             .UseApiVersionGuard();
 
         app.MapControllers();

@@ -67,7 +67,7 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
             HealthDatasetUpgrade insightsDatasetUpgrade = new(this.logger, this.datasetCommand, this.healthPBIReportComponent, this.powerBICredentialComponent);
             Dictionary<Guid, List<Dataset>> datasetUpgrades = new();
 
-            if (this.exposureControl.IsDataGovProvisioningEnabled(this.metadata.Account.Id, this.metadata.Account.SubscriptionId, this.metadata.Account.TenantId))
+            if (this.exposureControl.IsDataGovHealthPBIUpgradeEnabled(this.metadata.Account.Id, this.metadata.Account.SubscriptionId, this.metadata.Account.TenantId))
             {
                 datasetUpgrades = await insightsDatasetUpgrade.UpgradeDatasets(this.metadata.Account, profileModel.Id, workspace.Id, true, CancellationToken.None);
             }
