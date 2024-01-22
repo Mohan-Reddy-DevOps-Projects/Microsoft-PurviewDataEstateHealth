@@ -175,11 +175,11 @@ internal class HealthControlRepository : IHealthControlRepository
 
     private string GenerateHealthStatus(double score)
     {
-        if (score >= 80)
+        if (score >= 40)
         {
             return "Healthy";
         }
-        else if (score >= 50)
+        else if (score >= 20)
         {
             return "Fair";
         }
