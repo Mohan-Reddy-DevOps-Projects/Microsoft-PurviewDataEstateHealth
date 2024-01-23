@@ -51,4 +51,21 @@ if [[ "$DESTINATION_FILE_NAME" == *"tar.gz"* ]]; then
 fi
 
 echo "Pushing file $TARBALL_IMAGE_FILE_SAS to $DEST_IMAGE_FULL_NAME"
-crane push *.tar "$DEST_IMAGE_FULL_NAME"
+
+#Retry the push operation if it fails.
+max_iteration=5
+
+for i in $(seq 1 $max_iteration)
+do
+  crane push *.tar "$DEST_IMAGE_FULL_NAME"
+  result=$?
+  if [[ $result -eq 0 ]]
+  then
+    echo "Result successful"
+    break   
+  else
+    echo "Result unsuccessful"
+    sleep 5
+  fi
+done
+

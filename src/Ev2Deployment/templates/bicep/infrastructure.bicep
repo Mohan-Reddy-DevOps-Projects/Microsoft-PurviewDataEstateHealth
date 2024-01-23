@@ -281,24 +281,36 @@ resource createSynapseDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01
 
       # Connect to the Synapse Analytics server
       $connStr = "Server=tcp:${Env:serverFQName};Initial Catalog=master;Persist Security Info=False;User ID=$userName;Password=$sqlPassword;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
-      $conn = New-Object System.Data.SqlClient.SqlConnection
-      $conn.ConnectionString = $connStr
-      $conn.Open()
+      $maxRetries = 5
+      $curTry = 0
+      do {
+        try {
+          $conn = New-Object System.Data.SqlClient.SqlConnection
+          $conn.ConnectionString = $connStr
+          $conn.Open()
 
-      # Execute the CREATE DATABASE command
-      $sqlCommand = @"
+          # Execute the CREATE DATABASE command
+          $sqlCommand = @"
 
-      IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '${Env:databaseName}')
-      BEGIN
-      CREATE DATABASE [${Env:databaseName}]
-      END
+          IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '${Env:databaseName}')
+          BEGIN
+          CREATE DATABASE [${Env:databaseName}]
+          END
 "@
-      $cmd = $conn.CreateCommand()
-      $cmd.CommandText = $sqlCommand
-      $cmd.ExecuteNonQuery()
+          $cmd = $conn.CreateCommand()
+          $cmd.CommandText = $sqlCommand
+          $cmd.ExecuteNonQuery()
 
-      # Clean up
-      $conn.Close()
+          # Clean up
+          $conn.Close()
+
+          break
+        } catch {
+          Write-Error $_.Exception
+          Start-Sleep -Seconds 120
+          $curTry++
+        }
+      } while ($curTry -lt $maxRetries)
     '''
     retentionInterval: 'PT1H'
   }
