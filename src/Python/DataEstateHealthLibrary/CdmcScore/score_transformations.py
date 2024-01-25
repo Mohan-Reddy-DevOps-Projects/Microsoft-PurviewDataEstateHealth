@@ -183,7 +183,7 @@ class ScoreTransformations:
     #Data Health score    
     def calculate_data_health_score(dataproduct_df):
         data_health_score_added = dataproduct_df.withColumn("DataHealth", lit((col("C2_Ownership")+col("C5_Catalog")\
-        +col("C6_Classification"))/(col("TotalDataProducts")*3))
+        +col("C6_Classification"))/3)
             )
 
         return data_health_score_added
