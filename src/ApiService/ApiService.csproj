@@ -24,6 +24,7 @@
     <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\ProvisioningService\ProvisioningService.csproj" />
+    <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="ameroot.crt">

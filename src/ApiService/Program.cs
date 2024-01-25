@@ -17,6 +17,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataEstateHealth.BusinessLogic;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
@@ -103,6 +104,8 @@ public class Program
             options.CertificateHeader = "X-Forwarded-Client-Cert";
             options.HeaderConverter = CertificateHeaderConverter.Convert;
         });
+
+        builder.Services.SetupBusinessLogicServices();
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
