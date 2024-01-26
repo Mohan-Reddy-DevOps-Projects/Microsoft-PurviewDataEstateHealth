@@ -20,12 +20,12 @@ class CdmcControlsTransformations:
     #Catalog_control5
     def calculate_cdmc_control_5(dataproduct_df):
         cdmc_control_5_added = dataproduct_df.withColumn(
-        "C5_Catalog", when(
-        (col("HasDescription") == 1) |
-        (col("HasValidUseCase") == 1) |
-        (col("AssetCount") > 0) |
-        (col("GlossaryTermCount") > 0), lit(1))
-        .otherwise(lit(0))
+        "C5_Catalog", lit(
+(         (col("HasDescription") == 1).cast("int") +         
+          (col("HasValidUseCase") == 1).cast("int") +         
+          (col("AssetCount") > 0).cast("int") +         
+          (col("GlossaryTermCount") > 0).cast("int")) / 4
+        )
         )
         return cdmc_control_5_added
 

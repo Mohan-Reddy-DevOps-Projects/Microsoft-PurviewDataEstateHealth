@@ -115,21 +115,21 @@ class ActionCenterTransformations:
         hasdescription_action_df = ActionCenterTransformations.calculate_action_health_control_name(hasdescription_action_df,ActionCenterConstants.COMPLETENESS_STR)
         
         #HasClassification
-        classificationpasscount_action_df = dataproduct_action_df.filter(col("ClassificationPassCount") > 0)
+        classificationpasscount_action_df = dataproduct_action_df.filter(col("ClassificationPassCount") < 1)
         classificationpasscount_action_df = ActionCenterTransformations.calculate_action_display_name(classificationpasscount_action_df,ActionCenterConstants.DP_CLASSIFICATION_DISPLAY_NAME_STR)
         classificationpasscount_action_df = ActionCenterTransformations.calculate_action_description(classificationpasscount_action_df,ActionCenterConstants.DP_VALID_CLASSIFICATION_STR)
         classificationpasscount_action_df = ActionCenterTransformations.calculate_action_health_control_category(classificationpasscount_action_df,ActionCenterConstants.GOVERNANCE_STR)
         classificationpasscount_action_df = ActionCenterTransformations.calculate_action_health_control_name(classificationpasscount_action_df,ActionCenterConstants.COMPLETENESS_STR)
         
         #GlossaryTermCount
-        glossarytermcount_action_df = dataproduct_action_df.filter(col("GlossaryTermCount") > 0)
+        glossarytermcount_action_df = dataproduct_action_df.filter(col("GlossaryTermCount") < 1)
         glossarytermcount_action_df = ActionCenterTransformations.calculate_action_display_name(glossarytermcount_action_df,ActionCenterConstants.DP_GLOSSARY_TERM_DISPLAY_NAME_STR)
         glossarytermcount_action_df = ActionCenterTransformations.calculate_action_description(glossarytermcount_action_df,ActionCenterConstants.DP_VALID_GLOSSARY_TERM_STR)
         glossarytermcount_action_df = ActionCenterTransformations.calculate_action_health_control_category(glossarytermcount_action_df,ActionCenterConstants.GOVERNANCE_STR)
         glossarytermcount_action_df = ActionCenterTransformations.calculate_action_health_control_name(glossarytermcount_action_df,ActionCenterConstants.COMPLETENESS_STR)
 
         #AssetCount
-        assetcount_action_df = dataproduct_action_df.filter(col("AssetCount") > 0)
+        assetcount_action_df = dataproduct_action_df.filter(col("AssetCount") < 1)
         assetcount_action_df = ActionCenterTransformations.calculate_action_display_name(assetcount_action_df,ActionCenterConstants.DP_ASSET_COUNT_DISPLAY_NAME_STR)
         assetcount_action_df = ActionCenterTransformations.calculate_action_description(assetcount_action_df,ActionCenterConstants.DP_VALID_ASSET_COUNT_STR)
         assetcount_action_df = ActionCenterTransformations.calculate_action_health_control_category(assetcount_action_df,ActionCenterConstants.GOVERNANCE_STR)
