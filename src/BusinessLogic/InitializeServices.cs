@@ -10,9 +10,10 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic
 
     public static class InitializeServices
     {
-        public static void SetupBusinessLogicServices(this IServiceCollection builder)
+        public static void SetupBusinessLogicServices(this IServiceCollection services)
         {
-            builder.AddSingleton<IDataHealthActionService, DataHealthActionService>();
+            services.AddSingleton<IDataHealthActionService, DataHealthActionService>();
+            services.AddScoped<DHRuleService>();
         }
     }
 }

@@ -18,6 +18,8 @@ using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess;
+using Microsoft.Purview.DataEstateHealth.DHModels;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
@@ -105,6 +107,8 @@ public class Program
             options.HeaderConverter = CertificateHeaderConverter.Convert;
         });
 
+        builder.Services.SetupDHModelsServices();
+        builder.Services.SetupDHDataAccessServices();
         builder.Services.SetupBusinessLogicServices();
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {

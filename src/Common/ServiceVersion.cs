@@ -4,11 +4,11 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Common;
 
+using Microsoft.DGP.ServiceBasics.BaseModels;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.DGP.ServiceBasics.BaseModels;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 /// <summary>
 /// Defines service versions.

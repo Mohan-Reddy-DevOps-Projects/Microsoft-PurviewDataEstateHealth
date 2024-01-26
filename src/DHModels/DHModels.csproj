@@ -3,16 +3,14 @@
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
-		<RootNamespace>Microsoft.Purview.DataEstateHealth.BusinessLogic</RootNamespace>
-		<AssemblyName>Microsoft.Purview.DataEstateHealth.BusinessLogic</AssemblyName>
+		<RootNamespace>Microsoft.Purview.DataEstateHealth.DHModels</RootNamespace>
+		<AssemblyName>Microsoft.Purview.DataEstateHealth.DHModels</AssemblyName>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\DHDataAccess\DHDataAccess.csproj" />
+		<PackageReference Include="ConfigureAwaitChecker.Analyzer" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup>

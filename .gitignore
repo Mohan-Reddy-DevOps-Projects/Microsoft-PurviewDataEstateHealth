@@ -339,3 +339,5 @@ reports/
 src/Python/DataEstateHealthLibrary.egg-info
 src/Python/dist
 src/Python/build
+
+dirs.sln

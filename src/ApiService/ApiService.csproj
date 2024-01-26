@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Platforms>x64</Platforms>
@@ -25,6 +25,8 @@
     <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\ProvisioningService\ProvisioningService.csproj" />
     <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
+    <ProjectReference Include="..\DHModels\DHModels.csproj" />
+    <ProjectReference Include="..\DHDataAccess\DHDataAccess.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="ameroot.crt">
