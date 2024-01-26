@@ -6,7 +6,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services.Interfaces
 {
     using System.Threading.Tasks;
 
-    public interface IActionService
+    public interface IDataHealthActionService
     {
         Task EnumerateActionsAsync();
     }

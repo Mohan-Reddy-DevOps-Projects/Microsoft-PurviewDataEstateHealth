@@ -16,18 +16,18 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services.Interfaces;
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV1)]
 [Route("/actions")]
-public class ActionCenterController : DataPlaneController
+public class DataHealthActionController : DataPlaneController
 {
     private readonly IRequestHeaderContext requestHeaderContext;
 
-    private IActionService actionService;
+    private IDataHealthActionService actionService;
 
     /// <summary>
     /// Health Report controller constructor
     /// </summary>
-    public ActionCenterController(
+    public DataHealthActionController(
         IRequestHeaderContext requestHeaderContext,
-        IActionService actionService
+        IDataHealthActionService actionService
         )
     {
         this.requestHeaderContext = requestHeaderContext;

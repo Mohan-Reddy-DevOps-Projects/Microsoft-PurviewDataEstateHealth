@@ -8,10 +8,10 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using System;
     using System.Threading.Tasks;
 
-    public class ActionService : IActionService
+    public class DataHealthActionService : IDataHealthActionService
     {
 
-        public ActionService()
+        public DataHealthActionService()
         {
 
         }

@@ -12,7 +12,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic
     {
         public static void SetupBusinessLogicServices(this IServiceCollection builder)
         {
-            builder.AddSingleton<IActionService, ActionService>();
+            builder.AddSingleton<IDataHealthActionService, DataHealthActionService>();
         }
     }
 }

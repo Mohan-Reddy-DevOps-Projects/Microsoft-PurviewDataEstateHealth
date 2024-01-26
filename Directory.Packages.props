@@ -34,6 +34,7 @@
     <PackageVersion Include="Microsoft.Azure.Services.AppAuthentication" Version="1.6.2" />
     <PackageVersion Include="Microsoft.Data.DeltaLake" Version="3.0.0.15" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Purview.ArtifactStoreClient" Version="3.0.13" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.Common" Version="1.0.7" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.DataLakeAPI" Version="1.0.8" />
