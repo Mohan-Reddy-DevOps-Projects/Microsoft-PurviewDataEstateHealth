@@ -49,7 +49,7 @@ class ActionCenterAggregation:
         return businessdomain_action_df
     
     def aggregated_data_product_actions(dataproduct_df,dataproduct_contact_association, dataproduct_domain_association):
-        dataproduct_action_df = dataproduct_contact_association.join(dataproduct_df,"DataProductId","leftouter")
+        dataproduct_action_df = dataproduct_df.join(dataproduct_contact_association,"DataProductId","leftouter")
         dataproduct_action_df = dataproduct_action_df.join(dataproduct_domain_association,"DataProductId","leftouter")
         
         dataproduct_action_df = dataproduct_action_df.select("DataProductId","BusinessDomainId","DataProductDisplayName","HasValidOwner","HasDescription","HasValidTermsOfUse","ContactRole", "ContactId", "ContactDescription",
@@ -65,7 +65,7 @@ class ActionCenterAggregation:
         return dataproduct_action_df
     
     def aggregated_data_asset_actions(dataasset_df,dataasset_contact_association,dataproduct_domain_association,assetproduct_association_df):
-        asset_action_df = dataasset_contact_association.join(dataasset_df,"DataAssetId","leftouter")
+        asset_action_df = dataasset_df.join(dataasset_contact_association,"DataAssetId","leftouter")
         asset_action_df = asset_action_df.select("DataAssetId","ContactId", "ContactRole","ContactDescription","HasDescription")
 
         #need it for aggregation later
