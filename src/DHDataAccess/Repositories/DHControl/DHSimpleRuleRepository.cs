@@ -1,12 +1,12 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHRuleEngine;
-using Microsoft.Purview.DataEstateHealth.Models.v2.DataAccess;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-public class DHSimpleRuleRepository(CosmosDBContext cosmosDBContext) : IRepository<DHSimpleRule>
+public class DHSimpleRuleRepository(ControlDBContext cosmosDBContext) : IRepository<DHSimpleRule>
 {
     public async Task AddAsync(DHSimpleRule entity)
     {

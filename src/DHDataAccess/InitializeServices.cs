@@ -5,16 +5,21 @@
 namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
 {
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
-    using Microsoft.Purview.DataEstateHealth.Models.v2.DataAccess;
 
     public static class InitializeServices
     {
         public static void SetupDHDataAccessServices(this IServiceCollection services)
         {
-            services.AddDbContext<CosmosDBContext>();
+            services.AddDbContext<ControlDBContext>();
 
             services.AddScoped<DHSimpleRuleRepository>();
+
+            services.AddDbContext<ActionDBContext>();
+
+            services.AddScoped<DataHealthActionRepository>();
         }
     }
 }

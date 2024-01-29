@@ -2,9 +2,10 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
+namespace Microsoft.Purview.DataEstateHealth.Models;
 
 using Newtonsoft.Json;
+using System;
 
 public class DataHealthActionSystemData
 {

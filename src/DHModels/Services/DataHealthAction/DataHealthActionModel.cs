@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
+namespace Microsoft.Purview.DataEstateHealth.Models;
 
 using Newtonsoft.Json;
 using System;
@@ -60,7 +60,7 @@ public class DataHealthActionModel : IDataHealthActionModel
 
     /// <inheritdoc />
     [JsonProperty("owners")]
-    public Guid[] Owners { get; set; }
+    public string[] Owners { get; set; }
 
     /// <inheritdoc />
     [JsonProperty("systemData")]

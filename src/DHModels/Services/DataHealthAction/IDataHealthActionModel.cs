@@ -2,8 +2,9 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
+namespace Microsoft.Purview.DataEstateHealth.Models;
 
+using System;
 
 public interface IDataHealthActionModel
 {
@@ -31,7 +32,7 @@ public interface IDataHealthActionModel
 
     string TargetId { get; set; }
 
-    Guid[] Owners { get; set; }
+    string[] Owners { get; set; }
 
     DataHealthActionSystemData SystemData { get; set; }
 

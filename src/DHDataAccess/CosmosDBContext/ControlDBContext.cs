@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.Models.v2.DataAccess;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 
 using global::Azure.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +7,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHCheckPoint;
 using Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHRuleEngine;
 using System;
 
-public class CosmosDBContext(IConfiguration configuration) : DbContext
+public class ControlDBContext(IConfiguration configuration) : DbContext
 {
     protected readonly IConfiguration Configuration = configuration;
 
@@ -49,11 +49,12 @@ public class CosmosDBContext(IConfiguration configuration) : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var cosmosDbEndpoint = this.Configuration["cosmosDb:accountEndpoint"];
-        var databaseName = this.Configuration["cosmosDb:databaseName"];
+        var databaseName = this.Configuration["cosmosDb:controlDatabaseName"];
 
         var tokenCredential = new DefaultAzureCredential();
         optionsBuilder.UseCosmos(cosmosDbEndpoint, tokenCredential, databaseName);
     }
 
     public DbSet<DHRuleBase> Rules { get; set; }
+
 }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services.Interfaces;
+using Microsoft.Purview.DataEstateHealth.Models;
 
 /// <summary>
 /// Health Reports controller.
@@ -50,6 +51,15 @@ public class DataHealthActionController : DataPlaneController
 
         await this.actionService.EnumerateActionsAsync().ConfigureAwait(false);
 
+        return this.Ok();
+    }
+
+    [HttpPost]
+    [Route("")]
+    public async Task<ActionResult> CreateDHSimpleRuleAsync(
+        [FromBody] DataHealthActionModel entity)
+    {
+        await this.actionService.CreateActionsAsync(entity).ConfigureAwait(false);
         return this.Ok();
     }
 }
