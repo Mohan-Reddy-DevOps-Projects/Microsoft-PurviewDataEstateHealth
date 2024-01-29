@@ -52,7 +52,7 @@ internal class DataQualityScoreCollectionComponent :
     string skipToken = null)
     {
         ODataQueryOptions<BusinessDomainQualityScoreEntity> query = this.GetDomainOptions();
-        SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
+        await using SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
         Func<IQueryable<BusinessDomainQualityScoreEntity>> x = () => query.ApplyTo(context.BusinessDomainQualityScores.AsQueryable()) as IQueryable<BusinessDomainQualityScoreEntity>;
         IQueryable<BusinessDomainQualityScoreEntity> businessDomainQualityScoresEntitiesList = this.datasetsComponent.GetDataset(x) as IQueryable<BusinessDomainQualityScoreEntity>;
 
@@ -99,7 +99,7 @@ internal class DataQualityScoreCollectionComponent :
         string skipToken = null)
     {
         ODataQueryOptions<DataProductQualityScoreEntity> query = this.GetProductOptions();
-        SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
+        await using SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
         Func<IQueryable<DataProductQualityScoreEntity>> x = () => query.ApplyTo(context.DataProductQualityScores.AsQueryable()) as IQueryable<DataProductQualityScoreEntity>;
         IQueryable<DataProductQualityScoreEntity> dataProductQualityScoresEntitiesList = this.datasetsComponent.GetDataset(x) as IQueryable<DataProductQualityScoreEntity>;
 
@@ -146,7 +146,7 @@ internal class DataQualityScoreCollectionComponent :
         string skipToken = null)
     {
         ODataQueryOptions<AssetQualityScoreEntity> query = this.GetAssetOptions();
-        SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
+        await using SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
         Func<IQueryable<AssetQualityScoreEntity>> x = () => query.ApplyTo(context.AssetQualityScores.AsQueryable()) as IQueryable<AssetQualityScoreEntity>;
         IQueryable<AssetQualityScoreEntity> assetQualityScoresEntitiesList = this.datasetsComponent.GetDataset(x) as IQueryable<AssetQualityScoreEntity>;
 

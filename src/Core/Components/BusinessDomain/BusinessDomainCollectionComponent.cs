@@ -42,7 +42,7 @@ internal class BusinessDomainCollectionComponent : BaseComponent<IBusinessDomain
         string skipToken = null)
     {
         ODataQueryOptions<BusinessDomainEntity> query = this.GetOptions();
-        SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
+        await using SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
         Func<IQueryable<BusinessDomainEntity>> x = () => query.ApplyTo(context.BusinessDomains.AsQueryable()) as IQueryable<BusinessDomainEntity>;
         IQueryable<BusinessDomainEntity> businessDomainEntitiesList = this.datasetsComponent.GetDataset(x) as IQueryable<BusinessDomainEntity>;
 

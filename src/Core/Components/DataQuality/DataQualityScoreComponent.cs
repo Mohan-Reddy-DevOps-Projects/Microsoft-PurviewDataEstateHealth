@@ -51,7 +51,7 @@ internal class DataQualityScoreComponent :
         {
             ODataQueryOptions<AssetQualityScoreEntity> assetQuery = this.GetAssetOptions();
 
-            SynapseSqlContext assetContext = await this.datasetsComponent.GetContext(cancellationToken);
+            await using SynapseSqlContext assetContext = await this.datasetsComponent.GetContext(cancellationToken);
             Func<IQueryable<AssetQualityScoreEntity>> x = () => assetQuery.ApplyTo(this.GetScoreForAssetId(assetContext, this.Context.DataAssetId)) as IQueryable<AssetQualityScoreEntity>;
             IQueryable <AssetQualityScoreEntity> assetScore = this.datasetsComponent.GetDataset(x) as IQueryable<AssetQualityScoreEntity>;
 
@@ -70,7 +70,7 @@ internal class DataQualityScoreComponent :
         {
             ODataQueryOptions<DataProductQualityScoreEntity> productQuery = this.GetProductOptions();
 
-            SynapseSqlContext productContext = await this.datasetsComponent.GetContext(cancellationToken);
+            await using SynapseSqlContext productContext = await this.datasetsComponent.GetContext(cancellationToken);
             Func<IQueryable<DataProductQualityScoreEntity>> y = () => productQuery.ApplyTo(this.GetScoreForDataProductId(productContext, this.Context.DataProductId)) as IQueryable<DataProductQualityScoreEntity>;
             IQueryable<DataProductQualityScoreEntity> productScore = this.datasetsComponent.GetDataset(y) as IQueryable<DataProductQualityScoreEntity>;
 
@@ -85,7 +85,7 @@ internal class DataQualityScoreComponent :
 
         ODataQueryOptions<BusinessDomainQualityScoreEntity> query = this.GetBusinessDomainOptions();
 
-        SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
+        await using SynapseSqlContext context = await this.datasetsComponent.GetContext(cancellationToken);
         Func<IQueryable<BusinessDomainQualityScoreEntity>> z = () => query.ApplyTo(this.GetScoreForBusinessDomainId(context, this.Context.BusinessDomainId)) as IQueryable<BusinessDomainQualityScoreEntity>;
         IQueryable<BusinessDomainQualityScoreEntity> score = this.datasetsComponent.GetDataset(z) as IQueryable<BusinessDomainQualityScoreEntity>;
 
