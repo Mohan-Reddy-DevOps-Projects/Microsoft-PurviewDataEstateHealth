@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
+using Microsoft.Identity.Client;
 using Microsoft.PowerBI.Api.Models;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
@@ -24,7 +25,7 @@ internal sealed class TokenComponent : BaseComponent<ITokenContext>, ITokenCompo
     private readonly TokenProvider tokenProvider;
 
     [Inject]
-    private readonly HealthProfileCommand profileCommand;
+    private readonly IHealthProfileCommand profileCommand;
 
     [Inject]
     private readonly HealthWorkspaceCommand workspaceCommand;
@@ -38,7 +39,8 @@ internal sealed class TokenComponent : BaseComponent<ITokenContext>, ITokenCompo
     /// <inheritdoc/>
     public async Task<EmbedToken> Get(TokenModel tokenModel, CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, cancellationToken);
+        ProfileKey profileKey = new(this.Context.AccountId);
+        IProfileModel profile = await this.profileCommand.Get(profileKey, cancellationToken);
         TokenModel request;
         if (tokenModel == null || tokenModel.ReportIds == null || tokenModel.ReportIds.Count == 0 || tokenModel.DatasetIds == null || tokenModel.DatasetIds.Count == 0)
         {

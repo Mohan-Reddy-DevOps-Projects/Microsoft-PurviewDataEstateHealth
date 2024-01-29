@@ -51,4 +51,10 @@ public interface IEntityModel
     /// Together the PartitionKey and RowKey uniquely identify every entity within a table.
     /// </remarks>
     string RowKey { get; }
+
+    /// <summary>
+    /// The resource id of the entity.
+    /// </summary>
+    /// <returns></returns>
+    string ResourceId();
 }

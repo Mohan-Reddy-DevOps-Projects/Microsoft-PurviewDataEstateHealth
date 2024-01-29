@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 using System;
 using global::Azure;
+using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
 
 /// <summary>
 /// Entity model.
@@ -47,4 +48,18 @@ public abstract class EntityModel : IEntityModel
         this.RowKey = rowKey;
         this.ETag = etag;
     }
+
+    /// <summary>
+    /// The resource id of the entity.
+    /// </summary>
+    /// <returns></returns>
+    public abstract string ResourceId();
+
+    /// <summary>
+    /// The resource id of the entity.
+    /// </summary>
+    /// <param name="resourceId"></param>
+    /// <param name="args"></param>
+    /// <returns></returns>
+    public static string ResourceId(string resourceId, string[] args) => ResourceIds.Create(resourceId, args);
 }

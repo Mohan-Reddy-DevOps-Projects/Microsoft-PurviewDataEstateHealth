@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
+namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using System.Threading.Tasks;
 
@@ -15,6 +15,7 @@ public interface IEntityCreateOrUpdateOperation<TPayload, TEntity>
     /// Create or update a new entity.
     /// </summary>
     /// <param name="payload">The information needed to create the entity.</param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A task that resolves to the newly created entity.</returns>
-    Task<TEntity> CreateOrUpdate(TPayload payload);
+    Task<TEntity> CreateOrUpdate(TPayload payload, CancellationToken cancellationToken);
 }

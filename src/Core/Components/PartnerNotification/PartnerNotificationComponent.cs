@@ -20,7 +20,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 {
 #pragma warning disable 649
     [Inject]
-    private readonly HealthProfileCommand profileCommand;
+    private readonly IHealthProfileCommand profileCommand;
 
     [Inject]
     private readonly HealthWorkspaceCommand workspaceCommand;
@@ -67,7 +67,8 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 
     private async Task CreatePowerBIResources(AccountServiceModel account, CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Create(this.Context.AccountId, cancellationToken);
+        ProfileKey profileKey = new(this.Context.AccountId);
+        IProfileModel profile = await this.profileCommand.Create(profileKey, cancellationToken);
         IWorkspaceContext context = new WorkspaceContext(this.Context)
         {
             ProfileId = profile.Id

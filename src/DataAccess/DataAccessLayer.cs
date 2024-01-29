@@ -50,6 +50,7 @@ public static class DataAccessLayer
         services.AddMetadataServiceHttpClient(MetadataServiceClientFactory.HttpClientName);
         services.AddSingleton<MetadataServiceClientFactory>();
         services.AddSingleton<IMetadataAccessorService, MetadataAccessorService>();
+        services.AddSingleton<ICacheManager, CacheManager>();
 
         services.AddSingleton<ITableStorageClient<AccountStorageTableConfiguration>>(
         serviceProvider => new TableStorageClient<AccountStorageTableConfiguration>(

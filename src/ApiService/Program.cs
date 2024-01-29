@@ -192,6 +192,10 @@ public class Program
             // Initialize metadata service
             IMetadataAccessorService metadataService = app.Services.GetService<IMetadataAccessorService>();
             metadataService.Initialize();
+
+            // Initialize cache
+            ICacheManager cacheManager = app.Services.GetService<ICacheManager>();
+            cacheManager.Initialize();
         }
         catch (Exception ex)
         {

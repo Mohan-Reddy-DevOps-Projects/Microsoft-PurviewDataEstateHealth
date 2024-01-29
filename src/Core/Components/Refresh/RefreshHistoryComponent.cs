@@ -23,7 +23,7 @@ internal sealed class RefreshHistoryComponent : BaseComponent<IRefreshHistoryCon
     private readonly PowerBIProvider powerBIProvider;
 
     [Inject]
-    private readonly HealthProfileCommand profileCommand;
+    private readonly IHealthProfileCommand profileCommand;
 
     [Inject]
     private readonly HealthWorkspaceCommand workspaceCommand;
@@ -42,7 +42,8 @@ internal sealed class RefreshHistoryComponent : BaseComponent<IRefreshHistoryCon
             throw new ServiceError(ErrorCategory.InputError, ServiceErrorCode.InvalidField.Code, "Top must be greater than 0.").ToException();
         }
 
-        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, cancellationToken);
+        ProfileKey profileKey = new(this.Context.AccountId);
+        IProfileModel profile = await this.profileCommand.Get(profileKey, cancellationToken);
         IWorkspaceContext workspaceContext = new WorkspaceContext(this.Context)
         {
             ProfileId = profile.Id,

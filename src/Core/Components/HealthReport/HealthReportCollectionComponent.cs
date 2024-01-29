@@ -27,7 +27,7 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
     private readonly ReportProvider reportCommand;
 
     [Inject]
-    private readonly HealthProfileCommand profileCommand;
+    private readonly IHealthProfileCommand profileCommand;
 
     [Inject]
     private readonly HealthWorkspaceCommand workspaceCommand;
@@ -55,7 +55,8 @@ internal class HealthReportCollectionComponent : BaseComponent<IHealthReportList
         string skipToken = null,
         HealthReportKind? reportKind = null)
     {
-        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, CancellationToken.None);
+        ProfileKey profileKey = new(this.Context.AccountId);
+        IProfileModel profile = await this.profileCommand.Get(profileKey, CancellationToken.None);
         IEnumerable<Report> reports = await this.GetReportsByProfile(profile, CancellationToken.None);
 
         IEnumerable<PowerBIHealthReportModel> values = reports.Select(x => new PowerBIHealthReportModel()

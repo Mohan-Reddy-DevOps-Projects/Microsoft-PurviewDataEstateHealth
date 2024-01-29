@@ -22,10 +22,10 @@ internal class RefreshComponent : IRefreshComponent
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly IPowerBIService powerBIService;
     private readonly CapacityProvider capacityAssignment;
-    private readonly HealthProfileCommand profileCommand;
+    private readonly IHealthProfileCommand profileCommand;
     private static readonly IEnumerable<IDataset> allowedDatasets = SystemDatasets.Get().Values;
 
-    public RefreshComponent(IDataEstateHealthRequestLogger logger, PowerBIProvider powerBIProvider, CapacityProvider capacityAssignment, HealthProfileCommand profileCommand)
+    public RefreshComponent(IDataEstateHealthRequestLogger logger, PowerBIProvider powerBIProvider, CapacityProvider capacityAssignment, IHealthProfileCommand profileCommand)
     {
         this.logger = logger;
         this.powerBIService = powerBIProvider.PowerBIService;
@@ -80,7 +80,8 @@ internal class RefreshComponent : IRefreshComponent
     /// <inheritdoc/>
     public async Task<IList<RefreshLookup>> RefreshDatasets(Guid accountId, CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Get(accountId, cancellationToken);
+        ProfileKey profileKey = new(accountId);
+        IProfileModel profile = await this.profileCommand.Get(profileKey, cancellationToken);
         Groups workspaces = await this.powerBIService.GetWorkspaces(profile.Id, cancellationToken);
         IEnumerable<IDatasetRequest>[] allDatasetRequests = await Task.WhenAll(workspaces.Value.Select(async workspace =>
         {

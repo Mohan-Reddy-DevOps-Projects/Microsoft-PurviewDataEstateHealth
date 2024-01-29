@@ -25,7 +25,7 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
 
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly IAccountExposureControlConfigProvider exposureControl;
-    private readonly HealthProfileCommand profileCommand;
+    private readonly IHealthProfileCommand profileCommand;
     private readonly HealthWorkspaceCommand workspaceCommand;
     private readonly DatasetProvider datasetCommand;
     private readonly IHealthPBIReportComponent healthPBIReportComponent;
@@ -41,7 +41,7 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
         this.jobCallbackUtils = jobCallbackUtils;
         this.logger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
         this.exposureControl = scope.ServiceProvider.GetService<IAccountExposureControlConfigProvider>();
-        this.profileCommand = scope.ServiceProvider.GetRequiredService<HealthProfileCommand>();
+        this.profileCommand = scope.ServiceProvider.GetRequiredService<IHealthProfileCommand>();
         this.workspaceCommand = scope.ServiceProvider.GetRequiredService<HealthWorkspaceCommand>();
         this.datasetCommand = scope.ServiceProvider.GetRequiredService<DatasetProvider>();
         this.healthPBIReportComponent = scope.ServiceProvider.GetRequiredService<IHealthPBIReportComponent>();
@@ -57,7 +57,8 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
         try
         {
             Guid accountId = Guid.Parse(this.metadata.Account.Id);
-            IProfileModel profileModel = await this.profileCommand.Get(accountId, CancellationToken.None);
+            ProfileKey profileKey = new(accountId);
+            IProfileModel profileModel = await this.profileCommand.Get(profileKey, CancellationToken.None);
             IWorkspaceContext workspaceContext = new WorkspaceContext()
             {
                 AccountId = accountId,

@@ -37,7 +37,14 @@ public static class CoreLayer
         services.AddSingleton<IKeyVaultAccessorService, KeyVaultAccessorService>();
         services.AddSingleton<IComponentContextFactory, ComponentContextFactory>();
         services.AddSingleton<ServiceHealthCheck>();
-        services.AddSingleton<IProcessingStorageManager, ProcessingStorageManager>();
+        services.AddSingleton<ProcessingStorageManager>();
+        services.AddSingleton<IProcessingStorageManager>(impl =>
+        {
+            IProcessingStorageManager repository = impl.GetRequiredService<ProcessingStorageManager>();
+            ICacheManager cacheManager = impl.GetRequiredService<ICacheManager>();
+            IDataEstateHealthRequestLogger logger = impl.GetRequiredService<IDataEstateHealthRequestLogger>();
+            return new InMemoryProcessingStorageCache(repository, TimeSpan.FromHours(1), cacheManager, logger);
+        });
         services.AddSingleton<ISynapseSparkExecutor, SynapseSparkExecutor>();
         services.AddSingleton<ISparkJobManager, SparkJobManager>();
         services.AddSingleton<ICommonFieldValidationService, CommonFieldValidationService>();
@@ -127,7 +134,8 @@ public static class CoreLayer
             var blobStorageAccessor = provider.GetRequiredService<IBlobStorageAccessor>();
             var auxStorage = provider.GetRequiredService<IOptions<AuxStorageConfiguration>>();
             return new DatasetProvider(powerBIProvider, blobStorageAccessor, auxStorage.Value);
-        }); services.AddScoped(provider =>
+        });
+        services.AddScoped(provider =>
         {
             var powerBIProvider = provider.GetRequiredService<PowerBIProvider>();
             return new ProfileProvider(powerBIProvider);
@@ -139,6 +147,13 @@ public static class CoreLayer
         });
         services.AddScoped<IDatabaseCommand, DatabaseCommand>();
         services.AddScoped<HealthProfileCommand>();
+        services.AddScoped<IHealthProfileCommand>(impl =>
+         {
+             IHealthProfileCommand repository = impl.GetRequiredService<HealthProfileCommand>();
+             ICacheManager cacheManager = impl.GetRequiredService<ICacheManager>();
+             IDataEstateHealthRequestLogger logger = impl.GetRequiredService<IDataEstateHealthRequestLogger>();
+             return new InMemoryProfileCache(repository, TimeSpan.FromHours(1), cacheManager, logger);
+         });
         services.AddScoped<HealthWorkspaceCommand>();
         services.AddScoped<IDatabaseManagementService, DatabaseManagementService>();
 

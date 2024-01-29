@@ -21,7 +21,7 @@ internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHea
     private readonly ReportProvider reportCommand;
 
     [Inject]
-    private readonly HealthProfileCommand profileCommand;
+    private readonly IHealthProfileCommand profileCommand;
 
     [Inject]
     private readonly HealthWorkspaceCommand workspaceCommand;
@@ -34,7 +34,8 @@ internal class HealthReportComponent : BaseComponent<IHealthReportContext>, IHea
     /// <inheritdoc />
     public async Task<IHealthReportModel<HealthReportProperties>> Get(CancellationToken cancellationToken)
     {
-        IProfileModel profile = await this.profileCommand.Get(this.Context.AccountId, CancellationToken.None);
+        ProfileKey profileKey = new(this.Context.AccountId);
+        IProfileModel profile = await this.profileCommand.Get(profileKey, CancellationToken.None);
         IWorkspaceContext workspaceContext = new WorkspaceContext(this.Context)
         {
             ProfileId = profile.Id,

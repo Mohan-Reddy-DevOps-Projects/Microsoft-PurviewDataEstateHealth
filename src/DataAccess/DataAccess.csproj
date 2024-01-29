@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.AspNetCore.OData" />
     <PackageReference Include="Microsoft.Azure.Purview.ExposureControlLibrary" />
     <PackageReference Include="Microsoft.PowerBI.Api" />
+    <PackageReference Include="Microsoft.Azure.ProjectBabylon.Caching" />
     <PackageReference Include="Microsoft.Azure.ProjectBabylon.Metadata.ProjectBabylonMetadataClient" />
     <PackageReference Include="Microsoft.Purview.ArtifactStoreClient" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />

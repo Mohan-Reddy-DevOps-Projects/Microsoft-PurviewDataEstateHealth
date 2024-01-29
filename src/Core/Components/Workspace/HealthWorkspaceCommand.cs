@@ -6,10 +6,10 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.PowerBI.Api.Models;
 using Microsoft.Purview.DataGovernance.Reporting;
-using Microsoft.Purview.DataGovernance.Reporting.Common;
 using ErrorCode = Common.ErrorCode;
 
 /// <summary>
@@ -40,7 +40,7 @@ internal sealed class HealthWorkspaceCommand : IEntityCreateOperation<IWorkspace
     }
 
     /// <inheritdoc/>
-    public async Task<DeletionResult> Delete(IWorkspaceContext context, CancellationToken cancellationToken)
+    public async Task<Microsoft.Purview.DataGovernance.Reporting.Common.DeletionResult> Delete(IWorkspaceContext context, CancellationToken cancellationToken)
     {
         return await this.workspaceCommand.Delete(context.ProfileId, context.AccountId, OwnerNames.Health, cancellationToken);
     }
