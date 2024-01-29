@@ -1,8 +1,8 @@
 ﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.Helpers;
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.Helpers;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHCheckPoint;
-using Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHRuleEngine;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHCheckPoint;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using System;
 using System.Linq;
 
@@ -65,13 +65,17 @@ internal static class RuleExecutor
 
     public static bool Execute<TPayload>(DHRuleGroup ruleGroup, TPayload payload)
     {
-        var ruleResults = ruleGroup.Rules.Select(rule => Execute(rule, payload));
-        var ruleGroupResults = ruleGroup.Groups.Select(group => Execute(group, payload));
+        var ruleResults = ruleGroup.Rules.Select(rule => rule switch
+        {
+            DHRuleBase _rule => Execute(_rule, payload),
+            DHRuleGroup _group => Execute(_group, payload),
+            _ => throw new NotImplementedException()
+        });
         var finalResult = ruleGroup.GroupOperator switch
         {
-            DHRuleGroupOperator.AND => ruleResults.All(result => result) && ruleGroupResults.All(result => result),
-            DHRuleGroupOperator.OR => ruleResults.Any(result => result) || ruleGroupResults.Any(result => result),
-            DHRuleGroupOperator.NOT => !ruleResults.Any(result => result) && !ruleGroupResults.Any(result => result),
+            DHRuleGroupOperator.AND => ruleResults.All(result => result),
+            DHRuleGroupOperator.OR => ruleResults.Any(result => result),
+            DHRuleGroupOperator.NOT => !ruleResults.Any(result => result),
             _ => throw new ArgumentException($@"Unsupported group operator ""{ruleGroup.GroupOperator}"""),
         };
         return finalResult;

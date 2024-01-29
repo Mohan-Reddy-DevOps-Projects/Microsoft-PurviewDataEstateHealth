@@ -1,5 +1,5 @@
 ﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHCheckPoint;
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHCheckPoint;
 
 public enum DHCheckPoint
 {

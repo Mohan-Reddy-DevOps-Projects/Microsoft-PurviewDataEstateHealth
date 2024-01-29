@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
-using Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHRuleEngine;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using System;
 using System.Threading.Tasks;
 

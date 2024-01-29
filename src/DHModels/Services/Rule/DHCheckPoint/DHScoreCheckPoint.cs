@@ -1,7 +1,7 @@
 ﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHCheckPoint;
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHCheckPoint;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHRuleEngine;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using System.Collections.Generic;
 
 internal static class DHScoreCheckPoint

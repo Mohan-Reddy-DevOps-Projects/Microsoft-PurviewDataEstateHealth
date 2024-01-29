@@ -6,7 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
-using Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHRuleEngine;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 
 /// <summary>
 /// Health Reports controller.

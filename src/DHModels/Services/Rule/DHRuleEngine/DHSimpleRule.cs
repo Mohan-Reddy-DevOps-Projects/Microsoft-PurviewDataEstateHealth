@@ -1,11 +1,20 @@
 ﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Service.Control.DHRuleEngine;
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Newtonsoft.Json;
 
 public class DHSimpleRule : DHRuleBase
 {
+    [JsonProperty("ruleType")]
+    public override DHRuleType RuleType
+    {
+        get => DHRuleType.SimpleRule;
+        set { }
+    }
+
     [JsonProperty("operator")]
+    [CosmosDBEnumString]
     public required DHOperator Operator { get; set; }
 
     /// <summary>
