@@ -31,4 +31,9 @@ internal sealed class StartPBIRefreshMetadata : StagedWorkerJobMetadata
     /// The workspace id.
     /// </summary>
     public Guid WorkspaceId { get; set; }
+
+    /// <summary>
+    /// True if the report refresh completed.
+    /// </summary>
+    public bool ReportRefreshCompleted { get; set; }
 }

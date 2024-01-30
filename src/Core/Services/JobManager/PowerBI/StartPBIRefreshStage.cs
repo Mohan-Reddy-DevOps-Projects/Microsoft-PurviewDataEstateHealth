@@ -64,12 +64,14 @@ internal class StartPBIRefreshStage : IJobCallbackStage
                 refreshLookups = await this.refreshComponent.RefreshDatasets(Guid.Parse(this.metadata.Account.Id), CancellationToken.None);
             }
 
+            this.metadata.RefreshLookups = refreshLookups;
+            this.metadata.ReportRefreshCompleted = true;
             jobStageStatus = JobExecutionStatus.Succeeded;
             jobStatusMessage = $"{this.StageName}|Succeeded with {refreshLookups.Count} refresh requests";
-            this.metadata.RefreshLookups = refreshLookups;
         }
         catch (Exception exception)
         {
+            this.metadata.ReportRefreshCompleted = true;
             this.logger.LogError($"Error starting PBI refresh from {this.StageName}", exception);
             jobStageStatus = JobExecutionStatus.Failed;
             jobStatusMessage = FormattableString.Invariant($"Errored starting PBI refresh from {this.StageName}, proceeding to next stage.");
@@ -80,7 +82,7 @@ internal class StartPBIRefreshStage : IJobCallbackStage
 
     public bool IsStageComplete()
     {
-        return this.metadata.RefreshLookups.Count != 0;
+        return this.metadata.ReportRefreshCompleted;
     }
 
     public bool IsStagePreconditionMet()

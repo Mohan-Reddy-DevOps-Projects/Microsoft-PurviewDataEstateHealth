@@ -64,6 +64,7 @@ internal class EndPBIRefreshStage : IJobCallbackStage
                 PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(Guid.Parse(this.metadata.Account.Id), OwnerNames.Health, CancellationToken.None);
                 await this.ProcessSuccessfulRefreshDetails(refreshDetails, powerBICredential, CancellationToken.None);
                 JobExecutionStatus jobExecutionStatus = refreshDetails.All(ReachedSuccessfulStatus) ? JobExecutionStatus.Succeeded : JobExecutionStatus.Failed;
+                this.metadata.RefreshLookups = Array.Empty<RefreshLookup>();
 
                 return this.UpdateJobStatus(jobExecutionStatus);
             }
