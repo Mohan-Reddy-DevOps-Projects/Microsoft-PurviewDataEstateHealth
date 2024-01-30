@@ -12,7 +12,7 @@
       },
       {
         "name": "PBIDesktopVersion",
-        "value": "2.124.1582.0 (23.12)"
+        "value": "2.124.1826.0 (23.12)"
       },
       {
         "name": "PBI_ProTooling",
@@ -2393,8 +2393,8 @@
             "dataType": "string",
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [Overall health score] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [Overall health score] > [Min_Thresh hold] && [Overall health score] <=[Max_Thresh hold] , \"Fair\",",
+              "                            [Overall health score] >= [Max_Thresh hold], \"Healthy\", ",
+              "                            [Overall health score] >= [Min_Thresh hold] && [Overall health score] <[Max_Thresh hold] , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "isDataTypeInferred": true,
@@ -2918,8 +2918,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [C5_Catalog] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [C5_Catalog] > [Min_Thresh hold] && [C5_Catalog] <=[Max_Thresh hold] , \"Fair\",",
+              "                            [C5_Catalog] >= [Max_Thresh hold], \"Healthy\", ",
+              "                            [C5_Catalog] >= [Min_Thresh hold] && [C5_Catalog] <[Max_Thresh hold] , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "2a781147-eb50-4ffd-8e3e-a8281d71e158"
@@ -2985,8 +2985,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [C6_Classification] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [C6_Classification] >[Min_Thresh hold]&& [C6_Classification] <= [Max_Thresh hold], \"Fair\",",
+              "                            [C6_Classification] >= [Max_Thresh hold], \"Healthy\", ",
+              "                            [C6_Classification] >= [Min_Thresh hold]&& [C6_Classification] < [Max_Thresh hold], \"Fair\",",
               "                            \"Not healthy\")"
             ],
             "lineageTag": "e84628c8-ec41-4236-859e-21354ed88f44"
@@ -3115,7 +3115,7 @@
                 "property": "IsHidden"
               }
             ],
-            "expression": "0.3",
+            "expression": "0.8",
             "formatString": "0.0%;-0.0%;0.0%",
             "lineageTag": "9a461d76-b808-4fda-8d19-7b073bc50ee8"
           },
@@ -3142,8 +3142,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [Metadata completeness] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [Metadata completeness] > [Min_Thresh hold] && [Metadata completeness] <= [Max_Thresh hold] , \"Fair\",",
+              "                            [Metadata completeness] >= [Max_Thresh hold], \"Healthy\", ",
+              "                            [Metadata completeness] >= [Min_Thresh hold] && [Metadata completeness] < [Max_Thresh hold] , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "b4cb6f86-f8f9-49ee-9c09-f9bad0b250f7"
@@ -3176,7 +3176,7 @@
                 "property": "IsHidden"
               }
             ],
-            "expression": "0.1",
+            "expression": "0.5",
             "lineageTag": "e380079a-7aa7-45db-9608-733f7581af21"
           },
           {
@@ -3203,8 +3203,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [Overall health score] > [Max_Thresh hold], \"Healthy\", ",
-              "                            [Overall health score] > [Min_Thresh hold] && [Overall health score] <= [Max_Thresh hold], \"Fair\",",
+              "                            [Overall health score] >= [Max_Thresh hold], \"Healthy\", ",
+              "                            [Overall health score] >= [Min_Thresh hold] && [Overall health score] < [Max_Thresh hold], \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "33398188-377a-4f82-a59c-b2033adfe038"
@@ -3249,8 +3249,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [C2_Ownership] >[Max_Thresh hold], \"Healthy\", ",
-              "                            [C2_Ownership] > [Min_Thresh hold] && [C2_Ownership] <=[Max_Thresh hold] , \"Fair\",",
+              "                            [C2_Ownership] >=[Max_Thresh hold], \"Healthy\", ",
+              "                            [C2_Ownership] >= [Min_Thresh hold] && [C2_Ownership] <[Max_Thresh hold] , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "a7988ff8-6a26-4a75-9e5f-9c989dd2227d"
