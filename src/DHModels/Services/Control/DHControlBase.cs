@@ -1,11 +1,13 @@
 ﻿#nullable enable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
+[CosmosDBContainer("DHControl")]
 public abstract class DHControlBase
 {
     [JsonProperty("id")]
@@ -21,6 +23,7 @@ public abstract class DHControlBase
     public IEnumerable<string> Owners { get; set; } = new List<string>();
 
     [JsonProperty("type")]
+    [CosmosDBEnumString]
     public abstract DHControlType Type { get; set; }
 
     [JsonProperty("reserved")]

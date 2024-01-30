@@ -1,4 +1,5 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
+﻿#nullable enable
+namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
 
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.Models;
@@ -24,7 +25,7 @@ public class DataHealthActionRepository(ActionDBContext cosmosDBContext) : IRepo
         throw new NotImplementedException();
     }
 
-    public Task<DataHealthActionModel> GetByIdAsync(Guid id)
+    public Task<DataHealthActionModel?> GetByIdAsync(Guid id)
     {
         throw new NotImplementedException();
     }

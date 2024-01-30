@@ -1,11 +1,13 @@
 ﻿#nullable enable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 
+[CosmosDBContainer("MQAssessment")]
 public class MQAssessment
 {
     [JsonProperty("id")]
@@ -15,6 +17,7 @@ public class MQAssessment
     public required string Name { get; set; }
 
     [JsonProperty("targetEntityType")]
+    [CosmosDBEnumString]
     public required MQAssessmentTargetEntityType TargetEntityType { get; set; }
 
     [JsonProperty("rules")]

@@ -14,8 +14,9 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
         public static void SetupDHDataAccessServices(this IServiceCollection services)
         {
             services.AddDbContext<ControlDBContext>();
-
-            services.AddScoped<DHSimpleRuleRepository>();
+            services.AddScoped<DHControlRepository>();
+            services.AddScoped<DHControlNodeRepository>();
+            services.AddScoped<DHControlGroupRepository>();
 
             services.AddDbContext<ActionDBContext>();
 

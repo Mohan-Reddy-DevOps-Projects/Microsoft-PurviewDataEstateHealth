@@ -1,6 +1,7 @@
 ﻿#nullable enable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Newtonsoft.Json;
 
 public class MQAssessmentSimpleAggregation : MQAssessmentAggregationBase
@@ -13,6 +14,7 @@ public class MQAssessmentSimpleAggregation : MQAssessmentAggregationBase
     }
 
     [JsonProperty("aggregationType")]
+    [CosmosDBEnumString]
     public required MQAssessmentSimpleAggregationType AggregationType { get; set; }
 }
 

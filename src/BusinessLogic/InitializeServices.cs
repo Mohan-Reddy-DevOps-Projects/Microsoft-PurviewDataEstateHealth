@@ -13,7 +13,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic
         public static void SetupBusinessLogicServices(this IServiceCollection services)
         {
             services.AddScoped<IDataHealthActionService, DataHealthActionService>();
-            services.AddScoped<DHRuleService>();
         }
     }
 }

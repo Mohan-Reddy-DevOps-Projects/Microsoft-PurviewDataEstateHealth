@@ -4,6 +4,7 @@ using global::Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.AttributeHandlers;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 
 public class ControlDBContext(IConfiguration configuration) : DbContext
@@ -36,4 +37,10 @@ public class ControlDBContext(IConfiguration configuration) : DbContext
     public DbSet<DHExpressionRule> DHExpressionRules { get; set; }
 
     public DbSet<DHRuleGroup> DHRuleGroups { get; set; }
+
+    public DbSet<DHControlBase> DHControls { get; set; }
+
+    public DbSet<DHControlNode> DHControlNodes { get; set; }
+
+    public DbSet<DHControlGroup> DHControlGroups { get; set; }
 }
