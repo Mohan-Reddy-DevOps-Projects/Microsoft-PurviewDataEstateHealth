@@ -12,6 +12,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Extensions.Azure;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -87,6 +88,10 @@ static async Task Initialize(WebApplication app)
         // Initialize metadata service
         IMetadataAccessorService metadataService = app.Services.GetService<IMetadataAccessorService>();
         metadataService.Initialize();
+
+        // Initialize cache
+        ICacheManager cacheManager = app.Services.GetService<ICacheManager>();
+        cacheManager.Initialize();
     }
     catch (Exception ex)
     {

@@ -141,9 +141,8 @@ internal sealed class HealthDatasetUpgrade
                 DatasetContainer = "powerbi",
                 DatasetFileName = $"{dataset.Name}.pbix",
             };
-            // (BlobProperties properties, MemoryStream _) = await this.datasetFileRetrieval.GetDatasetFile(datasetRequest, cancellationToken);
-            await Task.CompletedTask;
-            if (ShouldUpgradeDataset(dataset, DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(3))))
+            var properties = await this.datasetCommand.GetDatasetFileProperties(datasetRequest, cancellationToken);
+            if (properties != null && ShouldUpgradeDataset(dataset, properties.LastModified))
             {
                 upgradedDatasets.Add(dataset);
             }
@@ -161,7 +160,7 @@ internal sealed class HealthDatasetUpgrade
     /// <param name="dataset"></param>
     /// <param name="pbixUploadTime"></param>
     /// <returns></returns>
-    private static bool ShouldUpgradeDataset(Dataset dataset, DateTime pbixUploadTime)
+    private static bool ShouldUpgradeDataset(Dataset dataset, DateTimeOffset pbixUploadTime)
     {
         if (!dataset.CreatedDate.HasValue)
         {
@@ -169,9 +168,8 @@ internal sealed class HealthDatasetUpgrade
         }
 
         DateTime datasetCreatedUtc = dataset.CreatedDate.Value.ToUniversalTime();
-        DateTime pbixUploadUtc = pbixUploadTime;
 
-        return datasetCreatedUtc <= pbixUploadUtc;
+        return datasetCreatedUtc <= pbixUploadTime;
     }
 
 }
