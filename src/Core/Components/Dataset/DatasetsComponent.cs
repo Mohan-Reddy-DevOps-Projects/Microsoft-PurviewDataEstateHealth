@@ -78,7 +78,7 @@ internal sealed class DatasetsComponent : IDatasetsComponent
             },
             ErrorNumbersToAdd = new List<int>()
             {
-                -2
+                -2, 40
             }
         }, cancellationToken);
     }
