@@ -271,16 +271,21 @@ class ActionCenterTransformations:
         new_merged_action_df = merged_action_df.join(existing_action_df, ["ActionId"], "leftanti")
         new_merged_action_df = new_merged_action_df.select("RowId","ActionId","DisplayName","Description","TargetType","TargetId","TargetName","OwnerContactId","OwnerContactDisplayName","HealthControlState",
                                                          "HealthControlName","HealthControlCategory","ActionStatus","BusinessDomainId","DataProductId","DataAssetId","CreatedAt", "LastRefreshedAt")
+        
+        #calculate extra rows in existing action DF which are not in new actions
+        existing_active_actions_not_in_latest = existing_action_df.join(merged_action_df, ["ActionId"], "leftanti")
+        existing_active_actions_not_in_latest = HelperFunction.calculate_last_refreshed_at(existing_active_actions_not_in_latest,"LastRefreshedAt")
 
         merged_action_df = merged_action_df.drop(col("RowId"))
         merged_action_df = merged_action_df.drop(col("CreatedAt"))
         existing_action_df = existing_action_df.select("RowId", 'ActionId', "CreatedAt")
-            
+        existing_action_df = existing_action_df.join(existing_active_actions_not_in_latest,"ActionId","leftAnti")
         #merge same actions
         new_existing_action_df = existing_action_df.join(merged_action_df, ["ActionId"], "leftouter")
         new_existing_action_df = new_existing_action_df.select("RowId","ActionId","DisplayName","Description","TargetType","TargetId","TargetName","OwnerContactId","OwnerContactDisplayName","HealthControlState",
                                                          "HealthControlName","HealthControlCategory","ActionStatus","BusinessDomainId","DataProductId","DataAssetId","CreatedAt", "LastRefreshedAt")
         #union of new and same actions
         final_merged_action_df = new_existing_action_df.unionByName(new_merged_action_df,allowMissingColumns=True)
+        final_merged_action_df = final_merged_action_df.unionByName(existing_active_actions_not_in_latest,allowMissingColumns=True)
         return final_merged_action_df
 
