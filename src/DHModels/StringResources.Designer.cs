@@ -59,5 +59,167 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The length of array &quot;{0}&quot; must be greater than {1}.
+        /// </summary>
+        internal static string ErrorMessageArrayLengthBelowMin {
+            get {
+                return ResourceManager.GetString("ErrorMessageArrayLengthBelowMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The length of array &quot;{0}&quot; must be less than {1}.
+        /// </summary>
+        internal static string ErrorMessageArrayLengthExceedMax {
+            get {
+                return ResourceManager.GetString("ErrorMessageArrayLengthExceedMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The name connot be just composed of spaces..
+        /// </summary>
+        internal static string ErrorMessageEmptyEntityName {
+            get {
+                return ResourceManager.GetString("ErrorMessageEmptyEntityName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to parse the entity payload. The input entity is invalid..
+        /// </summary>
+        internal static string ErrorMessageEntityParseFailed {
+            get {
+                return ResourceManager.GetString("ErrorMessageEntityParseFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The value &quot;{0}&quot; for the &quot;{1}&quot; property is not valid. Valid values: {2}.
+        /// </summary>
+        internal static string ErrorMessageEnumPropertyValueNotValid {
+            get {
+                return ResourceManager.GetString("ErrorMessageEnumPropertyValueNotValid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Id can only contain alphanumeric characters, dash and underscore(_)..
+        /// </summary>
+        internal static string ErrorMessageInvalidEntityId {
+            get {
+                return ResourceManager.GetString("ErrorMessageInvalidEntityId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The name contains invalid character(s). Try another name..
+        /// </summary>
+        internal static string ErrorMessageInvalidEntityName {
+            get {
+                return ResourceManager.GetString("ErrorMessageInvalidEntityName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property &quot;{0}&quot; can not be null or empty..
+        /// </summary>
+        internal static string ErrorMessageNullOrEmpty {
+            get {
+                return ResourceManager.GetString("ErrorMessageNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;{0}&quot; must be greater than {1}.
+        /// </summary>
+        internal static string ErrorMessageNumberBelowMin {
+            get {
+                return ResourceManager.GetString("ErrorMessageNumberBelowMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;{0}&quot; must be less than {1}.
+        /// </summary>
+        internal static string ErrorMessageNumberExceedMax {
+            get {
+                return ResourceManager.GetString("ErrorMessageNumberExceedMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;{0}&quot; is not a valid value for {1}..
+        /// </summary>
+        internal static string ErrorMessageReferenceTypeInvalid {
+            get {
+                return ResourceManager.GetString("ErrorMessageReferenceTypeInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reference type must be &quot;{0}&quot;..
+        /// </summary>
+        internal static string ErrorMessageReferenceTypeRestriction {
+            get {
+                return ResourceManager.GetString("ErrorMessageReferenceTypeRestriction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The field {0} must match the regular expression &quot;{1}&quot;..
+        /// </summary>
+        internal static string ErrorMessageRegularExpressionNotMatch {
+            get {
+                return ResourceManager.GetString("ErrorMessageRegularExpressionNotMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Length of &quot;{0}&quot; must be less than {1}. Current length: {2}..
+        /// </summary>
+        internal static string ErrorMessageStringLengthMax {
+            get {
+                return ResourceManager.GetString("ErrorMessageStringLengthMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The minimum length of &quot;{0}&quot; is {1}. Current length: {2}..
+        /// </summary>
+        internal static string ErrorMessageStringLengthMin {
+            get {
+                return ResourceManager.GetString("ErrorMessageStringLengthMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type of property &quot;{0}&quot; must be &quot;{1}&quot;..
+        /// </summary>
+        internal static string ErrorMessageTypeNotMatch {
+            get {
+                return ResourceManager.GetString("ErrorMessageTypeNotMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property &quot;{0}&quot; must be a string..
+        /// </summary>
+        internal static string ErrorMessageTypeNotString {
+            get {
+                return ResourceManager.GetString("ErrorMessageTypeNotString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property &quot;{0}&quot; is required..
+        /// </summary>
+        internal static string ErrorMessageValueRequired {
+            get {
+                return ResourceManager.GetString("ErrorMessageValueRequired", resourceCulture);
+            }
+        }
     }
 }

@@ -117,4 +117,58 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ErrorMessageArrayLengthBelowMin" xml:space="preserve">
+    <value>The length of array "{0}" must be greater than {1}</value>
+  </data>
+  <data name="ErrorMessageArrayLengthExceedMax" xml:space="preserve">
+    <value>The length of array "{0}" must be less than {1}</value>
+  </data>
+  <data name="ErrorMessageEmptyEntityName" xml:space="preserve">
+    <value>The name connot be just composed of spaces.</value>
+  </data>
+  <data name="ErrorMessageEntityParseFailed" xml:space="preserve">
+    <value>Failed to parse the entity payload. The input entity is invalid.</value>
+  </data>
+  <data name="ErrorMessageEnumPropertyValueNotValid" xml:space="preserve">
+    <value>The value "{0}" for the "{1}" property is not valid. Valid values: {2}</value>
+  </data>
+  <data name="ErrorMessageInvalidEntityId" xml:space="preserve">
+    <value>Id can only contain alphanumeric characters, dash and underscore(_).</value>
+  </data>
+  <data name="ErrorMessageInvalidEntityName" xml:space="preserve">
+    <value>The name contains invalid character(s). Try another name.</value>
+  </data>
+  <data name="ErrorMessageNullOrEmpty" xml:space="preserve">
+    <value>Property "{0}" can not be null or empty.</value>
+  </data>
+  <data name="ErrorMessageNumberBelowMin" xml:space="preserve">
+    <value>"{0}" must be greater than {1}</value>
+  </data>
+  <data name="ErrorMessageNumberExceedMax" xml:space="preserve">
+    <value>"{0}" must be less than {1}</value>
+  </data>
+  <data name="ErrorMessageReferenceTypeInvalid" xml:space="preserve">
+    <value>"{0}" is not a valid value for {1}.</value>
+  </data>
+  <data name="ErrorMessageReferenceTypeRestriction" xml:space="preserve">
+    <value>Reference type must be "{0}".</value>
+  </data>
+  <data name="ErrorMessageRegularExpressionNotMatch" xml:space="preserve">
+    <value>The field {0} must match the regular expression "{1}".</value>
+  </data>
+  <data name="ErrorMessageStringLengthMax" xml:space="preserve">
+    <value>Length of "{0}" must be less than {1}. Current length: {2}.</value>
+  </data>
+  <data name="ErrorMessageStringLengthMin" xml:space="preserve">
+    <value>The minimum length of "{0}" is {1}. Current length: {2}.</value>
+  </data>
+  <data name="ErrorMessageTypeNotMatch" xml:space="preserve">
+    <value>Type of property "{0}" must be "{1}".</value>
+  </data>
+  <data name="ErrorMessageTypeNotString" xml:space="preserve">
+    <value>Property "{0}" must be a string.</value>
+  </data>
+  <data name="ErrorMessageValueRequired" xml:space="preserve">
+    <value>Property "{0}" is required.</value>
+  </data>
 </root>
