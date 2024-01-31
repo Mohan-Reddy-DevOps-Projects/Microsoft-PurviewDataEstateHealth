@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 public class DHControlGroup : DHControlBase
 {
     [JsonProperty("type")]
-    public override DHControlType Type
+    public override required DHControlType Type
     {
         get => DHControlType.Group;
         set { }

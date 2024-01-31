@@ -13,7 +13,7 @@ internal static class CosmosDBAttributeHandlers
     internal static void HandleCosmosDBContainerAttribute(ModelBuilder modelBuilder)
     {
         // Use reflection to get all entity types with the Container attribute
-        var entityTypes = modelBuilder.Model.GetEntityTypes().Where(t => t.ClrType.GetCustomAttributes(typeof(CosmosDBContainerAttribute), true).Any());
+        var entityTypes = modelBuilder.Model.GetEntityTypes().Where(t => t.ClrType.GetCustomAttributes(typeof(CosmosDBContainerAttribute), true).Length != 0);
 
         foreach (var type in entityTypes)
         {
@@ -51,6 +51,24 @@ internal static class CosmosDBAttributeHandlers
                         throw new InvalidOperationException($"The CosmosDBEnumString attribute can only be applied to enum properties. Property '{propertyInfo.Name}' in '{entityType.Name}' is not an enum.");
                     }
                 }
+            }
+        }
+    }
+
+    internal static void HandleCosmosDBPartitionKeyAttribute(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            // Find the property with the CosmosDBPartitionKey attribute
+            var partitionKeyProperty = entityType.ClrType
+                .GetProperties()
+                .FirstOrDefault(prop => Attribute.IsDefined(prop, typeof(CosmosDBPartitionKeyAttribute)));
+
+            if (partitionKeyProperty != null)
+            {
+                // Configure the partition key using the property found
+                modelBuilder.Entity(entityType.ClrType)
+                    .HasPartitionKey(partitionKeyProperty.Name);
             }
         }
     }

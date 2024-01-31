@@ -6,8 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 
-[CosmosDBContainer("DHRule")]
-public abstract class DHRuleOrGroupBase
+public class DHRuleOrGroupBase
 {
     [JsonProperty("id")]
     public required Guid Id { get; set; }
@@ -17,7 +16,7 @@ public abstract class DHRuleOrGroupBase
 
     [JsonProperty("type")]
     [CosmosDBEnumString]
-    public abstract DHRuleOrGroupType Type { get; set; }
+    public virtual DHRuleOrGroupType Type { get; set; }
 
     [JsonProperty("additionalProperties")]
     public JObject? AdditionalProperties { get; set; }

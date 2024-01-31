@@ -4,16 +4,13 @@
 
 namespace Microsoft.Purview.DataEstateHealth.Models;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Newtonsoft.Json;
 using System;
 
 /// <inheritdoc />
-public class DataHealthActionModel : IDataHealthActionModel
+public class DataHealthActionModel : ContainerEntityBase, IDataHealthActionModel
 {
-    /// <inheritdoc />
-    [JsonProperty("id")]
-    public Guid Id { get; set; }
-
     /// <inheritdoc />
     [JsonProperty("category")]
     public DataHealthActionCategory Category { get; set; }

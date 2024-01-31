@@ -7,6 +7,6 @@
     <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Models</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" PrivateAssets="All" />
   </ItemGroup>
 </Project>

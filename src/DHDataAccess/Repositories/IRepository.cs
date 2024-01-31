@@ -5,11 +5,12 @@
 
 namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
 {
+    using Microsoft.Purview.DataEstateHealth.DHModels.Common;
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public interface IRepository<T> where T : class
+    public interface IRepository<T> where T : ContainerEntityBase
     {
         Task<IEnumerable<T>> GetAllAsync();
 
@@ -20,5 +21,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         Task UpdateAsync(T entity);
 
         Task DeleteAsync(T entity);
+
+        Task DeleteAsync(Guid id);
     }
 }

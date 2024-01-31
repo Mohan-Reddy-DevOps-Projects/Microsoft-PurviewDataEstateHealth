@@ -20,6 +20,11 @@ public class DataHealthActionRepository(ActionDBContext cosmosDBContext) : IRepo
         throw new NotImplementedException();
     }
 
+    public Task DeleteAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<IEnumerable<DataHealthActionModel>> GetAllAsync()
     {
         throw new NotImplementedException();

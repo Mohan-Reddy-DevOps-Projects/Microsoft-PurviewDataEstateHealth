@@ -9,17 +9,17 @@ using System.Collections.Generic;
 public class DHControlNode : DHControlBase
 {
     [JsonProperty("type")]
-    public override DHControlType Type
+    public override required DHControlType Type
     {
         get => DHControlType.Node;
         set { }
     }
 
-    [JsonProperty("groupId")]
+    [JsonProperty("groupId", Required = Required.Always)]
     public required Guid GroupId { get; set; }
 
     [JsonProperty("domains")]
-    public required IEnumerable<string> Domains { get; set; }
+    public IList<string> Domains { get; set; } = new List<string>();
 
     [JsonProperty("schedule")]
     public DHControlSchedule? Schedule { get; set; }
