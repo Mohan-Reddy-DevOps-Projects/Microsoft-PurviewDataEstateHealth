@@ -1,0 +1,319 @@
+openapi: "3.0.2"
+info:
+  title: Data Health models
+  version: "1.0"
+paths:
+  /actions/query:
+    post:
+      operationId: get actions by query filters
+      description: List all actions with a query.
+      tags:
+        - Actions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filters:
+                  $ref: "#/components/schemas/actionFilter"
+                skip:
+                  type: number
+                  description: The skip of the action.
+                  example: 30
+                  default: 0
+                top:
+                  type: number
+                  description: The top of the action.
+                  example: 100
+                  default: 1000
+                orderBy:
+                  type: array
+                  description: The order by of the action.
+                  items:
+                    type: object
+                    properties:
+                      field:
+                        type: string
+                        enum: [name, status]
+                        description: The field of the order by
+                        example: name
+                      direction:
+                        type: string
+                        enum: [asc, desc]
+                        description: The direction of the order by
+                        example: desc
+                        default: asc
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/action"
+
+  /actions/grouped:
+    post:
+      operationId: get actions by query filters and group by
+      description: List all actions with a query and group by.
+      tags:
+        - Actions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filters:
+                  $ref: "#/components/schemas/actionFilter"
+                groupBy:
+                  type: string
+                  enum: [findingType, findingSubType, findingName, severity]
+                  description: The group by of the action.
+                  example: severity
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/actionGrouped"
+
+  /actions:
+    post:
+      operationId: create action
+      description: Create an action.
+      tags:
+        - Actions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/action"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/action"
+
+  /actions/{actionId}:
+    parameters:
+      - name: actionId
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: update action
+      description: Update an action.
+      tags:
+        - Actions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/action"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/action"
+
+
+components:
+  schemas:
+    actionFilter:
+      type: object
+      properties:
+        assignedTo:
+          type: array
+          items:
+            type: string
+          description: The assigned to of the action.
+        status:
+          type: string
+          enum: [NotStarted, InProgress, Resolved]
+          description: The status of the action.
+        targetEntityType:
+          type: string
+          enum:
+            [
+              DataProduct,
+              BusinessDomain,
+              Term,
+              DataAsset,
+              DataQualityAssessment,
+            ]
+          description: The target entity type of the action.
+        targetEntityIds:
+          type: array
+          items:
+            type: string
+          description: The target entity ids of the action.
+        findingTypes:
+          type: array
+          items:
+            type: string
+          description: The finding type of the action.
+        findingSubType:
+          type: array
+          items:
+            type: string
+          description: The finding sub type of the action.
+        findingName:
+          type: array
+          items:
+            type: string
+          description: The finding name of the action.
+        severity:
+          type: string
+          enum: [Low, Medium, High]
+          description: The severity of the action.
+        domainIds:
+          type: array
+          items:
+            type: string
+          description: The domain ids of the action.
+        createTimeRange:
+          type: object
+          description: The create time range of the action.
+          properties:
+            start:
+              type: string
+              description: The start time of the create time range.
+            end:
+              type: string
+              description: The end time of the create time range.
+
+    action:
+      type: object
+      required:
+        - category
+        - status
+        - targetEntity
+        - findingType
+        - findingSubType
+        - findingName
+        - findingId
+        - severity
+        - recommendation
+        - domainId
+      properties:
+        id:
+          type: string
+          readOnly: true
+          example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+        status:
+          type: string
+          enum: [NotStarted, InProgress, Resolved]
+          description: The status of the action.
+        targetEntityType:
+          type: string
+          enum:
+            [
+              DataProduct,
+              BusinessDomain,
+              Term,
+              DataAsset,
+              DataQualityAssessment,
+            ]
+          description: The target entity type of the action.
+        targetEntityId:
+          type: string
+          description: The target entity id of the action.
+        findingType:
+          type: string
+          description: The finding type of the action.
+        findingSubType:
+          type: string
+          description: The finding sub type of the action.
+        findingName:
+          type: string
+          description: The finding name of the action.
+        findingId:
+          type: string
+          description: The domain id of the action.
+        severity:
+          type: string
+          enum: [Low, Medium, High]
+          description: The severity of the action.
+        recommendation:
+          type: string
+          description: The recommendation of the action.
+        assignedTo:
+          type: array
+          items:
+            type: string
+          description: The assigned to of the action.
+        domainId:
+          type: string
+          description: The domain id of the action.
+        category:
+          type: string
+          enum: [DataQuality, HealthControl]
+          description: The category of the action.
+        systemData:
+          type: object
+          readOnly: true
+          properties:
+            lastModifiedAt:
+              type: string
+              example: "2020-12-11Z"
+              description: Date of the most recent change to the object.
+            lastModifiedBy:
+              type: string
+              example: 766BF2B9-5D8A-4FB1-B8D5-D30A53E22A9E
+              description: Person id of the most recent change to the object.
+            createdAt:
+              type: string
+              example: "2020-12-11Z"
+              description: Date the object was created.
+            lastHintAt:
+              type: string
+              example: 766BF2B9-5D8A-4FB1-B8D5-D30A53E22A9E
+              description: Date the object was created.
+            hintCount:
+              type: number
+              example: 1
+              description: The count of the hint.
+
+    simpleAction:
+      type: object
+      properties:
+        findingType:
+          type: string
+          description: The finding type of the action.
+        findingSubType:
+          type: string
+          description: The finding sub type of the action.
+        findingName:
+          type: string
+          description: The finding name of the action.
+        severity:
+          type: string
+          enum: [Low, Medium, High]
+          description: The severity of the action.
+
+    actionGrouped:
+      type: array
+      items:
+        type: object
+        properties:
+          groupName:
+            type: string
+            description: The group name of the actions.
+            example: "Data estate curation"
+          count:
+            type: number
+            description: The count of the actions.
+          items:
+            type: array
+            items:
+              $ref: "#/components/schemas/simpleAction"
+            description: The actions of the group.
