@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
 /// <summary>
 /// Health Reports controller.
@@ -29,6 +30,19 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
         [FromBody] DHControlNode entity)
     {
         await dataHealthControlService.CreateControlAsync(entity).ConfigureAwait(false);
+        return this.Ok();
+    }
+
+    [HttpPost]
+    [Route("runScheduleJob")]
+    public async Task<ActionResult> CreateScheduleJob(
+        [FromBody] DHRunScheduleJobRequest requestBody)
+    {
+        if (requestBody == null || requestBody.ControlId == Guid.Empty)
+        {
+            return this.BadRequest();
+        }
+        await dataHealthControlService.RunScheduleJob(requestBody.ControlId).ConfigureAwait(false);
         return this.Ok();
     }
 }

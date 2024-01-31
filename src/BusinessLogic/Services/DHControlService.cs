@@ -17,5 +17,11 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         {
             await dHControlNodeRepository.AddAsync(entity).ConfigureAwait(false);
         }
+
+        public async Task RunScheduleJob(Guid id)
+        {
+            var control = await this.GetControlByIdAsync(id).ConfigureAwait(false);
+            // TODO: submit DQ job
+        }
     }
 }
