@@ -4,7 +4,7 @@
     "annotations": [
       {
         "name": "PBI_QueryOrder",
-        "value": "[\"SERVER\",\"DATABASE\",\"DATABASE_SCHEMA\",\"TENANT_ID\",\"BusinessDomain\",\"BusinessDomainTrends\",\"DataAsset\",\"DataProduct\",\"DataProductDataAssetAssociation\",\"BusinessDomainDataProductAssociation\",\"AccountInfo\",\"DataProductContactAssociation\"]"
+        "value": "[\"SERVER\",\"DATABASE\",\"DATABASE_SCHEMA\",\"BusinessDomain\",\"BusinessDomainTrends\",\"DataAsset\",\"DataProduct\",\"DataProductDataAssetAssociation\",\"BusinessDomainDataProductAssociation\",\"TENANT_ID\",\"AccountInfo\"]"
       },
       {
         "name": "__PBI_TimeIntelligenceEnabled",
@@ -807,13 +807,6 @@
         "joinOnDateBehavior": "datePartOnly",
         "toColumn": "Date",
         "toTable": "LocalDateTable_bdccc7ef-9651-46a6-b933-f2709936cb95"
-      },
-      {
-        "name": "df903fda-11ca-4b3a-a064-ef01167a8367",
-        "fromColumn": "DataProductId",
-        "fromTable": "DataProductContactAssociation",
-        "toColumn": "DataProductId",
-        "toTable": "DataProduct"
       }
     ],
     "sourceQueryCulture": "en-US",
@@ -2285,9 +2278,7 @@
             ],
             "dataType": "int64",
             "expression": [
-              "",
-              "",
-              "Var _A = IF(",
+              "IF(",
               "                'DataProduct'[Owner P/F]= \"Fail\",1,0)",
               "                +IF('DataProduct'[Classification_Product P/F] = \"Fail\",1,0)",
               "                +IF('DataProduct'[Assetcount_catalog P/F] = \"Fail\",1,0)",
@@ -2298,10 +2289,7 @@
               "                +IF('DataProduct'[Authoritative source P/F] = \"Fail\",1,0)",
               "                +IF('DataProduct'[Access entitlement P/F] = \"Fail\",1,0)",
               "                +IF('DataProduct'[Data consumption purpse P/F] = \"Fail\",1,0",
-              "                )*/",
-              "/*Var _B = */",
-              "",
-              "RETURN _A"
+              "                )*/"
             ],
             "formatString": "0",
             "isDataTypeInferred": true,
@@ -2406,7 +2394,7 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            [Overall health score] >= [Max_Thresh hold], \"Healthy\", ",
-              "                            [Overall health score] >= [Min_Thresh hold] && [Overall health score] < [Max_Thresh hold] , \"Fair\",",
+              "                            [Overall health score] >= [Min_Thresh hold] && [Overall health score] <[Max_Thresh hold] , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "isDataTypeInferred": true,
@@ -2752,8 +2740,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [C7_Access entitlement] >= [Max_Thresh hold], \"Healthy\", ",
-              "                            [C7_Access entitlement] >= [Min_Thresh hold] && [C7_Access entitlement] < [Max_Thresh hold] , \"Fair\",",
+              "                            [C7_Access entitlement] > [Max_Thresh hold], \"Healthy\", ",
+              "                            [C7_Access entitlement] > [Min_Thresh hold] && [C7_Access entitlement] <= [Max_Thresh hold] , \"Fair\",",
               "                            \"Not healthy\")"
             ],
             "lineageTag": "b7ffffc4-0719-43cb-a79d-53279abc5873"
@@ -2782,8 +2770,8 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            ",
-              "                            [C7_Access entitlement] >= [Max_Thresh hold], \"#80D091\", ",
-              "                            [C7_Access entitlement] >= [Min_Thresh hold] && [C7_Access entitlement] < [Max_Thresh hold],\"#E8CC78\",",
+              "                            [C7_Access entitlement] > [Max_Thresh hold], \"#80D091\", ",
+              "                            [C7_Access entitlement] >[Min_Thresh hold] && [C7_Access entitlement] <=[Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "ab5ad6bc-ff85-4d61-9b24-bd5c3772d3c2"
@@ -2808,8 +2796,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [C3_Authoritative source] >= [Max_Thresh hold], \"Healthy\", ",
-              "                            [C3_Authoritative source] >= [Min_Thresh hold] && [C3_Authoritative source] < [Max_Thresh hold] , \"Fair\",",
+              "                            [C3_Authoritative source] > [Max_Thresh hold], \"Healthy\", ",
+              "                            [C3_Authoritative source] >[Min_Thresh hold] && [C3_Authoritative source] <= 0.5 , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "444d4604-3386-4cd4-846d-c320bf253902"
@@ -2838,8 +2826,8 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                            ",
-              "                            [C3_Authoritative source] >= [Max_Thresh hold], \" #80D091\", ",
-              "                            [C3_Authoritative source] >= [Min_Thresh hold] && [C3_Authoritative source] < [Max_Thresh hold],\"#E8CC78\",",
+              "                            [C3_Authoritative source] > [Max_Thresh hold], \" #80D091\", ",
+              "                            [C3_Authoritative source] > [Min_Thresh hold] && [C3_Authoritative source] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "359dfd36-0299-4bb5-b9d1-2e77a355652e"
@@ -3028,8 +3016,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [C8_Data consumption purpose] >= [Max_Thresh hold], \"Healthy\", ",
-              "                            [C8_Data consumption purpose] >= [Min_Thresh hold] && [C8_Data consumption purpose] < [Max_Thresh hold], \"Fair\",",
+              "                            [C8_Data consumption purpose] >[Max_Thresh hold], \"Healthy\", ",
+              "                            [C8_Data consumption purpose] >[Min_Thresh hold] && [C8_Data consumption purpose] <= [Max_Thresh hold], \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "dace400e-2202-4a1b-9219-705a20357aa3"
@@ -3058,8 +3046,8 @@
             "expression": [
               "SWITCH(TRUE(),",
               "                           ",
-              "                            [C8_Data consumption purpose] >= [Max_Thresh hold], \" #80D091\", ",
-              "                            [C8_Data consumption purpose] >= [Min_Thresh hold] && [C8_Data consumption purpose] < [Max_Thresh hold],\"#E8CC78\",",
+              "                            [C8_Data consumption purpose] > [Max_Thresh hold], \" #80D091\", ",
+              "                            [C8_Data consumption purpose] > [Min_Thresh hold] && [C8_Data consumption purpose] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "81caf6f8-0f01-4a0b-a430-909b617658e0"
@@ -3073,8 +3061,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [C_12 Data quality] >= [Max_Thresh hold], \"Healthy\", ",
-              "                            [C_12 Data quality] >= [Min_Thresh hold] && [C_12 Data quality] < [Max_Thresh hold], \"Fair\",",
+              "                            [C_12 Data quality] >[Max_Thresh hold], \"Healthy\", ",
+              "                            [C_12 Data quality] > [Min_Thresh hold] && [C_12 Data quality] <= [Max_Thresh hold], \"Fair\",",
               "                            \"Not healthy\")"
             ],
             "lineageTag": "416e646a-07c2-4fc1-bfe7-acee39ce095d"
@@ -3103,8 +3091,8 @@
             "expression": [
               "SWITCH(TRUE(),",
               "",
-              "                            [C_12 Data quality] >= [Max_Thresh hold], \" #80D091\", ",
-              "                            [C_12 Data quality] >= [Min_Thresh hold] && [C_12 Data quality] < [Max_Thresh hold],\"#E8CC78\",",
+              "                            [C_12 Data quality] > [Max_Thresh hold], \" #80D091\", ",
+              "                            [C_12 Data quality] > [Min_Thresh hold] && [C_12 Data quality] <= [Max_Thresh hold],\"#E8CC78\",",
               "                             \"#F1BBBC\")"
             ],
             "lineageTag": "1bbf4b86-b8ab-409f-b8d7-5ae433350070"
@@ -3203,7 +3191,7 @@
               "",
               "///DIVIDE([Sum of Pass Metrics],[Total DataProducts]*6)+0"
             ],
-            "formatString": "0.0%;-0.0%;0.0%",
+            "formatString": "0.00%;-0.00%;0.00%",
             "lineageTag": "01d5ba84-97cc-4e95-9017-5e4f00782ca0"
           },
           {
@@ -3261,8 +3249,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [C2_Ownership] >= [Max_Thresh hold], \"Healthy\", ",
-              "                            [C2_Ownership] >= [Min_Thresh hold] && [C2_Ownership] < [Max_Thresh hold] , \"Fair\",",
+              "                            [C2_Ownership] >=[Max_Thresh hold], \"Healthy\", ",
+              "                            [C2_Ownership] >= [Min_Thresh hold] && [C2_Ownership] <[Max_Thresh hold] , \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "a7988ff8-6a26-4a75-9e5f-9c989dd2227d"
@@ -3303,8 +3291,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [Quality] >= [Max_Thresh hold], \"Healthy\", ",
-              "                            [Quality] >= [Min_Thresh hold] && [Quality] < [Max_Thresh hold] , \"Fair\",",
+              "                            [Quality] > [Max_Thresh hold], \"Healthy\", ",
+              "                            [Quality] > [Min_Thresh hold] && [Quality] <= [Max_Thresh hold] , \"Fair\",",
               "                            \"Not healthy\")"
             ],
             "lineageTag": "ac883693-c0ec-4efd-b2c1-0b2702982e90"
@@ -3386,8 +3374,8 @@
             ],
             "expression": [
               "SWITCH(TRUE(),",
-              "                            [Use] >= [Max_Thresh hold], \"Healthy\", ",
-              "                            [Use] >= [Min_Thresh hold]&& [Use] < [Max_Thresh hold], \"Fair\",",
+              "                            [Use] > [Max_Thresh hold], \"Healthy\", ",
+              "                            [Use] > [Min_Thresh hold]&& [Use] <= [Max_Thresh hold], \"Fair\",",
               "                             \"Not healthy\")"
             ],
             "lineageTag": "457163e4-529f-40d5-8a95-ed5577b57980"
@@ -3413,6 +3401,17 @@
             "expression": "SUMX(DataProduct,[AssetCount])+0",
             "formatString": "0",
             "lineageTag": "8ddc5f73-4a8d-468d-bf70-0a1fbd9938e0"
+          },
+          {
+            "name": "ClassificationCheck",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": "IF(DataProduct[Classifiaction pass count]>0,100, 0)",
+            "lineageTag": "e40ff5d1-f6fa-477a-82ae-cfccb96fb4eb"
           }
         ],
         "partitions": [
@@ -3574,26 +3573,6 @@
             "lineageTag": "77ce2fd1-dc06-4986-a76c-39943bdb7695",
             "sourceColumn": "IsPrimaryDataProduct",
             "summarizeBy": "none"
-          },
-          {
-            "name": "Product link",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataCategory": "WebUrl",
-            "dataType": "string",
-            "expression": [
-              "\"https://purview.microsoft.com/datacatalog/governance/main/catalog/dataProducts/dataAssetDetail?tid=\" & LOWER(FIRSTNONBLANK(AccountInfo[TenantId], True())) &",
-              "\"&dataProductId=\"&LOWER(BusinessDomainDataProductAssociation[DataProductId])&",
-              " \"&sourceDomainId=\"& LOWER(BusinessDomainDataProductAssociation[BusinessDomainId])"
-            ],
-            "isDataTypeInferred": true,
-            "lineageTag": "1a5aef5e-cb02-41c0-a214-0b84d63fcbf8",
-            "summarizeBy": "none",
-            "type": "calculated"
           }
         ],
         "lineageTag": "5f2992b4-bbe7-4efe-87a5-c806188552cd",
@@ -6082,87 +6061,6 @@
           }
         ],
         "showAsVariationsOnly": true
-      },
-      {
-        "name": "DataProductContactAssociation",
-        "annotations": [
-          {
-            "name": "PBI_ResultType",
-            "value": "Table"
-          }
-        ],
-        "columns": [
-          {
-            "name": "DataProductId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "aa1668a8-d8b6-4b87-8146-40248345a00d",
-            "sourceColumn": "DataProductId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "ContactRole",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "9b6e09d0-2d6b-4db0-8c20-defddc83e7c9",
-            "sourceColumn": "ContactRole",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "ContactId",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "string",
-            "lineageTag": "08316e6f-f17c-401a-9778-8ef6cb532483",
-            "sourceColumn": "ContactId",
-            "summarizeBy": "none"
-          },
-          {
-            "name": "IsActive",
-            "annotations": [
-              {
-                "name": "SummarizationSetBy",
-                "value": "Automatic"
-              }
-            ],
-            "dataType": "boolean",
-            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
-            "lineageTag": "a5ddd007-56f9-4d12-990b-88f0c0d155de",
-            "sourceColumn": "IsActive",
-            "summarizeBy": "none"
-          }
-        ],
-        "lineageTag": "cb58b67f-d752-4c0a-853f-cd2cbcffe583",
-        "partitions": [
-          {
-            "name": "DataProductContactAssociation",
-            "mode": "import",
-            "source": {
-              "expression": [
-                "let",
-                "    Source = Sql.Database(SERVER, DATABASE),",
-                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataProductContactAssociation\" = Source{[Schema=\"ecf09339-34e0-464b-a8fb-661209048543\",Item=\"DataProductContactAssociation\"]}[Data]",
-                "in",
-                "    #\"ecf09339-34e0-464b-a8fb-661209048543_DataProductContactAssociation\""
-              ],
-              "type": "m"
-            }
-          }
-        ]
       }
     ]
   }

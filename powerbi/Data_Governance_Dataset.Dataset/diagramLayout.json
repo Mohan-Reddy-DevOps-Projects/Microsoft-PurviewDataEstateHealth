@@ -5,13 +5,13 @@
       "ordinal": 0,
       "scrollPosition": {
         "x": 0,
-        "y": 136.85611608266177
+        "y": 218.80588386262184
       },
       "nodes": [
         {
           "location": {
             "x": 574.65327775672586,
-            "y": 531.77889756630225
+            "y": 465.96059113300493
           },
           "nodeIndex": "BusinessDomain",
           "nodeLineageTag": "bb22e2b4-7b67-4278-bc82-0426adf76ee0",
@@ -24,7 +24,7 @@
         {
           "location": {
             "x": 980.532783685537,
-            "y": 648.46324769892828
+            "y": 582.64494126563091
           },
           "nodeIndex": "BusinessDomainTrends",
           "nodeLineageTag": "d6ae76ed-5409-4399-b782-f93c0a38a783",
@@ -37,7 +37,7 @@
         {
           "location": {
             "x": 0,
-            "y": 741.64773613063687
+            "y": 675.82942969733949
           },
           "nodeIndex": "DataAsset",
           "nodeLineageTag": "e01a6210-45a2-498b-a38a-192cae8264e8",
@@ -50,7 +50,7 @@
         {
           "location": {
             "x": 294.45252197023569,
-            "y": 542.03252785594373
+            "y": 476.2142214226464
           },
           "nodeIndex": "DataProduct",
           "nodeLineageTag": "5e64d8f2-a51a-4abe-b8b8-86d5ed754fb7",
@@ -63,7 +63,7 @@
         {
           "location": {
             "x": 0,
-            "y": 407.14903050374755
+            "y": 341.33072407045017
           },
           "nodeIndex": "DataProductDataAssetAssociation",
           "nodeLineageTag": "85660211-deff-4cb3-963f-ed539531d13e",
@@ -76,7 +76,7 @@
         {
           "location": {
             "x": 311.0639094210577,
-            "y": 118.47295157993521
+            "y": 52.654645146637833
           },
           "nodeIndex": "BusinessDomainDataProductAssociation",
           "nodeLineageTag": "5f2992b4-bbe7-4efe-87a5-c806188552cd",
@@ -89,25 +89,12 @@
         {
           "location": {
             "x": 741.04085637438038,
-            "y": 350.27237325411932
+            "y": 284.45406682082194
           },
           "nodeIndex": "AccountInfo",
           "nodeLineageTag": "ad76777b-f72a-4a5b-898b-edb5ce69c480",
           "size": {
             "height": 124.73577516403969,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 578.86981826129215,
-            "y": 930.69207340049456
-          },
-          "nodeIndex": "DataProductContactAssociation",
-          "nodeLineageTag": "cb58b67f-d752-4c0a-853f-cd2cbcffe583",
-          "size": {
-            "height": 176,
             "width": 234
           },
           "zIndex": 0
