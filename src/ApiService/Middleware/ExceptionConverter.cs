@@ -18,9 +18,9 @@ internal static class ExceptionConverter
     /// <param name="ex">The original exception.</param>
     /// <param name="statusCode">The terminal status code.</param>
     /// <param name="envConfig">The environment configuration.</param>
-    /// <param name="requestHeaderContext"></param>
+    /// <param name="requestContext"></param>
     /// <returns></returns>
-    public static ErrorModel CreateErrorModel(Exception ex, HttpStatusCode statusCode, EnvironmentConfiguration envConfig, IRequestHeaderContext requestHeaderContext)
+    public static ErrorModel CreateErrorModel(Exception ex, HttpStatusCode statusCode, EnvironmentConfiguration envConfig, IRequestContext requestContext)
     {
         ServiceException serviceException = GetKnownException(ex);
         if (serviceException != null)
@@ -32,7 +32,7 @@ internal static class ExceptionConverter
             // by default do not throw unhandled exceptions to customer.
             return new(HttpStatusCode.InternalServerError.ToString(), "Unknown error")
             {
-                Target = $"correlation ID: {requestHeaderContext.CorrelationId}",
+                Target = $"correlation ID: {requestContext.CorrelationId}",
             };
         }
         else

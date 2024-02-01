@@ -17,6 +17,7 @@ using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
@@ -461,7 +462,7 @@ public class JobManager : IJobManager
 
             RequestCorrelationContext requestCorrelationContext = new RequestCorrelationContext()
             {
-                CorrelationId = metadata.RequestContext.CorrelationId
+                CorrelationId = metadata.RequestContext.CorrelationId,
             };
 
             RequestCorrelationContext.Current.Initialize(requestCorrelationContext);

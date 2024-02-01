@@ -15,11 +15,11 @@ public interface IRequestContextAccessor
     /// Gets the request context.
     /// </summary>
     /// <returns></returns>
-    IRequestHeaderContext GetRequestContext();
+    IRequestContext GetRequestContext();
 
     /// <summary>
     /// Sets the request context.
     /// </summary>
     /// <param name="requestContext"></param>
-    void SetRequestContext(IRequestHeaderContext requestContext);
+    void SetRequestContext(IRequestContext requestContext);
 }

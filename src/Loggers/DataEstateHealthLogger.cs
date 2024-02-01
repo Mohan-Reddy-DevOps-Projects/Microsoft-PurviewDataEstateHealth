@@ -172,7 +172,7 @@ public abstract class DataEstateHealthLogger
 
     private List<KeyValuePair<string, object>> GetAdditionalColumns(string operationName, string sourceFilePath, int sourceLineNumber)
     {
-        var requestHeaderContext = this.GetRequestHeaderContext();
+        var requestHeaderContext = this.GetRequestContext();
 
         return new List<KeyValuePair<string, object>>
         {
@@ -190,7 +190,7 @@ public abstract class DataEstateHealthLogger
     /// Get the request header context for scoped logger.
     /// </summary>
     /// <returns></returns>
-    protected virtual IRequestHeaderContext GetRequestHeaderContext()
+    protected virtual IRequestContext GetRequestContext()
     {
         return null;
     }

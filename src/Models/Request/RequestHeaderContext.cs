@@ -12,7 +12,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 
 /// <inheritdoc />
-public class RequestHeaderContext : IRequestHeaderContext
+public class RequestHeaderContext : RequestContext, IRequestHeaderContext
 {
     private const string ForwardedUrlHeader = "x-forwarded-url";
 
@@ -117,28 +117,13 @@ public class RequestHeaderContext : IRequestHeaderContext
     public HttpContext HttpContent { get; init; }
 
     /// <inheritdoc />
-    public string CorrelationId { get; set; }
-
-    /// <inheritdoc />
     public string ForwardedUrl { get; set; }
 
     /// <inheritdoc />
     public string ResourceId { get; set; }
 
     /// <inheritdoc />
-    public string AccountName { get; set; }
-
-    /// <inheritdoc />
-    public Guid AccountObjectId { get; set; }
-
-    /// <inheritdoc />
     public string AccountUserActions { get; set; }
-
-    /// <inheritdoc />
-    public string AccountResourceId { get; set; }
-
-    /// <inheritdoc />
-    public string CatalogId { get; set; }
 
     /// <inheritdoc />
     public string ClientAudience { get; set; }
@@ -157,9 +142,6 @@ public class RequestHeaderContext : IRequestHeaderContext
 
     /// <inheritdoc />
     public string ClientAppId { get; set; }
-
-    /// <inheritdoc />
-    public Guid TenantId { get; set; }
 
     /// <inheritdoc />
     public string ClientSubject { get; set; }
@@ -186,9 +168,6 @@ public class RequestHeaderContext : IRequestHeaderContext
     public string ClientAltSecId { get; set; }
 
     /// <inheritdoc />
-    public string ApiVersion { get; set; }
-
-    /// <inheritdoc />
     public string ClientPuid { get; set; }
 
     /// <inheritdoc />
@@ -199,24 +178,6 @@ public class RequestHeaderContext : IRequestHeaderContext
 
     /// <inheritdoc />
     public PurviewAccountSku PurviewAccountSku { get; set; }
-
-    /// <summary>
-    /// Set Correlation Id override
-    /// </summary>
-    /// <param name="correlationId"></param>
-    public void SetCorrelationIdInRequestContext(string correlationId)
-    {
-        this.CorrelationId = correlationId;
-    }
-
-    /// <summary>
-    /// Set ResourceId override
-    /// </summary>
-    /// <param name="resourceId"></param>
-    public void SetResourceIdInRequestContext(string resourceId)
-    {
-        this.ResourceId = resourceId;
-    }
 
     /// <summary>
     /// Returns decoded string from the header

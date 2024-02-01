@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Extensions.Logging;
@@ -46,8 +47,10 @@ internal sealed class HealthDatasetUpgrade
         };
         Datasets existingDatasets = await this.datasetCommand.List(datasetRequest, cancellationToken);
         IList<Dataset> datasetsToUpgrade = await this.GetUpgradableDatasets(profileId, workspaceId, existingDatasets, cancellationToken);
+        this.logger.LogInformation($"Attempting to upgrade datasets. Datasets={JsonSerializer.Serialize(datasetsToUpgrade)}");
         IList<Dataset> upgradedDatasets = await this.Upgrade(account, profileId, workspaceId, schemaUpgradeSucceeded, datasetsToUpgrade, cancellationToken);
         Dictionary<Guid, List<Dataset>> datasetUpgrades = MapPreviousToNewDatasets(upgradedDatasets, existingDatasets.Value, schemaUpgradeSucceeded);
+        this.logger.LogInformation($"Successfully upgraded datasets. Datasets={JsonSerializer.Serialize(datasetUpgrades)}");
 
         return datasetUpgrades;
     }

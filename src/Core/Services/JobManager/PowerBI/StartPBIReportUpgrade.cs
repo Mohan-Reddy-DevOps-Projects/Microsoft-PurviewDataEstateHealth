@@ -7,8 +7,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using global::Azure.Analytics.Synapse.Spark.Models;
-using Microsoft.Azure.Management.Storage.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
@@ -78,9 +76,11 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
 
             jobStageStatus = JobExecutionStatus.Succeeded;
             jobStatusMessage = this.GenerateStatusMessage(jobStageStatus);
+            this.logger.LogInformation(jobStatusMessage);
         }
         catch (Exception exception)
         {
+            this.metadata.DatasetUpgrades = [];
             jobStageStatus = JobExecutionStatus.Succeeded;
             jobStatusMessage = $"{this.StageName}|Failed to upgrade PBI reports account: {this.metadata.Account.Id} with error: {exception.Message}";
             this.logger.LogError(jobStatusMessage, exception);

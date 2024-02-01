@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
@@ -20,6 +21,8 @@ using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetadata>
     where TMetadata : StagedWorkerJobMetadata
 {
+    private readonly IRequestContextAccessor requestContextAccessor;
+
     /// <summary>
     /// Indicate if job pre-condition(s) met.
     /// </summary>
@@ -64,7 +67,8 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     protected StagedWorkerJobCallback(IServiceScope scope)
     {
         this.Scope = scope;
-        this.DataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
+        this.DataEstateHealthRequestLogger = scope.ServiceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
+        this.requestContextAccessor = scope.ServiceProvider.GetRequiredService<IRequestContextAccessor>();
     }
 
     /// <summary>
@@ -283,6 +287,7 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     /// <returns></returns>
     private async Task<JobExecutionResult> OnJobExecute()
     {
+        this.SetRequestContext();
         this.IsJobPreconditionValid = await this.IsJobPreconditionMet();
 
         if (!this.IsJobPreconditionValid)
@@ -392,5 +397,21 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     private bool HasReachedMaxPostponeCount()
     {
         return !this.IsRecurringJob && this.BackgroundJob.TotalPostponedCount >= this.MaxPostponeCount;
+    }
+
+    private void SetRequestContext()
+    {
+        IRequestContext context = this.requestContextAccessor.GetRequestContext().WithCallbackContext(this.Metadata.RequestContext);
+
+        // Set correlation-id if not set in the payload.
+        if (string.IsNullOrEmpty(this.Metadata.RequestContext.CorrelationId))
+        {
+            Guid correlationId = Guid.NewGuid();
+            context.SetCorrelationIdInRequestContext(correlationId.ToString());
+
+            this.Metadata.RequestContext.CorrelationId = correlationId.ToString();
+        }
+
+        this.requestContextAccessor.SetRequestContext(context);
     }
 }

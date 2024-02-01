@@ -4,23 +4,17 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
-using System;
 using Microsoft.AspNetCore.Http;
 
 /// <summary>
 /// The scoped service for request header handling.
 /// </summary>
-public interface IRequestHeaderContext
+public interface IRequestHeaderContext : IRequestContext
 {
     /// <summary>
     /// Http Context
     /// </summary>
     HttpContext HttpContent { get; }
-
-    /// <summary>
-    /// Request Correlation Id
-    /// </summary>
-    string CorrelationId { get; }
 
     /// <summary>
     /// Forwarded URL from gateway
@@ -36,29 +30,9 @@ public interface IRequestHeaderContext
     //Account + Customer claims
 
     /// <summary>
-    /// Microsoft Purview Account Name
-    /// </summary>
-    string AccountName { get; }
-
-    /// <summary>
-    /// Microsoft Purview Account Object Id
-    /// </summary>
-    Guid AccountObjectId { get; }
-
-    /// <summary>
     /// Microsoft Purview Account User Actions
     /// </summary>
     string AccountUserActions { get; }
-
-    /// <summary>
-    /// Microsoft Purview Account Resource Id
-    /// </summary>
-    string AccountResourceId { get; }
-
-    /// <summary>
-    /// Catalog Id
-    /// </summary>
-    string CatalogId { get; }
 
     // Authorization claims
 
@@ -91,11 +65,6 @@ public interface IRequestHeaderContext
     /// ClientAppId of the call
     /// </summary>
     string ClientAppId { get; }
-
-    /// <summary>
-    /// Tenant Id of the client
-    /// </summary>
-    Guid TenantId { get; }
 
     /// <summary>
     /// Subject Name of the client
@@ -143,11 +112,6 @@ public interface IRequestHeaderContext
     string ClientPuid { get; }
 
     /// <summary>
-    /// ApiVersion of the call.
-    /// </summary>
-    string ApiVersion { get; }
-
-    /// <summary>
     /// Authorization obligation type for caller.
     /// </summary>
     string AuthorizationObligationType { get; }
@@ -161,10 +125,4 @@ public interface IRequestHeaderContext
     /// Sku of the Purview account. (Classic/Free/Enterprise)
     /// </summary>
     public PurviewAccountSku PurviewAccountSku { get; set; }
-
-    /// <summary>
-    /// Set Correlation Id in Request Context
-    /// </summary>
-    /// <param name="correlationId"></param>
-    void SetCorrelationIdInRequestContext(string correlationId);
 }

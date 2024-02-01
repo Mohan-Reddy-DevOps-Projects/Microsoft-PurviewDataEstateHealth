@@ -35,7 +35,7 @@ internal class DataEstateHealthRequestLogger : DataEstateHealthLogger, IDataEsta
     }
 
     /// <inheritdoc />
-    protected override IRequestHeaderContext GetRequestHeaderContext()
+    protected override IRequestContext GetRequestContext()
     {
         return this.requestContextAccessor?.GetRequestContext();
     }

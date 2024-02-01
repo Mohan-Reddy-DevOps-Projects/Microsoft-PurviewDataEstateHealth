@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Newtonsoft.Json;
 
 /// <summary>

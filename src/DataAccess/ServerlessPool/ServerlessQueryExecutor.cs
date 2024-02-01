@@ -61,7 +61,7 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
             try
             {
                 IList<TIntermediate> recordList = new List<TIntermediate>();
-                await foreach (IDataRecord item in client.ExecuteQueryAsync(
+                await foreach (IDataRecord item in this.client.ExecuteQueryAsync(
                                        request.Query,
                                        request.Database,
                                        cancellationToken)
@@ -88,7 +88,7 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
                 this.logger.LogError("Error in executing synapse query", ex);
                 throw;
             }
-        }, ExceptionPredicate, maxRetries: MaxRetries, retryIntervalInMs: TimeoutDelayInMs);
+        }, this.ExceptionPredicate, maxRetries: MaxRetries, retryIntervalInMs: TimeoutDelayInMs);
 
         IList<TEntity> outList = request.Finalize(recordList).ToList();
         return outList;

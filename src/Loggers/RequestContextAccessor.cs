@@ -9,7 +9,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 internal class RequestContextAccessor : IRequestContextAccessor
 {
-    private static readonly AsyncLocal<IRequestHeaderContext> asyncLocalRequestContext = new();
+    private static readonly AsyncLocal<IRequestContext> asyncLocalRequestContext = new();
     private const string HttpContextKey = "PurviewRequestContext";
     private readonly IHttpContextAccessor httpContextAccessor;
 
@@ -18,7 +18,7 @@ internal class RequestContextAccessor : IRequestContextAccessor
         this.httpContextAccessor = httpContextAccessor;
     }
 
-    public IRequestHeaderContext GetRequestContext()
+    public IRequestContext GetRequestContext()
     {
         if (asyncLocalRequestContext.Value != null)
         {
@@ -39,7 +39,7 @@ internal class RequestContextAccessor : IRequestContextAccessor
         return requestContext;
     }
 
-    public void SetRequestContext(IRequestHeaderContext requestContext)
+    public void SetRequestContext(IRequestContext requestContext)
     {
         if (this.httpContextAccessor?.HttpContext?.Items != null)
         {
