@@ -107,9 +107,13 @@ public class Program
             options.HeaderConverter = CertificateHeaderConverter.Convert;
         });
 
-        builder.Services.SetupDHModelsServices();
-        builder.Services.SetupDHDataAccessServices();
-        builder.Services.SetupBusinessLogicServices();
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.SetupDHModelsServices();
+            builder.Services.SetupDHDataAccessServices();
+            builder.Services.SetupBusinessLogicServices();
+        }
+
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;

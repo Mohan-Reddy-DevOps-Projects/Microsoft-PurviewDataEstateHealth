@@ -16,7 +16,7 @@ using Microsoft.Purview.DataEstateHealth.Models;
 /// </summary>
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV1)]
-[Route("/actions")]
+[Route("/_actions")]
 public class DataHealthActionController : DataPlaneController
 {
     private readonly IRequestHeaderContext requestHeaderContext;
