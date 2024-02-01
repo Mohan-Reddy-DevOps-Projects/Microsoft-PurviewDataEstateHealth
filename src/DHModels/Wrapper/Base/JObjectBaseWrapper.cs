@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Microsoft.Purview.ActiveGlossary.Models.Service.Base
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
 {
     using Newtonsoft.Json.Linq;
     using System;
@@ -34,13 +34,13 @@ namespace Microsoft.Purview.ActiveGlossary.Models.Service.Base
                 {
                     return token.ToObject<T>();
                 }
-                catch (FormatException formatException)
+                catch (FormatException)
                 {
-                    throw formatException;
+                    throw;
                 }
-                catch (InvalidCastException invalidCastException)
+                catch (InvalidCastException)
                 {
-                    throw invalidCastException;
+                    throw;
                 }
             }
 

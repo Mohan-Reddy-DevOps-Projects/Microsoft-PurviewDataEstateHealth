@@ -6,7 +6,7 @@
 
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes
 {
-    using Microsoft.Purview.ActiveGlossary.Models.Service.Base;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
     using System;
     using System.Collections.Generic;

@@ -2,7 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
-namespace Microsoft.Purview.ActiveGlossary.Models.Service.Base
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
 {
     public interface IWithId
     {

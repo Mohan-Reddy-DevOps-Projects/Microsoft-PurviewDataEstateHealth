@@ -6,8 +6,8 @@
 
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers
 {
-    using Microsoft.Purview.ActiveGlossary.Models.Service.Base;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
     using Newtonsoft.Json.Linq;
     using System;

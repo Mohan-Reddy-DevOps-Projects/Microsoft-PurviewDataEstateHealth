@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Microsoft.Purview.ActiveGlossary.Models.Validators
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators
 {
     using Microsoft.Purview.DataEstateHealth.DHModels;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;

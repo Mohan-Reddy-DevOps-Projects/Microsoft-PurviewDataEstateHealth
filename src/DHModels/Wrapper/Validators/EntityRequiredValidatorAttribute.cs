@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Microsoft.Purview.ActiveGlossary.Models.Validators
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators
 {
     using Microsoft.Purview.DataEstateHealth.DHModels;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
@@ -19,7 +19,7 @@ namespace Microsoft.Purview.ActiveGlossary.Models.Validators
         {
             if (!this.AllowNullOrEmpty)
             {
-                if (value == null || (value is string strValue && String.IsNullOrEmpty(strValue)))
+                if (value == null || value is string strValue && String.IsNullOrEmpty(strValue))
                 {
                     throw new EntityValidationException(FormatMessage(StringResources.ErrorMessageNullOrEmpty, propName));
                 }

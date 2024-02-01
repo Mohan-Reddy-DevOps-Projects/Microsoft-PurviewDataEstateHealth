@@ -4,14 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Microsoft.Purview.ActiveGlossary.Models.Service.Base
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
 {
-    using Microsoft.Purview.ActiveGlossary.Models.Util;
-    using Microsoft.Purview.ActiveGlossary.Models.Validators;
     using Microsoft.Purview.DataEstateHealth.DHModels;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;

@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace Microsoft.Purview.ActiveGlossary.Models.Service.Base
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
 {
     using Microsoft.Purview.DataEstateHealth.DHModels;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;

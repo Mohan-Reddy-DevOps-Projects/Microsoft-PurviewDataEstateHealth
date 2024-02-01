@@ -1,7 +1,7 @@
-﻿namespace Microsoft.Purview.ActiveGlossary.Models.Util
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util
 {
-    using Microsoft.Purview.ActiveGlossary.Models.Service.Base;
     using Microsoft.Purview.DataEstateHealth.DHModels;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
     using Newtonsoft.Json.Linq;
     using System;
