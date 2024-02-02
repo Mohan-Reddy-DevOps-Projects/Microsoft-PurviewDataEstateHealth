@@ -26,7 +26,7 @@ public class DHControlSchedule
     public string? TimeZone { get; set; }
 
     [JsonProperty("schedule")]
-    public required DHControlScheduleProperties Schedule { get; set; }
+    public DHControlScheduleProperties? Schedule { get; set; }
 }
 
 public class DHControlScheduleProperties

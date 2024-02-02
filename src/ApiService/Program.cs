@@ -18,6 +18,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic;
+using Microsoft.Purview.DataEstateHealth.DHConfigurations;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using Microsoft.Purview.DataEstateHealth.DHModels;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
@@ -109,6 +110,7 @@ public class Program
 
         if (builder.Environment.IsDevelopment())
         {
+            builder.Services.AddDHConfigurations(builder.Configuration);
             builder.Services.SetupDHModelsServices();
             builder.Services.SetupDHDataAccessServices();
             builder.Services.SetupBusinessLogicServices();

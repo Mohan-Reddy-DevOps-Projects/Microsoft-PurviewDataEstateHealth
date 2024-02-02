@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Configurations\Configurations.csproj" />
     <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\DHConfigurations\DHConfigurations.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\ProvisioningService\ProvisioningService.csproj" />
     <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />

@@ -16,7 +16,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	   <ProjectReference Include="..\DHConfigurations\DHConfigurations.csproj" />
 	   <ProjectReference Include="..\DHModels\DHModels.csproj" />
+	   <ProjectReference Include="..\Loggers\Loggers.csproj" />
 	</ItemGroup>
   
 </Project>
