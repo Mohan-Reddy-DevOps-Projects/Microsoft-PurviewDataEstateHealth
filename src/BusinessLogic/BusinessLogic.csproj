@@ -3,6 +3,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
+		<Platforms>x64</Platforms>
 		<Nullable>enable</Nullable>
 		<RootNamespace>Microsoft.Purview.DataEstateHealth.BusinessLogic</RootNamespace>
 		<AssemblyName>Microsoft.Purview.DataEstateHealth.BusinessLogic</AssemblyName>
