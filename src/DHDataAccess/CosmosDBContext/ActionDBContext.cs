@@ -3,7 +3,6 @@
 using global::Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Purview.DataEstateHealth.Models;
 
 public class ActionDBContext(IConfiguration configuration) : DbContext
 {
@@ -13,10 +12,12 @@ public class ActionDBContext(IConfiguration configuration) : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        /*
         modelBuilder.Entity<DataHealthActionModel>(m =>
         {
             m.ToContainer("DHActionMetadata");
         });
+        */
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -28,6 +29,6 @@ public class ActionDBContext(IConfiguration configuration) : DbContext
         optionsBuilder.UseCosmos(cosmosDbEndpoint, tokenCredential, databaseName);
     }
 
-    public DbSet<DataHealthActionModel> Actions { get; set; }
+    // public DbSet<DataHealthActionModel> Actions { get; set; }
 
 }

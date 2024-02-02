@@ -6,15 +6,14 @@
 namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
 {
     using Microsoft.Purview.DataEstateHealth.DHModels.Common;
-    using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public interface IRepository<T> where T : ContainerEntityBase
+    public interface IRepository<T> where T : ContainerEntityBaseWrapper
     {
         Task<IEnumerable<T>> GetAllAsync();
 
-        Task<T?> GetByIdAsync(Guid id);
+        Task<T?> GetByIdAsync(string id);
 
         Task AddAsync(T entity);
 
@@ -22,6 +21,6 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
 
         Task DeleteAsync(T entity);
 
-        Task DeleteAsync(Guid id);
+        Task DeleteAsync(string id);
     }
 }

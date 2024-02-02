@@ -28,7 +28,7 @@ public class ControlDBContext(IConfiguration configuration) : DbContext
         optionsBuilder.UseCosmos(cosmosDbEndpoint, tokenCredential, databaseName);
     }
 
-    public DbSet<DHControlNode> DHControlNodes { get; set; }
+    public DbSet<DHControlNodeWrapper> DHControlNodes { get; set; }
 
-    public DbSet<DHControlGroup> DHControlGroups { get; set; }
+    public DbSet<DHControlGroupWrapper> DHControlGroups { get; set; }
 }

@@ -4,15 +4,16 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
+using Microsoft.Purview.DataEstateHealth.DHModels.Common.AuditLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderContext) : IRepository<T> where T : ContainerEntityBase
+public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderContext) : IRepository<T> where T : ContainerEntityBaseWrapper
 {
-    private Guid TenantId => requestHeaderContext.TenantId;
-    private Guid AccountId => requestHeaderContext.AccountObjectId;
+    private string TenantId => requestHeaderContext.TenantId.ToString();
+    private string AccountId => requestHeaderContext.AccountObjectId.ToString();
     private string ClientObjectId => requestHeaderContext.ClientObjectId;
 
     protected abstract DbContext TheDbContext { get; }
@@ -20,18 +21,18 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
 
     public virtual async Task AddAsync(T entity)
     {
-        if (entity.Id == Guid.Empty)
+        if (string.IsNullOrEmpty(entity.Id))
         {
-            entity.Id = Guid.NewGuid();
+            entity.Id = Guid.NewGuid().ToString();
         }
 
         entity.TenantId = this.TenantId;
         entity.AccountId = this.AccountId;
 
-        entity.AuditLogs = new List<ContainerEntityAuditLog>
+        entity.AuditLogs = new List<ContainerEntityAuditLogWrapper>
         {
             new() {
-                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                Timestamp = DateTime.UtcNow,
                 User = this.ClientObjectId,
                 Action = ContainerEntityAuditAction.Create,
             },
@@ -48,7 +49,7 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
         await this.TheDbContext.SaveChangesAsync().ConfigureAwait(false);
     }
 
-    public virtual async Task DeleteAsync(Guid id)
+    public virtual async Task DeleteAsync(string id)
     {
         var entity = await this.GetByIdAsync(id).ConfigureAwait(false);
         if (entity != null)
@@ -62,7 +63,7 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
         return await this.TheDbSet.WithPartitionKey(this.TenantId.ToString()).ToListAsync().ConfigureAwait(false);
     }
 
-    public virtual async Task<T?> GetByIdAsync(Guid id)
+    public virtual async Task<T?> GetByIdAsync(string id)
     {
         return await this.TheDbSet.WithPartitionKey(this.TenantId.ToString()).Where(x => x.Id == id).SingleOrDefaultAsync().ConfigureAwait(false);
     }
@@ -71,15 +72,20 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
     {
         this.ValidateEntityMetadata(entity);
 
-        entity.AuditLogs ??= new List<ContainerEntityAuditLog>();
-        entity.AuditLogs.Add(
-            new()
-            {
-                Timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-                User = this.ClientObjectId,
-                Action = ContainerEntityAuditAction.Update,
-            }
-        );
+        var log = new ContainerEntityAuditLogWrapper()
+        {
+            Timestamp = DateTime.UtcNow,
+            User = this.ClientObjectId,
+            Action = ContainerEntityAuditAction.Update,
+        };
+
+        List<ContainerEntityAuditLogWrapper> list = [];
+        if (entity.AuditLogs != null)
+        {
+            list.AddRange(entity.AuditLogs);
+        }
+        list.Add(log);
+        entity.AuditLogs = list;
 
         this.TheDbSet.Update(entity);
         await this.TheDbContext.SaveChangesAsync().ConfigureAwait(false);

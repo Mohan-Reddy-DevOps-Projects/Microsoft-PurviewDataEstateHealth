@@ -4,10 +4,7 @@
 
 namespace Microsoft.Purview.DataEstateHealth.Models;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Common;
-using Newtonsoft.Json;
-using System;
-
+/*
 /// <inheritdoc />
 public class DataHealthActionModel : ContainerEntityBase, IDataHealthActionModel
 {
@@ -63,3 +60,4 @@ public class DataHealthActionModel : ContainerEntityBase, IDataHealthActionModel
     [JsonProperty("systemData")]
     public DataHealthActionSystemData SystemData { get; set; }
 }
+*/

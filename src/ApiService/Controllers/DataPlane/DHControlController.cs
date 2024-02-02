@@ -18,7 +18,7 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
 {
     [HttpGet]
     [Route("{id}")]
-    public async Task<ActionResult> ListById(Guid id)
+    public async Task<ActionResult> ListById(string id)
     {
         var entity = await dataHealthControlService.GetControlByIdAsync(id).ConfigureAwait(false);
         return this.Ok(entity);
@@ -27,7 +27,7 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
     [HttpPost]
     [Route("")]
     public async Task<ActionResult> CreateDHSimpleRuleAsync(
-        [FromBody] DHControlNode entity)
+        [FromBody] DHControlNodeWrapper entity)
     {
         await dataHealthControlService.CreateControlAsync(entity).ConfigureAwait(false);
         return this.Ok();
@@ -38,7 +38,7 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
     public async Task<ActionResult> CreateScheduleJob(
         [FromBody] DHRunScheduleJobRequest requestBody)
     {
-        if (requestBody == null || requestBody.ControlId == Guid.Empty)
+        if (string.IsNullOrEmpty(requestBody.ControlId))
         {
             return this.BadRequest();
         }

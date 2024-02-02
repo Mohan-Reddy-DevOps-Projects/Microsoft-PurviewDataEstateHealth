@@ -7,9 +7,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services.Interfaces;
-using Microsoft.Purview.DataEstateHealth.Models;
 
 /// <summary>
 /// Health Reports controller.
@@ -19,6 +16,7 @@ using Microsoft.Purview.DataEstateHealth.Models;
 [Route("/_actions")]
 public class DataHealthActionController : DataPlaneController
 {
+    /*
     private readonly IRequestHeaderContext requestHeaderContext;
 
     private IDataHealthActionService actionService;
@@ -62,4 +60,5 @@ public class DataHealthActionController : DataPlaneController
         await this.actionService.CreateActionsAsync(entity).ConfigureAwait(false);
         return this.Ok();
     }
+    */
 }

@@ -4,12 +4,7 @@
 
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
-    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services.Interfaces;
-    using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
-    using Microsoft.Purview.DataEstateHealth.Models;
-    using System;
-    using System.Threading.Tasks;
-
+    /*
     public class DataHealthActionService : IDataHealthActionService
     {
         private readonly DataHealthActionRepository dataHealthActionRepository;
@@ -33,4 +28,5 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             await this.dataHealthActionRepository.AddAsync(entity).ConfigureAwait(false);
         }
     }
+    */
 }

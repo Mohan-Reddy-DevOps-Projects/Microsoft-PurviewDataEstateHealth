@@ -21,7 +21,8 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes
         DatasetSchemaItem,
         Dataset,
         Rule,
-        Control
+        Control,
+        Assessment,
     }
 
     [AttributeUsage(AttributeTargets.Class)]

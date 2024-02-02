@@ -1,12 +1,7 @@
 ﻿#nullable enable
 namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
 
-using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
-using Microsoft.Purview.DataEstateHealth.Models;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
+/*
 public class DataHealthActionRepository(ActionDBContext cosmosDBContext) : IRepository<DataHealthActionModel>
 {
     public async Task AddAsync(DataHealthActionModel entity)
@@ -40,3 +35,4 @@ public class DataHealthActionRepository(ActionDBContext cosmosDBContext) : IRepo
         throw new NotImplementedException();
     }
 }
+*/

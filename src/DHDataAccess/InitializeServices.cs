@@ -6,7 +6,6 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
 {
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
-    using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 
     public static class InitializeServices
@@ -19,7 +18,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
 
             services.AddDbContext<ActionDBContext>();
 
-            services.AddScoped<DataHealthActionRepository>();
+            // services.AddScoped<DataHealthActionRepository>();
         }
     }
 }

@@ -8,7 +8,7 @@ using System.Linq;
 
 internal static class RuleExecutor
 {
-    public static bool Execute<TPayload>(DHRuleBase rule, TPayload payload)
+    public static bool Execute<TPayload>(DHRuleBaseWrapper rule, TPayload payload)
     {
         switch (rule.CheckPoint, payload)
         {
@@ -17,7 +17,7 @@ internal static class RuleExecutor
                     var score = DHScoreCheckPoint.ExtractOperand(scorePayload);
                     switch (rule)
                     {
-                        case DHSimpleRule simpleRule:
+                        case DHSimpleRuleWrapper simpleRule:
                             {
                                 var theOperator = simpleRule.Operator;
 
@@ -49,7 +49,7 @@ internal static class RuleExecutor
                                         throw new NotImplementedException();
                                 }
                             }
-                        case DHExpressionRule expressionRule:
+                        case DHExpressionRuleWrapper expressionRule:
                         default:
                             {
                                 throw new NotImplementedException();
@@ -63,12 +63,12 @@ internal static class RuleExecutor
         }
     }
 
-    public static bool Execute<TPayload>(DHRuleGroup ruleGroup, TPayload payload)
+    public static bool Execute<TPayload>(DHRuleGroupWrapper ruleGroup, TPayload payload)
     {
         var ruleResults = ruleGroup.Rules.Select(rule => rule switch
         {
-            DHRuleBase _rule => Execute(_rule, payload),
-            DHRuleGroup _group => Execute(_group, payload),
+            DHRuleBaseWrapper _rule => Execute(_rule, payload),
+            DHRuleGroupWrapper _group => Execute(_group, payload),
             _ => throw new NotImplementedException()
         });
         var finalResult = ruleGroup.GroupOperator switch
