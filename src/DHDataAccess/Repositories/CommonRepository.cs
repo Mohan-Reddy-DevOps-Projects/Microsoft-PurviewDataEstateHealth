@@ -59,12 +59,12 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
 
     public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await this.TheDbSet.WithPartitionKey(this.TenantId.ToString()).ToListAsync().ConfigureAwait(false);
+        return await this.TheDbSet.WithPartitionKey(this.TenantId).ToListAsync().ConfigureAwait(false);
     }
 
     public virtual async Task<T?> GetByIdAsync(string id)
     {
-        return await this.TheDbSet.WithPartitionKey(this.TenantId.ToString()).Where(x => x.Id == id).SingleOrDefaultAsync().ConfigureAwait(false);
+        return await this.TheDbSet.WithPartitionKey(this.TenantId).Where(x => x.Id == id).SingleOrDefaultAsync().ConfigureAwait(false);
     }
 
     public virtual async Task UpdateAsync(T entity)

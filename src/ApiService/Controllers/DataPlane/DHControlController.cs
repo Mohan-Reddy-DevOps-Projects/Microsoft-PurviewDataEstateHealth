@@ -22,7 +22,7 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
     public async Task<ActionResult> ListById(string id)
     {
         var entity = await dataHealthControlService.GetControlByIdAsync(id).ConfigureAwait(false);
-        return this.Ok(entity);
+        return this.Ok(entity?.JObject);
     }
 
     [HttpPost]

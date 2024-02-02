@@ -24,6 +24,10 @@ public class ControlDBContext(IConfiguration configuration) : DbContext
             .HasValue<DHSimpleRuleWrapper>(DHRuleBaseWrapperDerivedTypes.SimpleRule)
             .HasValue<DHExpressionRuleWrapper>(DHRuleBaseWrapperDerivedTypes.ExpressionRule)
             .HasValue<DHRuleGroupWrapper>(DHRuleBaseWrapperDerivedTypes.Group);
+
+        modelBuilder.Entity<DHControlBaseWrapper>().HasDiscriminator(x => x.Type)
+            .HasValue<DHControlGroupWrapper>(DHControlBaseWrapperDerivedTypes.Group)
+            .HasValue<DHControlNodeWrapper>(DHControlBaseWrapperDerivedTypes.Node);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -46,4 +50,10 @@ public class ControlDBContext(IConfiguration configuration) : DbContext
     }
 
     public DbSet<DHControlBaseWrapper> DHControls { get; set; }
+
+    // just let EF Core aware of these models
+#pragma warning disable IDE0051 // Remove unused private members
+    private DbSet<DHControlNodeWrapper> DHControlNodes { get; set; }
+    private DbSet<DHControlGroupWrapper> DHControlGroups { get; set; }
+#pragma warning restore IDE0051 // Remove unused private members
 }

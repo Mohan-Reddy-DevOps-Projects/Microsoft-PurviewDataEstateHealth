@@ -81,7 +81,7 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityBas
     }
 }
 
-internal static class DHControlBaseWrapperDerivedTypes
+public static class DHControlBaseWrapperDerivedTypes
 {
     public const string Group = "Group";
     public const string Node = "Node";

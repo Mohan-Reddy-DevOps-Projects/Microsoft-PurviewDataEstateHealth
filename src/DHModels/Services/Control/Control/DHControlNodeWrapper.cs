@@ -1,7 +1,6 @@
 ﻿#nullable enable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -12,7 +11,7 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
 {
     private const string keyGroupId = "groupId";
     private const string keyDomains = "domains";
-    private const string keySchedule = "schedule";
+    // private const string keySchedule = "schedule";
     private const string keyAssessmentId = "assessmentId";
 
     public DHControlNodeWrapper() : this(new JObject()) { }
@@ -29,7 +28,7 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
     [EntityProperty(keyDomains)]
     public IList<string> Domains
     {
-        get => this.domains ??= this.GetPropertyValues<string>(keyDomains).ToList();
+        get => this.domains ??= (this.GetPropertyValues<string>(keyDomains)?.ToList() ?? []);
         set
         {
             this.SetPropertyValue(keyDomains, value);
@@ -37,6 +36,7 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
         }
     }
 
+    /*
     private DHControlSchedule? schedule;
 
     [EntityProperty(keySchedule)]
@@ -50,6 +50,7 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
             this.schedule = value;
         }
     }
+    */
 
     [EntityProperty(keyAssessmentId)]
     public string? AssessmentId
