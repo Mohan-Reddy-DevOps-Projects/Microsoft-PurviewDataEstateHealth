@@ -15,6 +15,12 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes
 
     public enum EntityCategory
     {
+        Observer,
+        DatasetLocation,
+        DatasetProjectAsItem,
+        DatasetSchemaItem,
+        Dataset,
+        Rule,
         Control
     }
 

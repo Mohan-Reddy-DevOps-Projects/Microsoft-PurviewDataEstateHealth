@@ -4,21 +4,21 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading;
-using System.Threading.Tasks;
 using global::Azure;
 using global::Azure.ResourceManager.Resources;
-using global::Azure.ResourceManager.Storage.Models;
 using global::Azure.ResourceManager.Storage;
+using global::Azure.ResourceManager.Storage.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.Options;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using System.Threading;
+using System.Threading.Tasks;
 
-internal abstract class StorageManager<TConfig>
+public abstract class StorageManager<TConfig>
     where TConfig : ProcessingStorageConfiguration
 {
     protected readonly IDataEstateHealthRequestLogger logger;

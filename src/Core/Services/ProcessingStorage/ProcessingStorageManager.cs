@@ -4,13 +4,11 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading;
-using System.Threading.Tasks;
 using global::Azure;
 using global::Azure.Core;
 using global::Azure.ResourceManager.Resources;
-using global::Azure.ResourceManager.Storage.Models;
 using global::Azure.ResourceManager.Storage;
+using global::Azure.ResourceManager.Storage.Models;
 using global::Azure.Storage.Files.DataLake;
 using global::Azure.Storage.Files.DataLake.Models;
 using global::Azure.Storage.Sas;
@@ -22,12 +20,14 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.Common;
+using System.Threading;
+using System.Threading.Tasks;
+using DeletionResult = ProjectBabylon.Metadata.Models.DeletionResult;
+using DeletionStatus = ProjectBabylon.Metadata.Models.DeletionStatus;
 using ProcessingStorageModel = Models.ProcessingStorageModel;
 using StorageAccountKey = global::Azure.ResourceManager.Storage.Models.StorageAccountKey;
 using StorageSasRequest = Models.StorageSasRequest;
-using DeletionResult = ProjectBabylon.Metadata.Models.DeletionResult;
-using DeletionStatus = ProjectBabylon.Metadata.Models.DeletionStatus;
-using Microsoft.Purview.DataGovernance.Common;
 
 /// <summary>
 /// Processing storage manager.

@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<RootNamespace>Microsoft.Purview.DataEstateHealth.DHModels</RootNamespace>
+		<AssemblyName>Microsoft.Purview.DataEstateHealth.DQServices</AssemblyName>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Newtonsoft.Json" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+		<PackageReference Include="ConfigureAwaitChecker.Analyzer" PrivateAssets="All" />
+	</ItemGroup>
+  
+  <ItemGroup>
+	   <ProjectReference Include="..\DHModels\DHModels.csproj" />
+	   <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
+	   <ProjectReference Include="..\Models\Models.csproj" />
+	   <ProjectReference Include="..\Core\Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="StringResources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>StringResources.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="StringResources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>StringResources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Models\Observer\" />
+	</ItemGroup>
+
+</Project>

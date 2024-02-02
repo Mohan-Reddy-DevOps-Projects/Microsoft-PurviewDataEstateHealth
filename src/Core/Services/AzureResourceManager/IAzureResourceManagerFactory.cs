@@ -6,7 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Purview.DataGovernance.Common;
 
-internal interface IAzureResourceManagerFactory
+public interface IAzureResourceManagerFactory
 {
     IAzureResourceManager Create<TAuthConfig>() where TAuthConfig : AuthConfiguration, new();
 }
