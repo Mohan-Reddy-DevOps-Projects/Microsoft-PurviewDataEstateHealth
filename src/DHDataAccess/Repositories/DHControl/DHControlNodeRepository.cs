@@ -1,10 +1,9 @@
-﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 
 public class DHControlNodeRepository(ControlDBContext controlDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<DHControlNodeWrapper>(requestHeaderContext)
 {

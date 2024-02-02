@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.EntityFrameworkCore;

@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
 [EntityWrapper(DHRuleOrGroupBaseWrapperDerivedTypes.Group, EntityCategory.Rule)]
-public class DHRuleGroupWrapper(JObject jObject) : DHRuleOrGroupBaseWrapper(jObject)
+public class DHRuleGroupWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
 {
     private const string keyGroupOperator = "groupOperator";
     private const string keyRules = "rules";
@@ -22,12 +22,12 @@ public class DHRuleGroupWrapper(JObject jObject) : DHRuleOrGroupBaseWrapper(jObj
         set => this.SetPropertyValue(keyGroupOperator, value);
     }
 
-    private IEnumerable<DHRuleOrGroupBaseWrapper>? rules;
+    private IEnumerable<DHRuleBaseWrapper>? rules;
 
     [EntityProperty(keyRules)]
-    public IEnumerable<DHRuleOrGroupBaseWrapper> Rules
+    public IEnumerable<DHRuleBaseWrapper> Rules
     {
-        get => this.rules ??= this.GetPropertyValueAsWrappers<DHRuleOrGroupBaseWrapper>(keyRules);
+        get => this.rules ??= this.GetPropertyValueAsWrappers<DHRuleBaseWrapper>(keyRules);
         set
         {
             this.SetPropertyValueFromWrappers(keyRules, value);

@@ -5,7 +5,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
 /// <summary>

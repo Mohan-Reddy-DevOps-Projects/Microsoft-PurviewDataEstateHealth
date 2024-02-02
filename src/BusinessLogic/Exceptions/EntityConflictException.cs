@@ -25,8 +25,8 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions
                 CultureInfo.InvariantCulture,
                 StringResources.ErrorMessageEntityFieldAlreadyExists,
                 String.IsNullOrEmpty(field?.Type) ? "Entity" : field.Type,
-                field.FieldName,
-                field.FieldValue))
+                field?.FieldName,
+                field?.FieldValue))
         {
         }
 
@@ -45,8 +45,8 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions
                 CultureInfo.InvariantCulture,
                 StringResources.ErrorMessageEntityFieldAlreadyExists,
                 String.IsNullOrEmpty(field?.Type) ? "Entity" : field.Type,
-                field.FieldName,
-                field.FieldValue),
+                field?.FieldName,
+                field?.FieldValue),
             innerException)
         {
         }

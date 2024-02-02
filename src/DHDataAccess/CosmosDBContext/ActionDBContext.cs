@@ -3,6 +3,7 @@
 using global::Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using System;
 
 public class ActionDBContext(IConfiguration configuration) : DbContext
 {
@@ -24,6 +25,16 @@ public class ActionDBContext(IConfiguration configuration) : DbContext
     {
         var cosmosDbEndpoint = this.Configuration["cosmosDb:accountEndpoint"];
         var databaseName = this.Configuration["cosmosDb:actionDatabaseName"];
+
+        if (cosmosDbEndpoint == null)
+        {
+            throw new InvalidOperationException("CosmosDB accountEndpoint is not found in the configuration");
+        }
+
+        if (databaseName == null)
+        {
+            throw new InvalidOperationException("CosmosDB databaseName for DHAction is not found in the configuration");
+        }
 
         var tokenCredential = new DefaultAzureCredential();
         optionsBuilder.UseCosmos(cosmosDbEndpoint, tokenCredential, databaseName);

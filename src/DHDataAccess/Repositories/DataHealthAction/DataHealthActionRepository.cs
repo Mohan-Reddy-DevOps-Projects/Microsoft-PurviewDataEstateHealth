@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
 
 /*
 public class DataHealthActionRepository(ActionDBContext cosmosDBContext) : IRepository<DataHealthActionModel>

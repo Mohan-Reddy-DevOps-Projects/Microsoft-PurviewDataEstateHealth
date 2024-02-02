@@ -8,56 +8,45 @@ using System.Linq;
 
 internal static class RuleExecutor
 {
-    public static bool Execute<TPayload>(DHRuleBaseWrapper rule, TPayload payload)
+    public static bool Execute<TPayload>(DHSimpleRuleWrapper rule, TPayload payload)
     {
         switch (rule.CheckPoint, payload)
         {
-            case (DHCheckPoint.Score, decimal scorePayload):
+            case (DHCheckPoints.Score, decimal scorePayload):
                 {
                     var score = DHScoreCheckPoint.ExtractOperand(scorePayload);
-                    switch (rule)
+                    var theOperator = rule.Operator;
+
+                    if (!DHScoreCheckPoint.AllowedOperators.Contains(theOperator))
                     {
-                        case DHSimpleRuleWrapper simpleRule:
-                            {
-                                var theOperator = simpleRule.Operator;
+                        throw new ArgumentException($@"Operator ""{theOperator}"" is not supported in the check point ""{nameof(DHScoreCheckPoint)}""");
+                    }
+                    var operand = default(decimal);
 
-                                if (!DHScoreCheckPoint.AllowedOperators.Contains(theOperator))
-                                {
-                                    throw new ArgumentException($@"Operator ""{theOperator}"" is not supported in the check point ""{nameof(DHScoreCheckPoint)}""");
-                                }
-                                var operand = default(decimal);
-
-                                // The operator has to stay within the limits set by DHScoreCheckPoint.AllowedOperators.
-                                switch (theOperator)
-                                {
-                                    case DHOperator.Equal:
-                                        operand = ToDecimal(simpleRule.Operand);
-                                        return score == operand;
-                                    case DHOperator.GreaterThan:
-                                        operand = ToDecimal(simpleRule.Operand);
-                                        return score > operand;
-                                    case DHOperator.GreaterThanOrEqual:
-                                        operand = ToDecimal(simpleRule.Operand);
-                                        return score >= operand;
-                                    case DHOperator.LessThan:
-                                        operand = ToDecimal(simpleRule.Operand);
-                                        return score < operand;
-                                    case DHOperator.LessThanOrEqual:
-                                        operand = ToDecimal(simpleRule.Operand);
-                                        return score <= operand;
-                                    default:
-                                        throw new NotImplementedException();
-                                }
-                            }
-                        case DHExpressionRuleWrapper expressionRule:
+                    // The operator has to stay within the limits set by DHScoreCheckPoint.AllowedOperators.
+                    switch (theOperator)
+                    {
+                        case DHOperator.Equal:
+                            operand = ToDecimal(rule.Operand);
+                            return score == operand;
+                        case DHOperator.GreaterThan:
+                            operand = ToDecimal(rule.Operand);
+                            return score > operand;
+                        case DHOperator.GreaterThanOrEqual:
+                            operand = ToDecimal(rule.Operand);
+                            return score >= operand;
+                        case DHOperator.LessThan:
+                            operand = ToDecimal(rule.Operand);
+                            return score < operand;
+                        case DHOperator.LessThanOrEqual:
+                            operand = ToDecimal(rule.Operand);
+                            return score <= operand;
                         default:
-                            {
-                                throw new NotImplementedException();
-                            }
+                            throw new NotImplementedException();
                     }
                 }
-            case DHCheckPoint.DataProductDescriptionContent:
-            case DHCheckPoint.DataProductDescriptionLength:
+            case DHCheckPoints.DataProductDescriptionContent:
+            case DHCheckPoints.DataProductDescriptionLength:
             default:
                 throw new NotImplementedException();
         }
@@ -67,7 +56,7 @@ internal static class RuleExecutor
     {
         var ruleResults = ruleGroup.Rules.Select(rule => rule switch
         {
-            DHRuleBaseWrapper _rule => Execute(_rule, payload),
+            DHSimpleRuleWrapper _rule => Execute(_rule, payload),
             DHRuleGroupWrapper _group => Execute(_group, payload),
             _ => throw new NotImplementedException()
         });

@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.AttributeHandlers;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.AttributeHandlers;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;

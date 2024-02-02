@@ -1,15 +1,13 @@
 ﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control;
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 
 [CosmosDBContainer("DHControl")]
 [EntityWrapper(EntityCategory.Control)]
@@ -19,8 +17,7 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityBas
     private const string keyDescription = "description";
     private const string keyContacts = "contacts";
     private const string keyReserved = "reserved";
-    private const string keyFallbackStatusPaletteId = "fallbackStatusPaletteId";
-    private const string keyStatusPaletteRules = "statusPaletteRules";
+    private const string keyStatusPaletteConfig = "statusPaletteConfig";
 
     public static DHControlBaseWrapper Create(JObject jObject)
     {
@@ -68,23 +65,16 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityBas
         set => this.SetPropertyValue(keyReserved, value);
     }
 
-    [EntityProperty(keyFallbackStatusPaletteId)]
-    public string FallbackStatusPaletteId
-    {
-        get => this.GetPropertyValue<string>(keyFallbackStatusPaletteId);
-        set => this.SetPropertyValue(keyFallbackStatusPaletteId, value);
-    }
+    private DHControlStatusPaletteConfigWrapper? statusPaletteConfig;
 
-    private IEnumerable<DHRuleOrGroupBaseWrapper>? statusPaletteRules;
-
-    [EntityProperty(keyStatusPaletteRules)]
-    public IEnumerable<DHRuleOrGroupBaseWrapper> StatusPaletteRules
+    [EntityProperty(keyStatusPaletteConfig)]
+    public DHControlStatusPaletteConfigWrapper StatusPaletteConfig
     {
-        get => this.statusPaletteRules ??= this.GetPropertyValueAsWrappers<DHRuleOrGroupBaseWrapper>(keyStatusPaletteRules);
+        get => this.statusPaletteConfig ??= this.GetPropertyValueAsWrapper<DHControlStatusPaletteConfigWrapper>(keyStatusPaletteConfig);
         set
         {
-            this.SetPropertyValueFromWrappers(keyStatusPaletteRules, value);
-            this.statusPaletteRules = value;
+            this.SetPropertyValueFromWrapper(keyStatusPaletteConfig, value);
+            this.statusPaletteConfig = value;
         }
     }
 }

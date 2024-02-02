@@ -1,5 +1,5 @@
 ﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control;
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;

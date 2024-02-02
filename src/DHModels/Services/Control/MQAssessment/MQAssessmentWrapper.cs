@@ -34,12 +34,12 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper(j
         set => this.SetPropertyValue(keyTargetEntityType, value);
     }
 
-    private IEnumerable<DHRuleOrGroupBaseWrapper>? rules;
+    private IEnumerable<DHRuleBaseWrapper>? rules;
 
     [EntityProperty(keyRules)]
-    public IEnumerable<DHRuleOrGroupBaseWrapper> Rules
+    public IEnumerable<DHRuleBaseWrapper> Rules
     {
-        get => this.rules ??= this.GetPropertyValueAsWrappers<DHRuleOrGroupBaseWrapper>(keyRules);
+        get => this.rules ??= this.GetPropertyValueAsWrappers<DHRuleBaseWrapper>(keyRules);
         set
         {
             this.SetPropertyValueFromWrappers(keyRules, value);
