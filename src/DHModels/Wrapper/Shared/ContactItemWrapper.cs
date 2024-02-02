@@ -23,6 +23,8 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared
         {
         }
 
+        public ContactItemWrapper() : this(new JObject()) { }
+
         [EntityRequiredValidator]
         [EntityProperty(keyId)]
         public string Id

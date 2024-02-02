@@ -6,7 +6,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-[EntityWrapper(DHRuleOrGroupBaseWrapperDerivedTypes.Group, EntityCategory.Rule)]
+[EntityWrapper(DHRuleBaseWrapperDerivedTypes.Group, EntityCategory.Rule)]
 public class DHRuleGroupWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
 {
     private const string keyGroupOperator = "groupOperator";

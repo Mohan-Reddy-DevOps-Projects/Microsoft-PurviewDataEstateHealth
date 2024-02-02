@@ -7,6 +7,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
+using Newtonsoft.Json.Linq;
 
 /// <summary>
 /// Health Reports controller.
@@ -26,10 +27,12 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
 
     [HttpPost]
     [Route("")]
-    public async Task<ActionResult> CreateDHSimpleRuleAsync(
-        [FromBody] DHControlNodeWrapper entity)
+    public async Task<ActionResult> CreateDHControlAsync(
+        [FromBody] JObject payload)
     {
+        var entity = DHControlBaseWrapper.Create(payload);
         await dataHealthControlService.CreateControlAsync(entity).ConfigureAwait(false);
+
         return this.Ok();
     }
 

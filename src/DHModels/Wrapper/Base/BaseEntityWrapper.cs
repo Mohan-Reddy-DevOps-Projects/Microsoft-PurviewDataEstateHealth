@@ -23,6 +23,8 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
     {
         public BaseEntityWrapper(JObject jObject) : base(jObject) { }
 
+        public BaseEntityWrapper() : this(new JObject()) { }
+
         public T GetPropertyValueAsWrapper<T>(string key) where T : BaseEntityWrapper
         {
             var jObject = this.GetPropertyValue<JObject>(key);

@@ -6,11 +6,13 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHCheckPoint;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
 
-[EntityWrapper(DHRuleOrGroupBaseWrapperDerivedTypes.ExpressionRule, EntityCategory.Rule)]
+[EntityWrapper(DHRuleBaseWrapperDerivedTypes.ExpressionRule, EntityCategory.Rule)]
 public class DHExpressionRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
 {
     private const string keyExpression = "expression";
     private const string keyCheckPoint = "checkPoint";
+
+    public DHExpressionRuleWrapper() : this(new JObject()) { }
 
     [EntityProperty(keyCheckPoint)]
     [CosmosDBEnumString]
@@ -19,8 +21,6 @@ public class DHExpressionRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObjec
         get => this.GetPropertyValue<DHCheckPoints>(keyCheckPoint);
         set => this.SetPropertyValue(keyCheckPoint, value);
     }
-
-    public DHExpressionRuleWrapper() : this(new JObject()) { }
 
     [EntityProperty(keyExpression)]
     public string Expression

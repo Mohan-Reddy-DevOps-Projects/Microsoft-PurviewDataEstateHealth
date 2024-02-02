@@ -44,7 +44,7 @@ public abstract class DHRuleBaseWrapper(JObject jObject) : DynamicEntityWrapper(
     }
 }
 
-internal static class DHRuleOrGroupBaseWrapperDerivedTypes
+public static class DHRuleBaseWrapperDerivedTypes
 {
     public const string SimpleRule = "SimpleRule";
     public const string ExpressionRule = "ExpressionRule";

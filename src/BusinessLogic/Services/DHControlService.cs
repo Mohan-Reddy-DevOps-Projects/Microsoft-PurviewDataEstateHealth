@@ -4,16 +4,16 @@
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
     using System.Threading.Tasks;
 
-    public class DHControlService(DHControlNodeRepository dHControlNodeRepository)
+    public class DHControlService(DHControlRepository dHControlRepository)
     {
-        public async Task<DHControlNodeWrapper?> GetControlByIdAsync(string id)
+        public async Task<DHControlBaseWrapper?> GetControlByIdAsync(string id)
         {
-            return await dHControlNodeRepository.GetByIdAsync(id).ConfigureAwait(false);
+            return await dHControlRepository.GetByIdAsync(id).ConfigureAwait(false);
         }
 
-        public async Task CreateControlAsync(DHControlNodeWrapper entity)
+        public async Task CreateControlAsync(DHControlBaseWrapper entity)
         {
-            await dHControlNodeRepository.AddAsync(entity).ConfigureAwait(false);
+            await dHControlRepository.AddAsync(entity).ConfigureAwait(false);
         }
 
         public async Task RunScheduleJob(string id)

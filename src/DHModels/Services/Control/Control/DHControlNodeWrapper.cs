@@ -5,6 +5,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 [EntityWrapper(DHControlBaseWrapperDerivedTypes.Node, EntityCategory.Control)]
 public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObject)
@@ -14,6 +15,8 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
     private const string keySchedule = "schedule";
     private const string keyAssessmentId = "assessmentId";
 
+    public DHControlNodeWrapper() : this(new JObject()) { }
+
     [EntityProperty(keyGroupId)]
     public string GroupId
     {
@@ -21,12 +24,12 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
         set => this.SetPropertyValue(keyGroupId, value);
     }
 
-    private IEnumerable<string>? domains;
+    private IList<string>? domains;
 
     [EntityProperty(keyDomains)]
-    public IEnumerable<string> Domains
+    public IList<string> Domains
     {
-        get => this.domains ??= this.GetPropertyValues<string>(keyDomains);
+        get => this.domains ??= this.GetPropertyValues<string>(keyDomains).ToList();
         set
         {
             this.SetPropertyValue(keyDomains, value);

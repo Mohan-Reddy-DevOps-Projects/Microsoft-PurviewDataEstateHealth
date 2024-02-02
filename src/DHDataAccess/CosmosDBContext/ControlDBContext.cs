@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.AttributeHandlers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using System;
 
 public class ControlDBContext(IConfiguration configuration) : DbContext
@@ -18,6 +19,11 @@ public class ControlDBContext(IConfiguration configuration) : DbContext
         CosmosDBAttributeHandlers.HandleCosmosDBContainerAttribute(modelBuilder);
         CosmosDBAttributeHandlers.HandleCosmosDBEnumStringAttribute(modelBuilder);
         CosmosDBAttributeHandlers.HandleCosmosDBPartitionKeyAttribute(modelBuilder);
+
+        modelBuilder.Entity<DHRuleBaseWrapper>().HasDiscriminator(x => x.Type)
+            .HasValue<DHSimpleRuleWrapper>(DHRuleBaseWrapperDerivedTypes.SimpleRule)
+            .HasValue<DHExpressionRuleWrapper>(DHRuleBaseWrapperDerivedTypes.ExpressionRule)
+            .HasValue<DHRuleGroupWrapper>(DHRuleBaseWrapperDerivedTypes.Group);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -39,7 +45,5 @@ public class ControlDBContext(IConfiguration configuration) : DbContext
         optionsBuilder.UseCosmos(cosmosDbEndpoint, tokenCredential, databaseName);
     }
 
-    public DbSet<DHControlNodeWrapper> DHControlNodes { get; set; }
-
-    public DbSet<DHControlGroupWrapper> DHControlGroups { get; set; }
+    public DbSet<DHControlBaseWrapper> DHControls { get; set; }
 }

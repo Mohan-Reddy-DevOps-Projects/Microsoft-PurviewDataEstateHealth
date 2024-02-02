@@ -25,6 +25,8 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared
         {
         }
 
+        public ContactWrapper() : this(new JObject()) { }
+
         private IEnumerable<ContactItemWrapper> owners;
 
         [EntityProperty(keyOwner)]

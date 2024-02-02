@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 
-public class DHControlNodeRepository(ControlDBContext controlDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<DHControlNodeWrapper>(requestHeaderContext)
+public class DHControlRepository(ControlDBContext controlDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<DHControlBaseWrapper>(requestHeaderContext)
 {
     protected override DbContext TheDbContext => controlDbContext;
-    protected override DbSet<DHControlNodeWrapper> TheDbSet => controlDbContext.DHControlNodes;
+    protected override DbSet<DHControlBaseWrapper> TheDbSet => controlDbContext.DHControls;
 }

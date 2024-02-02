@@ -20,11 +20,21 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
         public const string keyType = "type";
         public const string keyTypeProperties = "typeProperties";
 
-        public DynamicEntityWrapper(JObject jObject) : base(jObject) { }
+        public DynamicEntityWrapper(JObject jObject) : base(jObject)
+        {
+            if (!jObject.ContainsKey(keyTypeProperties))
+            {
+                jObject[keyTypeProperties] = new JObject();
+            }
+        }
 
         [EntityProperty(keyType)]
         [EntityRequiredValidator]
-        public string Type => this.GetPropertyValue<string>(keyType);
+        public string Type
+        {
+            get => this.GetPropertyValue<string>(keyType);
+            set => this.SetPropertyValue(keyType, value);
+        }
 
         private BaseEntityWrapper typePropertiesWrapper;
 

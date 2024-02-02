@@ -10,6 +10,8 @@ public class DHScoreUnitWrapper(JObject jObject) : BaseEntityWrapper(jObject)
     private const string keyName = "ruleName";
     private const string keyScore = "score";
 
+    public DHScoreUnitWrapper() : this(new JObject()) { }
+
     [EntityProperty(keyName)]
     public string Name
     {
