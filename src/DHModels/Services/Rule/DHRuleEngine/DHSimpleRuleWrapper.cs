@@ -12,7 +12,7 @@ public class DHSimpleRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     private const string keyOperand = "operand";
     private const string keyCheckPoint = "checkPoint";
 
-    public DHSimpleRuleWrapper() : this(new JObject()) { }
+    public DHSimpleRuleWrapper() : this([]) { }
 
     [EntityProperty(keyCheckPoint)]
     [CosmosDBEnumString]

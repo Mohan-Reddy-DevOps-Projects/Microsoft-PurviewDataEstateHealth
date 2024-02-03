@@ -17,7 +17,7 @@ public class DHComputingJobWrapper(JObject jObject) : ContainerEntityBaseWrapper
     private const string keyStatus = "status";
     private const string keyProgress = "progress";
 
-    public DHComputingJobWrapper() : this(new JObject()) { }
+    public DHComputingJobWrapper() : this([]) { }
 
     [EntityProperty(keyControlId)]
     public string ControlId

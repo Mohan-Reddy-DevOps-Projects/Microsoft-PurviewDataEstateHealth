@@ -15,8 +15,8 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
     private string AccountId => requestHeaderContext.AccountObjectId.ToString();
     private string ClientObjectId => requestHeaderContext.ClientObjectId;
 
-    protected abstract DbContext TheDbContext { get; }
-    protected abstract DbSet<T> TheDbSet { get; }
+    protected abstract DbContext DBContext { get; }
+    protected abstract DbSet<T> DBSet { get; }
 
     public virtual async Task AddAsync(T entity)
     {
@@ -28,24 +28,24 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
         entity.TenantId = this.TenantId;
         entity.AccountId = this.AccountId;
 
-        entity.AuditLogs = new List<ContainerEntityAuditLogWrapper>
-        {
+        entity.AuditLogs =
+        [
             new() {
                 Timestamp = DateTime.UtcNow,
                 User = this.ClientObjectId,
                 Action = ContainerEntityAuditAction.Create,
             },
-        };
+        ];
 
-        await this.TheDbSet.AddAsync(entity).ConfigureAwait(false);
-        await this.TheDbContext.SaveChangesAsync().ConfigureAwait(false);
+        await this.DBSet.AddAsync(entity).ConfigureAwait(false);
+        await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public virtual async Task DeleteAsync(T entity)
     {
         this.ValidateEntityMetadata(entity);
-        this.TheDbSet.Remove(entity);
-        await this.TheDbContext.SaveChangesAsync().ConfigureAwait(false);
+        this.DBSet.Remove(entity);
+        await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
     }
 
     public virtual async Task DeleteAsync(string id)
@@ -59,12 +59,12 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
 
     public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await this.TheDbSet.WithPartitionKey(this.TenantId).ToListAsync().ConfigureAwait(false);
+        return await this.DBSet.WithPartitionKey(this.TenantId).ToListAsync().ConfigureAwait(false);
     }
 
     public virtual async Task<T?> GetByIdAsync(string id)
     {
-        return await this.TheDbSet.WithPartitionKey(this.TenantId).Where(x => x.Id == id).SingleOrDefaultAsync().ConfigureAwait(false);
+        return await this.DBSet.WithPartitionKey(this.TenantId).Where(x => x.Id == id).SingleOrDefaultAsync().ConfigureAwait(false);
     }
 
     public virtual async Task UpdateAsync(T entity)
@@ -86,8 +86,8 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
         list.Add(log);
         entity.AuditLogs = list;
 
-        this.TheDbSet.Update(entity);
-        await this.TheDbContext.SaveChangesAsync().ConfigureAwait(false);
+        this.DBSet.Update(entity);
+        await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
     }
 
     private void ValidateEntityMetadata(T entity)

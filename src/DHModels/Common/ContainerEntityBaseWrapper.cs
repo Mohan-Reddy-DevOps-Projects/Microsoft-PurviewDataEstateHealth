@@ -14,7 +14,7 @@ public abstract class ContainerEntityBaseWrapper(JObject jObject) : DynamicEntit
     private const string keyId = "id";
     private const string keyAuditLogs = "auditLogs";
 
-    public ContainerEntityBaseWrapper() : this(new JObject()) { }
+    public ContainerEntityBaseWrapper() : this([]) { }
 
     [EntityProperty(keyId, true)]
     [EntityIdValidator]

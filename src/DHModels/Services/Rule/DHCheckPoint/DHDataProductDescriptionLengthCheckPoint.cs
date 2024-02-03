@@ -5,12 +5,12 @@ using System.Collections.Generic;
 
 internal static class DHDataProductDescriptonLengthCheckPoint
 {
-    public readonly static IEnumerable<DHOperator> AllowedOperators = new List<DHOperator>
-    {
+    public readonly static IEnumerable<DHOperator> AllowedOperators =
+    [
         DHOperator.Equal,
         DHOperator.GreaterThan,
         DHOperator.GreaterThanOrEqual,
         DHOperator.LessThan,
         DHOperator.LessThanOrEqual,
-    };
+    ];
 }

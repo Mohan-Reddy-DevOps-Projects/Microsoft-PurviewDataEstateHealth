@@ -10,7 +10,7 @@ public class DHControlStatusPaletteConfigWrapper(JObject jObject) : BaseEntityWr
     private const string keyFallbackStatusPaletteId = "fallbackStatusPaletteId";
     private const string keyStatusPaletteRules = "statusPaletteRules";
 
-    public DHControlStatusPaletteConfigWrapper() : this(new JObject()) { }
+    public DHControlStatusPaletteConfigWrapper() : this([]) { }
 
     [EntityProperty(keyFallbackStatusPaletteId)]
     public string FallbackStatusPaletteId

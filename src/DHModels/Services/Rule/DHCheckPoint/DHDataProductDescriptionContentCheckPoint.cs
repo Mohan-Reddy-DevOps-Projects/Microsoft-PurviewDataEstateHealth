@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 internal static class DHDataProductDescriptonContentCheckPoint
 {
-    public readonly static IEnumerable<DHOperator> AllowedOperators = new List<DHOperator>
-    {
+    public readonly static IEnumerable<DHOperator> AllowedOperators =
+    [
         DHOperator.Equal,
         DHOperator.Contains,
         DHOperator.IsEmpty,
         DHOperator.IsNull,
-    };
+    ];
 }

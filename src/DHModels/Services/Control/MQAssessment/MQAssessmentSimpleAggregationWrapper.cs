@@ -9,7 +9,7 @@ public class MQAssessmentSimpleAggregationWrapper(JObject jObject) : MQAssessmen
 {
     private const string keyAggregationType = "aggregationType";
 
-    public MQAssessmentSimpleAggregationWrapper() : this(new JObject()) { }
+    public MQAssessmentSimpleAggregationWrapper() : this([]) { }
 
     [EntityProperty(keyAggregationType)]
     [CosmosDBEnumString]

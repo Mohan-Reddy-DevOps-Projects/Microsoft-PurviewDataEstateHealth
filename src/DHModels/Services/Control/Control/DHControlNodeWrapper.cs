@@ -13,7 +13,7 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
     // private const string keySchedule = "schedule";
     private const string keyAssessmentId = "assessmentId";
 
-    public DHControlNodeWrapper() : this(new JObject()) { }
+    public DHControlNodeWrapper() : this([]) { }
 
     [EntityProperty(keyGroupId)]
     public string GroupId

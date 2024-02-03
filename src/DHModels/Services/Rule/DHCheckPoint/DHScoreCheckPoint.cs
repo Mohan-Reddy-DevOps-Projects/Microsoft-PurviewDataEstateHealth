@@ -5,14 +5,14 @@ using System.Collections.Generic;
 
 internal static class DHScoreCheckPoint
 {
-    public static IEnumerable<DHOperator> AllowedOperators { get; set; } = new List<DHOperator>
-    {
+    public static IEnumerable<DHOperator> AllowedOperators { get; set; } =
+    [
         DHOperator.Equal,
         DHOperator.GreaterThan,
         DHOperator.GreaterThanOrEqual,
         DHOperator.LessThan,
         DHOperator.LessThanOrEqual,
-    };
+    ];
 
     public static decimal ExtractOperand(decimal payload)
     {

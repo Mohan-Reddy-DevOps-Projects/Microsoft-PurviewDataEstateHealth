@@ -11,7 +11,7 @@ public class DHExpressionRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObjec
     private const string keyExpression = "expression";
     private const string keyCheckPoint = "checkPoint";
 
-    public DHExpressionRuleWrapper() : this(new JObject()) { }
+    public DHExpressionRuleWrapper() : this([]) { }
 
     [EntityProperty(keyCheckPoint)]
     [CosmosDBEnumString]

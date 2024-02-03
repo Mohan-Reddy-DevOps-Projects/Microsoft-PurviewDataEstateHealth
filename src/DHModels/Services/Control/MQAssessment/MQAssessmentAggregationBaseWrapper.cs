@@ -7,7 +7,7 @@ using Newtonsoft.Json.Linq;
 [EntityWrapper(EntityCategory.Assessment)]
 public abstract class MQAssessmentAggregationBaseWrapper(JObject jObject) : DynamicEntityWrapper(jObject)
 {
-    public MQAssessmentAggregationBaseWrapper() : this(new JObject()) { }
+    public MQAssessmentAggregationBaseWrapper() : this([]) { }
 }
 
 internal static class MQAssessmentAggregationBaseWrapperDerivedTypes

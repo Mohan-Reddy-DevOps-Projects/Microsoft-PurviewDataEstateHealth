@@ -21,7 +21,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
 
         public JObjectBaseWrapper(JObject jObject)
         {
-            this.JObject = jObject ?? new JObject();
+            this.JObject = jObject ?? [];
         }
 
         public virtual T GetPropertyValue<T>(string key)

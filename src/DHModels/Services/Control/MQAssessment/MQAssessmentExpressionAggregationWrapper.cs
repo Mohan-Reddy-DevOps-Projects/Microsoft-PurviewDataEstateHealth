@@ -8,7 +8,7 @@ public class MQAssessmentExpressionAggregationWrapper(JObject jObject) : MQAsses
 {
     private const string keyExpression = "expression";
 
-    public MQAssessmentExpressionAggregationWrapper() : this(new JObject()) { }
+    public MQAssessmentExpressionAggregationWrapper() : this([]) { }
 
     [EntityProperty(keyExpression)]
     public string Expression

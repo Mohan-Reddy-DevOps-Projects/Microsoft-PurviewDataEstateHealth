@@ -11,7 +11,7 @@ public class DHControlStatusPaletteWrapper(JObject jObject) : ContainerEntityBas
     private const string keyName = "name";
     private const string keyColor = "color";
 
-    public DHControlStatusPaletteWrapper() : this(new JObject()) { }
+    public DHControlStatusPaletteWrapper() : this([]) { }
 
     [EntityProperty(keyName)]
     public string Name

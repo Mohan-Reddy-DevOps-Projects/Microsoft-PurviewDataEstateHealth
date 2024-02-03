@@ -10,7 +10,7 @@ public class DHControlStatusPaletteUnitWrapper(JObject jObject) : BaseEntityWrap
     private const string keyRule = "rule";
     private const string keyStatusPaletteId = "statusPaletteId";
 
-    public DHControlStatusPaletteUnitWrapper() : this(new JObject()) { }
+    public DHControlStatusPaletteUnitWrapper() : this([]) { }
 
     private DHRuleBaseWrapper? rule;
 

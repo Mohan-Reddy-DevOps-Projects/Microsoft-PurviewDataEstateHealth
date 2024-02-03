@@ -17,7 +17,7 @@ public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObjec
     private const string keyScore = "score";
     private const string keyAggregatedScore = "aggregatedScore";
 
-    public DHScoreWrapper() : this(new JObject()) { }
+    public DHScoreWrapper() : this([]) { }
 
     [EntityProperty(keyTime)]
     public DateTime Time

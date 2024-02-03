@@ -13,7 +13,7 @@ public class ContainerEntityAuditLogWrapper(JObject jObject) : BaseEntityWrapper
     private const string keyUser = "user";
     private const string keyAction = "action";
 
-    public ContainerEntityAuditLogWrapper() : this(new JObject()) { }
+    public ContainerEntityAuditLogWrapper() : this([]) { }
 
     [EntityProperty(keyTime, true)]
     [EntityRequiredValidator]

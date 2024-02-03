@@ -11,7 +11,7 @@ public class DHRuleGroupWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     private const string keyGroupOperator = "groupOperator";
     private const string keyRules = "rules";
 
-    public DHRuleGroupWrapper() : this(new JObject()) { }
+    public DHRuleGroupWrapper() : this([]) { }
 
     [EntityProperty(keyGroupOperator)]
     [CosmosDBEnumString]

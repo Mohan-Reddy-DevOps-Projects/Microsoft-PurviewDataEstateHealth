@@ -23,7 +23,7 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityBas
         return EntityWrapperHelper.CreateEntityWrapper<DHControlBaseWrapper>(EntityCategory.Control, EntityWrapperHelper.GetEntityType(jObject), jObject);
     }
 
-    public DHControlBaseWrapper() : this(new JObject()) { }
+    public DHControlBaseWrapper() : this([]) { }
 
     [EntityProperty(keyName)]
     [EntityRequiredValidator]
