@@ -2,6 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
+#nullable disable
 namespace Microsoft.Purview.DataEstateHealth.Models;
 
 using Newtonsoft.Json;

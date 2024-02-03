@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
 using Newtonsoft.Json;
 using System;

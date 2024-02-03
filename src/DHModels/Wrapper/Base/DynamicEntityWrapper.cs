@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+#nullable disable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
 {
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;

@@ -2,6 +2,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 
+#nullable disable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset
 {
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetLocation;

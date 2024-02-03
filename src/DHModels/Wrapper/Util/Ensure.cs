@@ -1,3 +1,4 @@
+#nullable disable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util
 {
     using System;

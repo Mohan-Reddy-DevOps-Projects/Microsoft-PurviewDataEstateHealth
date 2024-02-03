@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 
 using System;
 

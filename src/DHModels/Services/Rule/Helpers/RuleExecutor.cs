@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.Helpers;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.Helpers;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHCheckPoint;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;

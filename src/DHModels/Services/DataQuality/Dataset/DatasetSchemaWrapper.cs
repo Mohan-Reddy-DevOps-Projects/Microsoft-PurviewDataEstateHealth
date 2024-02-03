@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+#nullable disable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset
 {
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;

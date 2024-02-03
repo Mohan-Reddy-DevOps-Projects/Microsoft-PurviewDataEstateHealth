@@ -4,6 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+#nullable disable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators
 {
     using Microsoft.Purview.DataEstateHealth.DHModels;

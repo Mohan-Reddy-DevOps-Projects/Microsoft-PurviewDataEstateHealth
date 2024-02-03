@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Common.AuditLog;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Common.AuditLog;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;

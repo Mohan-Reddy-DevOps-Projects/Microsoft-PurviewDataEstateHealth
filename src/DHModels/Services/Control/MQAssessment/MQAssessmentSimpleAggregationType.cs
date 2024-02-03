@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
 
 public enum MQAssessmentSimpleAggregationType
 {

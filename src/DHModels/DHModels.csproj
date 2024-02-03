@@ -4,6 +4,7 @@
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<Platforms>x64</Platforms>
+		<Nullable>enable</Nullable>
 		<RootNamespace>Microsoft.Purview.DataEstateHealth.DHModels</RootNamespace>
 		<AssemblyName>Microsoft.Purview.DataEstateHealth.DHModels</AssemblyName>
 	</PropertyGroup>
