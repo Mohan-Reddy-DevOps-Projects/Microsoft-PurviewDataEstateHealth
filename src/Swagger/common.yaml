@@ -3,6 +3,258 @@ info:
   title: Data Health models
   version: "1.0"
 paths:
+  /controls:
+    get:
+      operationId: get controls
+      description: List all controls.
+      tags:
+        - Control
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+                    example: 100
+                  value:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Control"
+    post:
+      operationId: create control
+      description: Create a control.
+      tags:
+        - Control
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Control"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Control"
+
+  /controls/{controlId}:
+    parameters:
+      - name: controlId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: get control by id
+      description: Get a control by id.
+      tags:
+        - Control
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Control"
+    put:
+      operationId: update control
+      description: Update a control.
+      tags:
+        - Control
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Control"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Control"
+    delete:
+      operationId: delete control
+      description: Delete a control.
+      tags:
+        - Control
+      responses:
+        "204":
+          description: OK
+
+  /statusPalette:
+    get:
+      operationId: get status palettes
+      description: List all status palettes.
+      tags:
+        - StatusPalette
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+                    example: 100
+                  value:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/StatusPalette"
+    post:
+      operationId: create status palette
+      description: Create a status palette.
+      tags:
+        - StatusPalette
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusPalette"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusPalette"
+
+  /statusPalette/{statusPaletteId}:
+    parameters:
+      - name: statusPaletteId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: get status palette by id
+      description: Get a status palette by id.
+      tags:
+        - StatusPalette
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusPalette"
+    put:
+      operationId: update status palette
+      description: Update a status palette.
+      tags:
+        - StatusPalette
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StatusPalette"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusPalette"
+    delete:
+      operationId: delete status palette
+      description: Delete a status palette.
+      tags:
+        - StatusPalette
+      responses:
+        "204":
+          description: OK
+
+  /assessments:
+    get:
+      operationId: get assessments
+      description: List all assessments.
+      tags:
+        - Assessment
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+                    example: 100
+                  value:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Assessment"
+    post:
+      operationId: create assessment
+      description: Create an assessment.
+      tags:
+        - Assessment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Assessment"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assessment"
+
+  /assessments/{assessmentId}:
+    parameters:
+      - name: assessmentId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: get assessment by id
+      description: Get an assessment by id.
+      tags:
+        - Assessment
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assessment"
+    put:
+      operationId: update assessment
+      description: Update an assessment.
+      tags:
+        - Assessment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Assessment"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assessment"
+    delete:
+      operationId: delete assessment
+      description: Delete an assessment.
+      tags:
+        - Assessment
+      responses:
+        "204":
+          description: OK
+
   /actions/query:
     post:
       operationId: get actions by query filters
@@ -140,6 +392,449 @@ paths:
 
 components:
   schemas:
+    BaseEntity:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+          example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+        AuditLogs:
+          type: array
+          readOnly: true
+          items:
+            type: object
+            properties:
+              time:
+                type: string
+                example: "2020-12-11Z"
+                description: Date of the most recent change to the object.
+              user:
+                type: string
+                example: 766BF2B9-5D8A-4FB1-B8D5-D30A53E22A9E
+                description: Person id of the most recent change to the object.
+              action:
+                type: string
+                enum: [Create, Update]
+                description: The type of user action.
+    Control:
+      type: object
+      oneOf:
+        - $ref: "#/components/schemas/ControlGroup"
+        - $ref: "#/components/schemas/ControlNode"
+      discriminator:
+        propertyName: type
+        mapping:
+          Group: "#/components/schemas/ControlGroup"
+          Node: "#/components/schemas/ControlNode"
+
+    ControlBase:
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          required:
+            - name
+          properties:
+            id:
+              type: string
+              readOnly: true
+              example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+            name:
+              type: string
+              description: The name of the control.
+              example: "Data estate curation"
+            description:
+              type: string
+              description: The description of the control.
+              example: "Data estate curation"
+            contacts:
+              $ref: "#/components/schemas/Contacts"
+            reserved:
+              type: boolean
+              readOnly: true
+              description: Is system defined reserved control.
+              example: false
+            statusPaletteConfig:
+              type: object
+              required:
+                - fallbackStatusPaletteId
+              properties:
+                fallbackStatusPaletteId:
+                  type: string
+                  description: The fallback status palette id of the control.
+                  example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+                statusPaletteRules:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      rule:
+                        $ref: "#/components/schemas/Rule"
+                      statusPaletteId:
+                        type: string
+                        description: The palette id of the control.
+                        example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+            type:
+              type: string
+              enum: [Group, Node]
+              description: The type of the control.
+              example: "Node"
+
+    ControlGroup:
+      allOf:
+        - $ref: "#/components/schemas/ControlBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [Group]
+              description: The type of the control.
+              example: "Group"
+
+    ControlNode:
+      allOf:
+        - $ref: "#/components/schemas/ControlBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [Node]
+              description: The type of the control.
+              example: "Node"
+            typeProperties:
+              type: object
+              properties:
+                groupId:
+                  type: string
+                  description: The group id of the control.
+                  example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+                domains:
+                  type: array
+                  items:
+                    type: string
+                  description: The domains of the control.
+                  example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
+                schedule:
+                  $ref: "#/components/schemas/Schedule"
+                assessmentId:
+                  type: string
+                  description: The assessment id of the control.
+                  example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+                
+    Schedule:
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          properties:
+            frequency:
+              type: string
+              enum: [Hour, Day, Week, Month]
+              description: The frequency of the schedule.
+              example: "Day"
+            interval:
+              type: number
+              description: The interval of the schedule.
+              example: 1
+            startTime:
+              type: string
+              description: The start time of the schedule.
+              example: "2020-12-11Z"
+            endTime:
+              type: string
+              description: The end time of the schedule.
+              example: "2020-12-11Z"
+            schedule:
+              $ref: "#/components/schemas/ScheduleProperties"
+            timeZone:
+              type: string
+
+    ScheduleProperties:
+      type: object
+      properties:
+        hours:
+          type: array
+          items:
+              type: number
+              minimum: 0
+              maximum: 23
+        minutes:
+          type: array
+          items:
+              type: number
+              minimum: 0
+              maximum: 59
+        monthDays:
+          type: array
+          items:
+              type: number
+              minimum: 1
+              maximum: 31
+        weekDays:
+          type: array
+          items:
+              type: string
+              enum:
+                - Sunday
+                - Monday
+                - Tuesday
+                - Wednesday
+                - Thursday
+                - Friday
+                - Saturday
+        monthlyOccurrences:
+          type: array
+          items:
+            $ref: "#/components/schemas/MonthlyOccurrences"
+
+    MonthlyOccurrences:
+      type: object
+      properties:
+        day:
+          type: string
+          enum:
+            - Sunday
+            - Monday
+            - Tuesday
+            - Wednesday
+            - Thursday
+            - Friday
+            - Saturday
+        occurrence:
+          type: number
+
+    StatusPalette:
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          properties:
+            name:
+              type: string
+              description: The name of the status palette.
+              example: "Unhealthy"
+            color:
+              type: string
+              description: The color of the status palette.
+              example: "#FF5733"
+
+    Rule:
+      oneOf:
+        - $ref: "#/components/schemas/RuleGroup"
+        - $ref: "#/components/schemas/RuleSimple"
+        - $ref: "#/components/schemas/RuleExpression"
+      discriminator:
+        propertyName: type
+        mapping:
+          Group: "#/components/schemas/RuleGroup"
+          SimpleRule: "#/components/schemas/RuleSimple"
+          ExpressionRule: "#/components/schemas/RuleExpression"
+
+    RuleBase:
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          properties:
+            name:
+              type: string
+              description: The name of the rule.
+              example: "Data estate curation"
+            reserved:
+              type: boolean
+              readOnly: true
+              description: Is system defined reserved rule.
+              example: false
+            type:
+              type: string
+              enum: [Group, SimpleRule, ExpressionRule]
+              description: The type of the rule.
+              example: "SimpleRule"
+
+    RuleGroup:
+      allOf:
+        - $ref: "#/components/schemas/RuleBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [Group]
+              description: The type of the rule.
+              example: "Group"
+            typeProperties:
+              type: object
+              properties:
+                groupOperator:
+                  type: string
+                  enum: [And, Or, Not]
+                  description: The group operator of the rule.
+                  example: "And"
+                rules:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/Rule"
+                  description: The rules of the group.
+
+    RuleSimple:
+      allOf:
+        - $ref: "#/components/schemas/RuleBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [SimpleRule]
+              description: The type of the rule.
+              example: "SimpleRule"
+            typeProperties:
+              type: object
+              properties:
+                checkPoint:
+                  type: string
+                  enum: 
+                    [
+                      Score, 
+                      DataProductDescriptionContent, 
+                      DataProductDescriptionLength,
+                    ]
+                  description: The field of the rule.
+                  example: "Score"
+                operator:
+                  type: string
+                  enum: 
+                    [
+                      Equal, 
+                      NotEqual, 
+                      GreaterThan, 
+                      LessThan, 
+                      GreaterThanOrEqual, 
+                      LessThanOrEqual, 
+                      Contains, 
+                      StartsWith, 
+                      EndsWith, 
+                      InRange, 
+                      IsNull, 
+                      IsEmpty, 
+                      IsTrue, 
+                      RegexMatch,
+                    ]
+                  description: The operator of the rule.
+                  example: "Equal"
+                operand:
+                  type: string
+                  description: The value of the rule.
+                  example: "1"
+
+    RuleExpression:
+      allOf:
+        - $ref: "#/components/schemas/RuleBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [ExpressionRule]
+              description: The type of the rule.
+              example: "ExpressionRule"
+            typeProperties:
+              type: object
+              properties:
+                checkPoint:
+                  type: string
+                  enum: 
+                    [
+                      Score, 
+                      DataProductDescriptionContent, 
+                      DataProductDescriptionLength,
+                    ]
+                  description: The field of the rule.
+                  example: "Score"
+                expression:
+                  type: string
+                  description: The expression of the rule.
+                  example: "Score > 1"
+
+    Assessment:
+      allOf:
+        - $ref: "#/components/schemas/BaseEntity"
+        - type: object
+          properties:
+            name:
+              type: string
+              description: The name of the assessment.
+              example: "Data estate curation"
+            targetEntityType:
+              type: string
+              enum:
+                [
+                  DataProduct,
+                ]
+              description: The target entity type of the assessment.
+              example: "DataProduct"
+            rules:
+              type: array
+              items:
+                $ref: "#/components/schemas/Rule"
+              description: The rules of the assessment.
+            aggregation:
+              $ref: "#/components/schemas/AssessmentAggregation"
+            reserved:
+              type: boolean
+              readOnly: true
+              description: Is system defined reserved assessment.
+              example: false
+
+    AssessmentAggregation:
+      oneOf:
+        - $ref: "#/components/schemas/AssessmentAggregationSimple"
+        - $ref: "#/components/schemas/AssessmentAggregationExpression"
+      discriminator:
+        propertyName: type
+        mapping:
+          Simple: "#/components/schemas/AssessmentAggregationSimple"
+          Expression: "#/components/schemas/AssessmentAggregationExpression"
+
+    AssessmentAggregationBase:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Simple, Expression]
+          description: The type of the aggregation.
+          example: "Simple"
+
+    AssessmentAggregationSimple:
+      allOf:
+        - $ref: "#/components/schemas/AssessmentAggregationBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [Simple]
+              description: The type of the aggregation.
+              example: "Simple"
+            typeProperties:
+              type: object
+              properties:
+                aggregationType:
+                  type: string
+                  enum: [Count, Sum, Average, Min, Max, DistinctCount]
+                  description: The aggregation type of the assessment.
+                  example: "Average"
+
+    AssessmentAggregationExpression:
+      allOf:
+        - $ref: "#/components/schemas/AssessmentAggregationBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [Expression]
+              description: The type of the aggregation.
+              example: "Expression"
+            typeProperties:
+              type: object
+              properties:
+                expression:
+                  type: string
+                  description: The expression of the assessment.
+                  example: "Score > 1"
+
     actionFilter:
       type: object
       properties:
@@ -329,3 +1024,34 @@ components:
             items:
               $ref: "#/components/schemas/simpleAction"
             description: The actions of the group.
+
+    Contacts:
+      type: object
+      additionalProperties:
+        type: array
+        description: A list of AAD oid for the person or group
+        example:
+          [
+            4e74f902-62f5-49f4-8258-92ed2b8537ba,
+            5e74f902-62f5-49f4-8258-92ed2b8537ba,
+          ]
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              description: AAD oid for the person or group
+            description:
+              type: string
+              description: A description of this user assignment
+      example:
+        owner:
+          [
+            { id: 4e74f902-62f5-49f4-8258-92ed2b8537ba, description: db1 },
+            { id: 5e74f902-62f5-49f4-8258-92ed2b8537ba, description: db2 },
+          ]
+        expert:
+          [
+            { id: 4e74f902-62f5-49f4-8258-92ed2b8537ba, description: db1 },
+            { id: 5e74f902-62f5-49f4-8258-92ed2b8537ba, description: db2 },
+          ]

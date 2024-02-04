@@ -61,9 +61,9 @@ internal static class RuleExecutor
         });
         var finalResult = ruleGroup.GroupOperator switch
         {
-            DHRuleGroupOperator.AND => ruleResults.All(result => result),
-            DHRuleGroupOperator.OR => ruleResults.Any(result => result),
-            DHRuleGroupOperator.NOT => !ruleResults.Any(result => result),
+            DHRuleGroupOperator.And => ruleResults.All(result => result),
+            DHRuleGroupOperator.Or => ruleResults.Any(result => result),
+            DHRuleGroupOperator.Not => !ruleResults.Any(result => result),
             _ => throw new ArgumentException($@"Unsupported group operator ""{ruleGroup.GroupOperator}"""),
         };
         return finalResult;

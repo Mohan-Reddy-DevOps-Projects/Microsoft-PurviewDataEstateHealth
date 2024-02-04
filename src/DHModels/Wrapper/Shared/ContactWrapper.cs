@@ -15,7 +15,6 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared
         // TODO: Add other contact types and custom contact types
         public const string keyOwner = "owner";
         private const string keyExpert = "expert";
-        private const string keyDatabaseAdmin = "databaseAdmin";
 
         public static ContactWrapper Create(JObject jObject)
         {
@@ -61,24 +60,6 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared
             {
                 this.SetPropertyValueFromWrappers(keyExpert, value);
                 this.experts = value;
-            }
-        }
-
-        private IEnumerable<ContactItemWrapper> databaseAdmins;
-
-        [EntityProperty(keyDatabaseAdmin)]
-        public IEnumerable<ContactItemWrapper> DatabaseAdmins
-        {
-            get
-            {
-                this.databaseAdmins ??= this.GetPropertyValueAsWrappers<ContactItemWrapper>(keyDatabaseAdmin);
-                return this.databaseAdmins;
-            }
-
-            set
-            {
-                this.SetPropertyValueFromWrappers(keyDatabaseAdmin, value);
-                this.databaseAdmins = value;
             }
         }
     }

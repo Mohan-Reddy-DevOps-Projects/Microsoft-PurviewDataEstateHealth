@@ -2,7 +2,7 @@
 
 public enum DHRuleGroupOperator
 {
-    AND,
-    OR,
-    NOT,
+    And,
+    Or,
+    Not,
 }
