@@ -18,6 +18,9 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
         {
             services.AddDbContext<ControlDBContext>();
             services.AddScoped<DHControlRepository>();
+            services.AddScoped<DHControlStatusPaletteRepository>();
+            services.AddScoped<DHScoreRepository>();
+            services.AddScoped<MQAssessmentRepository>();
 
             services.AddDbContext<ActionDBContext>();
             services.AddScoped<DataHealthActionRepository>();

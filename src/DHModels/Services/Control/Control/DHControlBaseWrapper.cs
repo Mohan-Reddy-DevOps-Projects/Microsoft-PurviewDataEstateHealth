@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 [CosmosDBContainer("DHControl")]
 [EntityWrapper(EntityCategory.Control)]
-public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
+public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDynamicWrapper(jObject)
 {
     private const string keyName = "name";
     private const string keyDescription = "description";

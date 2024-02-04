@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderContext) : IRepository<T> where T : ContainerEntityBaseWrapper
+public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderContext) : IRepository<T> where T : class, IContainerEntityWrapper
 {
     private string TenantId => requestHeaderContext.TenantId.ToString();
     private string AccountId => requestHeaderContext.AccountObjectId.ToString();
@@ -20,25 +20,20 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
 
     public virtual async Task AddAsync(T entity)
     {
-        if (string.IsNullOrEmpty(entity.Id))
-        {
-            entity.Id = Guid.NewGuid().ToString();
-        }
-
-        entity.TenantId = this.TenantId;
-        entity.AccountId = this.AccountId;
-
-        entity.AuditLogs =
-        [
-            new()
-            {
-                Timestamp = DateTime.UtcNow,
-                User = this.ClientObjectId,
-                Action = ContainerEntityAuditAction.Create,
-            },
-        ];
+        this.PopulateMetadataForAdding(entity);
 
         await this.DBSet.AddAsync(entity).ConfigureAwait(false);
+        await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    public virtual async Task AddAsync(IEnumerable<T> entities)
+    {
+        foreach (var entity in entities)
+        {
+            this.PopulateMetadataForAdding(entity);
+        }
+
+        await this.DBSet.AddRangeAsync(entities).ConfigureAwait(false);
         await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
     }
 
@@ -89,6 +84,28 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
 
         this.DBSet.Update(entity);
         await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    private T PopulateMetadataForAdding(T entity)
+    {
+        if (string.IsNullOrEmpty(entity.Id))
+        {
+            entity.Id = Guid.NewGuid().ToString();
+        }
+
+        entity.TenantId = this.TenantId;
+        entity.AccountId = this.AccountId;
+
+        entity.AuditLogs =
+        [
+            new()
+            {
+                Timestamp = DateTime.UtcNow,
+                User = this.ClientObjectId,
+                Action = ContainerEntityAuditAction.Create,
+            },
+        ];
+        return entity;
     }
 
     private void ValidateEntityMetadata(T entity)

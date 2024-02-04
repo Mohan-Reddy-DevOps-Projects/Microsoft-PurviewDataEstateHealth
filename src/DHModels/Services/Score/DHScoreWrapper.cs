@@ -61,7 +61,7 @@ public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObjec
     }
 
     [EntityProperty(keyAggregatedScore)]
-    public double AggregatedScore
+    public double? AggregatedScore
     {
         get => this.GetPropertyValue<double>(keyAggregatedScore);
         set => this.SetPropertyValue(keyAggregatedScore, value);

@@ -9,12 +9,12 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-public abstract class ContainerEntityBaseWrapper(JObject jObject) : BaseEntityWrapper(jObject), IContainerEntityWrapper
+public abstract class ContainerEntityDynamicWrapper(JObject jObject) : DynamicEntityWrapper(jObject), IContainerEntityWrapper
 {
     private const string keyId = "id";
     private const string keyAuditLogs = "auditLogs";
 
-    public ContainerEntityBaseWrapper() : this([]) { }
+    public ContainerEntityDynamicWrapper() : this([]) { }
 
     [EntityProperty(keyId, true)]
     [EntityIdValidator]

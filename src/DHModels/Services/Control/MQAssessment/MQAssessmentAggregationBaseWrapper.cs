@@ -10,7 +10,7 @@ public abstract class MQAssessmentAggregationBaseWrapper(JObject jObject) : Dyna
     public MQAssessmentAggregationBaseWrapper() : this([]) { }
 }
 
-internal static class MQAssessmentAggregationBaseWrapperDerivedTypes
+public static class MQAssessmentAggregationBaseWrapperDerivedTypes
 {
     public const string Simple = "Simple";
     public const string Expression = "Expression";

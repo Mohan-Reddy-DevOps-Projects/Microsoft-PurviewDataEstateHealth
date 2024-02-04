@@ -8,13 +8,15 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public interface IRepository<T> where T : ContainerEntityBaseWrapper
+    public interface IRepository<T> where T : IContainerEntityWrapper
     {
         Task<IEnumerable<T>> GetAllAsync();
 
         Task<T?> GetByIdAsync(string id);
 
         Task AddAsync(T entity);
+
+        Task AddAsync(IEnumerable<T> entities);
 
         Task UpdateAsync(T entity);
 

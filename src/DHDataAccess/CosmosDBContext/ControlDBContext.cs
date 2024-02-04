@@ -31,6 +31,10 @@ public class ControlDBContext(IConfiguration configuration) : DbContext
         modelBuilder.Entity<DHControlBaseWrapper>().HasDiscriminator(x => x.Type)
             .HasValue<DHControlGroupWrapper>(DHControlBaseWrapperDerivedTypes.Group)
             .HasValue<DHControlNodeWrapper>(DHControlBaseWrapperDerivedTypes.Node);
+
+        modelBuilder.Entity<MQAssessmentAggregationBaseWrapper>().HasDiscriminator(x => x.Type)
+            .HasValue<MQAssessmentSimpleAggregationWrapper>(MQAssessmentAggregationBaseWrapperDerivedTypes.Simple)
+            .HasValue<MQAssessmentExpressionAggregationWrapper>(MQAssessmentAggregationBaseWrapperDerivedTypes.Expression);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
