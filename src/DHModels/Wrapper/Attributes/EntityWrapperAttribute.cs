@@ -24,6 +24,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes
         Rule,
         Control,
         Assessment,
+        Action
     }
 
     [AttributeUsage(AttributeTargets.Class)]

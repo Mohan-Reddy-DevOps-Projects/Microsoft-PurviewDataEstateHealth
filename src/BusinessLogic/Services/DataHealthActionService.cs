@@ -4,7 +4,16 @@
 
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
-    /*
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services.Interfaces;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
     public class DataHealthActionService : IDataHealthActionService
     {
         private readonly DataHealthActionRepository dataHealthActionRepository;
@@ -13,20 +22,31 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             this.dataHealthActionRepository = dataHealthActionRepository;
         }
 
-        public Task EnumerateActionsAsync()
+        public async Task<IEnumerable<DataHealthActionWrapper>> EnumerateActionsAsync()
         {
-            throw new NotImplementedException();
+            return await this.dataHealthActionRepository.GetAllAsync();
         }
 
-        public async Task CreateActionsAsync(DataHealthActionModel entity)
+        public async Task<DataHealthActionWrapper> CreateActionsAsync(DataHealthActionWrapper entity)
         {
-            if (entity.Id == Guid.Empty)
+            //TODO: aggregate acitons
+            await this.dataHealthActionRepository.AddAsync(entity).ConfigureAwait(false);
+            return entity;
+        }
+
+        public async Task<DataHealthActionWrapper> GetActionByIdAsync(string actionId)
+        {
+            if (actionId == null)
             {
-                entity.Id = Guid.NewGuid();
+                throw new ArgumentNullException(nameof(actionId));
             }
 
-            await this.dataHealthActionRepository.AddAsync(entity).ConfigureAwait(false);
+            var result = await this.dataHealthActionRepository.GetByIdAsync(actionId).ConfigureAwait(false);
+            if (result == null)
+            {
+                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Action.ToString(), actionId));
+            }
+            return result;
         }
     }
-    */
 }

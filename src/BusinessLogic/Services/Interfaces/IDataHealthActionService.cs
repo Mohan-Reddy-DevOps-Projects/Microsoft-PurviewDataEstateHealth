@@ -4,12 +4,16 @@
 
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services.Interfaces
 {
-    /*
+    using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+
     public interface IDataHealthActionService
     {
-        Task EnumerateActionsAsync();
+        Task<IEnumerable<DataHealthActionWrapper>> EnumerateActionsAsync();
 
-        Task CreateActionsAsync(DataHealthActionModel entity);
+        Task<DataHealthActionWrapper> CreateActionsAsync(DataHealthActionWrapper entity);
+
+        Task<DataHealthActionWrapper> GetActionByIdAsync(string actionId);
     }
-    */
 }

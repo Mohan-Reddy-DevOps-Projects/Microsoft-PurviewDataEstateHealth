@@ -3,6 +3,8 @@
 using global::Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.AttributeHandlers;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 using System;
 
 public class ActionDBContext(IConfiguration configuration) : DbContext
@@ -12,13 +14,9 @@ public class ActionDBContext(IConfiguration configuration) : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        /*
-        modelBuilder.Entity<DataHealthActionModel>(m =>
-        {
-            m.ToContainer("DHActionMetadata");
-        });
-        */
+        CosmosDBAttributeHandlers.HandleCosmosDBContainerAttribute(modelBuilder);
+        CosmosDBAttributeHandlers.HandleCosmosDBEnumStringAttribute(modelBuilder);
+        CosmosDBAttributeHandlers.HandleCosmosDBPartitionKeyAttribute(modelBuilder);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -40,6 +38,6 @@ public class ActionDBContext(IConfiguration configuration) : DbContext
         optionsBuilder.UseCosmos(cosmosDbEndpoint, tokenCredential, databaseName);
     }
 
-    // public DbSet<DataHealthActionModel> Actions { get; set; }
+    public DbSet<DataHealthActionWrapper> Actions { get; set; }
 
 }

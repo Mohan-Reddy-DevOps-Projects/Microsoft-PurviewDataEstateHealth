@@ -8,6 +8,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
     using Microsoft.Purview.DataEstateHealth.DHConfigurations;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.HttpClient;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule;
 
@@ -19,8 +20,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
             services.AddScoped<DHControlRepository>();
 
             services.AddDbContext<ActionDBContext>();
-
-            // services.AddScoped<DataHealthActionRepository>();
+            services.AddScoped<DataHealthActionRepository>();
 
             services.AddScheduleServiceHttpClient(ScheduleServiceClientFactory.HttpClientName);
             services.AddSingleton<ScheduleServiceClientFactory>();

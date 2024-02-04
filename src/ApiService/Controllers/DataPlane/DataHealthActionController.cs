@@ -5,25 +5,24 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
 using Asp.Versioning;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services.Interfaces;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
+using Newtonsoft.Json.Linq;
 
-/// <summary>
-/// Health Reports controller.
-/// </summary>
 [ApiController]
-[ApiVersion(ServiceVersion.LabelV1)]
-[Route("/_actions")]
+[ApiVersion(ServiceVersion.LabelV2)]
+[Route("/actions")]
 public class DataHealthActionController : DataPlaneController
 {
-    /*
     private readonly IRequestHeaderContext requestHeaderContext;
 
     private IDataHealthActionService actionService;
 
-    /// <summary>
-    /// Health Report controller constructor
-    /// </summary>
     public DataHealthActionController(
         IRequestHeaderContext requestHeaderContext,
         IDataHealthActionService actionService
@@ -47,18 +46,26 @@ public class DataHealthActionController : DataPlaneController
         //    },
         //};
 
-        await this.actionService.EnumerateActionsAsync().ConfigureAwait(false);
+        var results = await this.actionService.EnumerateActionsAsync().ConfigureAwait(false);
 
-        return this.Ok();
+        return this.Ok(PagedResults.FromBatchResults(results));
     }
 
     [HttpPost]
     [Route("")]
     public async Task<ActionResult> CreateDHSimpleRuleAsync(
-        [FromBody] DataHealthActionModel entity)
+        [FromBody] JObject payload)
     {
-        await this.actionService.CreateActionsAsync(entity).ConfigureAwait(false);
-        return this.Ok();
+        var wrapper = DataHealthActionWrapper.Create(payload);
+        var entity = await this.actionService.CreateActionsAsync(wrapper).ConfigureAwait(false);
+        return this.Created(new Uri($"{this.Request.GetEncodedUrl()}/{entity.Id}"), entity.JObject);
     }
-    */
+
+    [HttpGet]
+    [Route("{actionId}")]
+    public async Task<ActionResult> GetActionByIdAsync(string actionId)
+    {
+        var entity = await this.actionService.GetActionByIdAsync(actionId).ConfigureAwait(false);
+        return this.Ok(entity.JObject);
+    }
 }

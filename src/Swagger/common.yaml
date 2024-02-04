@@ -107,6 +107,18 @@ paths:
         required: true
         schema:
           type: string
+    get:
+      operationId: get action by id
+      description: Get an action by id.
+      tags:
+        - Actions
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/action"
     put:
       operationId: update action
       description: Update an action.

@@ -30,7 +30,8 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
 
         entity.AuditLogs =
         [
-            new() {
+            new()
+            {
                 Timestamp = DateTime.UtcNow,
                 User = this.ClientObjectId,
                 Action = ContainerEntityAuditAction.Create,

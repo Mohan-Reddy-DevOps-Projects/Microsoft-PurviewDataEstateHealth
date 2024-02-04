@@ -26,11 +26,22 @@ public class ServiceVersion : ValueObject<ServiceVersion>
     public const string LabelV1 = "2023-10-01-preview";
 
     /// <summary>
+    /// Service Version 2.
+    /// </summary>
+    public const int V2 = 2;
+
+    /// <summary>
+    /// Label for Service Version 2.
+    /// </summary>
+    public const string LabelV2 = "2024-02-04-preview";
+
+    /// <summary>
     /// Dictionary with versions of the service registered.
     /// </summary>
     private static readonly IDictionary<int, ServiceVersion> versionMap = new Dictionary<int, ServiceVersion>()
     {
         { V1, new ServiceVersion { Numeric = V1, Label = LabelV1 } },
+        { V2, new ServiceVersion { Numeric = V2, Label = LabelV2 } },
     };
 
     /// <summary>

@@ -1,37 +1,12 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
 
-/*
-public class DataHealthActionRepository(ActionDBContext cosmosDBContext) : IRepository<DataHealthActionModel>
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
+
+public class DataHealthActionRepository(ActionDBContext actionDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<DataHealthActionWrapper>(requestHeaderContext)
 {
-    public async Task AddAsync(DataHealthActionModel entity)
-    {
-        await cosmosDBContext.Actions.AddAsync(entity).ConfigureAwait(false);
-        await cosmosDBContext.SaveChangesAsync().ConfigureAwait(false);
-    }
-
-    public Task DeleteAsync(DataHealthActionModel entity)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteAsync(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<DataHealthActionModel>> GetAllAsync()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<DataHealthActionModel?> GetByIdAsync(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateAsync(DataHealthActionModel entity)
-    {
-        throw new NotImplementedException();
-    }
+    protected override DbContext DBContext => actionDbContext;
+    protected override DbSet<DataHealthActionWrapper> DBSet => actionDbContext.Actions;
 }
-*/
