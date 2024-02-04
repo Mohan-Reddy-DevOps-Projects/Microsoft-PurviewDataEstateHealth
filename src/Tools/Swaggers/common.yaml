@@ -5,7 +5,7 @@ info:
 paths:
   /controls:
     get:
-      operationId: get controls
+      operationId: List Controls
       description: List all controls.
       tags:
         - Control
@@ -25,7 +25,7 @@ paths:
                     items:
                       $ref: "#/components/schemas/Control"
     post:
-      operationId: create control
+      operationId: Create Control
       description: Create a control.
       tags:
         - Control
@@ -50,7 +50,7 @@ paths:
         schema:
           type: string
     get:
-      operationId: get control by id
+      operationId: Get Control By ID
       description: Get a control by id.
       tags:
         - Control
@@ -62,7 +62,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Control"
     put:
-      operationId: update control
+      operationId: Update Control By ID
       description: Update a control.
       tags:
         - Control
@@ -79,8 +79,95 @@ paths:
               schema:
                 $ref: "#/components/schemas/Control"
     delete:
-      operationId: delete control
+      operationId: Delete Control By ID
       description: Delete a control.
+      tags:
+        - Control
+      responses:
+        "204":
+          description: OK
+
+  /controls/{controlId}/schedules:
+    parameters:
+      - name: controlId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: List Schedules By Control ID
+      description: Get all schedules by control id.
+      tags:
+        - Control
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schedule"
+    post:
+      operationId: Create Control Schedule
+      description: Create control schedule.
+      tags:
+        - Control
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Schedule"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schedule"
+
+  /controls/{controlId}/schedules/{scheduleId}:
+    parameters:
+      - name: controlId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: scheduleId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: Get Schedule By ID
+      description: Get a schedule by id.
+      tags:
+        - Control
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schedule"
+    put:
+      operationId: Update Schedule By ID
+      description: Update a schedule.
+      tags:
+        - Control
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Schedule"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schedule"
+    delete:
+      operationId: Delete Schedule By ID
+      description: Delete a schedule.
       tags:
         - Control
       responses:
@@ -89,7 +176,7 @@ paths:
 
   /statusPalette:
     get:
-      operationId: get status palettes
+      operationId: List Status Palettes
       description: List all status palettes.
       tags:
         - StatusPalette
@@ -109,7 +196,7 @@ paths:
                     items:
                       $ref: "#/components/schemas/StatusPalette"
     post:
-      operationId: create status palette
+      operationId: Create Status Palette
       description: Create a status palette.
       tags:
         - StatusPalette
@@ -134,7 +221,7 @@ paths:
         schema:
           type: string
     get:
-      operationId: get status palette by id
+      operationId: Get Status Palette By ID
       description: Get a status palette by id.
       tags:
         - StatusPalette
@@ -146,7 +233,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/StatusPalette"
     put:
-      operationId: update status palette
+      operationId: Update Status Palette By ID
       description: Update a status palette.
       tags:
         - StatusPalette
@@ -163,7 +250,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/StatusPalette"
     delete:
-      operationId: delete status palette
+      operationId: Delete Status Palette By ID
       description: Delete a status palette.
       tags:
         - StatusPalette
@@ -173,7 +260,7 @@ paths:
 
   /assessments:
     get:
-      operationId: get assessments
+      operationId: List Assessments
       description: List all assessments.
       tags:
         - Assessment
@@ -193,7 +280,7 @@ paths:
                     items:
                       $ref: "#/components/schemas/Assessment"
     post:
-      operationId: create assessment
+      operationId: Create Assessment
       description: Create an assessment.
       tags:
         - Assessment
@@ -218,7 +305,7 @@ paths:
         schema:
           type: string
     get:
-      operationId: get assessment by id
+      operationId: Get Assessment By ID
       description: Get an assessment by id.
       tags:
         - Assessment
@@ -230,7 +317,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Assessment"
     put:
-      operationId: update assessment
+      operationId: Update Assessment By ID
       description: Update an assessment.
       tags:
         - Assessment
@@ -247,7 +334,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Assessment"
     delete:
-      operationId: delete assessment
+      operationId: Delete Assessment By ID
       description: Delete an assessment.
       tags:
         - Assessment
@@ -514,8 +601,6 @@ components:
                     type: string
                   description: The domains of the control.
                   example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
-                schedule:
-                  $ref: "#/components/schemas/Schedule"
                 assessmentId:
                   type: string
                   description: The assessment id of the control.
