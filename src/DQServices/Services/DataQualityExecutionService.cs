@@ -4,6 +4,8 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 using Microsoft.Purview.DataEstateHealth.DHModels.Clients;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +33,16 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
         // Convert to an observer
         var observer = ObserverAdapter.FromControlAssessment();
+
+        var dataProductRef = new ReferenceObjectWrapper(new JObject());
+        dataProductRef.Type = ReferenceType.DataProductReference;
+        dataProductRef.ReferenceId = Guid.NewGuid().ToString();
+        observer.DataProduct = dataProductRef;
+
+        var dataAssetRef = new ReferenceObjectWrapper(new JObject());
+        dataAssetRef.Type = ReferenceType.DataAssetReference;
+        dataAssetRef.ReferenceId = Guid.NewGuid().ToString();
+        observer.DataAsset = dataAssetRef;
 
         // Create a temporary observer
         await this.dataQualityHttpClient.CreateObserver(observer).ConfigureAwait(false);

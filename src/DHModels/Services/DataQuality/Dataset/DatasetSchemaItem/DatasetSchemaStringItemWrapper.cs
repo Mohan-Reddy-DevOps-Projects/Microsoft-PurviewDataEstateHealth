@@ -9,9 +9,11 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Datas
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using Newtonsoft.Json.Linq;
 
-    [EntityWrapper("String", EntityCategory.DatasetSchemaItem)]
+    [EntityWrapper(EntityType, EntityCategory.DatasetSchemaItem)]
     public class DatasetSchemaStringItemWrapper : DatasetSchemaItemWrapper
     {
+        public const string EntityType = "String";
+
         public DatasetSchemaStringItemWrapper(JObject jObject) : base(jObject)
         {
         }

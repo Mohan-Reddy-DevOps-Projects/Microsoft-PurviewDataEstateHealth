@@ -8,7 +8,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels
 
     public static class InitializeServices
     {
-        public static void SetupDHModelsServices(this IServiceCollection services)
+        public static void SetupDQServices(this IServiceCollection services)
         {
         }
     }

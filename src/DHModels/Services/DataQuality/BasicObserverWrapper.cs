@@ -16,9 +16,11 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality
     using System.Collections.Generic;
     using System.Linq;
 
-    [EntityWrapper("Basic", EntityCategory.Observer)]
+    [EntityWrapper(EntityType, EntityCategory.Observer)]
     public class BasicObserverWrapper : ObserverWrapper
     {
+        public const string EntityType = "Basic";
+
         public const string KeyFavouriteColumnPaths = "favouriteColumnPaths";
         public const string KeyCatalogQualifiedName = "catalogQualifiedName";
         public const string KeyCatalogEntityType = "catalogEntityType";
