@@ -69,7 +69,7 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
 
         var log = new ContainerEntityAuditLogWrapper()
         {
-            Timestamp = DateTime.UtcNow,
+            Time = DateTime.UtcNow,
             User = this.ClientObjectId,
             Action = ContainerEntityAuditAction.Update,
         };
@@ -100,7 +100,7 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
         [
             new()
             {
-                Timestamp = DateTime.UtcNow,
+                Time = DateTime.UtcNow,
                 User = this.ClientObjectId,
                 Action = ContainerEntityAuditAction.Create,
             },

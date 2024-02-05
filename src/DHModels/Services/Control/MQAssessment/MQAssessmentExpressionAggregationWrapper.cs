@@ -10,11 +10,11 @@ public class MQAssessmentExpressionAggregationWrapper(JObject jObject) : MQAsses
 
     public MQAssessmentExpressionAggregationWrapper() : this([]) { }
 
-    [EntityProperty(keyExpression)]
+    [EntityTypeProperty(keyExpression)]
     public string Expression
     {
-        get => this.GetPropertyValue<string>(keyExpression);
-        set => this.SetPropertyValue(keyExpression, value);
+        get => this.GetTypePropertyValue<string>(keyExpression);
+        set => this.SetTypePropertyValue(keyExpression, value);
     }
 }
 

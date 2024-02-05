@@ -14,29 +14,29 @@ public class DHSimpleRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
 
     public DHSimpleRuleWrapper() : this([]) { }
 
-    [EntityProperty(keyCheckPoint)]
+    [EntityTypeProperty(keyCheckPoint)]
     [CosmosDBEnumString]
     public DHCheckPoints CheckPoint
     {
-        get => this.GetPropertyValue<DHCheckPoints>(keyCheckPoint);
-        set => this.SetPropertyValue(keyCheckPoint, value);
+        get => this.GetTypePropertyValue<DHCheckPoints>(keyCheckPoint);
+        set => this.SetTypePropertyValue(keyCheckPoint, value);
     }
 
-    [EntityProperty(keyOperator)]
+    [EntityTypeProperty(keyOperator)]
     [CosmosDBEnumString]
     public DHOperator Operator
     {
-        get => this.GetPropertyValue<DHOperator>(keyOperator);
-        set => this.SetPropertyValue(keyOperator, value);
+        get => this.GetTypePropertyValue<DHOperator>(keyOperator);
+        set => this.SetTypePropertyValue(keyOperator, value);
     }
 
     /// <summary>
     /// Operand could be null as some operators may have no operands.
     /// </summary>
-    [EntityProperty(keyOperand)]
+    [EntityTypeProperty(keyOperand)]
     public string? Operand
     {
-        get => this.GetPropertyValue<string?>(keyOperand);
-        set => this.SetPropertyValue(keyOperand, value);
+        get => this.GetTypePropertyValue<string?>(keyOperand);
+        set => this.SetTypePropertyValue(keyOperand, value);
     }
 }

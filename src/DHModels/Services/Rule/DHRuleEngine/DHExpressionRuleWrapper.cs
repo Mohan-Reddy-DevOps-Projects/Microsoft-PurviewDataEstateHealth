@@ -13,18 +13,18 @@ public class DHExpressionRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObjec
 
     public DHExpressionRuleWrapper() : this([]) { }
 
-    [EntityProperty(keyCheckPoint)]
+    [EntityTypeProperty(keyCheckPoint)]
     [CosmosDBEnumString]
     public DHCheckPoints CheckPoint
     {
-        get => this.GetPropertyValue<DHCheckPoints>(keyCheckPoint);
-        set => this.SetPropertyValue(keyCheckPoint, value);
+        get => this.GetTypePropertyValue<DHCheckPoints>(keyCheckPoint);
+        set => this.SetTypePropertyValue(keyCheckPoint, value);
     }
 
-    [EntityProperty(keyExpression)]
+    [EntityTypeProperty(keyExpression)]
     public string Expression
     {
-        get => this.GetPropertyValue<string>(keyExpression);
-        set => this.SetPropertyValue(keyExpression, value);
+        get => this.GetTypePropertyValue<string>(keyExpression);
+        set => this.SetTypePropertyValue(keyExpression, value);
     }
 }

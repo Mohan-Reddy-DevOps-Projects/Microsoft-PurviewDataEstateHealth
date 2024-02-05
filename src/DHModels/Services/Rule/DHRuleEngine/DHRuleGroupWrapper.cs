@@ -13,23 +13,23 @@ public class DHRuleGroupWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
 
     public DHRuleGroupWrapper() : this([]) { }
 
-    [EntityProperty(keyGroupOperator)]
+    [EntityTypeProperty(keyGroupOperator)]
     [CosmosDBEnumString]
     public DHRuleGroupOperator GroupOperator
     {
-        get => this.GetPropertyValue<DHRuleGroupOperator>(keyGroupOperator);
-        set => this.SetPropertyValue(keyGroupOperator, value);
+        get => this.GetTypePropertyValue<DHRuleGroupOperator>(keyGroupOperator);
+        set => this.SetTypePropertyValue(keyGroupOperator, value);
     }
 
     private IEnumerable<DHRuleBaseWrapper>? rules;
 
-    [EntityProperty(keyRules)]
+    [EntityTypeProperty(keyRules)]
     public IEnumerable<DHRuleBaseWrapper> Rules
     {
-        get => this.rules ??= this.GetPropertyValueAsWrappers<DHRuleBaseWrapper>(keyRules);
+        get => this.rules ??= this.GetTypePropertyValueAsWrappers<DHRuleBaseWrapper>(keyRules);
         set
         {
-            this.SetPropertyValueFromWrappers(keyRules, value);
+            this.SetTypePropertyValueFromWrappers(keyRules, value);
             this.rules = value;
         }
     }

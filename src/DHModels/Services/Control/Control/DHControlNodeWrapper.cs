@@ -15,22 +15,22 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
 
     public DHControlNodeWrapper() : this([]) { }
 
-    [EntityProperty(keyGroupId)]
+    [EntityTypeProperty(keyGroupId)]
     public string GroupId
     {
-        get => this.GetPropertyValue<string>(keyGroupId);
-        set => this.SetPropertyValue(keyGroupId, value);
+        get => this.GetTypePropertyValue<string>(keyGroupId);
+        set => this.SetTypePropertyValue(keyGroupId, value);
     }
 
     private IList<string>? domains;
 
-    [EntityProperty(keyDomains)]
+    [EntityTypeProperty(keyDomains)]
     public IList<string> Domains
     {
-        get => this.domains ??= (this.GetPropertyValues<string>(keyDomains)?.ToList() ?? []);
+        get => this.domains ??= (this.GetTypePropertyValues<string>(keyDomains)?.ToList() ?? []);
         set
         {
-            this.SetPropertyValue(keyDomains, value);
+            this.SetTypePropertyValue(keyDomains, value);
             this.domains = value;
         }
     }
@@ -51,10 +51,10 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
     }
     */
 
-    [EntityProperty(keyAssessmentId)]
+    [EntityTypeProperty(keyAssessmentId)]
     public string? AssessmentId
     {
-        get => this.GetPropertyValue<string>(keyAssessmentId);
-        set => this.SetPropertyValue(keyAssessmentId, value);
+        get => this.GetTypePropertyValue<string>(keyAssessmentId);
+        set => this.SetTypePropertyValue(keyAssessmentId, value);
     }
 }

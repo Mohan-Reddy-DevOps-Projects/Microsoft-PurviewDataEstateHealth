@@ -11,11 +11,11 @@ public class MQAssessmentSimpleAggregationWrapper(JObject jObject) : MQAssessmen
 
     public MQAssessmentSimpleAggregationWrapper() : this([]) { }
 
-    [EntityProperty(keyAggregationType)]
+    [EntityTypeProperty(keyAggregationType)]
     [CosmosDBEnumString]
     public MQAssessmentSimpleAggregationType AggregationType
     {
-        get => this.GetPropertyValue<MQAssessmentSimpleAggregationType>(keyAggregationType);
-        set => this.SetPropertyValue(keyAggregationType, value);
+        get => this.GetTypePropertyValue<MQAssessmentSimpleAggregationType>(keyAggregationType);
+        set => this.SetTypePropertyValue(keyAggregationType, value);
     }
 }

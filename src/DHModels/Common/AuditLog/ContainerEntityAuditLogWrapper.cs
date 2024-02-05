@@ -17,7 +17,7 @@ public class ContainerEntityAuditLogWrapper(JObject jObject) : BaseEntityWrapper
 
     [EntityProperty(keyTime, true)]
     [EntityRequiredValidator]
-    public DateTime Timestamp
+    public DateTime Time
     {
         get => this.GetPropertyValue<DateTime>(keyTime);
         set => this.SetPropertyValue(keyTime, value);

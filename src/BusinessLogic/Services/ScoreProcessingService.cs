@@ -27,13 +27,15 @@ public class ScoreProcessingService(DHControlRepository dhControlRepository, MQA
                         case MQAssessmentSimpleAggregationType.Average:
                             var scoreWrappers = scores.Select(x =>
                             {
-                                var scoreWrapper = new DHScoreWrapper();
-                                scoreWrapper.ControlId = controlId;
-                                scoreWrapper.ComputingJobId = computingJobId;
-                                scoreWrapper.Time = DateTime.UtcNow;
-                                scoreWrapper.Score = x.scores;
-                                scoreWrapper.AggregatedScore = x.scores.Average(scoreUnit => scoreUnit.Score);
-                                // TODO: add entity snapshot
+                                var scoreWrapper = new DHScoreWrapper
+                                {
+                                    ControlId = controlId,
+                                    ComputingJobId = computingJobId,
+                                    Time = DateTime.UtcNow,
+                                    Score = x.scores,
+                                    AggregatedScore = x.scores.Average(scoreUnit => scoreUnit.Score)
+                                    // TODO: add entity snapshot
+                                };
                                 return scoreWrapper;
                             });
                             await dhScoreRepository.AddAsync(scoreWrappers).ConfigureAwait(false);
