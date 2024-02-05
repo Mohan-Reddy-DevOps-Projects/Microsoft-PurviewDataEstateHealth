@@ -15,11 +15,5 @@
         {
             await dHControlRepository.AddAsync(entity).ConfigureAwait(false);
         }
-
-        public async Task RunScheduleJob(string id)
-        {
-            var control = await this.GetControlByIdAsync(id).ConfigureAwait(false);
-            // TODO: submit DQ job
-        }
     }
 }

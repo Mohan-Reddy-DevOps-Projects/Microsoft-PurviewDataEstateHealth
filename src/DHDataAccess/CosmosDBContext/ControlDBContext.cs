@@ -7,6 +7,7 @@ using Microsoft.Purview.DataEstateHealth.DHDataAccess.AttributeHandlers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Palette;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using System;
@@ -61,6 +62,8 @@ public class ControlDBContext(IConfiguration configuration) : DbContext
     public DbSet<DHControlStatusPaletteWrapper> DHControlStatusPalettes { get; set; }
 
     public DbSet<MQAssessmentWrapper> MQAssessments { get; set; }
+
+    public DbSet<DHControlScheduleWrapper> DHControlSchedule { get; set; }
 
     public DbSet<DHScoreWrapper> DHScores { get; set; }
 

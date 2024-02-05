@@ -11,8 +11,7 @@ public class DHScheduleCreateRequest
     public required DHScheduleCreateRequestCallback CallbackRequest { get; set; }
 
     [JsonProperty("recurrence")]
-    public required DHControlSchedule Recurrence { get; set; }
-
+    public required DHControlScheduleWrapper Recurrence { get; set; }
 }
 
 public class DHScheduleCreateRequestCallback
@@ -22,4 +21,7 @@ public class DHScheduleCreateRequestCallback
 
     [JsonProperty("method")]
     public string Method { get; set; } = "GET";
+
+    [JsonProperty("body")]
+    public object? Body { get; set; }
 }

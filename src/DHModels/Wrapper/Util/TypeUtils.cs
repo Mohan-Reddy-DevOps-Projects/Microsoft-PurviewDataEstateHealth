@@ -107,7 +107,9 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util
                 }
             }
 
-            bool isExpectedEnumerable = expectedType.IsGenericType && expectedType.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+            bool isExpectedEnumerable = expectedType.IsGenericType && (
+                expectedType.GetGenericTypeDefinition() == typeof(IEnumerable<>) || expectedType.GetGenericTypeDefinition() == typeof(IList<>));
+
             bool isJsonArray = jsonValueType == JTokenType.Array;
 
             if (isExpectedEnumerable && isJsonArray)
