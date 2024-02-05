@@ -11,6 +11,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services.Interfaces;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 using Newtonsoft.Json.Linq;
 
@@ -48,7 +49,9 @@ public class DataHealthActionController : DataPlaneController
 
         var results = await this.actionService.EnumerateActionsAsync().ConfigureAwait(false);
 
-        return this.Ok(PagedResults.FromBatchResults(results));
+        var batchResults = new BatchResults<DataHealthActionWrapper>(results, results.Count());
+
+        return this.Ok(PagedResults.FromBatchResults(batchResults));
     }
 
     [HttpPost]

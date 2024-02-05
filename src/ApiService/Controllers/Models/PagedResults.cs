@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
 {
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
@@ -14,7 +15,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
     public class PagedResults
     {
         public static PagedResults FromBatchResults(
-            IEnumerable<BaseEntityWrapper> batchResults)
+            IBatchResults<BaseEntityWrapper> batchResults)
         {
             if (batchResults == null)
             {
@@ -23,11 +24,15 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
 
             return new PagedResults()
             {
-                Value = batchResults.Select((item) => item.JObject),
+                Value = batchResults.Results.Select((item) => item.JObject),
+                Count = batchResults.Count
             };
         }
 
         [JsonProperty("value", Required = Required.Always)]
         public IEnumerable<JToken> Value { get; set; }
+
+        [JsonProperty("count", NullValueHandling = NullValueHandling.Ignore)]
+        public int Count { get; set; }
     }
 }
