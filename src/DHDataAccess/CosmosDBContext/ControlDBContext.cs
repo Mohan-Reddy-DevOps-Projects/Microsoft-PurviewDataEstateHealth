@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 
-using global::Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Purview.ActiveGlossary.Scheduler.Setup.Secret;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.AttributeHandlers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
@@ -12,7 +12,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using System;
 
-public class ControlDBContext(IConfiguration configuration) : DbContext
+public class ControlDBContext(IConfiguration configuration, DHCosmosDBContextAzureCredentialManager credentialManager) : DbContext
 {
     protected readonly IConfiguration Configuration = configuration;
 
@@ -52,9 +52,7 @@ public class ControlDBContext(IConfiguration configuration) : DbContext
         {
             throw new InvalidOperationException("CosmosDB databaseName for DHControl is not found in the configuration");
         }
-
-        var tokenCredential = new DefaultAzureCredential();
-        optionsBuilder.UseCosmos(cosmosDbEndpoint, tokenCredential, databaseName);
+        optionsBuilder.UseCosmos(cosmosDbEndpoint, credentialManager.Credential, databaseName);
     }
 
     public DbSet<DHControlBaseWrapper> DHControls { get; set; }

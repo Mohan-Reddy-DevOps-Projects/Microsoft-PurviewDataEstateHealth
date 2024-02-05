@@ -9,6 +9,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule
     using Microsoft.Rest;
     using Newtonsoft.Json;
     using System;
+    using System.Collections.Generic;
     using System.Net.Http;
     using System.Text;
     using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule
             this.Logger = logger;
         }
 
-        public async Task<DHScheduleUpsertResponse> CreateSchedule(DHScheduleCreateRequest schedule)
+        public async Task<DHScheduleUpsertResponse> CreateSchedule(DHScheduleCreateRequestPayload schedule)
         {
             var requestUri = this.CreateRequestUri("/schedules");
             var content = this.CreateRequestContent(schedule);
@@ -37,23 +38,30 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule
             return await this.ParseResponse<DHScheduleUpsertResponse>(response).ConfigureAwait(false);
         }
 
-        public async Task<DHScheduleUpsertResponse> UpdateSchedule(Guid scheduleId, DHScheduleCreateRequest schedule)
+        public async Task<DHScheduleUpsertResponse> UpdateSchedule(DHScheduleCreateRequestPayload schedule)
         {
-            var requestUri = this.CreateRequestUri($"/schedules/{scheduleId}");
+            var requestUri = this.CreateRequestUri($"/schedules");
             var content = this.CreateRequestContent(schedule);
             var response = await this.Client.PutAsync(requestUri, content).ConfigureAwait(false);
             this.HandleResponseStatusCode(response);
             return await this.ParseResponse<DHScheduleUpsertResponse>(response).ConfigureAwait(false);
         }
 
-        public async Task DeleteSchedule(Guid scheduleId)
+        public async Task DeleteSchedule(string scheduleId)
         {
-            var requestUri = this.CreateRequestUri($"/schedules/{scheduleId}");
-            var response = await this.Client.DeleteAsync(requestUri).ConfigureAwait(false);
+            var requestUri = this.CreateRequestUri($"/schedules");
+            var payload = new Dictionary<string, string>()
+            {
+                { "scheduleId", scheduleId },
+                { "category", DHScheduleConstant.Category }
+            };
+            var request = new HttpRequestMessage(HttpMethod.Delete, requestUri);
+            request.Content = this.CreateRequestContent(payload);
+            var response = await this.Client.SendAsync(request).ConfigureAwait(false);
             this.HandleResponseStatusCode(response);
         }
 
-        public async Task TriggerSchedule(Guid scheduleId)
+        public async Task TriggerSchedule(string scheduleId)
         {
             var requestUri = this.CreateRequestUri($"/schedules/{scheduleId}/trigger");
             var response = await this.Client.PostAsync(requestUri, null).ConfigureAwait(false);

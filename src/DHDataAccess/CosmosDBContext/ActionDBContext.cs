@@ -3,11 +3,12 @@
 using global::Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Purview.ActiveGlossary.Scheduler.Setup.Secret;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.AttributeHandlers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 using System;
 
-public class ActionDBContext(IConfiguration configuration) : DbContext
+public class ActionDBContext(IConfiguration configuration, DHCosmosDBContextAzureCredentialManager credentialManager) : DbContext
 {
     protected readonly IConfiguration Configuration = configuration;
 
@@ -34,8 +35,8 @@ public class ActionDBContext(IConfiguration configuration) : DbContext
             throw new InvalidOperationException("CosmosDB databaseName for DHAction is not found in the configuration");
         }
 
-        var tokenCredential = new DefaultAzureCredential();
-        optionsBuilder.UseCosmos(cosmosDbEndpoint, tokenCredential, databaseName);
+        var tokenCredential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ExcludeManagedIdentityCredential = false, });
+        optionsBuilder.UseCosmos(cosmosDbEndpoint, credentialManager.Credential, databaseName);
     }
 
     public DbSet<DataHealthActionWrapper> Actions { get; set; }

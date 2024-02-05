@@ -20,7 +20,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHConfigurations
             IConfiguration configuration)
         {
             services.AddOptions()
-                .Configure<ScheduleConfiguration>(configuration.GetSection("scheduleService"));
+                .Configure<DHScheduleConfiguration>(configuration.GetSection(DHScheduleConfiguration.ConfigSectionName));
 
             return services;
         }

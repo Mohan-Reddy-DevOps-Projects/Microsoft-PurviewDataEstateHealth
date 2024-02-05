@@ -5,6 +5,7 @@
 namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
 {
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Purview.ActiveGlossary.Scheduler.Setup.Secret;
     using Microsoft.Purview.DataEstateHealth.DHConfigurations;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.HttpClient;
@@ -16,6 +17,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
     {
         public static void SetupDHDataAccessServices(this IServiceCollection services)
         {
+            services.AddSingleton<DHCosmosDBContextAzureCredentialManager>();
             services.AddDbContext<ControlDBContext>();
             services.AddScoped<DHControlRepository>();
             services.AddScoped<DHControlStatusPaletteRepository>();
@@ -44,7 +46,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
                 RetryCount = 3
             };
 
-            return services.AddDHCustomHttpClient<ScheduleConfiguration>(httpClientSettings,
+            return services.AddDHCustomHttpClient<DHScheduleConfiguration>(httpClientSettings,
                 (serviceProvider, request, policy) => { });
         }
     }

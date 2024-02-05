@@ -13,7 +13,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule
 
     public class ScheduleServiceClientFactory : ClientFactory<ScheduleServiceClient>, IDisposable
     {
-        private readonly ScheduleConfiguration config;
+        private readonly DHScheduleConfiguration config;
         private readonly IDataEstateHealthRequestLogger logger;
 
         public static string HttpClientName = "ScheduleServiceClient";
@@ -21,7 +21,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule
         protected override string ClientName => HttpClientName;
 
         public ScheduleServiceClientFactory(
-            IOptions<ScheduleConfiguration> config,
+            IOptions<DHScheduleConfiguration> config,
             IHttpClientFactory httpClientFactory,
             IDataEstateHealthRequestLogger logger) : base(httpClientFactory, logger)
         {

@@ -63,7 +63,7 @@ public class DHControlController(DHControlService dataHealthControlService, DHSc
         schedule.ControlId = controlId;
         schedule.Validate();
         await dhScheduleService.CreateScheduleAsync(schedule).ConfigureAwait(false);
-        return this.Created();
+        return this.Created(new Uri($"{this.Request.GetEncodedUrl()}/{schedule.Id}"), schedule.JObject);
     }
 
 
@@ -72,7 +72,7 @@ public class DHControlController(DHControlService dataHealthControlService, DHSc
     public async Task<ActionResult> GetSchedule(string controlId, string scheduleId)
     {
         var schedule = await dhScheduleService.ValidatePathnameScheduleId(controlId, scheduleId);
-        return this.Ok(schedule);
+        return this.Ok(schedule.JObject);
     }
 
     [HttpPut]
@@ -99,9 +99,22 @@ public class DHControlController(DHControlService dataHealthControlService, DHSc
 
     [HttpPost]
     [Route("{controlId}/schedules/{scheduleId}/trigger")]
-    public async Task<ActionResult> CreateScheduleJob(string controlId, string scheduleId, [FromBody] DHRunScheduleJobRequest requestBody)
+    public async Task<ActionResult> CreateScheduleJob(string controlId, string scheduleId)
     {
         var schedule = await dhScheduleService.ValidatePathnameScheduleId(controlId, scheduleId);
+        await dhScheduleService.TriggerScheduleAsync(schedule).ConfigureAwait(false);
+        return this.Ok();
+    }
+
+    [HttpPost]
+    [Route("triggerScheduleJobCallback")]
+    public async Task<ActionResult> TriggerScheduleJobRunCallback([FromBody] DHScheduleCallbackPayload requestBody)
+    {
+        if (requestBody == null)
+        {
+            return this.BadRequest();
+        }
+        var schedule = await dhScheduleService.ValidatePathnameScheduleId(requestBody.ControlId, requestBody.ScheduleId);
         await dhScheduleService.TriggerScheduleAsync(schedule).ConfigureAwait(false);
         return this.Ok();
     }
