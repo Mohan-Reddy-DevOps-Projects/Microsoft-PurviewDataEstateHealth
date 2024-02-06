@@ -61,10 +61,11 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule
             this.HandleResponseStatusCode(response);
         }
 
-        public async Task TriggerSchedule(string scheduleId)
+        public async Task TriggerSchedule(DHScheduleTriggerRequestPayload schedule)
         {
-            var requestUri = this.CreateRequestUri($"/schedules/{scheduleId}/trigger");
-            var response = await this.Client.PostAsync(requestUri, null).ConfigureAwait(false);
+            var requestUri = this.CreateRequestUri($"/schedules/trigger");
+            var content = this.CreateRequestContent(schedule);
+            var response = await this.Client.PostAsync(requestUri, content).ConfigureAwait(false);
             this.HandleResponseStatusCode(response);
         }
 

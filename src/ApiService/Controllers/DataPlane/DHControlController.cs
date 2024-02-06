@@ -55,58 +55,6 @@ public class DHControlController(DHControlService dataHealthControlService, DHSc
     //}
 
     [HttpPost]
-    [Route("{controlId}/schedules")]
-    public async Task<ActionResult> CreateSchedule(string controlId, [FromBody] JObject payload)
-    {
-        await dhScheduleService.ValidatePathnameScheduleId(controlId);
-        var schedule = DHControlScheduleWrapper.Create(payload);
-        schedule.ControlId = controlId;
-        schedule.Validate();
-        await dhScheduleService.CreateScheduleAsync(schedule).ConfigureAwait(false);
-        return this.Created(new Uri($"{this.Request.GetEncodedUrl()}/{schedule.Id}"), schedule.JObject);
-    }
-
-
-    [HttpGet]
-    [Route("{controlId}/schedules/{scheduleId}")]
-    public async Task<ActionResult> GetSchedule(string controlId, string scheduleId)
-    {
-        var schedule = await dhScheduleService.ValidatePathnameScheduleId(controlId, scheduleId);
-        return this.Ok(schedule.JObject);
-    }
-
-    [HttpPut]
-    [Route("{controlId}/schedules/{scheduleId}")]
-    public async Task<ActionResult> UpdateSchedule(string controlId, string scheduleId, [FromBody] JObject payload)
-    {
-        await dhScheduleService.ValidatePathnameScheduleId(controlId, scheduleId);
-        var schedule = DHControlScheduleWrapper.Create(payload);
-        schedule.ControlId = controlId;
-        schedule.Id = scheduleId;
-        schedule.Validate();
-        await dhScheduleService.UpdateScheduleAsync(schedule).ConfigureAwait(false);
-        return this.Ok(schedule);
-    }
-
-    [HttpDelete]
-    [Route("{controlId}/schedules/{scheduleId}")]
-    public async Task<ActionResult> DeleteSchedule(string controlId, string scheduleId)
-    {
-        var schedule = await dhScheduleService.ValidatePathnameScheduleId(controlId, scheduleId);
-        await dhScheduleService.DeleteScheduleAsync(schedule).ConfigureAwait(false);
-        return this.NoContent();
-    }
-
-    [HttpPost]
-    [Route("{controlId}/schedules/{scheduleId}/trigger")]
-    public async Task<ActionResult> CreateScheduleJob(string controlId, string scheduleId)
-    {
-        var schedule = await dhScheduleService.ValidatePathnameScheduleId(controlId, scheduleId);
-        await dhScheduleService.TriggerScheduleAsync(schedule).ConfigureAwait(false);
-        return this.Ok();
-    }
-
-    [HttpPost]
     [Route("triggerScheduleJobCallback")]
     public async Task<ActionResult> TriggerScheduleJobRunCallback([FromBody] DHScheduleCallbackPayload requestBody)
     {
@@ -114,14 +62,11 @@ public class DHControlController(DHControlService dataHealthControlService, DHSc
         {
             return this.BadRequest();
         }
-        this.Request.Headers.TryGetValue(DHScheduleConstant.DGScheduleHeaderScheduleId, out var scheduleValue);
-        var scheduleId = scheduleValue.First();
-        if (String.IsNullOrEmpty(scheduleId))
+        if (String.IsNullOrEmpty(requestBody.ControlId))
         {
-            return this.BadRequest($"Header {DHScheduleConstant.DGScheduleHeaderScheduleId} is required.");
+            return this.BadRequest($"ControlId is required.");
         }
-        var schedule = await dhScheduleService.ValidatePathnameScheduleId(requestBody.ControlId, scheduleId);
-        await dhScheduleService.TriggerScheduleAsync(schedule).ConfigureAwait(false);
+        await dhScheduleService.TriggerScheduleAsync(requestBody.ControlId).ConfigureAwait(false);
         return this.Ok();
     }
 }

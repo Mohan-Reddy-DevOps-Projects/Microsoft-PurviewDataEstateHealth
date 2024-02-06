@@ -2,11 +2,9 @@
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Extensions.Options;
-    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.DHConfigurations;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule;
-    using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
     using System.Collections.Generic;
 
@@ -39,7 +37,6 @@
 
         public async Task CreateScheduleAsync(DHControlScheduleWrapper schedule)
         {
-            await this.ValidateControlId(schedule.ControlId);
             var schedulePayload = this.CreateScheduleRequestPayload(schedule);
             var response = await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
             schedule.Id = response.ScheduleId;
@@ -48,7 +45,6 @@
 
         public async Task UpdateScheduleAsync(DHControlScheduleWrapper schedule)
         {
-            await this.ValidateControlId(schedule.ControlId);
             var schedulePayload = this.CreateScheduleRequestPayload(schedule);
             await this.scheduleServiceClient.UpdateSchedule(schedulePayload).ConfigureAwait(false);
             await this.dhControlScheduleRepository.UpdateAsync(schedule).ConfigureAwait(false);
@@ -61,47 +57,11 @@
             await this.dhControlScheduleRepository.DeleteAsync(schedule).ConfigureAwait(false);
         }
 
-        public async Task TriggerScheduleAsync(DHControlScheduleWrapper schedule)
+        public async Task TriggerScheduleAsync(string controlId)
         {
-            this.logger.LogInformation($"Schedule job triggered in control {schedule.Id}");
-            await this.scheduleServiceClient.TriggerSchedule(schedule.Id).ConfigureAwait(false);
-        }
-
-        public async Task<DHControlBaseWrapper> ValidatePathnameScheduleId(string controlId)
-        {
-            return await this.ValidateControlId(controlId);
-        }
-
-        public async Task<DHControlScheduleWrapper> ValidatePathnameScheduleId(string controlId, string scheduleId)
-        {
-            var control = await this.ValidatePathnameScheduleId(controlId);
-            var schedule = await this.ValidateScheduleId(scheduleId);
-            if (schedule.ControlId != control.Id)
-            {
-                throw new ControlNotMatchedException($"Dismatched control found in schedule {scheduleId}");
-            }
-            return schedule;
-        }
-
-        private async Task<DHControlBaseWrapper> ValidateControlId(string id)
-        {
-            var control = await this.dhControlRepository.GetByIdAsync(id).ConfigureAwait(false);
-            if (null == control)
-            {
-                throw new ControlNotFoundException($"Control not found: {id}");
-            }
-            return control;
-        }
-
-        private async Task<DHControlScheduleWrapper> ValidateScheduleId(string id)
-        {
-            var schedule = await this.dhControlScheduleRepository.GetByIdAsync(id).ConfigureAwait(false);
-
-            if (null == schedule)
-            {
-                throw new ControlNotFoundException($"Schedule not found: {id}");
-            }
-            return schedule;
+            // TOOD: query schedule and trigger it
+            // await this.scheduleServiceClient.TriggerSchedule(scheduleId).ConfigureAwait(false);
+            await Task.Delay(100);
         }
 
         private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleWrapper schedule)
