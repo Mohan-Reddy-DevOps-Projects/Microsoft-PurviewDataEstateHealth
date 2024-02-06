@@ -8,5 +8,4 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 public class DHScoreRepository(ControlDBContext controlDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<DHScoreWrapper>(requestHeaderContext)
 {
     protected override DbContext DBContext => controlDbContext;
-    protected override DbSet<DHScoreWrapper> DBSet => controlDbContext.DHScores;
 }

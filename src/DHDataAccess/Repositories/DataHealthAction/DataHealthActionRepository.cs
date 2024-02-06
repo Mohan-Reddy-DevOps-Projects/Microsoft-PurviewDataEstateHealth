@@ -8,5 +8,4 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 public class DataHealthActionRepository(ActionDBContext actionDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<DataHealthActionWrapper>(requestHeaderContext)
 {
     protected override DbContext DBContext => actionDbContext;
-    protected override DbSet<DataHealthActionWrapper> DBSet => actionDbContext.Actions;
 }

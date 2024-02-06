@@ -2,6 +2,7 @@
 
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common.AuditLog;
 using System;
@@ -16,56 +17,79 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
     private string ClientObjectId => requestHeaderContext.ClientObjectId;
 
     protected abstract DbContext DBContext { get; }
-    protected abstract DbSet<T> DBSet { get; }
 
-    public virtual async Task AddAsync(T entity)
+    public virtual async Task<T> AddAsync(T entity)
     {
         this.PopulateMetadataForAdding(entity);
 
-        await this.DBSet.AddAsync(entity).ConfigureAwait(false);
-        await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
+        await this.DBContext.Set<T>().AddAsync(entity).ConfigureAwait(false);
+        var affectedRows = await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
+
+        return affectedRows switch
+        {
+            1 => entity,
+            _ => throw new DBInvalidAffectedRowsException($"Unexpected number of entities ({affectedRows}) affected by the add operation!"),
+        };
     }
 
-    public virtual async Task AddAsync(IEnumerable<T> entities)
+    public virtual async Task<IEnumerable<T>> AddAsync(IEnumerable<T> entities)
     {
         foreach (var entity in entities)
         {
             this.PopulateMetadataForAdding(entity);
         }
 
-        await this.DBSet.AddRangeAsync(entities).ConfigureAwait(false);
-        await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
-    }
+        await this.DBContext.Set<T>().AddRangeAsync(entities).ConfigureAwait(false);
+        var affectedRows = await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
 
-    public virtual async Task DeleteAsync(T entity)
-    {
-        this.ValidateEntityMetadata(entity);
-        this.DBSet.Remove(entity);
-        await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
-    }
-
-    public virtual async Task DeleteAsync(string id)
-    {
-        var entity = await this.GetByIdAsync(id).ConfigureAwait(false);
-        if (entity != null)
+        if (entities.Count() == affectedRows)
         {
-            await this.DeleteAsync(entity).ConfigureAwait(false);
+            return entities;
         }
+
+        throw new DBInvalidAffectedRowsException($"Unexpected number of entities ({affectedRows}) affected by the add operation!");
+    }
+
+    private async Task<T> DeleteAsyncInternal(T entity)
+    {
+        this.DBContext.Set<T>().Remove(entity);
+        var affectedRows = await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
+
+        return affectedRows switch
+        {
+            1 => entity,
+            _ => throw new DBInvalidAffectedRowsException($"Unexpected number of entities ({affectedRows}) affected by the delete operation!"),
+        };
+    }
+
+    public virtual async Task<T> DeleteAsync(T entity)
+    {
+        var entityInDb = await this.EnsureOwnerShip(entity).ConfigureAwait(false);
+
+        return await this.DeleteAsyncInternal(entityInDb).ConfigureAwait(false);
+    }
+
+    public virtual async Task<T> DeleteAsync(string id)
+    {
+        var entityInDb = await this.EnsureOwnerShip(id).ConfigureAwait(false);
+
+        return await this.DeleteAsyncInternal(entityInDb).ConfigureAwait(false);
     }
 
     public virtual async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await this.DBSet.WithPartitionKey(this.TenantId).ToListAsync().ConfigureAwait(false);
+        return await this.DBContext.Set<T>().WithPartitionKey(this.TenantId).ToListAsync().ConfigureAwait(false);
     }
 
-    public virtual async Task<T?> GetByIdAsync(string id)
+    public virtual async Task<T> GetByIdAsync(string id)
     {
-        return await this.DBSet.WithPartitionKey(this.TenantId).Where(x => x.Id == id).SingleOrDefaultAsync().ConfigureAwait(false);
+        return (await this.DBContext.Set<T>().WithPartitionKey(this.TenantId).Where(x => x.Id == id).SingleOrDefaultAsync().ConfigureAwait(false))
+            ?? throw new DBEntityNotFoundException($"Entity with id {id} does not exist in the database!");
     }
 
-    public virtual async Task UpdateAsync(T entity)
+    public virtual async Task<T> UpdateAsync(T entity)
     {
-        this.ValidateEntityMetadata(entity);
+        var entityInDb = await this.EnsureOwnerShip(entity).ConfigureAwait(false);
 
         var log = new ContainerEntityAuditLogWrapper()
         {
@@ -74,16 +98,25 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
             Action = ContainerEntityAuditAction.Update,
         };
 
-        List<ContainerEntityAuditLogWrapper> list = [];
-        if (entity.AuditLogs != null)
-        {
-            list.AddRange(entity.AuditLogs);
-        }
-        list.Add(log);
-        entity.AuditLogs = list;
+        var newAuditLogs = new List<ContainerEntityAuditLogWrapper>();
 
-        this.DBSet.Update(entity);
-        await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
+        if (entityInDb?.AuditLogs != null)
+        {
+            newAuditLogs.AddRange(entityInDb.AuditLogs);
+        }
+
+        newAuditLogs.Add(log);
+
+        entity.AuditLogs = newAuditLogs;
+
+        this.DBContext.Set<T>().Update(entity);
+        var affectedRows = await this.DBContext.SaveChangesAsync().ConfigureAwait(false);
+
+        return affectedRows switch
+        {
+            1 => entity,
+            _ => throw new DBInvalidAffectedRowsException($"Unexpected number of entities ({affectedRows}) affected by the update operation!"),
+        };
     }
 
     private T PopulateMetadataForAdding(T entity)
@@ -108,16 +141,25 @@ public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderCon
         return entity;
     }
 
-    private void ValidateEntityMetadata(T entity)
+    private Task<T> EnsureOwnerShip(T entity)
     {
-        if (entity.TenantId != this.TenantId)
+        return this.EnsureOwnerShip(entity.Id);
+    }
+
+    private async Task<T> EnsureOwnerShip(string id)
+    {
+        var entityInDb = await this.GetByIdAsync(id).ConfigureAwait(false) ?? throw new DBEntityNotFoundException($"Entity with id {id} does not exist in the database!");
+
+        if (entityInDb.TenantId != this.TenantId)
         {
-            throw new InvalidOperationException($"Entity's tenant id ({entity.TenantId}) is not identical with the tenant id ({this.TenantId}) from the HTTP request headers!");
+            throw new InvalidOperationException($"Entity's tenant id ({entityInDb.TenantId}) is not identical with the tenant id ({this.TenantId}) from the HTTP request headers!");
         }
 
-        if (entity.AccountId != this.AccountId)
+        if (entityInDb.AccountId != this.AccountId)
         {
-            throw new InvalidOperationException($"Entity's account id ({entity.AccountId}) is not identical with the account id ({this.AccountId}) from the HTTP request headers!");
+            throw new InvalidOperationException($"Entity's account id ({entityInDb.AccountId}) is not identical with the account id ({this.AccountId}) from the HTTP request headers!");
         }
+
+        return entityInDb;
     }
 }

@@ -8,5 +8,4 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Palette;
 public class DHControlStatusPaletteRepository(ControlDBContext controlDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<DHControlStatusPaletteWrapper>(requestHeaderContext)
 {
     protected override DbContext DBContext => controlDbContext;
-    protected override DbSet<DHControlStatusPaletteWrapper> DBSet => controlDbContext.DHControlStatusPalettes;
 }

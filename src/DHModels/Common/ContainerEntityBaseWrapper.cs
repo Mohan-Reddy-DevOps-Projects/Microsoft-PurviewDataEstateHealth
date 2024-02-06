@@ -5,7 +5,6 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Common.AuditLog;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
@@ -24,11 +23,9 @@ public abstract class ContainerEntityBaseWrapper(JObject jObject) : BaseEntityWr
         set => this.SetPropertyValue(keyId, value);
     }
 
-    [JsonIgnore]
     [CosmosDBPartitionKey]
     public string? TenantId { get; set; }
 
-    [JsonIgnore]
     public string? AccountId { get; set; }
 
     private IEnumerable<ContainerEntityAuditLogWrapper>? auditLogs;

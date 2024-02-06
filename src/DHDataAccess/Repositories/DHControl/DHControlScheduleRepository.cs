@@ -8,5 +8,4 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 public class DHControlScheduleRepository(ControlDBContext controlDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<DHControlScheduleWrapper>(requestHeaderContext)
 {
     protected override DbContext DBContext => controlDbContext;
-    protected override DbSet<DHControlScheduleWrapper> DBSet => controlDbContext.DHControlSchedule;
 }
