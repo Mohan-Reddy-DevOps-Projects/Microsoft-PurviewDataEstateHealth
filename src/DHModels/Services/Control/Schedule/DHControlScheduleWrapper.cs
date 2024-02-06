@@ -52,16 +52,25 @@ public class DHControlScheduleWrapper(JObject jObject) : ContainerEntityBaseWrap
     }
 
     [EntityProperty(keyStartTime)]
-    public DateTime StartTime
+    public DateTime? StartTime
     {
-        get => this.GetPropertyValue<DateTime>(keyStartTime);
+        get
+        {
+            var time = this.GetPropertyValue<DateTime>(keyStartTime);
+            return time == DateTime.MinValue ? null : time;
+        }
+
         set => this.SetPropertyValue(keyStartTime, value);
     }
 
     [EntityProperty(keyEndTime)]
-    public DateTime EndTime
+    public DateTime? EndTime
     {
-        get => this.GetPropertyValue<DateTime>(keyEndTime);
+        get
+        {
+            var time = this.GetPropertyValue<DateTime>(keyEndTime);
+            return time == DateTime.MinValue ? null : time;
+        }
         set => this.SetPropertyValue(keyEndTime, value);
     }
 

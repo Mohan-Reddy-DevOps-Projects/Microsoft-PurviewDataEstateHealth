@@ -8,7 +8,6 @@
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
-    using System;
     using System.Collections.Generic;
 
     using System.Threading.Tasks;
@@ -41,9 +40,9 @@
         public async Task CreateScheduleAsync(DHControlScheduleWrapper schedule)
         {
             await this.ValidateControlId(schedule.ControlId);
-            schedule.Id = Guid.NewGuid().ToString();
             var schedulePayload = this.CreateScheduleRequestPayload(schedule);
-            await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
+            var response = await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
+            schedule.Id = response.ScheduleId;
             await this.dhControlScheduleRepository.AddAsync(schedule).ConfigureAwait(false);
         }
 
@@ -115,7 +114,7 @@
 
                     Url = this.scheduleConfiguration.CallbackEndpoint + "/dataHealthControl/triggerScheduleJobCallback",
                     Method = "POST",
-                    Body = new DHScheduleCallbackPayload { ControlId = schedule.ControlId, ScheduleId = schedule.Id },
+                    Body = new DHScheduleCallbackPayload { ControlId = schedule.ControlId },
                     Headers = new Dictionary<string, string> { { "x-ms-client-tenant-id", this.requestContextAccessor.GetRequestContext().TenantId.ToString() } }
                 }
             };

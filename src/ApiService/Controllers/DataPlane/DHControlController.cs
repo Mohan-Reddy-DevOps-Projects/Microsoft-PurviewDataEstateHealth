@@ -114,7 +114,13 @@ public class DHControlController(DHControlService dataHealthControlService, DHSc
         {
             return this.BadRequest();
         }
-        var schedule = await dhScheduleService.ValidatePathnameScheduleId(requestBody.ControlId, requestBody.ScheduleId);
+        this.Request.Headers.TryGetValue(DHScheduleConstant.DGScheduleHeaderScheduleId, out var scheduleValue);
+        var scheduleId = scheduleValue.First();
+        if (String.IsNullOrEmpty(scheduleId))
+        {
+            return this.BadRequest($"Header {DHScheduleConstant.DGScheduleHeaderScheduleId} is required.");
+        }
+        var schedule = await dhScheduleService.ValidatePathnameScheduleId(requestBody.ControlId, scheduleId);
         await dhScheduleService.TriggerScheduleAsync(schedule).ConfigureAwait(false);
         return this.Ok();
     }
