@@ -3,6 +3,7 @@
 using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 
 [CosmosDBContainer("DHControlStatusPalette")]
@@ -11,8 +12,15 @@ public class DHControlStatusPaletteWrapper(JObject jObject) : ContainerEntityBas
     private const string keyName = "name";
     private const string keyColor = "color";
 
+    public static DHControlStatusPaletteWrapper Create(JObject jObject)
+    {
+        return new DHControlStatusPaletteWrapper(jObject);
+    }
+
     public DHControlStatusPaletteWrapper() : this([]) { }
 
+    [EntityRequiredValidator]
+    [EntityNameValidator]
     [EntityProperty(keyName)]
     public string Name
     {
@@ -20,6 +28,8 @@ public class DHControlStatusPaletteWrapper(JObject jObject) : ContainerEntityBas
         set => this.SetPropertyValue(keyName, value);
     }
 
+    [EntityRequiredValidator]
+    [EntityRegexValidator("^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$")]
     [EntityProperty(keyColor)]
     public string Color
     {
