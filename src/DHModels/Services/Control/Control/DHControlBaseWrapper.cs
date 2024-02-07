@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
@@ -8,7 +7,6 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 
-[CosmosDBContainer("DHControl")]
 [EntityWrapper(EntityCategory.Control)]
 public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDynamicWrapper(jObject)
 {
@@ -82,6 +80,6 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
 
 public static class DHControlBaseWrapperDerivedTypes
 {
-    public const string Group = "Group";
-    public const string Node = "Node";
+    public const string Group = "ControlGroup";
+    public const string Node = "ControlNode";
 }

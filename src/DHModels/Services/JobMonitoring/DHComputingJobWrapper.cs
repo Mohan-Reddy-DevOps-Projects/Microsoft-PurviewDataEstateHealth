@@ -1,12 +1,10 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
 using System;
 
-[CosmosDBContainer("DHJob")]
 public class DHComputingJobWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
 {
     private const string keyControlId = "controlId";

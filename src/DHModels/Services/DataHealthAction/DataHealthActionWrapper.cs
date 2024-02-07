@@ -5,15 +5,17 @@
 
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
+[JsonConverter(typeof(StringEnumConverter))]
 public enum DataHealthActionCategory
 {
     HealthControl,
@@ -21,12 +23,14 @@ public enum DataHealthActionCategory
 }
 
 //TODO: need confirmdation from PM
+[JsonConverter(typeof(StringEnumConverter))]
 public enum DataHealthActionStatus
 {
     Active,
     Resolved
 }
 
+[JsonConverter(typeof(StringEnumConverter))]
 public enum DataHealthActionSeverity
 {
     High,
@@ -34,6 +38,7 @@ public enum DataHealthActionSeverity
     Low
 }
 
+[JsonConverter(typeof(StringEnumConverter))]
 public enum DataHealthActionTargetEntityType
 {
     BusinessDomain,
@@ -43,7 +48,6 @@ public enum DataHealthActionTargetEntityType
     DataQualityAccessment
 }
 
-[CosmosDBContainer("DHAction")]
 [EntityWrapper(EntityCategory.Action)]
 public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
 {
@@ -69,7 +73,6 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     public DataHealthActionWrapper() : this([]) { }
 
     [EntityProperty(keyCategory)]
-    [CosmosDBEnumString]
     [EntityRequiredValidator]
     public DataHealthActionCategory Category
     {
@@ -131,7 +134,6 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
 
     [EntityProperty(keyStatus)]
     [EntityRequiredValidator]
-    [CosmosDBEnumString]
     public DataHealthActionStatus Status
     {
         get
@@ -144,7 +146,6 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
 
     [EntityProperty(keySeverity)]
     [EntityRequiredValidator]
-    [CosmosDBEnumString]
     public DataHealthActionSeverity Severity
     {
         get
@@ -157,7 +158,6 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
 
     [EntityProperty(keyTargetEntityType)]
     [EntityRequiredValidator]
-    [CosmosDBEnumString]
     public DataHealthActionTargetEntityType TargetEntityType
     {
         get

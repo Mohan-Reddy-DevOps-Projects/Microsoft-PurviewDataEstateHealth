@@ -10,6 +10,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
+    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
@@ -39,6 +40,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
 
         private BaseEntityWrapper typePropertiesWrapper;
 
+        [JsonIgnore] // for cosmos db
         public BaseEntityWrapper TypePropertiesWrapper
         {
             get
@@ -54,6 +56,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
             }
         }
 
+        [JsonIgnore] // for cosmos db
         [EntityProperty(keyTypeProperties)]
         public JObject TypeProperties
         {

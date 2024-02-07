@@ -10,13 +10,11 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations.Schema;
 
     public class JObjectBaseWrapper
     {
         public const StringComparison PropertyNameComparison = StringComparison.OrdinalIgnoreCase;
 
-        [NotMapped]
         public JObject JObject { get; private set; }
 
         public JObjectBaseWrapper(JObject jObject)

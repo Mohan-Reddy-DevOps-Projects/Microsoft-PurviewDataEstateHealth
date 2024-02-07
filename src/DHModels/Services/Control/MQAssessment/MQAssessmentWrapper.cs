@@ -1,13 +1,13 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-[CosmosDBContainer("MQAssessment")]
 public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
 {
     private const string keyName = "name";
@@ -26,7 +26,6 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper(j
     }
 
     [EntityProperty(keyTargetEntityType)]
-    [CosmosDBEnumString]
     public MQAssessmentTargetEntityType TargetEntityType
     {
         get => this.GetPropertyValue<MQAssessmentTargetEntityType>(keyTargetEntityType);
@@ -67,6 +66,7 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper(j
     }
 }
 
+[JsonConverter(typeof(StringEnumConverter))]
 public enum MQAssessmentTargetEntityType
 {
     DataProduct

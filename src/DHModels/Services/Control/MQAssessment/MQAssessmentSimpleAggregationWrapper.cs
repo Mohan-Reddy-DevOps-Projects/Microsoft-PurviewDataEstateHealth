@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
 
@@ -12,7 +11,6 @@ public class MQAssessmentSimpleAggregationWrapper(JObject jObject) : MQAssessmen
     public MQAssessmentSimpleAggregationWrapper() : this([]) { }
 
     [EntityTypeProperty(keyAggregationType)]
-    [CosmosDBEnumString]
     public MQAssessmentSimpleAggregationType AggregationType
     {
         get => this.GetTypePropertyValue<MQAssessmentSimpleAggregationType>(keyAggregationType);

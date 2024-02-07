@@ -28,6 +28,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
             return retryInterval > 0 ? retryInterval : 30;
         }
 
+        [JsonIgnore] // for cosmos db
         public string DefaultTimeout => this.GetStringTimeout(this.DefaultTimeoutTimeSpan);
 
         public JObjectWrapper(JObject jObject) : base(jObject)

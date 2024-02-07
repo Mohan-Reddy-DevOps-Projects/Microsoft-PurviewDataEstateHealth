@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -14,7 +13,6 @@ public class DHRuleGroupWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     public DHRuleGroupWrapper() : this([]) { }
 
     [EntityTypeProperty(keyGroupOperator)]
-    [CosmosDBEnumString]
     public DHRuleGroupOperator GroupOperator
     {
         get => this.GetTypePropertyValue<DHRuleGroupOperator>(keyGroupOperator);

@@ -5,11 +5,10 @@
 namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
 {
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.Exceptions;
-    using Microsoft.Purview.DataEstateHealth.DHModels.Common;
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public interface IRepository<T> where T : IContainerEntityWrapper
+    public interface IRepository<T>
     {
         Task<IEnumerable<T>> GetAllAsync();
 
@@ -19,7 +18,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// <param name="id">The unique identifier of the entity to be retrieved.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the entity of type T with the specified ID.</returns>
         /// <exception cref="DBEntityNotFoundException">Thrown if no entity with the specified ID could be found in the database.</exception>
-        Task<T> GetByIdAsync(string id);
+        Task<T?> GetByIdAsync(string id);
 
         /// <summary>
         /// Asynchronously adds a new entity of type T to the database.

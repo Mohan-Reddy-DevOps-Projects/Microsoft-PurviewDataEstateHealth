@@ -1,29 +1,36 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
 
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class DataHealthActionRepository(ActionDBContext actionDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<DataHealthActionWrapper>(requestHeaderContext)
+public class DataHealthActionRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DataHealthActionWrapper>(requestHeaderContext)
 {
-    protected override DbContext DBContext => actionDbContext;
+    private const string ContainerName = "DHAction";
+
+    private string DatabaseName => configuration["cosmosDb:actionDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHAction is not found in the configuration");
+
+    protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
     public async Task<DataHealthActionWrapper?> GetActionByFilterAsync(DataHealthActionCategory category, string findingType, string findingSubType, string findingId, DataHealthActionTargetEntityType targetType, string targetId)
     {
-        return await this.DBContext.Set<DataHealthActionWrapper>().WithPartitionKey(this.TenantId)
-            .Where(
-                x => x.Category == category &&
-                x.FindingType == findingType &&
-                x.FindingSubType == findingSubType &&
-                x.FindingId == findingId &&
-                x.TargetEntityType == targetType &&
-                x.TargetEntityId == x.TargetEntityId)
-            .SingleOrDefaultAsync().ConfigureAwait(false);
+        return await this.CosmosContainer.GetItemLinqQueryable<DataHealthActionWrapper>(
+            requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey }
+        ).Where(
+            x => x.Category == category &&
+            x.FindingType == findingType &&
+            x.FindingSubType == findingSubType &&
+            x.FindingId == findingId &&
+            x.TargetEntityType == targetType &&
+            x.TargetEntityId == targetId)
+        .SingleOrDefaultAsync().ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<GroupedActions>> EnumerateActionsByGroupAsync(string groupBy)

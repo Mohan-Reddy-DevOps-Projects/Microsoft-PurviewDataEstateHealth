@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Common.AuditLog;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
@@ -33,7 +32,6 @@ public class ContainerEntityAuditLogWrapper(JObject jObject) : BaseEntityWrapper
 
     [EntityProperty(keyAction, true)]
     [EntityRequiredValidator]
-    [CosmosDBEnumString]
     public ContainerEntityAuditAction Action
     {
         get => this.GetPropertyValue<ContainerEntityAuditAction>(keyAction);

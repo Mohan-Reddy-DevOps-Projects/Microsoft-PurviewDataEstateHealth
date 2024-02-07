@@ -47,6 +47,6 @@ public static class DHRuleBaseWrapperDerivedTypes
 {
     public const string SimpleRule = "SimpleRule";
     public const string ExpressionRule = "ExpressionRule";
-    public const string Group = "Group";
+    public const string Group = "RuleGroup";
 }
 

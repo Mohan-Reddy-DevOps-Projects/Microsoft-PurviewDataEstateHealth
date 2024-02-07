@@ -1,11 +1,16 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
+using System;
 
-public class MQAssessmentRepository(ControlDBContext controlDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<MQAssessmentWrapper>(requestHeaderContext)
+public class MQAssessmentRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<MQAssessmentWrapper>(requestHeaderContext)
 {
-    protected override DbContext DBContext => controlDbContext;
+    private const string ContainerName = "MQAssessment";
+
+    private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHControl is not found in the configuration");
+
+    protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 }

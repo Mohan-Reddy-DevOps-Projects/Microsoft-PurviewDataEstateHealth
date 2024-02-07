@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHCheckPoint;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
@@ -15,7 +14,6 @@ public class DHSimpleRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     public DHSimpleRuleWrapper() : this([]) { }
 
     [EntityTypeProperty(keyCheckPoint)]
-    [CosmosDBEnumString]
     public DHCheckPoints CheckPoint
     {
         get => this.GetTypePropertyValue<DHCheckPoints>(keyCheckPoint);
@@ -23,7 +21,6 @@ public class DHSimpleRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     }
 
     [EntityTypeProperty(keyOperator)]
-    [CosmosDBEnumString]
     public DHOperator Operator
     {
         get => this.GetTypePropertyValue<DHOperator>(keyOperator);

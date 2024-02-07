@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
@@ -10,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-[CosmosDBContainer("DHSchedule")]
 [EntityWrapper(EntityCategory.Schedule)]
 public class DHControlScheduleWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
 {

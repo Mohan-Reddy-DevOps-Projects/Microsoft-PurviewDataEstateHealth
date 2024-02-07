@@ -1,11 +1,16 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Palette;
+using System;
 
-public class DHControlStatusPaletteRepository(ControlDBContext controlDbContext, IRequestHeaderContext requestHeaderContext) : CommonRepository<DHControlStatusPaletteWrapper>(requestHeaderContext)
+public class DHControlStatusPaletteRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DHControlStatusPaletteWrapper>(requestHeaderContext)
 {
-    protected override DbContext DBContext => controlDbContext;
+    private const string ContainerName = "DHControlStatusPalette";
+
+    private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHControl is not found in the configuration");
+
+    protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 }

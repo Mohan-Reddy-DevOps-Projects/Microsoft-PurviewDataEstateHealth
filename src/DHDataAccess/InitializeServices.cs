@@ -4,6 +4,8 @@
 
 namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
 {
+    using Microsoft.Azure.Cosmos;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Purview.ActiveGlossary.Scheduler.Setup.Secret;
     using Microsoft.Purview.DataEstateHealth.DHConfigurations;
@@ -18,18 +20,30 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
         public static void SetupDHDataAccessServices(this IServiceCollection services)
         {
             services.AddSingleton<DHCosmosDBContextAzureCredentialManager>();
-            services.AddDbContext<ControlDBContext>();
+
+            services.AddScheduleServiceHttpClient(ScheduleServiceClientFactory.HttpClientName);
+            services.AddSingleton<ScheduleServiceClientFactory>();
+
+            services.AddSingleton<CosmosClient>(serviceProvider =>
+            {
+                var credential = serviceProvider.GetRequiredService<DHCosmosDBContextAzureCredentialManager>().Credential;
+
+                var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+                var cosmosDbEndpoint = configuration["cosmosDb:accountEndpoint"];
+
+                return new CosmosClient(cosmosDbEndpoint, credential, new CosmosClientOptions
+                {
+                    ConnectionMode = ConnectionMode.Direct,
+                    Serializer = new CosmosWrapperSerializer(),
+                });
+            });
+
             services.AddScoped<DHControlRepository>();
             services.AddScoped<DHControlStatusPaletteRepository>();
             services.AddScoped<DHScoreRepository>();
             services.AddScoped<MQAssessmentRepository>();
             services.AddScoped<DHControlScheduleRepository>();
-
-            services.AddDbContext<ActionDBContext>();
             services.AddScoped<DataHealthActionRepository>();
-
-            services.AddScheduleServiceHttpClient(ScheduleServiceClientFactory.HttpClientName);
-            services.AddSingleton<ScheduleServiceClientFactory>();
         }
 
         /// <summary>
