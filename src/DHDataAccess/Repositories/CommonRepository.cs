@@ -12,8 +12,8 @@ using System.Threading.Tasks;
 
 public abstract class CommonRepository<T>(IRequestHeaderContext requestHeaderContext) : IRepository<T> where T : class, IContainerEntityWrapper
 {
-    private string TenantId => requestHeaderContext.TenantId.ToString();
-    private string AccountId => requestHeaderContext.AccountObjectId.ToString();
+    public string TenantId => requestHeaderContext.TenantId.ToString();
+    public string AccountId => requestHeaderContext.AccountObjectId.ToString();
     private string ClientObjectId => requestHeaderContext.ClientObjectId;
 
     protected abstract DbContext DBContext { get; }

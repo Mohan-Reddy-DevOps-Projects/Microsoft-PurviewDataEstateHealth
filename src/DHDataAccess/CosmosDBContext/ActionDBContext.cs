@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 
-using global::Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.ActiveGlossary.Scheduler.Setup.Secret;
@@ -35,7 +34,6 @@ public class ActionDBContext(IConfiguration configuration, DHCosmosDBContextAzur
             throw new InvalidOperationException("CosmosDB databaseName for DHAction is not found in the configuration");
         }
 
-        var tokenCredential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ExcludeManagedIdentityCredential = false, });
         optionsBuilder.UseCosmos(cosmosDbEndpoint, credentialManager.Credential, databaseName);
     }
 

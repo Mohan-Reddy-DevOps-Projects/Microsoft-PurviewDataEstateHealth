@@ -33,20 +33,13 @@ public class DataHealthActionController : DataPlaneController
         this.actionService = actionService;
     }
 
-    [HttpGet]
-    [Route("")]
+    [HttpPost]
+    [Route("query")]
     public async Task<ActionResult> ListActionsAsync(
         [FromQuery] string domainId = null)
     {
-        //var query = new Query<ObjectiveFilter>()
-        //{
-        //    Filter = new ObjectiveFilter()
-        //    {
-        //        DomainIds = string.IsNullOrEmpty(domainId) ? null : new List<string>() { domainId },
-        //        Definition = string.IsNullOrEmpty(keyword) ? null : keyword
-        //    },
-        //};
 
+        // TODO(Han): Support filters
         var results = await this.actionService.EnumerateActionsAsync().ConfigureAwait(false);
 
         var batchResults = new BatchResults<DataHealthActionWrapper>(results, results.Count());
@@ -55,8 +48,19 @@ public class DataHealthActionController : DataPlaneController
     }
 
     [HttpPost]
+    [Route("grouped")]
+    public async Task<ActionResult> ListActionsByGroupAsync(
+        [FromBody] ActionGroupedRequest payload)
+    {
+        // TODO(Han): Support filters
+        var results = await this.actionService.EnumerateActionsByGroupAsync(payload.groupBy).ConfigureAwait(false);
+
+        return this.Ok(results);
+    }
+
+    [HttpPost]
     [Route("")]
-    public async Task<ActionResult> CreateDHSimpleRuleAsync(
+    public async Task<ActionResult> CreateActionAsync(
         [FromBody] JObject payload)
     {
         var wrapper = DataHealthActionWrapper.Create(payload);
@@ -71,4 +75,14 @@ public class DataHealthActionController : DataPlaneController
         var entity = await this.actionService.GetActionByIdAsync(actionId).ConfigureAwait(false);
         return this.Ok(entity.JObject);
     }
+
+    [HttpPut]
+    [Route("{actionId}")]
+    public async Task<ActionResult> UpdateActionAsync(string actionId, [FromBody] JObject payload)
+    {
+        var wrapper = DataHealthActionWrapper.Create(payload);
+        var entity = await this.actionService.UpdateActionAsync(actionId, wrapper).ConfigureAwait(false);
+        return this.Ok(entity.JObject);
+    }
+
 }

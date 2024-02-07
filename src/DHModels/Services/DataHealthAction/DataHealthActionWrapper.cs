@@ -8,9 +8,11 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 using Microsoft.Purview.DataEstateHealth.DHModels.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 
 public enum DataHealthActionCategory
 {
@@ -45,17 +47,16 @@ public enum DataHealthActionTargetEntityType
 [EntityWrapper(EntityCategory.Action)]
 public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
 {
-
+    public const string keyFindingType = "findingType";
+    public const string keyFindingSubType = "findingSubType";
+    public const string keyFindingName = "findingName";
+    public const string keySeverity = "severity";
     private const string keyId = "id";
     private const string keyCategory = "category";
-    private const string keyFindingType = "findingType";
-    private const string keyFindingSubType = "findingSubType";
-    private const string keyFindingName = "findingName";
     private const string keyFindingId = "findingId";
     private const string keyRecommendation = "recommendation";
     private const string keyDomainId = "domainId";
     private const string keyStatus = "status";
-    private const string keySeverity = "severity";
     private const string keyTargetEntityType = "targetEntityType";
     private const string keyTargetEntityId = "targetEntityId";
     private const string keyAssignedTo = "assignedTo";
@@ -81,6 +82,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyFindingType)]
+    [EntityRequiredValidator]
     public string FindingType
     {
         get => this.GetPropertyValue<string>(keyFindingType);
@@ -88,6 +90,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyFindingSubType)]
+    [EntityRequiredValidator]
     public string FindingSubType
     {
         get => this.GetPropertyValue<string>(keyFindingSubType);
@@ -95,6 +98,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyFindingName)]
+    [EntityRequiredValidator]
     public string FindingName
     {
         get => this.GetPropertyValue<string>(keyFindingName);
@@ -102,6 +106,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyFindingId)]
+    [EntityRequiredValidator]
     public string FindingId
     {
         get => this.GetPropertyValue<string>(keyFindingId);
@@ -109,6 +114,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyRecommendation)]
+    [EntityRequiredValidator]
     public string Recommendation
     {
         get => this.GetPropertyValue<string>(keyRecommendation);
@@ -116,6 +122,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyDomainId)]
+    [EntityRequiredValidator]
     public string DomainId
     {
         get => this.GetPropertyValue<string>(keyDomainId);
@@ -123,6 +130,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyStatus)]
+    [EntityRequiredValidator]
     [CosmosDBEnumString]
     public DataHealthActionStatus Status
     {
@@ -135,6 +143,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keySeverity)]
+    [EntityRequiredValidator]
     [CosmosDBEnumString]
     public DataHealthActionSeverity Severity
     {
@@ -147,6 +156,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyTargetEntityType)]
+    [EntityRequiredValidator]
     [CosmosDBEnumString]
     public DataHealthActionTargetEntityType TargetEntityType
     {
@@ -159,6 +169,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyTargetEntityId)]
+    [EntityRequiredValidator]
     public string TargetEntityId
     {
         get => this.GetPropertyValue<string>(keyTargetEntityId);
@@ -166,22 +177,41 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyAssignedTo)]
-    public string[] AssignedTo
+    public IList<string> AssignedTo
     {
-        get => this.GetPropertyValue<string[]>(keyAssignedTo);
+        get => this.GetPropertyValue<IList<string>>(keyAssignedTo);
         set => this.SetPropertyValue(keyAssignedTo, value);
     }
 
     private ActionSystemDataWrapper? systemData;
 
     [EntityProperty(keySystemData, true)]
-    public ActionSystemDataWrapper SystemData
+    public ActionSystemDataWrapper SystemInfo
     {
-        get => this.systemData ??= this.GetPropertyValueAsWrapper<ActionSystemDataWrapper>(keySystemData);
+        get
+        {
+            this.systemData ??= this.GetPropertyValueAsWrapper<ActionSystemDataWrapper>(keySystemData);
+            return this.systemData;
+        }
         set
         {
             this.SetPropertyValueFromWrapper(keySystemData, value);
-            this.systemData = null;
+            this.systemData = value;
         }
+    }
+
+    public void onCreate(DateTime? createAt = null)
+    {
+        this.SystemInfo = new ActionSystemDataWrapper(DateTime.UtcNow);
+    }
+
+    public void OnReplace(DataHealthActionWrapper existed)
+    {
+        Ensure.IsNotNull(existed, nameof(existed));
+        this.Id = existed.Id;
+        this.SystemInfo = existed.SystemInfo;
+        this.AccountId = existed.AccountId;
+        this.TenantId = existed.TenantId;
+        this.AuditLogs = existed.AuditLogs;
     }
 }

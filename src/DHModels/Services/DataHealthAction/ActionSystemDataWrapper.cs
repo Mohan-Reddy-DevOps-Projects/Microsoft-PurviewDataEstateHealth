@@ -20,7 +20,14 @@ public class ActionSystemDataWrapper(JObject jObject) : BaseEntityWrapper(jObjec
     private const string keyLastHintAt = "lastHintAt";
 
 
-    public ActionSystemDataWrapper() : this(new JObject()) { }
+    public ActionSystemDataWrapper() : this([]) { }
+
+    public ActionSystemDataWrapper(DateTime createdAt) : this(new JObject())
+    {
+        this.CreatedAt = createdAt;
+        this.HintCount = 1;
+    }
+
 
     [EntityProperty(keyCreatedAt, true)]
     public DateTime? CreatedAt
@@ -37,7 +44,7 @@ public class ActionSystemDataWrapper(JObject jObject) : BaseEntityWrapper(jObjec
     }
 
     [EntityProperty(keyLastModifiedBy, true)]
-    public string ExpiredBy
+    public string? LastModifiedBy
     {
         get => this.GetPropertyValue<string>(keyLastModifiedBy);
         private set => this.SetOrRemovePropertyValue(keyLastModifiedBy, value);
@@ -55,5 +62,19 @@ public class ActionSystemDataWrapper(JObject jObject) : BaseEntityWrapper(jObjec
     {
         get => this.GetPropertyValue<DateTime?>(keyLastHintAt);
         set => this.SetPropertyValue(keyLastHintAt, value);
+    }
+
+    public void OnModify(string? modifiedBy, DateTime? modifiedAt = null)
+    {
+        var now = DateTime.UtcNow;
+        this.LastModifiedAt = modifiedAt ?? now;
+        this.LastModifiedBy = modifiedBy;
+    }
+
+    public void onHint(DateTime? hintAt = null)
+    {
+        var now = DateTime.UtcNow;
+        this.LastHintAt = hintAt ?? now;
+        this.HintCount += 1;
     }
 }

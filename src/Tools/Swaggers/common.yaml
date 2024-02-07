@@ -1050,7 +1050,7 @@ components:
           description: The finding name of the action.
         findingId:
           type: string
-          description: The domain id of the action.
+          description: The finding id of the action.
         severity:
           type: string
           enum: [Low, Medium, High]
