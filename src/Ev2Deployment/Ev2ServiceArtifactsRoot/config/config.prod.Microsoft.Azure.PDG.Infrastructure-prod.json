@@ -39,7 +39,8 @@
             "accountName": "dgprocshared$(pdg.environment.shortName)$(regionShortName)",
             "tableName": "AccountStorageDetails"
         },
-        "artifactStoreEndpoint": "https://prod.$(dgh.shortRegionName).artifactstore.purview-service.azure.com"
+        "artifactStoreEndpoint": "https://prod.$(dgh.shortRegionName).artifactstore.purview-service.azure.com",
+        "dqSubjectName": "$(dgh.shortRegionName).dataquality-service.purview.azure.com"
     },
     "geographies": [
         {

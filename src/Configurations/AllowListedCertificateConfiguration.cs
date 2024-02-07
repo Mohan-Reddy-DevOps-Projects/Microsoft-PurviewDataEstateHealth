@@ -4,9 +4,9 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
-using System.Collections.Generic;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.DGP.ServiceBasics.Errors;
+using System.Collections.Generic;
 
 /// <summary>
 /// Client certificate configuration model.
@@ -29,6 +29,11 @@ public class AllowListedCertificateConfiguration
     public List<string> AllowListedControlPlaneSubjectNames { get; set; }
 
     /// <summary>
+    /// Allow listed data quality subject names.
+    /// </summary>
+    public List<string> AllowListedDataQualitySubjectNames { get; set; }
+
+    /// <summary>
     /// Get list of allowed subject names.
     /// </summary>
     /// <param name="certificateSet">Input certificate set.</param>
@@ -42,6 +47,8 @@ public class AllowListedCertificateConfiguration
                 return this.AllowListedDataPlaneSubjectNames;
             case CertificateSet.ControlPlane:
                 return this.AllowListedControlPlaneSubjectNames;
+            case CertificateSet.DataQuality:
+                return this.AllowListedDataQualitySubjectNames;
             default:
                 throw new ServiceError(
                         ErrorCategory.ServiceError,

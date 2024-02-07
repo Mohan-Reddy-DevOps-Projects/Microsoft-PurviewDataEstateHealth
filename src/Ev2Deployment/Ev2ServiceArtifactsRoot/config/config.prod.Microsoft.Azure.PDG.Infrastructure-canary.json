@@ -42,6 +42,7 @@
             "accountName": "dgprocshared$(pdg.environment.shortName)$(regionShortName)",
             "tableName": "AccountStorageDetails"
         },
-        "artifactStoreEndpoint": "https://cnry.eus2euap.artifactstore.purview-service.azure.com"
+        "artifactStoreEndpoint": "https://cnry.eus2euap.artifactstore.purview-service.azure.com",
+        "dqSubjectName": "eus2euap.dataquality-service.purview.azure.com"
     }
 }

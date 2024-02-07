@@ -22,4 +22,9 @@ public enum CertificateSet
     /// Control Plane
     /// </summary>
     ControlPlane,
+
+    /// <summary>
+    /// Data Quality
+    /// </summary>
+    DataQuality,
 }
