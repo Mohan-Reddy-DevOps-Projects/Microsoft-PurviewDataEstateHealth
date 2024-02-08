@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
-public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
+public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHScoreWrapper>(jObject)
 {
     private const string keyTime = "time";
     private const string keyControlId = "controlId";

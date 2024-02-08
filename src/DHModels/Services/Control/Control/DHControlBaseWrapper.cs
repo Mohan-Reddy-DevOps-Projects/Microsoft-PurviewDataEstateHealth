@@ -8,7 +8,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 
 [EntityWrapper(EntityCategory.Control)]
-public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDynamicWrapper(jObject)
+public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDynamicWrapper<DHControlBaseWrapper>(jObject)
 {
     private const string keyName = "name";
     private const string keyDescription = "description";
@@ -57,7 +57,7 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
         }
     }
 
-    [EntityProperty(keyReserved)]
+    [EntityProperty(keyReserved, true)]
     public bool Reserved
     {
         get => this.GetPropertyValue<bool>(keyReserved);
@@ -75,6 +75,13 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
             this.SetPropertyValueFromWrapper(keyStatusPaletteConfig, value);
             this.statusPaletteConfig = value;
         }
+    }
+
+    public override void OnUpdate(DHControlBaseWrapper existWrapper, string userId)
+    {
+        base.OnUpdate(existWrapper, userId);
+
+        this.Reserved = existWrapper.Reserved;
     }
 }
 

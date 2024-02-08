@@ -6,9 +6,10 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
-public abstract class ContainerEntityBaseWrapper(JObject jObject) : BaseEntityWrapper(jObject), IContainerEntityWrapper
+public abstract class ContainerEntityBaseWrapper<T>(JObject jObject) : BaseEntityWrapper(jObject), IContainerEntityWrapper where T : ContainerEntityBaseWrapper<T>
 {
     private const string keyId = "id";
     private const string keyAuditLogs = "auditLogs";
@@ -39,6 +40,35 @@ public abstract class ContainerEntityBaseWrapper(JObject jObject) : BaseEntityWr
             this.SetPropertyValueFromWrappers(keyAuditLogs, value);
             this.auditLogs = value;
         }
+    }
+
+    public virtual void OnCreate(string userId)
+    {
+        this.Id = Guid.NewGuid().ToString();
+
+        this.AuditLogs =
+        [
+            new()
+            {
+                Time = DateTime.UtcNow,
+                User = userId,
+                Action = ContainerEntityAuditAction.Create,
+            },
+        ];
+    }
+
+    public virtual void OnUpdate(T existWrapper, string userId)
+    {
+        this.Id = existWrapper.Id;
+
+        var log = new ContainerEntityAuditLogWrapper()
+        {
+            Time = DateTime.UtcNow,
+            User = userId,
+            Action = ContainerEntityAuditAction.Update,
+        };
+
+        this.AuditLogs = [.. existWrapper.AuditLogs ?? [], log];
     }
 }
 

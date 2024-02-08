@@ -6,9 +6,10 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
-public abstract class ContainerEntityDynamicWrapper(JObject jObject) : DynamicEntityWrapper(jObject), IContainerEntityWrapper
+public abstract class ContainerEntityDynamicWrapper<T>(JObject jObject) : DynamicEntityWrapper(jObject), IContainerEntityWrapper where T : ContainerEntityDynamicWrapper<T>
 {
     private const string keyId = "id";
     private const string keyAuditLogs = "auditLogs";
@@ -24,10 +25,6 @@ public abstract class ContainerEntityDynamicWrapper(JObject jObject) : DynamicEn
         set => this.SetPropertyValue(keyId, value);
     }
 
-    public string? TenantId { get; set; }
-
-    public string? AccountId { get; set; }
-
     private IEnumerable<ContainerEntityAuditLogWrapper>? auditLogs;
 
     [EntityProperty(keyAuditLogs)]
@@ -39,6 +36,35 @@ public abstract class ContainerEntityDynamicWrapper(JObject jObject) : DynamicEn
             this.SetPropertyValueFromWrappers(keyAuditLogs, value);
             this.auditLogs = value;
         }
+    }
+
+    public virtual void OnCreate(string userId)
+    {
+        this.Id = Guid.NewGuid().ToString();
+
+        this.AuditLogs =
+        [
+            new()
+            {
+                Time = DateTime.UtcNow,
+                User = userId,
+                Action = ContainerEntityAuditAction.Create,
+            },
+        ];
+    }
+
+    public virtual void OnUpdate(T existWrapper, string userId)
+    {
+        this.Id = existWrapper.Id;
+
+        var log = new ContainerEntityAuditLogWrapper()
+        {
+            Time = DateTime.UtcNow,
+            User = userId,
+            Action = ContainerEntityAuditAction.Update,
+        };
+
+        this.AuditLogs = [.. existWrapper.AuditLogs ?? [], log];
     }
 }
 

@@ -8,7 +8,7 @@ using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
+public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<MQAssessmentWrapper>(jObject)
 {
     private const string keyName = "name";
     private const string keyTargetEntityType = "targetEntityType";

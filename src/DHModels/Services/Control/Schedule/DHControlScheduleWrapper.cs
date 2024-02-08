@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 [EntityWrapper(EntityCategory.Schedule)]
-public class DHControlScheduleWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
+public class DHControlScheduleWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHControlScheduleWrapper>(jObject)
 {
     private const string keyControlId = "controlId";
     private const string keyFrequency = "frequency";

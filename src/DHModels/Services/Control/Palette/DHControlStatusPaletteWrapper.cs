@@ -5,7 +5,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 
-public class DHControlStatusPaletteWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
+public class DHControlStatusPaletteWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHControlStatusPaletteWrapper>(jObject)
 {
     private const string keyName = "name";
     private const string keyColor = "color";

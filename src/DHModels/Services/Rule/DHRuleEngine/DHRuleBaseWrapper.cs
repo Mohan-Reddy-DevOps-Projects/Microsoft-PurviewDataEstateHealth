@@ -7,7 +7,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 
 [EntityWrapper(EntityCategory.Rule)]
-public abstract class DHRuleBaseWrapper(JObject jObject) : DynamicEntityWrapper(jObject), IWithId
+public abstract class DHRuleBaseWrapper(JObject jObject) : DynamicEntityWrapper(jObject)
 {
     private const string keyId = "id";
     private const string keyName = "name";

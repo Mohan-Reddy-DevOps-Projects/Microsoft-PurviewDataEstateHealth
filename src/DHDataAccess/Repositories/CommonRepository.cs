@@ -22,15 +22,12 @@ public abstract class CommonRepository<TEntity>(IRequestHeaderContext requestHea
 
     public virtual async Task<TEntity> AddAsync(TEntity entity)
     {
-        this.PopulateMetadataForEntity(entity);
         var response = await this.CosmosContainer.CreateItemAsync(entity, this.TenantPartitionKey).ConfigureAwait(false);
         return response.Resource;
     }
 
     public virtual async Task<IEnumerable<TEntity>> AddAsync(IEnumerable<TEntity> entities)
     {
-        entities.ForEach(this.PopulateMetadataForEntity);
-
         var batch = this.CosmosContainer.CreateTransactionalBatch(this.TenantPartitionKey);
 
         foreach (var entity in entities)
@@ -70,14 +67,7 @@ public abstract class CommonRepository<TEntity>(IRequestHeaderContext requestHea
 
     public virtual async Task<TEntity> UpdateAsync(TEntity entity)
     {
-        this.PopulateMetadataForEntity(entity);
         var response = await this.CosmosContainer.UpsertItemAsync(entity, this.TenantPartitionKey).ConfigureAwait(false);
         return response.Resource;
-    }
-
-    private void PopulateMetadataForEntity(TEntity entity)
-    {
-        entity.TenantId = this.TenantId;
-        entity.AccountId = this.AccountId;
     }
 }

@@ -49,7 +49,7 @@ public enum DataHealthActionTargetEntityType
 }
 
 [EntityWrapper(EntityCategory.Action)]
-public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapper(jObject)
+public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapper<DataHealthActionWrapper>(jObject)
 {
     public const string keyFindingType = "findingType";
     public const string keyFindingSubType = "findingSubType";

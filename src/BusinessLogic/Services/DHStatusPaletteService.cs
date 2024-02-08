@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
+    using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess;
@@ -12,7 +13,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class DHStatusPaletteService(DHControlStatusPaletteRepository dhControlStatusPaletteRepository)
+    public class DHStatusPaletteService(DHControlStatusPaletteRepository dhControlStatusPaletteRepository, IRequestHeaderContext requestHeaderContext)
     {
         public async Task<IBatchResults<DHControlStatusPaletteWrapper>> ListStatusPalettesAsync()
         {
@@ -41,6 +42,8 @@
             entity.Validate();
             entity.NormalizeInput();
 
+            entity.OnCreate(requestHeaderContext.ClientObjectId);
+
             await dhControlStatusPaletteRepository.AddAsync(entity).ConfigureAwait(false);
             return entity;
         }
@@ -66,9 +69,7 @@
                 throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.StatusPalette.ToString(), id));
             }
 
-            // TODO move the entity wrapper
-            entity.Id = existEntity.Id;
-            entity.AuditLogs = existEntity.AuditLogs;
+            entity.OnUpdate(existEntity, requestHeaderContext.ClientObjectId);
 
             await dhControlStatusPaletteRepository.AddAsync(entity).ConfigureAwait(false);
 
@@ -84,6 +85,8 @@
             if (existEntity == null)
             {
                 // Log
+
+                return;
             }
 
             await dhControlStatusPaletteRepository.DeleteAsync(id).ConfigureAwait(false);
