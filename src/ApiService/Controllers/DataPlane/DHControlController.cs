@@ -8,7 +8,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Newtonsoft.Json.Linq;
 
 /// <summary>
@@ -17,7 +16,7 @@ using Newtonsoft.Json.Linq;
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV1)]
 [Route("/controls/v2")]
-public class DHControlController(DHControlService dataHealthControlService, DHScheduleService dhScheduleService) : DataPlaneController
+public class DHControlController(DHControlService dataHealthControlService) : DataPlaneController
 {
     [HttpGet]
     [Route("")]
@@ -53,20 +52,4 @@ public class DHControlController(DHControlService dataHealthControlService, DHSc
     //    await dataHealthControlService.UpdateControlByIdAsync(id, entity).ConfigureAwait(false);
     //    return this.Ok();
     //}
-
-    [HttpPost]
-    [Route("triggerScheduleJobCallback")]
-    public async Task<ActionResult> TriggerScheduleJobRunCallback([FromBody] DHScheduleCallbackPayload requestBody)
-    {
-        if (requestBody == null)
-        {
-            return this.BadRequest();
-        }
-        if (String.IsNullOrEmpty(requestBody.ControlId))
-        {
-            return this.BadRequest($"ControlId is required.");
-        }
-        await dhScheduleService.TriggerScheduleAsync(requestBody.ControlId).ConfigureAwait(false);
-        return this.Ok();
-    }
 }

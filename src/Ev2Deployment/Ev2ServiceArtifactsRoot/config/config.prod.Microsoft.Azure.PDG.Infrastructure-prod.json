@@ -40,7 +40,8 @@
             "tableName": "AccountStorageDetails"
         },
         "artifactStoreEndpoint": "https://prod.$(dgh.shortRegionName).artifactstore.purview-service.azure.com",
-        "dqSubjectName": "$(dgh.shortRegionName).dataquality-service.purview.azure.com"
+        "dqSubjectName": "$(dgh.shortRegionName).dataquality-service.purview.azure.com",
+        "scheduleSubjectName": "dgschedule-logicapp-client-$(pdg.environment.shortName)-$(dgh.shortRegionName).$(dnsZoneName)"
     },
     "geographies": [
         {

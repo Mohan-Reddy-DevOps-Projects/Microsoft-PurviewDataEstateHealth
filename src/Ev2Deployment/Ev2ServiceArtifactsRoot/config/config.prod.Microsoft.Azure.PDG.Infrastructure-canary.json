@@ -43,6 +43,7 @@
             "tableName": "AccountStorageDetails"
         },
         "artifactStoreEndpoint": "https://cnry.eus2euap.artifactstore.purview-service.azure.com",
-        "dqSubjectName": "eus2euap.dataquality-service.purview.azure.com"
+        "dqSubjectName": "eus2euap.dataquality-service.purview.azure.com",
+        "scheduleSubjectName": "dgschedule-logicapp-client-$(pdg.environment.shortName)-eus2.$(dnsZoneName)"
     }
 }

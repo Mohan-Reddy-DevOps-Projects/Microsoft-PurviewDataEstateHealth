@@ -71,8 +71,7 @@
                 ScheduleId = schedule.Id,
                 CallbackRequest = new DHScheduleCreateRequestCallback
                 {
-
-                    Url = this.scheduleConfiguration.CallbackEndpoint + "/dataHealthControl/triggerScheduleJobCallback",
+                    Url = this.scheduleConfiguration.CallbackEndpoint + "/internal/control/triggerScheduleJobCallback",
                     Method = "POST",
                     Body = new DHScheduleCallbackPayload { ControlId = schedule.ControlId },
                     Headers = new Dictionary<string, string> { { "x-ms-client-tenant-id", this.requestContextAccessor.GetRequestContext().TenantId.ToString() } }

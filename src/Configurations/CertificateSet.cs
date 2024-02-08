@@ -27,4 +27,9 @@ public enum CertificateSet
     /// Data Quality
     /// </summary>
     DataQuality,
+
+    /// <summary>
+    /// Control Schedule
+    /// </summary>
+    DHControlSchedule
 }
