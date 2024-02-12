@@ -275,7 +275,7 @@ resource createSynapseDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01
     ]
     scriptContent: '''
       Set-AzContext -subscription ${Env:subscriptionId}
-
+      
       $userName = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminUserSecretName} -AsPlainText
       $sqlPassword = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminPassSecretName} -AsPlainText
 
@@ -294,13 +294,13 @@ resource createSynapseDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01
 
           IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '${Env:databaseName}')
           BEGIN
-          CREATE DATABASE [${Env:databaseName}]
+            CREATE DATABASE [${Env:databaseName}]
           END
 "@
+          
           $cmd = $conn.CreateCommand()
           $cmd.CommandText = $sqlCommand
           $cmd.ExecuteNonQuery()
-
           # Clean up
           $conn.Close()
 
@@ -452,6 +452,16 @@ module processingStorageSubContributorRoleModule 'subscriptionRoleAssignment.bic
   }
 }]
 
+module processingStorageSynapseSubContributorRoleModule 'subscriptionRoleAssignment.bicep' = [for processingStorageSubscription in processingStorageSubscriptions: {
+  name: 'processingStorageSynapseSubContributorRoleModuleDeploy_${processingStorageSubscription.stamp}'
+  scope: subscription(processingStorageSubscription.id)
+  params: {
+    principalId: synapseWorkspace.identity.principalId
+    roleDefinitionName: storageBlobDataContributorRoleDefName
+    subscriptionId: processingStorageSubscription.id
+  }
+}]
+
 module processingStorageSubBlobDataContributorRoleModule 'subscriptionRoleAssignment.bicep' = [for processingStorageSubscription in processingStorageSubscriptions: {
   name: 'processingStorageSubBlobDataContributorRoleModuleDeploy_${processingStorageSubscription.stamp}'
   scope: subscription(processingStorageSubscription.id)
@@ -482,4 +492,4 @@ module eventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
   }
 }
 
-output containerAppIdentityObjectId string = containerAppIdentity.properties.principalId
+output containerAppIdentityClientId string = containerAppIdentity.properties.clientId

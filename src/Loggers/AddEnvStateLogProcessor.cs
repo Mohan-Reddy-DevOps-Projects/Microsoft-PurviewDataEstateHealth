@@ -31,12 +31,12 @@ public class AddEnvStateLogProcessor : BaseProcessor<LogRecord>
         // Custom state information
         var logState = new Dictionary<string, object>
         {
-            ["env.name"] = environmentConfiguration.Environment.ToString(),
-            ["RoleLocation"] = environmentConfiguration.Location,
+            ["env.name"] = this.environmentConfiguration.Environment.ToString(),
+            ["RoleLocation"] = this.environmentConfiguration.Location,
             ["cloud.role"] = Environment.GetEnvironmentVariable("CONTAINER_APP_NAME"),
             ["cloud.roleInstance"] = Environment.GetEnvironmentVariable("CONTAINER_APP_REVISION"),
             ["cloud.roleVer"] = Environment.GetEnvironmentVariable("BUILD_VERSION"),
-            ["ServiceID"] = Environment.GetEnvironmentVariable("SERVICE_ID"),
+            ["genevaLogTableId"] = Environment.GetEnvironmentVariable("GENEVA_ERROR_LOG_TABLE_ID"),
             ["env_ex_msg"] = data?.Exception?.Message,
             ["env_ex_type"] = data?.Exception?.GetType().FullName,
             ["env_ex_stack"] = data?.Exception?.ToString(),

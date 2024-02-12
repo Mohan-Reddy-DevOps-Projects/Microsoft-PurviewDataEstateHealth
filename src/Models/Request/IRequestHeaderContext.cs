@@ -41,10 +41,6 @@ public interface IRequestHeaderContext : IRequestContext
     /// </summary>
     string ClientAudience { get; }
 
-    /// <summary>
-    /// Client object Id of the call
-    /// </summary>
-    string ClientObjectId { get; }
 
     /// <summary>
     /// Client Principal name of the call

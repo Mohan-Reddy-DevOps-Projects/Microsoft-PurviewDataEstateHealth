@@ -9,7 +9,7 @@
         "specPath": "config/config.$rolloutInfra().$serviceGroup().json"
       }
     },
-    "name": "Microsoft.Azure.PDG.Infrastructure.DataEstateHealth",
+    "name": "Microsoft.Purview.PDG.DataEstateHealth",
     "rolloutType": "major",
     "buildSource": {
       "parameters": {
@@ -22,87 +22,92 @@
       }
     }
   },
-    "orchestratedSteps": [
-        {
-            "name":"deployProcessingStorage",
-            "targetType": "ServiceResourceDefinition",
-            "targetName": "processingStorageResourceDefinition",
-            "actions": [
-                "deploy"
-            ]
-        },
-        {
-            "name":"deployInfrastructure",
-            "dependsOn": ["deployProcessingStorage"],
-            "targetType": "ServiceResourceDefinition",
-            "targetName": "infrastructureResourceDefinition",
-            "actions": [
-                "Extension/RegisterDghPrereqs",
-                "deploy",
-                "Extension/CreateOneCertV2PublicIssuer",
-                "Extension/CreateOneCertV2PrivateIssuer",
-                "Extension/CreateCertificate-Client",
-                "Extension/CreateCertificate-ArtifactStore",
-                "Extension/ManageSynapseRBAC"
-            ],
-            "onFailure": {
-              "continue": {
-                "conditions": {
-                  "errorsContainAny": [
-                    "RoleAssignmentAlreadyExists"
-                ]
-                }
-              }
-            }
-        },
-        {
-            "name": "deployPowerBIFiles",
-            "dependsOn": ["deployInfrastructure"],
-            "targetType": "ServiceResourceDefinition",
-            "targetName": "powerBIFilesResourceDefintion",
-            "actions": ["wait/skip"]
-        },
-        {
-            "name": "deployPythonFiles",
-            "dependsOn": [ "deployInfrastructure" ],
-            "targetType": "ServiceResourceDefinition",
-            "targetName": "pythonFilesResourceDefintion",
-            "actions": [ "wait/skip" ]
-        },
-        {
-            "name": "pushApiServiceImage",
-            "dependsOn": ["deployInfrastructure"],
-            "targetType": "ServiceResourceDefinition",
-            "targetName": "apiServiceImageResourceDefinition",
-            "actions": ["Shell/Run"]
-        },
-        {
-            "name": "pushWorkerServiceImage",
-            "dependsOn": ["deployInfrastructure"],
-            "targetType": "ServiceResourceDefinition",
-            "targetName": "workerServiceImageResourceDefinition",
-            "actions": ["Shell/Run"]
-        },
-        {
-            "name": "addDnsRecords",
-            "dependsOn": ["pushApiServiceImage"],
-            "targetType": "ServiceResourceDefinition",
-            "targetName": "apiServiceContainerAppDnsRecordsResourceDefinition",
-            "actions": ["deploy"]
-        },
-        {
-            "name":"deployApiService",
-            "dependsOn": ["addDnsRecords",  "pushWorkerServiceImage"],
-            "targetType": "ServiceResourceDefinition",
-            "targetName": "apiServiceContainerAppResourceDefinition",
-            "actions": ["deploy"]
-        },
-        {
-            "name":"deployWorkerService",
-            "dependsOn": ["addDnsRecords", "pushWorkerServiceImage"],
-            "targetType": "ServiceResourceDefinition",
-            "targetName": "workerServiceContainerAppResourceDefinition",
-            "actions": ["deploy"]
+  "onFailure": {
+    "retry": {
+      "conditions": {
+        "errorsContainAny": ["Conflict", "ContainerAppOperationError","RequestTimeout","DeploymentScriptContainerInstancesServiceLoginFailure"]
+      },
+      "maxRetryAttempts": 3,
+      "waitDurationBetweenRetry": "PT10M"
+    }
+  },
+  "orchestratedSteps": [
+    {
+      "name": "deployProcessingStorage",
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "processingStorageResourceDefinition",
+      "actions": ["deploy"]
+    },
+    {
+      "name": "deployInfrastructure",
+      "dependsOn": ["deployProcessingStorage"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "infrastructureResourceDefinition",
+      "actions": [
+        "Extension/RegisterDghPrereqs",
+        "deploy",
+        "Extension/CreateOneCertV2PublicIssuer",
+        "Extension/CreateOneCertV2PrivateIssuer",
+        "Extension/CreateCertificate-Client",
+        "Extension/CreateCertificate-ArtifactStore",
+        "Extension/ManageSynapseRBAC"
+      ],
+      "onFailure": {
+        "continue": {
+          "conditions": {
+            "errorsContainAny": ["RoleAssignmentAlreadyExists"]
+          }
         }
-    ]
+      }
+    },
+    {
+      "name": "deployPowerBIFiles",
+      "dependsOn": ["deployInfrastructure"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "powerBIFilesResourceDefintion",
+      "actions": ["wait/skip"]
+    },
+    {
+      "name": "deployPythonFiles",
+      "dependsOn": ["deployInfrastructure"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "pythonFilesResourceDefintion",
+      "actions": ["wait/skip"]
+    },
+    {
+      "name": "pushApiServiceImage",
+      "dependsOn": ["deployInfrastructure"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "apiServiceImageResourceDefinition",
+      "actions": ["Shell/Run"]
+    },
+    {
+      "name": "pushWorkerServiceImage",
+      "dependsOn": ["deployInfrastructure"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "workerServiceImageResourceDefinition",
+      "actions": ["Shell/Run"]
+    },
+    {
+      "name": "addDnsRecords",
+      "dependsOn": ["pushApiServiceImage"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "apiServiceContainerAppDnsRecordsResourceDefinition",
+      "actions": ["deploy"]
+    },
+    {
+      "name": "deployApiService",
+      "dependsOn": ["addDnsRecords", "pushWorkerServiceImage"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "apiServiceContainerAppResourceDefinition",
+      "actions": ["deploy"]
+    },
+    {
+      "name": "deployWorkerService",
+      "dependsOn": ["addDnsRecords", "pushWorkerServiceImage"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "workerServiceContainerAppResourceDefinition",
+      "actions": ["deploy"]
+    }
+  ]
 }

@@ -1,0 +1,25 @@
+{
+    "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
+    "settings": {
+        "dgh": {
+            "acrName":"$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
+            "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)wus2common",
+            "sparkPoolTableName": "SparkPool",
+            "synapseWorkspaceName": "$(dgh.serviceShortName)dogfoodsynapse",
+            "apiServiceReadinessProbePort": 8081,
+            "workerServiceReadinessProbePort": 8082,
+            "sqlAdminUserSecretName": "synapseSqlAdminUsername",
+            "sqlAdminPassSecretName": "synapseSqlAdminPassword",
+            "powerBiClientId": "f5257d9c-4ed4-459b-b9e9-61e3e755fcf4",
+            "dgFPAClientId": "24676e7f-bd4d-4ae7-8782-dd551f44c6ce",
+            "powerBiEnabled": "true",
+            "resourceGroupName": "dgh-dogfood-westus2-rg",
+            "serverlessPoolEnabled": "true",
+            "serviceShortName": "dgh",
+            "subdomainName": "df-westus2-health",
+            "synapseRegion": "eastus",
+            "useEstsr": "false",
+            "scheduleSubjectName": "dgschedule-logicapp-client-$(pdg.environment.shortName)-wus2.$(pdg.tenant.dnsZoneName)"
+        }
+    }
+}

@@ -99,7 +99,8 @@ public class RequestHeaderContext : RequestContext, IRequestHeaderContext
         this.ClientPuid =
             httpContextAccessor?.HttpContext?.Request?.Headers.GetFirstOrDefault(
                 HeaderClientPuid);
-
+        
+        this.ClientIpAddress = httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress.ToString() ?? "0.0.0.0";
         this.AuthorizationObligationType =
             headers.GetFirstOrDefault(HeaderAccountObligationType);
         this.AuthorizationObligations = headers.GetFirstOrDefault(HeaderAccountObligations);
@@ -127,9 +128,6 @@ public class RequestHeaderContext : RequestContext, IRequestHeaderContext
 
     /// <inheritdoc />
     public string ClientAudience { get; set; }
-
-    /// <inheritdoc />
-    public string ClientObjectId { get; set; }
 
     /// <inheritdoc />
     public string ClientPrincipalName { get; set; }
@@ -195,7 +193,6 @@ public class RequestHeaderContext : RequestContext, IRequestHeaderContext
         {
             return defaultFieldValue;
         }
-
         byte[] data = Convert.FromBase64String(encodedString);
 
         return Encoding.UTF8.GetString(data);

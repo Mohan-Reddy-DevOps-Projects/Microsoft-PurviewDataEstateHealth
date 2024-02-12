@@ -1,0 +1,81 @@
+parameters:
+- name: deployType
+  type: string
+  displayName: Deploy Type
+  default: minor
+  values:
+  - major
+  - minor
+  - powerBi
+
+- name: productionRegions
+  type: string
+  displayName: Production Regions Override
+  default: '*'
+
+- name: regionExceptions
+  type: string
+  displayName: Comma-delimited list of regions to exclude from deployment - enter "none" if there are none
+  default: 'centraluseuap,westus2,francecentral,uaenorth' #Canary is excluded due to it being a demo environment; rest of regions are excluded because Data Catalog needs to be built out there first.
+
+- name: expediteRollout
+  displayName: Expedite Rollout -  use when you need to rapidly deploy a hotfix. This sets the rollout type to "emergency" and miminizes the validation waiting time between tiers.  
+  type: boolean
+  default: false
+
+- name: globalOutageRollout
+  displayName: Global Outage Rollout - WARNING - this rollout will trigger audit emails and the leadership team will be notified.  ONLY use this to resolve Sev 1 or Sev 0 incidents.
+  type: boolean
+  default: false
+
+- name: 'icmIncidentId'
+  displayName: 'IcM Incident Id - Fill this when deploying a release to fix a Sev 2, Sev 1, or Sev 0 ICM'
+  type: number
+  default: 0
+
+- name: 'debug'
+  displayName: 'Enable debug output'
+  type: boolean
+  default: false
+
+trigger: none
+
+resources:
+  repositories: 
+  - repository: pdgTemplates
+    type: git
+    name: SharedYamlTemplates
+    ref: refs/heads/main
+
+extends:
+  template: v1/Pdg.Release.Containers.Official.yml@pdgTemplates
+  parameters:
+    expediteRollout: ${{ parameters.expediteRollout }}
+    globalOutageRollout: ${{ parameters.globalOutageRollout }}
+    icmIncidentId: ${{ parameters.icmIncidentId }}
+    buildSolution: dirs.proj
+    majorVersion: 1
+    minorVersion: 0
+    containersToPackage:
+    - ApiService
+    - WorkerService
+    productionRegions: ${{ parameters.productionRegions }}
+    regionExceptions: ${{ parameters.regionExceptions }}
+    rolloutSpecPath: Ev2Deployment/Ev2ServiceArtifactsRoot/rolloutSpec.${{parameters.deployType}}.json
+    serviceRootPath: Ev2Deployment/Ev2ServiceArtifactsRoot
+    alias: "DataEstateHealth"
+    postBuildSteps:
+    - template: DataEstateHealth.Build.PostBuildSteps.yml
+
+    otherReleaseStages: 
+    - ${{ if eq(parameters['deployType'],'powerBi')}}:
+      - template: v1/stages/Pdg.Release.Base.yml@pdgTemplates
+        parameters:
+          ob_release_environment: Production
+          regions: ${{ parameters.productionRegions }}
+          regionExceptions: ${{ parameters.regionExceptions }}
+          rolloutSpecPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot/rolloutSpec.powerBI.major.json
+          serviceRootPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot
+          pdgEnvironment: Production
+          alias: 'DataEstateHealthPowerBI'
+

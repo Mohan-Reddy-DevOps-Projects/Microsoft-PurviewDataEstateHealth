@@ -8,7 +8,7 @@
     <BUILD_BUILDID Condition=" '$(BUILD_BUILDID)' == '' ">localbuildnumber</BUILD_BUILDID>
     <BUILD_SOURCEBRANCH Condition=" '$(BUILD_SOURCEBRANCH)' == '' ">localbranch</BUILD_SOURCEBRANCH>
     <BUILD_SOURCEBRANCH>$(BUILD_SOURCEBRANCH.Replace('refs/heads/', '').Replace('refs/pull/', ''))</BUILD_SOURCEBRANCH>
-    <ServiceGroupRootDropPath>$(LocalDropPath)/$(Configuration)/$(Platform)/Ev2Deployment/Ev2ServiceArtifactsRoot</ServiceGroupRootDropPath>
+    <ServiceGroupRootDropPath>$(LocalDropPath)/Ev2Deployment/Ev2ServiceArtifactsRoot</ServiceGroupRootDropPath>
     <IsPublishable>false</IsPublishable>
   </PropertyGroup>
 

@@ -13,7 +13,7 @@ param maxReplicas int = 10
 param minReplicas int = 1
 param subdomainName string = ''
 param readinessPort int
-param serviceId string
+param genevaErrorLogTableId string
 
 resource acaEnvironment 'Microsoft.App/managedEnvironments@2023-05-01' existing = {
   name: acaEnvironmentName
@@ -44,7 +44,7 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
   properties: {
     managedEnvironmentId: acaEnvironment.id
     configuration: {
-      maxInactiveRevisions: 5
+      maxInactiveRevisions: 2
       ingress: externalIngress ? {
         clientCertificateMode: 'require'
         external: true
@@ -105,8 +105,8 @@ resource containerApp 'Microsoft.App/containerApps@2023-05-02-preview' = {
               value: imageTagName
             }
             {
-              name: 'SERVICE_ID'
-              value: serviceId
+              name: 'GENEVA_ERROR_LOG_TABLE_ID'
+              value: genevaErrorLogTableId
             }
           ]
           resources: {

@@ -22,6 +22,8 @@ public class RequestContext : IRequestContext
         this.CatalogId = other.CatalogId;
         this.CorrelationId = other.CorrelationId;
         this.TenantId = other.TenantId;
+        this.ClientIpAddress = other.ClientIpAddress;
+        this.ClientObjectId = other.ClientObjectId;
     }
 
     public IRequestContext WithCallbackContext(CallbackRequestContext callbackContext)
@@ -35,6 +37,8 @@ public class RequestContext : IRequestContext
             CatalogId = callbackContext.CatalogId,
             CorrelationId = callbackContext.CorrelationId,
             TenantId = callbackContext.TenantId,
+            ClientObjectId = callbackContext.ClientObjectId,
+            ClientIpAddress = callbackContext.ClientIpAddress
         };
     }
 
@@ -62,4 +66,8 @@ public class RequestContext : IRequestContext
     public Guid TenantId { get; set; }
 
     public string CorrelationId { get; set; }
+
+    public string ClientObjectId { get; set; }
+
+    public string ClientIpAddress { get; set; }
 }

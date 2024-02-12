@@ -38,8 +38,8 @@
       "subdomainName":{
         "value": "__INFRA_API_SERVICE_SUBDOMAIN_NAME__"
       },
-      "serviceId":{
-        "value": "__INFRA_SERVICE_ID__"
+      "genevaErrorLogTableId":{
+        "value": "__INFRA_GENEVA_ERROR_LOG_TABLE_ID__"
       }
     }
   }

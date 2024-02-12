@@ -11,6 +11,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using System.Diagnostics;
 using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using OpenTelemetry.Audit.Geneva;
 
 /// <summary>
 /// Logger for singleton services that does not log scoped parameters
@@ -18,7 +19,9 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 public abstract class DataEstateHealthLogger
 {
     private readonly ILogger logger;
-
+    
+    private static readonly ILogger dataPlaneAuditLogger =
+       AuditLoggerFactory.Create(AuditOptions.DefaultForUnixDomainSocket).CreateDataPlaneLogger();
     private readonly EnvironmentConfiguration environmentConfiguration;
 
     /// <summary>
@@ -193,5 +196,42 @@ public abstract class DataEstateHealthLogger
     protected virtual IRequestContext GetRequestContext()
     {
         return null;
+    }
+
+    /// <inheritdoc/>
+    public void LogAudit(
+        AuditOperation auditOperation,
+        OperationType operationType,
+        OperationResult operationResult,
+        string targetResourceType,
+        string targetResourceId,
+        OperationCategory operationCategory = OperationCategory.ResourceManagement)
+    {
+        try
+        {
+            var httpContext = this.GetRequestContext();
+
+            var auditRecord = new AuditRecord();
+            auditRecord.OperationName = auditOperation.ToString();
+            auditRecord.AddOperationCategory(OperationCategory.ResourceManagement);
+            auditRecord.OperationType = operationType;
+            auditRecord.OperationResult = operationResult;
+
+            auditRecord.OperationAccessLevel = "Owner";
+
+            auditRecord.OperationResultDescription = operationResult.ToString();
+            auditRecord.AddCallerIdentity(CallerIdentityType.ObjectID, httpContext?.ClientObjectId ?? Guid.Empty.ToString());
+            auditRecord.AddCallerAccessLevels(new[] { auditRecord.OperationAccessLevel });
+            auditRecord.CallerIpAddress = httpContext?.ClientIpAddress ?? "0.0.0.0";
+            auditRecord.CallerAgent = "Purview Gateway";
+            auditRecord.AddTargetResource(targetResourceType, targetResourceId);
+            auditRecord.OperationResult = operationResult;
+
+            dataPlaneAuditLogger.LogAudit(auditRecord);
+        }
+        catch (Exception ex)
+        {
+            this.LogError("Failed to capture audit log.", ex);
+        }
     }
 }

@@ -6,7 +6,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <EnlistmentRoot>$(MSBuildThisFileDirectory.TrimEnd('\\'))</EnlistmentRoot>
-    <LocalDropPath>$(EnlistmentRoot)\target</LocalDropPath>
+    <LocalDropPath>$(EnlistmentRoot)\artifacts</LocalDropPath>
     <LocalRepositoryPath>$(EnlistmentRoot)\packages</LocalRepositoryPath>
     <RunSettingsFilePath>$(EnlistmentRoot)\src\.runsettings</RunSettingsFilePath>
 

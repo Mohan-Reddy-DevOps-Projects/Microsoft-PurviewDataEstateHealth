@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Platforms>x64</Platforms>
+	<RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>221e1ba3-6df5-4819-a672-755dc3f37dd9</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
@@ -53,11 +54,4 @@
       <LastGenOutput>StringResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  
-  <Target Name="CopyFiles" AfterTargets="AfterBuild">
-    <ItemGroup>
-      <OutputFiles Include="$(OutputPath)\**\*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(OutputFiles)" DestinationFolder="$(LocalDropPath)\$(Configuration)\$(Platform)\ApiService\%(RecursiveDir)" />
-  </Target>
 </Project>

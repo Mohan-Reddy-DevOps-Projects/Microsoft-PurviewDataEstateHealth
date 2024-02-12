@@ -2,12 +2,11 @@
   "$schema": "https://ev2schema.azure.net/schemas/2020-04-01/RegionAgnosticServiceModel.json",
   "contentVersion": "1.0.0",
   "serviceMetadata": {
-    "serviceIdentifier":"f04e5f0a-a46b-4f9c-8bf7-d53ced284864",
-    "serviceGroup": "Microsoft.Azure.PDG.Infrastructure",
-    "displayName": "PDG Infrastructure",
+    "serviceIdentifier":"bfb4cdad-af08-464f-8b50-9d33de7df1de",
+    "serviceGroup": "Microsoft.Purview.PDG.DataEstateHealth",
+    "displayName": "PDG - Data Estate Health",
     "environment": "$config(pdg.environment.name)",
     "TenantId": "$config(pdg.tenant.id)",
-    "serviceSpecificationPath": "serviceSpec.json",
     "buildout": {
       "isForAutomatedBuildout": "false"
     }
@@ -15,7 +14,7 @@
   "serviceResourceGroupDefinitions": [
     {
       "name": "dataEstateHealthResourceGroupDefinition",
-      "azureResourceGroupName": "$config(resourceGroupName)",
+      "azureResourceGroupName": "$config(dgh.resourceGroupName)",
       "subscriptionKey": "$config(pdg.regionSharedInfrastructure.subscriptionKeyPrefixes.core)$location()",
       "serviceResourceDefinitions": [
         {
@@ -221,7 +220,7 @@
     },
     {
       "name": "processingStorageResourceGroupDefinition",
-      "azureResourceGroupName": "$config(processingStorage.resourceGroupName)",
+      "azureResourceGroupName": "$config(pdg.processingStorage.resourceGroupName)",
       "subscriptionKey": "$config(pdg.regionSharedInfrastructure.subscriptionKeyPrefixes.storage)$location()-$stamp()",
       "stamps": {
         "count": 1

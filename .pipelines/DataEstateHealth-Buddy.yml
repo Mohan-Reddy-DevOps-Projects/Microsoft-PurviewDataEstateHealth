@@ -1,4 +1,8 @@
-trigger: none # https://aka.ms/obpipelines/triggers
+trigger:  
+ batch: true
+ branches:
+  exclude:
+    - main
 
 parameters:
 - name: 'debug'

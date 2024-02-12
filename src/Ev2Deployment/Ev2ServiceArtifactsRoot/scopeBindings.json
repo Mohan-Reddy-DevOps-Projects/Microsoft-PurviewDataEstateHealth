@@ -23,15 +23,15 @@
         "bindings": [
             {
             "find": "__CATALOG_RESOURCE_GROUP_NAME__",
-            "replaceWith": "$config(catalog.resourceGroupName)"
+            "replaceWith": "$config(pdg.firstParty.catalog.resourceGroupName)"
             },
             {
             "find": "__CATALOG_SUBSCRIPTION_ID__",
-            "replaceWith": "$config(catalog.subscriptionId)"
+            "replaceWith": "$config(pdg.firstParty.catalog.subscriptionId)"
             },
             {
             "find": "__CATALOG_EVENT_HUB_NAMESPACE_NAME__",
-            "replaceWith": "$config(catalog.eventHubNamespaceName)"
+            "replaceWith": "$config(pdg.firstParty.catalog.eventHubNamespaceName)"
             }
         ]
     },
@@ -44,7 +44,7 @@
         },
         {
           "find": "__CERTS_CLIENT_CERT_DOMAIN__",
-          "replaceWith": "health.$config(dnsZoneName)"
+          "replaceWith": "health.$config(pdg.tenant.dnsZoneName)"
         },
         {
           "find": "__CERTS_PRIVATE_ISSUER_NAME__",
@@ -68,7 +68,7 @@
         },
         {
           "find": "__CERTS_ARTIFACT_STORE_CERT_DOMAIN__",
-          "replaceWith": "health-artifactstore.$config(dnsZoneName)"
+          "replaceWith": "health-artifactstore.$config(pdg.tenant.dnsZoneName)"
         }
       ]
     },
@@ -81,7 +81,7 @@
             },
             {
                 "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_DNS_ZONE_NAME__",
-                "replaceWith": "$config(dnsZoneName)"
+                "replaceWith": "$config(pdg.tenant.dnsZoneName)"
             },
             {
                 "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_RESOURCE_GROUP_NAME__",
@@ -89,11 +89,11 @@
             },
             {
                 "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_SUBSCRIPTION_ID__",
-                "replaceWith": "$config(cloudShareInfrastructureSubscriptionId)"
+                "replaceWith": "$config(pdg.cloudSharedInfrastructure.subscriptionId)"
             },
             {
                 "find": "__CORE_RESOURCE_GROUP_NAME__",
-                "replaceWith": "$config(pdg.regionSharedInfrastructure.resourceGroupPrefix)$config(regionName)"
+                "replaceWith": "$config(pdg.regionSharedInfrastructure.resourceGroupPrefixes.sharedInfra)$config(regionName)"
             },
             {
                 "find": "__CORE_VNET_NAME__",
@@ -106,7 +106,7 @@
         "bindings": [
             {
                 "find": "__INFRA_API_SERVICE_CONTAINER_APP_NAME__",
-                "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-apiservice-ca"
+                "replaceWith": "$config(dgh.serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-apiservice-ca"
             },
             {
               "find": "\"__INFRA_API_SERVICE_CONTAINER_APP_READINESS_PORT__\"",
@@ -114,11 +114,11 @@
             },
             {
                 "find": "__INFRA_API_SERVICE_IMAGE_NAME__",
-                "replaceWith": "$config(serviceShortName)-apiservice"
+                "replaceWith": "$config(dgh.serviceShortName)-apiservice"
             },
             {
                 "find": "__INFRA_API_SERVICE_SUBDOMAIN_NAME__",
-                "replaceWith": "$config(subdomainName)"
+                "replaceWith": "$config(dgh.subdomainName)"
             },
             {
                 "find": "__INFRA_COMMON_STORAGE_ACCOUNT_NAME__",
@@ -126,7 +126,7 @@
             },
             {
                 "find": "__INFRA_CONTAINER_APP_IDENTITY_NAME__",
-                "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-ca-identity"
+                "replaceWith": "$config(dgh.serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-ca-identity"
             },
             {
                 "find": "__INFRA_IMAGE_TAG_NAME__",
@@ -134,15 +134,15 @@
             },
             {
                 "find": "__INFRA_JOB_STORAGE_ACCOUNT_NAME__",
-                "replaceWith": "$config(serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)jobs"
+                "replaceWith": "$config(dgh.serviceShortName)$config(pdg.environment.shortName)$config(regionShortName)jobs"
             },
             {
                 "find": "__INFRA_KEY_VAULT_NAME__",
-                "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-kv"
+                "replaceWith": "$config(dgh.serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-kv"
             },
             {
                 "find": "__INFRA_KEY_VAULT_URI__",
-                "replaceWith": "https://$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-kv.$config(keyVault.domainNameSuffix)"
+                "replaceWith": "https://$config(dgh.serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-kv.$config(keyVault.domainNameSuffix)"
             },
             {
                 "find": "\"__INFRA_PROCESSING_STORAGE_SUBSCRIPTIONS__\"",
@@ -150,7 +150,7 @@
             },
             {
                 "find": "__INFRA_RESOURCE_GROUP_NAME__",
-                "replaceWith": "$config(resourceGroupName)"
+                "replaceWith": "$config(dgh.resourceGroupName)"
             },
             {
                 "find": "__INFRA_SUBSCRIPTION_ID__",
@@ -162,7 +162,7 @@
             },
             {
                 "find": "__INFRA_WORKER_SERVICE_CONTAINER_APP_NAME__",
-                "replaceWith": "$config(serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-workerservice-ca"
+                "replaceWith": "$config(dgh.serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-workerservice-ca"
             },
             {
               "find": "\"__INFRA_WORKER_SERVICE_CONTAINER_APP_READINESS_PORT__\"",
@@ -170,7 +170,7 @@
             },
             {
                 "find": "__INFRA_WORKER_SERVICE_IMAGE_NAME__",
-                "replaceWith": "$config(serviceShortName)-workerservice"
+                "replaceWith": "$config(dgh.serviceShortName)-workerservice"
             },
             {
                 "find": "__INFRA_SYNAPSE_WORKSPACE_NAME__",
@@ -190,15 +190,15 @@
             },
             {
                 "find": "__INFRA_SYNAPSE_LOCATION__",
-                "replaceWith": "$config(synapseRegion)"
+                "replaceWith": "$config(dgh.synapseRegion)"
             },
             {
-                "find": "__INFRA_CONTAINER_APP_OBJECT_ID__",
-                "replaceWith": "$serviceResourceDefinition(infrastructureResourceDefinition).action(deploy).outputs(containerAppIdentityObjectId.value)"
+                "find": "__INFRA_CONTAINER_APP_CLIENT_ID__",
+                "replaceWith": "$serviceResourceDefinition(infrastructureResourceDefinition).action(deploy).outputs(containerAppIdentityClientId.value)"
             },
             {
-              "find": "__INFRA_SERVICE_ID__",
-              "replaceWith": "$config(pdg.genevaAccountProvisioning.serviceIds.dgHealth)"
+              "find": "__INFRA_GENEVA_ERROR_LOG_TABLE_ID__",
+              "replaceWith": "$config(pdg.genevaAccountProvisioning.genevaLogTableIds.dgHealth-errorLog)"
             },
             {
                 "find": "__INFRA_SYNAPSE_DB_NAME__",
@@ -228,11 +228,11 @@
       "bindings": [
         {
           "find": "__PROCESSING_STORAGE_ACCOUNT_NAME__",
-          "replaceWith": "$config(processingStorage.accountName)"
+          "replaceWith": "$config(pdg.processingStorage.accountName)"
         },
         {
           "find": "__PROCESSING_STORAGE_TABLE_NAME__",
-          "replaceWith": "$config(processingStorage.tableName)"
+          "replaceWith": "$config(pdg.processingStorage.tableName)"
         }
       ]
     }

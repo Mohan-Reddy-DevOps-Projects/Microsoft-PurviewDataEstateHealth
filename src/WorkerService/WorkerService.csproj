@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Platforms>x64</Platforms>
+	<RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>3c2d3b1c-3a11-4a16-ad6d-10a744950c87</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
@@ -24,10 +25,4 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Target Name="CopyFiles" AfterTargets="AfterBuild">
-    <ItemGroup>
-      <OutputFiles Include="$(OutputPath)\**\*.*" />
-    </ItemGroup>
-    <Copy SourceFiles="@(OutputFiles)" DestinationFolder="$(LocalDropPath)\$(Configuration)\$(Platform)\WorkerService\%(RecursiveDir)" />
-  </Target>
 </Project>

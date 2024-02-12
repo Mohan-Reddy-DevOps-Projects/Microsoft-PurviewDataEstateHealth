@@ -1,0 +1,44 @@
+{
+    "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
+    "settings": {
+        "dgh": {
+            "powerBiClientId": "28456abb-1abf-47c1-abc3-acb68b96484e",
+            "dgFPAClientId": "6afef871-d95c-4232-91b2-62e704ccaafa",
+            "powerBiEnabled": "true",
+            "resourceGroupName": "dgh-prod-$(regionName)-rg",
+            "serverlessPoolEnabled": "true",
+            "serviceShortName": "dgh",
+            "subdomainName": "prod-$(regionName)-health",
+            "synapseRegion": "$(regionName)",
+            "useEstsr": "true",
+            "sparkPoolTableName": "SparkPool",
+            "acrName":"$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
+            "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)$(regionShortName)common",
+            "synapseWorkspaceName": "$(dgh.serviceShortName)$(pdg.environment.shortName)$(regionShortName)workspace",
+            "apiServiceReadinessProbePort": 8081,
+            "workerServiceReadinessProbePort": 8082,
+            "sqlAdminUserSecretName": "synapseSqlAdminUsername",
+            "sqlAdminPassSecretName": "synapseSqlAdminPassword",
+            "scheduleSubjectName": "dgschedule-logicapp-client-$(pdg.environment.shortName)-$(pdg.firstParty.purviewShortRegion).$(pdg.tenant.dnsZoneName)"
+        }
+    },
+    "geographies": [
+        {
+            "Name": "Canary (US)",
+            "regions": [
+                {
+                    "name": "centraluseuap",
+                    "settings": {
+                        "dgh": {
+                            "synapseRegion": "eastus2euap",
+                            "subdomainName": "prod-eastus2euap-health",
+                            "resourceGroupName": "dgh-canary-centraluseuap-rg",
+                            "synapseWorkspaceName": "$(dgh.serviceShortName)cnrycdmworkspace",
+                            "scheduleSubjectName": "dgschedule-logicapp-client-$(pdg.environment.shortName)-eus2.$(pdg.tenant.dnsZoneName)"
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

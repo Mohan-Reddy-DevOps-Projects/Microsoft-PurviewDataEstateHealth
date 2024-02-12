@@ -29,8 +29,8 @@
       "imageTagName":{
         "value": "__INFRA_IMAGE_TAG_NAME__"
       },
-      "serviceId":{
-        "value": "__INFRA_SERVICE_ID__"
+      "genevaErrorLogTableId":{
+        "value": "__INFRA_GENEVA_ERROR_LOG_TABLE_ID__"
       }
     }
   }

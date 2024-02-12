@@ -10,7 +10,7 @@
       }
     },
     "name": "Microsoft.Purview.PDG.DataEstateHealth",
-    "rolloutType": "major",
+    "rolloutType": "minor",
     "buildSource": {
       "parameters": {
         "versionFile": "version.txt"
@@ -39,7 +39,7 @@
             "name": "deployPowerBIFiles",
             "targetType": "ServiceResourceDefinition",
             "targetName": "powerBIFilesResourceDefintion",
-            "actions": [ "Shell/Run" ]
+            "actions": [ "wait/skip" ]
         },
         {
             "name": "deployPythonFiles",
@@ -52,13 +52,13 @@
             "name": "pushApiServiceImage",
             "targetType": "ServiceResourceDefinition",
             "targetName": "apiServiceImageResourceDefinition",
-            "actions": [ "wait/skip" ]
+            "actions": [ "Shell/Run" ]
         },
         {
             "name": "pushWorkerServiceImage",
             "targetType": "ServiceResourceDefinition",
             "targetName": "workerServiceImageResourceDefinition",
-            "actions": [ "wait/skip" ]
+            "actions": [ "Shell/Run" ]
         },
         {
             "name": "addDnsRecords",
@@ -68,15 +68,17 @@
         },
         {
             "name": "deployApiService",
+            "dependsOn": ["pushApiServiceImage"],
             "targetType": "ServiceResourceDefinition",
             "targetName": "apiServiceContainerAppResourceDefinition",
-            "actions": [ "wait/skip" ]
+            "actions": [ "deploy" ]
         },
         {
             "name": "deployWorkerService",
+            "dependsOn": ["pushWorkerServiceImage"],
             "targetType": "ServiceResourceDefinition",
             "targetName": "workerServiceContainerAppResourceDefinition",
-            "actions": [ "wait/skip" ]
+            "actions": [ "deploy" ]
         }
     ]
 }

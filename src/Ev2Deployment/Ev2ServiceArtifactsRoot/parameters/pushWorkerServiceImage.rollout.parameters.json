@@ -26,7 +26,7 @@
           {
             "name": "TARBALL_IMAGE_FILE_SAS",
             "reference": {
-              "path": "dgh.workerservice.tar.gz"
+              "path": "workerservice.tar.gz"
             },
             "asSecureValue": "true"
           },
