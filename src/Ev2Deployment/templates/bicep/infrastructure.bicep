@@ -493,3 +493,4 @@ module eventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
 }
 
 output containerAppIdentityClientId string = containerAppIdentity.properties.clientId
+output containerAppIdentityObjectId string = containerAppIdentity.properties.principalId

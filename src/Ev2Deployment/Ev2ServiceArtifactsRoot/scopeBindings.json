@@ -193,6 +193,10 @@
                 "replaceWith": "$config(dgh.synapseRegion)"
             },
             {
+              "find": "__INFRA_CONTAINER_APP_OBJECT_ID__",
+              "replaceWith": "$serviceResourceDefinition(infrastructureResourceDefinition).action(deploy).outputs(containerAppIdentityObjectId.value)"
+            },
+            {
                 "find": "__INFRA_CONTAINER_APP_CLIENT_ID__",
                 "replaceWith": "$serviceResourceDefinition(infrastructureResourceDefinition).action(deploy).outputs(containerAppIdentityClientId.value)"
             },
