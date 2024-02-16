@@ -10,9 +10,6 @@ using global::Azure.ResourceManager.Storage.Models;
 
 internal static class ManagementPolicies
 {
-    // Only delete is supported for appendBlob
-    private static readonly ManagementPolicyFilter filter = new(new List<string> { "blockBlob", "appendBlob" });
-
     public static StorageAccountManagementPolicyData GetStorageManagementPolicyRules()
     {
         return new StorageAccountManagementPolicyData()
@@ -41,6 +38,9 @@ internal static class ManagementPolicies
                 },
             },
         };
+
+        // Only delete is supported for appendBlob
+        ManagementPolicyFilter filter = new ManagementPolicyFilter(new List<string> { "blockBlob", "appendBlob" });
 
         foreach (string prefixMatch in prefixMatches)
         {
