@@ -79,4 +79,5 @@ extends:
           serviceRootPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot
           pdgEnvironment: Production
           alias: 'DataEstateHealthPowerBI'
-
+          ${{ if or(eq(parameters['expediteRollout'],'true'),eq(parameters['globalOutageRollout'],'true')) }}:
+            isEnvApprovalExempt: true
