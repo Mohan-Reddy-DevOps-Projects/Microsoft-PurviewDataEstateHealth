@@ -50,7 +50,7 @@
         "Extension/CreateOneCertV2PrivateIssuer",
         "Extension/CreateCertificate-Client",
         "Extension/CreateCertificate-ArtifactStore",
-        "Extension/ManageSynapseRBAC"
+        "Extension/ManageSynapseRBAC-add"
       ],
       "onFailure": {
         "continue": {
