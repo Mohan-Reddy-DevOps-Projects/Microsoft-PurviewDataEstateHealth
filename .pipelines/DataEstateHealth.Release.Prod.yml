@@ -64,6 +64,7 @@ extends:
     rolloutSpecPath: Ev2Deployment/Ev2ServiceArtifactsRoot/rolloutSpec.${{parameters.deployType}}.json
     serviceRootPath: Ev2Deployment/Ev2ServiceArtifactsRoot
     alias: "DataEstateHealth"
+    pdgEnvironment: prod
     postBuildSteps:
     - template: DataEstateHealth.Build.PostBuildSteps.yml
 

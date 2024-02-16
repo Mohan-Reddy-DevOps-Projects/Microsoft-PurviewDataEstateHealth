@@ -1,0 +1,57 @@
+parameters:
+- name: deployType
+  type: string
+  displayName: Deploy Type
+  default: minor
+  values:
+  - major
+  - minor
+  - powerBi
+
+- name: 'debug'
+  displayName: 'Enable debug output'
+  type: boolean
+  default: false
+
+trigger: none
+
+resources:
+  repositories: 
+  - repository: pdgTemplates
+    type: git
+    name: SharedYamlTemplates
+    ref: refs/heads/main
+
+extends:
+  template: v1/Pdg.Release.Containers.Official.yml@pdgTemplates
+  parameters:
+    expediteRollout: false
+    globalOutageRollout: false
+    icmIncidentId: 0
+    buildSolution: dirs.proj
+    majorVersion: 1
+    minorVersion: 0
+    containersToPackage:
+    - ApiService
+    - WorkerService
+    productionRegions: '*'
+    regionExceptions: none
+    rolloutSpecPath: Ev2Deployment/Ev2ServiceArtifactsRoot/rolloutSpec.${{parameters.deployType}}.json
+    serviceRootPath: Ev2Deployment/Ev2ServiceArtifactsRoot
+    pdgEnvironment: dev
+    alias: "DataEstateHealth"
+    postBuildSteps:
+    - template: DataEstateHealth.Build.PostBuildSteps.yml
+
+    otherReleaseStages: 
+    - ${{ if eq(parameters['deployType'],'powerBi')}}:
+      - template: v1/stages/Pdg.Release.Base.yml@pdgTemplates
+        parameters:
+          ob_release_environment: PPE
+          regions: '*'
+          regionExceptions: none
+          rolloutSpecPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot/rolloutSpec.powerBI.major.json
+          serviceRootPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot
+          pdgEnvironment: dev
+          alias: 'DataEstateHealthPowerBI'
+
