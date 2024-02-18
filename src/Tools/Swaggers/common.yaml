@@ -87,105 +87,14 @@ paths:
         "204":
           description: OK
 
-  /controls/{controlId}/schedules:
+  /controls/{controlId}/trigger:
     parameters:
       - name: controlId
         in: path
         required: true
         schema:
           type: string
-    get:
-      operationId: List Schedules By Control ID
-      description: Get all schedules by control id.
-      tags:
-        - Control
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Schedule"
     post:
-      operationId: Create Control Schedule
-      description: Create control schedule.
-      tags:
-        - Control
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Schedule"
-      responses:
-        "201":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Schedule"
-
-  /controls/{controlId}/schedules/{scheduleId}:
-    parameters:
-      - name: controlId
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: scheduleId
-        in: path
-        required: true
-        schema:
-          type: string
-    get:
-      operationId: Get Schedule By ID
-      description: Get a schedule by id.
-      tags:
-        - Control
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Schedule"
-    put:
-      operationId: Update Schedule By ID
-      description: Update a schedule.
-      tags:
-        - Control
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Schedule"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Schedule"
-    delete:
-      operationId: Delete Schedule By ID
-      description: Delete a schedule.
-      tags:
-        - Control
-      responses:
-        "204":
-          description: OK
-  /controls/{controlId}/schedules/{scheduleId}/trigger:
-    parameters:
-      - name: controlId
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: scheduleId
-        in: path
-        required: true
-        schema:
-          type: string
-    get:
       operationId: Trigger schedule
       description: Trigger a schedule by id.
       tags:
@@ -625,10 +534,12 @@ components:
                   type: string
                   description: The assessment id of the control.
                   example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+                schedule: 
+                  $ref: "#/components/schemas/Schedule"
                 
     Schedule:
       allOf:
-        - $ref: "#/components/schemas/BaseEntity"
+        # - $ref: "#/components/schemas/BaseEntity"
         - type: object
           properties:
             frequency:
