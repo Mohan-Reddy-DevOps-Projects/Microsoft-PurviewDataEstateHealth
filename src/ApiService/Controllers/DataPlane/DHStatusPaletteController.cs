@@ -59,7 +59,7 @@ public class DHStatusPaletteController(DHStatusPaletteService statusPaletteServi
             throw new InvalidRequestException(StringResources.ErrorMessageInvalidPayload);
         }
 
-        var wrapper = DHControlStatusPaletteWrapper.Create(payload!);
+        var wrapper = DHControlStatusPaletteWrapper.Create(payload);
 
         var entity = await statusPaletteService.UpdateStatusPaletteByIdAsync(id, wrapper).ConfigureAwait(false);
 

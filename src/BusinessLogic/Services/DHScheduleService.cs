@@ -1,11 +1,15 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+    using Microsoft.DGP.ServiceBasics.BaseModels;
     using Microsoft.Extensions.Options;
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.DHConfigurations;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using System.Collections.Generic;
 
     using System.Threading.Tasks;
@@ -35,25 +39,41 @@
             this.scheduleConfiguration = scheduleConfiguration.Value;
         }
 
-        public async Task CreateScheduleAsync(DHControlScheduleWrapper schedule, string controlId)
+        public async Task<DHControlScheduleWrapper> GetScheduleByIdAsync(string scheduleId)
+        {
+            var schedule = await this.dhControlScheduleRepository.GetByIdAsync(scheduleId).ConfigureAwait(false);
+
+            if (schedule == null)
+            {
+                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), scheduleId));
+            }
+
+            return schedule;
+        }
+
+        public async Task<DHControlScheduleWrapper> CreateScheduleAsync(DHControlScheduleWrapper schedule, string controlId)
         {
             var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
             var response = await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
             schedule.Id = response.ScheduleId;
             await this.dhControlScheduleRepository.AddAsync(schedule).ConfigureAwait(false);
+
+            return schedule;
         }
 
-        public async Task UpdateScheduleAsync(DHControlScheduleWrapper schedule, string controlId)
+        public async Task<DHControlScheduleWrapper> UpdateScheduleAsync(DHControlScheduleWrapper schedule, string controlId)
         {
             var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
             await this.scheduleServiceClient.UpdateSchedule(schedulePayload).ConfigureAwait(false);
             await this.dhControlScheduleRepository.UpdateAsync(schedule).ConfigureAwait(false);
+
+            return schedule;
         }
 
-        public async Task DeleteScheduleAsync(DHControlScheduleWrapper schedule)
+        public async Task DeleteScheduleAsync(string scheduleId)
         {
-            await this.scheduleServiceClient.DeleteSchedule(schedule.Id).ConfigureAwait(false);
-            await this.dhControlScheduleRepository.DeleteAsync(schedule).ConfigureAwait(false);
+            await this.scheduleServiceClient.DeleteSchedule(scheduleId).ConfigureAwait(false);
+            await this.dhControlScheduleRepository.DeleteAsync(scheduleId).ConfigureAwait(false);
         }
 
         public async Task TriggerScheduleAsync(string scheduleId)

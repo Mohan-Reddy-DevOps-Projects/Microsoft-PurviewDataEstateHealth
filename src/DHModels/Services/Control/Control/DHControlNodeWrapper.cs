@@ -37,7 +37,6 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
         }
     }
 
-
     private DHControlScheduleWrapper? schedule;
 
     [EntityProperty(keySchedule)]

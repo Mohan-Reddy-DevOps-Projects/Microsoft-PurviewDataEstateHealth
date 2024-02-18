@@ -4,6 +4,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
@@ -31,6 +32,11 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
     public async Task<ActionResult> CreateControlAsync(
     [FromBody] JObject payload)
     {
+        if (payload == null)
+        {
+            throw new InvalidRequestException(StringResources.ErrorMessageInvalidPayload);
+        }
+
         var entity = DHControlBaseWrapper.Create(payload);
         var result = await dataHealthControlService.CreateControlAsync(entity).ConfigureAwait(false);
         return this.Created(new Uri($"{this.Request.GetEncodedUrl()}/{result.Id}"), result.JObject);
@@ -44,12 +50,28 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
         return this.Ok(entity.JObject);
     }
 
-    //[HttpPut]
-    //[Route("{id}")]
-    //public async Task<ActionResult> UpdateControlByIdAsync(string id, [FromBody] JObject payload)
-    //{
-    //    var entity = DHControlBaseWrapper.Create(payload);
-    //    await dataHealthControlService.UpdateControlByIdAsync(id, entity).ConfigureAwait(false);
-    //    return this.Ok();
-    //}
+    [HttpPut]
+    [Route("{id}")]
+    public async Task<ActionResult> UpdateControlByIdAsync(string id, [FromBody] JObject payload)
+    {
+        if (payload == null)
+        {
+            throw new InvalidRequestException(StringResources.ErrorMessageInvalidPayload);
+        }
+
+        var wrapper = DHControlBaseWrapper.Create(payload);
+
+        var entity = await dataHealthControlService.UpdateControlByIdAsync(id, wrapper).ConfigureAwait(false);
+
+        return this.Ok(entity.JObject);
+    }
+
+    [HttpDelete]
+    [Route("{id}")]
+    public async Task<ActionResult> DeleteControlByIdAsync(string id)
+    {
+        await dataHealthControlService.DeleteControlByIdAsync(id).ConfigureAwait(false);
+
+        return this.NoContent();
+    }
 }

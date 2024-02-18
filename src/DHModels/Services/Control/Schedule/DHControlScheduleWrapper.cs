@@ -12,7 +12,6 @@ using System.Linq;
 [EntityWrapper(EntityCategory.Schedule)]
 public class DHControlScheduleWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHControlScheduleWrapper>(jObject)
 {
-    private const string keyControlId = "controlId";
     private const string keyFrequency = "frequency";
     private const string keyInterval = "interval";
     private const string keyStartTime = "startTime";

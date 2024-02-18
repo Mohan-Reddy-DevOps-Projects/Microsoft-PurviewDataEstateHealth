@@ -71,7 +71,7 @@
 
             entity.OnUpdate(existEntity, requestHeaderContext.ClientObjectId);
 
-            await dhControlStatusPaletteRepository.AddAsync(entity).ConfigureAwait(false);
+            await dhControlStatusPaletteRepository.UpdateAsync(entity).ConfigureAwait(false);
 
             return entity;
         }
