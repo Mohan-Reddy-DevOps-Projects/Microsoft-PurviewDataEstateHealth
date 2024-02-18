@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
@@ -10,7 +11,8 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
 {
     private const string keyGroupId = "groupId";
     private const string keyDomains = "domains";
-    // private const string keySchedule = "schedule";
+    private const string keySchedule = "schedule";
+    private const string keyScheduleId = "scheduleId";
     private const string keyAssessmentId = "assessmentId";
 
     public DHControlNodeWrapper() : this([]) { }
@@ -35,21 +37,29 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
         }
     }
 
-    /*
-    private DHControlSchedule? schedule;
+
+    private DHControlScheduleWrapper? schedule;
 
     [EntityProperty(keySchedule)]
-    public DHControlSchedule? Schedule
+    public DHControlScheduleWrapper? Schedule
     {
-        // TODO: [@YuanqiuLi] Change to GetPropertyValueAsWrapper when DHControlScheduleWrapper is implemented
-        get => this.schedule ?? this.GetPropertyValue<DHControlSchedule>(keySchedule);
+        get
+        {
+            this.schedule ??= this.GetPropertyValueAsWrapper<DHControlScheduleWrapper>(keySchedule);
+            return this.schedule;
+        }
         set
         {
             this.SetPropertyValue(keySchedule, value);
             this.schedule = value;
         }
     }
-    */
+
+    public string? ScheduleId
+    {
+        get => this.GetTypePropertyValue<string>(keyScheduleId);
+        set => this.SetTypePropertyValue(keyScheduleId, value);
+    }
 
     [EntityTypeProperty(keyAssessmentId)]
     public string? AssessmentId

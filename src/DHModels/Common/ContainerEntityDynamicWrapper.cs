@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public abstract class ContainerEntityDynamicWrapper<T>(JObject jObject) : DynamicEntityWrapper(jObject), IContainerEntityWrapper where T : ContainerEntityDynamicWrapper<T>
 {
@@ -64,7 +65,7 @@ public abstract class ContainerEntityDynamicWrapper<T>(JObject jObject) : Dynami
             Action = ContainerEntityAuditAction.Update,
         };
 
-        this.AuditLogs = [.. existWrapper.AuditLogs ?? [], log];
+        this.AuditLogs = (existWrapper.AuditLogs ?? []).Append(log);
     }
 }
 

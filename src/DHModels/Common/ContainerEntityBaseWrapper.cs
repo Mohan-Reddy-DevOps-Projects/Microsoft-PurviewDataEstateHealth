@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public abstract class ContainerEntityBaseWrapper<T>(JObject jObject) : BaseEntityWrapper(jObject), IContainerEntityWrapper where T : ContainerEntityBaseWrapper<T>
 {
@@ -68,7 +69,7 @@ public abstract class ContainerEntityBaseWrapper<T>(JObject jObject) : BaseEntit
             Action = ContainerEntityAuditAction.Update,
         };
 
-        this.AuditLogs = [.. existWrapper.AuditLogs ?? [], log];
+        this.AuditLogs = (existWrapper.AuditLogs ?? []).Append(log);
     }
 }
 

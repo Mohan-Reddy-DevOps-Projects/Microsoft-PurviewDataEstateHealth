@@ -27,14 +27,6 @@ public class DHControlScheduleWrapper(JObject jObject) : ContainerEntityBaseWrap
 
     public DHControlScheduleWrapper() : this([]) { }
 
-    [EntityProperty(keyControlId, true)]
-    [EntityIdValidator]
-    public string ControlId
-    {
-        get => this.GetPropertyValue<string>(keyControlId);
-        set => this.SetPropertyValue(keyControlId, value);
-    }
-
     [EntityProperty(keyFrequency)]
     public string Frequency
     {

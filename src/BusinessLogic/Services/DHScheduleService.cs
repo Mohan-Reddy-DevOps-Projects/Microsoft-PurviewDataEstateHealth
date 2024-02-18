@@ -35,36 +35,35 @@
             this.scheduleConfiguration = scheduleConfiguration.Value;
         }
 
-        public async Task CreateScheduleAsync(DHControlScheduleWrapper schedule)
+        public async Task CreateScheduleAsync(DHControlScheduleWrapper schedule, string controlId)
         {
-            var schedulePayload = this.CreateScheduleRequestPayload(schedule);
+            var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
             var response = await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
             schedule.Id = response.ScheduleId;
             await this.dhControlScheduleRepository.AddAsync(schedule).ConfigureAwait(false);
         }
 
-        public async Task UpdateScheduleAsync(DHControlScheduleWrapper schedule)
+        public async Task UpdateScheduleAsync(DHControlScheduleWrapper schedule, string controlId)
         {
-            var schedulePayload = this.CreateScheduleRequestPayload(schedule);
+            var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
             await this.scheduleServiceClient.UpdateSchedule(schedulePayload).ConfigureAwait(false);
             await this.dhControlScheduleRepository.UpdateAsync(schedule).ConfigureAwait(false);
         }
 
         public async Task DeleteScheduleAsync(DHControlScheduleWrapper schedule)
         {
-            var schedulePayload = this.CreateScheduleRequestPayload(schedule);
             await this.scheduleServiceClient.DeleteSchedule(schedule.Id).ConfigureAwait(false);
             await this.dhControlScheduleRepository.DeleteAsync(schedule).ConfigureAwait(false);
         }
 
-        public async Task TriggerScheduleAsync(string controlId)
+        public async Task TriggerScheduleAsync(string scheduleId)
         {
             // TOOD: query schedule and trigger it
             // await this.scheduleServiceClient.TriggerSchedule(scheduleId).ConfigureAwait(false);
             await Task.Delay(100);
         }
 
-        private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleWrapper schedule)
+        private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleWrapper schedule, string controlId)
         {
             var payload = new DHScheduleCreateRequestPayload
             {
@@ -73,7 +72,7 @@
                 {
                     Url = this.scheduleConfiguration.CallbackEndpoint + "/internal/control/triggerScheduleJobCallback",
                     Method = "POST",
-                    Body = new DHScheduleCallbackPayload { ControlId = schedule.ControlId },
+                    Body = new DHScheduleCallbackPayload { ControlId = controlId },
                     Headers = new Dictionary<string, string> { { "x-ms-client-tenant-id", this.requestContextAccessor.GetRequestContext().TenantId.ToString() } }
                 }
             };
