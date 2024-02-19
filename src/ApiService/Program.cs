@@ -108,7 +108,7 @@ public class Program
             options.HeaderConverter = CertificateHeaderConverter.Convert;
         });
 
-        if (builder.Environment.IsDevelopment())
+        if (!builder.Environment.IsProduction())
         {
             builder.Services.AddDHConfigurations(builder.Configuration);
             builder.Services.SetupDHModelsServices();
