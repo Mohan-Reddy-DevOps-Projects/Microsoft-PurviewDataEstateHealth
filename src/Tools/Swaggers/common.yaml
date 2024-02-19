@@ -103,6 +103,37 @@ paths:
         "200":
           description: OK
 
+  /controls/schedule:
+    get: 
+      operationId: Get Schedule
+      description: Get Schedule.
+      tags:
+        - Control
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schedule"
+    put:
+      operationId: Create/Update Schedule
+      description: Create or Update Schedule.
+      tags:
+        - Control
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Schedule"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Schedule"
+
   /statusPalette:
     get:
       operationId: List Status Palettes
@@ -534,12 +565,10 @@ components:
                   type: string
                   description: The assessment id of the control.
                   example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
-                schedule: 
-                  $ref: "#/components/schemas/Schedule"
                 
     Schedule:
       allOf:
-        # - $ref: "#/components/schemas/BaseEntity"
+        - $ref: "#/components/schemas/BaseEntity"
         - type: object
           properties:
             frequency:
