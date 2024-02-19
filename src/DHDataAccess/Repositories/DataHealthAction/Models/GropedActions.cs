@@ -16,7 +16,12 @@ public class GroupedActions
             .Select(group => new GroupedActions
             {
                 GroupName = group.Key?.ToString() ?? "",
-                Items = group.Select((item) => item.JObject)
+                Items = group.Select((item) => new JObject {
+                    { DataHealthActionWrapper.keyFindingType, item.FindingType},
+                    { DataHealthActionWrapper.keyFindingSubType, item.FindingSubType},
+                    { DataHealthActionWrapper.keyFindingName, item.FindingName},
+                    { DataHealthActionWrapper.keySeverity, item.Severity.ToString()},
+                })
             });
     }
     [JsonProperty("groupName", Required = Required.Always)]

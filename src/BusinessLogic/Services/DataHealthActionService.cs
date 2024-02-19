@@ -70,6 +70,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             }
             else
             {
+                action.Id = Guid.NewGuid().ToString();
                 action.onCreate();
                 await this.dataHealthActionRepository.AddAsync(action).ConfigureAwait(false);
                 return action;
@@ -99,16 +100,13 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
             var existedAction = await this.GetExistedAction(actionId).ConfigureAwait(false);
 
-            // TOOD(han): replace with a new instance of wrapper will fail in CommonRepository now, so update the existed one directly
-            //action.OnReplace(existedAction);
-            existedAction.Status = action.Status;
-            existedAction.AssignedTo = action.AssignedTo;
+            action.OnReplace(existedAction);
 
             var clientObjectId = this.requestHeaderContext.ClientObjectId?.ToString();
             existedAction.SystemInfo.OnModify(clientObjectId);
 
-            await this.dataHealthActionRepository.UpdateAsync(existedAction).ConfigureAwait(false);
-            return existedAction;
+            await this.dataHealthActionRepository.UpdateAsync(action).ConfigureAwait(false);
+            return action;
         }
 
         public async Task<DataHealthActionWrapper> GetActionByIdAsync(string actionId)
