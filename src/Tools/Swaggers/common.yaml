@@ -441,8 +441,8 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          Group: "#/components/schemas/ControlGroup"
-          Node: "#/components/schemas/ControlNode"
+          ControlGroup: "#/components/schemas/ControlGroup"
+          ControlNode: "#/components/schemas/ControlNode"
 
     ControlBase:
       allOf:
@@ -492,7 +492,7 @@ components:
                         example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
             type:
               type: string
-              enum: [Group, Node]
+              enum: [ControlGroup, ControlNode]
               description: The type of the control.
               example: "Node"
 
@@ -503,9 +503,9 @@ components:
           properties:
             type:
               type: string
-              enum: [Group]
+              enum: [ControlGroup]
               description: The type of the control.
-              example: "Group"
+              example: "ControlGroup"
 
     ControlNode:
       allOf:
@@ -514,9 +514,9 @@ components:
           properties:
             type:
               type: string
-              enum: [Node]
+              enum: [ControlNode]
               description: The type of the control.
-              example: "Node"
+              example: "ControlNode"
             typeProperties:
               type: object
               properties:
@@ -640,7 +640,7 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          Group: "#/components/schemas/RuleGroup"
+          RuleGroup: "#/components/schemas/RuleGroup"
           SimpleRule: "#/components/schemas/RuleSimple"
           ExpressionRule: "#/components/schemas/RuleExpression"
 
@@ -660,7 +660,7 @@ components:
               example: false
             type:
               type: string
-              enum: [Group, SimpleRule, ExpressionRule]
+              enum: [RuleGroup, SimpleRule, ExpressionRule]
               description: The type of the rule.
               example: "SimpleRule"
 
@@ -671,9 +671,9 @@ components:
           properties:
             type:
               type: string
-              enum: [Group]
+              enum: [RuleGroup]
               description: The type of the rule.
-              example: "Group"
+              example: "RuleGroup"
             typeProperties:
               type: object
               properties:
