@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -22,12 +22,14 @@ public abstract class CommonRepository<TEntity>(IRequestHeaderContext requestHea
 
     public virtual async Task<TEntity> AddAsync(TEntity entity)
     {
+        this.PopulateMetadataForEntity(entity);
         var response = await this.CosmosContainer.CreateItemAsync(entity, this.TenantPartitionKey).ConfigureAwait(false);
         return response.Resource;
     }
 
     public virtual async Task<IEnumerable<TEntity>> AddAsync(IEnumerable<TEntity> entities)
     {
+        entities.ForEach(this.PopulateMetadataForEntity);
         var batch = this.CosmosContainer.CreateTransactionalBatch(this.TenantPartitionKey);
 
         foreach (var entity in entities)
@@ -53,10 +55,18 @@ public abstract class CommonRepository<TEntity>(IRequestHeaderContext requestHea
 
     public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
     {
-        var query = this.CosmosContainer.GetItemLinqQueryable<TEntity>(
+        var feedIterator = this.CosmosContainer.GetItemLinqQueryable<TEntity>(
             requestOptions: new QueryRequestOptions { PartitionKey = this.TenantPartitionKey }
-        ).Where(x => true);
-        return await query.ToListAsync().ConfigureAwait(false);
+        ).Where(x => true).ToFeedIterator();
+
+        var results = new List<TEntity>();
+        while (feedIterator.HasMoreResults)
+        {
+            var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+            results.AddRange(response.ToList());
+        }
+
+        return results;
     }
 
     public virtual async Task<TEntity?> GetByIdAsync(string id)
@@ -67,7 +77,14 @@ public abstract class CommonRepository<TEntity>(IRequestHeaderContext requestHea
 
     public virtual async Task<TEntity> UpdateAsync(TEntity entity)
     {
+        this.PopulateMetadataForEntity(entity);
         var response = await this.CosmosContainer.UpsertItemAsync(entity, this.TenantPartitionKey).ConfigureAwait(false);
         return response.Resource;
+    }
+
+    private void PopulateMetadataForEntity(TEntity entity)
+    {
+        entity.TenantId = this.TenantId;
+        entity.AccountId = this.AccountId;
     }
 }

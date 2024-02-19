@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
@@ -21,7 +21,7 @@ public class DataHealthActionRepository(CosmosClient cosmosClient, IRequestHeade
 
     public async Task<DataHealthActionWrapper?> GetActionByFilterAsync(DataHealthActionCategory category, string findingType, string findingSubType, string findingId, DataHealthActionTargetEntityType targetType, string targetId)
     {
-        return await this.CosmosContainer.GetItemLinqQueryable<DataHealthActionWrapper>(
+        var query = this.CosmosContainer.GetItemLinqQueryable<DataHealthActionWrapper>(
             requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey }
         ).Where(
             x => x.Category == category &&
@@ -29,8 +29,15 @@ public class DataHealthActionRepository(CosmosClient cosmosClient, IRequestHeade
             x.FindingSubType == findingSubType &&
             x.FindingId == findingId &&
             x.TargetEntityType == targetType &&
-            x.TargetEntityId == targetId)
-        .SingleOrDefaultAsync().ConfigureAwait(false);
+            x.TargetEntityId == targetId).ToFeedIterator();
+
+        if (query.HasMoreResults)
+        {
+            var response = await query.ReadNextAsync().ConfigureAwait(false);
+            return response.FirstOrDefault(); // Using FirstOrDefault to get a single item or null
+        }
+
+        return null;
     }
 
     public async Task<IEnumerable<GroupedActions>> EnumerateActionsByGroupAsync(string groupBy)

@@ -2,65 +2,122 @@
 
 using Microsoft.Azure.Cosmos;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 public class CosmosWrapperSerializer : CosmosSerializer
 {
+    private readonly JsonSerializer serializer;
+
+    private readonly MethodInfo methodCreateEntityWrapper;
+
+    public CosmosWrapperSerializer()
+    {
+        // Configure the JsonSerializer according to your needs
+        this.serializer = new JsonSerializer
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            Formatting = Formatting.None,
+            // Add more settings here as needed
+        };
+
+        // Get the type of the static class containing the method
+        var helperType = typeof(EntityWrapperHelper);
+
+        // Find the method with the specified attribute
+        this.methodCreateEntityWrapper = helperType.GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .FirstOrDefault(m => m.IsGenericMethod
+                && m.GetGenericArguments().Length == 1 // Ensure the method has one generic type parameter
+                && m.GetParameters().Length == 1 // Ensure the method accepts one parameter
+                && m.GetParameters()[0].ParameterType == typeof(JObject))
+            ?? throw new InvalidOperationException("Can not find the method CreateEntityWrapper for CosmosSerializer to use!"); // Check the parameter type
+    }
+
     public override T FromStream<T>(Stream stream)
     {
-        // Convert the Stream to a JObject
-        using var reader = new StreamReader(stream);
-        using var jsonReader = new JsonTextReader(reader);
-        var serializer = new Newtonsoft.Json.JsonSerializer();
-        var jObject = serializer.Deserialize<JObject>(jsonReader);
-
-        if (jObject == null)
+        if (stream == null || stream.CanRead == false)
         {
 #nullable disable
             return default;
 #nullable enable
         }
 
-        var wrapperJObject = jObject.GetValue(nameof(JObjectBaseWrapper.JObject));
+        using (var sr = new StreamReader(stream))
+        using (var jsonTextReader = new JsonTextReader(sr))
+        {
 
-        if (wrapperJObject == null)
-        {
-#nullable disable
-            return default;
-#nullable enable
-        }
 
-        try
-        {
-            var type = typeof(T);
-            var createMethod = type.GetMethod("Create", BindingFlags.Public | BindingFlags.Static);
+            var jsonObject = this.serializer.Deserialize(jsonTextReader);
+            switch (jsonObject)
+            {
+                case JObject jObject:
+                    var genericMethodToInvoke = this.methodCreateEntityWrapper.MakeGenericMethod(typeof(T));
+                    var wrappedJObject = jObject.GetValue(nameof(JObjectBaseWrapper.JObject));
+                    if (wrappedJObject == null)
+                    {
 #nullable disable
-            return createMethod != null
-                ? (T)createMethod.Invoke(null, new[] { wrapperJObject })
-                : (T)Activator.CreateInstance(type, new[] { wrapperJObject });
+                        return default;
 #nullable enable
-        }
-        catch (TargetInvocationException e)
-        {
-            throw e.InnerException ?? e;
+                    }
+#nullable disable
+                    // Invoke the generic method with the JObject parameter
+                    return (T)genericMethodToInvoke.Invoke(null, [wrappedJObject]);
+#nullable enable
+                case JArray jArray:
+                    var type = typeof(T);
+                    if (type.IsArray)
+                    {
+                        var elementType = type.GetElementType() ?? throw new InvalidOperationException("No element type for an array!");
+                        genericMethodToInvoke = this.methodCreateEntityWrapper.MakeGenericMethod(elementType);
+                        var jObjects = jArray.OfType<JObject>();
+                        var objects = jObjects.Select(x =>
+                        {
+                            var wrappedJObject = x.GetValue(nameof(JObjectBaseWrapper.JObject));
+                            if (wrappedJObject == null)
+                            {
+#nullable disable
+                                return default;
+#nullable enable
+                            }
+                            return genericMethodToInvoke.Invoke(null, [wrappedJObject]);
+                        }).ToArray();
+
+                        var typedArray = Array.CreateInstance(elementType, objects.Length);
+
+                        for (int i = 0; i < objects.Length; i++)
+                        {
+                            // Convert each element as necessary and assign it to the new array
+                            // This example assumes that a direct cast is sufficient
+                            // If not, you might need additional conversion logic here
+                            typedArray.SetValue(Convert.ChangeType(objects[i], elementType), i);
+                        }
+
+                        // Convert the array to type T
+                        return (T)(object)typedArray;
+                    }
+                    throw new InvalidCastException("The type is not an array!");
+                default:
+                    throw new InvalidCastException("The type is not JObject or JArray!");
+            }
         }
     }
 
     public override Stream ToStream<T>(T input)
     {
         var stream = new MemoryStream();
-        var writer = new StreamWriter(stream);
-        var jsonWriter = new JsonTextWriter(writer);
-        var serializer = new JsonSerializer();
-        serializer.Serialize(jsonWriter, input);
-        jsonWriter.Flush(); // Make sure all data is written to the stream
-        writer.Flush(); // Ensure all buffered data is written to the underlying stream
-
-        stream.Position = 0; // Reset the stream position to the beginning
+        using (var sw = new StreamWriter(stream, leaveOpen: true))
+        using (var writer = new JsonTextWriter(sw))
+        {
+            this.serializer.Serialize(writer, input);
+            writer.Flush();
+            sw.Flush();
+        }
+        stream.Position = 0;
         return stream;
     }
 }

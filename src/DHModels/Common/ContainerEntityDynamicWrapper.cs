@@ -39,6 +39,10 @@ public abstract class ContainerEntityDynamicWrapper<T>(JObject jObject) : Dynami
         }
     }
 
+    public string? TenantId { get; set; }
+
+    public string? AccountId { get; set; }
+
     public virtual void OnCreate(string userId)
     {
         this.Id = Guid.NewGuid().ToString();
