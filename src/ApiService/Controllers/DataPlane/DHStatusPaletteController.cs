@@ -1,4 +1,8 @@
-﻿#nullable enable
+﻿// <copyright file="DHStatusPaletteController.cs" company="Microsoft Corporation">
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+
+#nullable enable
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
 using Asp.Versioning;
@@ -37,7 +41,7 @@ public class DHStatusPaletteController(DHStatusPaletteService statusPaletteServi
             throw new InvalidRequestException(StringResources.ErrorMessageInvalidPayload);
         }
 
-        var entity = DHControlStatusPaletteWrapper.Create(payload!);
+        var entity = DHControlStatusPaletteWrapper.Create(payload);
         var result = await statusPaletteService.CreateStatusPaletteAsync(entity).ConfigureAwait(false);
         return this.Created(new Uri($"{this.Request.GetEncodedUrl()}/{result.Id}"), result.JObject);
     }
@@ -68,9 +72,9 @@ public class DHStatusPaletteController(DHStatusPaletteService statusPaletteServi
 
     [HttpDelete]
     [Route("{id}")]
-    public async Task<ActionResult> DeleteStatusPaletteByIdAsync(string dataProductId)
+    public async Task<ActionResult> DeleteStatusPaletteByIdAsync(string id)
     {
-        await statusPaletteService.DeleteStatusPaletteByIdAsync(dataProductId).ConfigureAwait(false);
+        await statusPaletteService.DeleteStatusPaletteByIdAsync(id).ConfigureAwait(false);
 
         return this.NoContent();
     }

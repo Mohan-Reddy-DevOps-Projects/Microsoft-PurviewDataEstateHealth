@@ -16,6 +16,11 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
     private const string keyAggregation = "aggregation";
     private const string keyReserved = "reserved";
 
+    public static MQAssessmentWrapper Create(JObject jObject)
+    {
+        return new MQAssessmentWrapper(jObject);
+    }
+
     public MQAssessmentWrapper() : this([]) { }
 
     [EntityProperty(keyName)]
