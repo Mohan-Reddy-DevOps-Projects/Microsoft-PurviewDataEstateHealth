@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.ServiceModel.Channels;
 using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
@@ -225,7 +226,23 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
             }
             else if (result.Status == JobExecutionStatus.Postponed)
             {
-                if (this.HasReachedMaxPostponeCount())
+                if (this.IsRecurringJob && this.HasReachedMaxPostponeCount())
+                {
+                    this.DataEstateHealthRequestLogger.LogError(
+                        FormattableString.Invariant(
+                            $"Recurring job has exhausted the maximum job postponement of {this.MaxPostponeCount}"),
+                        exception,
+                        operationName: this.GetType().Name);
+
+                    return new JobExecutionResult
+                    {
+                        Status = JobExecutionStatus.Completed,
+                        Message = "Exhausted postpone count.",
+                        NextMetadata = this.Metadata.ToString()
+                    };
+
+                }
+                else if (this.HasReachedMaxPostponeCount())
                 {
                     this.DataEstateHealthRequestLogger.LogError(
                         FormattableString.Invariant(
@@ -396,7 +413,7 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     /// </summary>
     private bool HasReachedMaxPostponeCount()
     {
-        return !this.IsRecurringJob && this.BackgroundJob.TotalPostponedCount >= this.MaxPostponeCount;
+        return this.BackgroundJob.TotalPostponedCount >= this.MaxPostponeCount;
     }
 
     private void SetRequestContext()
