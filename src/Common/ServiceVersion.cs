@@ -33,7 +33,7 @@ public class ServiceVersion : ValueObject<ServiceVersion>
     /// <summary>
     /// Label for Service Version 2.
     /// </summary>
-    public const string LabelV2 = "2024-02-04-preview";
+    public const string LabelV2 = "2024-02-01-preview";
 
     /// <summary>
     /// Dictionary with versions of the service registered.

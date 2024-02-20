@@ -108,7 +108,7 @@ public class Program
             options.HeaderConverter = CertificateHeaderConverter.Convert;
         });
 
-        if (!builder.Environment.IsProduction())
+        if (environmentConfiguration.IsDevelopmentOrDogfoodEnvironment())
         {
             builder.Services.AddDHConfigurations(builder.Configuration);
             builder.Services.SetupDHModelsServices();

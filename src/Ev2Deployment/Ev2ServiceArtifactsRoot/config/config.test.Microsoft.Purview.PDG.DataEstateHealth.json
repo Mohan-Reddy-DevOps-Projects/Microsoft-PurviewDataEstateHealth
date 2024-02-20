@@ -19,7 +19,8 @@
             "subdomainName": "df-westus2-health",
             "synapseRegion": "eastus",
             "useEstsr": "false",
-            "scheduleSubjectName": "dgschedule-logicapp-client-$(pdg.environment.shortName)-wus2.$(pdg.tenant.dnsZoneName)"
+            "scheduleSubjectName": "dgschedule-logicapp-client-$(pdg.environment.shortName)-wus2.$(pdg.tenant.dnsZoneName)",
+            "cosmosDbAccountEndpoint": "dgcatalog-df-cosmos-nosql-wus3"
         }
     }
 }
