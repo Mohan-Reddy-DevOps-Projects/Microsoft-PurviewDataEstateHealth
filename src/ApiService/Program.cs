@@ -63,7 +63,17 @@ public class Program
         builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment(), environmentConfiguration);
 
         // Add services to the container.
-        builder.Services.AddApiVersioning();
+        builder.Services
+            .AddApiVersioning(
+            //o =>
+            //{
+            //    o.ReportApiVersions = true; 
+            //    o.AssumeDefaultVersionWhenUnspecified = true; 
+            //    o.DefaultApiVersion = new ApiVersion(new DateOnly(2023,10,1), "preview");
+            //    o.ApiVersionReader = new QueryStringApiVersionReader("api-version");
+            //}
+            )
+            .AddMvc();
 
         builder.Services
             .AddLogger(genevaConfiguration, serviceConfiguration, environmentConfiguration, builder.Environment.IsDevelopment())
