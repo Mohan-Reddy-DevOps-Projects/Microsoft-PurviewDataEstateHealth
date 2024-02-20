@@ -118,6 +118,7 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
         return this.IsFeatureEnabled(options);
     }
 
+    /// <inheritdoc/>
     public bool IsDataGovHealthProvisioningEnabled(string accountId, string subscriptionId, string tenantId)
     {
         ExposureControlOptions options = new(Features.DataGovHealthProvisioning.ToString(), false)
@@ -129,9 +130,34 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
         return this.IsFeatureEnabled(options);
     }
 
+    /// <inheritdoc/>
     public bool IsDataGovHealthPBIUpgradeEnabled(string accountId, string subscriptionId, string tenantId)
     {
         ExposureControlOptions options = new(Features.DataGovHealthPBIUpgrade.ToString(), false)
+        {
+            AccountId = accountId,
+            SubscriptionId = subscriptionId,
+            TenantId = tenantId
+        };
+        return this.IsFeatureEnabled(options);
+    }
+
+    /// <inheritdoc/>
+    public bool IsDataQualityProvisioningEnabled(string accountId, string subscriptionId, string tenantId)
+    {
+        ExposureControlOptions options = new(Features.DataGovDataQualityProvisioning.ToString(), false)
+        {
+            AccountId = accountId,
+            SubscriptionId = subscriptionId,
+            TenantId = tenantId
+        };
+        return this.IsFeatureEnabled(options);
+    }
+
+    /// <inheritdoc/>
+    public bool IsDataGovProvisioningServiceEnabled(string accountId, string subscriptionId, string tenantId)
+    {
+        ExposureControlOptions options = new(Features.DataGovProvisioningService.ToString(), false)
         {
             AccountId = accountId,
             SubscriptionId = subscriptionId,
@@ -212,16 +238,5 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
             }
             throw;
         }
-    }
-
-    public bool IsDataQualityProvisioningEnabled(string accountId, string subscriptionId, string tenantId)
-    {
-        ExposureControlOptions options = new(Features.DataGovDataQualityProvisioning.ToString(), false)
-        {
-            AccountId = accountId,
-            SubscriptionId = subscriptionId,
-            TenantId = tenantId
-        };
-        return this.IsFeatureEnabled(options);
     }
 }
