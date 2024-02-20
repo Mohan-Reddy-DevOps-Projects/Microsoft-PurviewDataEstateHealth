@@ -3,7 +3,7 @@
 // </copyright>
 
 #nullable enable
-namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
+namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.DataPlaneV2;
 
 using Asp.Versioning;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -15,11 +15,8 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Newtonsoft.Json.Linq;
 
-/// <summary>
-/// Health Reports controller.
-/// </summary>
 [ApiController]
-[ApiVersion(ServiceVersion.LabelV1)]
+[ApiVersion(ServiceVersion.LabelV2)]
 [Route("/controls/v2")]
 public class DHControlController(DHControlService dataHealthControlService) : DataPlaneController
 {

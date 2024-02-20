@@ -3,7 +3,7 @@
 // </copyright>
 #nullable enable
 
-namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
+namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.DataPlaneV2;
 
 using Asp.Versioning;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -16,9 +16,9 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
 using Newtonsoft.Json.Linq;
 
 [ApiController]
-[ApiVersion(ServiceVersion.LabelV1)]
+[ApiVersion(ServiceVersion.LabelV2)]
 [Route("/assessments")]
-public class DHAssessmentController(DHAssessmentService assessmentService): DataPlaneController
+public class DHAssessmentController(DHAssessmentService assessmentService) : DataPlaneController
 {
     [HttpGet]
     [Route("")]

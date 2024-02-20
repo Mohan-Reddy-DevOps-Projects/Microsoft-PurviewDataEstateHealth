@@ -43,7 +43,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
             services.AddScoped<DHScoreRepository>();
             services.AddScoped<MQAssessmentRepository>();
             services.AddScoped<DHControlScheduleRepository>();
-            services.AddScoped<DataHealthActionRepository>();
+            services.AddScoped<DHActionRepository>();
         }
 
         /// <summary>

@@ -7,7 +7,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
-    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services.Interfaces;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
@@ -18,19 +17,11 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using System.Globalization;
     using System.Threading.Tasks;
 
-    public class DataHealthActionService : IDataHealthActionService
+    public class DHActionService(DHActionRepository dataHealthActionRepository, IRequestHeaderContext requestHeaderContext)
     {
-        private readonly DataHealthActionRepository dataHealthActionRepository;
-        private readonly IRequestHeaderContext requestHeaderContext;
-        public DataHealthActionService(DataHealthActionRepository dataHealthActionRepository, IRequestHeaderContext requestHeaderContext)
-        {
-            this.dataHealthActionRepository = dataHealthActionRepository;
-            this.requestHeaderContext = requestHeaderContext;
-        }
-
         public async Task<IEnumerable<DataHealthActionWrapper>> EnumerateActionsAsync()
         {
-            return await this.dataHealthActionRepository.GetAllAsync();
+            return await dataHealthActionRepository.GetAllAsync();
         }
 
         public async Task<IEnumerable<GroupedActions>> EnumerateActionsByGroupAsync(string groupBy)
@@ -46,7 +37,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             {
                 throw new UnsupportedParamException($"The value of {nameof(groupBy)} is not supported");
             }
-            return await this.dataHealthActionRepository.EnumerateActionsByGroupAsync(groupBy);
+            return await dataHealthActionRepository.EnumerateActionsByGroupAsync(groupBy);
         }
 
         public async Task<DataHealthActionWrapper> CreateActionsAsync(DataHealthActionWrapper action)
@@ -59,20 +50,20 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             action.Validate();
             action.NormalizeInput();
 
-            var existedAction = await this.dataHealthActionRepository.GetActionByFilterAsync(
+            var existedAction = await dataHealthActionRepository.GetActionByFilterAsync(
                 action.Category, action.FindingType, action.FindingSubType, action.FindingId, action.TargetEntityType, action.TargetEntityId);
 
             if (existedAction != null && existedAction.Status == DataHealthActionStatus.Active)
             {
                 existedAction.SystemInfo.onHint();
-                await this.dataHealthActionRepository.UpdateAsync(existedAction).ConfigureAwait(false);
+                await dataHealthActionRepository.UpdateAsync(existedAction).ConfigureAwait(false);
                 return existedAction;
             }
             else
             {
                 action.Id = Guid.NewGuid().ToString();
                 action.onCreate();
-                await this.dataHealthActionRepository.AddAsync(action).ConfigureAwait(false);
+                await dataHealthActionRepository.AddAsync(action).ConfigureAwait(false);
                 return action;
             }
 
@@ -102,10 +93,10 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
             action.OnReplace(existedAction);
 
-            var clientObjectId = this.requestHeaderContext.ClientObjectId?.ToString();
+            var clientObjectId = requestHeaderContext.ClientObjectId?.ToString();
             existedAction.SystemInfo.OnModify(clientObjectId);
 
-            await this.dataHealthActionRepository.UpdateAsync(action).ConfigureAwait(false);
+            await dataHealthActionRepository.UpdateAsync(action).ConfigureAwait(false);
             return action;
         }
 
@@ -121,7 +112,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
         private async Task<DataHealthActionWrapper> GetExistedAction(string actionId)
         {
-            var result = await this.dataHealthActionRepository.GetByIdAsync(actionId).ConfigureAwait(false);
+            var result = await dataHealthActionRepository.GetByIdAsync(actionId).ConfigureAwait(false);
             if (result == null)
             {
                 throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Action.ToString(), actionId));

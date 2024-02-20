@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class DataHealthActionRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DataHealthActionWrapper>(requestHeaderContext)
+public class DHActionRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DataHealthActionWrapper>(requestHeaderContext)
 {
     private const string ContainerName = "DHAction";
 
