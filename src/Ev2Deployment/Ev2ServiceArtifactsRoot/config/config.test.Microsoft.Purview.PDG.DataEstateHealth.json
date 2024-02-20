@@ -20,7 +20,6 @@
             "synapseRegion": "eastus",
             "useEstsr": "false",
             "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-wus2.$(pdg.tenant.dnsZoneName)",
-            "shortRegionName": "wus2",
             "cosmosDbAccountEndpoint": "dgcatalog-df-cosmos-nosql-wus3"
         }
     }
