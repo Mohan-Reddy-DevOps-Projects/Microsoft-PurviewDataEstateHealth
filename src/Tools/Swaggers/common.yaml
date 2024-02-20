@@ -134,7 +134,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Schedule"
 
-  /statusPalette:
+  /controls/statusPalette:
     get:
       operationId: List Status Palettes
       description: List all status palettes.
@@ -173,7 +173,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/StatusPalette"
 
-  /statusPalette/{statusPaletteId}:
+  /controls/statusPalette/{statusPaletteId}:
     parameters:
       - name: statusPaletteId
         in: path
@@ -218,7 +218,7 @@ paths:
         "204":
           description: OK
 
-  /assessments:
+  /controls/assessments:
     get:
       operationId: List Assessments
       description: List all assessments.
@@ -257,7 +257,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Assessment"
 
-  /assessments/{assessmentId}:
+  /controls/assessments/{assessmentId}:
     parameters:
       - name: assessmentId
         in: path
@@ -436,12 +436,45 @@ paths:
               schema:
                 $ref: "#/components/schemas/action"
 
-  /scores:
-    get:
-      operationId: List scores
-      description: List all scores.
+  /controls/scores/query:
+    post:
+      operationId: Query scores
+      description: Query scores.
       tags:
         - Score
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                controlIds:
+                  type: array
+                  items:
+                    type: string
+                  description: The control ids of the score.
+                  example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
+                domainIds:
+                  type: array
+                  items:
+                    type: string
+                  description: The domain ids of the score.
+                  example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
+                recordLatestCounts:
+                  type: number
+                  description: The latest record counts of the score.
+                  example: 5
+                  default: 1
+                recordTimeRange:
+                  type: object
+                  description: The record time range of the score.
+                  properties:
+                    start:
+                      type: string
+                      description: The start time of the record time range.
+                    end:
+                      type: string
+                      description: The end time of the record time range.
       responses:
         "200":
           description: OK
