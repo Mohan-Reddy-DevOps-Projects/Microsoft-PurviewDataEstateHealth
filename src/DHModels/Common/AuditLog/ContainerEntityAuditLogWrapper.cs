@@ -15,7 +15,6 @@ public class ContainerEntityAuditLogWrapper(JObject jObject) : BaseEntityWrapper
     public ContainerEntityAuditLogWrapper() : this([]) { }
 
     [EntityProperty(keyTime, true)]
-    [EntityRequiredValidator]
     public DateTime Time
     {
         get => this.GetPropertyValue<DateTime>(keyTime);
@@ -23,7 +22,6 @@ public class ContainerEntityAuditLogWrapper(JObject jObject) : BaseEntityWrapper
     }
 
     [EntityProperty(keyUser, true)]
-    [EntityRequiredValidator]
     public string User
     {
         get => this.GetPropertyValue<string>(keyUser);
@@ -31,7 +29,6 @@ public class ContainerEntityAuditLogWrapper(JObject jObject) : BaseEntityWrapper
     }
 
     [EntityProperty(keyAction, true)]
-    [EntityRequiredValidator]
     public ContainerEntityAuditAction Action
     {
         get => this.GetPropertyValue<ContainerEntityAuditAction>(keyAction);
