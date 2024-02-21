@@ -8,4 +8,6 @@ public interface IDataQualityHttpClient
     public Task CreateObserver(ObserverWrapper observer);
 
     public Task<string> TriggerJobRun(string dataProductId, string dataAssetId);
+
+    public Task<string> GetErrorOutputContent(string dataProductId, string dataAssetId);
 }

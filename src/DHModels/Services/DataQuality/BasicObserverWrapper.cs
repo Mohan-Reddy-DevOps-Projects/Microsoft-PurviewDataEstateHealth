@@ -63,7 +63,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality
 
             set
             {
-                this.SetTypePropertyValueFromWrappers(keyRules, value);
+                this.SetTypePropertyValueFromWrappers(keyInputDatasets, value);
                 this.inputDatasets = value;
             }
         }

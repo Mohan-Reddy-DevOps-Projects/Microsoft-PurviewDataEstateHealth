@@ -54,9 +54,3 @@ public class ScoreProcessingService(DHControlRepository dhControlRepository, MQA
         }
     }
 }
-
-public class ScorePayload
-{
-    public required string EntityId;
-    public required IEnumerable<DHScoreUnitWrapper> scores;
-}

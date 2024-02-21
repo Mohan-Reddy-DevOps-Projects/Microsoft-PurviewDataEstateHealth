@@ -157,7 +157,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality
         public JObject ExecutionData
         {
             get => this.GetPropertyValue<JObject>(keyExecutionData);
-            private set => this.SetPropertyValue(keyExecutionData, value);
+            set => this.SetPropertyValue(keyExecutionData, value);
         }
 
         [EntityProperty(keyIsDeleted, true)]

@@ -1,5 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels;
-public class DataQualityConfiguration
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+
+public class DataQualityServiceConfiguration : BaseCertificateConfiguration
 {
     public string Endpoint { get; set; }
 }

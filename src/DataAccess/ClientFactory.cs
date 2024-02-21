@@ -4,18 +4,18 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Rest;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Rest;
 
 /// <summary>
 /// Manages clients that communicate using an http service client.
 /// Clients are reused for a while, then recycled to allow the http client factory
 /// to control the lifetime of the http client handlers
 /// </summary>
-internal abstract class ClientFactory<T> : IDisposable
+public abstract class ClientFactory<T> : IDisposable
     where T : ServiceClient<T>
 {
     /// <summary>

@@ -4,6 +4,13 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.DGP.ServiceBasics.Errors;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +19,6 @@ using System.Security.Claims;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.DGP.ServiceBasics.Errors;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 internal class CertificateAuthenticationHandler : AuthenticationHandler<CertificateAuthenticationOptions>
 {

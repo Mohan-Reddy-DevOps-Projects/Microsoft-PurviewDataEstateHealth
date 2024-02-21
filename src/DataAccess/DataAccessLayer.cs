@@ -176,7 +176,7 @@ public static class DataAccessLayer
                             serviceProvider.GetService<IDataEstateHealthRequestLogger>(),
                             settings.Name),
                         retryCount: settings.RetryCount);
-                    
+
                     configureRetryPolicy(serviceProvider, request, policy);
                     return policy;
                 }

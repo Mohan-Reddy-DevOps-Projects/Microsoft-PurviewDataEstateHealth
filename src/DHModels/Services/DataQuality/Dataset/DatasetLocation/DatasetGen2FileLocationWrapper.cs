@@ -8,12 +8,14 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Datas
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
     using Newtonsoft.Json.Linq;
 
-    [EntityWrapper("AdlsGen2FileLocation", EntityCategory.DatasetLocation)]
+    [EntityWrapper(EntityType, EntityCategory.DatasetLocation)]
     public class DatasetGen2FileLocationWrapper : DatasetLocationWrapper
     {
         private const string keyFileSystem = "fileSystem";
         private const string keyFolderPath = "folderPath";
         private const string keyFileName = "fileName";
+
+        public const string EntityType = "AdlsGen2FileLocation";
 
         public DatasetGen2FileLocationWrapper(JObject jObject) : base(jObject)
         {
