@@ -2,6 +2,6 @@
 
 public class DHScheduleConstant
 {
-    public static readonly string Category = "DataHealthSchedule";
+    public static readonly string Category = "DataEstateHealth";
     public static readonly string DGScheduleHeaderScheduleId = "x-dgschedule-schedule-id";
 }
