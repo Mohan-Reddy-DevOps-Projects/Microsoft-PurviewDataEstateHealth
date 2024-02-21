@@ -5,12 +5,15 @@
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic
 {
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
     public static class InitializeServices
     {
         public static void SetupBusinessLogicServices(this IServiceCollection services)
         {
+            services.AddScoped<DHScheduleInternalService>();
+
             services.AddScoped<DHActionService>();
             services.AddScoped<DHControlService>();
             services.AddScoped<DHScheduleService>();

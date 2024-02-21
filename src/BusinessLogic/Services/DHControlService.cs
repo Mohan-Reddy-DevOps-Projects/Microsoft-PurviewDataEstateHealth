@@ -3,6 +3,7 @@
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
@@ -16,7 +17,7 @@
 
     public class DHControlService(
         DHControlRepository dHControlRepository, 
-        DHScheduleService scheduleService, 
+        DHScheduleInternalService scheduleService, 
         IRequestHeaderContext requestHeaderContext)
     {
         public async Task<IBatchResults<DHControlBaseWrapper>> ListControlsAsync()

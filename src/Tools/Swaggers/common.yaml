@@ -108,7 +108,7 @@ paths:
       operationId: Get Schedule
       description: Get Schedule.
       tags:
-        - Control
+        - Schedule
       responses:
         "200":
           description: OK
@@ -120,7 +120,7 @@ paths:
       operationId: Create/Update Schedule
       description: Create or Update Schedule.
       tags:
-        - Control
+        - Schedule
       requestBody:
         content:
           application/json:

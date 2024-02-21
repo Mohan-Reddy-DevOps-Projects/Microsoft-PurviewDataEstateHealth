@@ -7,9 +7,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
-/// <summary>
-/// Health Reports controller.
-/// </summary>
 [ApiController]
 [CertificateConfig(CertificateSet.DHControlSchedule)]
 [Authorize(AuthenticationSchemes = "Certificate")]
