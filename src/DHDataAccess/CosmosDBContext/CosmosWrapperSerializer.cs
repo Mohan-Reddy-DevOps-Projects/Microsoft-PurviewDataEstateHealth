@@ -94,7 +94,7 @@ public class CosmosWrapperSerializer : CosmosSerializer
                             // Convert each element as necessary and assign it to the new array
                             // This example assumes that a direct cast is sufficient
                             // If not, you might need additional conversion logic here
-                            typedArray.SetValue(Convert.ChangeType(objects[i], elementType), i);
+                            typedArray.SetValue(objects[i], i);
                         }
 
                         // Convert the array to type T
