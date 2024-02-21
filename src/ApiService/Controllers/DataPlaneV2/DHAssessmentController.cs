@@ -17,7 +17,7 @@ using Newtonsoft.Json.Linq;
 
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
-[Route("controls/assessments")]
+[Route("/controls/assessments")]
 public class DHAssessmentController(DHAssessmentService assessmentService) : DataPlaneController
 {
     [HttpGet]

@@ -20,7 +20,6 @@ public class DHScheduleCreateRequestPayload
 
     public void SetRecurrence(DHControlScheduleWrapper schedule)
     {
-        // TODO: Remove controlId field
         this.Recurrence = schedule.JObject.DeepClone() as JObject;
     }
 }

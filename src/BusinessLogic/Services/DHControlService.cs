@@ -6,6 +6,7 @@
     using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
     using System;
@@ -13,7 +14,10 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class DHControlService(DHControlRepository dHControlRepository, DHScheduleService scheduleService, IRequestHeaderContext requestHeaderContext)
+    public class DHControlService(
+        DHControlRepository dHControlRepository, 
+        DHScheduleService scheduleService, 
+        IRequestHeaderContext requestHeaderContext)
     {
         public async Task<IBatchResults<DHControlBaseWrapper>> ListControlsAsync()
         {
@@ -115,7 +119,7 @@
                 if (!string.IsNullOrEmpty(scheduleId))
                 {
                     var scheduleEntity = await scheduleService.GetScheduleByIdAsync(scheduleId).ConfigureAwait(false);
-                    node.Schedule = scheduleEntity;
+                    node.Schedule = scheduleEntity.Properties;
                 }
 
                 node.ScheduleId = null;
@@ -135,7 +139,11 @@
 
                 if (schedule != null)
                 {
-                    var scheduleEntity = await scheduleService.CreateScheduleAsync(schedule, entity.Id).ConfigureAwait(false);
+                    var scheduleWrapper = new DHControlScheduleStoragePayloadWrapper([]);
+                    scheduleWrapper.Properties = schedule;
+                    scheduleWrapper.Type = DHControlScheduleType.ControlNode;
+
+                    var scheduleEntity = await scheduleService.CreateScheduleAsync(scheduleWrapper, entity.Id).ConfigureAwait(false);
                     node.ScheduleId = scheduleEntity.Id;
                 }
 
@@ -156,10 +164,21 @@
 
                 var schedule = newNode.Schedule;
 
-                if (schedule != null && existNode.ScheduleId != null)
+                if (schedule != null)
                 {
-                    schedule.Id = existNode.ScheduleId;
-                    await scheduleService.UpdateScheduleAsync(schedule, existEntity.Id).ConfigureAwait(false);
+                    var scheduleWrapper = new DHControlScheduleStoragePayloadWrapper([]);
+                    scheduleWrapper.Properties = schedule;
+                    scheduleWrapper.Type = DHControlScheduleType.ControlNode;
+
+                    if (existNode.ScheduleId != null)
+                    {
+                        scheduleWrapper.Id = existNode.ScheduleId;
+                        await scheduleService.UpdateScheduleAsync(scheduleWrapper, existEntity.Id).ConfigureAwait(false);
+                    } else
+                    {
+                        var scheduleEntity = await scheduleService.CreateScheduleAsync(scheduleWrapper, existEntity.Id).ConfigureAwait(false);
+                        newNode.ScheduleId = scheduleEntity.Id;
+                    }
                 }
 
                 newNode.Schedule = null;

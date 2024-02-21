@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using System;
 
-public class DHControlScheduleRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DHControlScheduleWrapper>(requestHeaderContext)
+public class DHControlScheduleRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DHControlScheduleStoragePayloadWrapper>(requestHeaderContext)
 {
     private const string ContainerName = "DHSchedule";
 

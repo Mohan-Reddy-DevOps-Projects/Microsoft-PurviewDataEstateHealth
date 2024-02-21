@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+    using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Extensions.Options;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
@@ -22,9 +23,11 @@
         private readonly ScheduleServiceClient scheduleServiceClient;
         private readonly DHScheduleConfiguration scheduleConfiguration;
         private readonly IDataQualityExecutionService dataQualityExecutionService;
+        private readonly IRequestHeaderContext requestHeaderContext;
 
         public DHScheduleService(
             IRequestContextAccessor requestContextAccessor,
+            IRequestHeaderContext requestHeaderContext,
             DHControlRepository dHControlRepository,
             DHControlScheduleRepository dhControlScheduleRepository,
             ScheduleServiceClientFactory scheduleServiceClientFactory,
@@ -39,9 +42,10 @@
             this.scheduleServiceClient = scheduleServiceClientFactory.GetClient();
             this.scheduleConfiguration = scheduleConfiguration.Value;
             this.dataQualityExecutionService = dataQualityExecutionService;
+            this.requestHeaderContext = requestHeaderContext;
         }
 
-        public async Task<DHControlScheduleWrapper> GetScheduleByIdAsync(string scheduleId)
+        public async Task<DHControlScheduleStoragePayloadWrapper> GetScheduleByIdAsync(string scheduleId)
         {
             var schedule = await this.dhControlScheduleRepository.GetByIdAsync(scheduleId).ConfigureAwait(false);
 
@@ -53,20 +57,33 @@
             return schedule;
         }
 
-        public async Task<DHControlScheduleWrapper> CreateScheduleAsync(DHControlScheduleWrapper schedule, string controlId)
+        public async Task<DHControlScheduleStoragePayloadWrapper> CreateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string controlId)
         {
             var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
             var response = await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
+
+            schedule.OnCreate(this.requestHeaderContext.ClientObjectId);
             schedule.Id = response.ScheduleId;
+
             await this.dhControlScheduleRepository.AddAsync(schedule).ConfigureAwait(false);
 
             return schedule;
         }
 
-        public async Task<DHControlScheduleWrapper> UpdateScheduleAsync(DHControlScheduleWrapper schedule, string controlId)
+        public async Task<DHControlScheduleStoragePayloadWrapper> UpdateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string controlId)
         {
+            var existEntity = await this.dhControlScheduleRepository.GetByIdAsync(schedule.Id).ConfigureAwait(false);
+
+            if (existEntity == null)
+            {
+                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), schedule.Id));
+            }
+
             var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
             await this.scheduleServiceClient.UpdateSchedule(schedulePayload).ConfigureAwait(false);
+
+            schedule.OnUpdate(existEntity, this.requestHeaderContext.ClientObjectId);
+
             await this.dhControlScheduleRepository.UpdateAsync(schedule).ConfigureAwait(false);
 
             return schedule;
@@ -87,7 +104,7 @@
             await Task.Delay(100);
         }
 
-        private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleWrapper schedule, string controlId)
+        private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleStoragePayloadWrapper schedule, string controlId)
         {
             var payload = new DHScheduleCreateRequestPayload
             {
@@ -105,7 +122,7 @@
                     Headers = new Dictionary<string, string> { { "x-ms-client-tenant-id", this.requestContextAccessor.GetRequestContext().TenantId.ToString() } }
                 }
             };
-            payload.SetRecurrence(schedule);
+            payload.SetRecurrence(schedule.Properties);
             return payload;
         }
     }
