@@ -9,5 +9,6 @@ public class DataEstateHealthConstants
 {
     // Keep the same as definition in DataQuality code
     public const string DEH_DOMAIN_ID = "___deh_business_domain_id___";
+    public const string DEH_DATA_SOURCE_ID = "___deh_data_source_id___";
     public const string DEH_KEY_DATA_SOURCE_ENDPOINT = "DataSource.Endpoint";
 }

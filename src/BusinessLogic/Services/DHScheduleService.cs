@@ -1,17 +1,16 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-    using Microsoft.DGP.ServiceBasics.BaseModels;
     using Microsoft.Extensions.Options;
-    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
     using Microsoft.Purview.DataEstateHealth.DHConfigurations;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Services;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using System.Collections.Generic;
-
     using System.Threading.Tasks;
 
     public class DHScheduleService
@@ -22,6 +21,7 @@
         private readonly IDataEstateHealthRequestLogger logger;
         private readonly ScheduleServiceClient scheduleServiceClient;
         private readonly DHScheduleConfiguration scheduleConfiguration;
+        private readonly IDataQualityExecutionService dataQualityExecutionService;
 
         public DHScheduleService(
             IRequestContextAccessor requestContextAccessor,
@@ -29,6 +29,7 @@
             DHControlScheduleRepository dhControlScheduleRepository,
             ScheduleServiceClientFactory scheduleServiceClientFactory,
             IOptions<DHScheduleConfiguration> scheduleConfiguration,
+            IDataQualityExecutionService dataQualityExecutionService,
             IDataEstateHealthRequestLogger logger)
         {
             this.requestContextAccessor = requestContextAccessor;
@@ -37,6 +38,7 @@
             this.logger = logger;
             this.scheduleServiceClient = scheduleServiceClientFactory.GetClient();
             this.scheduleConfiguration = scheduleConfiguration.Value;
+            this.dataQualityExecutionService = dataQualityExecutionService;
         }
 
         public async Task<DHControlScheduleWrapper> GetScheduleByIdAsync(string scheduleId)
@@ -76,8 +78,10 @@
             await this.dhControlScheduleRepository.DeleteAsync(scheduleId).ConfigureAwait(false);
         }
 
-        public async Task TriggerScheduleAsync(string scheduleId)
+        public async Task TriggerScheduleAsync(DHScheduleCallbackPayload payload)
         {
+            await this.dataQualityExecutionService.SubmitDQJob(payload.AccountId);
+
             // TOOD: query schedule and trigger it
             // await this.scheduleServiceClient.TriggerSchedule(scheduleId).ConfigureAwait(false);
             await Task.Delay(100);
@@ -92,7 +96,12 @@
                 {
                     Url = this.scheduleConfiguration.CallbackEndpoint + "/internal/control/triggerScheduleJobCallback",
                     Method = "POST",
-                    Body = new DHScheduleCallbackPayload { ControlId = controlId },
+                    Body = new DHScheduleCallbackPayload
+                    {
+                        ControlId = controlId,
+                        TenantId = this.requestContextAccessor.GetRequestContext().TenantId.ToString(),
+                        AccountId = this.requestContextAccessor.GetRequestContext().AccountObjectId.ToString(),
+                    },
                     Headers = new Dictionary<string, string> { { "x-ms-client-tenant-id", this.requestContextAccessor.GetRequestContext().TenantId.ToString() } }
                 }
             };

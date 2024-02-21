@@ -11,13 +11,10 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels
 
     public static class InitializeServices
     {
-        public static void SetupDQServices(this IServiceCollection services)
+        public static void SetupDQServices(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddSingleton<DataQualityServiceConfiguration>(serviceProvider =>
-            {
-                var configuration = serviceProvider.GetRequiredService<IConfiguration>();
-                return configuration.GetSection("dataQualityService").Get<DataQualityServiceConfiguration>();
-            });
+            services.AddOptions()
+                .Configure<DataQualityServiceConfiguration>(configuration.GetSection(DataQualityServiceConfiguration.ConfigSectionName));
 
             HttpClientSettings httpClientSettings = new()
             {

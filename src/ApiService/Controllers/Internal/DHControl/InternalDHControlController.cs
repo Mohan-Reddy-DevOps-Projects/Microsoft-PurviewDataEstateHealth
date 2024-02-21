@@ -28,7 +28,7 @@ public class InternalDHControlController(DHScheduleService dhScheduleService) : 
         {
             return this.BadRequest($"ControlId is required.");
         }
-        await dhScheduleService.TriggerScheduleAsync(requestBody.ControlId).ConfigureAwait(false);
+        await dhScheduleService.TriggerScheduleAsync(requestBody).ConfigureAwait(false);
         return this.Ok();
     }
 }

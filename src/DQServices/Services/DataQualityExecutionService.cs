@@ -4,6 +4,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
+using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -38,12 +39,15 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         var storageAccountName = accountStorageModel.GetStorageAccountName();
         var dfsEndpoint = accountStorageModel.GetDfsEndpoint();
 
+        var dataProductId = Guid.NewGuid().ToString();
+        var dataAssetId = Guid.NewGuid().ToString();
+
         // Convert to an observer
         var observerAdapter = new ObserverAdapter(
             dfsEndpoint,
             accountId,
-            Guid.NewGuid().ToString(),
-            Guid.NewGuid().ToString());
+            dataProductId,
+            dataAssetId);
         var observer = observerAdapter.FromControlAssessment();
 
         observer.ExecutionData = new JObject()
@@ -51,16 +55,19 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             { DataEstateHealthConstants.DEH_KEY_DATA_SOURCE_ENDPOINT, dfsEndpoint }
         };
 
+        // TODO For debug
         var str = JsonConvert.SerializeObject(observer.JObject);
 
         // Create a temporary observer
         var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
-        await dataQualityServiceClient.CreateObserver(observer).ConfigureAwait(false);
+        await dataQualityServiceClient.CreateObserver(observer, accountId).ConfigureAwait(false);
 
         // Trigger run
         var jobId = await dataQualityServiceClient.TriggerJobRun(
-            observer.DataProduct.ReferenceId,
-            observer.DataAsset.ReferenceId).ConfigureAwait(false);
+            accountId,
+            dataProductId,
+            dataAssetId,
+            new JobSubmitPayload()).ConfigureAwait(false);
 
         return jobId;
     }

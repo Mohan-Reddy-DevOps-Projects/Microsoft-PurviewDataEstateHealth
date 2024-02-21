@@ -125,7 +125,7 @@ public class Program
             builder.Services.SetupDHDataAccessServices();
             builder.Services.SetupBusinessLogicServices();
 
-            builder.Services.SetupDQServices();
+            builder.Services.SetupDQServices(builder.Configuration);
         }
 
         builder.Services.Configure<ForwardedHeadersOptions>(options =>

@@ -1,10 +1,15 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Clients;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
+using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
 using Microsoft.Rest;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
@@ -22,9 +27,39 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
         this.Logger = logger;
     }
 
-    public Task CreateObserver(ObserverWrapper observer)
+    public async Task CreateObserver(ObserverWrapper observer, string accountId)
     {
-        throw new NotImplementedException();
+        var requestUri = this.CreateRequestUri("/mdq/observers");
+
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+        request.Headers.Add("x-ms-account-id", accountId);
+
+        request.Content = JsonContent.Create(observer.JObject);
+
+        var response = await this.Client.SendAsync(request).ConfigureAwait(false);
+        this.HandleResponseStatusCode(response);
+        await this.ParseResponse<JObject>(response).ConfigureAwait(false);
+    }
+
+    public async Task<string> TriggerJobRun(
+        string accountId,
+        string dataProductId,
+        string dataAssetId,
+        JobSubmitPayload payload)
+    {
+        var requestUri = this.CreateRequestUri($"/business-domains/{DataEstateHealthConstants.DEH_DOMAIN_ID}/data-products/{dataProductId}/data-assets/{dataAssetId}/mdq-observations");
+
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+        request.Headers.Add("x-ms-account-id", accountId);
+
+        request.Content = JsonContent.Create(payload);
+
+        var response = await this.Client.SendAsync(request).ConfigureAwait(false);
+        this.HandleResponseStatusCode(response);
+        var responseBody = await this.ParseResponse<JObject>(response).ConfigureAwait(false);
+
+        // return job id
+        return string.Empty;
     }
 
     public Task<string> GetErrorOutputContent(string dataProductId, string dataAssetId)
@@ -32,8 +67,40 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
         throw new NotImplementedException();
     }
 
-    public Task<string> TriggerJobRun(string dataProductId, string dataAssetId)
+    private Uri CreateRequestUri(string pathname)
     {
-        return Task.FromResult(string.Empty);
+        var builder = new UriBuilder(this.BaseUri)
+        {
+            Path = pathname
+        };
+        return builder.Uri;
+    }
+
+    private void HandleResponseStatusCode(HttpResponseMessage response)
+    {
+        try
+        {
+            response.EnsureSuccessStatusCode();
+        }
+        catch (HttpRequestException ex)
+        {
+            this.Logger.LogError("Data quality service request failed", ex);
+            throw;
+        }
+    }
+
+    private async Task<T> ParseResponse<T>(HttpResponseMessage response)
+    {
+        try
+        {
+            var output = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var result = JsonConvert.DeserializeObject<T>(output);
+            return result!;
+        }
+        catch (JsonSerializationException ex)
+        {
+            this.Logger.LogError("Fail to deserialize response content", ex);
+            throw;
+        }
     }
 }

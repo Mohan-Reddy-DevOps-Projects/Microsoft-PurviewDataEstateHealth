@@ -6,7 +6,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Purview.DataGovernance.Common;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
 
