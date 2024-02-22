@@ -56,10 +56,10 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
 
         var response = await this.Client.SendAsync(request).ConfigureAwait(false);
         this.HandleResponseStatusCode(response);
-        var responseBody = await this.ParseResponse<JObject>(response).ConfigureAwait(false);
+        var responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false); ;
 
         // return job id
-        return string.Empty;
+        return responseBody.Substring(1, responseBody.Length - 2);
     }
 
     // TODO will delete
