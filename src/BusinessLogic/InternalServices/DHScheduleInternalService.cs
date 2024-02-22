@@ -1,4 +1,6 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
+﻿#nullable enable
+
+namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Extensions.Options;
@@ -56,7 +58,7 @@
             return schedule;
         }
 
-        public async Task<DHControlScheduleStoragePayloadWrapper> UpdateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string? controlId)
+        public async Task<DHControlScheduleStoragePayloadWrapper> UpdateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string? controlId = null)
         {
             var existEntity = await this.dhControlScheduleRepository.GetByIdAsync(schedule.Id).ConfigureAwait(false);
 

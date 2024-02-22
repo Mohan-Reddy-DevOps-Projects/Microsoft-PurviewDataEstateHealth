@@ -1,55 +1,14 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
+﻿#nullable enable
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Common;
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
+
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
-using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
-public class DHControlScheduleStoragePayloadWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHControlScheduleStoragePayloadWrapper>(jObject)
-{
-    public static DHControlScheduleStoragePayloadWrapper Create(JObject jObject)
-    {
-        return new DHControlScheduleStoragePayloadWrapper(jObject);
-    }
-
-    private const string keyType = "type";
-    private const string keyProperties = "properties";
-
-    [EntityProperty(keyType)]
-    public string Type
-    {
-        get => this.GetPropertyValue<string>(keyType);
-        set => this.SetPropertyValue(keyType, value);
-    }
-
-    private DHControlScheduleWrapper? properties;
-    [EntityProperty(keyProperties)]
-    public DHControlScheduleWrapper Properties
-    {
-        get => this.properties ??= this.GetPropertyValueAsWrapper<DHControlScheduleWrapper>(keyProperties);
-        set
-        {
-            this.SetPropertyValueFromWrapper(keyProperties, value);
-            this.properties = value;
-        }
-    }
-
-    public override void OnCreate(string userId)
-    {
-        base.OnCreate(userId);
-
-    }
-}
-
-public static class DHControlScheduleType
-{
-    public const string ControlGlobal = "ControlGlobal";
-    public const string ControlNode = "ControlNode";
-}
 
 public class DHControlScheduleWrapper(JObject jObject) : BaseEntityWrapper(jObject)
 {
@@ -84,24 +43,15 @@ public class DHControlScheduleWrapper(JObject jObject) : BaseEntityWrapper(jObje
     [EntityProperty(keyStartTime)]
     public DateTime? StartTime
     {
-        get
-        {
-            var time = this.GetPropertyValue<DateTime>(keyStartTime);
-            return time == DateTime.MinValue ? null : time;
-        }
-
-        set => this.SetPropertyValue(keyStartTime, value);
+        get => this.GetPropertyValue<DateTime?>(keyStartTime);
+        set => this.SetPropertyValue(keyStartTime, value?.GetDateTimeStr());
     }
 
     [EntityProperty(keyEndTime)]
     public DateTime? EndTime
     {
-        get
-        {
-            var time = this.GetPropertyValue<DateTime>(keyEndTime);
-            return time == DateTime.MinValue ? null : time;
-        }
-        set => this.SetPropertyValue(keyEndTime, value);
+        get => this.GetPropertyValue<DateTime?>(keyEndTime);
+        set => this.SetPropertyValue(keyEndTime, value?.GetDateTimeStr());
     }
 
     [EntityProperty(keyTimeZone)]
