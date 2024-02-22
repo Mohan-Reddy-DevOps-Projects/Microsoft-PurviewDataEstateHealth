@@ -19,7 +19,8 @@
             "workerServiceReadinessProbePort": 8082,
             "sqlAdminUserSecretName": "synapseSqlAdminUsername",
             "sqlAdminPassSecretName": "synapseSqlAdminPassword",
-            "scheduleSubjectName": "dgschedule-logicapp-client-$(pdg.environment.shortName)-$(pdg.firstParty.purviewShortRegion).$(pdg.tenant.dnsZoneName)"
+            "scheduleSubjectName": "dgschedule-logicapp-client-$(pdg.environment.shortName)-$(pdg.firstParty.purviewShortRegion).$(pdg.tenant.dnsZoneName)",
+            "dataQualitySubjectName": "$(pdg.environment.shortName).dataquality-service.purview.$(pdg.tenant.dnsZoneName)"
         }
     },
     "geographies": [

@@ -21,7 +21,8 @@
             "useEstsr": "false",
             "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-wus2.$(pdg.tenant.dnsZoneName)",
             "cosmosAccountName": "$(dgh.serviceShortName)-cosmos-nosql-$(pdg.environment.shortName)-$(regionShortName)",
-            "cosmosRegion": "eastus2"
+            "cosmosRegion": "eastus2",
+            "dataQualitySubjectName": "$(pdg.environment.shortName).dataquality-service.purview.$(pdg.tenant.dnsZoneName)"
         }
     }
 }
