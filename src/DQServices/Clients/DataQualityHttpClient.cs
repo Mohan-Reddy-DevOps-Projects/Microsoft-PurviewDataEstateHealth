@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Net.Http;
-using System.Net.Http.Json;
+using System.Text;
 using System.Threading.Tasks;
 
 public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
@@ -31,14 +31,14 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
     {
         var requestUri = this.CreateRequestUri("/mdq/observers");
 
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri);
         request.Headers.Add("x-ms-account-id", accountId);
 
-        request.Content = JsonContent.Create(observer.JObject);
+        request.Content = this.CreateRequestContent(observer.JObject);
 
         var response = await this.Client.SendAsync(request).ConfigureAwait(false);
         this.HandleResponseStatusCode(response);
-        await this.ParseResponse<JObject>(response).ConfigureAwait(false);
+        var responseBody = await this.ParseResponse<JObject>(response).ConfigureAwait(false);
     }
 
     public async Task<string> TriggerJobRun(
@@ -49,10 +49,10 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
     {
         var requestUri = this.CreateRequestUri($"/business-domains/{DataEstateHealthConstants.DEH_DOMAIN_ID}/data-products/{dataProductId}/data-assets/{dataAssetId}/mdq-observations");
 
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri);
         request.Headers.Add("x-ms-account-id", accountId);
 
-        request.Content = JsonContent.Create(payload);
+        request.Content = this.CreateRequestContent(payload);
 
         var response = await this.Client.SendAsync(request).ConfigureAwait(false);
         this.HandleResponseStatusCode(response);
@@ -62,9 +62,28 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
         return string.Empty;
     }
 
+    // TODO will delete
+    public async Task Test()
+    {
+        var requestUri = this.CreateRequestUri($"/mdq/observers");
+
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+        request.Headers.Add("x-ms-account-id", "ecf09339-34e0-464b-a8fb-661209048543");
+
+        var response = await this.Client.SendAsync(request).ConfigureAwait(false);
+        this.HandleResponseStatusCode(response);
+        var responseBody = await this.ParseResponse<JObject>(response).ConfigureAwait(false);
+    }
+
     public Task<string> GetErrorOutputContent(string dataProductId, string dataAssetId)
     {
         throw new NotImplementedException();
+    }
+
+    private HttpContent CreateRequestContent(object obj)
+    {
+        var content = JsonConvert.SerializeObject(obj);
+        return new StringContent(content, Encoding.UTF8, "application/json");
     }
 
     private Uri CreateRequestUri(string pathname)

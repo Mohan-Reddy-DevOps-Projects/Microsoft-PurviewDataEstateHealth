@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using StorageSasRequest = Azure.Purview.DataEstateHealth.Models.StorageSasRequest;
 
 public class DataQualityExecutionService : IDataQualityExecutionService
 {
@@ -32,20 +33,20 @@ public class DataQualityExecutionService : IDataQualityExecutionService
     }
 
     // TODO Will add more params later
-    public async Task<string> SubmitDQJob(string accountId)
+    public async Task<string> SubmitDQJob(string accountId, string controlId, string healthJobId)
     {
         // Query storage account
         var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
-        var storageAccountName = accountStorageModel.GetStorageAccountName();
         var dfsEndpoint = accountStorageModel.GetDfsEndpoint();
+        var catalogId = accountStorageModel.CatalogId.ToString();
 
-        var dataProductId = Guid.NewGuid().ToString();
-        var dataAssetId = Guid.NewGuid().ToString();
+        var dataProductId = controlId;
+        var dataAssetId = controlId;
 
         // Convert to an observer
         var observerAdapter = new ObserverAdapter(
             dfsEndpoint,
-            accountId,
+            catalogId,
             dataProductId,
             dataAssetId);
         var observer = observerAdapter.FromControlAssessment();
@@ -55,19 +56,43 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             { DataEstateHealthConstants.DEH_KEY_DATA_SOURCE_ENDPOINT, dfsEndpoint }
         };
 
+        var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
+
         // TODO For debug
         var str = JsonConvert.SerializeObject(observer.JObject);
+        await dataQualityServiceClient.Test().ConfigureAwait(false);
 
         // Create a temporary observer
-        var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
         await dataQualityServiceClient.CreateObserver(observer, accountId).ConfigureAwait(false);
 
         // Trigger run
+        var storageSasRequest = new StorageSasRequest()
+        {
+            Path = "/",
+            Permissions = "rl", // Only read permissions
+            TimeToLive = TimeSpan.FromHours(7)
+        };
+
+        var uri = await this.processingStorageManager.GetProcessingStorageSasUri(
+            accountStorageModel,
+            storageSasRequest,
+            accountStorageModel.CatalogId.ToString(),
+            CancellationToken.None).ConfigureAwait(false);
+        var uriStr = uri.ToString();
+        var delimiterIndex = uriStr.IndexOf("?");
+        var sasToken = uriStr.Substring(delimiterIndex + 1);
+
         var jobId = await dataQualityServiceClient.TriggerJobRun(
             accountId,
             dataProductId,
             dataAssetId,
-            new JobSubmitPayload()).ConfigureAwait(false);
+            new JobSubmitPayload(
+                sasToken,
+                dfsEndpoint,
+                catalogId,
+                dataProductId,
+                dataAssetId,
+                healthJobId)).ConfigureAwait(false);
 
         return jobId;
     }

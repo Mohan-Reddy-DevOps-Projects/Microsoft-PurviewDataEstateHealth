@@ -8,6 +8,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.D
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Rule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
+using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetSchemaItem;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,7 @@ public class ObserverAdapter
             { DynamicEntityWrapper.keyTypeProperties, new JObject() }
         });
 
-        observer.Name = "deh_control_id_" + Guid.NewGuid().ToString();
+        observer.Name = "deh_control_" + Guid.NewGuid().ToString();
         observer.Description = "MDQ observer";
 
         observer.InputDatasets = this.GetDataProductInputDatasets();
@@ -48,12 +49,12 @@ public class ObserverAdapter
 
         var dataProductRef = new ReferenceObjectWrapper(new JObject());
         dataProductRef.Type = ReferenceType.DataProductReference;
-        dataProductRef.ReferenceId = Guid.NewGuid().ToString();
+        dataProductRef.ReferenceId = this.dataProductId;
         observer.DataProduct = dataProductRef;
 
         var dataAssetRef = new ReferenceObjectWrapper(new JObject());
         dataAssetRef.Type = ReferenceType.DataAssetReference;
-        dataAssetRef.ReferenceId = Guid.NewGuid().ToString();
+        dataAssetRef.ReferenceId = this.dataAssetId;
         observer.DataAsset = dataAssetRef;
 
         return observer;
@@ -68,7 +69,8 @@ public class ObserverAdapter
         });
         hasDescriptionRule.Id = "DPDescriptionNotNull";
         hasDescriptionRule.Name = "DPDescriptionNotNull";
-        hasDescriptionRule.Condition = "HasDescription === true";
+        hasDescriptionRule.Condition = "HasDescription == true";
+        hasDescriptionRule.Status = RuleStatus.Active;
 
         return new RuleWrapper[]
         {
@@ -78,10 +80,14 @@ public class ObserverAdapter
 
     private IEnumerable<InputDatasetWrapper> GetDataProductInputDatasets()
     {
-        var inputDataset = new InputDatasetWrapper(new JObject());
+        var inputDataset = new InputDatasetWrapper(new JObject()
+        {
+            // TODO why set not work
+            { "dataset", this.GetDataProductDataset().JObject }
+        });
         inputDataset.Alias = "primary";
         inputDataset.Primary = true;
-        inputDataset.Dataset = this.GetDataProductDataset();
+        /*inputDataset.Dataset = this.GetDataProductDataset();*/
 
         return new InputDatasetWrapper[]
         {
@@ -98,6 +104,7 @@ public class ObserverAdapter
         });
         dataset.ProjectAs = Array.Empty<DatasetProjectAsItemWrapper>();
         dataset.DatasourceFQN = this.endpoint + "/";
+        dataset.CompressionCodec = "snappy";
 
         var datasetLocation = new DatasetGen2FileLocationWrapper(new JObject()
         {
@@ -133,15 +140,15 @@ public class ObserverAdapter
 
     private IEnumerable<DatasetSchemaItemWrapper> GetDataProductSchema()
     {
-        var descriptionCol = new DatasetSchemaStringItemWrapper(new JObject()
+        var hasDescriptionCol = new DatasetSchemaBooleanItemWrapper(new JObject()
         {
-            { DynamicEntityWrapper.keyType, DatasetSchemaStringItemWrapper.EntityType },
+            { DynamicEntityWrapper.keyType, DatasetSchemaBooleanItemWrapper.EntityType },
         });
-        descriptionCol.Name = "Description";
+        hasDescriptionCol.Name = "HasDescription";
 
         return new DatasetSchemaItemWrapper[]
         {
-            descriptionCol
+            hasDescriptionCol
         };
     }
 }

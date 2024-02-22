@@ -6,12 +6,27 @@ using System.Collections.Generic;
 
 public class JobSubmitPayload
 {
-    public JobSubmitPayload()
+    public JobSubmitPayload(
+        string sasToken,
+        // e.g. https://dgprocessingwus2cyqgjoc.z28.blob.storage.azure.net
+        string storageEndpoint,
+        string catalogId,
+        string dataProductId,
+        string dataAssetId,
+        string jobId)
     {
         this.DatasetToDatasourceMappings = new List<DatasetToDatasourceMapping>
         {
             new DatasetToDatasourceMapping()
         };
+
+        this.Error = new ErrorOutputInfo(
+            sasToken,
+            storageEndpoint,
+            catalogId,
+            dataProductId,
+            dataAssetId,
+            jobId);
     }
 
     [JsonProperty("datasetToDatasourceMappings")]
@@ -36,8 +51,7 @@ public class ErrorOutputInfo
         string sasToken,
         // e.g. https://dgprocessingwus2cyqgjoc.z28.blob.storage.azure.net
         string storageEndpoint,
-        string accountId,
-        string businessDomainId,
+        string catalogId,
         string dataProductId,
         string dataAssetId,
         string jobId)
@@ -49,8 +63,8 @@ public class ErrorOutputInfo
         this.Account = splited[0];
         this.DnsZone = splited[1];
 
-        this.FileSystem = accountId;
-        this.FolderPath = $"all-errors/businessDomain={businessDomainId}/dataProduct={dataProductId}/dataAsset={dataAssetId}/observation={jobId}";
+        this.FileSystem = catalogId;
+        this.FolderPath = $"all-errors/businessDomain={DataEstateHealthConstants.DEH_DOMAIN_ID}/dataProduct={dataProductId}/dataAsset={dataAssetId}/observation={jobId}";
     }
 
     [JsonProperty("name")]
@@ -66,7 +80,7 @@ public class ErrorOutputInfo
     public string CloudType => "AzurePublic";
 
     [JsonProperty("endpointSuffix")]
-    public string EndpointSuffix => "core.windows.net";
+    public string EndpointSuffix => "storage.azure.net";
 
     [JsonProperty("account")]
     public string Account { get; set; }

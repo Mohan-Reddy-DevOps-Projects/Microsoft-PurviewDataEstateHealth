@@ -4,8 +4,10 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Internal.DataQuality;
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
@@ -16,6 +18,7 @@ using System.Threading.Tasks;
 /// Token controller.
 /// </summary>
 [ApiController]
+[ApiVersion(ServiceVersion.LabelV2)]
 [CertificateConfig(CertificateSet.DataQuality)]
 [Authorize(AuthenticationSchemes = "Certificate")]
 [Route("/internal/dataquality")]

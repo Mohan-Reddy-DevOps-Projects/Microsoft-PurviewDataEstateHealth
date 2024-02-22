@@ -1,14 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-
-using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
-using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 public class DHScheduleService(
@@ -17,7 +10,7 @@ public class DHScheduleService(
 {
     public async Task TriggerScheduleAsync(DHScheduleCallbackPayload payload)
     {
-        await dataQualityExecutionService.SubmitDQJob(payload.AccountId);
+        await dataQualityExecutionService.SubmitDQJob(payload.AccountId, payload.ControlId, Guid.NewGuid().ToString());
 
         // TOOD: query schedule and trigger it
         // await this.scheduleServiceClient.TriggerSchedule(scheduleId).ConfigureAwait(false);
