@@ -68,6 +68,13 @@
       "actions": ["wait/skip"]
     },
     {
+      "name": "setupCosmosStorage",
+      "dependsOn": ["deployInfrastructure"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "cosmosStorageSetupResourceDefinition",
+      "actions": ["deploy"]
+    },
+    {
       "name": "deployPythonFiles",
       "dependsOn": ["deployInfrastructure"],
       "targetType": "ServiceResourceDefinition",
@@ -97,7 +104,7 @@
     },
     {
       "name": "deployApiService",
-      "dependsOn": ["addDnsRecords", "pushWorkerServiceImage"],
+      "dependsOn": ["addDnsRecords", "pushWorkerServiceImage", "setupCosmosStorage"],
       "targetType": "ServiceResourceDefinition",
       "targetName": "apiServiceContainerAppResourceDefinition",
       "actions": ["deploy"]

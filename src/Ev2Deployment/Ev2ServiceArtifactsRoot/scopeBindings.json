@@ -215,6 +215,14 @@
             {
                 "find": "__INFRA_SQL_ADMIN_PASS_SECRET_NAME__",
                 "replaceWith": "$config(dgh.sqlAdminPassSecretName)"
+            },
+            {
+              "find": "__INFRA_COSMOS_ACCOUNT_NAME__",
+              "replaceWith": "$config(dgh.cosmosAccountName)"
+            },
+            {
+              "find": "__INFRA_COSMOS_REGION__",
+              "replaceWith": "$config(dgh.cosmosRegion)"
             }
         ]
     },

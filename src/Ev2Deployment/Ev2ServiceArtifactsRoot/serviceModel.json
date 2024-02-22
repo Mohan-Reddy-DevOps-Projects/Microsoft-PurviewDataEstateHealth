@@ -215,6 +215,24 @@
               "name": "Core"
             }
           ]
+        },
+        {
+          "name": "cosmosStorageSetupResourceDefinition",
+          "composedOf": {
+            "arm": {
+              "templatePath": "Templates\\cosmosStorageSetup.json",
+              "parametersPath": "Parameters\\cosmosStorageSetup.parameters.json",
+              "deploymentLevel": "ResourceGroup"
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\wait.rollout.parameters.json"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "Infrastructure"
+            }
+          ]
         }
       ]
     },

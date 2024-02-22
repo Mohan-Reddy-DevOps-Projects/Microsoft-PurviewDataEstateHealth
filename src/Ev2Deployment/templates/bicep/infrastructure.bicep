@@ -21,6 +21,8 @@ param synapseLocation string
 param synapseDatabaseName string
 param subscriptionId string = subscription().subscriptionId
 param forceUpdateTag string = utcNow()
+param cosmosAccountName string
+param cosmosRegion string = resourceGroup().location
 
 var contributorRoleDefName = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 var azureEventHubsDataReceiverRoleDefName = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'
@@ -489,6 +491,14 @@ module eventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
     eventHubNamespaceName: eventHubNamespaceName
     principalId: containerAppIdentity.properties.principalId
     roleDefinitionName: azureEventHubsDataReceiverRoleDefName
+  }
+}
+
+module cosmosAccountModule 'cosmosAccount.bicep' = {
+  name: 'cosmosAccountDeploy'
+  params: {
+    accountName: cosmosAccountName
+    location: cosmosRegion
   }
 }
 
