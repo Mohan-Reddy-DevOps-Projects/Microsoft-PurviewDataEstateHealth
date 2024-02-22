@@ -22,7 +22,7 @@
             "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
             "cosmosAccountName": "$(dgh.serviceShortName)-cosmos-nosql-$(pdg.environment.shortName)-$(regionShortName)",
             "cosmosRegion": "eastus2",
-            "dataQualitySubjectName": "$(pdg.environment.shortName).dataquality-service.purview.$(pdg.tenant.dnsZoneName)"
+            "dataQualitySubjectName": "$(pdg.firstParty.purviewShortRegion).dataquality-service.purview.$(pdg.tenant.dnsZoneName)"
         }
     }
 }
