@@ -43,7 +43,7 @@
             return schedule;
         }
 
-        public async Task<DHControlScheduleStoragePayloadWrapper> CreateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string controlId)
+        public async Task<DHControlScheduleStoragePayloadWrapper> CreateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string? controlId = null)
         {
             var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
             var response = await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
@@ -56,7 +56,7 @@
             return schedule;
         }
 
-        public async Task<DHControlScheduleStoragePayloadWrapper> UpdateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string controlId)
+        public async Task<DHControlScheduleStoragePayloadWrapper> UpdateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string? controlId)
         {
             var existEntity = await this.dhControlScheduleRepository.GetByIdAsync(schedule.Id).ConfigureAwait(false);
 
@@ -81,7 +81,7 @@
             await this.dhControlScheduleRepository.DeleteAsync(scheduleId).ConfigureAwait(false);
         }
 
-        private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleStoragePayloadWrapper schedule, string controlId)
+        private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleStoragePayloadWrapper schedule, string? controlId)
         {
             var payload = new DHScheduleCreateRequestPayload
             {

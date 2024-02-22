@@ -1,13 +1,16 @@
 ﻿#nullable enable
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Internal.DHControl;
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
 [ApiController]
+[ApiVersion(ServiceVersion.LabelV2)]
 [CertificateConfig(CertificateSet.DHControlSchedule)]
 [Authorize(AuthenticationSchemes = "Certificate")]
 [Route("/internal/control")]

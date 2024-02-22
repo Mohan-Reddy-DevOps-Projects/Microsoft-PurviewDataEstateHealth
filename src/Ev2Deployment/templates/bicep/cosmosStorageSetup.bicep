@@ -28,7 +28,7 @@ module cosmosDatabaseDHControl 'cosmosDatabase.bicep' = {
   params: {
     accountName: cosmosAccountName
     databaseName: 'DHControl'
-    containerNames: ['DHControl','DHScore', 'DHSchedule', 'DHControlStatusPalette']
+    containerNames: ['DHControl','DHScore', 'DHSchedule', 'DHControlStatusPalette', 'MQAssessment']
   }
 }
 
