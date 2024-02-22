@@ -24,31 +24,39 @@ public class DHComputingJobWrapper(JObject jObject) : ContainerEntityBaseWrapper
         set => this.SetPropertyValue(keyControlId, value);
     }
 
-    [EntityProperty(keyComputingJobId)]
-    public string ComputingJobId
-    {
-        get => this.GetPropertyValue<string>(keyComputingJobId);
-        set => this.SetPropertyValue(keyComputingJobId, value);
-    }
-
     [EntityProperty(keyCreateTime)]
-    public DateTime CreateTime
+    public DateTime? CreateTime
     {
-        get => this.GetPropertyValue<DateTime>(keyCreateTime);
+        get
+        {
+            var time = this.GetPropertyValue<DateTime>(keyCreateTime);
+            return time == DateTime.MinValue ? null : time;
+        }
+
         set => this.SetPropertyValue(keyCreateTime, value);
     }
 
     [EntityProperty(keyStartTime)]
-    public DateTime StartTime
+    public DateTime? StartTime
     {
-        get => this.GetPropertyValue<DateTime>(keyStartTime);
+        get
+        {
+            var time = this.GetPropertyValue<DateTime>(keyStartTime);
+            return time == DateTime.MinValue ? null : time;
+        }
+
         set => this.SetPropertyValue(keyStartTime, value);
     }
 
     [EntityProperty(keyEndTime)]
-    public DateTime EndTime
+    public DateTime? EndTime
     {
-        get => this.GetPropertyValue<DateTime>(keyEndTime);
+        get
+        {
+            var time = this.GetPropertyValue<DateTime>(keyEndTime);
+            return time == DateTime.MinValue ? null : time;
+        }
+
         set => this.SetPropertyValue(keyEndTime, value);
     }
 

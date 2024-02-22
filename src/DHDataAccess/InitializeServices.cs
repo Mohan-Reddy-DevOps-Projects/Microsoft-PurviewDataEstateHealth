@@ -44,6 +44,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
             services.AddScoped<MQAssessmentRepository>();
             services.AddScoped<DHControlScheduleRepository>();
             services.AddScoped<DHActionRepository>();
+            services.AddScoped<DHComputingJobRepository>();
         }
 
         /// <summary>
