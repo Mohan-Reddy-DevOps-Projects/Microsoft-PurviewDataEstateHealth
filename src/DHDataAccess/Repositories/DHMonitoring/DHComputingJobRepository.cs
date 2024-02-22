@@ -11,7 +11,7 @@ public class DHComputingJobRepository(CosmosClient cosmosClient, IRequestHeaderC
 {
     private const string ContainerName = "DHComputingJob";
 
-    private string DatabaseName => configuration["cosmosDb:monitoringDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHComputingJob is not found in the configuration");
+    private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHComputingJob is not found in the configuration");
 
     protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 }

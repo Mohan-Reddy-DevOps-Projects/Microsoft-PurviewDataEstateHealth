@@ -1,6 +1,7 @@
 param accountName string
 param databaseName string
 param containerNames array
+param throughput int = 4000
 
 resource account 'Microsoft.DocumentDB/databaseAccounts@2022-05-15' existing = {
   name: accountName
@@ -41,6 +42,9 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
           }
         ]
       }
+    }
+    options: {
+      throughput: throughput
     }
   }
 }]

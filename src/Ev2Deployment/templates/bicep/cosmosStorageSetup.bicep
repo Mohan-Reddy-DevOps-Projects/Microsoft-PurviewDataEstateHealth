@@ -28,7 +28,17 @@ module cosmosDatabaseDHControl 'cosmosDatabase.bicep' = {
   params: {
     accountName: cosmosAccountName
     databaseName: 'DHControl'
-    containerNames: ['DHControl','DHScore', 'DHSchedule', 'DHControlStatusPalette', 'MQAssessment']
+    containerNames: ['DHControl', 'DHSchedule', 'DHControlStatusPalette', 'MQAssessment', 'DHComputingJob']
+  }
+}
+
+module cosmosDatabaseDHControlScoreContainer 'cosmosDatabase.bicep' = {
+  name: 'cosmosDatabaseDHControlScoreContainer'
+  params: {
+    accountName: cosmosAccountName
+    databaseName: 'DHControl'
+    containerNames: ['DHScore']
+    throughput: 40000
   }
 }
 
@@ -38,14 +48,5 @@ module cosmosDatabaseDHAction 'cosmosDatabase.bicep' = {
     accountName: cosmosAccountName
     databaseName: 'DHAction'
     containerNames: ['DHAction']
-  }
-}
-
-module cosmosDatabaseDHMonitoring 'cosmosDatabase.bicep' = {
-  name: 'cosmosDatabaseDHMonitoring'
-  params: {
-    accountName: cosmosAccountName
-    databaseName: 'DHMonitoring'
-    containerNames: ['DHComputingJob']
   }
 }
