@@ -30,7 +30,7 @@
             await this.dhComputingJobRepository.AddAsync(job).ConfigureAwait(false);
         }
 
-        public async Task UpdateComputingJobStatus(string jobId, DHComputingJobStatus status)
+        public async Task UpdateComputingJobStatus(string jobId, string status)
         {
             var job = await this.GetComputingJobById(jobId);
             job.Status = status;

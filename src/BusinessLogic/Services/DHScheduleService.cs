@@ -7,6 +7,7 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using System;
 using System.Linq;
@@ -15,15 +16,29 @@ using System.Threading.Tasks;
 public class DHScheduleService(
     DHScheduleInternalService scheduleService,
     DHControlScheduleRepository dhControlScheduleRepository,
-    IDataQualityExecutionService dataQualityExecutionService)
+    IDataQualityExecutionService dataQualityExecutionService,
+    DHMonitoringService monitoringService,
+    DHControlService controlService
+    )
 {
     public async Task TriggerScheduleAsync(DHScheduleCallbackPayload payload)
     {
-        await dataQualityExecutionService.SubmitDQJob(payload.AccountId, payload.ControlId, Guid.NewGuid().ToString());
+        // Step 1: query all controls
+        var controls = await controlService.ListControlsAsync().ConfigureAwait(false);
 
-        // TOOD: query schedule and trigger it
-        // await this.scheduleServiceClient.TriggerSchedule(scheduleId).ConfigureAwait(false);
-        await Task.Delay(100);
+        foreach (var control in controls.Results)
+        {
+            // Step 2: submit DQ jobs
+            var jobId = Guid.NewGuid().ToString();
+            var dqJobId = await dataQualityExecutionService.SubmitDQJob(payload.AccountId, control.Id, jobId).ConfigureAwait(false);
+
+            // Step 3: save into monitoring table
+            var jobWrapper = new DHComputingJobWrapper();
+            jobWrapper.Id = jobId;
+            jobWrapper.DQJobId = dqJobId;
+            jobWrapper.ControlId = control.Id;
+            await monitoringService.CreateComputingJob(jobWrapper).ConfigureAwait(false);
+        }
     }
 
     public async Task<DHControlGlobalSchedulePayloadWrapper> CreateOrUpdateGlobalScheduleAsync(DHControlGlobalSchedulePayloadWrapper entity)

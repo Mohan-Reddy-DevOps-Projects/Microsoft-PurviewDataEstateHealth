@@ -2,21 +2,36 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 
 public class DHComputingJobWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHComputingJobWrapper>(jObject)
 {
     private const string keyControlId = "controlId";
-    private const string keyComputingJobId = "computingJobId";
+    private const string keyDQJobId = "dqJobId";
     private const string keyCreateTime = "createTime";
     private const string keyStartTime = "startTime";
     private const string keyEndTime = "endTime";
     private const string keyStatus = "status";
-    private const string keyProgress = "progress";
+
+    public static DHComputingJobWrapper Create(JObject jObject)
+    {
+        return new DHComputingJobWrapper(jObject);
+    }
 
     public DHComputingJobWrapper() : this([]) { }
 
+
+    [EntityRequiredValidator]
+    [EntityProperty(keyDQJobId)]
+    public string DQJobId
+    {
+        get => this.GetPropertyValue<string>(keyDQJobId);
+        set => this.SetPropertyValue(keyDQJobId, value);
+    }
+
+    [EntityRequiredValidator]
     [EntityProperty(keyControlId)]
     public string ControlId
     {
@@ -61,16 +76,9 @@ public class DHComputingJobWrapper(JObject jObject) : ContainerEntityBaseWrapper
     }
 
     [EntityProperty(keyStatus)]
-    public DHComputingJobStatus Status
+    public string Status
     {
-        get => this.GetPropertyValue<DHComputingJobStatus>(keyStatus);
+        get => this.GetPropertyValue<string>(keyStatus);
         set => this.SetPropertyValue(keyStatus, value);
-    }
-
-    [EntityProperty(keyProgress)]
-    public double? Progress
-    {
-        get => this.GetPropertyValue<double?>(keyProgress);
-        set => this.SetPropertyValue(keyProgress, value);
     }
 }
