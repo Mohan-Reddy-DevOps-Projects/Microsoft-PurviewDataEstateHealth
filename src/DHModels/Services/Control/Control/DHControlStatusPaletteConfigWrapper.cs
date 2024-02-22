@@ -7,10 +7,18 @@ using System.Collections.Generic;
 
 public class DHControlStatusPaletteConfigWrapper(JObject jObject) : BaseEntityWrapper(jObject)
 {
+    private const string keyTargetScore = "targetScore";
     private const string keyFallbackStatusPaletteId = "fallbackStatusPaletteId";
     private const string keyStatusPaletteRules = "statusPaletteRules";
 
     public DHControlStatusPaletteConfigWrapper() : this([]) { }
+
+    [EntityProperty(keyTargetScore)]
+    public double TargetScore
+    {
+        get => this.GetPropertyValue<double>(keyTargetScore);
+        set => this.SetPropertyValue(keyTargetScore, value);
+    }
 
     [EntityProperty(keyFallbackStatusPaletteId)]
     public string FallbackStatusPaletteId
