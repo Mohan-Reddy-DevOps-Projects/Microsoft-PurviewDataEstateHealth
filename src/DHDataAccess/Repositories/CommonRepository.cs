@@ -42,6 +42,21 @@ public abstract class CommonRepository<TEntity>(IRequestHeaderContext requestHea
         return entities;
     }
 
+    public virtual async Task<IEnumerable<TEntity>> UpdateAsync(IEnumerable<TEntity> entities)
+    {
+        entities.ForEach(this.PopulateMetadataForEntity);
+        var batch = this.CosmosContainer.CreateTransactionalBatch(this.TenantPartitionKey);
+
+        foreach (var entity in entities)
+        {
+            batch.UpsertItem(entity);
+        }
+
+        await batch.ExecuteAsync().ConfigureAwait(false);
+
+        return entities;
+    }
+
     public async Task<TEntity> DeleteAsync(TEntity entity)
     {
         return await this.DeleteAsync(entity.Id).ConfigureAwait(false);

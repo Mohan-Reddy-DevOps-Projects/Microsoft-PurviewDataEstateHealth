@@ -26,8 +26,10 @@ public enum DataHealthActionCategory
 [JsonConverter(typeof(StringEnumConverter))]
 public enum DataHealthActionStatus
 {
-    Active,
-    Resolved
+    NotStarted,
+    InProgress,
+    Resolved,
+    Ignored
 }
 
 [JsonConverter(typeof(StringEnumConverter))]
@@ -139,7 +141,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
         get
         {
             var enumStr = this.GetPropertyValue<string>(keyStatus);
-            return Enum.TryParse<DataHealthActionStatus>(enumStr, true, out var result) ? result : DataHealthActionStatus.Active;
+            return Enum.TryParse<DataHealthActionStatus>(enumStr, true, out var result) ? result : DataHealthActionStatus.NotStarted;
         }
         set => this.SetPropertyValue(keyStatus, value.ToString());
     }

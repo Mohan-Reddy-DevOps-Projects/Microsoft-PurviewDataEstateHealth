@@ -6,7 +6,6 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.DataPlaneV2;
 
 using Asp.Versioning;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
@@ -48,11 +47,12 @@ public class DHActionController(DHActionService actionService) : DataPlaneContro
     [HttpPost]
     [Route("")]
     public async Task<ActionResult> CreateActionAsync(
-        [FromBody] JObject payload)
+        [FromBody] JArray payload)
     {
-        var wrapper = DataHealthActionWrapper.Create(payload);
-        var entity = await actionService.CreateActionsAsync(wrapper).ConfigureAwait(false);
-        return this.Created(new Uri($"{this.Request.GetEncodedUrl()}/{entity.Id}"), entity.JObject);
+        var actionWrapperList = payload.Select(item => DataHealthActionWrapper.Create((JObject)item)).ToList();
+
+        var entites = await actionService.CreateActionsAsync(actionWrapperList).ConfigureAwait(false);
+        return this.Ok(entites.Select((item) => item.JObject));
     }
 
     [HttpGet]

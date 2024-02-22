@@ -382,22 +382,26 @@ paths:
 
   /actions:
     post:
-      operationId: create action
-      description: Create an action.
+      operationId: create actions
+      description: Create actions.
       tags:
         - Actions
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/action"
+              type: array
+              items:
+                $ref: "#/components/schemas/action"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/action"
+                type: array
+                items:
+                  $ref: "#/components/schemas/action"
 
   /actions/{actionId}:
     parameters:
@@ -943,8 +947,10 @@ components:
             type: string
           description: The assigned to of the action.
         status:
-          type: string
-          enum: [NotStarted, InProgress, Resolved]
+          type: array
+          items:
+            type: string
+            enum: [NotStarted, InProgress, Resolved, Ignored]
           description: The status of the action.
         targetEntityType:
           type: string
@@ -1002,7 +1008,8 @@ components:
       required:
         - category
         - status
-        - targetEntity
+        - targetEntityType
+        - targetEntityId
         - findingType
         - findingSubType
         - findingName
@@ -1017,7 +1024,7 @@ components:
           example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
         status:
           type: string
-          enum: [NotStarted, InProgress, Resolved]
+          enum: [NotStarted, InProgress, Resolved, Ignored]
           description: The status of the action.
         targetEntityType:
           type: string
