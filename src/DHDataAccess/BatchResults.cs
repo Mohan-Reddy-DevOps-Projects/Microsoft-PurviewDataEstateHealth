@@ -1,5 +1,4 @@
-﻿#nullable enable
-// <copyright file="BatchResults.cs" company="Microsoft Corporation">
+﻿// <copyright file="BatchResults.cs" company="Microsoft Corporation">
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // </copyright>
 

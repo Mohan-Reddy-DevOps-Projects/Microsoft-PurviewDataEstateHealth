@@ -10,9 +10,11 @@ public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHScor
 {
     private const string keyTime = "time";
     private const string keyControlId = "controlId";
+    private const string keyEntityDomainId = "entityDomainId";
+    private const string keyControlGroupId = "controlGroupId";
     private const string keyComputingJobId = "computingJobId";
     private const string keyEntitySnapshot = "entitySnapshot";
-    private const string keyScore = "score";
+    private const string keyScore = "scores";
     private const string keyAggregatedScore = "aggregatedScore";
 
     public DHScoreWrapper() : this([]) { }
@@ -31,6 +33,20 @@ public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHScor
         set => this.SetPropertyValue(keyControlId, value);
     }
 
+    [EntityProperty(keyEntityDomainId)]
+    public string EntityDomainId
+    {
+        get => this.GetPropertyValue<string>(keyEntityDomainId);
+        set => this.SetPropertyValue(keyEntityDomainId, value);
+    }
+
+    [EntityProperty(keyControlGroupId)]
+    public string ControlGroupId
+    {
+        get => this.GetPropertyValue<string>(keyControlGroupId);
+        set => this.SetPropertyValue(keyControlGroupId, value);
+    }
+
     [EntityProperty(keyComputingJobId)]
     public string ComputingJobId
     {
@@ -45,21 +61,21 @@ public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHScor
         set => this.SetPropertyValue(keyEntitySnapshot, value);
     }
 
-    private IEnumerable<DHScoreUnitWrapper>? score;
+    private IEnumerable<DHScoreUnitWrapper>? scores;
 
     [EntityProperty(keyScore)]
-    public IEnumerable<DHScoreUnitWrapper> Score
+    public IEnumerable<DHScoreUnitWrapper> Scores
     {
-        get => this.score ??= this.GetPropertyValueAsWrappers<DHScoreUnitWrapper>(keyScore);
+        get => this.scores ??= this.GetPropertyValueAsWrappers<DHScoreUnitWrapper>(keyScore);
         set
         {
             this.SetPropertyValueFromWrappers(keyScore, value);
-            this.score = value;
+            this.scores = value;
         }
     }
 
     [EntityProperty(keyAggregatedScore)]
-    public double? AggregatedScore
+    public double AggregatedScore
     {
         get => this.GetPropertyValue<double>(keyAggregatedScore);
         set => this.SetPropertyValue(keyAggregatedScore, value);
