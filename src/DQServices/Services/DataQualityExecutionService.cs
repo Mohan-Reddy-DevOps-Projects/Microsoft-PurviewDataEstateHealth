@@ -90,7 +90,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         {
             Path = "/",
             Permissions = "rl", // Only read permissions
-            TimeToLive = TimeSpan.FromHours(7)
+            TimeToLive = TimeSpan.FromHours(DataEstateHealthConstants.SAS_TOKEN_EXPIRATION_HOURS)
         };
 
         var uri = await this.processingStorageManager.GetProcessingStorageSasUri(

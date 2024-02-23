@@ -11,6 +11,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
@@ -51,7 +52,7 @@ public class InternalDataQualityController : Controller
         {
             Path = "/",
             Permissions = "rl", // Only read permissions
-            TimeToLive = TimeSpan.FromHours(7)
+            TimeToLive = TimeSpan.FromHours(DataEstateHealthConstants.SAS_TOKEN_EXPIRATION_HOURS)
         };
 
         var accountModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
