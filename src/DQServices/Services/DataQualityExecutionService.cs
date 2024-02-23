@@ -41,7 +41,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         var catalogId = accountStorageModel.CatalogId.ToString();
 
         var dataProductId = controlId;
-        var dataAssetId = controlId;
+        var dataAssetId = healthJobId;
 
         // Convert to an observer
         var observerAdapter = new ObserverAdapter(

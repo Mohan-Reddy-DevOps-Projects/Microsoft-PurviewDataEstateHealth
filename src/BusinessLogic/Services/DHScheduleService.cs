@@ -8,10 +8,12 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,11 +29,22 @@ public class DHScheduleService(
     public async Task TriggerScheduleAsync(DHScheduleCallbackPayload payload)
     {
         // Step 1: query all controls
-        var controls = await controlService.ListControlsAsync().ConfigureAwait(false);
+        var controls = new List<DHControlBaseWrapper>();
 
-        logger.LogInformation($"Trigger controls jobs. Count {controls.Count}.");
+        if (string.IsNullOrEmpty(payload.ControlId))
+        {
+            var result = await controlService.ListControlsAsync().ConfigureAwait(false);
+            controls.AddRange(result.Results);
+            logger.LogInformation($"Trigger batch controls jobs. Count {result.Count}.");
+        }
+        else
+        {
+            var result = await controlService.GetControlByIdAsync(payload.ControlId).ConfigureAwait(false);
+            controls.Add(result);
+            logger.LogInformation($"Trigger control job. ControlId {payload.ControlId}.");
+        }
 
-        foreach (var control in controls.Results)
+        foreach (var control in controls)
         {
             // Step 2: submit DQ jobs
             var jobId = Guid.NewGuid().ToString();
