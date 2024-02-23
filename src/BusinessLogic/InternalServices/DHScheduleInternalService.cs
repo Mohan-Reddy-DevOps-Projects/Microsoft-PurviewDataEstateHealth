@@ -2,6 +2,7 @@
 
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
 {
+    using Microsoft.Azure.Purview.DataEstateHealth.Common;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Extensions.Options;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
@@ -11,9 +12,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
-
     public class DHScheduleInternalService
     {
         private readonly DHControlScheduleRepository dhControlScheduleRepository;
@@ -90,7 +89,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                 ScheduleId = schedule.Id,
                 CallbackRequest = new DHScheduleCreateRequestCallback
                 {
-                    Url = this.scheduleConfiguration.CallbackEndpoint + "/internal/control/triggerScheduleJobCallback",
+                    Url = $"{this.scheduleConfiguration.CallbackEndpoint}/internal/control/triggerScheduleJobCallback?api-version={ServiceVersion.LabelV2}",
                     Method = "POST",
                     Body = new DHScheduleCallbackPayload
                     {
@@ -98,7 +97,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                         TenantId = this.requestHeaderContext.TenantId.ToString(),
                         AccountId = this.requestHeaderContext.AccountObjectId.ToString(),
                     },
-                    Headers = new Dictionary<string, string> { { "x-ms-client-tenant-id", this.requestHeaderContext.TenantId.ToString() } }
                 }
             };
             payload.SetRecurrence(schedule.Properties);

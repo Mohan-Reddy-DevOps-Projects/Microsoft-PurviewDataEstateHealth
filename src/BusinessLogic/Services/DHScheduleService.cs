@@ -1,6 +1,8 @@
 ﻿#nullable enable
 
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
+
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
@@ -18,13 +20,16 @@ public class DHScheduleService(
     DHControlScheduleRepository dhControlScheduleRepository,
     IDataQualityExecutionService dataQualityExecutionService,
     DHMonitoringService monitoringService,
-    DHControlService controlService
+    DHControlService controlService,
+    IDataEstateHealthRequestLogger logger
     )
 {
     public async Task TriggerScheduleAsync(DHScheduleCallbackPayload payload)
     {
         // Step 1: query all controls
         var controls = await controlService.ListControlsAsync().ConfigureAwait(false);
+
+        logger.LogInformation($"Trigger controls jobs. Count {controls.Count}.");
 
         foreach (var control in controls.Results)
         {
