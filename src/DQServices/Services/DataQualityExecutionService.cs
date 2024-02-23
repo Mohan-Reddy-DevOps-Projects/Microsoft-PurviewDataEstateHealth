@@ -89,7 +89,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         var storageSasRequest = new StorageSasRequest()
         {
             Path = "/",
-            Permissions = "rl", // Only read permissions
+            Permissions = "rwdlacup", // Only read permissions
             TimeToLive = TimeSpan.FromHours(DataEstateHealthConstants.SAS_TOKEN_EXPIRATION_HOURS)
         };
 
