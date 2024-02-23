@@ -18,6 +18,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 public class DHScheduleService(
+    DHScoreService scoreService,
     DHScheduleInternalService scheduleService,
     DHControlScheduleRepository dhControlScheduleRepository,
     IDataQualityExecutionService dataQualityExecutionService,
@@ -56,6 +57,36 @@ public class DHScheduleService(
             jobWrapper.DQJobId = dqJobId;
             jobWrapper.ControlId = control.Id;
             await monitoringService.CreateComputingJob(jobWrapper).ConfigureAwait(false);
+        }
+    }
+
+    public async Task UpdateMDQJobStatusAsync(DHControlMDQJobCallbackPayload payload)
+    {
+        var jobStatus = payload.ParseJobStatus();
+        var job = await monitoringService.GetComputingJobByDQJobId(payload.DQJobId).ConfigureAwait(false);
+        if (job.Status == jobStatus)
+        {
+            logger.LogInformation($"MDQ job status has already been {jobStatus}. Ignore update. Job ID: {payload.DQJobId}");
+            return;
+        }
+        await monitoringService.UpdateComputingJobStatus(job.Id, jobStatus);
+        logger.LogInformation($"MDQ job status updated: {jobStatus}. Job Id: {job.Id}. DQ Job Id: {job.DQJobId}.");
+
+        if (jobStatus == DHComputingJobStatus.Succeeded)
+        {
+            logger.LogInformation($"New succeed MDQ job. Process score computing. Job Id: {job.Id}. DQ Job Id: {job.DQJobId}. Control Id: {job.ControlId}");
+
+            try
+            {
+                await monitoringService.EndComputingJob(job.Id);
+                // TODO: fulfill dataProductId, dataAssetId, jobId
+                var scoreResult = await dataQualityExecutionService.ParseDQResult(job.AccountId, string.Empty, string.Empty, string.Empty).ConfigureAwait(false);
+                await scoreService.ProcessControlComputingResultsAsync(job.ControlId, job.Id, scoreResult).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception happened when processing succeed MDQ job.", ex);
+            }
         }
     }
 

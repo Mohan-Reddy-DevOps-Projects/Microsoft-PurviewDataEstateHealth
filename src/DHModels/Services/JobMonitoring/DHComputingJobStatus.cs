@@ -2,9 +2,15 @@
 
 public enum DHComputingJobStatus
 {
-    NotStarted,
-    Running,
-    Succeeded,
+    Unknown,
     Failed,
-    Canceled
+    Succeeded,
+    InProgress,
+    Cancelling,
+    Cancelled,
+    Queued,
+    Accepted,
+    Rejected,
+    Skipped,
+    Deleting
 }

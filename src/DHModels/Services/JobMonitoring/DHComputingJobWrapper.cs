@@ -2,6 +2,7 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
@@ -42,43 +43,33 @@ public class DHComputingJobWrapper(JObject jObject) : ContainerEntityBaseWrapper
     [EntityProperty(keyCreateTime)]
     public DateTime? CreateTime
     {
-        get
-        {
-            var time = this.GetPropertyValue<DateTime>(keyCreateTime);
-            return time == DateTime.MinValue ? null : time;
-        }
-
-        set => this.SetPropertyValue(keyCreateTime, value);
+        get => this.GetPropertyValue<DateTime?>(keyCreateTime);
+        set => this.SetPropertyValue(keyCreateTime, value?.GetDateTimeStr());
     }
 
     [EntityProperty(keyStartTime)]
     public DateTime? StartTime
     {
-        get
-        {
-            var time = this.GetPropertyValue<DateTime>(keyStartTime);
-            return time == DateTime.MinValue ? null : time;
-        }
-
-        set => this.SetPropertyValue(keyStartTime, value);
+        get => this.GetPropertyValue<DateTime?>(keyStartTime);
+        set => this.SetPropertyValue(keyStartTime, value?.GetDateTimeStr());
     }
 
     [EntityProperty(keyEndTime)]
     public DateTime? EndTime
     {
-        get
-        {
-            var time = this.GetPropertyValue<DateTime>(keyEndTime);
-            return time == DateTime.MinValue ? null : time;
-        }
-
-        set => this.SetPropertyValue(keyEndTime, value);
+        get => this.GetPropertyValue<DateTime?>(keyEndTime);
+        set => this.SetPropertyValue(keyEndTime, value?.GetDateTimeStr());
     }
 
+    [EntityRequiredValidator]
     [EntityProperty(keyStatus)]
-    public string Status
+    public DHComputingJobStatus Status
     {
-        get => this.GetPropertyValue<string>(keyStatus);
-        set => this.SetPropertyValue(keyStatus, value);
+        get
+        {
+            var value = this.GetPropertyValue<string>(keyStatus);
+            return Enum.TryParse(value, out DHComputingJobStatus status) ? status : DHComputingJobStatus.Unknown;
+        }
+        set => this.SetPropertyValue(keyStatus, value.ToString());
     }
 }

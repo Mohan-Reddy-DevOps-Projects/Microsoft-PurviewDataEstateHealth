@@ -9,6 +9,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
@@ -25,8 +26,26 @@ public class InternalDHControlController(DHScheduleService dhScheduleService, ID
         {
             return this.BadRequest();
         }
-        logger.LogInformation($"Schedule job callback start. {requestBody.TenantId} {requestBody.AccountId}");
+        logger.LogInformation($"Schedule job callback start. TenantId: {requestBody.TenantId}. AccountId: {requestBody.AccountId}");
         await dhScheduleService.TriggerScheduleAsync(requestBody).ConfigureAwait(false);
+        return this.Ok();
+    }
+
+    [HttpPost]
+    [Route("triggerMDQJobCallback")]
+    public async Task<ActionResult> TriggerMDQJobCallback([FromBody] DHControlMDQJobCallbackPayload requestBody)
+    {
+        if (requestBody == null)
+        {
+            return this.BadRequest();
+        }
+        if (requestBody.ParseJobStatus() == DHComputingJobStatus.Unknown)
+        {
+            logger.LogInformation($"Invalid job status. Job Id: {requestBody.DQJobId}");
+            return this.BadRequest("Invalid job status");
+        }
+        logger.LogInformation($"MDQ job callback start. Job Id: {requestBody.DQJobId}. Job Status: {requestBody.JobStatus}.");
+        await dhScheduleService.UpdateMDQJobStatusAsync(requestBody).ConfigureAwait(false);
         return this.Ok();
     }
 }
