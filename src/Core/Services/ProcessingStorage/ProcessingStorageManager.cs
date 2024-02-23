@@ -152,6 +152,21 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         return $"{storageModel.GetDfsEndpoint()}/{containerName}";
     }
 
+    public async Task<Stream> GetDataQualityOutput(
+        ProcessingStorageModel processingStorageModel,
+        string folderPath,
+        string fileName)
+    {
+        string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
+        var serviceClient = new DataLakeServiceClient(new Uri(serviceEndpoint), this.tokenCredential);
+        var fileSystemClient = serviceClient.GetFileSystemClient(processingStorageModel.CatalogId.ToString()); ;
+        var directoryClient = fileSystemClient.GetDirectoryClient(folderPath);
+        var fileClient = directoryClient.GetFileClient(fileName);
+
+        var fileResponse = await fileClient.ReadAsync().ConfigureAwait(false);
+        return fileResponse.Value.Content;
+    }
+
     /// <summary>
     /// Get a user delegation Sas URI to the data lake directory.
     /// </summary>

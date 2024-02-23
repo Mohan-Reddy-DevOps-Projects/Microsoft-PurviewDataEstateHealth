@@ -1,6 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,5 +8,5 @@ public interface IDataQualityExecutionService
 {
     public Task<string> SubmitDQJob(string accountId, string controlId, string healthJobId);
 
-    public Task<IEnumerable<ScorePayload>> ParseDQResult(string accountId, string dataProductId, string dataAssetId, string jobId);
+    public Task<IEnumerable<DHRawScore>> ParseDQResult(string accountId, string dataProductId, string dataAssetId, string jobId);
 }

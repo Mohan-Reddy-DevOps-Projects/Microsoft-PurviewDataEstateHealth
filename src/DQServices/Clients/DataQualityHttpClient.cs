@@ -75,11 +75,6 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
         var responseBody = await this.ParseResponse<JObject>(response).ConfigureAwait(false);
     }
 
-    public Task<string> GetErrorOutputContent(string dataProductId, string dataAssetId)
-    {
-        throw new NotImplementedException();
-    }
-
     private HttpContent CreateRequestContent(object obj)
     {
         var content = JsonConvert.SerializeObject(obj);

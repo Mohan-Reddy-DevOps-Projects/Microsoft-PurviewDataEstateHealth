@@ -87,5 +87,10 @@ internal class InMemoryProcessingStorageCache : IProcessingStorageManager
         await this.repository.Provision(accountServiceModel, cancellationToken);
     }
 
+    public async Task<Stream> GetDataQualityOutput(Models.ProcessingStorageModel processingStorageModel, string folderPath, string fileName)
+    {
+        return await this.repository.GetDataQualityOutput(processingStorageModel, folderPath, fileName);
+    }
+
     private string GetEntityLookupKey(StorageCacheKey entityLocator) => $"{this.cachePrefix}-{entityLocator.PartitionKey}-{entityLocator.ResourceId()}";
 }

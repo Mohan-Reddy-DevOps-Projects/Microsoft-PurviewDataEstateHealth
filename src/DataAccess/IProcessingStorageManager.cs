@@ -4,9 +4,9 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using ProcessingStorageModel = Models.ProcessingStorageModel;
 using StorageSasRequest = Models.StorageSasRequest;
 
@@ -65,4 +65,6 @@ public interface IProcessingStorageManager
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<string> ConstructContainerPath(string containerName, Guid accountId, CancellationToken cancellationToken);
+
+    Task<Stream> GetDataQualityOutput(ProcessingStorageModel processingStorageModel, string folderPath, string fileName);
 }

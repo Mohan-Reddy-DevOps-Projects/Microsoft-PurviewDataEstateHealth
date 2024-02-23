@@ -5,11 +5,12 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using StorageSasRequest = Azure.Purview.DataEstateHealth.Models.StorageSasRequest;
@@ -27,9 +28,28 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         this.dataQualityServiceClientFactory = dataQualityServiceClientFactory;
     }
 
-    public Task<IEnumerable<ScorePayload>> ParseDQResult(string accountId, string dataProductId, string dataAssetId, string jobId)
+    public async Task<IEnumerable<DHRawScore>> ParseDQResult(
+        string accountId,
+        string dataProductId,
+        string dataAssetId,
+        string jobId)
     {
-        throw new NotImplementedException();
+        var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
+
+        var folderPath = "mdq/DataCatalog/DataAsset/errors";
+        var fileName = "part-merged.snappy.parquet";
+
+        var parquetStream = await this.processingStorageManager.GetDataQualityOutput(
+            accountStorageModel,
+            folderPath,
+            fileName).ConfigureAwait(false);
+
+        var memoryStream = new MemoryStream();
+        await parquetStream.CopyToAsync(memoryStream).ConfigureAwait(false);
+
+        var result = await DataQualityOutputAdapter.ToScorePayload(memoryStream).ConfigureAwait(false);
+
+        return result;
     }
 
     // TODO Will add more params later
