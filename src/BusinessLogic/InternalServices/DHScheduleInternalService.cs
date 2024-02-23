@@ -12,6 +12,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+    using System.Collections.Generic;
     using System.Threading.Tasks;
     public class DHScheduleInternalService
     {
@@ -84,6 +85,8 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
 
         private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleStoragePayloadWrapper schedule, string? controlId)
         {
+            var tenantId = this.requestHeaderContext.TenantId.ToString();
+            var accountId = this.requestHeaderContext.AccountObjectId.ToString();
             var payload = new DHScheduleCreateRequestPayload
             {
                 ScheduleId = schedule.Id,
@@ -94,9 +97,14 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                     Body = new DHScheduleCallbackPayload
                     {
                         ControlId = controlId,
-                        TenantId = this.requestHeaderContext.TenantId.ToString(),
-                        AccountId = this.requestHeaderContext.AccountObjectId.ToString(),
+                        TenantId = tenantId,
+                        AccountId = accountId,
                     },
+                    Headers = new Dictionary<string, string>
+                    {
+                        ["x-ms-client-tenant-id"] = tenantId,
+                        ["x-ms-account-id"] = accountId
+                    }
                 }
             };
             payload.SetRecurrence(schedule.Properties);
