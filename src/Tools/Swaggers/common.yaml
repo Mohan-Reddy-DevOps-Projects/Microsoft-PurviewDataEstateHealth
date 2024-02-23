@@ -1071,6 +1071,20 @@ components:
           type: string
           enum: [DataQuality, HealthControl]
           description: The category of the action.
+        reason:
+          type: string
+          description: The reason of the action.
+        extraProperties:
+          type: object
+          description: The extra properties of the action.
+          properties:
+            type:
+              type: string
+              description: The type of the extra properties.
+              enum: ["AssessmentAction", "ProfilingAction"]
+            data:
+              type: object
+              description: Any properties can be added here.
         systemData:
           type: object
           readOnly: true
