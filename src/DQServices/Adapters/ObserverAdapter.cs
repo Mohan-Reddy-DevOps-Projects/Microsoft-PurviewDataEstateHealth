@@ -74,8 +74,24 @@ public class ObserverAdapter
 
         return new RuleWrapper[]
         {
-            hasDescriptionRule
+            hasDescriptionRule,
+            this.GetAlwaysFailedRule()
         };
+    }
+
+    private RuleWrapper GetAlwaysFailedRule()
+    {
+        var alwaysFailedRule = new CustomTruthRuleWrapper(new JObject()
+        {
+            { DynamicEntityWrapper.keyType, CustomTruthRuleWrapper.EntityType },
+            { DynamicEntityWrapper.keyTypeProperties, new JObject() }
+        });
+        alwaysFailedRule.Id = "AlwaysFail";
+        alwaysFailedRule.Name = "AlwaysFail";
+        alwaysFailedRule.Condition = "1 == 2";
+        alwaysFailedRule.Status = RuleStatus.Active;
+
+        return alwaysFailedRule;
     }
 
     private IEnumerable<InputDatasetWrapper> GetDataProductInputDatasets()
