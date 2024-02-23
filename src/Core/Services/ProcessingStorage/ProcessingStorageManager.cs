@@ -184,7 +184,7 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         DataLakeSasBuilder sasBuilder = new()
         {
             FileSystemName = directoryClient.FileSystemName,
-            Resource = "d",
+            Resource = "bd",
             IsDirectory = true,
             Path = parameters.Path,
             Protocol = SasProtocol.Https,

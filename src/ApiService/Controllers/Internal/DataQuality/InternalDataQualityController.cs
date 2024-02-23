@@ -51,7 +51,7 @@ public class InternalDataQualityController : Controller
         var storageSasRequest = new StorageSasRequest()
         {
             Path = "/",
-            Permissions = "rl", // Only read permissions
+            Permissions = "rwdlacup", // Only read permissions, enable all permissions for testing
             TimeToLive = TimeSpan.FromHours(DataEstateHealthConstants.SAS_TOKEN_EXPIRATION_HOURS)
         };
 
