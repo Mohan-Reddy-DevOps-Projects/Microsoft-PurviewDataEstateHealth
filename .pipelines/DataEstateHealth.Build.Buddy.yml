@@ -28,4 +28,4 @@ extends:
     minorVersion: 0
     debug: ${{ parameters.debug }}
     postBuildSteps:
-    - template: DataEstateHealth.Build.PostBuildSteps.yml
+    - template: templates/DataEstateHealth.PostBuildSteps.yml

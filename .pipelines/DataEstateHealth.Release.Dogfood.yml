@@ -41,7 +41,7 @@ extends:
     serviceRootPath: Ev2Deployment/Ev2ServiceArtifactsRoot
     alias: "DataEstateHealth"
     postBuildSteps:
-    - template: DataEstateHealth.Build.PostBuildSteps.yml
+    - template: templates/DataEstateHealth.PostBuildSteps.yml
     otherReleaseStages: 
     - ${{ if eq(parameters['deployType'],'powerBi')}}:
       - template: v1/stages/Pdg.Release.Base.yml@pdgTemplates

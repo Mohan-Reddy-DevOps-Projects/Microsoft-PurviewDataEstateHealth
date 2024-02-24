@@ -1,0 +1,34 @@
+# This pipeline runs to prevent CodeQL KPIs from popping up.
+trigger: none
+
+schedules:
+- cron: '0 0 * * *' # Runs once a day at midnight
+  branches:
+    include:
+    - main
+  always: true
+
+parameters:
+- name: 'debug'
+  displayName: 'Enable debug output'
+  type: boolean
+  default: false
+
+resources:
+  repositories: 
+  - repository: pdgTemplates
+    type: git
+    name: SharedYamlTemplates
+    ref: refs/heads/main
+
+extends:
+  template: v1/Pdg.Build.Containers.Official.yml@pdgTemplates
+  parameters:
+    buildSolution: dirs.proj
+    majorVersion: 1
+    minorVersion: 0
+    containersToPackage:
+    - ApiService
+    - WorkerService
+    postBuildSteps:
+    - template: templates/DataEstateHealth.PostBuildSteps.yml
