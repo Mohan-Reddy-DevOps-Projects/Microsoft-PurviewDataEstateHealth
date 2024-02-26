@@ -69,6 +69,14 @@
         {
           "find": "__CERTS_ARTIFACT_STORE_CERT_DOMAIN__",
           "replaceWith": "health-artifactstore.$config(pdg.tenant.dnsZoneName)"
+        },
+        {
+          "find": "__CERTS_WORKER_CLIENT_CERT_NAME__",
+          "replaceWith": "workerclient-cert"
+        },
+        {
+          "find": "__CERTS_WORKER_CLIENT_CERT_DOMAIN__",
+          "replaceWith": "health-worker.$config(pdg.tenant.dnsZoneName)"
         }
       ]
     },

@@ -49,6 +49,7 @@
         "Extension/CreateOneCertV2PublicIssuer",
         "Extension/CreateOneCertV2PrivateIssuer",
         "Extension/CreateCertificate-Client",
+        "Extension/CreateCertificate-WorkerClient",
         "Extension/CreateCertificate-ArtifactStore",
         "Extension/ManageSynapseRBAC-add"
       ],
