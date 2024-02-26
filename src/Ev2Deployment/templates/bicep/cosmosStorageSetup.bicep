@@ -1,33 +1,50 @@
 param cosmosAccountName string
-
-// TODO fix role assignment
-/*
 param containerAppIdentityName string
+param dghResourceGroupName string
 
 resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
   name: containerAppIdentityName
+  scope: resourceGroup(dghResourceGroupName)
 }
 
+var controlDatabaseName = 'dgh-Control'
+var actionDatabaseName = 'dgh-Action'
 // Contributor role assignment
 // Document: https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/tutorial-vm-managed-identities-cosmos?tabs=azure-resource-manager#grant-access
 var contributorRoleDefName = '00000000-0000-0000-0000-000000000002'
 
-module cosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep' = {
-  name: 'cosmosContributorRoleAssignmentModule'
+module controlCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep' = {
+  name: 'controlCosmosContributorRoleAssignmentModule'
   params: {
     accountName: cosmosAccountName
     principalId: containerAppIdentity.properties.principalId
     roleDefinitionName: contributorRoleDefName
+    databaseName: controlDatabaseName
   }
+  dependsOn: [
+    controlCosmosDatabaseDHControl
+  ]
 }
-*/
 
-// Databases and containers
-module cosmosDatabaseDHControl 'cosmosDatabase.bicep' = {
-  name: 'cosmosDatabaseDHControl'
+module actionCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep' = {
+  name: 'actionCosmosContributorRoleAssignmentModule'
   params: {
     accountName: cosmosAccountName
-    databaseName: 'DHControl'
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: contributorRoleDefName
+    databaseName: actionDatabaseName
+  }
+  dependsOn: [
+    cosmosDatabaseDHAction
+  ]
+}
+
+// Databases and containers
+module controlCosmosDatabaseDHControl 'cosmosDatabase.bicep' = {
+  name: 'controlCosmosDatabaseDHControl'
+  params: {
+    accountName: cosmosAccountName
+    databaseName: 'dgh-Control'
     containerNames: ['DHControl', 'DHSchedule', 'DHControlStatusPalette', 'MQAssessment', 'DHComputingJob']
   }
 }
@@ -36,8 +53,8 @@ module cosmosDatabaseDHControlScoreContainer 'cosmosDatabase.bicep' = {
   name: 'cosmosDatabaseDHControlScoreContainer'
   params: {
     accountName: cosmosAccountName
-    databaseName: 'DHControl'
-    containerNames: ['DHScore']
+    databaseName: 'dgh-Control'
+    containerNames: ['Dgh-Score']
     throughput: 40000
   }
 }
@@ -46,7 +63,7 @@ module cosmosDatabaseDHAction 'cosmosDatabase.bicep' = {
   name: 'cosmosDatabaseDHAction'
   params: {
     accountName: cosmosAccountName
-    databaseName: 'DHAction'
+    databaseName: 'dgh-Action'
     containerNames: ['DHAction']
   }
 }

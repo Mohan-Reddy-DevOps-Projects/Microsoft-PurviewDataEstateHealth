@@ -15,7 +15,7 @@
     {
       "name": "dataEstateHealthResourceGroupDefinition",
       "azureResourceGroupName": "$config(dgh.resourceGroupName)",
-      "subscriptionKey": "$config(pdg.regionSharedInfrastructure.subscriptionKeyPrefixes.core)$location()",
+      "subscriptionKey": "$config(pdg.regionSharedInfrastructure.subscriptionKeys.core)",
       "serviceResourceDefinitions": [
         {
           "name": "infrastructureResourceDefinition",
@@ -215,7 +215,14 @@
               "name": "Core"
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "name": "sharedInfraResourceGroupDefinition",
+      "azureResourceGroupName": "$config(pdg.regionSharedInfrastructure.resourceGroupNames.sharedInfra)",
+      "subscriptionKey": "$config(pdg.regionSharedInfrastructure.subscriptionKeys.core)",
+      "serviceResourceDefinitions": [
         {
           "name": "cosmosStorageSetupResourceDefinition",
           "composedOf": {
@@ -239,7 +246,7 @@
     {
       "name": "processingStorageResourceGroupDefinition",
       "azureResourceGroupName": "$config(pdg.processingStorage.resourceGroupName)",
-      "subscriptionKey": "$config(pdg.regionSharedInfrastructure.subscriptionKeyPrefixes.storage)$location()-$stamp()",
+      "subscriptionKey": "$config(pdg.regionSharedInfrastructure.subscriptionKeys.storagePrefix)$stamp()",
       "stamps": {
         "count": 1
       },

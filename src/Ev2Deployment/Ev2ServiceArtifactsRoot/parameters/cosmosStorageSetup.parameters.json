@@ -4,6 +4,12 @@
     "parameters": {
         "cosmosAccountName": {
             "value": "__INFRA_COSMOS_ACCOUNT_NAME__"
+        },
+        "containerAppIdentityName": {
+            "value": "__INFRA_CONTAINER_APP_IDENTITY_NAME__"
+        },
+        "dghResourceGroupName": {
+            "value": "__INFRA_RESOURCE_GROUP_NAME__"
         }
     }
 }

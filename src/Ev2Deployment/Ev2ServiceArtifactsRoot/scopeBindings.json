@@ -77,7 +77,7 @@
         "bindings": [
             {
                 "find": "__CORE_ACA_ENVIRONMENT_NAME__",
-                "replaceWith": "$config(pdg.regionSharedInfrastructure.acaEnvironmentPrefix)$config(regionShortName)"
+                "replaceWith": "$config(pdg.regionSharedInfrastructure.acaEnvironmentName)"
             },
             {
                 "find": "__CORE_CLOUD_SHARED_INFRASTRUCTURE_DNS_ZONE_NAME__",
@@ -93,11 +93,11 @@
             },
             {
                 "find": "__CORE_RESOURCE_GROUP_NAME__",
-                "replaceWith": "$config(pdg.regionSharedInfrastructure.resourceGroupPrefixes.sharedInfra)$config(regionName)"
+                "replaceWith": "$config(pdg.regionSharedInfrastructure.resourceGroupNames.sharedInfra)"
             },
             {
                 "find": "__CORE_VNET_NAME__",
-                "replaceWith": "$config(pdg.regionSharedInfrastructure.vnetPrefix)$config(regionShortName)"
+                "replaceWith": "$config(pdg.regionSharedInfrastructure.vnetName)"
             }
         ]
     },
@@ -218,11 +218,7 @@
             },
             {
               "find": "__INFRA_COSMOS_ACCOUNT_NAME__",
-              "replaceWith": "$config(dgh.cosmosAccountName)"
-            },
-            {
-              "find": "__INFRA_COSMOS_REGION__",
-              "replaceWith": "$config(dgh.cosmosRegion)"
+              "replaceWith": "$config(pdg.regionSharedInfrastructure.cosmosAccountName)"
             }
         ]
     },

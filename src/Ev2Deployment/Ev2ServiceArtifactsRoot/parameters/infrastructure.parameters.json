@@ -61,12 +61,6 @@
         },
         "sqlAdminPassSecretName": {
             "value": "__INFRA_SQL_ADMIN_PASS_SECRET_NAME__"
-        },
-        "cosmosAccountName": {
-            "value": "__INFRA_COSMOS_ACCOUNT_NAME__"
-        },
-        "cosmosRegion": {
-            "value": "__INFRA_COSMOS_REGION__"
         }
     }
 }

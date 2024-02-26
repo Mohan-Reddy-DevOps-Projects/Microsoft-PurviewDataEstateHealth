@@ -20,8 +20,6 @@
             "sqlAdminUserSecretName": "synapseSqlAdminUsername",
             "sqlAdminPassSecretName": "synapseSqlAdminPassword",
             "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
-            "cosmosAccountName": "$(dgh.serviceShortName)-cosmos-nosql-$(pdg.environment.shortName)-$(regionShortName)",
-            "dataQualitySubjectName": "$(pdg.firstParty.dataQuality.subjectName)",
             "dataQualityServiceEndpoint": "purview-dqservice-$(pdg.environment.shortName)-$(pdg.firstParty.purviewShortRegion).babylon-service.azure.com"
         }
     },
