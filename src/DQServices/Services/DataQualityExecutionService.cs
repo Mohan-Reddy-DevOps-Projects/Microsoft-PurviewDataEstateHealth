@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using StorageSasRequest = Azure.Purview.DataEstateHealth.Models.StorageSasRequest;
 
 public class DataQualityExecutionService : IDataQualityExecutionService
 {
@@ -86,21 +85,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         await dataQualityServiceClient.CreateObserver(observer, accountId).ConfigureAwait(false);
 
         // Trigger run
-        var storageSasRequest = new StorageSasRequest()
-        {
-            Path = string.Empty,
-            Permissions = "rwdlacup", // Only read permissions
-            TimeToLive = TimeSpan.FromHours(DataEstateHealthConstants.SAS_TOKEN_EXPIRATION_HOURS)
-        };
-
-        var uri = await this.processingStorageManager.GetProcessingStorageSasUri(
-            accountStorageModel,
-            storageSasRequest,
-            accountStorageModel.CatalogId.ToString(),
-            CancellationToken.None).ConfigureAwait(false);
-        var uriStr = uri.ToString();
-        var delimiterIndex = uriStr.IndexOf("?");
-        var sasToken = uriStr.Substring(delimiterIndex + 1);
+        var sasToken = await this.processingStorageManager.GetSasTokenForDQ(accountStorageModel).ConfigureAwait(false);
 
         var jobId = await dataQualityServiceClient.TriggerJobRun(
             accountId,

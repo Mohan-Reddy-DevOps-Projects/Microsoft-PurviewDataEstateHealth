@@ -11,7 +11,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
@@ -48,27 +47,13 @@ public class InternalDataQualityController : Controller
 
         var accountId = sasUriRequest["accountId"].ToString();
 
-        var storageSasRequest = new StorageSasRequest()
-        {
-            Path = string.Empty,
-            Permissions = "rwdlacup", // Only read permissions, enable all permissions for testing
-            TimeToLive = TimeSpan.FromHours(DataEstateHealthConstants.SAS_TOKEN_EXPIRATION_HOURS)
-        };
-
         var accountModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
 
-        var uri = await this.processingStorageManager.GetProcessingStorageSasUri(
-            accountModel,
-            storageSasRequest,
-            accountModel.CatalogId.ToString(),
-            CancellationToken.None);
-
-        var uriStr = uri.ToString();
-        var delimiterIndex = uriStr.IndexOf("?");
+        var token = await this.processingStorageManager.GetSasTokenForDQ(accountModel).ConfigureAwait(false);
 
         return this.Ok(new JObject()
         {
-            { "sasToken", uriStr.Substring(delimiterIndex + 1) }
+            { "sasToken", token }
         });
     }
 }

@@ -6,12 +6,14 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure;
 using global::Azure.Core;
+using global::Azure.Identity;
 using global::Azure.ResourceManager.Resources;
 using global::Azure.ResourceManager.Storage;
 using global::Azure.ResourceManager.Storage.Models;
 using global::Azure.Storage.Files.DataLake;
 using global::Azure.Storage.Files.DataLake.Models;
 using global::Azure.Storage.Sas;
+using Microsoft.Azure.Management.Storage;
 using Microsoft.Azure.Management.Storage.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities;
@@ -21,6 +23,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Common;
+using Microsoft.Rest;
 using System.Threading;
 using System.Threading.Tasks;
 using DeletionResult = ProjectBabylon.Metadata.Models.DeletionResult;
@@ -36,6 +39,8 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
 {
     private readonly TokenCredential tokenCredential;
     private readonly IStorageAccountRepository<ProcessingStorageModel> storageAccountRepository;
+    private readonly ProcessingStorageConfiguration processingStorageConfiguration;
+    private readonly ProcessingStorageAuthConfiguration processingStorageAuthConfiguration;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProcessingStorageManager"/> class.
@@ -50,10 +55,13 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         IStorageAccountRepository<ProcessingStorageModel> storageAccountRepository,
         IAzureResourceManagerFactory azureResourceManagerFactory,
         IOptions<ProcessingStorageConfiguration> processingStorageConfiguration,
+        IOptions<ProcessingStorageAuthConfiguration> processingStorageAuthConfiguration,
         IDataEstateHealthRequestLogger logger) : base(azureResourceManagerFactory.Create<ProcessingStorageAuthConfiguration>(), processingStorageConfiguration, logger)
     {
         this.storageAccountRepository = storageAccountRepository;
         this.tokenCredential = credentialFactory.CreateDefaultAzureCredential();
+        this.processingStorageAuthConfiguration = processingStorageAuthConfiguration.Value;
+        this.processingStorageConfiguration = processingStorageConfiguration.Value;
     }
 
     /// <inheritdoc/>
@@ -142,6 +150,55 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         return await GetUserDelegationSasDirectory(directoryClient, serviceClient, parameters);
     }
 
+    public async Task<string> GetSasTokenForDQ(ProcessingStorageModel processingStorageModel)
+    {
+        var azureCredentials = new DefaultAzureCredential();
+
+        var accessToken = await azureCredentials.GetTokenAsync(
+            new TokenRequestContext(scopes: new string[] { this.processingStorageAuthConfiguration.Resource + "/.default" }) { });
+
+        var serviceClientCredentials = new TokenCredentials(accessToken.Token);
+
+        TimeSpan timeToLive = TimeSpan.FromDays(1);
+
+        using (Azure.Management.Storage.StorageManagementClient client
+            = new Azure.Management.Storage.StorageManagementClient(new Uri(this.processingStorageAuthConfiguration.Resource + "/"), serviceClientCredentials))
+        {
+            client.SubscriptionId = this.processingStorageConfiguration.SubscriptionId.ToString();
+
+            var builder = DateTime.UtcNow;
+            builder = new DateTime(builder.Year, builder.Month, builder.Day, builder.Hour, builder.Minute, builder.Second, DateTimeKind.Utc);
+            DateTime start = builder;
+            DateTime end = start.Add(timeToLive);
+
+            Azure.Management.Storage.Models.AccountSasParameters sasParameters = new Azure.Management.Storage.Models.AccountSasParameters(
+                "bfqt",
+                "sco",
+                "rwdlacup",
+                sharedAccessExpiryTime: end,
+                string.Empty,
+                Azure.Management.Storage.Models.HttpProtocol.Https,
+                sharedAccessStartTime: start,
+                null);
+
+            ListAccountSasResponse response = null;
+            try
+            {
+                response = await client.StorageAccounts.ListAccountSASAsync(
+                    this.processingStorageConfiguration.ResourceGroupName,
+                    processingStorageModel.GetStorageAccountName(),
+                    sasParameters,
+                    CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return response.AccountSasToken;
+        }
+    }
+
     /// <inheritdoc/>
     public async Task<string> ConstructContainerPath(string containerName, Guid accountId, CancellationToken cancellationToken)
     {
@@ -184,7 +241,7 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         DataLakeSasBuilder sasBuilder = new()
         {
             FileSystemName = directoryClient.FileSystemName,
-            Resource = "bcd",
+            Resource = "d",
             IsDirectory = true,
             Path = parameters.Path,
             Protocol = SasProtocol.Https,
