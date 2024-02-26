@@ -1,4 +1,6 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
+﻿#nullable enable
+
+namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
 
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;

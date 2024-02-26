@@ -61,6 +61,15 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot update or delete system defined entity..
+        /// </summary>
+        internal static string ErrorMessageCannotChangeSystemDefinedEntity {
+            get {
+                return ResourceManager.GetString("ErrorMessageCannotChangeSystemDefinedEntity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} with id &quot;{1}&quot; already exists..
         /// </summary>
         internal static string ErrorMessageEntityAlreadyExists {

@@ -1,4 +1,6 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
+﻿#nullable enable
+
+namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
@@ -9,6 +11,7 @@
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
@@ -18,12 +21,22 @@
         public async Task<IBatchResults<DHControlStatusPaletteWrapper>> ListStatusPalettesAsync()
         {
             var results = await dhControlStatusPaletteRepository.GetAllAsync().ConfigureAwait(false);
-            return new BatchResults<DHControlStatusPaletteWrapper>(results, results.Count());
+
+            IEnumerable<DHControlStatusPaletteWrapper> resp = [.. SystemDefaultStatusPalettes, ..results];
+
+            return new BatchResults<DHControlStatusPaletteWrapper>(resp, resp.Count());
         }
 
         public async Task<DHControlStatusPaletteWrapper> GetStatusPaletteByIdAsync(string id)
         {
             ArgumentNullException.ThrowIfNull(id);
+
+            var systemEntity = SystemDefaultStatusPalettes.FirstOrDefault(e => string.Equals(e.Id, id, StringComparison.OrdinalIgnoreCase));
+
+            if (systemEntity != null)
+            {
+                return systemEntity;
+            }
 
             var entity = await dhControlStatusPaletteRepository.GetByIdAsync(id).ConfigureAwait(false);
 
@@ -54,6 +67,13 @@
 
             ArgumentNullException.ThrowIfNull(entity);
 
+            var systemEntity = SystemDefaultStatusPalettes.FirstOrDefault(e => string.Equals(e.Id, id, StringComparison.OrdinalIgnoreCase));
+
+            if (systemEntity != null)
+            {
+                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageCannotChangeSystemDefinedEntity));
+            }
+
             if (!string.IsNullOrEmpty(entity.Id) && !string.Equals(id, entity.Id, StringComparison.OrdinalIgnoreCase))
             {
                 throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageUpdateEntityIdNotMatch, EntityCategory.StatusPalette.ToString(), entity.Id, id));
@@ -80,6 +100,13 @@
         {
             ArgumentNullException.ThrowIfNull(id);
 
+            var systemEntity = SystemDefaultStatusPalettes.FirstOrDefault(e => string.Equals(e.Id, id, StringComparison.OrdinalIgnoreCase));
+
+            if (systemEntity != null)
+            {
+                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageCannotChangeSystemDefinedEntity));
+            }
+
             var existEntity = await dhControlStatusPaletteRepository.GetByIdAsync(id).ConfigureAwait(false);
 
             if (existEntity == null)
@@ -91,5 +118,39 @@
 
             await dhControlStatusPaletteRepository.DeleteAsync(id).ConfigureAwait(false);
         }
+
+        private static List<DHControlStatusPaletteWrapper> SystemDefaultStatusPalettes { get; } = new List<DHControlStatusPaletteWrapper>
+        {
+            new DHControlStatusPaletteWrapper
+            {
+                Id = "00000000-0000-0000-0000-000000000001",
+                Name = "Undefiend",
+                Color = "#949494"
+            },
+            new DHControlStatusPaletteWrapper
+            {
+                Id = "00000000-0000-0000-0000-000000000002",
+                Name = "Healthy",
+                Color = "#009b51"
+            },
+            new DHControlStatusPaletteWrapper
+            {
+                Id = "00000000-0000-0000-0000-000000000003",
+                Name = "Fair",
+                Color = "#e67e00"
+            },
+            new DHControlStatusPaletteWrapper
+            {
+                Id = "00000000-0000-0000-0000-000000000004",
+                Name = "Not healthy",
+                Color = "#d13438"
+            },
+            new DHControlStatusPaletteWrapper
+            {
+                Id = "00000000-0000-0000-0000-000000000005",
+                Name = "Critical",
+                Color = "#6b3f9e"
+            },
+        };
     }
 }
