@@ -5,6 +5,8 @@
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -12,11 +14,11 @@
 
     public class DHScoreService(DHScoreRepository dhScoreRepository, DHControlRepository dhControlRepository, MQAssessmentRepository mqAssessmentRepository)
     {
-        public async Task<IBatchResults<DHScoreWrapper>> ListScoresAsync()
+        public async Task<IBatchResults<DHScoreBaseWrapper>> ListScoresAsync()
         {
             var scores = await dhScoreRepository.GetAllAsync().ConfigureAwait(false);
 
-            return new BatchResults<DHScoreWrapper>(scores, scores.Count());
+            return new BatchResults<DHScoreBaseWrapper>(scores, scores.Count());
         }
 
         public async Task ProcessControlComputingResultsAsync(string controlId, string computingJobId, IEnumerable<DHRawScore> scores)
@@ -36,19 +38,26 @@
                             case MQAssessmentSimpleAggregationType.Average:
                                 var scoreWrappers = scores.Select(x =>
                                 {
-                                    var scoreWrapper = new DHScoreWrapper
+                                    switch (assessment.TargetEntityType)
                                     {
-                                        Id = Guid.NewGuid().ToString(),
-                                        ControlId = controlId,
-                                        ControlGroupId = controlNode.GroupId,
-                                        ComputingJobId = computingJobId,
-                                        Time = currentTime,
-                                        Scores = x.Scores,
-                                        AggregatedScore = x.Scores.Average(scoreUnit => scoreUnit.Score)
-                                        // TODO: add entity snapshot
-                                        // TODO: add entity domain id
-                                    };
-                                    return scoreWrapper;
+                                        case MQAssessmentTargetEntityType.DataProduct:
+                                            var ownerJToken = x.EntityPayload["contacts"]?["owner"] ?? throw new InvalidOperationException("Data product owners not found in entity payload!");
+                                            return new DHDataProductScoreWrapper
+                                            {
+                                                Id = Guid.NewGuid().ToString(),
+                                                ControlId = controlId,
+                                                ControlGroupId = controlNode.GroupId,
+                                                ComputingJobId = computingJobId,
+                                                Time = currentTime,
+                                                Scores = x.Scores,
+                                                AggregatedScore = x.Scores.Average(scoreUnit => scoreUnit.Score),
+                                                DataProductDomainId = x.EntityPayload["domain"]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
+                                                DataProductId = x.EntityPayload["id"]?.ToString() ?? throw new InvalidOperationException("Data product id not found in entity payload!"),
+                                                DataProductOwners = ownerJToken.OfType<JObject>().Select(x => ContactItemWrapper.Create(x))
+                                            };
+                                        default:
+                                            throw new NotImplementedException($"Target entity type {assessment.TargetEntityType} not supported yet!");
+                                    }
                                 });
                                 await dhScoreRepository.AddAsync(scoreWrappers).ConfigureAwait(false);
                                 break;

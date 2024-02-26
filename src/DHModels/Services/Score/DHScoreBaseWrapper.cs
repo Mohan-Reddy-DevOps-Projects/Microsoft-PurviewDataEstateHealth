@@ -2,22 +2,27 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
-public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHScoreWrapper>(jObject)
+[EntityWrapper(EntityCategory.Score)]
+public abstract class DHScoreBaseWrapper(JObject jObject) : ContainerEntityDynamicWrapper<DHScoreBaseWrapper>(jObject)
 {
     private const string keyTime = "time";
     private const string keyControlId = "controlId";
-    private const string keyEntityDomainId = "entityDomainId";
     private const string keyControlGroupId = "controlGroupId";
     private const string keyComputingJobId = "computingJobId";
-    private const string keyEntitySnapshot = "entitySnapshot";
     private const string keyScore = "scores";
     private const string keyAggregatedScore = "aggregatedScore";
 
-    public DHScoreWrapper() : this([]) { }
+    public DHScoreBaseWrapper() : this([]) { }
+
+    public static DHScoreBaseWrapper Create(JObject jObject)
+    {
+        return EntityWrapperHelper.CreateEntityWrapper<DHScoreBaseWrapper>(EntityCategory.Score, EntityWrapperHelper.GetEntityType(jObject), jObject);
+    }
 
     [EntityProperty(keyTime)]
     public DateTime Time
@@ -33,13 +38,6 @@ public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHScor
         set => this.SetPropertyValue(keyControlId, value);
     }
 
-    [EntityProperty(keyEntityDomainId)]
-    public string EntityDomainId
-    {
-        get => this.GetPropertyValue<string>(keyEntityDomainId);
-        set => this.SetPropertyValue(keyEntityDomainId, value);
-    }
-
     [EntityProperty(keyControlGroupId)]
     public string ControlGroupId
     {
@@ -52,13 +50,6 @@ public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHScor
     {
         get => this.GetPropertyValue<string>(keyComputingJobId);
         set => this.SetPropertyValue(keyComputingJobId, value);
-    }
-
-    [EntityProperty(keyEntitySnapshot)]
-    public JObject EntitySnapshot
-    {
-        get => this.GetPropertyValue<JObject>(keyEntitySnapshot);
-        set => this.SetPropertyValue(keyEntitySnapshot, value);
     }
 
     private IEnumerable<DHScoreUnitWrapper>? scores;
@@ -80,4 +71,9 @@ public class DHScoreWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHScor
         get => this.GetPropertyValue<double>(keyAggregatedScore);
         set => this.SetPropertyValue(keyAggregatedScore, value);
     }
+}
+
+public static class DHScoreBaseWrapperDerivedTypes
+{
+    public const string DataProductScore = "DataProductScore";
 }

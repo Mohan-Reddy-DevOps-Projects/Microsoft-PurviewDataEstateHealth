@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
@@ -9,71 +8,66 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
-public class DHScoreRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DHScoreWrapper>(requestHeaderContext)
+public class DHScoreRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DHScoreBaseWrapper>(requestHeaderContext)
 {
     private const string ContainerName = "DHScore";
 
     private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHControl is not found in the configuration");
 
-    protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
+    protected override Azure.Cosmos.Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
     public async Task<IEnumerable<DHScoreAggregatedByControl>> Query(IEnumerable<string>? domainIds, IEnumerable<string>? controlIds, int? recordLatestCounts, DateTime? start, DateTime? end)
     {
-        // Fetching filtered data from Cosmos DB
-        var query = this.CosmosContainer.GetItemLinqQueryable<DHScoreWrapper>(
-            requestOptions: new QueryRequestOptions { PartitionKey = this.TenantPartitionKey }
-        );
+        // Construct the SQL query
+        var sqlQuery = new StringBuilder("SELECT c.ControlId, c.ComputingJobId, MAX(c.Time) AS Time, AVG(c.AggregatedScore) AS Score FROM c WHERE 1=1 ");
 
+        // Add filtering conditions based on provided parameters
         if (domainIds != null && domainIds.Any())
         {
-            query.Where(score => domainIds.Contains(score.EntityDomainId));
+            // Assuming domainIds is a validated and sanitized list of IDs
+            var domainIdFilter = string.Join(",", domainIds.Select(id => $"'{id}'"));
+            // TODO: When added more supported artifact types, modify the SQL here.
+            sqlQuery.Append($"AND ARRAY_CONTAINS([{domainIdFilter}], c.DataProductDomainId) ");
         }
 
         if (controlIds != null && controlIds.Any())
         {
-            query.Where(score => controlIds.Contains(score.ControlId));
+            // Assuming controlIds is a validated and sanitized list of IDs
+            var controlIdFilter = string.Join(",", controlIds.Select(id => $"'{id}'"));
+            sqlQuery.Append($"AND ARRAY_CONTAINS([{controlIdFilter}], c.ControlId) ");
         }
 
         if (start != null)
         {
-            query.Where(score => score.Time >= start);
+            sqlQuery.Append($"AND c.Time >= '{start.Value.ToString("o")}' ");
         }
 
         if (end != null)
         {
-            query.Where(score => score.Time <= end);
+            sqlQuery.Append($"AND c.Time <= '{end.Value.ToString("o")}' ");
         }
 
-        var feedIterator = query.ToFeedIterator();
+        sqlQuery.Append("GROUP BY c.ControlId, c.ComputingJobId");
 
-        var results = new List<DHScoreWrapper>();
-        while (feedIterator.HasMoreResults)
+        var queryDefinition = new QueryDefinition(sqlQuery.ToString());
+
+        // Execute the query
+        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreAggregatedByControl>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+        var intermediateResults = new List<DHScoreAggregatedByControl>();
+
+        while (queryResultSetIterator.HasMoreResults)
         {
-            var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
-            results.AddRange([.. response]);
+            var currentResultSet = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
+            intermediateResults.AddRange(currentResultSet.Resource);
         }
 
-        // Adjusted in-memory grouping, ordering, and aggregation logic to incorporate pointsCount
-        var aggregatedResults = results
-            .GroupBy(score => score.ControlId)
-            .SelectMany(group => group
-                // Order by Time descending to get the latest scores first
-                .OrderByDescending(score => score.Time)
-                // Then group by ComputingJobId to aggregate scores within the same job
-                .GroupBy(score => score.ComputingJobId)
-                // Take only the latest N ComputingJobIds based on pointsCount
-                .Take(recordLatestCounts ?? int.MaxValue)
-                .Select(subGroup => new DHScoreAggregatedByControl
-                {
-                    ControlId = group.Key,
-                    ComputingJobId = subGroup.Key,
-                    Time = subGroup.Max(score => score.Time), // Assuming the latest time in the sub-group
-                    Score = subGroup.Average(score => score.AggregatedScore) // Assuming the average score as the aggregated score
-                }))
-            .ToList();
-
-        return aggregatedResults;
+        return intermediateResults.GroupBy(x => new { x.ControlId, x.ComputingJobId }).SelectMany(g =>
+        {
+            var orderedSeq = g.OrderByDescending(x => x.Time);
+            return recordLatestCounts.HasValue ? orderedSeq.Take(recordLatestCounts.Value) : orderedSeq;
+        });
     }
 }

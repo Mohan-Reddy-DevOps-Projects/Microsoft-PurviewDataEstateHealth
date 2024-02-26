@@ -2,6 +2,7 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
 [EntityWrapper(DHRuleBaseWrapperDerivedTypes.Group, EntityCategory.Rule)]
@@ -13,10 +14,14 @@ public class DHRuleGroupWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     public DHRuleGroupWrapper() : this([]) { }
 
     [EntityTypeProperty(keyGroupOperator)]
-    public DHRuleGroupOperator GroupOperator
+    public DHRuleGroupOperator? GroupOperator
     {
-        get => this.GetTypePropertyValue<DHRuleGroupOperator>(keyGroupOperator);
-        set => this.SetTypePropertyValue(keyGroupOperator, value);
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyGroupOperator);
+            return Enum.TryParse<DHRuleGroupOperator>(enumStr, true, out var result) ? result : null;
+        }
+        set => this.SetPropertyValue(keyGroupOperator, value?.ToString());
     }
 
     private IEnumerable<DHRuleBaseWrapper>? rules;

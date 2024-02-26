@@ -7,16 +7,16 @@ using System.Collections.Generic;
 
 public class DHRawScore(JObject jObject) : BaseEntityWrapper(jObject)
 {
-    private const string keyEntityId = "entityId";
+    private const string keyEntityPayload = "entityPayload";
     private const string keyScores = "scores";
 
     public DHRawScore() : this([]) { }
 
-    [EntityProperty(keyEntityId)]
-    public string EntityId
+    [EntityProperty(keyEntityPayload)]
+    public JObject EntityPayload
     {
-        get => this.GetPropertyValue<string>(keyEntityId);
-        set => this.SetPropertyValue(keyEntityId, value);
+        get => this.GetPropertyValue<JObject>(keyEntityPayload);
+        set => this.SetPropertyValue(keyEntityPayload, value);
     }
 
     private IEnumerable<DHScoreUnitWrapper>? scores;

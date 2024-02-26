@@ -14,8 +14,7 @@ internal static class RuleExecutor
             case (DHCheckPoints.Score, decimal scorePayload):
                 {
                     var score = DHScoreCheckPoint.ExtractOperand(scorePayload);
-                    var theOperator = rule.Operator;
-
+                    var theOperator = rule.Operator ?? throw new ArgumentException($@"Operator is not set in the check point ""{nameof(DHSimpleRuleWrapper)}""");
                     if (!DHScoreCheckPoint.AllowedOperators.Contains(theOperator))
                     {
                         throw new ArgumentException($@"Operator ""{theOperator}"" is not supported in the check point ""{nameof(DHScoreCheckPoint)}""");

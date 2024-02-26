@@ -56,36 +56,56 @@ public class CosmosWrapperSerializer : CosmosSerializer
             switch (jsonObject)
             {
                 case JObject jObject:
-                    var genericMethodToInvoke = this.methodCreateEntityWrapper.MakeGenericMethod(typeof(T));
-                    var wrappedJObject = jObject.GetValue(nameof(JObjectBaseWrapper.JObject));
-                    if (wrappedJObject == null)
+                    var type = typeof(T);
+
+                    if (type.IsSubclassOf(typeof(BaseEntityWrapper)))
                     {
+                        var genericMethodToInvoke = this.methodCreateEntityWrapper.MakeGenericMethod(type);
+                        var wrappedJObject = jObject.GetValue(nameof(JObjectBaseWrapper.JObject));
+                        if (wrappedJObject == null)
+                        {
 #nullable disable
-                        return default;
+                            return default;
+#nullable enable
+                        }
+#nullable disable
+                        // Invoke the generic method with the JObject parameter
+                        return (T)genericMethodToInvoke.Invoke(null, [wrappedJObject]);
 #nullable enable
                     }
+
 #nullable disable
-                    // Invoke the generic method with the JObject parameter
-                    return (T)genericMethodToInvoke.Invoke(null, [wrappedJObject]);
+                    return jObject.ToObject<T>();
 #nullable enable
+
                 case JArray jArray:
-                    var type = typeof(T);
+                    type = typeof(T);
                     if (type.IsArray)
                     {
                         var elementType = type.GetElementType() ?? throw new InvalidOperationException("No element type for an array!");
-                        genericMethodToInvoke = this.methodCreateEntityWrapper.MakeGenericMethod(elementType);
                         var jObjects = jArray.OfType<JObject>();
-                        var objects = jObjects.Select(x =>
+
+                        object?[] objects;
+
+                        if (elementType.IsSubclassOf(typeof(BaseEntityWrapper)))
                         {
-                            var wrappedJObject = x.GetValue(nameof(JObjectBaseWrapper.JObject));
-                            if (wrappedJObject == null)
+                            var genericMethodToInvoke = this.methodCreateEntityWrapper.MakeGenericMethod(elementType);
+                            objects = jObjects.Select(x =>
                             {
+                                var wrappedJObject = x.GetValue(nameof(JObjectBaseWrapper.JObject));
+                                if (wrappedJObject == null)
+                                {
 #nullable disable
-                                return default;
+                                    return default;
 #nullable enable
-                            }
-                            return genericMethodToInvoke.Invoke(null, [wrappedJObject]);
-                        }).ToArray();
+                                }
+                                return genericMethodToInvoke.Invoke(null, [wrappedJObject]);
+                            }).ToArray();
+                        }
+                        else
+                        {
+                            objects = jObjects.Select(x => x.ToObject(elementType)).ToArray();
+                        }
 
                         var typedArray = Array.CreateInstance(elementType, objects.Length);
 

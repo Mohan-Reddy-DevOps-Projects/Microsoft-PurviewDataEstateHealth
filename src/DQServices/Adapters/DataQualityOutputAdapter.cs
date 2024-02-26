@@ -64,7 +64,7 @@ public class DataQualityOutputAdapter
 
                         result.Add(new DHRawScore()
                         {
-                            EntityId = id,
+                            // EntityId = id,
                             Scores = scores
                         });
                     }

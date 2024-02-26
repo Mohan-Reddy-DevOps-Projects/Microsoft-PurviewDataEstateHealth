@@ -2,6 +2,7 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
+using System;
 
 [EntityWrapper(MQAssessmentAggregationBaseWrapperDerivedTypes.Simple, EntityCategory.Assessment)]
 public class MQAssessmentSimpleAggregationWrapper(JObject jObject) : MQAssessmentAggregationBaseWrapper(jObject)
@@ -11,9 +12,13 @@ public class MQAssessmentSimpleAggregationWrapper(JObject jObject) : MQAssessmen
     public MQAssessmentSimpleAggregationWrapper() : this([]) { }
 
     [EntityTypeProperty(keyAggregationType)]
-    public MQAssessmentSimpleAggregationType AggregationType
+    public MQAssessmentSimpleAggregationType? AggregationType
     {
-        get => this.GetTypePropertyValue<MQAssessmentSimpleAggregationType>(keyAggregationType);
-        set => this.SetTypePropertyValue(keyAggregationType, value);
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyAggregationType);
+            return Enum.TryParse<MQAssessmentSimpleAggregationType>(enumStr, true, out var result) ? result : null;
+        }
+        set => this.SetPropertyValue(keyAggregationType, value?.ToString());
     }
 }

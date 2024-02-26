@@ -11,6 +11,8 @@ public abstract class DHRuleBaseWrapper(JObject jObject) : DynamicEntityWrapper(
 {
     private const string keyId = "id";
     private const string keyName = "name";
+    private const string keySeverity = "severity";
+    private const string keyRecommendation = "recommendation";
     private const string keyReserved = "reserved";
 
     public static DHRuleBaseWrapper Create(JObject jObject)
@@ -33,6 +35,20 @@ public abstract class DHRuleBaseWrapper(JObject jObject) : DynamicEntityWrapper(
     {
         get => this.GetPropertyValue<string>(keyName);
         set => this.SetPropertyValue(keyName, value);
+    }
+
+    [EntityProperty(keySeverity)]
+    public string Severity
+    {
+        get => this.GetPropertyValue<string>(keySeverity);
+        set => this.SetPropertyValue(keySeverity, value);
+    }
+
+    [EntityProperty(keyRecommendation)]
+    public string Recommendation
+    {
+        get => this.GetPropertyValue<string>(keyRecommendation);
+        set => this.SetPropertyValue(keyRecommendation, value);
     }
 
     [EntityProperty(keyReserved)]

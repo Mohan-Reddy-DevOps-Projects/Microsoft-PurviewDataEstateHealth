@@ -3,9 +3,8 @@
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
 public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<MQAssessmentWrapper>(jObject)
@@ -31,10 +30,14 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
     }
 
     [EntityProperty(keyTargetEntityType)]
-    public MQAssessmentTargetEntityType TargetEntityType
+    public MQAssessmentTargetEntityType? TargetEntityType
     {
-        get => this.GetPropertyValue<MQAssessmentTargetEntityType>(keyTargetEntityType);
-        set => this.SetPropertyValue(keyTargetEntityType, value);
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyTargetEntityType);
+            return Enum.TryParse<MQAssessmentTargetEntityType>(enumStr, true, out var result) ? result : null;
+        }
+        set => this.SetPropertyValue(keyTargetEntityType, value?.ToString());
     }
 
     private IEnumerable<DHRuleBaseWrapper>? rules;
@@ -69,10 +72,4 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
         get => this.GetPropertyValue<bool>(keyReserved);
         set => this.SetPropertyValue(keyReserved, value);
     }
-}
-
-[JsonConverter(typeof(StringEnumConverter))]
-public enum MQAssessmentTargetEntityType
-{
-    DataProduct
 }

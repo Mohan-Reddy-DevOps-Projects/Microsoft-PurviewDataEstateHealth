@@ -26,7 +26,8 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes
         Assessment,
         Action,
         Schedule,
-        StatusPalette
+        StatusPalette,
+        Score
     }
 
     [AttributeUsage(AttributeTargets.Class)]

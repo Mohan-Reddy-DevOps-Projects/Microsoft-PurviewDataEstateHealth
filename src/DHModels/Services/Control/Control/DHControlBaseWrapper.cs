@@ -6,6 +6,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
+using System;
 
 [EntityWrapper(EntityCategory.Control)]
 public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDynamicWrapper<DHControlBaseWrapper>(jObject)
@@ -15,6 +16,7 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
     private const string keyContacts = "contacts";
     private const string keyReserved = "reserved";
     private const string keyStatusPaletteConfig = "statusPaletteConfig";
+    private const string keyStatus = "status";
 
     public static DHControlBaseWrapper Create(JObject jObject)
     {
@@ -75,6 +77,17 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
             this.SetPropertyValueFromWrapper(keyStatusPaletteConfig, value);
             this.statusPaletteConfig = value;
         }
+    }
+
+    [EntityProperty(keyStatus)]
+    public DHControlStatus? Status
+    {
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyStatus);
+            return Enum.TryParse<DHControlStatus>(enumStr, true, out var result) ? result : null;
+        }
+        set => this.SetPropertyValue(keyStatus, value?.ToString());
     }
 
     public override void OnUpdate(DHControlBaseWrapper existWrapper, string userId)

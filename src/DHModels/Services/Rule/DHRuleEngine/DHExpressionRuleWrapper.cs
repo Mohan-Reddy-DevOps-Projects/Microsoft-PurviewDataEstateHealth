@@ -3,6 +3,7 @@
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHCheckPoint;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
+using System;
 
 [EntityWrapper(DHRuleBaseWrapperDerivedTypes.ExpressionRule, EntityCategory.Rule)]
 public class DHExpressionRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
@@ -13,10 +14,14 @@ public class DHExpressionRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObjec
     public DHExpressionRuleWrapper() : this([]) { }
 
     [EntityTypeProperty(keyCheckPoint)]
-    public DHCheckPoints CheckPoint
+    public DHCheckPoints? CheckPoint
     {
-        get => this.GetTypePropertyValue<DHCheckPoints>(keyCheckPoint);
-        set => this.SetTypePropertyValue(keyCheckPoint, value);
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyCheckPoint);
+            return Enum.TryParse<DHCheckPoints>(enumStr, true, out var result) ? result : null;
+        }
+        set => this.SetPropertyValue(keyCheckPoint, value?.ToString());
     }
 
     [EntityTypeProperty(keyExpression)]
