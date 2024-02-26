@@ -19,7 +19,7 @@
             "subdomainName": "df-westus2-health",
             "synapseRegion": "eastus",
             "useEstsr": "false",
-            "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)"            
+            "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)"
         }
     }
 }
