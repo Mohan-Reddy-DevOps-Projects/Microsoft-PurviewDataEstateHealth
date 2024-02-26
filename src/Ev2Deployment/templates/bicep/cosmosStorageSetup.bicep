@@ -54,7 +54,7 @@ module cosmosDatabaseDHControlScoreContainer 'cosmosDatabase.bicep' = {
   params: {
     accountName: cosmosAccountName
     databaseName: 'dgh-Control'
-    containerNames: ['Dgh-Score']
+    containerNames: ['DHScore']
     throughput: 40000
   }
 }
