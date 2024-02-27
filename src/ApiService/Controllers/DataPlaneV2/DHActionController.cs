@@ -11,8 +11,11 @@ using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
+using Microsoft.Purview.DataEstateHealth.DHModels.Queries;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
@@ -22,11 +25,10 @@ public class DHActionController(DHActionService actionService) : DataPlaneContro
     [HttpPost]
     [Route("query")]
     public async Task<ActionResult> ListActionsAsync(
-        [FromQuery] string? domainId = null)
+        [FromBody] ActionQueryRequest payload)
     {
-
-        // TODO(Han): Support filters
-        var results = await actionService.EnumerateActionsAsync().ConfigureAwait(false);
+        var query = BuildFilterQuery(payload.Filters);
+        var results = await actionService.EnumerateActionsAsync(query).ConfigureAwait(false);
 
         var batchResults = new BatchResults<DataHealthActionWrapper>(results, results.Count());
 
@@ -38,8 +40,9 @@ public class DHActionController(DHActionService actionService) : DataPlaneContro
     public async Task<ActionResult> ListActionsByGroupAsync(
         [FromBody] ActionGroupedRequest payload)
     {
-        // TODO(Han): Support filters
-        var results = await actionService.EnumerateActionsByGroupAsync(payload.groupBy).ConfigureAwait(false);
+        var query = BuildFilterQuery(payload.Filters);
+
+        var results = await actionService.EnumerateActionsByGroupAsync(query, payload.groupBy).ConfigureAwait(false);
 
         return this.Ok(results);
     }
@@ -72,4 +75,40 @@ public class DHActionController(DHActionService actionService) : DataPlaneContro
         return this.Ok(entity.JObject);
     }
 
+    private static CosmosDBQuery<ActionsFilter> BuildFilterQuery(ActionFiltersPayload filters)
+    {
+        var statusFilter = new List<DataHealthActionStatus>();
+        if (filters?.Status?.Count > 0)
+        {
+            foreach (var statusStr in filters.Status)
+            {
+                if (Enum.TryParse<DataHealthActionStatus>(statusStr, true, out var result))
+                {
+                    statusFilter.Add(result);
+                }
+            }
+        }
+
+        var query = new CosmosDBQuery<ActionsFilter>()
+        {
+            Filter = new ActionsFilter()
+            {
+                FindingTypes = filters?.FindingTypes,
+                FindingSubTypes = filters?.FindingSubTypes,
+                FindingNames = filters?.FindingNames,
+                Status = statusFilter,
+                TargetEntityType = Enum.TryParse<DataHealthActionTargetEntityType>(filters?.TargetEntityType, true, out var targetEntityType) ? targetEntityType : null,
+                TargetEntityIds = filters?.TargetEntityIds,
+                AssignedTo = filters?.AssignedTo,
+                Severity = Enum.TryParse<DataHealthActionSeverity>(filters?.Severity, true, out var severity) ? severity : null,
+                CreateTimeRange =
+                    new CreateTimeRangeFilter()
+                    {
+                        Start = DateTime.TryParse(filters?.CreateTimeRange?.Start, CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var createTimeRangeStart) ? createTimeRangeStart : null,
+                        End = DateTime.TryParse(filters?.CreateTimeRange?.End, CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var createTimeRangeEnd) ? createTimeRangeEnd : null,
+                    }
+            }
+        };
+        return query;
+    }
 }

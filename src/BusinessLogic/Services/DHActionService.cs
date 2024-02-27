@@ -9,6 +9,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Queries;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
@@ -21,12 +22,12 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
     public class DHActionService(DHActionRepository dataHealthActionRepository, IRequestHeaderContext requestHeaderContext)
     {
-        public async Task<IEnumerable<DataHealthActionWrapper>> EnumerateActionsAsync()
+        public async Task<IEnumerable<DataHealthActionWrapper>> EnumerateActionsAsync(CosmosDBQuery<ActionsFilter> query)
         {
-            return await dataHealthActionRepository.GetAllAsync();
+            return await dataHealthActionRepository.GetActionsByFilterAsync(query);
         }
 
-        public async Task<IEnumerable<GroupedActions>> EnumerateActionsByGroupAsync(string groupBy)
+        public async Task<IEnumerable<GroupedActions>> EnumerateActionsByGroupAsync(CosmosDBQuery<ActionsFilter> query, string groupBy)
         {
             HashSet<string> allowedKeys = new HashSet<string>
             {
@@ -39,7 +40,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             {
                 throw new UnsupportedParamException($"The value of {nameof(groupBy)} is not supported");
             }
-            return await dataHealthActionRepository.EnumerateActionsByGroupAsync(groupBy);
+            return await dataHealthActionRepository.EnumerateActionsByGroupAsync(query, groupBy);
         }
 
         public async Task<IEnumerable<DataHealthActionWrapper>> CreateActionsAsync(IEnumerable<DataHealthActionWrapper> actions)
