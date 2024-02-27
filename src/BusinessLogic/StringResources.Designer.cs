@@ -61,6 +61,15 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot create assessment on Control type &quot;{0}&quot;.
+        /// </summary>
+        internal static string ErrorMessageAddAssessmentOnlyOnNode {
+            get {
+                return ResourceManager.GetString("ErrorMessageAddAssessmentOnlyOnNode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot update or delete system defined entity..
         /// </summary>
         internal static string ErrorMessageCannotChangeSystemDefinedEntity {

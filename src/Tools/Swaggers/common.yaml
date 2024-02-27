@@ -29,6 +29,13 @@ paths:
       description: Create a control.
       tags:
         - Control
+      parameters:
+        - name: withNewAssessment
+          in: query
+          schema:
+            type: boolean
+            description: Create a new empty assessment for the control.
+            example: false
       requestBody:
         content:
           application/json:

@@ -17,7 +17,8 @@
 
     public class DHControlService(
         DHControlRepository dHControlRepository, 
-        DHScheduleInternalService scheduleService, 
+        DHScheduleInternalService scheduleService,
+        DHAssessmentService assessmentService,
         IRequestHeaderContext requestHeaderContext)
     {
         public async Task<IBatchResults<DHControlBaseWrapper>> ListControlsAsync()
@@ -45,12 +46,26 @@
             return result;
         }
 
-        public async Task<DHControlBaseWrapper> CreateControlAsync(DHControlBaseWrapper entity)
+        public async Task<DHControlBaseWrapper> CreateControlAsync(DHControlBaseWrapper entity, bool withNewAssessment = false)
         {
             ArgumentNullException.ThrowIfNull(entity);
 
             entity.Validate();
             entity.NormalizeInput();
+
+            if (withNewAssessment)
+            {
+                switch (entity.Type)
+                {
+                    case DHControlBaseWrapperDerivedTypes.Node:
+                        var assessment = await assessmentService.CreateEmptyAssessmentAsync(entity.Name).ConfigureAwait(false);
+                        var nodeEntity = (DHControlNodeWrapper)entity;
+                        nodeEntity.AssessmentId = assessment.Id;
+                        break;
+                    default:
+                        throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageAddAssessmentOnlyOnNode, entity.Type));
+                }
+            }
 
             entity.OnCreate(requestHeaderContext.ClientObjectId);
 

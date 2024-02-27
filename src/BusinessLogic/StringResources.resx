@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ErrorMessageAddAssessmentOnlyOnNode" xml:space="preserve">
+    <value>Cannot create assessment on Control type "{0}"</value>
+  </data>
   <data name="ErrorMessageCannotChangeSystemDefinedEntity" xml:space="preserve">
     <value>Cannot update or delete system defined entity.</value>
   </data>

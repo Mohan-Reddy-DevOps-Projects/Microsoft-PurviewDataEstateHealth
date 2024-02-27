@@ -55,6 +55,17 @@ public class DHAssessmentService(MQAssessmentRepository assessmentRepository, IR
         return entity;
     }
 
+    public async Task<MQAssessmentWrapper> CreateEmptyAssessmentAsync(string assessmentName)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(assessmentName);
+
+        var entity = MQAssessmentWrapper.Create([]);
+
+        entity.Name = assessmentName;
+
+        return await this.CreateAssessmentAsync(entity).ConfigureAwait(false);
+    }
+
     public async Task<MQAssessmentWrapper> UpdateAssessmentByIdAsync(string id, MQAssessmentWrapper entity)
     {
         ArgumentNullException.ThrowIfNull(id);

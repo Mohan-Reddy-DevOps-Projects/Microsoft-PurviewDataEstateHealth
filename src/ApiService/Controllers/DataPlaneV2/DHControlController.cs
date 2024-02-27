@@ -31,7 +31,8 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
     [HttpPost]
     [Route("")]
     public async Task<ActionResult> CreateControlAsync(
-    [FromBody] JObject payload)
+    [FromBody] JObject payload,
+    [FromQuery(Name = "withNewAssessment")] bool withNewAssessment)
     {
         if (payload == null)
         {
@@ -39,7 +40,7 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
         }
 
         var entity = DHControlBaseWrapper.Create(payload);
-        var result = await dataHealthControlService.CreateControlAsync(entity).ConfigureAwait(false);
+        var result = await dataHealthControlService.CreateControlAsync(entity, withNewAssessment).ConfigureAwait(false);
         return this.Created(new Uri($"{this.Request.GetEncodedUrl()}/{result.Id}"), result.JObject);
     }
 
