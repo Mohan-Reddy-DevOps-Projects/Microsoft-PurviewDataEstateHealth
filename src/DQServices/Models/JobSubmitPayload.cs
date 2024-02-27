@@ -11,8 +11,7 @@ public class JobSubmitPayload
         string storageEndpoint,
         string catalogId,
         string dataProductId,
-        string dataAssetId,
-        string jobId)
+        string dataAssetId)
     {
         this.DatasetToDatasourceMappings = new List<DatasetToDatasourceMapping>
         {
@@ -23,8 +22,7 @@ public class JobSubmitPayload
             storageEndpoint,
             catalogId,
             dataProductId,
-            dataAssetId,
-            jobId);
+            dataAssetId);
     }
 
     [JsonProperty("datasetToDatasourceMappings")]
@@ -50,8 +48,7 @@ public class ErrorOutputInfo
         string storageEndpoint,
         string catalogId,
         string dataProductId,
-        string dataAssetId,
-        string jobId)
+        string dataAssetId)
     {
         var tmp = storageEndpoint.Substring("https://".Length);
         var splited = tmp.Split(".");
@@ -59,7 +56,7 @@ public class ErrorOutputInfo
         this.DnsZone = splited[1];
 
         this.FileSystem = catalogId;
-        this.FolderPath = $"all-errors/businessDomain={DataEstateHealthConstants.DEH_DOMAIN_ID}/dataProduct={dataProductId}/dataAsset={dataAssetId}/observation={jobId}";
+        this.FolderPath = $"all-errors/businessDomain={DataEstateHealthConstants.DEH_DOMAIN_ID}/dataProduct={dataProductId}/dataAsset={dataAssetId}";
     }
 
     [JsonProperty("name")]

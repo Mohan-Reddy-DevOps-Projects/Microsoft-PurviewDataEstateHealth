@@ -93,8 +93,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
                 dfsEndpoint,
                 catalogId,
                 dataProductId,
-                dataAssetId,
-                healthJobId)).ConfigureAwait(false);
+                dataAssetId)).ConfigureAwait(false);
 
         return jobId;
     }
