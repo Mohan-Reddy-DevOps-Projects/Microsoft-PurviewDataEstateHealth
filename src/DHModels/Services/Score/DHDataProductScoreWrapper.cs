@@ -34,7 +34,7 @@ public class DHDataProductScoreWrapper(JObject jObject) : DHScoreBaseWrapper(jOb
     private IEnumerable<ContactItemWrapper>? dataProductOwners;
 
     [EntityTypeProperty(keyDataProductOwners)]
-    public IEnumerable<ContactItemWrapper> DataProductOwners
+    public IEnumerable<ContactItemWrapper>? DataProductOwners
     {
         get => this.dataProductOwners ??= this.GetTypePropertyValueAsWrappers<ContactItemWrapper>(keyDataProductOwners);
         set

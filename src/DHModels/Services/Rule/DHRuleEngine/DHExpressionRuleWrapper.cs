@@ -18,10 +18,10 @@ public class DHExpressionRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObjec
     {
         get
         {
-            var enumStr = this.GetPropertyValue<string>(keyCheckPoint);
+            var enumStr = this.GetTypePropertyValue<string>(keyCheckPoint);
             return Enum.TryParse<DHCheckPoints>(enumStr, true, out var result) ? result : null;
         }
-        set => this.SetPropertyValue(keyCheckPoint, value?.ToString());
+        set => this.SetTypePropertyValue(keyCheckPoint, value?.ToString());
     }
 
     [EntityTypeProperty(keyExpression)]

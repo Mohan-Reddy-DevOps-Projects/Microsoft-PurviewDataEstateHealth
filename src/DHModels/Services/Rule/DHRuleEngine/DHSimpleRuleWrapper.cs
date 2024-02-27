@@ -19,10 +19,10 @@ public class DHSimpleRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     {
         get
         {
-            var enumStr = this.GetPropertyValue<string>(keyCheckPoint);
+            var enumStr = this.GetTypePropertyValue<string>(keyCheckPoint);
             return Enum.TryParse<DHCheckPoints>(enumStr, true, out var result) ? result : null;
         }
-        set => this.SetPropertyValue(keyCheckPoint, value?.ToString());
+        set => this.SetTypePropertyValue(keyCheckPoint, value?.ToString());
     }
 
     [EntityTypeProperty(keyOperator)]
@@ -30,10 +30,10 @@ public class DHSimpleRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     {
         get
         {
-            var enumStr = this.GetPropertyValue<string>(keyOperator);
+            var enumStr = this.GetTypePropertyValue<string>(keyOperator);
             return Enum.TryParse<DHOperator>(enumStr, true, out var result) ? result : null;
         }
-        set => this.SetPropertyValue(keyOperator, value?.ToString());
+        set => this.SetTypePropertyValue(keyOperator, value?.ToString());
     }
 
     /// <summary>

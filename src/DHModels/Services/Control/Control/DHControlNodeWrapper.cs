@@ -44,12 +44,12 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
     {
         get
         {
-            this.schedule ??= this.GetPropertyValueAsWrapper<DHControlScheduleWrapper>(keySchedule);
+            this.schedule ??= this.GetTypePropertyValueAsWrapper<DHControlScheduleWrapper>(keySchedule);
             return this.schedule;
         }
         set
         {
-            this.SetPropertyValue(keySchedule, value);
+            this.SetTypePropertyValue(keySchedule, value);
             this.schedule = value;
         }
     }

@@ -16,9 +16,9 @@ public class MQAssessmentSimpleAggregationWrapper(JObject jObject) : MQAssessmen
     {
         get
         {
-            var enumStr = this.GetPropertyValue<string>(keyAggregationType);
+            var enumStr = this.GetTypePropertyValue<string>(keyAggregationType);
             return Enum.TryParse<MQAssessmentSimpleAggregationType>(enumStr, true, out var result) ? result : null;
         }
-        set => this.SetPropertyValue(keyAggregationType, value?.ToString());
+        set => this.SetTypePropertyValue(keyAggregationType, value?.ToString());
     }
 }

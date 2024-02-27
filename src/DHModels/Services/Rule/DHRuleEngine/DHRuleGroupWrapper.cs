@@ -18,10 +18,10 @@ public class DHRuleGroupWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     {
         get
         {
-            var enumStr = this.GetPropertyValue<string>(keyGroupOperator);
+            var enumStr = this.GetTypePropertyValue<string>(keyGroupOperator);
             return Enum.TryParse<DHRuleGroupOperator>(enumStr, true, out var result) ? result : null;
         }
-        set => this.SetPropertyValue(keyGroupOperator, value?.ToString());
+        set => this.SetTypePropertyValue(keyGroupOperator, value?.ToString());
     }
 
     private IEnumerable<DHRuleBaseWrapper>? rules;
