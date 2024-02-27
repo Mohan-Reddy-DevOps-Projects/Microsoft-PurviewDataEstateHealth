@@ -59,6 +59,7 @@ public static class ConfigurationExtensions
             .Configure<ProcessingStorageConfiguration>(configuration.GetSection("processingStorage"))
             .Configure<ProcessingStorageAuthConfiguration>(configuration.GetSection("processingStorageAuth"))
             .Configure<MetadataServiceConfiguration>(configuration.GetSection("metadataService"))
+            .Configure<DataHealthApiServiceConfiguration>(configuration.GetSection("dataHealthApiService"))
             .Configure<ExposureControlConfiguration>(configuration.GetSection("exposureControl"))
             .Configure<ArtifactStoreServiceConfiguration>(configuration.GetSection("artifactStoreServiceConfiguration"))
             .Configure<PowerBIAuthConfiguration>(configuration.GetSection("powerBIAuth"))

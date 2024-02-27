@@ -156,6 +156,12 @@ public class DataQualitySourceEventHubEntityModel : BaseEventHubEntityModel
     public DateTime ResultedAt { get; set; }
 
     /// <summary>
+    /// Job Type.
+    /// </summary>
+    [JsonProperty("jobType")]
+    public string JobType { get; set; }
+
+    /// <summary>
     /// Job Status.
     /// </summary>
     [JsonProperty("jobStatus")]
@@ -189,12 +195,13 @@ public class DataQualitySourceEventHubEntityModel : BaseEventHubEntityModel
     public override StructType GetSchemaDefinition() => new(new StructField[]
         {
             new StructField("ResultId", DataTypes.String),
+            new StructField("JobType", DataTypes.String),
             new StructField("JobStatus", DataTypes.String),
             new StructField("ResultedAt", DataTypes.Timestamp),
             new StructField("Region", DataTypes.String),
             new StructField("Results", DataTypes.String),
             new StructField("Dimensions", DataTypes.String),
-        }.ConcatArray(GetCommonSchemaFields()));
+        }.ConcatArray(this.GetCommonSchemaFields()));
 }
 
 /// <summary>

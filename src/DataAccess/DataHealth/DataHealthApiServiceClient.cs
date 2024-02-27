@@ -1,0 +1,71 @@
+﻿// <copyright file="DataHealthApiServiceClient.cs" company="Microsoft Corporation">
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+
+namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
+{
+    using Microsoft.Azure.Purview.DataEstateHealth.Common;
+    using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+    using Microsoft.Azure.Purview.DataEstateHealth.Models;
+    using Microsoft.Rest;
+    using Newtonsoft.Json;
+    using System;
+    using System.Net.Http;
+    using System.Text;
+    using System.Threading.Tasks;
+
+    public class DataHealthApiServiceClient : ServiceClient<DataHealthApiServiceClient>
+    {
+        private readonly Uri BaseUri;
+
+        private readonly IDataEstateHealthRequestLogger Logger;
+
+        private readonly HttpClient Client;
+
+        private const string ApiVersion = ServiceVersion.LabelV2;
+
+        public DataHealthApiServiceClient(HttpClient httpClient, Uri baseUri, IDataEstateHealthRequestLogger logger)
+        {
+            this.Client = httpClient;
+            this.BaseUri = baseUri;
+            this.Logger = logger;
+        }
+
+        public async Task TriggerMDQJobCallback(MDQJobCallbackPayload schedule)
+        {
+            var requestUri = this.CreateRequestUri("/internal/control/triggerMDQJobCallback");
+            var content = this.CreateRequestContent(schedule);
+            var response = await this.Client.PostAsync(requestUri, content).ConfigureAwait(false);
+            this.HandleResponseStatusCode(response);
+        }
+
+        private Uri CreateRequestUri(string pathname)
+        {
+            var builder = new UriBuilder(this.BaseUri)
+            {
+                Path = pathname,
+                Query = $"api-version={ApiVersion}"
+            };
+            return builder.Uri;
+        }
+
+        private HttpContent CreateRequestContent(object obj)
+        {
+            var content = JsonConvert.SerializeObject(obj);
+            return new StringContent(content, Encoding.UTF8, "application/json");
+        }
+
+        private void HandleResponseStatusCode(HttpResponseMessage response)
+        {
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                this.Logger.LogError("Data health api service request failed", ex);
+                throw;
+            }
+        }
+    }
+}

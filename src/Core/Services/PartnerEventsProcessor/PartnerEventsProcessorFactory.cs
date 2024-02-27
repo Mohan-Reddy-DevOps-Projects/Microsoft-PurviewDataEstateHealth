@@ -4,10 +4,11 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
 
 internal class PartnerEventsProcessorFactory : IPartnerEventsProcessorFactory
 {
@@ -35,7 +36,8 @@ internal class PartnerEventsProcessorFactory : IPartnerEventsProcessorFactory
             case EventSourceType.DataQuality:
                 return new DataQualityEventsProcessor(
                     this.scope.ServiceProvider,
-                    this.scope.ServiceProvider.GetRequiredService<IOptions<DataQualityEventHubConfiguration>>().Value);
+                    this.scope.ServiceProvider.GetRequiredService<IOptions<DataQualityEventHubConfiguration>>().Value,
+                    this.scope.ServiceProvider.GetRequiredService<IOptions<IDataHealthApiService>>().Value);
 
             default:
                 throw new ArgumentException($"Unsupported event source type: {eventSourceType}");

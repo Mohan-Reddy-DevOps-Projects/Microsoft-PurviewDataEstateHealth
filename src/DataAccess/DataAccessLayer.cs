@@ -35,6 +35,8 @@ public static class DataAccessLayer
 
     private const string DefaultUserAgent = "DGHealth";
 
+    private const string DEHWorkerUserAgent = "DGHealthWorker";
+
     /// <summary>
     /// Initializes the data access layer.
     /// </summary>
@@ -50,6 +52,10 @@ public static class DataAccessLayer
         services.AddMetadataServiceHttpClient(MetadataServiceClientFactory.HttpClientName);
         services.AddSingleton<MetadataServiceClientFactory>();
         services.AddSingleton<IMetadataAccessorService, MetadataAccessorService>();
+        services.AddDataHealthApiServiceHttpClient(DataHealthApiServiceClientFactory.HttpClientName);
+        services.AddSingleton<DataHealthApiServiceClientFactory>();
+        services.AddSingleton<IDataHealthApiService, DataHealthApiService>();
+
         services.AddSingleton<ICacheManager, CacheManager>();
 
         services.AddSingleton<ITableStorageClient<AccountStorageTableConfiguration>>(
@@ -130,6 +136,26 @@ public static class DataAccessLayer
         };
 
         return services.AddCustomHttpClient<MetadataServiceConfiguration>(httpClientSettings,
+            (serviceProvider, request, policy) => { });
+    }
+
+
+    /// <summary>
+    /// Register data health api service http client 
+    /// </summary>
+    /// <param name="services">Service collection</param>
+    /// <param name="name">The user agent for the http client</param>
+    /// <returns>Http client builder</returns>
+    private static IHttpClientBuilder AddDataHealthApiServiceHttpClient(this IServiceCollection services, string name)
+    {
+        HttpClientSettings httpClientSettings = new()
+        {
+            Name = name,
+            UserAgent = DEHWorkerUserAgent,
+            RetryCount = 3
+        };
+
+        return services.AddCustomHttpClient<DataHealthApiServiceConfiguration>(httpClientSettings,
             (serviceProvider, request, policy) => { });
     }
 

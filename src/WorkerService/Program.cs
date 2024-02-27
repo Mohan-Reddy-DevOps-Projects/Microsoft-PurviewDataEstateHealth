@@ -2,17 +2,16 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-using System.Net;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Extensions.Options;
-using Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
+using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
-using Microsoft.Extensions.Azure;
+using System.Net;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -86,8 +85,12 @@ static async Task Initialize(WebApplication app)
         await serverlessPoolClient.Initialize();
 
         // Initialize metadata service
-        IMetadataAccessorService metadataService = app.Services.GetService<IMetadataAccessorService>();
+        IDataHealthApiService metadataService = app.Services.GetService<IDataHealthApiService>();
         metadataService.Initialize();
+
+        // Initialize data health api service
+        IDataHealthApiService dataHealthApiService = app.Services.GetService<IDataHealthApiService>();
+        dataHealthApiService.Initialize();
 
         // Initialize cache
         ICacheManager cacheManager = app.Services.GetService<ICacheManager>();

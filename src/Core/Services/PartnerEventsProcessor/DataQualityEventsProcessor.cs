@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataGovernance.DeltaWriter;
 using Newtonsoft.Json;
@@ -13,15 +14,19 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
 {
     private readonly DataQualityEventHubConfiguration eventHubConfiguration;
 
+    private readonly IDataHealthApiService dataHealthApiService;
+
     public DataQualityEventsProcessor(
         IServiceProvider serviceProvider,
-        DataQualityEventHubConfiguration eventHubConfiguration)
+        DataQualityEventHubConfiguration eventHubConfiguration,
+        IDataHealthApiService dataHealthApiService)
         : base(
             serviceProvider,
             eventHubConfiguration,
             EventSourceType.DataQuality)
     {
         this.eventHubConfiguration = eventHubConfiguration;
+        this.dataHealthApiService = dataHealthApiService;
     }
 
     public override async Task CommitAsync(IDictionary<Guid, string> processingStorageCache = null)
@@ -66,6 +71,9 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels = await this.PrepareAndUploadSourcePayloads(events, deltaTableWriter);
         this.DataEstateHealthRequestLogger.LogTrace($"Persisted {dataQualityResultModels.Values.Sum(i => i.Count)} {this.EventProcessorType} source events for account Id: {accountId}.");
 
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqJobModels = await this.UpdateMDQJobStatus(dataQualityResultModels);
+        this.DataEstateHealthRequestLogger.LogTrace($"Persisted {mdqJobModels.Values.Sum(i => i.Count)} {this.EventProcessorType} MDQ events for account Id: {accountId}.");
+
         Dictionary<EventOperationType, List<DataQualitySinkEventHubEntityModel>> dataQualityScoreModels = await this.PrepareAndUploadSinkPayloads(dataQualityResultModels, deltaTableWriter);
         this.DataEstateHealthRequestLogger.LogTrace($"Persisted {dataQualityScoreModels.Values.Sum(i => i.Count)} {this.EventProcessorType} sink events for account Id: {accountId}.");
     }
@@ -91,6 +99,34 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         return dataQualityResultModels;
     }
 
+    private async Task<Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>>> UpdateMDQJobStatus(
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels)
+    {
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqJobModels = new();
+        foreach (KeyValuePair<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModel in dataQualityResultModels)
+        {
+            List<DataQualitySourceEventHubEntityModel> sourceModels = dataQualityResultModel.Value;
+            var jobModels = new List<DataQualitySourceEventHubEntityModel>();
+            mdqJobModels.Add(dataQualityResultModel.Key, jobModels);
+            foreach (DataQualitySourceEventHubEntityModel sourceModel in sourceModels)
+            {
+                if (sourceModel.JobType == "MDQ")
+                {
+                    this.DataEstateHealthRequestLogger.LogInformation($"Process MDQ job. Job ID: {sourceModel.ResultId}. Job status: {sourceModel.JobStatus}.");
+                    var resultId = this.ParseResultId(sourceModel.ResultId);
+                    jobModels.Add(sourceModel);
+                    var payload = new MDQJobCallbackPayload
+                    {
+                        DQJobId = resultId.JobId,
+                        JobStatus = sourceModel.JobStatus,
+                    };
+                    await this.dataHealthApiService.TriggerMDQJobCallback(payload).ConfigureAwait(false);
+                }
+            }
+        }
+        return mdqJobModels;
+    }
+
     private async Task<Dictionary<EventOperationType, List<DataQualitySinkEventHubEntityModel>>> PrepareAndUploadSinkPayloads(
         Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels,
         IDeltaLakeOperator deltaTableWriter)
@@ -104,38 +140,45 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
 
             foreach (DataQualitySourceEventHubEntityModel sourceModel in sourceModels)
             {
-                try
+                ResultIdEventHubEntityModel jobRunId = this.ParseResultId(sourceModel.ResultId ?? string.Empty);
+                if (jobRunId == null || jobRunId.BusinessDomainId == null || jobRunId.DataProductId == null || jobRunId.DataAssetId == null)
                 {
-                    ResultIdEventHubEntityModel jobRunId = JsonConvert.DeserializeObject<ResultIdEventHubEntityModel>(sourceModel.ResultId ?? string.Empty);
-                    if (jobRunId == null || jobRunId.BusinessDomainId == null || jobRunId.DataProductId == null || jobRunId.DataAssetId == null)
-                    {
-                        this.DataEstateHealthRequestLogger.LogWarning($"Encountered invalid data quality job run result: {JsonConvert.SerializeObject(sourceModel.ResultId)}");
-                        continue;
-                    }
-
-                    var sinkModel = new DataQualitySinkEventHubEntityModel()
-                    {
-                        AccountId = sourceModel.AccountId,
-                        BusinessDomainId = jobRunId.BusinessDomainId,
-                        DataProductId = jobRunId.DataProductId,
-                        DataAssetId = jobRunId.DataAssetId,
-                        JobId = jobRunId.JobId,
-                        RowId = sourceModel.EventId.ToString(),
-                        ResultedAt = sourceModel.ResultedAt,
-                        QualityScore = CalculateDataQualityScore(sourceModel),
-                    };
-
-                    scoreModels.Add(sinkModel);
+                    this.DataEstateHealthRequestLogger.LogWarning($"Encountered invalid data quality job run result: {JsonConvert.SerializeObject(sourceModel.ResultId)}");
+                    continue;
                 }
-                catch (JsonException exception)
+
+                var sinkModel = new DataQualitySinkEventHubEntityModel()
                 {
-                    this.DataEstateHealthRequestLogger.LogError($"Failed to parse data quality job run id payload from event: {JsonConvert.SerializeObject(sourceModel)}.", exception);
-                }
+                    AccountId = sourceModel.AccountId,
+                    BusinessDomainId = jobRunId.BusinessDomainId,
+                    DataProductId = jobRunId.DataProductId,
+                    DataAssetId = jobRunId.DataAssetId,
+                    JobId = jobRunId.JobId,
+                    RowId = sourceModel.EventId.ToString(),
+                    ResultedAt = sourceModel.ResultedAt,
+                    QualityScore = this.CalculateDataQualityScore(sourceModel),
+                };
+
+                scoreModels.Add(sinkModel);
             }
         }
 
         await this.PersistToStorage(dataQualityScoreModels, deltaTableWriter, nameof(EventSourceType.DataQuality), false);
         return dataQualityScoreModels;
+    }
+
+    private ResultIdEventHubEntityModel ParseResultId(string resultId)
+    {
+        try
+        {
+            ResultIdEventHubEntityModel jobRunId = JsonConvert.DeserializeObject<ResultIdEventHubEntityModel>(resultId ?? string.Empty);
+            return jobRunId;
+        }
+        catch (JsonException exception)
+        {
+            this.DataEstateHealthRequestLogger.LogError($"Failed to parse data quality job run id payload: {resultId}.", exception);
+            throw;
+        }
     }
 
     private double CalculateDataQualityScore(DataQualitySourceEventHubEntityModel sourceModel)
