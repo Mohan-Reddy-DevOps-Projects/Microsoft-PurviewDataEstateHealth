@@ -67,6 +67,8 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     private const string keyTargetEntityId = "targetEntityId";
     private const string keyAssignedTo = "assignedTo";
     private const string keySystemData = "systemData";
+    private const string KeyReason = "reason";
+    private const string KeyExtraProperties = "extraProperties";
 
     public static DataHealthActionWrapper Create(JObject jObject)
     {
@@ -199,6 +201,30 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
         {
             this.SetPropertyValueFromWrapper(keySystemData, value);
             this.systemData = value;
+        }
+    }
+
+    [EntityProperty(KeyReason)]
+    public string Reason
+    {
+        get => this.GetPropertyValue<string>(KeyReason);
+        set => this.SetPropertyValue(KeyReason, value);
+    }
+
+    private ActionExtraPropertiesWrapper? extraProperties;
+
+    [EntityProperty(KeyExtraProperties)]
+    public ActionExtraPropertiesWrapper ExtraProperties
+    {
+        get
+        {
+            this.extraProperties ??= this.GetPropertyValueAsWrapper<ActionExtraPropertiesWrapper>(KeyExtraProperties);
+            return this.extraProperties;
+        }
+        set
+        {
+            this.SetPropertyValueFromWrapper(KeyExtraProperties, value);
+            this.extraProperties = value;
         }
     }
 
