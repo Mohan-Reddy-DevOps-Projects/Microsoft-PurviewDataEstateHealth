@@ -7,7 +7,6 @@ using System.Collections.Generic;
 public class JobSubmitPayload
 {
     public JobSubmitPayload(
-        string sasToken,
         // e.g. https://dgprocessingwus2cyqgjoc.z28.blob.storage.azure.net
         string storageEndpoint,
         string catalogId,
@@ -21,7 +20,6 @@ public class JobSubmitPayload
         };
 
         this.Error = new ErrorOutputInfo(
-            sasToken,
             storageEndpoint,
             catalogId,
             dataProductId,
@@ -48,7 +46,6 @@ public class DatasetToDatasourceMapping
 public class ErrorOutputInfo
 {
     public ErrorOutputInfo(
-        string sasToken,
         // e.g. https://dgprocessingwus2cyqgjoc.z28.blob.storage.azure.net
         string storageEndpoint,
         string catalogId,
@@ -56,8 +53,6 @@ public class ErrorOutputInfo
         string dataAssetId,
         string jobId)
     {
-        this.SasToken = sasToken;
-
         var tmp = storageEndpoint.Substring("https://".Length);
         var splited = tmp.Split(".");
         this.Account = splited[0];
@@ -95,7 +90,7 @@ public class ErrorOutputInfo
     public string Format => "parquet";
 
     [JsonProperty("sasToken")]
-    public string SasToken { get; set; }
+    public string SasToken { get; set; } = string.Empty;
 
     [JsonProperty("dnsZone")]
     public string DnsZone { get; set; }

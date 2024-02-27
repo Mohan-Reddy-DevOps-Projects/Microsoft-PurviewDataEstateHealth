@@ -12,5 +12,5 @@ public class DataEstateHealthConstants
     public const string DEH_DATA_SOURCE_ID = "___deh_data_source_id___";
     public const string DEH_KEY_DATA_SOURCE_ENDPOINT = "DataSource.Endpoint";
 
-    public const int SAS_TOKEN_EXPIRATION_HOURS = 12;
+    public const int SAS_TOKEN_EXPIRATION_HOURS = 24;
 }

@@ -68,5 +68,5 @@ public interface IProcessingStorageManager
 
     Task<Stream> GetDataQualityOutput(ProcessingStorageModel processingStorageModel, string folderPath, string fileName);
 
-    Task<string> GetSasTokenForDQ(ProcessingStorageModel processingStorageModel);
+    Task<string> GetSasTokenForDQ(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters);
 }

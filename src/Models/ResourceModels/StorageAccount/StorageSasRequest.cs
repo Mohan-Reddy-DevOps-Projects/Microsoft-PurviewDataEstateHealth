@@ -33,4 +33,8 @@ public class StorageSasRequest
     /// The Blob Path.
     /// </value>
     public string Path { get; set; } = string.Empty;
+
+    public string Resource { get; set; } = "d";
+
+    public bool? IsDirectory { get; set; } = true;
 }

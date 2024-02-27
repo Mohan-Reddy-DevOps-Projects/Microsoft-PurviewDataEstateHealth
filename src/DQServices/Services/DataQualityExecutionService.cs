@@ -85,14 +85,11 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         await dataQualityServiceClient.CreateObserver(observer, accountId).ConfigureAwait(false);
 
         // Trigger run
-        var sasToken = await this.processingStorageManager.GetSasTokenForDQ(accountStorageModel).ConfigureAwait(false);
-
         var jobId = await dataQualityServiceClient.TriggerJobRun(
             accountId,
             dataProductId,
             dataAssetId,
             new JobSubmitPayload(
-                sasToken,
                 dfsEndpoint,
                 catalogId,
                 dataProductId,

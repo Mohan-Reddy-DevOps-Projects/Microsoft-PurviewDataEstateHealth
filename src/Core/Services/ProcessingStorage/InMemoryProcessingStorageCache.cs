@@ -92,9 +92,9 @@ internal class InMemoryProcessingStorageCache : IProcessingStorageManager
         return await this.repository.GetDataQualityOutput(processingStorageModel, folderPath, fileName);
     }
 
-    public async Task<string> GetSasTokenForDQ(Models.ProcessingStorageModel processingStorageModel)
+    public async Task<string> GetSasTokenForDQ(Models.ProcessingStorageModel processingStorageModel, Models.StorageSasRequest parameters)
     {
-        return await this.repository.GetSasTokenForDQ(processingStorageModel).ConfigureAwait(false);
+        return await this.repository.GetSasTokenForDQ(processingStorageModel, parameters).ConfigureAwait(false);
     }
 
     private string GetEntityLookupKey(StorageCacheKey entityLocator) => $"{this.cachePrefix}-{entityLocator.PartitionKey}-{entityLocator.ResourceId()}";

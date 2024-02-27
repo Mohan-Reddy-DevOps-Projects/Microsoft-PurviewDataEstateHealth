@@ -6,14 +6,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure;
 using global::Azure.Core;
-using global::Azure.Identity;
 using global::Azure.ResourceManager.Resources;
 using global::Azure.ResourceManager.Storage;
 using global::Azure.ResourceManager.Storage.Models;
 using global::Azure.Storage.Files.DataLake;
 using global::Azure.Storage.Files.DataLake.Models;
 using global::Azure.Storage.Sas;
-using Microsoft.Azure.Management.Storage;
 using Microsoft.Azure.Management.Storage.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities;
@@ -23,7 +21,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Common;
-using Microsoft.Rest;
 using System.Threading;
 using System.Threading.Tasks;
 using DeletionResult = ProjectBabylon.Metadata.Models.DeletionResult;
@@ -150,53 +147,31 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         return await GetUserDelegationSasDirectory(directoryClient, serviceClient, parameters);
     }
 
-    public async Task<string> GetSasTokenForDQ(ProcessingStorageModel processingStorageModel)
+    public async Task<string> GetSasTokenForDQ(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters)
     {
-        var azureCredentials = new DefaultAzureCredential();
+        string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
+        DataLakeServiceClient serviceClient = new(new Uri(serviceEndpoint), this.tokenCredential);
 
-        var accessToken = await azureCredentials.GetTokenAsync(
-            new TokenRequestContext(scopes: new string[] { this.processingStorageAuthConfiguration.Resource + "/.default" }) { });
-
-        var serviceClientCredentials = new TokenCredentials(accessToken.Token);
-
-        TimeSpan timeToLive = TimeSpan.FromDays(1);
-
-        using (Azure.Management.Storage.StorageManagementClient client
-            = new Azure.Management.Storage.StorageManagementClient(new Uri(this.processingStorageAuthConfiguration.Resource + "/"), serviceClientCredentials))
+        // Create a SAS token
+        DataLakeSasBuilder sasBuilder = new()
         {
-            client.SubscriptionId = this.processingStorageConfiguration.SubscriptionId.ToString();
+            FileSystemName = processingStorageModel.CatalogId.ToString(),
+            Resource = parameters.Resource,
+            Path = parameters.Path,
+            IsDirectory = parameters.IsDirectory,
+            Protocol = SasProtocol.Https,
+            ExpiresOn = DateTimeOffset.UtcNow.Add(parameters.TimeToLive)
+        };
 
-            var builder = DateTime.UtcNow;
-            builder = new DateTime(builder.Year, builder.Month, builder.Day, builder.Hour, builder.Minute, builder.Second, DateTimeKind.Utc);
-            DateTime start = builder;
-            DateTime end = start.Add(timeToLive);
+        sasBuilder.SetPermissions(parameters.Permissions);
 
-            Azure.Management.Storage.Models.AccountSasParameters sasParameters = new Azure.Management.Storage.Models.AccountSasParameters(
-                "bfqt",
-                "sco",
-                "rwdlacup",
-                sharedAccessExpiryTime: end,
-                string.Empty,
-                Azure.Management.Storage.Models.HttpProtocol.Https,
-                sharedAccessStartTime: start,
-                null);
+        // Get a user delegation key that's valid for seven days.
+        // Use the key to generate any number of shared access signatures over the lifetime of the key.
+        UserDelegationKey userDelegationKey = await serviceClient.GetUserDelegationKeyAsync(DateTimeOffset.UtcNow.Subtract(TimeSpan.FromMinutes(5)), DateTimeOffset.UtcNow.AddDays(7));
 
-            ListAccountSasResponse response = null;
-            try
-            {
-                response = await client.StorageAccounts.ListAccountSASAsync(
-                    this.processingStorageConfiguration.ResourceGroupName,
-                    processingStorageModel.GetStorageAccountName(),
-                    sasParameters,
-                    CancellationToken.None).ConfigureAwait(false);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+        var sas = sasBuilder.ToSasQueryParameters(userDelegationKey, processingStorageModel.GetStorageAccountName());
 
-            return response.AccountSasToken;
-        }
+        return sas.ToString();
     }
 
     /// <inheritdoc/>
