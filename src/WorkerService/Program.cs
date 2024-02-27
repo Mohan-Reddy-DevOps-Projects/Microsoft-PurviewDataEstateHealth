@@ -85,7 +85,7 @@ static async Task Initialize(WebApplication app)
         await serverlessPoolClient.Initialize();
 
         // Initialize metadata service
-        IDataHealthApiService metadataService = app.Services.GetService<IDataHealthApiService>();
+        IMetadataAccessorService metadataService = app.Services.GetService<IMetadataAccessorService>();
         metadataService.Initialize();
 
         // Initialize data health api service

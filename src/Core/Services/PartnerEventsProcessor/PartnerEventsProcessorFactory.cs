@@ -13,10 +13,12 @@ using System;
 internal class PartnerEventsProcessorFactory : IPartnerEventsProcessorFactory
 {
     private readonly IServiceScope scope;
+    private readonly IServiceProvider serviceProvider;
 
     public PartnerEventsProcessorFactory(IServiceProvider serviceProvider)
     {
         this.scope = serviceProvider.CreateScope();
+        this.serviceProvider = serviceProvider;
     }
 
     public IPartnerEventsProcessor Build(EventSourceType eventSourceType)
@@ -37,7 +39,7 @@ internal class PartnerEventsProcessorFactory : IPartnerEventsProcessorFactory
                 return new DataQualityEventsProcessor(
                     this.scope.ServiceProvider,
                     this.scope.ServiceProvider.GetRequiredService<IOptions<DataQualityEventHubConfiguration>>().Value,
-                    this.scope.ServiceProvider.GetRequiredService<IOptions<IDataHealthApiService>>().Value);
+                    this.serviceProvider.GetService<IDataHealthApiService>());
 
             default:
                 throw new ArgumentException($"Unsupported event source type: {eventSourceType}");
