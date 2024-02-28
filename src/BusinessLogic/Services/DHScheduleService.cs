@@ -35,8 +35,9 @@ public class DHScheduleService(
         if (string.IsNullOrEmpty(payload.ControlId))
         {
             var result = await controlService.ListControlsAsync().ConfigureAwait(false);
-            controls.AddRange(result.Results);
-            logger.LogInformation($"Trigger batch controls jobs. Count {result.Count}.");
+            var controlNodes = result.Results.Where(item => item.Type == DHControlBaseWrapperDerivedTypes.Node);
+            controls.AddRange(controlNodes);
+            logger.LogInformation($"Trigger batch controls jobs. Count {controls.Count}.");
         }
         else
         {
@@ -57,6 +58,7 @@ public class DHScheduleService(
             jobWrapper.DQJobId = dqJobId;
             jobWrapper.ControlId = control.Id;
             await monitoringService.CreateComputingJob(jobWrapper).ConfigureAwait(false);
+            logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}");
         }
     }
 
@@ -74,7 +76,7 @@ public class DHScheduleService(
 
         if (jobStatus == DHComputingJobStatus.Succeeded)
         {
-            logger.LogInformation($"New succeed MDQ job. Process score computing. Job Id: {job.Id}. DQ Job Id: {job.DQJobId}. Control Id: {job.ControlId}");
+            logger.LogInformation($"New succeed MDQ job. Process score computing. Job Id: {job.Id}. DQ job Id: {job.DQJobId}. Control Id: {job.ControlId}");
 
             try
             {

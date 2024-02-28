@@ -7,7 +7,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 
-public class DHComputingJobWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHComputingJobWrapper>(jObject)
+public class DHComputingJobWrapper(JObject jObject) : ContainerEntityDynamicWrapper<DHComputingJobWrapper>(jObject)
 {
     private const string keyControlId = "controlId";
     private const string keyDQJobId = "dqJobId";
