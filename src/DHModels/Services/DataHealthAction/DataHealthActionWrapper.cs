@@ -7,7 +7,6 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
-using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -58,11 +57,11 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     public const string keyFindingName = "findingName";
     public const string keySeverity = "severity";
     public const string keyAssignedTo = "assignedTo";
+    public const string keyDomainId = "domainId";
     private const string keyId = "id";
     private const string keyCategory = "category";
     private const string keyFindingId = "findingId";
     private const string keyRecommendation = "recommendation";
-    private const string keyDomainId = "domainId";
     private const string keyStatus = "status";
     private const string keyTargetEntityType = "targetEntityType";
     private const string keyTargetEntityId = "targetEntityId";

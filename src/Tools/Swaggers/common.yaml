@@ -499,7 +499,7 @@ paths:
                     properties:
                       name:
                         type: string
-                        enum: [findingType, findingSubType, findingName, assignedTo]
+                        enum: [findingType, findingSubType, findingName, assignedTo, domainId]
       responses:
         "200":
           description: OK

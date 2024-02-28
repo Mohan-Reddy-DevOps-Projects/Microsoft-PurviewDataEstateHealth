@@ -141,6 +141,7 @@ public class DHActionController(DHActionService actionService) : DataPlaneContro
         }
         return new ActionsFilter()
         {
+            DomainIds = filters?.DomainIds,
             FindingTypes = filters?.FindingTypes,
             FindingSubTypes = filters?.FindingSubTypes,
             FindingNames = filters?.FindingNames,

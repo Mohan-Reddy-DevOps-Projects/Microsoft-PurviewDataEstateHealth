@@ -108,6 +108,12 @@ public class DHActionRepository(CosmosClient cosmosClient, IRequestHeaderContext
 
         if (filter != null)
         {
+            if (filter.DomainIds != null && filter.DomainIds.Any())
+            {
+                var domainIds = string.Join(", ", filter.DomainIds.Select(x => $"'{x}'"));
+                sqlQuery.Append($" AND c.DomainId IN ({domainIds})");
+            }
+
             if (filter.Status != null && filter.Status.Any())
             {
                 var statuses = string.Join(", ", filter.Status.Select(x => $"'{x}'"));

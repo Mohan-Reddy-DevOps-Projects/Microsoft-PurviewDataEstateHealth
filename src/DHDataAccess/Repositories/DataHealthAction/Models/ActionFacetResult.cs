@@ -17,4 +17,7 @@ public class ActionFacets
 
     [Facet(DataHealthActionWrapper.keyAssignedTo)]
     public FacetEntity? AssignedTo { get; set; }
+
+    [Facet(DataHealthActionWrapper.keyDomainId)]
+    public FacetEntity? DomainId { get; set; }
 }

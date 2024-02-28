@@ -11,7 +11,9 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
         [JsonProperty("status", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> Status { get; set; }
 
-        //Todo: add it later, there are issue while using Intersect in Cosmosdb
+        [JsonProperty("domainIds", NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> DomainIds { get; set; }
+
         [JsonProperty("assignedTo", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> AssignedTo { get; set; }
 
