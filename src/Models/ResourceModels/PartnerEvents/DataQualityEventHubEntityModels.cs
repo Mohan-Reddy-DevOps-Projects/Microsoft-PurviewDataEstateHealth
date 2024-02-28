@@ -138,6 +138,31 @@ public enum JobRunState
     Deleting
 }
 
+
+/// <summary>
+/// Domain model payload
+/// </summary>
+public class DomainModelEventHubPayloadEntityModel
+{
+    /// <summary>
+    /// JobType
+    /// </summary>
+    [JsonProperty("jobType")]
+    public string JobType { get; set; }
+}
+
+/// <summary>
+/// Domain model
+/// </summary>
+public class DomainModelEventHubEntityModel
+{
+    /// <summary>
+    /// Payload
+    /// </summary>
+    [JsonProperty("payload")]
+    public DomainModelEventHubPayloadEntityModel Payload { get; set; }
+}
+
 /// <summary>
 /// The data quality event model.
 /// </summary>
@@ -187,6 +212,14 @@ public class DataQualitySourceEventHubEntityModel : BaseEventHubEntityModel
     [JsonProperty("dimensionMapping")]
     [JsonConverter(typeof(CustomTypeConverter<Dictionary<string, string>>))]
     public string Dimensions { get; set; }
+
+
+    /// <summary>
+    /// Domain model.
+    /// </summary>
+    [JsonProperty("domainmodel")]
+    [JsonConverter(typeof(CustomTypeConverter<DomainModelEventHubEntityModel>))]
+    public string Domainmodel { get; set; }
 
     /// <inheritdoc/>
     public override PayloadKind GetPayloadKind() => PayloadKind.DataQualityFact;

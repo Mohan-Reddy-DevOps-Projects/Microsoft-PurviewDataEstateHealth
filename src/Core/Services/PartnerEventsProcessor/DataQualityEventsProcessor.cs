@@ -87,6 +87,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
             switch (eventHubModel.PayloadKind)
             {
                 case PayloadKind.DataQualityFact:
+                    this.DataEstateHealthRequestLogger.LogTrace($"Start to parse data quality event: {eventHubModel.AlternatePayload}");
                     this.ParseEventPayload(eventHubModel, dataQualityResultModels);
                     break;
                 default:
@@ -110,7 +111,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
             mdqJobModels.Add(dataQualityResultModel.Key, jobModels);
             foreach (DataQualitySourceEventHubEntityModel sourceModel in sourceModels)
             {
-                if (sourceModel.JobType == "MDQ")
+                if (sourceModel.JobType == "MDQ" || this.ParseJobType(sourceModel.Domainmodel) == "MDQ")
                 {
                     this.DataEstateHealthRequestLogger.LogInformation($"Process MDQ job. Job ID: {sourceModel.ResultId}. Job status: {sourceModel.JobStatus}.");
                     var resultId = this.ParseResultId(sourceModel.ResultId);
@@ -178,6 +179,20 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         {
             this.DataEstateHealthRequestLogger.LogError($"Failed to parse data quality job run id payload: {resultId}.", exception);
             throw;
+        }
+    }
+
+    private string ParseJobType(string domainmodel)
+    {
+        try
+        {
+            DomainModelEventHubEntityModel domainModel = JsonConvert.DeserializeObject<DomainModelEventHubEntityModel>(domainmodel ?? string.Empty);
+            return domainModel.Payload.JobType;
+        }
+        catch (JsonException exception)
+        {
+            this.DataEstateHealthRequestLogger.LogError($"Failed to parse job type: {domainmodel}.", exception);
+            return string.Empty;
         }
     }
 
