@@ -4,15 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
@@ -25,6 +16,15 @@ using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
 using Polly;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 /// <inheritdoc />
 public class JobManager : IJobManager
@@ -61,6 +61,8 @@ public class JobManager : IJobManager
 
     private const int SparkJobsStartTime = 7; //Minutes
     private const int SparkJobsRetryStrategyTime = 15; //Minutes
+
+    private EnvironmentConfiguration environmentConfiguration;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="JobManager" /> class.
@@ -99,6 +101,7 @@ public class JobManager : IJobManager
         this.requestContextAccessor = requestContextAccessor;
         this.dataEstateHealthRequestLogger = dataEstateHealthRequestLogger;
         this.WorkerJobExecutionContext = workerJobExecutionContext;
+        this.environmentConfiguration = environmentConfiguration.Value;
     }
 
     /// <inheritdoc />
@@ -354,7 +357,7 @@ public class JobManager : IJobManager
                     jobPartition,
                     jobId)
                 .WithStartTime(DateTime.UtcNow.AddMinutes(1))
-                .WithRepeatStrategy(TimeSpan.FromMinutes(15))
+                .WithRepeatStrategy(TimeSpan.FromMinutes(this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 5 : 15))
                 .WithRetryStrategy(TimeSpan.FromMinutes(5))
                 .WithoutEndTime();
 
