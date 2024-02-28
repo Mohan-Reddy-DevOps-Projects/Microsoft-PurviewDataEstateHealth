@@ -4,8 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
-using System;
 using Microsoft.Azure.Management.ResourceManager.Fluent;
+using System;
 using System.Collections.Generic;
 using Environment = Microsoft.Purview.DataGovernance.Common.Environment;
 
@@ -136,6 +136,15 @@ public class EnvironmentConfiguration
     public bool IsProductionEnvironmentExcludingCanary()
     {
         return this.Environment == Environment.Prod;
+    }
+
+    /// <summary>
+    /// Boolean indicating whether the current environment is Canary or not
+    /// </summary>
+    /// <returns></returns>
+    public bool IsCanaryEnvironment()
+    {
+        return this.Environment == Environment.Canary;
     }
 
     /// <summary>
