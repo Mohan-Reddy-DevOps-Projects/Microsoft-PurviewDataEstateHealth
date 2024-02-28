@@ -61,6 +61,15 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid facet field &apos;{0}&apos;. Available facets: {1}..
+        /// </summary>
+        public static string ErrorMessageInvalidFacet {
+            get {
+                return ResourceManager.GetString("ErrorMessageInvalidFacet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The request payload is invalid..
         /// </summary>
         public static string ErrorMessageInvalidPayload {

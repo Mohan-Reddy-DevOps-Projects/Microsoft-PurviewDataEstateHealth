@@ -57,6 +57,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     public const string keyFindingSubType = "findingSubType";
     public const string keyFindingName = "findingName";
     public const string keySeverity = "severity";
+    public const string keyAssignedTo = "assignedTo";
     private const string keyId = "id";
     private const string keyCategory = "category";
     private const string keyFindingId = "findingId";
@@ -65,7 +66,6 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     private const string keyStatus = "status";
     private const string keyTargetEntityType = "targetEntityType";
     private const string keyTargetEntityId = "targetEntityId";
-    private const string keyAssignedTo = "assignedTo";
     private const string keySystemData = "systemData";
     private const string KeyReason = "reason";
     private const string KeyExtraProperties = "extraProperties";

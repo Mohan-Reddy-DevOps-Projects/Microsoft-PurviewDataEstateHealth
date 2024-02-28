@@ -34,15 +34,15 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
         public List<string> TargetEntityIds { get; set; }
 
         [JsonProperty("createTimeRange", NullValueHandling = NullValueHandling.Ignore)]
-        public CreateTimeRangeFilterPyaload CreateTimeRange { get; set; }
+        public CreateTimeRangeFilterPayload CreateTimeRange { get; set; }
     }
 
-    public class CreateTimeRangeFilterPyaload
+    public class CreateTimeRangeFilterPayload
     {
         [JsonProperty("start", NullValueHandling = NullValueHandling.Ignore)]
-        public string Start { get; set; }
+        public DateTime? Start { get; set; }
 
         [JsonProperty("end", NullValueHandling = NullValueHandling.Ignore)]
-        public string End { get; set; }
+        public DateTime? End { get; set; }
     }
 }

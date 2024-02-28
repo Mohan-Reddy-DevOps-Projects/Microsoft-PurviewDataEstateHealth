@@ -27,6 +27,11 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             return await dataHealthActionRepository.GetActionsByFilterAsync(query);
         }
 
+        public async Task<ActionFacets> GetActionFacetsAsync(ActionsFilter filters, ActionFacets facets)
+        {
+            return await dataHealthActionRepository.GetActionFacetsAsync(filters, facets);
+        }
+
         public async Task<IEnumerable<GroupedActions>> EnumerateActionsByGroupAsync(CosmosDBQuery<ActionsFilter> query, string groupBy)
         {
             HashSet<string> allowedKeys = new HashSet<string>
