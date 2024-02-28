@@ -4,7 +4,6 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using System.Linq;
 
 [EntityWrapper(DHControlBaseWrapperDerivedTypes.Node, EntityCategory.Control)]
 public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObject)
@@ -24,12 +23,12 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
         set => this.SetTypePropertyValue(keyGroupId, value);
     }
 
-    private IList<string>? domains;
+    private IEnumerable<string>? domains;
 
     [EntityTypeProperty(keyDomains)]
-    public IList<string> Domains
+    public IEnumerable<string> Domains
     {
-        get => this.domains ??= (this.GetTypePropertyValues<string>(keyDomains)?.ToList() ?? []);
+        get => this.domains ??= (this.GetTypePropertyValues<string>(keyDomains) ?? []);
         set
         {
             this.SetTypePropertyValue(keyDomains, value);
@@ -39,7 +38,7 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
 
     private DHControlScheduleWrapper? schedule;
 
-    [EntityProperty(keySchedule)]
+    [EntityTypeProperty(keySchedule, true)] // TODO [YONW]: Currently we don't support schedule in control. We will make it as readonly and ignore it for now.
     public DHControlScheduleWrapper? Schedule
     {
         get

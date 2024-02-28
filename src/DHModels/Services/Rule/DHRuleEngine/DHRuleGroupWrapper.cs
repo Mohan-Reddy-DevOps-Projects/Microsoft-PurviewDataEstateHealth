@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ public class DHRuleGroupWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     public DHRuleGroupWrapper() : this([]) { }
 
     [EntityTypeProperty(keyGroupOperator)]
+    [EntityRequiredValidator]
     public DHRuleGroupOperator? GroupOperator
     {
         get
@@ -27,6 +29,8 @@ public class DHRuleGroupWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     private IEnumerable<DHRuleBaseWrapper>? rules;
 
     [EntityTypeProperty(keyRules)]
+    [EntityRequiredValidator]
+    [EntityArrayValidator(MinLength = 1)]
     public IEnumerable<DHRuleBaseWrapper> Rules
     {
         get => this.rules ??= this.GetTypePropertyValueAsWrappers<DHRuleBaseWrapper>(keyRules);

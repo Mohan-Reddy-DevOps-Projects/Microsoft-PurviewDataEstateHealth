@@ -2,6 +2,7 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
@@ -20,7 +21,9 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
 
     public static DHControlBaseWrapper Create(JObject jObject)
     {
-        return EntityWrapperHelper.CreateEntityWrapper<DHControlBaseWrapper>(EntityCategory.Control, EntityWrapperHelper.GetEntityType(jObject), jObject);
+        var entity = EntityWrapperHelper.CreateEntityWrapper<DHControlBaseWrapper>(EntityCategory.Control, EntityWrapperHelper.GetEntityType(jObject), jObject);
+        entity.Status ??= DHControlStatus.Enabled;
+        return entity;
     }
 
     public DHControlBaseWrapper() : this([]) { }
@@ -92,6 +95,11 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
 
     public override void OnUpdate(DHControlBaseWrapper existWrapper, string userId)
     {
+        if (existWrapper.Reserved)
+        {
+            throw new EntityReservedException();
+        }
+
         base.OnUpdate(existWrapper, userId);
 
         this.Reserved = existWrapper.Reserved;

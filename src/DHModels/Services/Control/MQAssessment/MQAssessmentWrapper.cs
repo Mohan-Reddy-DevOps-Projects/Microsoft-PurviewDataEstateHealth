@@ -3,6 +3,8 @@
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -23,6 +25,8 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
     public MQAssessmentWrapper() : this([]) { }
 
     [EntityProperty(keyName)]
+    [EntityRequiredValidator]
+    [EntityNameValidator]
     public string Name
     {
         get => this.GetPropertyValue<string>(keyName);
@@ -66,10 +70,22 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
         }
     }
 
-    [EntityProperty(keyReserved)]
+    [EntityProperty(keyReserved, true)]
     public bool Reserved
     {
         get => this.GetPropertyValue<bool>(keyReserved);
         set => this.SetPropertyValue(keyReserved, value);
+    }
+
+    public override void OnUpdate(MQAssessmentWrapper existWrapper, string userId)
+    {
+        if (existWrapper.Reserved)
+        {
+            throw new EntityReservedException();
+        }
+
+        base.OnUpdate(existWrapper, userId);
+
+        this.Reserved = existWrapper.Reserved;
     }
 }

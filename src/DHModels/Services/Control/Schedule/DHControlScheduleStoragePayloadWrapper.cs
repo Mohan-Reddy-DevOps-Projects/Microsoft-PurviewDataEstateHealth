@@ -2,7 +2,11 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Text.Json.Serialization;
 
 public class DHControlScheduleStoragePayloadWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHControlScheduleStoragePayloadWrapper>(jObject)
 {
@@ -15,10 +19,15 @@ public class DHControlScheduleStoragePayloadWrapper(JObject jObject) : Container
     private const string keyProperties = "properties";
 
     [EntityProperty(keyType)]
-    public string Type
+    [EntityRequiredValidator]
+    public DHControlScheduleType? Type
     {
-        get => this.GetPropertyValue<string>(keyType);
-        set => this.SetPropertyValue(keyType, value);
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyType);
+            return Enum.TryParse<DHControlScheduleType>(enumStr, true, out var result) ? result : null;
+        }
+        set => this.SetPropertyValue(keyType, value.ToString());
     }
 
     private DHControlScheduleWrapper? properties;
@@ -36,12 +45,12 @@ public class DHControlScheduleStoragePayloadWrapper(JObject jObject) : Container
     public override void OnCreate(string userId)
     {
         base.OnCreate(userId);
-
     }
 }
 
-public static class DHControlScheduleType
+[JsonConverter(typeof(StringEnumConverter))]
+public enum DHControlScheduleType
 {
-    public const string ControlGlobal = "ControlGlobal";
-    public const string ControlNode = "ControlNode";
+    ControlGlobal,
+    ControlNode,
 }

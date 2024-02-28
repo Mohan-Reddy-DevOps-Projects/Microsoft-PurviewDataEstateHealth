@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-
+#nullable enable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
@@ -12,13 +12,11 @@ using System;
 
 public class ActionSystemDataWrapper(JObject jObject) : BaseEntityWrapper(jObject)
 {
-
     private const string keyCreatedAt = "createdAt";
     private const string keyLastModifiedAt = "lastModifiedAt";
     private const string keyLastModifiedBy = "lastModifiedBy";
     private const string keyHintCount = "hintCount";
     private const string keyLastHintAt = "lastHintAt";
-
 
     public ActionSystemDataWrapper() : this([]) { }
 

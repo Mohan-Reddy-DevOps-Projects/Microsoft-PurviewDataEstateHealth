@@ -18,7 +18,7 @@ public class DHControlScheduleRepository(CosmosClient cosmosClient, IRequestHead
 
     protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
-    public async Task<IEnumerable<DHControlScheduleStoragePayloadWrapper>> QueryScheduleAsync(string scheduleType)
+    public async Task<IEnumerable<DHControlScheduleStoragePayloadWrapper>> QueryScheduleAsync(DHControlScheduleType scheduleType)
     {
         var query = this.CosmosContainer.GetItemLinqQueryable<DHControlScheduleStoragePayloadWrapper>(
             requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })

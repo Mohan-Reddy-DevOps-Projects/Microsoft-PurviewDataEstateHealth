@@ -617,6 +617,11 @@ components:
                         type: string
                         description: The palette id of the control.
                         example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+            status:
+              type: string
+              enum: [Enabled, Disabled]
+              description: The status of the control.
+              example: "Enabled"
             type:
               type: string
               enum: [ControlGroup, ControlNode]
@@ -1211,10 +1216,8 @@ components:
             type: string
           description: The control ids of the alert entity.
           example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
-        rules:
-          type: array
-          items:
-            $ref: "#/components/schemas/Rule"
+        rule:
+          $ref: "#/components/schemas/Rule"
           description: The rules of the alert entity.
         notify:
           type: array

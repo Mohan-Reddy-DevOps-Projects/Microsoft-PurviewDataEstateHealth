@@ -180,11 +180,17 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
         set => this.SetPropertyValue(keyTargetEntityId, value);
     }
 
+    private IEnumerable<string>? assignedTo;
+
     [EntityProperty(keyAssignedTo)]
-    public IList<string> AssignedTo
+    public IEnumerable<string> AssignedTo
     {
-        get => this.GetPropertyValue<IList<string>>(keyAssignedTo);
-        set => this.SetPropertyValue(keyAssignedTo, value);
+        get => this.assignedTo ??= (this.GetPropertyValues<string>(keyAssignedTo) ?? []);
+        set
+        {
+            this.SetPropertyValue(keyAssignedTo, value);
+            this.assignedTo = value;
+        }
     }
 
     private ActionSystemDataWrapper? systemData;
@@ -228,18 +234,18 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
         }
     }
 
-    public void onCreate(DateTime? createAt = null)
+    public override void OnCreate(string userId)
     {
+        base.OnCreate(userId);
+
         this.SystemInfo = new ActionSystemDataWrapper(DateTime.UtcNow);
     }
 
-    public void OnReplace(DataHealthActionWrapper existed)
+    public override void OnUpdate(DataHealthActionWrapper existed, string userId)
     {
-        Ensure.IsNotNull(existed, nameof(existed));
-        this.Id = existed.Id;
+        base.OnUpdate(existed, userId);
+
         this.SystemInfo = existed.SystemInfo;
-        this.AccountId = existed.AccountId;
-        this.TenantId = existed.TenantId;
-        this.AuditLogs = existed.AuditLogs;
+        this.SystemInfo.OnModify(userId);
     }
 }

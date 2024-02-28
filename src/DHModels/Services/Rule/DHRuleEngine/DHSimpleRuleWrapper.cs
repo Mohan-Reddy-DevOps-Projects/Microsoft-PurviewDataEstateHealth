@@ -2,6 +2,7 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHCheckPoint;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 
@@ -15,6 +16,7 @@ public class DHSimpleRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     public DHSimpleRuleWrapper() : this([]) { }
 
     [EntityTypeProperty(keyCheckPoint)]
+    [EntityRequiredValidator]
     public DHCheckPoints? CheckPoint
     {
         get
@@ -26,6 +28,7 @@ public class DHSimpleRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
     }
 
     [EntityTypeProperty(keyOperator)]
+    [EntityRequiredValidator]
     public DHOperator? Operator
     {
         get

@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-
+#nullable enable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
@@ -22,7 +22,6 @@ public enum DHActionType
 
 public class ActionExtraPropertiesWrapper(JObject jObject) : BaseEntityWrapper(jObject)
 {
-
     private const string keyType = "type";
     private const string KeyData = "data";
 

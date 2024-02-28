@@ -77,8 +77,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                 }
                 else
                 {
-                    action.Id = Guid.NewGuid().ToString();
-                    action.onCreate();
+                    action.OnCreate(requestHeaderContext.ClientObjectId);
                     createActionList.Add(action);
                 }
             }
@@ -116,10 +115,12 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
             var existedAction = await this.GetExistedAction(actionId).ConfigureAwait(false);
 
-            action.OnReplace(existedAction);
+            if (existedAction == null)
+            {
+                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Action.ToString(), actionId));
+            }
 
-            var clientObjectId = requestHeaderContext.ClientObjectId?.ToString();
-            existedAction.SystemInfo.OnModify(clientObjectId);
+            action.OnUpdate(existedAction, requestHeaderContext.ClientObjectId);
 
             await dataHealthActionRepository.UpdateAsync(action).ConfigureAwait(false);
             return action;

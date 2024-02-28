@@ -90,32 +90,56 @@ public class DHControlSchedulePropertiesWrapper(JObject jObject) : BaseEntityWra
 
     public DHControlSchedulePropertiesWrapper() : this([]) { }
 
+    private IEnumerable<int>? hours;
+
     [EntityProperty(keyHours)]
-    public IList<int> Hours
+    public IEnumerable<int> Hours
     {
-        get => this.GetPropertyValues<int>(keyHours)?.ToList() ?? [];
-        set => this.SetPropertyValue(keyHours, value);
+        get => this.hours ??= (this.GetPropertyValues<int>(keyHours) ?? []);
+        set 
+        {
+            this.hours = value;
+            this.SetPropertyValue(keyHours, value);
+        }
     }
+
+    private IEnumerable<int>? minutes;
 
     [EntityProperty(keyMinutes)]
-    public IList<int> Minutes
+    public IEnumerable<int> Minutes
     {
-        get => this.GetPropertyValue<IList<int>>(keyMinutes);
-        set => this.SetPropertyValue(keyMinutes, value);
+        get => this.minutes ??= (this.GetPropertyValues<int>(keyMinutes) ?? []);
+        set
+        {
+            this.minutes = value;
+            this.SetPropertyValue(keyMinutes, value);
+        }
     }
+
+    private IEnumerable<int>? monthDays;
 
     [EntityProperty(keyMonthDays)]
-    public IList<int> MonthDays
+    public IEnumerable<int> MonthDays
     {
-        get => this.GetPropertyValue<IList<int>>(keyMonthDays);
-        set => this.SetPropertyValue(keyMonthDays, value);
+        get => this.monthDays ??= (this.GetPropertyValues<int>(keyMonthDays) ?? []);
+        set
+        {
+            this.monthDays = value;
+            this.SetPropertyValue(keyMonthDays, value);
+        }
     }
 
+    private IEnumerable<int>? weekDays;
+
     [EntityProperty(keyWeekDays)]
-    public IList<int> WeekDays
+    public IEnumerable<int> WeekDays
     {
-        get => this.GetPropertyValue<IList<int>>(keyWeekDays);
-        set => this.SetPropertyValue(keyWeekDays, value);
+        get => this.weekDays ??= (this.GetPropertyValues<int>(keyWeekDays) ?? []);
+        set
+        {
+            this.weekDays = value;
+            this.SetPropertyValue(keyWeekDays, value);
+        }
     }
 
     private DHControlScheduleMonthlyOccurrencesWrapper? monthlyOccurrences;
