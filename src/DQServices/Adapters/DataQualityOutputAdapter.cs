@@ -66,7 +66,10 @@ public class DataQualityOutputAdapter
 
                             result.Add(new DHRawScore()
                             {
-                                // EntityId = id,
+                                EntityPayload = new JObject()
+                                {
+                                    { "id", id }
+                                },
                                 Scores = scores
                             });
                         }
