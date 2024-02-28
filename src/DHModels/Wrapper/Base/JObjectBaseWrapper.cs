@@ -7,6 +7,7 @@
 #nullable disable
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
 {
+    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
     {
         public const StringComparison PropertyNameComparison = StringComparison.OrdinalIgnoreCase;
 
+        [JsonIgnore]
         public JObject JObject { get; private set; }
 
         public JObjectBaseWrapper(JObject jObject)

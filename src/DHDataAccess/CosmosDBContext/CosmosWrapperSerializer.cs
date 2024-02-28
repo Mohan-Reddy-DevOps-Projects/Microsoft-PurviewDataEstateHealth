@@ -130,10 +130,20 @@ public class CosmosWrapperSerializer : CosmosSerializer
     public override Stream ToStream<T>(T input)
     {
         var stream = new MemoryStream();
+
+        // Convert the input object to JObject
+        JObject jObject = JObject.FromObject(input, this.serializer);
+
+        // Modify the JObject here as needed
+        if (input is JObjectBaseWrapper jObjectBaseWrapper)
+        {
+            jObject.Add(nameof(JObjectBaseWrapper.JObject), jObjectBaseWrapper.JObject);
+        }
+
         using (var sw = new StreamWriter(stream, leaveOpen: true))
         using (var writer = new JsonTextWriter(sw))
         {
-            this.serializer.Serialize(writer, input);
+            this.serializer.Serialize(writer, jObject);
             writer.Flush();
             sw.Flush();
         }
