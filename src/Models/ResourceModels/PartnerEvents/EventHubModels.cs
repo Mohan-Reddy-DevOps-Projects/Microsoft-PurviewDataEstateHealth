@@ -4,8 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
 /// <summary>
@@ -136,7 +136,12 @@ public enum EventOperationType
     /// <summary>
     /// Delete
     /// </summary>
-    Delete
+    Delete,
+
+    /// <summary>
+    /// Failure
+    /// </summary>
+    Failure
 }
 
 /// <summary>
