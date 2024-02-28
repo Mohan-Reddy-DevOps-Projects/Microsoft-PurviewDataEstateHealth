@@ -43,6 +43,11 @@ public class DatasetToDatasourceMapping
 
 public class ErrorOutputInfo
 {
+    public static string GeneratePartOfFolderPath(string dataProductId, string dataAssetId)
+    {
+        return $"all-errors/businessDomain={DataEstateHealthConstants.DEH_DOMAIN_ID}/dataProduct={dataProductId}/dataAsset={dataAssetId}";
+    }
+
     public ErrorOutputInfo(
         // e.g. https://dgprocessingwus2cyqgjoc.z28.blob.storage.azure.net
         string storageEndpoint,
@@ -56,7 +61,7 @@ public class ErrorOutputInfo
         this.DnsZone = splited[1];
 
         this.FileSystem = catalogId;
-        this.FolderPath = $"all-errors/businessDomain={DataEstateHealthConstants.DEH_DOMAIN_ID}/dataProduct={dataProductId}/dataAsset={dataAssetId}";
+        this.FolderPath = GeneratePartOfFolderPath(dataProductId, dataAssetId);
     }
 
     [JsonProperty("name")]

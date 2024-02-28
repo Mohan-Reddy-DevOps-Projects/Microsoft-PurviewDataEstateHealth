@@ -8,5 +8,5 @@ public interface IDataQualityExecutionService
 {
     public Task<string> SubmitDQJob(string accountId, string controlId, string healthJobId);
 
-    public Task<IEnumerable<DHRawScore>> ParseDQResult(string accountId, string dataProductId, string dataAssetId, string jobId);
+    public Task<IEnumerable<DHRawScore>> ParseDQResult(string accountId, string controlId, string healthJobId, string dqJobId);
 }

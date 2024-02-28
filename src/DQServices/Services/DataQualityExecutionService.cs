@@ -29,19 +29,20 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
     public async Task<IEnumerable<DHRawScore>> ParseDQResult(
         string accountId,
-        string dataProductId,
-        string dataAssetId,
-        string jobId)
+        string controlId,
+        string healthJobId,
+        string dqJobId)
     {
+        var dataProductId = controlId;
+        var dataAssetId = healthJobId;
+
         var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
 
-        var folderPath = "mdq/DataCatalog/DataAsset/errors";
-        var fileName = "part-merged.snappy.parquet";
+        var folderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={dqJobId}";
 
         var parquetStream = await this.processingStorageManager.GetDataQualityOutput(
             accountStorageModel,
-            folderPath,
-            fileName).ConfigureAwait(false);
+            folderPath).ConfigureAwait(false);
 
         var memoryStream = new MemoryStream();
         await parquetStream.CopyToAsync(memoryStream).ConfigureAwait(false);

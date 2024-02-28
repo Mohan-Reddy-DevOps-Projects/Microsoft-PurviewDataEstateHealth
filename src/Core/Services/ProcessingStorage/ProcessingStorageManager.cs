@@ -186,13 +186,23 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
 
     public async Task<Stream> GetDataQualityOutput(
         ProcessingStorageModel processingStorageModel,
-        string folderPath,
-        string fileName)
+        string folderPath)
     {
         string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
         var serviceClient = new DataLakeServiceClient(new Uri(serviceEndpoint), this.tokenCredential);
         var fileSystemClient = serviceClient.GetFileSystemClient(processingStorageModel.CatalogId.ToString()); ;
         var directoryClient = fileSystemClient.GetDirectoryClient(folderPath);
+
+        var fileName = string.Empty;
+        await foreach (var pathItem in directoryClient.GetPathsAsync())
+        {
+            // Just read the first one, there should be only one file
+            fileName = pathItem.Name;
+            break;
+        }
+
+        fileName = fileName.Split("/").Last();
+
         var fileClient = directoryClient.GetFileClient(fileName);
 
         var fileResponse = await fileClient.ReadAsync().ConfigureAwait(false);

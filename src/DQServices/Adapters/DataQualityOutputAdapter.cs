@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 public class DataQualityOutputAdapter
 {
-    private static readonly string COL_NAME_ID = "Id";
+    private static readonly string COL_NAME_ID = "DataProductId";
     private static readonly string COL_NAME_RULE_NAME = "key";
     private static readonly string COL_NAME_RULE_RESULT = "value";
 
@@ -23,50 +23,53 @@ public class DataQualityOutputAdapter
             // Get the schema  
             var schema = parquetReader.Schema;
             var dataFields = schema.GetDataFields();
-            var idColumnField = dataFields.First(c => c.Name == COL_NAME_ID);
-            var ruleNameColumnField = dataFields.First(c => c.Name == COL_NAME_RULE_NAME);
-            var ruleResultColumnField = dataFields.First(c => c.Name == COL_NAME_RULE_RESULT);
+            var idColumnField = dataFields.FirstOrDefault(c => c.Name == COL_NAME_ID, null);
+            var ruleNameColumnField = dataFields.FirstOrDefault(c => c.Name == COL_NAME_RULE_NAME, null);
+            var ruleResultColumnField = dataFields.FirstOrDefault(c => c.Name == COL_NAME_RULE_RESULT, null);
 
-            for (int rowGroupIndex = 0; rowGroupIndex < parquetReader.RowGroupCount; rowGroupIndex++)
+            if (idColumnField != null && ruleNameColumnField != null && ruleResultColumnField != null)
             {
-                using (ParquetRowGroupReader groupReader = parquetReader.OpenRowGroupReader(rowGroupIndex))
+                for (int rowGroupIndex = 0; rowGroupIndex < parquetReader.RowGroupCount; rowGroupIndex++)
                 {
-
-                    // Process the data in columns.  
-                    for (int rowIndex = 0; rowIndex < groupReader.RowCount; rowIndex++)
+                    using (ParquetRowGroupReader groupReader = parquetReader.OpenRowGroupReader(rowGroupIndex))
                     {
-                        // Read all columns in the Parquet file.  
-                        var idColumn = await groupReader.ReadColumnAsync(idColumnField).ConfigureAwait(false);
-                        var ruleNamesColumn = await groupReader.ReadColumnAsync(ruleNameColumnField).ConfigureAwait(false);
-                        var ruleResultsColumn = await groupReader.ReadColumnAsync(ruleResultColumnField).ConfigureAwait(false);
 
-                        var id = ((string[])idColumn.Data)[0];
-                        var ruleNames = ((string[])ruleNamesColumn.Data);
-                        var ruleResults = ((string[])ruleResultsColumn.Data);
-
-                        var scores = new List<DHScoreUnitWrapper>();
-
-                        for (int ruleIndex = 0; ruleIndex < ruleNames.Length; ruleIndex++)
+                        // Process the data in columns.  
+                        for (int rowIndex = 0; rowIndex < groupReader.RowCount; rowIndex++)
                         {
-                            var unit = new DHScoreUnitWrapper(new JObject());
-                            // TODO jar
-                            if (ruleNames[ruleIndex] == "notNullDescription")
+                            // Read all columns in the Parquet file.  
+                            var idColumn = await groupReader.ReadColumnAsync(idColumnField).ConfigureAwait(false);
+                            var ruleNamesColumn = await groupReader.ReadColumnAsync(ruleNameColumnField).ConfigureAwait(false);
+                            var ruleResultsColumn = await groupReader.ReadColumnAsync(ruleResultColumnField).ConfigureAwait(false);
+
+                            var id = ((string[])idColumn.Data)[0];
+                            var ruleNames = ((string[])ruleNamesColumn.Data);
+                            var ruleResults = ((string[])ruleResultsColumn.Data);
+
+                            var scores = new List<DHScoreUnitWrapper>();
+
+                            for (int ruleIndex = 0; ruleIndex < ruleNames.Length; ruleIndex++)
                             {
-                                unit.Name = "DPDescriptionNotNull";
+                                var unit = new DHScoreUnitWrapper(new JObject());
+                                // TODO jar
+                                if (ruleNames[ruleIndex] == "notNullDescription")
+                                {
+                                    unit.Name = "DPDescriptionNotNull";
+                                }
+                                else
+                                {
+                                    unit.Name = ruleNames[ruleIndex];
+                                }
+                                unit.Score = ruleResults[ruleIndex] == "PASS" ? 1 : 0;
+                                scores.Add(unit);
                             }
-                            else
+
+                            result.Add(new DHRawScore()
                             {
-                                unit.Name = ruleNames[ruleIndex];
-                            }
-                            unit.Score = ruleResults[ruleIndex] == "PASS" ? 1 : 0;
-                            scores.Add(unit);
+                                // EntityId = id,
+                                Scores = scores
+                            });
                         }
-
-                        result.Add(new DHRawScore()
-                        {
-                            // EntityId = id,
-                            Scores = scores
-                        });
                     }
                 }
             }

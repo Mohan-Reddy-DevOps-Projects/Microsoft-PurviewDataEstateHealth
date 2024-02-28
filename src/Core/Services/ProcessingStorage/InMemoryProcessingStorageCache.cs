@@ -87,9 +87,9 @@ internal class InMemoryProcessingStorageCache : IProcessingStorageManager
         await this.repository.Provision(accountServiceModel, cancellationToken);
     }
 
-    public async Task<Stream> GetDataQualityOutput(Models.ProcessingStorageModel processingStorageModel, string folderPath, string fileName)
+    public async Task<Stream> GetDataQualityOutput(Models.ProcessingStorageModel processingStorageModel, string folderPath)
     {
-        return await this.repository.GetDataQualityOutput(processingStorageModel, folderPath, fileName);
+        return await this.repository.GetDataQualityOutput(processingStorageModel, folderPath);
     }
 
     public async Task<string> GetSasTokenForDQ(Models.ProcessingStorageModel processingStorageModel, Models.StorageSasRequest parameters)

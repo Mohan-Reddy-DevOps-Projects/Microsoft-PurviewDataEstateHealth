@@ -66,7 +66,7 @@ public interface IProcessingStorageManager
     /// <returns></returns>
     Task<string> ConstructContainerPath(string containerName, Guid accountId, CancellationToken cancellationToken);
 
-    Task<Stream> GetDataQualityOutput(ProcessingStorageModel processingStorageModel, string folderPath, string fileName);
+    Task<Stream> GetDataQualityOutput(ProcessingStorageModel processingStorageModel, string folderPath);
 
     Task<string> GetSasTokenForDQ(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters);
 }
