@@ -23,8 +23,11 @@
         "coreResourceGroupName": {
             "value": "__CORE_RESOURCE_GROUP_NAME__"
         },
-        "eventHubNamespaceName": {
-            "value": "__CATALOG_EVENT_HUB_NAMESPACE_NAME__"
+        "sharedEventHubNamespaceName": {
+            "value": "__CORE_SHARED_EVENT_HUB_NAMESPACE_NAME__"
+        },
+        "secondarySharedEventHubName": {
+            "value": "__CORE_SECONDARY_SHARED_EVENT_HUB_NAME__"
         },
         "jobStorageAccountName": {
             "value": "__INFRA_JOB_STORAGE_ACCOUNT_NAME__"
@@ -61,6 +64,13 @@
         },
         "sqlAdminPassSecretName": {
             "value": "__INFRA_SQL_ADMIN_PASS_SECRET_NAME__"
+        },
+        //Remove after EH migraiton
+        "catalogEventHubName": {
+            "value": "__CATALOG_EVENT_HUB_NAMESPACE_NAME__"
+        },
+        "tempEventHubName": {
+            "value": "__CORE_TEMP_EVENT_HUB_NAMESPACE_NAME__"
         }
     }
 }

@@ -5,7 +5,8 @@ param catalogSubscriptionId string
 param commonStorageAccountName string
 param containerAppIdentityName string
 param coreResourceGroupName string
-param eventHubNamespaceName string
+param sharedEventHubNamespaceName string
+param secondarySharedEventHubName string
 param jobStorageAccountName string
 param keyVaultName string
 param sqlAdminUserSecretName string
@@ -21,6 +22,10 @@ param synapseLocation string
 param synapseDatabaseName string
 param subscriptionId string = subscription().subscriptionId
 param forceUpdateTag string = utcNow()
+
+//remove after EH migration
+param catalogEventHubName string
+param tempEventHubName string
 
 var contributorRoleDefName = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 var azureEventHubsDataReceiverRoleDefName = 'a638d3c7-ab3a-418d-83e6-5f17a39d4fde'
@@ -482,11 +487,21 @@ module processingStorageSubTableDataContributorRoleModule 'subscriptionRoleAssig
   }
 }]
 
+
 module eventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
-  name: 'eventHubNamespaceRoleDeploy'
-  scope: resourceGroup(catalogSubscriptionId, catalogResourceGroupName)
+  name: 'sharedEventHubNamespaceRoleDeploy'
+  scope: resourceGroup(coreResourceGroupName)
   params: {
-    eventHubNamespaceName: eventHubNamespaceName
+    eventHubNamespaceName: sharedEventHubNamespaceName
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: azureEventHubsDataReceiverRoleDefName
+  }
+}
+module secondaryEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
+  name: 'secondarySharedEventHubNamespaceRoleDeploy'
+  scope: resourceGroup(coreResourceGroupName)
+  params: {
+    eventHubNamespaceName: secondarySharedEventHubName
     principalId: containerAppIdentity.properties.principalId
     roleDefinitionName: azureEventHubsDataReceiverRoleDefName
   }
@@ -494,3 +509,25 @@ module eventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
 
 output containerAppIdentityClientId string = containerAppIdentity.properties.clientId
 output containerAppIdentityObjectId string = containerAppIdentity.properties.principalId
+
+
+//Remove after EH migration
+module catalogEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
+  name: 'catalogEventHubNamespaceRoleDeploy'
+  scope: resourceGroup(catalogSubscriptionId, catalogResourceGroupName)
+  params: {
+    eventHubNamespaceName: catalogEventHubName
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: azureEventHubsDataReceiverRoleDefName
+  }
+}
+
+module tempEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
+  name: 'tempeventHubNamespaceRoleDeploy'
+  scope: resourceGroup(coreResourceGroupName)
+  params: {
+    eventHubNamespaceName: tempEventHubName
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: azureEventHubsDataReceiverRoleDefName
+  }
+}
