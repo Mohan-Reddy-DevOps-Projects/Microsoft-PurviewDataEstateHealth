@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services;
 
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
@@ -11,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,13 +20,16 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 {
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly DataQualityServiceClientFactory dataQualityServiceClientFactory;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     public DataQualityExecutionService(
         IProcessingStorageManager processingStorageManager,
-        DataQualityServiceClientFactory dataQualityServiceClientFactory)
+        DataQualityServiceClientFactory dataQualityServiceClientFactory,
+        IDataEstateHealthRequestLogger logger)
     {
         this.processingStorageManager = processingStorageManager;
         this.dataQualityServiceClientFactory = dataQualityServiceClientFactory;
+        this.logger = logger;
     }
 
     public async Task<IEnumerable<DHRawScore>> ParseDQResult(
@@ -33,6 +38,8 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         string healthJobId,
         string dqJobId)
     {
+        this.logger.LogInformation($"Start ParseDQResult, accountId:{accountId}, controlId:{controlId}, healthJobId:{healthJobId}, dqJobId:{dqJobId}");
+
         var dataProductId = controlId;
         var dataAssetId = healthJobId;
 
@@ -49,16 +56,26 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
         var result = await DataQualityOutputAdapter.ToScorePayload(memoryStream).ConfigureAwait(false);
 
+        this.logger.LogInformation($"End ParseDQResult, resultCount:{result.Count()}");
+        if (result.Count() > 0)
+        {
+            this.logger.LogInformation($"End ParseDQResult, parsedRuleCount:{result.First().Scores.Count()}");
+        }
+
         return result;
     }
 
     // TODO Will add more params later
     public async Task<string> SubmitDQJob(string accountId, string controlId, string healthJobId)
     {
+        this.logger.LogInformation($"Start SubmitDQJOb, accountId:{accountId}, controlId:{controlId}, healthJobId:{healthJobId}");
+
         // Query storage account
         var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
         var dfsEndpoint = accountStorageModel.GetDfsEndpoint();
         var catalogId = accountStorageModel.CatalogId.ToString();
+
+        this.logger.LogInformation($"Found storage account, dfsEndpoint:{dfsEndpoint}, catalogId:{catalogId}");
 
         var dataProductId = controlId;
         var dataAssetId = healthJobId;
@@ -79,14 +96,14 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
 
         // TODO For debug
-        var str = JsonConvert.SerializeObject(observer.JObject);
-        await dataQualityServiceClient.Test().ConfigureAwait(false);
+        var observerPayload = JsonConvert.SerializeObject(observer.JObject);
+        this.logger.LogInformation($"Observer payload: {observerPayload}");
 
         // Create a temporary observer
         await dataQualityServiceClient.CreateObserver(observer, accountId).ConfigureAwait(false);
 
         // Trigger run
-        var jobId = await dataQualityServiceClient.TriggerJobRun(
+        var dqJobId = await dataQualityServiceClient.TriggerJobRun(
             accountId,
             dataProductId,
             dataAssetId,
@@ -96,6 +113,8 @@ public class DataQualityExecutionService : IDataQualityExecutionService
                 dataProductId,
                 dataAssetId)).ConfigureAwait(false);
 
-        return jobId;
+        this.logger.LogInformation($"End SubmitDQJOb, dqJobId:{dqJobId}");
+
+        return dqJobId;
     }
 }

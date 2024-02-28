@@ -19,6 +19,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Common;
 using System.Threading;
@@ -149,6 +150,8 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
 
     public async Task<string> GetSasTokenForDQ(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters)
     {
+        this.logger.LogInformation($"Start GetSasTokenForDQ");
+
         string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
         DataLakeServiceClient serviceClient = new(new Uri(serviceEndpoint), this.tokenCredential);
 
@@ -171,6 +174,8 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
 
         var sas = sasBuilder.ToSasQueryParameters(userDelegationKey, processingStorageModel.GetStorageAccountName());
 
+        this.logger.LogInformation($"End GetSasTokenForDQ");
+
         return sas.ToString();
     }
 
@@ -188,6 +193,8 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         ProcessingStorageModel processingStorageModel,
         string folderPath)
     {
+        this.logger.LogInformation($"Start GetDataQualityOutput, folderPath:{folderPath}");
+
         string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
         var serviceClient = new DataLakeServiceClient(new Uri(serviceEndpoint), this.tokenCredential);
         var fileSystemClient = serviceClient.GetFileSystemClient(processingStorageModel.CatalogId.ToString()); ;
@@ -201,7 +208,14 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
             break;
         }
 
+        if (string.IsNullOrEmpty(fileName))
+        {
+            throw new ServiceException($"No error output file found, dfsEndpoint: {serviceEndpoint}, folderPath:{folderPath}");
+        }
+
         fileName = fileName.Split("/").Last();
+
+        this.logger.LogInformation($"Found error output file, fileName:{fileName}");
 
         var fileClient = directoryClient.GetFileClient(fileName);
 
