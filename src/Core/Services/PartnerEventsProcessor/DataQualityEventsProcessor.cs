@@ -68,17 +68,20 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         this.DataEstateHealthRequestLogger.LogTrace($"Attempting to persisting {this.EventProcessorType} events under {storageEndpoint} for account Id: {accountId}.");
         IDeltaLakeOperator deltaTableWriter = this.DeltaWriterFactory.Build(new Uri(storageEndpoint), this.AzureCredentialFactory.CreateDefaultAzureCredential(new Uri(this.eventHubConfiguration.Authority)));
 
-        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels = await this.PrepareAndUploadSourcePayloads(events, deltaTableWriter);
-        this.DataEstateHealthRequestLogger.LogTrace($"Persisted {dataQualityResultModels.Values.Sum(i => i.Count)} {this.EventProcessorType} source events for account Id: {accountId}.");
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualitySourceModels = this.ParseSourcePayloads(events);
+        this.DataEstateHealthRequestLogger.LogTrace($"Parsed {dataQualitySourceModels.Values.Sum(i => i.Count)} {this.EventProcessorType} source events for account Id: {accountId}.");
 
-        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqJobModels = await this.UpdateMDQJobStatus(dataQualityResultModels);
-        this.DataEstateHealthRequestLogger.LogTrace($"Persisted {mdqJobModels.Values.Sum(i => i.Count)} {this.EventProcessorType} MDQ events for account Id: {accountId}.");
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqJobModels = await this.UpdateMDQJobStatus(dataQualitySourceModels);
+        this.DataEstateHealthRequestLogger.LogTrace($"Updated {mdqJobModels.Values.Sum(i => i.Count)} {this.EventProcessorType} MDQ events for account Id: {accountId}.");
+
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels = await this.PrepareAndUploadSourcePayloads(dataQualitySourceModels, deltaTableWriter);
+        this.DataEstateHealthRequestLogger.LogTrace($"Persisted {dataQualityResultModels.Values.Sum(i => i.Count)} {this.EventProcessorType} source events for account Id: {accountId}.");
 
         Dictionary<EventOperationType, List<DataQualitySinkEventHubEntityModel>> dataQualityScoreModels = await this.PrepareAndUploadSinkPayloads(dataQualityResultModels, deltaTableWriter);
         this.DataEstateHealthRequestLogger.LogTrace($"Persisted {dataQualityScoreModels.Values.Sum(i => i.Count)} {this.EventProcessorType} sink events for account Id: {accountId}.");
     }
 
-    private async Task<Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>>> PrepareAndUploadSourcePayloads(List<EventHubModel> events, IDeltaLakeOperator deltaTableWriter)
+    private Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> ParseSourcePayloads(List<EventHubModel> events)
     {
         Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels = new();
 
@@ -95,7 +98,11 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
                     break;
             }
         }
+        return dataQualityResultModels;
+    }
 
+    private async Task<Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>>> PrepareAndUploadSourcePayloads(Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels, IDeltaLakeOperator deltaTableWriter)
+    {
         await this.PersistToStorage(dataQualityResultModels, deltaTableWriter, nameof(EventSourceType.DataQuality));
         return dataQualityResultModels;
     }
@@ -115,13 +122,20 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
                 {
                     this.DataEstateHealthRequestLogger.LogInformation($"Process MDQ job. Job ID: {sourceModel.ResultId}. Job status: {sourceModel.JobStatus}.");
                     var resultId = this.ParseResultId(sourceModel.ResultId);
-                    jobModels.Add(sourceModel);
                     var payload = new MDQJobCallbackPayload
                     {
                         DQJobId = resultId.JobId,
                         JobStatus = sourceModel.JobStatus,
                     };
-                    await this.dataHealthApiService.TriggerMDQJobCallback(payload).ConfigureAwait(false);
+                    try
+                    {
+                        await this.dataHealthApiService.TriggerMDQJobCallback(payload).ConfigureAwait(false);
+                        jobModels.Add(sourceModel);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.DataEstateHealthRequestLogger.LogError("Fail to trigger MDQ job callback", ex);
+                    }
                 }
             }
         }
