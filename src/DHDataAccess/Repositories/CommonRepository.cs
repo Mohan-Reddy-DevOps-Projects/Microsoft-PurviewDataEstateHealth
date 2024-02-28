@@ -29,34 +29,33 @@ public abstract class CommonRepository<TEntity>(IRequestHeaderContext requestHea
         return response.Resource;
     }
 
-    public virtual async Task<IEnumerable<TEntity>> AddAsync(IEnumerable<TEntity> entities)
+    public virtual async Task<IReadOnlyList<TEntity>> AddAsync(IReadOnlyList<TEntity> entities)
     {
         if (!entities.Any())
         {
             return [];
         }
 
-        // Materialize the incoming sequence into a List to ensure it's only evaluated once
-        var materializedEntities = entities.ToList();
-
-        foreach (var entity in materializedEntities)
-        {
-            this.PopulateMetadataForEntity(entity);
-        }
+        entities.ForEach(this.PopulateMetadataForEntity);
         var batch = this.CosmosContainer.CreateTransactionalBatch(this.TenantPartitionKey);
 
-        foreach (var entity in materializedEntities)
+        foreach (var entity in entities)
         {
             batch.CreateItem(entity);
         }
 
         await batch.ExecuteAsync().ConfigureAwait(false);
 
-        return materializedEntities;
+        return entities;
     }
 
-    public virtual async Task<IEnumerable<TEntity>> UpdateAsync(IEnumerable<TEntity> entities)
+    public virtual async Task<IReadOnlyList<TEntity>> UpdateAsync(IReadOnlyList<TEntity> entities)
     {
+        if (!entities.Any())
+        {
+            return [];
+        }
+
         entities.ForEach(this.PopulateMetadataForEntity);
         var batch = this.CosmosContainer.CreateTransactionalBatch(this.TenantPartitionKey);
 

@@ -57,7 +57,7 @@
                                         default:
                                             throw new NotImplementedException($"Target entity type {assessment.TargetEntityType} not supported yet!");
                                     }
-                                });
+                                }).ToList();
                                 await dhScoreRepository.AddAsync(scoreWrappers).ConfigureAwait(false);
                                 break;
                             default:
