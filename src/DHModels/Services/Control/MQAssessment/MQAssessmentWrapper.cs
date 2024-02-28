@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
@@ -44,12 +43,12 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
         set => this.SetPropertyValue(keyTargetEntityType, value?.ToString());
     }
 
-    private IEnumerable<DHRuleBaseWrapper>? rules;
+    private IEnumerable<MQAssessmentRuleWrapper>? rules;
 
     [EntityProperty(keyRules)]
-    public IEnumerable<DHRuleBaseWrapper> Rules
+    public IEnumerable<MQAssessmentRuleWrapper> Rules
     {
-        get => this.rules ??= this.GetPropertyValueAsWrappers<DHRuleBaseWrapper>(keyRules);
+        get => this.rules ??= this.GetPropertyValueAsWrappers<MQAssessmentRuleWrapper>(keyRules);
         set
         {
             this.SetPropertyValueFromWrappers(keyRules, value);
