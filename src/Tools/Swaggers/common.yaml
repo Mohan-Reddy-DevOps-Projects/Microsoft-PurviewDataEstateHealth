@@ -823,29 +823,11 @@ components:
         - $ref: "#/components/schemas/BaseEntity"
         - type: object
           properties:
-            name:
-              type: string
-              description: The name of the rule.
-              example: "Data estate curation"
-            reserved:
-              type: boolean
-              readOnly: true
-              description: Is system defined reserved rule.
-              example: false
             type:
               type: string
               enum: [RuleGroup, SimpleRule, ExpressionRule]
               description: The type of the rule.
               example: "SimpleRule"
-            severity:
-              type: string
-              enum: [Low, Medium, High]
-              description: The severity of the rule.
-              example: "Low"
-            recommendation:
-              type: string
-              description: The recommendation of the rule.
-              example: "Recommendation"
 
     RuleGroup:
       allOf:
@@ -968,7 +950,7 @@ components:
             rules:
               type: array
               items:
-                $ref: "#/components/schemas/Rule"
+                $ref: "#/components/schemas/AssessmentRule"
               description: The rules of the assessment.
             aggregation:
               $ref: "#/components/schemas/AssessmentAggregation"
@@ -977,6 +959,33 @@ components:
               readOnly: true
               description: Is system defined reserved assessment.
               example: false
+
+    AssessmentRule:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The id of the assessment rule.
+          example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+        rule:
+          $ref: "#/components/schemas/Rule"
+          description: The rule of the assessment rule.
+        actionProperties:
+          type: object
+          properties:
+            actionName:
+              type: string
+              description: The action name.
+              example: "Missing classification"
+            actionSeverity:
+              type: string
+              enum: [Low, Medium, High]
+              description: The severity of the action.
+              example: "Low"
+            actionRecommendation:
+              type: string
+              description: The recommendation of the action.
+              example: "Recommendation"
 
     AssessmentAggregation:
       oneOf:
