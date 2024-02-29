@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
 using Newtonsoft.Json;
@@ -60,18 +61,7 @@ public class CosmosWrapperSerializer : CosmosSerializer
 
                     if (type.IsSubclassOf(typeof(BaseEntityWrapper)))
                     {
-                        var genericMethodToInvoke = this.methodCreateEntityWrapper.MakeGenericMethod(type);
-                        var wrappedJObject = jObject.GetValue(nameof(JObjectBaseWrapper.JObject));
-                        if (wrappedJObject == null)
-                        {
-#nullable disable
-                            return default;
-#nullable enable
-                        }
-#nullable disable
-                        // Invoke the generic method with the JObject parameter
-                        return (T)genericMethodToInvoke.Invoke(null, [wrappedJObject]);
-#nullable enable
+                        return this.DeserializeEntity<T>(jObject);
                     }
 
 #nullable disable
@@ -89,18 +79,7 @@ public class CosmosWrapperSerializer : CosmosSerializer
 
                         if (elementType.IsSubclassOf(typeof(BaseEntityWrapper)))
                         {
-                            var genericMethodToInvoke = this.methodCreateEntityWrapper.MakeGenericMethod(elementType);
-                            objects = jObjects.Select(x =>
-                            {
-                                var wrappedJObject = x.GetValue(nameof(JObjectBaseWrapper.JObject));
-                                if (wrappedJObject == null)
-                                {
-#nullable disable
-                                    return default;
-#nullable enable
-                                }
-                                return genericMethodToInvoke.Invoke(null, [wrappedJObject]);
-                            }).ToArray();
+                            objects = jObjects.Select(x => this.DeserializeEntity<object>(x, elementType)).ToArray();
                         }
                         else
                         {
@@ -149,5 +128,36 @@ public class CosmosWrapperSerializer : CosmosSerializer
         }
         stream.Position = 0;
         return stream;
+    }
+
+    private T DeserializeEntity<T>(JObject jObject)
+    {
+        return this.DeserializeEntity<T>(jObject, typeof(T));
+    }
+
+    private T DeserializeEntity<T>(JObject jObject, Type entityType)
+    {
+        var genericMethodToInvoke = this.methodCreateEntityWrapper.MakeGenericMethod(entityType);
+        var wrappedJObject = jObject.GetValue(nameof(JObjectBaseWrapper.JObject));
+        if (wrappedJObject == null)
+        {
+#nullable disable
+            return default;
+#nullable enable
+        }
+#nullable disable
+        // Invoke the generic method with the JObject parameter
+        var entity = (T)genericMethodToInvoke.Invoke(null, [wrappedJObject]);
+#nullable enable
+
+        if (entity is IContainerEntityWrapper containerEntityWrapper)
+        {
+            containerEntityWrapper.TenantId = jObject.GetValue(nameof(IContainerEntityWrapper.TenantId))?.ToObject<string>();
+            containerEntityWrapper.AccountId = jObject.GetValue(nameof(IContainerEntityWrapper.AccountId))?.ToObject<string>();
+        }
+
+#nullable disable
+        return entity;
+#nullable enable
     }
 }
