@@ -97,8 +97,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                     Body = new DHScheduleCallbackPayload
                     {
                         ControlId = controlId,
-                        TenantId = tenantId,
-                        AccountId = accountId,
                     },
                     Headers = new Dictionary<string, string>
                     {

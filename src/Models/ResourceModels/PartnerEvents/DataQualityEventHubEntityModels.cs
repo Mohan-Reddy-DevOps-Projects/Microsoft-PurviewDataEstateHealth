@@ -149,6 +149,12 @@ public class DomainModelEventHubPayloadEntityModel
     /// </summary>
     [JsonProperty("jobType")]
     public string JobType { get; set; }
+
+    /// <summary>
+    /// Tenant id
+    /// </summary>
+    [JsonProperty("tenantId")]
+    public string TenantId { get; set; }
 }
 
 /// <summary>

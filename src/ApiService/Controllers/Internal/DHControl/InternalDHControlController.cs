@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
@@ -16,7 +17,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 [CertificateConfig(CertificateSet.DHControlSchedule)]
 [Authorize(AuthenticationSchemes = "Certificate")]
 [Route("/internal/control")]
-public class InternalDHControlController(DHScheduleService dhScheduleService, IDataEstateHealthRequestLogger logger) : Controller
+public class InternalDHControlController(DHScheduleService dhScheduleService, IDataEstateHealthRequestLogger logger, IRequestHeaderContext requestHeaderContext) : Controller
 {
     [HttpPost]
     [Route("triggerScheduleJobCallback")]
@@ -26,7 +27,7 @@ public class InternalDHControlController(DHScheduleService dhScheduleService, ID
         {
             return this.BadRequest();
         }
-        logger.LogInformation($"Schedule job callback start. TenantId: {requestBody.TenantId}. AccountId: {requestBody.AccountId}");
+        logger.LogInformation($"Schedule job callback start. TenantId: {requestHeaderContext.TenantId}. AccountId: {requestHeaderContext.AccountObjectId}.");
         await dhScheduleService.TriggerScheduleAsync(requestBody).ConfigureAwait(false);
         return this.Ok();
     }
@@ -44,7 +45,7 @@ public class InternalDHControlController(DHScheduleService dhScheduleService, ID
             logger.LogInformation($"Invalid job status. Job Id: {requestBody.DQJobId}");
             return this.BadRequest("Invalid job status");
         }
-        logger.LogInformation($"MDQ job callback start. Job Id: {requestBody.DQJobId}. Job Status: {requestBody.JobStatus}.");
+        logger.LogInformation($"MDQ job callback start. TenantId: {requestHeaderContext.TenantId}. AccountId: {requestHeaderContext.AccountObjectId}. Job Id: {requestBody.DQJobId}. Job Status: {requestBody.JobStatus}.");
         await dhScheduleService.UpdateMDQJobStatusAsync(requestBody).ConfigureAwait(false);
         return this.Ok();
     }

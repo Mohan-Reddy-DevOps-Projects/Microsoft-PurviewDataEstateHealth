@@ -16,4 +16,12 @@ public class MDQJobCallbackPayload
     /// <inheritdoc />
     [JsonProperty("jobStatus")]
     public string JobStatus { get; set; }
+
+    /// <inheritdoc />
+    [JsonProperty("tenantId")]
+    public string TenantId { get; set; }
+
+    /// <inheritdoc />
+    [JsonProperty("accountId")]
+    public string AccountId { get; set; }
 }

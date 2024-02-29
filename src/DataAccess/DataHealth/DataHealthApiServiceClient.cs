@@ -16,6 +16,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
 
     public class DataHealthApiServiceClient : ServiceClient<DataHealthApiServiceClient>
     {
+        private const string HeaderAccountIdName = "x-ms-account-id";
+        private const string HeaderTenantIdName = "x-ms-client-tenant-id";
         private readonly Uri BaseUri;
 
         private readonly IDataEstateHealthRequestLogger Logger;
@@ -34,8 +36,15 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         public async Task TriggerMDQJobCallback(MDQJobCallbackPayload schedule)
         {
             var requestUri = this.CreateRequestUri("/internal/control/triggerMDQJobCallback");
-            var content = this.CreateRequestContent(schedule);
-            var response = await this.Client.PostAsync(requestUri, content).ConfigureAwait(false);
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
+            request.Content = this.CreateRequestContent(new Dictionary<string, string>()
+            {
+                ["dqJobId"] = schedule.DQJobId,
+                ["jobStatus"] = schedule.JobStatus
+            });
+            request.Headers.Add(HeaderAccountIdName, schedule.AccountId);
+            request.Headers.Add(HeaderTenantIdName, schedule.TenantId);
+            var response = await this.Client.SendAsync(request).ConfigureAwait(false);
             this.HandleResponseStatusCode(response);
         }
 

@@ -13,7 +13,6 @@
         private readonly IDataEstateHealthRequestLogger logger;
         private readonly DHComputingJobRepository dhComputingJobRepository;
 
-
         public DHMonitoringService(
             IRequestContextAccessor requestContextAccessor,
             IDataEstateHealthRequestLogger logger,
@@ -29,30 +28,27 @@
             return job ?? throw new ComputingJobNotFoundException();
         }
 
-        public async Task CreateComputingJob(DHComputingJobWrapper job)
+        public async Task CreateComputingJob(DHComputingJobWrapper job, string user)
         {
             job.CreateTime = DateTime.UtcNow;
+            job.StartTime = DateTime.UtcNow;
+            job.OnCreate(user);
             await this.dhComputingJobRepository.AddAsync(job).ConfigureAwait(false);
         }
 
-        public async Task UpdateComputingJobStatus(string jobId, DHComputingJobStatus status)
+        public async Task UpdateComputingJobStatus(string jobId, DHComputingJobStatus status, string user)
         {
             var job = await this.GetComputingJobById(jobId);
             job.Status = status;
+            job.OnUpdate(job, user);
             await this.dhComputingJobRepository.UpdateAsync(job).ConfigureAwait(false);
         }
 
-        public async Task StartComputingJob(string jobId)
-        {
-            var job = await this.GetComputingJobById(jobId);
-            job.StartTime = DateTime.UtcNow;
-            await this.dhComputingJobRepository.UpdateAsync(job).ConfigureAwait(false);
-        }
-
-        public async Task EndComputingJob(string jobId)
+        public async Task EndComputingJob(string jobId, string user)
         {
             var job = await this.GetComputingJobById(jobId);
             job.EndTime = DateTime.UtcNow;
+            job.OnUpdate(job, user);
             await this.dhComputingJobRepository.UpdateAsync(job).ConfigureAwait(false);
         }
 

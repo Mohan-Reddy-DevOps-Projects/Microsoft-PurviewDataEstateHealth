@@ -118,7 +118,8 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
             mdqJobModels.Add(dataQualityResultModel.Key, jobModels);
             foreach (DataQualitySourceEventHubEntityModel sourceModel in sourceModels)
             {
-                if (sourceModel.JobType == "MDQ" || this.ParseJobType(sourceModel.Domainmodel) == "MDQ")
+                var domainModelPayload = this.ParseDomainModelPayload(sourceModel.Domainmodel);
+                if (sourceModel.JobType == "MDQ" || (domainModelPayload != null && domainModelPayload.JobType == "MDQ"))
                 {
                     this.DataEstateHealthRequestLogger.LogInformation($"Process MDQ job. Job ID: {sourceModel.ResultId}. Job status: {sourceModel.JobStatus}.");
                     var resultId = this.ParseResultId(sourceModel.ResultId);
@@ -126,6 +127,8 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
                     {
                         DQJobId = resultId.JobId,
                         JobStatus = sourceModel.JobStatus,
+                        TenantId = domainModelPayload.TenantId,
+                        AccountId = sourceModel.AccountId,
                     };
                     try
                     {
@@ -196,17 +199,17 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         }
     }
 
-    private string ParseJobType(string domainmodel)
+    private DomainModelEventHubPayloadEntityModel ParseDomainModelPayload(string domainmodel)
     {
         try
         {
             DomainModelEventHubEntityModel domainModel = JsonConvert.DeserializeObject<DomainModelEventHubEntityModel>(domainmodel ?? string.Empty);
-            return domainModel.Payload.JobType;
+            return domainModel.Payload;
         }
         catch (JsonException exception)
         {
-            this.DataEstateHealthRequestLogger.LogError($"Failed to parse job type: {domainmodel}.", exception);
-            return string.Empty;
+            this.DataEstateHealthRequestLogger.LogError($"Failed to parse domain model payload: {domainmodel}.", exception);
+            return null;
         }
     }
 

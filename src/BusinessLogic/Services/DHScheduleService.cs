@@ -3,6 +3,7 @@
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
@@ -24,9 +25,13 @@ public class DHScheduleService(
     IDataQualityExecutionService dataQualityExecutionService,
     DHMonitoringService monitoringService,
     DHControlService controlService,
-    IDataEstateHealthRequestLogger logger
+    IDataEstateHealthRequestLogger logger,
+    IRequestHeaderContext requestHeaderContext
     )
 {
+    private const string ScheduleOperationName = "DGSchedule Service";
+    private const string MDQEventOperationName = "MDQ event";
+
     public async Task TriggerScheduleAsync(DHScheduleCallbackPayload payload)
     {
         // Step 1: query all controls
@@ -50,14 +55,14 @@ public class DHScheduleService(
         {
             // Step 2: submit DQ jobs
             var jobId = Guid.NewGuid().ToString();
-            var dqJobId = await dataQualityExecutionService.SubmitDQJob(payload.AccountId, control.Id, jobId).ConfigureAwait(false);
+            var dqJobId = await dataQualityExecutionService.SubmitDQJob(requestHeaderContext.AccountObjectId.ToString(), control.Id, jobId).ConfigureAwait(false);
 
             // Step 3: save into monitoring table
             var jobWrapper = new DHComputingJobWrapper();
             jobWrapper.Id = jobId;
             jobWrapper.DQJobId = dqJobId;
             jobWrapper.ControlId = control.Id;
-            await monitoringService.CreateComputingJob(jobWrapper).ConfigureAwait(false);
+            await monitoringService.CreateComputingJob(jobWrapper, ScheduleOperationName).ConfigureAwait(false);
             logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}");
         }
     }
@@ -66,12 +71,7 @@ public class DHScheduleService(
     {
         var jobStatus = payload.ParseJobStatus();
         var job = await monitoringService.GetComputingJobByDQJobId(payload.DQJobId).ConfigureAwait(false);
-        if (job.Status == jobStatus)
-        {
-            logger.LogInformation($"MDQ job status has already been {jobStatus}. Ignore update. Job ID: {payload.DQJobId}");
-            return;
-        }
-        await monitoringService.UpdateComputingJobStatus(job.Id, jobStatus);
+        await monitoringService.UpdateComputingJobStatus(job.Id, jobStatus, MDQEventOperationName);
         logger.LogInformation($"MDQ job status updated: {jobStatus}. Job Id: {job.Id}. DQ Job Id: {job.DQJobId}.");
 
         if (jobStatus == DHComputingJobStatus.Succeeded)
@@ -80,7 +80,7 @@ public class DHScheduleService(
 
             try
             {
-                await monitoringService.EndComputingJob(job.Id);
+                await monitoringService.EndComputingJob(job.Id, MDQEventOperationName);
                 // TODO: fulfill dataProductId, dataAssetId, jobId
                 var scoreResult = await dataQualityExecutionService.ParseDQResult(job.AccountId, job.ControlId, job.Id, job.DQJobId).ConfigureAwait(false);
                 await scoreService.ProcessControlComputingResultsAsync(job.ControlId, job.Id, scoreResult).ConfigureAwait(false);
