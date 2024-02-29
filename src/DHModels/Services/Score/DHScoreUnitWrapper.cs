@@ -6,16 +6,16 @@ using Newtonsoft.Json.Linq;
 
 public class DHScoreUnitWrapper(JObject jObject) : BaseEntityWrapper(jObject)
 {
-    private const string keyName = "ruleName";
+    private const string keyAssessmentRuleId = "assessmentRuleId";
     private const string keyScore = "score";
 
     public DHScoreUnitWrapper() : this([]) { }
 
-    [EntityProperty(keyName)]
-    public string Name
+    [EntityProperty(keyAssessmentRuleId)]
+    public string AssessmentRuleId
     {
-        get => this.GetPropertyValue<string>(keyName);
-        set => this.SetPropertyValue(keyName, value);
+        get => this.GetPropertyValue<string>(keyAssessmentRuleId);
+        set => this.SetPropertyValue(keyAssessmentRuleId, value);
     }
 
     [EntityProperty(keyScore)]

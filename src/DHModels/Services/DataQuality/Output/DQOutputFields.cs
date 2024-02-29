@@ -1,0 +1,17 @@
+﻿// -----------------------------------------------------------------------
+// <copyright file="DQOutputFields.cs" company="Microsoft Corporation">
+//        Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
+
+
+
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Output
+{
+    public static class DQOutputFields
+    {
+        public const string DP_ID = "DataProductId";
+        public const string DP_NAME = "DataProductDisplayName";
+        public const string BD_ID = "BusinessDomainId";
+    }
+}

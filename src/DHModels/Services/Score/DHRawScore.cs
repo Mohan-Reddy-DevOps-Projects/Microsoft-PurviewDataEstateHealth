@@ -1,17 +1,42 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Output;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 
 public class DHRawScore(JObject jObject) : BaseEntityWrapper(jObject)
 {
     private const string keyEntityPayload = "entityPayload";
     private const string keyScores = "scores";
+    private const string keyEntityType = "entityType";
 
     public DHRawScore() : this([]) { }
 
+    [EntityProperty(keyEntityType)]
+    [EntityRequiredValidator]
+    public RowScoreEntityType EntityType
+    {
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyEntityType);
+            return Enum.TryParse<RowScoreEntityType>(enumStr, true, out var result) ? result : throw new EntityValidationException($"Failed to parse entityType: {enumStr}");
+        }
+        set => this.SetPropertyValue(keyEntityType, value.ToString());
+    }
+
+    /**
+     * For DataProduct
+     * {
+     *   DataProductId,
+     *   DataProductDisplayName,
+     *   BusinessDomainId (not supported now, wait DQ join)
+     * }
+     **/
     [EntityProperty(keyEntityPayload)]
     public JObject EntityPayload
     {
@@ -31,4 +56,10 @@ public class DHRawScore(JObject jObject) : BaseEntityWrapper(jObject)
             this.scores = value;
         }
     }
+
+    public string EntityId => this.EntityType switch
+    {
+        RowScoreEntityType.DataProduct => this.JObject.Value<string>(DQOutputFields.DP_ID)!,
+        _ => throw new NotImplementedException($"EntityId for {this.EntityType} is not implemented")
+    };
 }
