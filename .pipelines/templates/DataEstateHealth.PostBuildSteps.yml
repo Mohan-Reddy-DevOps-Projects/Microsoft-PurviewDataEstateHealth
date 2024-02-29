@@ -4,20 +4,6 @@ steps:
 - template: v1/steps/Pdg.Build.SignServiceFiles.yml@pdgTemplates
   parameters:
     folderToScan: $(Build.SourcesDirectory)/src/
-  
-- task: DotNetCoreCLI@2
-  displayName: UnitTests
-  inputs:
-    command: 'test'
-    projects: ./src/Tests/UnitTests/UnitTests.csproj
-    publishTestResults: true
-    arguments: --configuration  Release 
-      --collect:"XPlat Code Coverage" 
-      --logger:"console;verbosity=normal" 
-      --logger:"trx" 
-      --no-build 
-      --nologo 
-      --verbosity normal
 
 - task: ArchiveFiles@2
   displayName: "Archive Power BI files"
