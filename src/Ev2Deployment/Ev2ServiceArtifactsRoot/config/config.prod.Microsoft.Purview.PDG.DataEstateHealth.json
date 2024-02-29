@@ -34,8 +34,7 @@
                             "synapseRegion": "eastus2euap",
                             "subdomainName": "prod-eastus2euap-health",
                             "resourceGroupName": "dgh-canary-centraluseuap-rg",
-                            "synapseWorkspaceName": "$(dgh.serviceShortName)cnrycdmworkspace",
-                            "scheduleSubjectName": "dgschedule-logicapp-client-$(pdg.environment.shortName)-eus2.$(pdg.tenant.dnsZoneName)"
+                            "synapseWorkspaceName": "$(dgh.serviceShortName)cnrycdmworkspace"
                         }
                     }
                 }
