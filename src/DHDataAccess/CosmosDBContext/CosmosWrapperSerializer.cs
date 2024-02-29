@@ -15,28 +15,23 @@ public class CosmosWrapperSerializer : CosmosSerializer
 {
     private readonly JsonSerializer serializer;
 
-    private readonly MethodInfo methodCreateEntityWrapper;
+    private static readonly MethodInfo methodCreateEntityWrapper = typeof(EntityWrapperHelper)
+        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+        .FirstOrDefault(m => m.IsGenericMethod
+             && m.GetGenericArguments().Length == 1
+             && m.GetParameters().Length == 1
+             && m.GetParameters()[0].ParameterType == typeof(JObject))
+        ?? throw new InvalidOperationException("Can not find the method CreateEntityWrapper for CosmosSerializer to use!");
 
     public CosmosWrapperSerializer()
     {
-        // Configure the JsonSerializer according to your needs
+        // JsonSerializer is not thread-safe, so we need to create a new instance for each request
         this.serializer = new JsonSerializer
         {
             NullValueHandling = NullValueHandling.Ignore,
             Formatting = Formatting.None,
             // Add more settings here as needed
         };
-
-        // Get the type of the static class containing the method
-        var helperType = typeof(EntityWrapperHelper);
-
-        // Find the method with the specified attribute
-        this.methodCreateEntityWrapper = helperType.GetMethods(BindingFlags.Public | BindingFlags.Static)
-            .FirstOrDefault(m => m.IsGenericMethod
-                && m.GetGenericArguments().Length == 1 // Ensure the method has one generic type parameter
-                && m.GetParameters().Length == 1 // Ensure the method accepts one parameter
-                && m.GetParameters()[0].ParameterType == typeof(JObject))
-            ?? throw new InvalidOperationException("Can not find the method CreateEntityWrapper for CosmosSerializer to use!"); // Check the parameter type
     }
 
     public override T FromStream<T>(Stream stream)
@@ -61,7 +56,7 @@ public class CosmosWrapperSerializer : CosmosSerializer
 
                     if (type.IsSubclassOf(typeof(BaseEntityWrapper)))
                     {
-                        return this.DeserializeEntity<T>(jObject);
+                        return DeserializeEntity<T>(jObject);
                     }
 
 #nullable disable
@@ -79,7 +74,7 @@ public class CosmosWrapperSerializer : CosmosSerializer
 
                         if (elementType.IsSubclassOf(typeof(BaseEntityWrapper)))
                         {
-                            objects = jObjects.Select(x => this.DeserializeEntity<object>(x, elementType)).ToArray();
+                            objects = jObjects.Select(x => DeserializeEntity<object>(x, elementType)).ToArray();
                         }
                         else
                         {
@@ -130,14 +125,14 @@ public class CosmosWrapperSerializer : CosmosSerializer
         return stream;
     }
 
-    private T DeserializeEntity<T>(JObject jObject)
+    private static T DeserializeEntity<T>(JObject jObject)
     {
-        return this.DeserializeEntity<T>(jObject, typeof(T));
+        return DeserializeEntity<T>(jObject, typeof(T));
     }
 
-    private T DeserializeEntity<T>(JObject jObject, Type entityType)
+    private static T DeserializeEntity<T>(JObject jObject, Type entityType)
     {
-        var genericMethodToInvoke = this.methodCreateEntityWrapper.MakeGenericMethod(entityType);
+        var genericMethodToInvoke = methodCreateEntityWrapper.MakeGenericMethod(entityType);
         var wrappedJObject = jObject.GetValue(nameof(JObjectBaseWrapper.JObject));
         if (wrappedJObject == null)
         {

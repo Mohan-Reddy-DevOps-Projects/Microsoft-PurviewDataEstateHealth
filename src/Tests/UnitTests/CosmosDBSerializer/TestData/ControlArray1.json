@@ -1,0 +1,721 @@
+[
+  {
+    "GroupId": "85acd45e-a8df-466d-95dc-2a66343d039a",
+    "Domains": [
+      "61b72322-fcb3-4e74-83e4-016adde30645",
+      "e5e7b67c-46e8-48d2-be92-2072b2a92773",
+      "c8931e48-e046-4b02-8798-3f898b2522a3",
+      "6c12a0a3-4627-4d37-93c3-ee663f516f71",
+      "108c81d5-4df0-4f66-bbcd-9b328c0feb40",
+      "aa3e12d7-a043-44f7-833f-afb5edd1af71",
+      "0e334c35-c4f7-4c66-a368-9294bdb44fe3"
+    ],
+    "AssessmentId": "f9901a7e-3795-432f-b52a-04075e52dcec",
+    "Name": "TestControlNode3",
+    "Description": "This is the description22",
+    "Contacts": {
+      "Owners": [
+        {
+          "Id": "a9b1b1b9-fdaf-417d-a58d-c85f0d0d95c0"
+        }
+      ]
+    },
+    "Reserved": false,
+    "StatusPaletteConfig": {
+      "TargetScore": 80,
+      "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+      "StatusPaletteRules": [
+        {
+          "Rule": {
+            "GroupOperator": "And",
+            "Rules": [
+              {
+                "CheckPoint": "Score",
+                "Operator": "GreaterThanOrEqual",
+                "Operand": "60",
+                "Type": "SimpleRule"
+              }
+            ],
+            "Type": "RuleGroup"
+          },
+          "StatusPaletteId": "00000000-0000-0000-0000-000000000002"
+        },
+        {
+          "Rule": {
+            "GroupOperator": "And",
+            "Rules": [
+              {
+                "CheckPoint": "Score",
+                "Operator": "LessThanOrEqual",
+                "Operand": "40",
+                "Type": "SimpleRule"
+              }
+            ],
+            "Type": "RuleGroup"
+          },
+          "StatusPaletteId": "00000000-0000-0000-0000-000000000005"
+        }
+      ]
+    },
+    "Status": "Enabled",
+    "id": "4f8eca2d-6273-4b37-95b9-1b5c1b740030",
+    "AuditLogs": [
+      {
+        "Time": "2024-02-27T03:26:55.9076456Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Create"
+      },
+      {
+        "Time": "2024-02-27T09:09:07.6356199Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-27T09:09:43.8643554Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-27T09:10:35.0621185Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-27T09:11:07.1619637Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-27T09:20:47.3511329Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-28T01:58:58.4129634Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-28T04:30:58.1303322Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-28T04:35:46.0476412Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-28T04:35:55.6156168Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-28T08:18:05.1652486Z",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-28T08:20:43.8325081Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-28T09:19:51.2439144Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      },
+      {
+        "Time": "2024-02-29T02:11:12.5011801Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      }
+    ],
+    "TenantId": "12d98746-0b5a-4778-8bd0-449994469062",
+    "AccountId": "ecf09339-34e0-464b-a8fb-661209048543",
+    "Type": "ControlNode",
+    "JObject": {
+      "type": "ControlNode",
+      "name": "TestControlNode3",
+      "description": "This is the description22",
+      "contacts": {
+        "owner": [
+          {
+            "id": "a9b1b1b9-fdaf-417d-a58d-c85f0d0d95c0"
+          }
+        ]
+      },
+      "typeProperties": {
+        "groupId": "85acd45e-a8df-466d-95dc-2a66343d039a",
+        "domains": [
+          "61b72322-fcb3-4e74-83e4-016adde30645",
+          "e5e7b67c-46e8-48d2-be92-2072b2a92773",
+          "c8931e48-e046-4b02-8798-3f898b2522a3",
+          "6c12a0a3-4627-4d37-93c3-ee663f516f71",
+          "108c81d5-4df0-4f66-bbcd-9b328c0feb40",
+          "aa3e12d7-a043-44f7-833f-afb5edd1af71",
+          "0e334c35-c4f7-4c66-a368-9294bdb44fe3"
+        ],
+        "assessmentId": "f9901a7e-3795-432f-b52a-04075e52dcec"
+      },
+      "status": "Enabled",
+      "statusPaletteConfig": {
+        "targetScore": 80,
+        "fallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+        "statusPaletteRules": [
+          {
+            "statusPaletteId": "00000000-0000-0000-0000-000000000002",
+            "rule": {
+              "type": "RuleGroup",
+              "typeProperties": {
+                "groupOperator": "And",
+                "rules": [
+                  {
+                    "type": "SimpleRule",
+                    "typeProperties": {
+                      "checkPoint": "Score",
+                      "operator": "GreaterThanOrEqual",
+                      "operand": "60"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "statusPaletteId": "00000000-0000-0000-0000-000000000005",
+            "rule": {
+              "type": "RuleGroup",
+              "typeProperties": {
+                "groupOperator": "And",
+                "rules": [
+                  {
+                    "type": "SimpleRule",
+                    "typeProperties": {
+                      "checkPoint": "Score",
+                      "operator": "LessThanOrEqual",
+                      "operand": "40"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "id": "4f8eca2d-6273-4b37-95b9-1b5c1b740030",
+      "auditLogs": [
+        {
+          "time": "2024-02-27T03:26:55.9076456Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Create"
+        },
+        {
+          "time": "2024-02-27T09:09:07.6356199Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-27T09:09:43.8643554Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-27T09:10:35.0621185Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-27T09:11:07.1619637Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-27T09:20:47.3511329Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-28T01:58:58.4129634Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-28T04:30:58.1303322Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-28T04:35:46.0476412Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-28T04:35:55.6156168Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-28T08:18:05.1652486Z",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-28T08:20:43.8325081Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-28T09:19:51.2439144Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        },
+        {
+          "time": "2024-02-29T02:11:12.5011801Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        }
+      ],
+      "reserved": false
+    },
+    "_rid": "xSoKAIQm2L6EhB4AAAAAAA==",
+    "_self": "dbs/xSoKAA==/colls/xSoKAIQm2L4=/docs/xSoKAIQm2L6EhB4AAAAAAA==/",
+    "_etag": "\"dd00e2a0-0000-0700-0000-65dfe7c00000\"",
+    "_attachments": "attachments/",
+    "_ts": 1709172672
+  },
+  {
+    "GroupId": "7e255139-b654-4c8d-a4bd-fbb5a243e83f",
+    "Domains": [
+      "61b72322-fcb3-4e74-83e4-016adde30645",
+      "e5e7b67c-46e8-48d2-be92-2072b2a92773",
+      "c8931e48-e046-4b02-8798-3f898b2522a3",
+      "6c12a0a3-4627-4d37-93c3-ee663f516f71",
+      "108c81d5-4df0-4f66-bbcd-9b328c0feb40",
+      "aa3e12d7-a043-44f7-833f-afb5edd1af71",
+      "0e334c35-c4f7-4c66-a368-9294bdb44fe3",
+      "f41547a9-0d1c-4cdd-8ff7-b458700964dc",
+      "c77810c6-eb68-4681-9dd6-ac2249a085ea",
+      "06584a11-fd5f-47af-a058-a4774de96ecf",
+      "5733c60c-ee1f-47cc-9d39-cb0126db1911",
+      "a9ea88ab-672b-4693-8162-56d9be0f8c75",
+      "5d56548d-a92c-4b0d-90ea-dd6b23fff586",
+      "9ed3e806-255a-4af8-949a-5ce6fe13a772",
+      "f54e5bbe-0280-4907-8001-51d918806cfe",
+      "db37a720-e585-4825-8d2e-5e11d1af3e44",
+      "d85b89c0-1ef8-41b6-8eaa-dab2915fa614",
+      "d478c2ee-c168-4e0e-93f1-fd918bdda751",
+      "5cabcfa2-317b-45ff-9b92-07517b8599fe",
+      "9528013d-1fd8-473b-9f21-85edd8c46b4f",
+      "20c4ce1b-1bda-4497-8430-61f2e2ed8661",
+      "f0ac9555-a647-41f0-a4bb-aed0d6a728c6",
+      "9f7b202d-b534-4b9a-b012-b8f107bf8a6e",
+      "bc018814-636f-4265-8258-f0739fceb74b",
+      "8936a596-aedf-4cb1-88b2-9c886d5b8164",
+      "56b90ef5-8beb-41bd-9aed-1ad805183d52",
+      "f30c2136-cdf3-46e8-afde-ff3744b95b54",
+      "5a2bf814-4549-4ca0-846f-d2bc730d75fa",
+      "f0010522-ee13-454a-8d92-85d67998b579",
+      "ffcd9983-d587-4eaf-bd5b-5dfe79e2a512",
+      "aebab639-7542-4e95-8ef6-2eef11ca02d0",
+      "65d48d6e-a6c0-46af-8b7e-5cf25a79ff4e",
+      "df121c80-4c28-41d5-bf10-b16d4b5a1c36",
+      "db13c345-bf32-4c69-adab-a110e9ccc684",
+      "0cf2c4db-55b6-4e5a-9f02-a1694c88af12",
+      "a6dabf18-674b-419d-b51d-4b6b1eb28647",
+      "4dbd171e-95bc-4c9a-b83b-09e28e24a964",
+      "5221ae95-d64a-48cf-87c6-52b25453e23d",
+      "835889b5-95b9-4ccf-89de-2f7b53e2e41a",
+      "89372902-9051-42b3-9fa3-eded58708a67",
+      "19b7b9ca-942f-4de5-9282-4557d94f7b70",
+      "01825a29-e057-49bf-a63b-2bf762fbb7fd",
+      "a67414f4-4bdd-44ce-90eb-44531dabe7d3",
+      "5928a4d1-d026-448a-8087-54259f6770e7",
+      "9bea3cf9-dbb4-41cc-ac58-de92a78731a7",
+      "34ad607f-7741-4e63-8b97-0f669d5c2239",
+      "6ee5f63a-5c2f-47dc-8812-ddb3eee87d6f",
+      "37b8be97-d381-4d3a-8888-7bcce7cdd391",
+      "c1333682-a3c5-4277-b532-9a3c374d72f9",
+      "18c30e7d-a901-4819-a594-218ddf8e82d0",
+      "33d0f1f6-b7ff-4501-9c29-a7b34f223c51",
+      "6f5d3629-7484-4924-ac4a-af4ffa33918a",
+      "04fed7db-3889-4fe2-8fd3-044cae4e4321",
+      "777a7e2d-fcc5-4ede-8e40-df8153183cbc",
+      "f989903d-e058-471b-bfbc-74b90120a955",
+      "c9b39103-1709-4279-88f8-71d4090865d9",
+      "a9b0525e-78d2-445d-a526-a8d8ae6b017e",
+      "0d314a1b-f8a7-4c76-a52b-acb88ed0127b",
+      "0680a64f-914e-44fd-959a-b2ad61c12142",
+      "161a0f49-0927-4ffb-8570-dcfaf876fb13",
+      "872b7658-829b-463f-9c29-caeb425433e5",
+      "ff84cfed-af95-4ceb-813c-48418458cd7b",
+      "3a871f91-6a0a-408c-98bd-498a382873d2",
+      "00b5f463-714c-4ce5-ad0c-bbcc73fdc73a",
+      "3e7974c0-2cfb-47a7-a5fd-a0dabcd258f1",
+      "ad2baac0-a54a-4270-a764-8695aa3f0665",
+      "4d6c4d7b-94d7-49f8-867a-ee24d27c7a34",
+      "2001c444-cd10-4609-8731-c0c332b9e947",
+      "ecaebdf1-5e08-4ee5-82b9-03ede7212134",
+      "7b9f6f51-6cf9-49c7-b96e-033f6793e311",
+      "74e939a3-20cc-47b7-8a29-9231299555af",
+      "4b3174ab-dfa3-439f-a04e-ac63f97f7a3e",
+      "588ab364-5e18-4cb9-a6d9-71cf2ed19825",
+      "6773aa4c-cd4b-4ad9-a8c3-d2de6cfeecad",
+      "8e71e560-d9ab-402d-b2e7-055eaef2cdc4",
+      "480a9534-7a34-4724-9c69-a2d45fc32733",
+      "f2a2cb40-d936-4f75-a774-3670e638cf60",
+      "77ba4980-6553-4852-adc0-7bb07a797671",
+      "dd6c3746-7bd6-4e31-841b-ea657f1ada61",
+      "8cd6a569-6d75-4bad-8180-12244ca11075",
+      "b678f8a0-7a60-44a4-868e-29befbb43d0c",
+      "eadf2e51-024b-420f-8dba-c43fcc9a9d3e",
+      "f257b926-31ff-44bb-b0c2-18eedaceddc3",
+      "56ac4019-307e-46be-b7c2-7812babdbad4",
+      "22b237ca-8354-430a-a899-d9cb0a88c17a",
+      "7a46ff3e-3b21-4317-be03-603421a71aa3",
+      "aba10b7a-77ad-47b4-8ccf-1fb001f75f67",
+      "8fee2ae7-1ce9-4df8-8456-ca433a2f009d",
+      "5d6bd909-6221-4837-9114-d844e50f5223",
+      "cdd9208f-1535-4408-aa9c-fd3650035dd5",
+      "8e357e7f-2938-4430-8dd0-64a1a04c2f59",
+      "445718db-d207-4844-bc04-249c4482bfd2",
+      "f2f3690f-af5e-4fcf-8e56-44d727a8bddd",
+      "126ed43e-41a2-48fe-8615-9cc5d6dcf912",
+      "63b44518-d271-4b0b-813b-085dfaf7aaf0",
+      "6112522e-b6b6-4b70-b5fc-72cb03fdaab3",
+      "b2cf63d5-996b-46c2-93b6-b10cde7b3ff9",
+      "085802e5-b0b8-4a65-b4d1-b45359d7d31e",
+      "6dfc1337-9d63-4732-aa1a-29de515f19e5"
+    ],
+    "AssessmentId": "bb109e6e-1998-4dc3-8c5e-18c87b096c1d",
+    "Name": "Data estate curation",
+    "Description": "Data estate curation",
+    "Contacts": {
+      "Owners": [
+        {
+          "Id": "a9b1b1b9-fdaf-417d-a58d-c85f0d0d95c0"
+        }
+      ],
+      "Experts": []
+    },
+    "Reserved": false,
+    "StatusPaletteConfig": {
+      "TargetScore": 80,
+      "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+      "StatusPaletteRules": [
+        {
+          "Rule": {
+            "GroupOperator": "And",
+            "Rules": [
+              {
+                "CheckPoint": "Score",
+                "Operator": "GreaterThan",
+                "Operand": "60",
+                "Type": "SimpleRule"
+              }
+            ],
+            "Type": "RuleGroup"
+          },
+          "StatusPaletteId": "00000000-0000-0000-0000-000000000002"
+        }
+      ]
+    },
+    "Status": "Enabled",
+    "id": "d7714d02-29c6-409c-a084-0c077129f83b",
+    "AuditLogs": [
+      {
+        "Time": "2024-02-27T06:17:57.2861055Z",
+        "Action": "Create"
+      },
+      {
+        "Time": "2024-02-29T03:12:06.0141037Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      }
+    ],
+    "TenantId": "12d98746-0b5a-4778-8bd0-449994469062",
+    "AccountId": "ecf09339-34e0-464b-a8fb-661209048543",
+    "Type": "ControlNode",
+    "JObject": {
+      "name": "Data estate curation",
+      "description": "Data estate curation",
+      "contacts": {
+        "owner": [
+          {
+            "id": "a9b1b1b9-fdaf-417d-a58d-c85f0d0d95c0"
+          }
+        ],
+        "expert": []
+      },
+      "statusPaletteConfig": {
+        "fallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+        "statusPaletteRules": [
+          {
+            "rule": {
+              "type": "RuleGroup",
+              "typeProperties": {
+                "groupOperator": "And",
+                "rules": [
+                  {
+                    "type": "SimpleRule",
+                    "typeProperties": {
+                      "checkPoint": "Score",
+                      "operator": "GreaterThan",
+                      "operand": "60"
+                    }
+                  }
+                ]
+              }
+            },
+            "statusPaletteId": "00000000-0000-0000-0000-000000000002"
+          }
+        ],
+        "targetScore": 80
+      },
+      "type": "ControlNode",
+      "typeProperties": {
+        "groupId": "7e255139-b654-4c8d-a4bd-fbb5a243e83f",
+        "domains": [
+          "61b72322-fcb3-4e74-83e4-016adde30645",
+          "e5e7b67c-46e8-48d2-be92-2072b2a92773",
+          "c8931e48-e046-4b02-8798-3f898b2522a3",
+          "6c12a0a3-4627-4d37-93c3-ee663f516f71",
+          "108c81d5-4df0-4f66-bbcd-9b328c0feb40",
+          "aa3e12d7-a043-44f7-833f-afb5edd1af71",
+          "0e334c35-c4f7-4c66-a368-9294bdb44fe3",
+          "f41547a9-0d1c-4cdd-8ff7-b458700964dc",
+          "c77810c6-eb68-4681-9dd6-ac2249a085ea",
+          "06584a11-fd5f-47af-a058-a4774de96ecf",
+          "5733c60c-ee1f-47cc-9d39-cb0126db1911",
+          "a9ea88ab-672b-4693-8162-56d9be0f8c75",
+          "5d56548d-a92c-4b0d-90ea-dd6b23fff586",
+          "9ed3e806-255a-4af8-949a-5ce6fe13a772",
+          "f54e5bbe-0280-4907-8001-51d918806cfe",
+          "db37a720-e585-4825-8d2e-5e11d1af3e44",
+          "d85b89c0-1ef8-41b6-8eaa-dab2915fa614",
+          "d478c2ee-c168-4e0e-93f1-fd918bdda751",
+          "5cabcfa2-317b-45ff-9b92-07517b8599fe",
+          "9528013d-1fd8-473b-9f21-85edd8c46b4f",
+          "20c4ce1b-1bda-4497-8430-61f2e2ed8661",
+          "f0ac9555-a647-41f0-a4bb-aed0d6a728c6",
+          "9f7b202d-b534-4b9a-b012-b8f107bf8a6e",
+          "bc018814-636f-4265-8258-f0739fceb74b",
+          "8936a596-aedf-4cb1-88b2-9c886d5b8164",
+          "56b90ef5-8beb-41bd-9aed-1ad805183d52",
+          "f30c2136-cdf3-46e8-afde-ff3744b95b54",
+          "5a2bf814-4549-4ca0-846f-d2bc730d75fa",
+          "f0010522-ee13-454a-8d92-85d67998b579",
+          "ffcd9983-d587-4eaf-bd5b-5dfe79e2a512",
+          "aebab639-7542-4e95-8ef6-2eef11ca02d0",
+          "65d48d6e-a6c0-46af-8b7e-5cf25a79ff4e",
+          "df121c80-4c28-41d5-bf10-b16d4b5a1c36",
+          "db13c345-bf32-4c69-adab-a110e9ccc684",
+          "0cf2c4db-55b6-4e5a-9f02-a1694c88af12",
+          "a6dabf18-674b-419d-b51d-4b6b1eb28647",
+          "4dbd171e-95bc-4c9a-b83b-09e28e24a964",
+          "5221ae95-d64a-48cf-87c6-52b25453e23d",
+          "835889b5-95b9-4ccf-89de-2f7b53e2e41a",
+          "89372902-9051-42b3-9fa3-eded58708a67",
+          "19b7b9ca-942f-4de5-9282-4557d94f7b70",
+          "01825a29-e057-49bf-a63b-2bf762fbb7fd",
+          "a67414f4-4bdd-44ce-90eb-44531dabe7d3",
+          "5928a4d1-d026-448a-8087-54259f6770e7",
+          "9bea3cf9-dbb4-41cc-ac58-de92a78731a7",
+          "34ad607f-7741-4e63-8b97-0f669d5c2239",
+          "6ee5f63a-5c2f-47dc-8812-ddb3eee87d6f",
+          "37b8be97-d381-4d3a-8888-7bcce7cdd391",
+          "c1333682-a3c5-4277-b532-9a3c374d72f9",
+          "18c30e7d-a901-4819-a594-218ddf8e82d0",
+          "33d0f1f6-b7ff-4501-9c29-a7b34f223c51",
+          "6f5d3629-7484-4924-ac4a-af4ffa33918a",
+          "04fed7db-3889-4fe2-8fd3-044cae4e4321",
+          "777a7e2d-fcc5-4ede-8e40-df8153183cbc",
+          "f989903d-e058-471b-bfbc-74b90120a955",
+          "c9b39103-1709-4279-88f8-71d4090865d9",
+          "a9b0525e-78d2-445d-a526-a8d8ae6b017e",
+          "0d314a1b-f8a7-4c76-a52b-acb88ed0127b",
+          "0680a64f-914e-44fd-959a-b2ad61c12142",
+          "161a0f49-0927-4ffb-8570-dcfaf876fb13",
+          "872b7658-829b-463f-9c29-caeb425433e5",
+          "ff84cfed-af95-4ceb-813c-48418458cd7b",
+          "3a871f91-6a0a-408c-98bd-498a382873d2",
+          "00b5f463-714c-4ce5-ad0c-bbcc73fdc73a",
+          "3e7974c0-2cfb-47a7-a5fd-a0dabcd258f1",
+          "ad2baac0-a54a-4270-a764-8695aa3f0665",
+          "4d6c4d7b-94d7-49f8-867a-ee24d27c7a34",
+          "2001c444-cd10-4609-8731-c0c332b9e947",
+          "ecaebdf1-5e08-4ee5-82b9-03ede7212134",
+          "7b9f6f51-6cf9-49c7-b96e-033f6793e311",
+          "74e939a3-20cc-47b7-8a29-9231299555af",
+          "4b3174ab-dfa3-439f-a04e-ac63f97f7a3e",
+          "588ab364-5e18-4cb9-a6d9-71cf2ed19825",
+          "6773aa4c-cd4b-4ad9-a8c3-d2de6cfeecad",
+          "8e71e560-d9ab-402d-b2e7-055eaef2cdc4",
+          "480a9534-7a34-4724-9c69-a2d45fc32733",
+          "f2a2cb40-d936-4f75-a774-3670e638cf60",
+          "77ba4980-6553-4852-adc0-7bb07a797671",
+          "dd6c3746-7bd6-4e31-841b-ea657f1ada61",
+          "8cd6a569-6d75-4bad-8180-12244ca11075",
+          "b678f8a0-7a60-44a4-868e-29befbb43d0c",
+          "eadf2e51-024b-420f-8dba-c43fcc9a9d3e",
+          "f257b926-31ff-44bb-b0c2-18eedaceddc3",
+          "56ac4019-307e-46be-b7c2-7812babdbad4",
+          "22b237ca-8354-430a-a899-d9cb0a88c17a",
+          "7a46ff3e-3b21-4317-be03-603421a71aa3",
+          "aba10b7a-77ad-47b4-8ccf-1fb001f75f67",
+          "8fee2ae7-1ce9-4df8-8456-ca433a2f009d",
+          "5d6bd909-6221-4837-9114-d844e50f5223",
+          "cdd9208f-1535-4408-aa9c-fd3650035dd5",
+          "8e357e7f-2938-4430-8dd0-64a1a04c2f59",
+          "445718db-d207-4844-bc04-249c4482bfd2",
+          "f2f3690f-af5e-4fcf-8e56-44d727a8bddd",
+          "126ed43e-41a2-48fe-8615-9cc5d6dcf912",
+          "63b44518-d271-4b0b-813b-085dfaf7aaf0",
+          "6112522e-b6b6-4b70-b5fc-72cb03fdaab3",
+          "b2cf63d5-996b-46c2-93b6-b10cde7b3ff9",
+          "085802e5-b0b8-4a65-b4d1-b45359d7d31e",
+          "6dfc1337-9d63-4732-aa1a-29de515f19e5"
+        ],
+        "assessmentId": "bb109e6e-1998-4dc3-8c5e-18c87b096c1d"
+      },
+      "status": "Enabled",
+      "id": "d7714d02-29c6-409c-a084-0c077129f83b",
+      "auditLogs": [
+        {
+          "time": "2024-02-27T06:17:57.2861055Z",
+          "action": "Create"
+        },
+        {
+          "time": "2024-02-29T03:12:06.0141037Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        }
+      ],
+      "reserved": false
+    },
+    "_rid": "xSoKAIQm2L6FhB4AAAAAAA==",
+    "_self": "dbs/xSoKAA==/colls/xSoKAIQm2L4=/docs/xSoKAIQm2L6FhB4AAAAAAA==/",
+    "_etag": "\"df00b300-0000-0700-0000-65dff6060000\"",
+    "_attachments": "attachments/",
+    "_ts": 1709176326
+  },
+  {
+    "GroupId": "85acd45e-a8df-466d-95dc-2a66343d039a",
+    "Domains": [
+      "61b72322-fcb3-4e74-83e4-016adde30645",
+      "e5e7b67c-46e8-48d2-be92-2072b2a92773"
+    ],
+    "AssessmentId": "21d52413-6f26-4ec8-8441-5b709cf04791",
+    "Name": "TestControlNode_20240227",
+    "Description": "This is the description",
+    "Contacts": {
+      "Owners": [
+        {
+          "Id": "a9b1b1b9-fdaf-417d-a58d-c85f0d0d95c0"
+        }
+      ]
+    },
+    "Reserved": false,
+    "StatusPaletteConfig": {
+      "TargetScore": 80,
+      "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+      "StatusPaletteRules": [
+        {
+          "Rule": {
+            "GroupOperator": "And",
+            "Rules": [
+              {
+                "CheckPoint": "Score",
+                "Operator": "GreaterThan",
+                "Operand": "60",
+                "Type": "SimpleRule"
+              }
+            ],
+            "Type": "RuleGroup"
+          },
+          "StatusPaletteId": "00000000-0000-0000-0000-000000000002"
+        }
+      ]
+    },
+    "Status": "Enabled",
+    "id": "51f8e464-059e-4728-ba71-ce1bf57ae455",
+    "AuditLogs": [
+      {
+        "Time": "2024-02-27T14:23:33.4473883Z",
+        "User": "819d3147-bd49-45f1-852f-4a27fbfca971",
+        "Action": "Create"
+      },
+      {
+        "Time": "2024-02-29T03:20:27.7647705Z",
+        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "Action": "Update"
+      }
+    ],
+    "TenantId": "12d98746-0b5a-4778-8bd0-449994469062",
+    "AccountId": "ecf09339-34e0-464b-a8fb-661209048543",
+    "Type": "ControlNode",
+    "JObject": {
+      "type": "ControlNode",
+      "name": "TestControlNode_20240227",
+      "description": "This is the description",
+      "contacts": {
+        "owner": [
+          {
+            "id": "a9b1b1b9-fdaf-417d-a58d-c85f0d0d95c0"
+          }
+        ]
+      },
+      "typeProperties": {
+        "groupId": "85acd45e-a8df-466d-95dc-2a66343d039a",
+        "domains": [
+          "61b72322-fcb3-4e74-83e4-016adde30645",
+          "e5e7b67c-46e8-48d2-be92-2072b2a92773"
+        ],
+        "assessmentId": "21d52413-6f26-4ec8-8441-5b709cf04791"
+      },
+      "statusPaletteConfig": {
+        "targetScore": 80,
+        "fallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+        "statusPaletteRules": [
+          {
+            "rule": {
+              "type": "RuleGroup",
+              "typeProperties": {
+                "groupOperator": "And",
+                "rules": [
+                  {
+                    "type": "SimpleRule",
+                    "typeProperties": {
+                      "checkPoint": "Score",
+                      "operator": "GreaterThan",
+                      "operand": "60"
+                    }
+                  }
+                ]
+              }
+            },
+            "statusPaletteId": "00000000-0000-0000-0000-000000000002"
+          }
+        ]
+      },
+      "status": "Enabled",
+      "id": "51f8e464-059e-4728-ba71-ce1bf57ae455",
+      "auditLogs": [
+        {
+          "time": "2024-02-27T14:23:33.4473883Z",
+          "user": "819d3147-bd49-45f1-852f-4a27fbfca971",
+          "action": "Create"
+        },
+        {
+          "time": "2024-02-29T03:20:27.7647705Z",
+          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
+          "action": "Update"
+        }
+      ],
+      "reserved": false
+    },
+    "_rid": "xSoKAIQm2L6GhB4AAAAAAA==",
+    "_self": "dbs/xSoKAA==/colls/xSoKAIQm2L4=/docs/xSoKAIQm2L6GhB4AAAAAAA==/",
+    "_etag": "\"df009c2f-0000-0700-0000-65dff7fb0000\"",
+    "_attachments": "attachments/",
+    "_ts": 1709176827
+  }
+]
