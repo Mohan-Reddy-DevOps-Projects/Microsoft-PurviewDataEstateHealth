@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.Helpers;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHCheckPoint;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using System;
 using System.Linq;
@@ -9,42 +8,44 @@ internal static class RuleExecutor
 {
     public static bool Execute<TPayload>(DHSimpleRuleWrapper rule, TPayload payload)
     {
-        switch (rule.CheckPoint, payload)
+        var checkValue = GetCheckPointValue(rule.CheckPoint, payload);
+        var theOperator = rule.Operator ?? throw new ArgumentException($@"Operator is not set in the check point ""{DHCheckPoint.Score.ToString()}""");
+        var allowedOperators = RuleOperatorMapping.GetAllowedOperators(rule.CheckPoint);
+        if (!allowedOperators.Contains(theOperator))
         {
-            case (DHCheckPoints.Score, decimal scorePayload):
-                {
-                    var score = DHScoreCheckPoint.ExtractOperand(scorePayload);
-                    var theOperator = rule.Operator ?? throw new ArgumentException($@"Operator is not set in the check point ""{nameof(DHSimpleRuleWrapper)}""");
-                    if (!DHScoreCheckPoint.AllowedOperators.Contains(theOperator))
-                    {
-                        throw new ArgumentException($@"Operator ""{theOperator}"" is not supported in the check point ""{nameof(DHScoreCheckPoint)}""");
-                    }
-                    var operand = default(decimal);
+            throw new ArgumentException($@"Operator ""{theOperator}"" is not supported in the check point ""{DHCheckPoint.Score.ToString()}""");
+        }
 
-                    // The operator has to stay within the limits set by DHScoreCheckPoint.AllowedOperators.
-                    switch (theOperator)
-                    {
-                        case DHOperator.Equal:
-                            operand = ToDecimal(rule.Operand);
-                            return score == operand;
-                        case DHOperator.GreaterThan:
-                            operand = ToDecimal(rule.Operand);
-                            return score > operand;
-                        case DHOperator.GreaterThanOrEqual:
-                            operand = ToDecimal(rule.Operand);
-                            return score >= operand;
-                        case DHOperator.LessThan:
-                            operand = ToDecimal(rule.Operand);
-                            return score < operand;
-                        case DHOperator.LessThanOrEqual:
-                            operand = ToDecimal(rule.Operand);
-                            return score <= operand;
-                        default:
-                            throw new NotImplementedException();
-                    }
+        var checkPointType = RuleOperatorMapping.GetCheckPointType(rule.CheckPoint);
+
+        switch (checkPointType)
+        {
+            case DHCheckPointType.Boolean:
+                if (checkValue == null || checkValue is not bool)
+                {
+                    throw new ArgumentException($@"The check point ""{rule.CheckPoint.ToString()}"" is not a boolean value");
                 }
-            case DHCheckPoints.DataProductDescriptionContent:
-            case DHCheckPoints.DataProductDescriptionLength:
+                var boolCheckValue = (bool)checkValue;
+                {
+                    return theOperator switch
+                    {
+                        DHOperator.Equal => boolCheckValue == Convert.ToBoolean(rule.Operand),
+                        _ => throw new NotImplementedException(),
+                    };
+                }
+            case DHCheckPointType.Number:
+                var decimalCheckValue = ToDecimal(checkValue);
+                var operand = ToDecimal(rule.Operand);
+                return theOperator switch
+                {
+                    DHOperator.Equal => decimalCheckValue == operand,
+                    DHOperator.GreaterThan => decimalCheckValue > operand,
+                    DHOperator.GreaterThanOrEqual => decimalCheckValue >= operand,
+                    DHOperator.LessThan => decimalCheckValue < operand,
+                    DHOperator.LessThanOrEqual => decimalCheckValue <= operand,
+                    _ => throw new NotImplementedException(),
+                };
+            case DHCheckPointType.String:
             default:
                 throw new NotImplementedException();
         }
@@ -77,7 +78,17 @@ internal static class RuleExecutor
             long l => l,
             double d => (decimal)d,
             float f => (decimal)f,
+            string s => decimal.Parse(s),
             _ => throw new ArgumentException($@"Expect a number type in (decimal, int, long, double, float), but got a ""{value?.GetType().Name}"""),
+        };
+    }
+
+    private static object? GetCheckPointValue<TPayload>(DHCheckPoint checkPoint, TPayload payload)
+    {
+        return checkPoint switch
+        {
+            DHCheckPoint.Score => payload,
+            _ => throw new NotImplementedException(),
         };
     }
 }

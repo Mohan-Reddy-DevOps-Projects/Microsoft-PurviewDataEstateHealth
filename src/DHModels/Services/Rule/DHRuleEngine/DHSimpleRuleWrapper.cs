@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
-
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHCheckPoint;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
@@ -17,14 +16,14 @@ public class DHSimpleRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
 
     [EntityTypeProperty(keyCheckPoint)]
     [EntityRequiredValidator]
-    public DHCheckPoints? CheckPoint
+    public DHCheckPoint CheckPoint
     {
         get
         {
             var enumStr = this.GetTypePropertyValue<string>(keyCheckPoint);
-            return Enum.TryParse<DHCheckPoints>(enumStr, true, out var result) ? result : null;
+            return Enum.TryParse<DHCheckPoint>(enumStr, true, out var result) ? result : DHCheckPoint.Unknown;
         }
-        set => this.SetTypePropertyValue(keyCheckPoint, value?.ToString());
+        set => this.SetTypePropertyValue(keyCheckPoint, value.ToString());
     }
 
     [EntityTypeProperty(keyOperator)]
