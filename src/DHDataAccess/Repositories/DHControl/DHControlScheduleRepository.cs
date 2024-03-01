@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class DHControlScheduleRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DHControlScheduleStoragePayloadWrapper>(requestHeaderContext)
+public class DHControlScheduleRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonHttpContextRepository<DHControlScheduleStoragePayloadWrapper>(requestHeaderContext)
 {
     private const string ContainerName = "DHSchedule";
 

@@ -1,10 +1,7 @@
-﻿#nullable enable
-
-namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
 
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -13,31 +10,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public abstract class CommonRepository<TEntity>(IRequestHeaderContext requestHeaderContext) : IRepository<TEntity>
+public abstract class CommonRepository<TEntity>() : IRepository<TEntity>
     where TEntity : BaseEntityWrapper, IContainerEntityWrapper
 {
-    protected string TenantId => requestHeaderContext.TenantId.ToString();
-    protected string AccountId => requestHeaderContext.AccountObjectId.ToString();
-    protected PartitionKey TenantPartitionKey => new(this.TenantId);
-
     protected abstract Container CosmosContainer { get; }
 
-    public virtual async Task<TEntity> AddAsync(TEntity entity)
+    /// <inheritdoc />
+    public async Task<TEntity> AddAsync(TEntity entity, string tenantId, string? accountId)
     {
-        this.PopulateMetadataForEntity(entity);
-        var response = await this.CosmosContainer.CreateItemAsync(entity, this.TenantPartitionKey).ConfigureAwait(false);
+        PopulateMetadataForEntity(entity, tenantId, accountId);
+        var tenantPartitionKey = new PartitionKey(tenantId);
+        var response = await this.CosmosContainer.CreateItemAsync(entity, tenantPartitionKey).ConfigureAwait(false);
         return response.Resource;
     }
 
-    public virtual async Task<IReadOnlyList<TEntity>> AddAsync(IReadOnlyList<TEntity> entities)
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<TEntity>> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId)
     {
         if (!entities.Any())
         {
             return [];
         }
 
-        entities.ForEach(this.PopulateMetadataForEntity);
-        var batch = this.CosmosContainer.CreateTransactionalBatch(this.TenantPartitionKey);
+        foreach (var entity in entities)
+        {
+            PopulateMetadataForEntity(entity, tenantId, accountId);
+        }
+
+        var tenantPartitionKey = new PartitionKey(tenantId);
+
+        var batch = this.CosmosContainer.CreateTransactionalBatch(tenantPartitionKey);
 
         foreach (var entity in entities)
         {
@@ -49,41 +51,28 @@ public abstract class CommonRepository<TEntity>(IRequestHeaderContext requestHea
         return entities;
     }
 
-    public virtual async Task<IReadOnlyList<TEntity>> UpdateAsync(IReadOnlyList<TEntity> entities)
+    /// <inheritdoc />
+    public Task<TEntity> DeleteAsync(TEntity entity, string tenantId)
     {
-        if (!entities.Any())
-        {
-            return [];
-        }
-
-        entities.ForEach(this.PopulateMetadataForEntity);
-        var batch = this.CosmosContainer.CreateTransactionalBatch(this.TenantPartitionKey);
-
-        foreach (var entity in entities)
-        {
-            batch.UpsertItem(entity);
-        }
-
-        await batch.ExecuteAsync().ConfigureAwait(false);
-
-        return entities;
+        return this.DeleteAsync(entity.Id, tenantId);
     }
 
-    public async Task<TEntity> DeleteAsync(TEntity entity)
+    /// <inheritdoc />
+    public async Task<TEntity> DeleteAsync(string id, string tenantId)
     {
-        return await this.DeleteAsync(entity.Id).ConfigureAwait(false);
-    }
+        var tenantPartitionKey = new PartitionKey(tenantId);
 
-    public async Task<TEntity> DeleteAsync(string id)
-    {
-        var response = await this.CosmosContainer.DeleteItemAsync<TEntity>(id, this.TenantPartitionKey).ConfigureAwait(false);
+        var response = await this.CosmosContainer.DeleteItemAsync<TEntity>(id, tenantPartitionKey).ConfigureAwait(false);
         return response.Resource;
     }
 
-    public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
+    /// <inheritdoc />
+    public async Task<IEnumerable<TEntity>> GetAllAsync(string tenantId)
     {
+        var tenantPartitionKey = new PartitionKey(tenantId);
+
         var feedIterator = this.CosmosContainer.GetItemLinqQueryable<TEntity>(
-            requestOptions: new QueryRequestOptions { PartitionKey = this.TenantPartitionKey }
+            requestOptions: new QueryRequestOptions { PartitionKey = tenantPartitionKey }
         ).Where(x => true).ToFeedIterator();
 
         var results = new List<TEntity>();
@@ -96,22 +85,58 @@ public abstract class CommonRepository<TEntity>(IRequestHeaderContext requestHea
         return results;
     }
 
-    public virtual async Task<TEntity?> GetByIdAsync(string id)
+    /// <inheritdoc />
+    public async Task<TEntity?> GetByIdAsync(string id, string tenantId)
     {
-        var response = await this.CosmosContainer.ReadItemAsync<TEntity>(id, this.TenantPartitionKey).ConfigureAwait(false);
+        var tenantPartitionKey = new PartitionKey(tenantId);
+
+        var response = await this.CosmosContainer.ReadItemAsync<TEntity>(id, tenantPartitionKey).ConfigureAwait(false);
         return response.Resource;
     }
 
-    public virtual async Task<TEntity> UpdateAsync(TEntity entity)
+    /// <inheritdoc />
+    public async Task<TEntity> UpdateAsync(TEntity entity, string tenantId, string? accountId)
     {
-        this.PopulateMetadataForEntity(entity);
-        var response = await this.CosmosContainer.UpsertItemAsync(entity, this.TenantPartitionKey).ConfigureAwait(false);
+        PopulateMetadataForEntity(entity, tenantId, accountId);
+        var tenantPartitionKey = new PartitionKey(tenantId);
+
+        var response = await this.CosmosContainer.UpsertItemAsync(entity, tenantPartitionKey).ConfigureAwait(false);
         return response.Resource;
     }
 
-    private void PopulateMetadataForEntity(TEntity entity)
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<TEntity>> UpdateAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId)
     {
-        entity.TenantId = this.TenantId;
-        entity.AccountId = this.AccountId;
+        if (!entities.Any())
+        {
+            return [];
+        }
+
+        foreach (var entity in entities)
+        {
+            PopulateMetadataForEntity(entity, tenantId, accountId);
+        }
+
+        var tenantPartitionKey = new PartitionKey(tenantId);
+
+        var batch = this.CosmosContainer.CreateTransactionalBatch(tenantPartitionKey);
+
+        foreach (var entity in entities)
+        {
+            batch.UpsertItem(entity);
+        }
+
+        await batch.ExecuteAsync().ConfigureAwait(false);
+
+        return entities;
+    }
+
+    private static void PopulateMetadataForEntity(TEntity entity, string tenantId, string? accountId)
+    {
+        entity.TenantId = tenantId;
+        if (accountId != null)
+        {
+            entity.AccountId = accountId;
+        }
     }
 }

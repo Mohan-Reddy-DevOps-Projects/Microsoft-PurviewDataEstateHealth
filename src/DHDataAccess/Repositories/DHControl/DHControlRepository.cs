@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using System;
 
-public class DHControlRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DHControlBaseWrapper>(requestHeaderContext)
+public class DHControlRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonHttpContextRepository<DHControlBaseWrapper>(requestHeaderContext)
 {
     private const string ContainerName = "DHControl";
 

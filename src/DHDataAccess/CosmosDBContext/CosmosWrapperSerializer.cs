@@ -15,6 +15,7 @@ public class CosmosWrapperSerializer : CosmosSerializer
 {
     private readonly JsonSerializer serializer;
 
+    // Map static method as static method
     private static readonly MethodInfo methodCreateEntityWrapper = typeof(EntityWrapperHelper)
         .GetMethods(BindingFlags.Public | BindingFlags.Static)
         .FirstOrDefault(m => m.IsGenericMethod
@@ -25,7 +26,7 @@ public class CosmosWrapperSerializer : CosmosSerializer
 
     public CosmosWrapperSerializer()
     {
-        // JsonSerializer is not thread-safe, so we need to create a new instance for each request
+        // JsonSerializer is not guaranteed as thread-safe, so we need to create a new instance for each request
         this.serializer = new JsonSerializer
         {
             NullValueHandling = NullValueHandling.Ignore,

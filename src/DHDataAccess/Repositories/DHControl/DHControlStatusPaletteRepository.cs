@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Palette;
 using System;
 
-public class DHControlStatusPaletteRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DHControlStatusPaletteWrapper>(requestHeaderContext)
+public class DHControlStatusPaletteRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonHttpContextRepository<DHControlStatusPaletteWrapper>(requestHeaderContext)
 {
     private const string ContainerName = "DHControlStatusPalette";
 

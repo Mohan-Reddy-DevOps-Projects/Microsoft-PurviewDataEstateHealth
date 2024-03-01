@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class DHScoreRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonRepository<DHScoreBaseWrapper>(requestHeaderContext)
+public class DHScoreRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonHttpContextRepository<DHScoreBaseWrapper>(requestHeaderContext)
 {
     private const string ContainerName = "DHScore";
 
