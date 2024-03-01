@@ -93,16 +93,7 @@ public class CertificateLoaderService : ICertificateLoaderService
             {
                 await Task.Delay(refreshRate, this.refreshCancellationTokenSource.Token);
 
-                this.logger.LogInformation($"Start to clean up old certificate cache. Certificates number: {this.oldCertCache.Count}.");
-
-                //Wait to clean up old certs for the next iteration in case they are being used in requests
-                lock (this.cleanupLock)
-                {
-                    Cleanup(this.oldCertCache);
-                    this.oldCertCache = new Dictionary<string, X509Certificate2>();
-                }
-
-                this.logger.LogInformation($"Old certificate cache cleaned up.");
+                this.oldCertCache = new Dictionary<string, X509Certificate2>();
 
                 if (this.refreshCancellationTokenSource.IsCancellationRequested)
                 {
