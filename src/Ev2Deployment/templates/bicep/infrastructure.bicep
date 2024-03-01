@@ -463,6 +463,19 @@ module secondaryEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bic
   }
 }
 
+var eventHubNames = ['catalogevent', 'dataaccessevent', 'dataqualityevent']
+var consumerGroupName = 'dg-health'
+
+module sharedEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHubName in eventHubNames: {
+  name: 'sharedEventHubConsumerGroupDeploy${eventHubName}'
+  scope: resourceGroup(coreResourceGroupName)
+  params: {
+    eventHubNamespaceName: sharedEventHubNamespaceName
+    eventHubName: eventHubName
+    consumerGroupName: consumerGroupName
+  }
+}]
+
 output containerAppIdentityClientId string = containerAppIdentity.properties.clientId
 output containerAppIdentityObjectId string = containerAppIdentity.properties.principalId
 
@@ -487,3 +500,13 @@ module tempEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' =
     roleDefinitionName: azureEventHubsDataReceiverRoleDefName
   }
 }
+
+module catalogEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHubName in eventHubNames: {
+  name: 'catalogEventHubConsumerGroupDeploy${eventHubName}'
+  scope: resourceGroup(catalogSubscriptionId, catalogResourceGroupName)
+  params: {
+    eventHubNamespaceName: catalogEventHubName
+    eventHubName: eventHubName
+    consumerGroupName: consumerGroupName
+  }
+}]
