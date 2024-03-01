@@ -7,16 +7,24 @@ using Newtonsoft.Json.Converters;
 public enum DHOperator
 {
     Equal,
+    NotEqual,
     GreaterThan,
     GreaterThanOrEqual,
     LessThan,
     LessThanOrEqual,
-    Contains,
-    StartsWith,
-    EndsWith,
-    InRange,
-    IsNull,
-    IsEmpty,
-    RegexMatch,
+    IsNullOrEmpty,
+    IsNotNullOrEmpty,
+
     IsTrue,
+    IsFalse,
+
+    Normalize,
+
+    // Not supported for PuP
+    //StartsWith,
+    //EndsWith,
+    //InRange,
+    //RegexMatch,
+    //IsTrue,
+    //Contains,
 }

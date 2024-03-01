@@ -6,19 +6,37 @@ using Newtonsoft.Json.Converters;
 [JsonConverter(typeof(StringEnumConverter))]
 public enum DHCheckPoint
 {
-    Unknown,
-
     // ControlNode
     Score,
 
-    // Assessment - DataProduct
-    DataProductClassificationCount,
+    // Assessment - MQ - DataProduct
+    DataProductDescriptionLength,
+    DataProductBusinessUseLength,
     DataProductOwnerCount,
+    DataProductAllRelatedAssetsHaveOwner,
     DataProductRelatedDataAssetsCount,
-    DataProductHasDQScore,
     DataProductRelatedObjectivesCount,
+    DataProductRelatedTermsCount,
+    DataProductHasDataAccessPolicy,
+    DataProductHasSelfServiceAccessPolicy,
+    DataProductHapDataUsagePurpose,
+    DataProductEndorsed,
+    DataProductStatus,
+    DataProductHasDQScore,
 
-    // Assessment - BusinessDomain
-    BusinessDomainHasCriticalData,
+    // Assessment - MQ - DataAsset
+    DataAssetClassificationCount,
 
+    // Assessment - MQ - CDE
+    CDERelatedDataAssetsCount,
+    CDEOwnerCount,
+    CDEDescriptionLength,
+    CDERelatedTermsCount,
+    CDEAllRelatedAssetsHaveClassification,
+
+    // Assessment - MQ - BusinessDomain
+    BusinessDomainCriticalDataElementCount,
+
+    // Assessment - DQ - DataProduct
+    DataQualityScore,
 }

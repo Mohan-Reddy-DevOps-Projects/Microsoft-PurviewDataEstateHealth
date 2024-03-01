@@ -4,10 +4,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 [JsonConverter(typeof(StringEnumConverter))]
-public enum MQAssessmentTargetEntityType
+public enum MQAssessmentQualityType
 {
-    DataProduct,
-    DataAsset,
-    CriticalDataElement,
-    BusinessDomain,
+    MetadataQuality,
+    DataQuality,
 }

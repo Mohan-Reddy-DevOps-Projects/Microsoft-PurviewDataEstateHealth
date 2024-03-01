@@ -9,11 +9,11 @@ internal static class RuleExecutor
     public static bool Execute<TPayload>(DHSimpleRuleWrapper rule, TPayload payload)
     {
         var checkValue = GetCheckPointValue(rule.CheckPoint, payload);
-        var theOperator = rule.Operator ?? throw new ArgumentException($@"Operator is not set in the check point ""{DHCheckPoint.Score.ToString()}""");
+        var theOperator = rule.Operator ?? throw new ArgumentException($@"Operator is not set in the check point ""{DHCheckPoint.Score}""");
         var allowedOperators = RuleOperatorMapping.GetAllowedOperators(rule.CheckPoint);
         if (!allowedOperators.Contains(theOperator))
         {
-            throw new ArgumentException($@"Operator ""{theOperator}"" is not supported in the check point ""{DHCheckPoint.Score.ToString()}""");
+            throw new ArgumentException($@"Operator ""{theOperator}"" is not supported in the check point ""{DHCheckPoint.Score}""");
         }
 
         var checkPointType = RuleOperatorMapping.GetCheckPointType(rule.CheckPoint);
@@ -23,7 +23,7 @@ internal static class RuleExecutor
             case DHCheckPointType.Boolean:
                 if (checkValue == null || checkValue is not bool)
                 {
-                    throw new ArgumentException($@"The check point ""{rule.CheckPoint.ToString()}"" is not a boolean value");
+                    throw new ArgumentException($@"The check point ""{rule.CheckPoint}"" is not a boolean value");
                 }
                 var boolCheckValue = (bool)checkValue;
                 {
@@ -83,7 +83,7 @@ internal static class RuleExecutor
         };
     }
 
-    private static object? GetCheckPointValue<TPayload>(DHCheckPoint checkPoint, TPayload payload)
+    private static object? GetCheckPointValue<TPayload>(DHCheckPoint? checkPoint, TPayload payload)
     {
         return checkPoint switch
         {

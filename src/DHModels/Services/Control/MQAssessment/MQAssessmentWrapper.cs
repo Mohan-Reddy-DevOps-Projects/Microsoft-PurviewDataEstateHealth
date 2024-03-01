@@ -12,6 +12,7 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
 {
     private const string keyName = "name";
     private const string keyTargetEntityType = "targetEntityType";
+    private const string keyTargetQualityType = "targetQualityType";
     private const string keyRules = "rules";
     private const string keyAggregation = "aggregation";
     private const string keyReserved = "reserved";
@@ -33,6 +34,7 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
     }
 
     [EntityProperty(keyTargetEntityType)]
+    [EntityRequiredValidator]
     public MQAssessmentTargetEntityType? TargetEntityType
     {
         get
@@ -41,6 +43,17 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
             return Enum.TryParse<MQAssessmentTargetEntityType>(enumStr, true, out var result) ? result : null;
         }
         set => this.SetPropertyValue(keyTargetEntityType, value?.ToString());
+    }
+
+    [EntityProperty(keyTargetQualityType)]
+    public MQAssessmentQualityType TargetQualityType
+    {
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyTargetQualityType);
+            return Enum.TryParse<MQAssessmentQualityType>(enumStr, true, out var result) ? result : MQAssessmentQualityType.MetadataQuality;
+        }
+        set => this.SetPropertyValue(keyTargetQualityType, value.ToString());
     }
 
     private IEnumerable<MQAssessmentRuleWrapper>? rules;
