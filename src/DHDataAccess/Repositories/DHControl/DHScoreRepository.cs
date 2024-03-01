@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
@@ -11,7 +12,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class DHScoreRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonHttpContextRepository<DHScoreBaseWrapper>(requestHeaderContext)
+public class DHScoreRepository(
+    CosmosClient cosmosClient,
+    IRequestHeaderContext requestHeaderContext,
+    IConfiguration configuration,
+    IDataEstateHealthRequestLogger logger)
+    : CommonHttpContextRepository<DHScoreBaseWrapper>(requestHeaderContext, logger)
 {
     private const string ContainerName = "DHScore";
 

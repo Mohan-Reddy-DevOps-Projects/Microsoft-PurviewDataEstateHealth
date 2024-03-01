@@ -2,6 +2,7 @@
 
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
@@ -10,7 +11,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class DHComputingJobRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonHttpContextRepository<DHComputingJobWrapper>(requestHeaderContext)
+public class DHComputingJobRepository(
+    CosmosClient cosmosClient,
+    IRequestHeaderContext requestHeaderContext,
+    IConfiguration configuration,
+    IDataEstateHealthRequestLogger logger)
+    : CommonHttpContextRepository<DHComputingJobWrapper>(requestHeaderContext, logger)
 {
     private const string ContainerName = "DHComputingJob";
 

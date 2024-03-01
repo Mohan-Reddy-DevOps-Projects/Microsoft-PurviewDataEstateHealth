@@ -2,6 +2,7 @@
 
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
@@ -10,7 +11,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class DHControlScheduleRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonHttpContextRepository<DHControlScheduleStoragePayloadWrapper>(requestHeaderContext)
+public class DHControlScheduleRepository(
+    CosmosClient cosmosClient,
+    IRequestHeaderContext requestHeaderContext,
+    IConfiguration configuration,
+    IDataEstateHealthRequestLogger logger)
+    : CommonHttpContextRepository<DHControlScheduleStoragePayloadWrapper>(requestHeaderContext, logger)
 {
     private const string ContainerName = "DHSchedule";
 

@@ -1,12 +1,18 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
 using System;
 
-public class MQAssessmentRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration) : CommonHttpContextRepository<MQAssessmentWrapper>(requestHeaderContext)
+public class MQAssessmentRepository(
+    CosmosClient cosmosClient,
+    IRequestHeaderContext requestHeaderContext,
+    IConfiguration configuration,
+    IDataEstateHealthRequestLogger logger)
+    : CommonHttpContextRepository<MQAssessmentWrapper>(requestHeaderContext, logger)
 {
     private const string ContainerName = "MQAssessment";
 

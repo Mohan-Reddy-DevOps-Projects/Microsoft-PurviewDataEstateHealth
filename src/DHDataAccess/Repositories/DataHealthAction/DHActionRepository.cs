@@ -15,8 +15,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class DHActionRepository(CosmosClient cosmosClient, IRequestHeaderContext requestHeaderContext, IConfiguration configuration, IDataEstateHealthRequestLogger logger) : CommonHttpContextRepository<DataHealthActionWrapper>(requestHeaderContext)
+public class DHActionRepository(
+    CosmosClient cosmosClient,
+    IRequestHeaderContext requestHeaderContext,
+    IConfiguration configuration,
+    IDataEstateHealthRequestLogger logger)
+    : CommonHttpContextRepository<DataHealthActionWrapper>(requestHeaderContext, logger)
 {
+    private readonly IDataEstateHealthRequestLogger logger = logger;
+
     private const string ContainerName = "DHAction";
 
     private string DatabaseName => configuration["cosmosDb:actionDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHAction is not found in the configuration");
@@ -25,7 +32,7 @@ public class DHActionRepository(CosmosClient cosmosClient, IRequestHeaderContext
 
     public async Task<List<DataHealthActionWrapper>> GetActionsByFilterAsync(CosmosDBQuery<ActionsFilter> query)
     {
-        using (logger.LogElapsed("Start to query actions in DB"))
+        using (this.logger.LogElapsed("Start to query actions in DB"))
         {
             var sqlQuery = new StringBuilder("SELECT * FROM c WHERE 1 = 1");
 
@@ -50,14 +57,14 @@ public class DHActionRepository(CosmosClient cosmosClient, IRequestHeaderContext
 
     public async Task<ActionFacets> GetActionFacetsAsync(ActionsFilter filters, ActionFacets facets)
     {
-        using (logger.LogElapsed("Start to get action facets"))
+        using (this.logger.LogElapsed("Start to get action facets"))
         {
             var tasks = typeof(ActionFacets).GetProperties().Select(async property =>
             {
                 var propertyValue = (FacetEntity?)property.GetValue(facets);
                 if (propertyValue?.IsEnabled != true)
                 {
-                    logger.LogInformation($"Property is null, property name: {property.Name}");
+                    this.logger.LogInformation($"Property is null, property name: {property.Name}");
                     return;
                 }
                 var attribute = property.GetCustomAttributes(typeof(FacetAttribute), false).FirstOrDefault() as FacetAttribute;
@@ -67,7 +74,7 @@ public class DHActionRepository(CosmosClient cosmosClient, IRequestHeaderContext
 
                     if (attribute.FacetName == DataHealthActionWrapper.keyAssignedTo)
                     {
-                        logger.LogInformation("Query with assignedTo Facets");
+                        this.logger.LogInformation("Query with assignedTo Facets");
 
                         sqlQuery.Append($"SELECT {property.Name} as 'Value', COUNT(1) as 'Count' FROM c  JOIN {property.Name} IN c.{property.Name}  WHERE 1 = 1");
 
@@ -106,7 +113,7 @@ public class DHActionRepository(CosmosClient cosmosClient, IRequestHeaderContext
                 }
                 else
                 {
-                    logger.LogInformation($"Attribute is null, property name: {property.Name}");
+                    this.logger.LogInformation($"Attribute is null, property name: {property.Name}");
                 }
             });
             await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -121,7 +128,7 @@ public class DHActionRepository(CosmosClient cosmosClient, IRequestHeaderContext
 
         if (filter != null)
         {
-            logger.LogInformation("Query filter is not null");
+            this.logger.LogInformation("Query filter is not null");
             if (filter.DomainIds != null && filter.DomainIds.Any())
             {
                 var domainIds = string.Join(", ", filter.DomainIds.Select(x => $"'{x}'"));
@@ -193,7 +200,7 @@ public class DHActionRepository(CosmosClient cosmosClient, IRequestHeaderContext
 
     public async Task<IEnumerable<GroupedActions>> EnumerateActionsByGroupAsync(CosmosDBQuery<ActionsFilter> query, string groupBy)
     {
-        using (logger.LogElapsed("Start to query grouped actions in DB"))
+        using (this.logger.LogElapsed("Start to query grouped actions in DB"))
         {
             var actions = await this.GetActionsByFilterAsync(query).ConfigureAwait(false);
             return GroupedActions.ToGroupedActions(groupBy, actions);

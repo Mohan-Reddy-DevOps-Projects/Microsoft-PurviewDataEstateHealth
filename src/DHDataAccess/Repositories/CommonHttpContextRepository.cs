@@ -1,13 +1,16 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-public abstract class CommonHttpContextRepository<TEntity>(IRequestHeaderContext requestHeaderContext) : CommonRepository<TEntity>, IHttpContextRepository<TEntity>
+public abstract class CommonHttpContextRepository<TEntity>(
+    IRequestHeaderContext requestHeaderContext, IDataEstateHealthRequestLogger logger)
+    : CommonRepository<TEntity>(logger), IHttpContextRepository<TEntity>
     where TEntity : BaseEntityWrapper, IContainerEntityWrapper
 {
     protected string TenantId => requestHeaderContext.TenantId.ToString();
