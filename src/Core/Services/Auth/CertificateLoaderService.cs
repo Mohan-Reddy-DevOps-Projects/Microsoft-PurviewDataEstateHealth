@@ -4,14 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Threading.Tasks;
 using global::Azure.Core;
 using global::Azure.Security.KeyVault.Certificates;
 using global::Azure.Security.KeyVault.Secrets;
@@ -21,6 +13,14 @@ using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Common;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
 using ErrorCode = Common.ErrorCode;
 
 /// <summary>
@@ -93,6 +93,8 @@ public class CertificateLoaderService : ICertificateLoaderService
             {
                 await Task.Delay(refreshRate, this.refreshCancellationTokenSource.Token);
 
+                this.logger.LogInformation($"Start to clean up old certificate cache. Certificates number: {this.oldCertCache.Count}.");
+
                 //Wait to clean up old certs for the next iteration in case they are being used in requests
                 lock (this.cleanupLock)
                 {
@@ -100,10 +102,14 @@ public class CertificateLoaderService : ICertificateLoaderService
                     this.oldCertCache = new Dictionary<string, X509Certificate2>();
                 }
 
+                this.logger.LogInformation($"Old certificate cache cleaned up.");
+
                 if (this.refreshCancellationTokenSource.IsCancellationRequested)
                 {
                     return;
                 }
+
+                this.logger.LogInformation("Start to refresh certificates.");
 
                 var newCertCache = new ConcurrentDictionary<string, X509Certificate2>();
                 try
@@ -128,6 +134,8 @@ public class CertificateLoaderService : ICertificateLoaderService
 
                 this.oldCertCache = this.certCache;
                 this.certCache = newCertCache.ToDictionary(i => i.Key, i => i.Value);
+
+                this.logger.LogInformation($"New certificates all loaded. Certificates number: {this.certCache.Count}.");
             }
         });
     }
@@ -186,6 +194,8 @@ public class CertificateLoaderService : ICertificateLoaderService
         KeyVaultSecret secret = await this.keyVaultAccessorService.GetSecretAsync(secretName, cancellationToken);
         X509Certificate2 certificate = new(Convert.FromBase64String(secret.Value), (string)null);
 
+        this.logger.LogInformation($"Loaded certificate: {secretName} {certificate.Subject}");
+
         X509Chain chain = new()
         {
             //Can't set the revocation mode to "NoCheck" due to MS cert chain policy
@@ -232,6 +242,7 @@ public class CertificateLoaderService : ICertificateLoaderService
             if (httpMessageHandler is HttpClientHandler httpClientHandler)
             {
                 httpClientHandler.ClientCertificates.Add(certificate);
+                this.logger.LogInformation($"Bind client certificate to http client handler. Certificate name: {certName}. Subject: {certificate.Subject}.");
             }
             else if (httpMessageHandler is SocketsHttpHandler socketsHttpHandler)
             {
@@ -239,6 +250,7 @@ public class CertificateLoaderService : ICertificateLoaderService
                 socketsHttpHandler.SslOptions.ClientCertificates.Add(certificate);
                 socketsHttpHandler.SslOptions.LocalCertificateSelectionCallback = (object sender, string targetHost, X509CertificateCollection localCertificates,
                     X509Certificate remoteCertificate, string[] acceptableIssuers) => certificate;
+                this.logger.LogInformation($"Bind client certificate to sockets http handler. Certificate name: {certName}. Subject: {certificate.Subject}.");
             }
         }
         else
