@@ -19,7 +19,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Common;
 using System.Threading;
@@ -189,37 +188,47 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         return $"{storageModel.GetDfsEndpoint()}/{containerName}";
     }
 
-    public async Task<Stream> GetDataQualityOutput(
-        ProcessingStorageModel processingStorageModel,
-        string folderPath)
+    public async Task<List<string>> GetDataQualityOutputFileNames(ProcessingStorageModel processingStorageModel, string folderPath)
     {
-        this.logger.LogInformation($"Start GetDataQualityOutput, folderPath:{folderPath}");
+        this.logger.LogInformation($"Start GetDataQualityOutputFileNames, folderPath:{folderPath}");
 
         string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
         var serviceClient = new DataLakeServiceClient(new Uri(serviceEndpoint), this.tokenCredential);
         var fileSystemClient = serviceClient.GetFileSystemClient(processingStorageModel.CatalogId.ToString()); ;
         var directoryClient = fileSystemClient.GetDirectoryClient(folderPath);
 
-        var fileName = string.Empty;
+        var fileNames = new List<string>();
         await foreach (var pathItem in directoryClient.GetPathsAsync())
         {
-            // Just read the first one, there should be only one file
-            fileName = pathItem.Name;
-            break;
+            if (pathItem.Name.EndsWith(".parquet"))
+            {
+                var fileName = pathItem.Name.Split("/").Last();
+                fileNames.Add(fileName);
+            }
         }
 
-        if (string.IsNullOrEmpty(fileName))
-        {
-            throw new ServiceException($"No error output file found, dfsEndpoint: {serviceEndpoint}, folderPath:{folderPath}");
-        }
+        this.logger.LogInformation($"End GetDataQualityOutputFileNames, found files:{fileNames.Count}");
 
-        fileName = fileName.Split("/").Last();
+        return fileNames;
+    }
 
-        this.logger.LogInformation($"Found error output file, fileName:{fileName}");
+    public async Task<Stream> GetDataQualityOutput(
+        ProcessingStorageModel processingStorageModel,
+        string folderPath,
+        string fileName)
+    {
+        this.logger.LogInformation($"Start GetDataQualityOutput, folderPath:{folderPath}, fileName:{fileName}");
 
+        string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
+        var serviceClient = new DataLakeServiceClient(new Uri(serviceEndpoint), this.tokenCredential);
+        var fileSystemClient = serviceClient.GetFileSystemClient(processingStorageModel.CatalogId.ToString()); ;
+        var directoryClient = fileSystemClient.GetDirectoryClient(folderPath);
         var fileClient = directoryClient.GetFileClient(fileName);
 
         var fileResponse = await fileClient.ReadAsync().ConfigureAwait(false);
+
+        this.logger.LogInformation($"End GetDataQualityOutput, folderPath:{folderPath}, fileName:{fileName}");
+
         return fileResponse.Value.Content;
     }
 

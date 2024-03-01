@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 public class DataQualityOutputAdapter
 {
-    private static readonly string COL_NAME_DP_ID = "Id";
+    private static readonly string COL_NAME_DP_ID = "DataProductId";
     // TODO switch to new model
     //private static readonly string COL_NAME_DP_ID = "DataProductId";
     //private static readonly string COL_NAME_DP_NAME = "DataProductDisplayName";
@@ -59,7 +59,7 @@ public class DataQualityOutputAdapter
                             {
                                 var unit = new DHScoreUnitWrapper(new JObject());
                                 // TODO jar
-                                if (ruleNames[ruleIndex] == "notNullDescription")
+                                if (ruleNames[ruleIndex] == "DPDescriptionNotNull")
                                 {
                                     unit.AssessmentRuleId = "DPDescriptionNotNull";
                                 }

@@ -47,14 +47,27 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
         var folderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={dqJobId}";
 
-        var parquetStream = await this.processingStorageManager.GetDataQualityOutput(
-            accountStorageModel,
-            folderPath).ConfigureAwait(false);
+        var partitionedFileNames = await this.processingStorageManager.GetDataQualityOutputFileNames(accountStorageModel, folderPath).ConfigureAwait(false);
 
-        var memoryStream = new MemoryStream();
-        await parquetStream.CopyToAsync(memoryStream).ConfigureAwait(false);
+        var result = new List<DHRawScore>();
 
-        var result = await DataQualityOutputAdapter.ToScorePayload(memoryStream).ConfigureAwait(false);
+        foreach (var partitionedFileName in partitionedFileNames)
+        {
+            this.logger.LogInformation($"Start read single partitionedFile, partitionedFileName:{partitionedFileName}");
+
+            var parquetStream = await this.processingStorageManager.GetDataQualityOutput(
+                accountStorageModel,
+                folderPath,
+                partitionedFileName).ConfigureAwait(false);
+
+            var memoryStream = new MemoryStream();
+            await parquetStream.CopyToAsync(memoryStream).ConfigureAwait(false);
+
+            var resultFromSingleFile = await DataQualityOutputAdapter.ToScorePayload(memoryStream).ConfigureAwait(false);
+            result.AddRange(resultFromSingleFile);
+
+            this.logger.LogInformation($"End read single partitionedFile, partitionedFileName:{partitionedFileName}, resultCount:{resultFromSingleFile.Count()}");
+        }
 
         this.logger.LogInformation($"End ParseDQResult, resultCount:{result.Count()}");
         if (result.Count() > 0)
