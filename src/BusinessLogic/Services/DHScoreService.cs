@@ -3,7 +3,7 @@
     using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
-    using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
     using Newtonsoft.Json.Linq;
@@ -12,7 +12,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class DHScoreService(DHScoreRepository dhScoreRepository, DHControlRepository dhControlRepository, MQAssessmentRepository mqAssessmentRepository)
+    public class DHScoreService(DHScoreRepository dhScoreRepository, DHControlRepository dhControlRepository, DHAssessmentRepository mqAssessmentRepository)
     {
         public async Task<IBatchResults<DHScoreBaseWrapper>> ListScoresAsync()
         {
@@ -32,15 +32,15 @@
                 var currentTime = DateTime.UtcNow;
                 switch (aggregation)
                 {
-                    case MQAssessmentSimpleAggregationWrapper simpleAggregation:
+                    case DHAssessmentSimpleAggregationWrapper simpleAggregation:
                         switch (simpleAggregation.AggregationType)
                         {
-                            case MQAssessmentSimpleAggregationType.Average:
+                            case DHAssessmentSimpleAggregationType.Average:
                                 var scoreWrappers = scores.Select(x =>
                                 {
                                     switch (assessment.TargetEntityType)
                                     {
-                                        case MQAssessmentTargetEntityType.DataProduct:
+                                        case DHAssessmentTargetEntityType.DataProduct:
                                             return new DHDataProductScoreWrapper
                                             {
                                                 Id = Guid.NewGuid().ToString(),

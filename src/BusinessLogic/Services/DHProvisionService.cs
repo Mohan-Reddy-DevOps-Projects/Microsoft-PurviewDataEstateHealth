@@ -1,7 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -27,9 +27,9 @@ public class DHProvisionService(
 
             foreach (var item in group.Items)
             {
-                var assessmentWrapper = MQAssessmentWrapper.Create(item.Assessment ?? []);
+                var assessmentWrapper = DHAssessmentWrapper.Create(item.Assessment ?? []);
                 var assessment = await assessmentService.CreateAssessmentAsync(assessmentWrapper).ConfigureAwait(false);
-                
+
                 var controlWrapper = (DHControlNodeWrapper)DHControlBaseWrapper.Create(item.Control ?? []);
                 controlWrapper.AssessmentId = assessment.Id;
                 controlWrapper.GroupId = controlGroup.Id;
@@ -63,15 +63,20 @@ public class DHProvisionService(
 
 public class ControlAssessmentTemplate
 {
+    [JsonProperty("controlGroup", NullValueHandling = NullValueHandling.Ignore)]
     public JObject ControlGroup { get; set; } = [];
 
+    [JsonProperty("items", NullValueHandling = NullValueHandling.Ignore)]
     public IList<ControlAssessmentItemTemplate> Items { get; set; } = [];
 
 }
 
 public class ControlAssessmentItemTemplate
 {
+    [JsonProperty("control", NullValueHandling = NullValueHandling.Ignore)]
     public JObject Control { get; set; } = [];
+
+    [JsonProperty("assessment", NullValueHandling = NullValueHandling.Ignore)]
     public JObject Assessment { get; set; } = [];
 }
 

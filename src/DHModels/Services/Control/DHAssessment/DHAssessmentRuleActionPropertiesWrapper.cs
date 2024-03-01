@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
@@ -6,13 +6,13 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Newtonsoft.Json.Linq;
 using System;
 
-public class MQAssessmentRuleActionPropertiesWrapper(JObject jObject) : BaseEntityWrapper(jObject)
+public class DHAssessmentRuleActionPropertiesWrapper(JObject jObject) : BaseEntityWrapper(jObject)
 {
     private const string keyActionName = "actionName";
     private const string keyActionSeverity = "actionSeverity";
     private const string keyActionRecommendation = "actionRecommendation";
 
-    public MQAssessmentRuleActionPropertiesWrapper() : this([]) { }
+    public DHAssessmentRuleActionPropertiesWrapper() : this([]) { }
 
     [EntityProperty(keyActionName)]
     public string ActionName

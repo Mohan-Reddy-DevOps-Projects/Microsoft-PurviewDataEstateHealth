@@ -1,10 +1,10 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 [JsonConverter(typeof(StringEnumConverter))]
-public enum MQAssessmentTargetEntityType
+public enum DHAssessmentTargetEntityType
 {
     DataProduct,
     DataAsset,

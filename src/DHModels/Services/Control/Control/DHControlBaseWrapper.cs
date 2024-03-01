@@ -2,7 +2,6 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
-using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
@@ -15,7 +14,7 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
     private const string keyName = "name";
     private const string keyDescription = "description";
     private const string keyContacts = "contacts";
-    private const string keyReserved = "reserved";
+    private const string keySyatemTemplate = "systemTemplate";
     private const string keyStatusPaletteConfig = "statusPaletteConfig";
     private const string keyStatus = "status";
 
@@ -62,11 +61,11 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
         }
     }
 
-    [EntityProperty(keyReserved, true)]
-    public bool Reserved
+    [EntityProperty(keySyatemTemplate, true)]
+    public string SyatemTemplate
     {
-        get => this.GetPropertyValue<bool>(keyReserved);
-        set => this.SetPropertyValue(keyReserved, value);
+        get => this.GetPropertyValue<string>(keySyatemTemplate);
+        set => this.SetPropertyValue(keySyatemTemplate, value);
     }
 
     private DHControlStatusPaletteConfigWrapper? statusPaletteConfig;
@@ -95,14 +94,9 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
 
     public override void OnUpdate(DHControlBaseWrapper existWrapper, string userId)
     {
-        if (existWrapper.Reserved)
-        {
-            throw new EntityReservedException();
-        }
-
         base.OnUpdate(existWrapper, userId);
 
-        this.Reserved = existWrapper.Reserved;
+        this.SyatemTemplate = existWrapper.SyatemTemplate;
     }
 }
 

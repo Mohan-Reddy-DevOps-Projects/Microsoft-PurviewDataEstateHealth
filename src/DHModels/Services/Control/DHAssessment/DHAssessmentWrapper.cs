@@ -1,28 +1,27 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
-using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
-public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<MQAssessmentWrapper>(jObject)
+public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHAssessmentWrapper>(jObject)
 {
     private const string keyName = "name";
     private const string keyTargetEntityType = "targetEntityType";
     private const string keyTargetQualityType = "targetQualityType";
     private const string keyRules = "rules";
     private const string keyAggregation = "aggregation";
-    private const string keyReserved = "reserved";
+    private const string keySyatemTemplate = "systemTemplate";
 
-    public static MQAssessmentWrapper Create(JObject jObject)
+    public static DHAssessmentWrapper Create(JObject jObject)
     {
-        return new MQAssessmentWrapper(jObject);
+        return new DHAssessmentWrapper(jObject);
     }
 
-    public MQAssessmentWrapper() : this([]) { }
+    public DHAssessmentWrapper() : this([]) { }
 
     [EntityProperty(keyName)]
     [EntityRequiredValidator]
@@ -35,33 +34,33 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
 
     [EntityProperty(keyTargetEntityType)]
     [EntityRequiredValidator]
-    public MQAssessmentTargetEntityType? TargetEntityType
+    public DHAssessmentTargetEntityType? TargetEntityType
     {
         get
         {
             var enumStr = this.GetPropertyValue<string>(keyTargetEntityType);
-            return Enum.TryParse<MQAssessmentTargetEntityType>(enumStr, true, out var result) ? result : null;
+            return Enum.TryParse<DHAssessmentTargetEntityType>(enumStr, true, out var result) ? result : null;
         }
         set => this.SetPropertyValue(keyTargetEntityType, value?.ToString());
     }
 
     [EntityProperty(keyTargetQualityType)]
-    public MQAssessmentQualityType TargetQualityType
+    public DHAssessmentQualityType TargetQualityType
     {
         get
         {
             var enumStr = this.GetPropertyValue<string>(keyTargetQualityType);
-            return Enum.TryParse<MQAssessmentQualityType>(enumStr, true, out var result) ? result : MQAssessmentQualityType.MetadataQuality;
+            return Enum.TryParse<DHAssessmentQualityType>(enumStr, true, out var result) ? result : DHAssessmentQualityType.MetadataQuality;
         }
         set => this.SetPropertyValue(keyTargetQualityType, value.ToString());
     }
 
-    private IEnumerable<MQAssessmentRuleWrapper>? rules;
+    private IEnumerable<DHAssessmentRuleWrapper>? rules;
 
     [EntityProperty(keyRules)]
-    public IEnumerable<MQAssessmentRuleWrapper> Rules
+    public IEnumerable<DHAssessmentRuleWrapper> Rules
     {
-        get => this.rules ??= this.GetPropertyValueAsWrappers<MQAssessmentRuleWrapper>(keyRules);
+        get => this.rules ??= this.GetPropertyValueAsWrappers<DHAssessmentRuleWrapper>(keyRules);
         set
         {
             this.SetPropertyValueFromWrappers(keyRules, value);
@@ -69,12 +68,12 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
         }
     }
 
-    private MQAssessmentAggregationBaseWrapper? Aggregation;
+    private DHAssessmentAggregationBaseWrapper? Aggregation;
 
     [EntityProperty(keyAggregation)]
-    public MQAssessmentAggregationBaseWrapper AggregationWrapper
+    public DHAssessmentAggregationBaseWrapper AggregationWrapper
     {
-        get => this.Aggregation ??= this.GetPropertyValueAsWrapper<MQAssessmentAggregationBaseWrapper>(keyAggregation);
+        get => this.Aggregation ??= this.GetPropertyValueAsWrapper<DHAssessmentAggregationBaseWrapper>(keyAggregation);
         set
         {
             this.SetPropertyValueFromWrapper(keyAggregation, value);
@@ -82,22 +81,17 @@ public class MQAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<M
         }
     }
 
-    [EntityProperty(keyReserved, true)]
-    public bool Reserved
+    [EntityProperty(keySyatemTemplate, true)]
+    public string SyatemTemplate
     {
-        get => this.GetPropertyValue<bool>(keyReserved);
-        set => this.SetPropertyValue(keyReserved, value);
+        get => this.GetPropertyValue<string>(keySyatemTemplate);
+        set => this.SetPropertyValue(keySyatemTemplate, value);
     }
 
-    public override void OnUpdate(MQAssessmentWrapper existWrapper, string userId)
+    public override void OnUpdate(DHAssessmentWrapper existWrapper, string userId)
     {
-        if (existWrapper.Reserved)
-        {
-            throw new EntityReservedException();
-        }
-
         base.OnUpdate(existWrapper, userId);
 
-        this.Reserved = existWrapper.Reserved;
+        this.SyatemTemplate = existWrapper.SyatemTemplate;
     }
 }

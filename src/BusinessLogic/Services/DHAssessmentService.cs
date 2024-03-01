@@ -10,7 +10,7 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
 using System;
@@ -18,16 +18,16 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class DHAssessmentService(MQAssessmentRepository assessmentRepository, IRequestHeaderContext requestHeaderContext)
+public class DHAssessmentService(DHAssessmentRepository assessmentRepository, IRequestHeaderContext requestHeaderContext)
 {
-    public async Task<IBatchResults<MQAssessmentWrapper>> ListAssessmentsAsync()
+    public async Task<IBatchResults<DHAssessmentWrapper>> ListAssessmentsAsync()
     {
         var entities = await assessmentRepository.GetAllAsync().ConfigureAwait(false);
 
-        return new BatchResults<MQAssessmentWrapper>(entities, entities.Count());
+        return new BatchResults<DHAssessmentWrapper>(entities, entities.Count());
     }
 
-    public async Task<MQAssessmentWrapper> GetAssessmentByIdAsync(string id)
+    public async Task<DHAssessmentWrapper> GetAssessmentByIdAsync(string id)
     {
         ArgumentNullException.ThrowIfNull(id);
 
@@ -41,7 +41,7 @@ public class DHAssessmentService(MQAssessmentRepository assessmentRepository, IR
         return entity;
     }
 
-    public async Task<MQAssessmentWrapper> CreateAssessmentAsync(MQAssessmentWrapper entity)
+    public async Task<DHAssessmentWrapper> CreateAssessmentAsync(DHAssessmentWrapper entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -55,18 +55,18 @@ public class DHAssessmentService(MQAssessmentRepository assessmentRepository, IR
         return entity;
     }
 
-    public async Task<MQAssessmentWrapper> CreateEmptyAssessmentAsync(string assessmentName)
+    public async Task<DHAssessmentWrapper> CreateEmptyAssessmentAsync(string assessmentName)
     {
         ArgumentException.ThrowIfNullOrEmpty(assessmentName);
 
-        var entity = MQAssessmentWrapper.Create([]);
+        var entity = DHAssessmentWrapper.Create([]);
 
         entity.Name = assessmentName;
 
         return await this.CreateAssessmentAsync(entity).ConfigureAwait(false);
     }
 
-    public async Task<MQAssessmentWrapper> UpdateAssessmentByIdAsync(string id, MQAssessmentWrapper entity)
+    public async Task<DHAssessmentWrapper> UpdateAssessmentByIdAsync(string id, DHAssessmentWrapper entity)
     {
         ArgumentNullException.ThrowIfNull(id);
         ArgumentNullException.ThrowIfNull(entity);

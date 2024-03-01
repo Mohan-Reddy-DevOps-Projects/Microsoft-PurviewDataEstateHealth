@@ -20,7 +20,6 @@
         }
       ]
     },
-    "Reserved": false,
     "StatusPaletteConfig": {
       "TargetScore": 80,
       "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
@@ -273,8 +272,7 @@
           "user": "aad14eb4-365d-4521-a660-e31be2edd031",
           "action": "Update"
         }
-      ],
-      "reserved": false
+      ]
     },
     "_rid": "xSoKAIQm2L6EhB4AAAAAAA==",
     "_self": "dbs/xSoKAA==/colls/xSoKAIQm2L4=/docs/xSoKAIQm2L6EhB4AAAAAAA==/",
@@ -396,7 +394,6 @@
       ],
       "Experts": []
     },
-    "Reserved": false,
     "StatusPaletteConfig": {
       "TargetScore": 80,
       "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
@@ -588,8 +585,7 @@
           "user": "aad14eb4-365d-4521-a660-e31be2edd031",
           "action": "Update"
         }
-      ],
-      "reserved": false
+      ]
     },
     "_rid": "xSoKAIQm2L6FhB4AAAAAAA==",
     "_self": "dbs/xSoKAA==/colls/xSoKAIQm2L4=/docs/xSoKAIQm2L6FhB4AAAAAAA==/",
@@ -613,7 +609,6 @@
         }
       ]
     },
-    "Reserved": false,
     "StatusPaletteConfig": {
       "TargetScore": 80,
       "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
@@ -709,8 +704,7 @@
           "user": "aad14eb4-365d-4521-a660-e31be2edd031",
           "action": "Update"
         }
-      ],
-      "reserved": false
+      ]
     },
     "_rid": "xSoKAIQm2L6GhB4AAAAAAA==",
     "_self": "dbs/xSoKAA==/colls/xSoKAIQm2L4=/docs/xSoKAIQm2L6GhB4AAAAAAA==/",

@@ -114,7 +114,6 @@
       }
     ]
   },
-  "Reserved": false,
   "StatusPaletteConfig": {
     "TargetScore": 80.0,
     "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000002",
@@ -364,7 +363,6 @@
         "user": "aad14eb4-365d-4521-a660-e31be2edd031",
         "action": "Update"
       }
-    ],
-    "reserved": false
+    ]
   }
 }

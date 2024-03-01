@@ -12,7 +12,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Exceptions
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Newtonsoft.Json.Linq;
 
 [ApiController]
@@ -37,7 +37,7 @@ public class DHAssessmentController(DHAssessmentService assessmentService) : Dat
             throw new InvalidRequestException(StringResources.ErrorMessageInvalidPayload);
         }
 
-        var entity = MQAssessmentWrapper.Create(payload);
+        var entity = DHAssessmentWrapper.Create(payload);
         var result = await assessmentService.CreateAssessmentAsync(entity).ConfigureAwait(false);
         return this.Created(new Uri($"{this.Request.GetEncodedUrl()}/{result.Id}"), result.JObject);
     }
@@ -59,7 +59,7 @@ public class DHAssessmentController(DHAssessmentService assessmentService) : Dat
             throw new InvalidRequestException(StringResources.ErrorMessageInvalidPayload);
         }
 
-        var entity = MQAssessmentWrapper.Create(payload!);
+        var entity = DHAssessmentWrapper.Create(payload!);
         var result = await assessmentService.UpdateAssessmentByIdAsync(id, entity).ConfigureAwait(false);
         return this.Ok(result.JObject);
     }

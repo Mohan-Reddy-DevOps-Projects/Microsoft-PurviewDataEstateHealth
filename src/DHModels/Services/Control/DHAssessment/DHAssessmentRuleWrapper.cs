@@ -1,17 +1,17 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.MQAssessment;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Newtonsoft.Json.Linq;
 
-public class MQAssessmentRuleWrapper(JObject jObject) : BaseEntityWrapper(jObject)
+public class DHAssessmentRuleWrapper(JObject jObject) : BaseEntityWrapper(jObject)
 {
     private const string keyId = "id";
     private const string keyRule = "rule";
     private const string keyActionProperties = "actionProperties";
 
-    public MQAssessmentRuleWrapper() : this([]) { }
+    public DHAssessmentRuleWrapper() : this([]) { }
 
     [EntityProperty(keyId)]
     public string Id
@@ -33,12 +33,12 @@ public class MQAssessmentRuleWrapper(JObject jObject) : BaseEntityWrapper(jObjec
         }
     }
 
-    private MQAssessmentRuleActionPropertiesWrapper? actionProperties;
+    private DHAssessmentRuleActionPropertiesWrapper? actionProperties;
 
     [EntityProperty(keyActionProperties)]
-    public MQAssessmentRuleActionPropertiesWrapper ActionProperties
+    public DHAssessmentRuleActionPropertiesWrapper ActionProperties
     {
-        get => this.actionProperties ??= this.GetPropertyValueAsWrapper<MQAssessmentRuleActionPropertiesWrapper>(keyActionProperties);
+        get => this.actionProperties ??= this.GetPropertyValueAsWrapper<DHAssessmentRuleActionPropertiesWrapper>(keyActionProperties);
         set
         {
             this.SetPropertyValueFromWrapper(keyActionProperties, value);
