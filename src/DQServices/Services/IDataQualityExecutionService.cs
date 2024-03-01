@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 public interface IDataQualityExecutionService
 {
-    public Task<string> SubmitDQJob(string accountId, string controlId, string healthJobId);
+    public Task<string> SubmitDQJob(string tenantId, string accountId, string controlId, string healthJobId);
 
     public Task<IEnumerable<DHRawScore>> ParseDQResult(string accountId, string controlId, string healthJobId, string dqJobId);
 }

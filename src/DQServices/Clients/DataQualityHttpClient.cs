@@ -27,11 +27,12 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
         this.Logger = logger;
     }
 
-    public async Task CreateObserver(ObserverWrapper observer, string accountId)
+    public async Task CreateObserver(ObserverWrapper observer, string tenantId, string accountId)
     {
         var requestUri = this.CreateRequestUri("/mdq/observers");
 
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri);
+        request.Headers.Add("x-ms-client-tenant-id", tenantId);
         request.Headers.Add("x-ms-account-id", accountId);
 
         request.Content = this.CreateRequestContent(observer.JObject);
@@ -42,6 +43,7 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
     }
 
     public async Task<string> TriggerJobRun(
+        string tenantId,
         string accountId,
         string dataProductId,
         string dataAssetId,
@@ -50,6 +52,7 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
         var requestUri = this.CreateRequestUri($"/business-domains/{DataEstateHealthConstants.DEH_DOMAIN_ID}/data-products/{dataProductId}/data-assets/{dataAssetId}/mdq-observations");
 
         HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri);
+        request.Headers.Add("x-ms-client-tenant-id", tenantId);
         request.Headers.Add("x-ms-account-id", accountId);
 
         request.Content = this.CreateRequestContent(payload);

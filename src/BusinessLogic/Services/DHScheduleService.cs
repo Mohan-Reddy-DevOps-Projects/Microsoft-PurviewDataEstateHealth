@@ -55,7 +55,11 @@ public class DHScheduleService(
         {
             // Step 2: submit DQ jobs
             var jobId = Guid.NewGuid().ToString();
-            var dqJobId = await dataQualityExecutionService.SubmitDQJob(requestHeaderContext.AccountObjectId.ToString(), control.Id, jobId).ConfigureAwait(false);
+            var dqJobId = await dataQualityExecutionService.SubmitDQJob(
+                requestHeaderContext.TenantId.ToString(),
+                requestHeaderContext.AccountObjectId.ToString(),
+                control.Id,
+                jobId).ConfigureAwait(false);
 
             // Step 3: save into monitoring table
             var jobWrapper = new DHComputingJobWrapper();
@@ -63,7 +67,7 @@ public class DHScheduleService(
             jobWrapper.DQJobId = dqJobId;
             jobWrapper.ControlId = control.Id;
             await monitoringService.CreateComputingJob(jobWrapper, ScheduleOperationName).ConfigureAwait(false);
-            logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}");
+            logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}. Control Id:{control.Id}");
         }
     }
 

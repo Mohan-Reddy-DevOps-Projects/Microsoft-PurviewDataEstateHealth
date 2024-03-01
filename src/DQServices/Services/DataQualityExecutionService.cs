@@ -79,9 +79,9 @@ public class DataQualityExecutionService : IDataQualityExecutionService
     }
 
     // TODO Will add more params later
-    public async Task<string> SubmitDQJob(string accountId, string controlId, string healthJobId)
+    public async Task<string> SubmitDQJob(string tenantId, string accountId, string controlId, string healthJobId)
     {
-        this.logger.LogInformation($"Start SubmitDQJOb, accountId:{accountId}, controlId:{controlId}, healthJobId:{healthJobId}");
+        this.logger.LogInformation($"Start SubmitDQJOb, tenantId:{tenantId}, accountId:{accountId}, controlId:{controlId}, healthJobId:{healthJobId}");
 
         // Query storage account
         var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
@@ -113,10 +113,11 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         this.logger.LogInformation($"Observer payload: {observerPayload}");
 
         // Create a temporary observer
-        await dataQualityServiceClient.CreateObserver(observer, accountId).ConfigureAwait(false);
+        await dataQualityServiceClient.CreateObserver(observer, tenantId, accountId).ConfigureAwait(false);
 
         // Trigger run
         var dqJobId = await dataQualityServiceClient.TriggerJobRun(
+            tenantId,
             accountId,
             dataProductId,
             dataAssetId,
