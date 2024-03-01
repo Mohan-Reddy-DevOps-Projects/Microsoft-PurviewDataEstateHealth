@@ -165,10 +165,6 @@
                 "replaceWith": "https://$config(dgh.serviceShortName)-$config(pdg.environment.shortName)-$config(regionShortName)-kv.$config(keyVault.domainNameSuffix)"
             },
             {
-                "find": "\"__INFRA_PROCESSING_STORAGE_SUBSCRIPTIONS__\"",
-                "replaceWith": "$config(pdg.regionSharedInfrastructure.sharedSubscriptions.storage)"
-            },
-            {
                 "find": "__INFRA_RESOURCE_GROUP_NAME__",
                 "replaceWith": "$config(dgh.resourceGroupName)"
             },
@@ -261,6 +257,10 @@
         {
           "find": "__PROCESSING_STORAGE_TABLE_NAME__",
           "replaceWith": "$config(pdg.processingStorage.tableName)"
+        },
+        {
+          "find": "__PROCESSING_STORAGE_SUBSCRIPTIONID__",
+          "replaceWith": "$subscriptionId()"
         }
       ]
     }

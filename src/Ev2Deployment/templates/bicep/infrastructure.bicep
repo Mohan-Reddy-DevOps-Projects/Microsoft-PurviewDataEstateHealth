@@ -12,7 +12,6 @@ param keyVaultName string
 param sqlAdminUserSecretName string
 param sqlAdminPassSecretName string
 param location string = resourceGroup().location
-param processingStorageSubscriptions array
 param vnetName string
 param synapseWorkspaceName string
 param synapseStorageAccountName string
@@ -33,8 +32,6 @@ var keyVaultReaderRoleDefName = '21090545-7ca7-4776-b22c-e363652d74d2'
 var keyVaultSecretsOfficerRoleDefName = 'b86a8fe4-44ce-4948-aee5-eccb2c155cd7'
 var keyVaultCertificatesUserRoleDefName = 'db79e9a7-68ee-4b58-9aeb-b90e7c24fcba'
 var keyVaultCertificatesOfficerRoleDefName = 'a4417e6f-fecd-4de8-b567-7b0420556985'
-var storageBlobDataContributorRoleDefName = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
-var storageTableDataContributorRoleDefName = '0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3'
 var ownerRoleDefName = '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
 
 resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
@@ -446,47 +443,6 @@ resource acrPullRoleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-
     principalType: 'ServicePrincipal'
   }
 }
-
-module processingStorageSubContributorRoleModule 'subscriptionRoleAssignment.bicep' = [for processingStorageSubscription in processingStorageSubscriptions: {
-  name: 'processingStorageSubContributorRoleModuleDeploy_${processingStorageSubscription.stamp}'
-  scope: subscription(processingStorageSubscription.id)
-  params: {
-    principalId: containerAppIdentity.properties.principalId
-    roleDefinitionName: contributorRoleDefName
-    subscriptionId: processingStorageSubscription.id
-  }
-}]
-
-module processingStorageSynapseSubContributorRoleModule 'subscriptionRoleAssignment.bicep' = [for processingStorageSubscription in processingStorageSubscriptions: {
-  name: 'processingStorageSynapseSubContributorRoleModuleDeploy_${processingStorageSubscription.stamp}'
-  scope: subscription(processingStorageSubscription.id)
-  params: {
-    principalId: synapseWorkspace.identity.principalId
-    roleDefinitionName: storageBlobDataContributorRoleDefName
-    subscriptionId: processingStorageSubscription.id
-  }
-}]
-
-module processingStorageSubBlobDataContributorRoleModule 'subscriptionRoleAssignment.bicep' = [for processingStorageSubscription in processingStorageSubscriptions: {
-  name: 'processingStorageSubBlobDataContributorRoleModuleDeploy_${processingStorageSubscription.stamp}'
-  scope: subscription(processingStorageSubscription.id)
-  params: {
-    principalId: containerAppIdentity.properties.principalId
-    roleDefinitionName: storageBlobDataContributorRoleDefName
-    subscriptionId: processingStorageSubscription.id
-  }
-}]
-
-module processingStorageSubTableDataContributorRoleModule 'subscriptionRoleAssignment.bicep' = [for processingStorageSubscription in processingStorageSubscriptions: {
-  name: 'processingStorageSubTableDataContributorRoleModuleDeploy_${processingStorageSubscription.stamp}'
-  scope: subscription(processingStorageSubscription.id)
-  params: {
-    principalId: containerAppIdentity.properties.principalId
-    roleDefinitionName: storageTableDataContributorRoleDefName
-    subscriptionId: processingStorageSubscription.id
-  }
-}]
-
 
 module eventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' = {
   name: 'sharedEventHubNamespaceRoleDeploy'

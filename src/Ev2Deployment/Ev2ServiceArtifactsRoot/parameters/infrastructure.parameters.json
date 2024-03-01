@@ -35,9 +35,6 @@
         "keyVaultName": {
             "value": "__INFRA_KEY_VAULT_NAME__"
         },
-        "processingStorageSubscriptions": {
-            "value": "__INFRA_PROCESSING_STORAGE_SUBSCRIPTIONS__"
-        },
         "vnetName": {
             "value": "__CORE_VNET_NAME__"
         },

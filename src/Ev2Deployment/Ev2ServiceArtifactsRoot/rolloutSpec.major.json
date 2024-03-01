@@ -62,6 +62,13 @@
       }
     },
     {
+      "name": "deployProcessingStorageRoleAssignments",
+      "dependsOn": ["deployInfrastructure"],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "processingStorageRoleAssignmentResourceDefinition",
+      "actions": ["deploy"]
+    },
+    {
       "name": "deployPowerBIFiles",
       "dependsOn": ["deployInfrastructure"],
       "targetType": "ServiceResourceDefinition",

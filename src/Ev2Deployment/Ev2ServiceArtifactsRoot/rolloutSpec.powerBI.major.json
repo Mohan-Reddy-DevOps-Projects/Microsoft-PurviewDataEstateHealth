@@ -36,6 +36,13 @@
             "actions": [ "wait/skip" ]
         },
         {
+          "name": "deployProcessingStorageRoleAssignments",
+          "dependsOn": ["deployInfrastructure"],
+          "targetType": "ServiceResourceDefinition",
+          "targetName": "processingStorageRoleAssignmentResourceDefinition",
+          "actions": ["wait/skip"]
+        },
+        {
             "name": "deployPowerBIFiles",
             "targetType": "ServiceResourceDefinition",
             "targetName": "powerBIFilesResourceDefintion",
