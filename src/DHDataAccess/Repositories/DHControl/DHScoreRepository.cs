@@ -70,7 +70,7 @@ public class DHScoreRepository(
             intermediateResults.AddRange(currentResultSet.Resource);
         }
 
-        return intermediateResults.GroupBy(x => new { x.ControlId, x.ComputingJobId }).SelectMany(g =>
+        return intermediateResults.GroupBy(x => new { x.ControlId }).SelectMany(g =>
         {
             var orderedSeq = g.OrderByDescending(x => x.Time);
             return recordLatestCounts.HasValue ? orderedSeq.Take(recordLatestCounts.Value) : orderedSeq;
