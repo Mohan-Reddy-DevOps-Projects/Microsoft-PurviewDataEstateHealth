@@ -32,7 +32,7 @@
         {
             job.CreateTime = DateTime.UtcNow;
             job.StartTime = DateTime.UtcNow;
-            job.OnCreate(user);
+            job.OnCreate(user, job.Id);
             await this.dhComputingJobRepository.AddAsync(job).ConfigureAwait(false);
         }
 
