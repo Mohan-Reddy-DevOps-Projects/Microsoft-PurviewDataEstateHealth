@@ -19,7 +19,7 @@ public enum DHCheckPoint
     DataProductRelatedTermsCount,
     DataProductHasDataAccessPolicy,
     DataProductHasSelfServiceAccessPolicy,
-    DataProductHapDataUsagePurpose,
+    DataProductHasDataUsagePurpose,
     DataProductEndorsed,
     DataProductStatus,
     DataProductHasDQScore,
