@@ -50,8 +50,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
             var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
             var response = await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
 
-            schedule.OnCreate(this.requestHeaderContext.ClientObjectId);
-            schedule.Id = response.ScheduleId;
+            schedule.OnCreate(this.requestHeaderContext.ClientObjectId, response.ScheduleId);
 
             await this.dhControlScheduleRepository.AddAsync(schedule).ConfigureAwait(false);
 

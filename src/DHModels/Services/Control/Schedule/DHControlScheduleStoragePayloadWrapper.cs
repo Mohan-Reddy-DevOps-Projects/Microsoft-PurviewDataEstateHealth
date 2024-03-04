@@ -42,9 +42,9 @@ public class DHControlScheduleStoragePayloadWrapper(JObject jObject) : Container
         }
     }
 
-    public override void OnCreate(string userId)
+    public override void OnCreate(string userId, string? id = null)
     {
-        base.OnCreate(userId);
+        base.OnCreate(userId, id);
     }
 }
 

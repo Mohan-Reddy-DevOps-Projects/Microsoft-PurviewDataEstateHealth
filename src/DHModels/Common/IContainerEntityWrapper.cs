@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Common;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Common.AuditLog;
-using System.Collections.Generic;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 
 public interface IContainerEntityWrapper
 {
@@ -11,5 +10,5 @@ public interface IContainerEntityWrapper
 
     public string? AccountId { get; set; }
 
-    public IEnumerable<ContainerEntityAuditLogWrapper> AuditLogs { get; set; }
+    public SystemDataWrapper SystemData { get; set; }
 }

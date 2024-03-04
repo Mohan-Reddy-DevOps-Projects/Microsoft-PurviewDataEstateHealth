@@ -1,24 +1,23 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Common.AuditLog;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 
 public class DHControlGlobalSchedulePayloadWrapper(JObject jObject) : DHControlScheduleWrapper(jObject)
 {
-    private const string keyAuditLogs = "auditLogs";
+    private const string keySystemData = "systemData";
 
-    private IEnumerable<ContainerEntityAuditLogWrapper>? auditLogs;
+    private SystemDataWrapper? systemData;
 
-    [EntityProperty(keyAuditLogs, true)]
-    public IEnumerable<ContainerEntityAuditLogWrapper> AuditLogs
+    [EntityProperty(keySystemData, true)]
+    public SystemDataWrapper SystemData
     {
-        get => this.auditLogs ??= this.GetPropertyValueAsWrappers<ContainerEntityAuditLogWrapper>(keyAuditLogs);
+        get => this.systemData ??= this.GetPropertyValueAsWrapper<SystemDataWrapper>(keySystemData);
         set
         {
-            this.SetPropertyValueFromWrappers(keyAuditLogs, value);
-            this.auditLogs = value;
+            this.SetPropertyValueFromWrapper(keySystemData, value);
+            this.systemData = value;
         }
     }
 }

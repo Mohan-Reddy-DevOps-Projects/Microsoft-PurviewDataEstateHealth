@@ -127,7 +127,7 @@ public class DHScheduleService(
         {
             // Create Global Schedule
             var result = await scheduleService.CreateScheduleAsync(scheduleStoragePayload).ConfigureAwait(false);
-            entity.AuditLogs = result.AuditLogs;
+            entity.SystemData = result.SystemData;
             return entity;
         }
         else
@@ -135,7 +135,7 @@ public class DHScheduleService(
             // Update Global Schedule
             scheduleStoragePayload.Id = existingGlobalSchedule.Id;
             var result = await scheduleService.UpdateScheduleAsync(scheduleStoragePayload).ConfigureAwait(false);
-            entity.AuditLogs = result.AuditLogs;
+            entity.SystemData = result.SystemData;
             return entity;
         }
     }
@@ -150,7 +150,7 @@ public class DHScheduleService(
         }
 
         var response = new DHControlGlobalSchedulePayloadWrapper(globalSchedule.Properties.JObject);
-        response.AuditLogs = globalSchedule.AuditLogs;
+        response.SystemData = globalSchedule.SystemData;
 
         return response;
     }

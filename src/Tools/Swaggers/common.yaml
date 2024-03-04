@@ -593,24 +593,26 @@ components:
           type: string
           readOnly: true
           example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
-        AuditLogs:
-          type: array
+        systemData:
+          type: object
           readOnly: true
-          items:
-            type: object
-            properties:
-              time:
-                type: string
-                example: "2020-12-11Z"
-                description: Date of the most recent change to the object.
-              user:
-                type: string
-                example: 766BF2B9-5D8A-4FB1-B8D5-D30A53E22A9E
-                description: Person id of the most recent change to the object.
-              action:
-                type: string
-                enum: [Create, Update]
-                description: The type of user action.
+          properties:
+            lastModifiedAt:
+              type: string
+              example: "2020-12-11Z"
+              description: Date of the most recent change to the object.
+            lastModifiedBy:
+              type: string
+              example: 766BF2B9-5D8A-4FB1-B8D5-D30A53E22A9E
+              description: Person id of the most recent change to the object.
+            createdAt:
+              type: string
+              example: "2020-12-11Z"
+              description: Date the object was created.
+            createdBy:
+              type: string
+              example: 766BF2B9-5D8A-4FB1-B8D5-D30A53E22A9E
+              description: Person id of the most recent change to the object.
     Control:
       type: object
       oneOf:

@@ -1,19 +1,17 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Common;
 
-using Microsoft.Purview.DataEstateHealth.DHModels.Common.AuditLog;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 public abstract class ContainerEntityBaseWrapper<T>(JObject jObject) : BaseEntityWrapper(jObject), IContainerEntityWrapper where T : ContainerEntityBaseWrapper<T>
 {
     private const string keyId = "id";
-    private const string keyAuditLogs = "auditLogs";
+    private const string keySystemData = "systemData";
 
     public ContainerEntityBaseWrapper() : this([]) { }
 
@@ -30,46 +28,35 @@ public abstract class ContainerEntityBaseWrapper<T>(JObject jObject) : BaseEntit
 
     public string? AccountId { get; set; }
 
-    private IEnumerable<ContainerEntityAuditLogWrapper>? auditLogs;
+    private SystemDataWrapper? systemData;
 
-    [EntityProperty(keyAuditLogs)]
-    public IEnumerable<ContainerEntityAuditLogWrapper> AuditLogs
+    [EntityProperty(keySystemData)]
+    public SystemDataWrapper SystemData
     {
-        get => this.auditLogs ??= this.GetPropertyValueAsWrappers<ContainerEntityAuditLogWrapper>(keyAuditLogs);
+        get => this.systemData ??= this.GetPropertyValueAsWrapper<SystemDataWrapper>(keySystemData);
         set
         {
-            this.SetPropertyValueFromWrappers(keyAuditLogs, value);
-            this.auditLogs = value;
+            this.SetPropertyValueFromWrapper(keySystemData, value);
+            this.systemData = value;
         }
     }
 
-    public virtual void OnCreate(string userId)
+    public virtual void OnCreate(string userId, string? id = null)
     {
-        this.Id = Guid.NewGuid().ToString();
+        this.Id = id ?? Guid.NewGuid().ToString();
 
-        this.AuditLogs =
-        [
-            new()
-            {
-                Time = DateTime.UtcNow,
-                User = userId,
-                Action = ContainerEntityAuditAction.Create,
-            },
-        ];
+        this.SystemData = new SystemDataWrapper(userId, DateTime.UtcNow);
     }
 
     public virtual void OnUpdate(T existWrapper, string userId)
     {
         this.Id = existWrapper.Id;
 
-        var log = new ContainerEntityAuditLogWrapper()
-        {
-            Time = DateTime.UtcNow,
-            User = userId,
-            Action = ContainerEntityAuditAction.Update,
-        };
+        var existSystemData = existWrapper.SystemData ?? new SystemDataWrapper();
 
-        this.AuditLogs = (existWrapper.AuditLogs ?? []).Append(log);
+        existSystemData.OnModify(userId);
+
+        this.SystemData = existSystemData;
     }
 }
 

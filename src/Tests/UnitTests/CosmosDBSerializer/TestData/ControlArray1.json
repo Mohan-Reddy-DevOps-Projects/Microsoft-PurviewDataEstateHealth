@@ -58,77 +58,12 @@
     },
     "Status": "Enabled",
     "id": "4f8eca2d-6273-4b37-95b9-1b5c1b740030",
-    "AuditLogs": [
-      {
-        "Time": "2024-02-27T03:26:55.9076456Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Create"
-      },
-      {
-        "Time": "2024-02-27T09:09:07.6356199Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-27T09:09:43.8643554Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-27T09:10:35.0621185Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-27T09:11:07.1619637Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-27T09:20:47.3511329Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-28T01:58:58.4129634Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-28T04:30:58.1303322Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-28T04:35:46.0476412Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-28T04:35:55.6156168Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-28T08:18:05.1652486Z",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-28T08:20:43.8325081Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-28T09:19:51.2439144Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      },
-      {
-        "Time": "2024-02-29T02:11:12.5011801Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      }
-    ],
+    "SystemData": {
+      "CreatedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+      "CreatedAt": "2024-02-27T03:26:55.9076456Z",
+      "LastModifiedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+      "LastModifiedAt": "2024-02-29T02:11:12.5011801Z"
+    },
     "TenantId": "12d98746-0b5a-4778-8bd0-449994469062",
     "AccountId": "ecf09339-34e0-464b-a8fb-661209048543",
     "Type": "ControlNode",
@@ -202,77 +137,12 @@
         ]
       },
       "id": "4f8eca2d-6273-4b37-95b9-1b5c1b740030",
-      "auditLogs": [
-        {
-          "time": "2024-02-27T03:26:55.9076456Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Create"
-        },
-        {
-          "time": "2024-02-27T09:09:07.6356199Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-27T09:09:43.8643554Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-27T09:10:35.0621185Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-27T09:11:07.1619637Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-27T09:20:47.3511329Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-28T01:58:58.4129634Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-28T04:30:58.1303322Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-28T04:35:46.0476412Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-28T04:35:55.6156168Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-28T08:18:05.1652486Z",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-28T08:20:43.8325081Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-28T09:19:51.2439144Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        },
-        {
-          "time": "2024-02-29T02:11:12.5011801Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        }
-      ]
+      "systemData": {
+        "createdBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "createdAt": "2024-02-27T03:26:55.9076456Z",
+        "lastModifiedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "lastModifiedAt": "2024-02-29T02:11:12.5011801Z"
+      }
     },
     "_rid": "xSoKAIQm2L6EhB4AAAAAAA==",
     "_self": "dbs/xSoKAA==/colls/xSoKAIQm2L4=/docs/xSoKAIQm2L6EhB4AAAAAAA==/",
@@ -417,17 +287,12 @@
     },
     "Status": "Enabled",
     "id": "d7714d02-29c6-409c-a084-0c077129f83b",
-    "AuditLogs": [
-      {
-        "Time": "2024-02-27T06:17:57.2861055Z",
-        "Action": "Create"
-      },
-      {
-        "Time": "2024-02-29T03:12:06.0141037Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      }
-    ],
+    "SystemData": {
+      "CreatedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+      "CreatedAt": "2024-02-27T06:17:57.2861055Z",
+      "LastModifiedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+      "LastModifiedAt": "2024-02-29T03:12:06.0141037Z"
+    },
     "TenantId": "12d98746-0b5a-4778-8bd0-449994469062",
     "AccountId": "ecf09339-34e0-464b-a8fb-661209048543",
     "Type": "ControlNode",
@@ -575,17 +440,12 @@
       },
       "status": "Enabled",
       "id": "d7714d02-29c6-409c-a084-0c077129f83b",
-      "auditLogs": [
-        {
-          "time": "2024-02-27T06:17:57.2861055Z",
-          "action": "Create"
-        },
-        {
-          "time": "2024-02-29T03:12:06.0141037Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        }
-      ]
+      "systemData": {
+        "createdBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "createdAt": "2024-02-27T06:17:57.2861055Z",
+        "lastModifiedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "lastModifiedAt": "2024-02-29T03:12:06.0141037Z"
+      }
     },
     "_rid": "xSoKAIQm2L6FhB4AAAAAAA==",
     "_self": "dbs/xSoKAA==/colls/xSoKAIQm2L4=/docs/xSoKAIQm2L6FhB4AAAAAAA==/",
@@ -632,18 +492,12 @@
     },
     "Status": "Enabled",
     "id": "51f8e464-059e-4728-ba71-ce1bf57ae455",
-    "AuditLogs": [
-      {
-        "Time": "2024-02-27T14:23:33.4473883Z",
-        "User": "819d3147-bd49-45f1-852f-4a27fbfca971",
-        "Action": "Create"
-      },
-      {
-        "Time": "2024-02-29T03:20:27.7647705Z",
-        "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "Action": "Update"
-      }
-    ],
+    "SystemData": {
+      "CreatedBy": "819d3147-bd49-45f1-852f-4a27fbfca971",
+      "CreatedAt": "2024-02-27T14:23:33.4473883Z",
+      "LastModifiedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+      "LastModifiedAt": "2024-02-29T03:20:27.7647705Z"
+    },
     "TenantId": "12d98746-0b5a-4778-8bd0-449994469062",
     "AccountId": "ecf09339-34e0-464b-a8fb-661209048543",
     "Type": "ControlNode",
@@ -693,18 +547,12 @@
       },
       "status": "Enabled",
       "id": "51f8e464-059e-4728-ba71-ce1bf57ae455",
-      "auditLogs": [
-        {
-          "time": "2024-02-27T14:23:33.4473883Z",
-          "user": "819d3147-bd49-45f1-852f-4a27fbfca971",
-          "action": "Create"
-        },
-        {
-          "time": "2024-02-29T03:20:27.7647705Z",
-          "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-          "action": "Update"
-        }
-      ]
+      "systemData": {
+        "createdBy": "819d3147-bd49-45f1-852f-4a27fbfca971",
+        "createdAt": "2024-02-27T14:23:33.4473883Z",
+        "lastModifiedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+        "lastModifiedAt": "2024-02-29T03:20:27.7647705Z"
+      }
     },
     "_rid": "xSoKAIQm2L6GhB4AAAAAAA==",
     "_self": "dbs/xSoKAA==/colls/xSoKAIQm2L4=/docs/xSoKAIQm2L6GhB4AAAAAAA==/",

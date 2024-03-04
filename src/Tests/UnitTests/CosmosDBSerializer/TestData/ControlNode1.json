@@ -143,38 +143,12 @@
   },
   "Status": "Disabled",
   "id": "1bb97313-f2f8-4f7a-bf2a-92ef049ee4b9",
-  "AuditLogs": [
-    {
-      "Time": "2024-02-28T04:10:28.0030275Z",
-      "User": "01000000-0000-0000-0000-000000000000",
-      "Action": "Create"
-    },
-    {
-      "Time": "2024-02-29T02:16:48.6220422Z",
-      "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-      "Action": "Update"
-    },
-    {
-      "Time": "2024-02-29T03:21:34.6795314Z",
-      "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-      "Action": "Update"
-    },
-    {
-      "Time": "2024-02-29T03:50:11.5519786Z",
-      "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-      "Action": "Update"
-    },
-    {
-      "Time": "2024-02-29T03:50:28.5717786Z",
-      "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-      "Action": "Update"
-    },
-    {
-      "Time": "2024-02-29T04:07:37.6320989Z",
-      "User": "aad14eb4-365d-4521-a660-e31be2edd031",
-      "Action": "Update"
-    }
-  ],
+  "SystemData": {
+    "CreatedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+    "CreatedAt": "2024-02-27T03:26:55.9076456Z",
+    "LastModifiedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+    "LastModifiedAt": "2024-02-29T02:11:12.5011801Z"
+  },
   "TenantId": "12d98746-0b5a-4778-8bd0-449994469062",
   "AccountId": "ecf09339-34e0-464b-a8fb-661209048543",
   "Type": "ControlNode",
@@ -332,37 +306,11 @@
     },
     "status": "Disabled",
     "id": "1bb97313-f2f8-4f7a-bf2a-92ef049ee4b9",
-    "auditLogs": [
-      {
-        "time": "2024-02-28T04:10:28.0030275Z",
-        "user": "01000000-0000-0000-0000-000000000000",
-        "action": "Create"
-      },
-      {
-        "time": "2024-02-29T02:16:48.6220422Z",
-        "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "action": "Update"
-      },
-      {
-        "time": "2024-02-29T03:21:34.6795314Z",
-        "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "action": "Update"
-      },
-      {
-        "time": "2024-02-29T03:50:11.5519786Z",
-        "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "action": "Update"
-      },
-      {
-        "time": "2024-02-29T03:50:28.5717786Z",
-        "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "action": "Update"
-      },
-      {
-        "time": "2024-02-29T04:07:37.6320989Z",
-        "user": "aad14eb4-365d-4521-a660-e31be2edd031",
-        "action": "Update"
-      }
-    ]
+    "systemData": {
+      "createdBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+      "createdAt": "2024-02-27T03:26:55.9076456Z",
+      "lastModifiedBy": "aad14eb4-365d-4521-a660-e31be2edd031",
+      "lastModifiedAt": "2024-02-29T02:11:12.5011801Z"
+    }
   }
 }

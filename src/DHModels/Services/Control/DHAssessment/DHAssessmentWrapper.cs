@@ -88,9 +88,9 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
         set => this.SetPropertyValue(keySyatemTemplate, value);
     }
 
-    public override void OnCreate(string userId)
+    public override void OnCreate(string userId, string? id = null)
     {
-        base.OnCreate(userId);
+        base.OnCreate(userId, id);
 
         this.CheckAssessmentRuleId();
     }
