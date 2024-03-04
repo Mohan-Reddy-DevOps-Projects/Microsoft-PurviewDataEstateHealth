@@ -13,4 +13,9 @@ public class DataEstateHealthConstants
     public const string DEH_KEY_DATA_SOURCE_ENDPOINT = "DataSource.Endpoint";
 
     public const int SAS_TOKEN_EXPIRATION_HOURS = 24;
+
+    public const string ALWAYS_FAIL_RULE_ID = "AlwaysFail";
+
+    public const string SOURCE_DOMAIN_MODEL_FOLDER_PATH = "DomainModel";
+    public const string SOURCE_DP_FOLDER_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProduct";
 }

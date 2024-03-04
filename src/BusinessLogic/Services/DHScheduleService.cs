@@ -26,6 +26,7 @@ public class DHScheduleService(
     IDataQualityExecutionService dataQualityExecutionService,
     DHMonitoringService monitoringService,
     DHControlService controlService,
+    DHAssessmentService assessmentService,
     IDataEstateHealthRequestLogger logger,
     IRequestHeaderContext requestHeaderContext
     )
@@ -36,30 +37,32 @@ public class DHScheduleService(
     public async Task TriggerScheduleAsync(DHScheduleCallbackPayload payload)
     {
         // Step 1: query all controls
-        var controls = new List<DHControlBaseWrapper>();
+        var controls = new List<DHControlNodeWrapper>();
 
         if (string.IsNullOrEmpty(payload.ControlId))
         {
             var result = await controlService.ListControlsAsync().ConfigureAwait(false);
-            var controlNodes = result.Results.Where(item => item.Type == DHControlBaseWrapperDerivedTypes.Node);
+            var controlNodes = result.Results.Where(item => item is DHControlNodeWrapper).OfType<DHControlNodeWrapper>();
             controls.AddRange(controlNodes);
             logger.LogInformation($"Trigger batch controls jobs. Count {controls.Count}.");
         }
         else
         {
             var result = await controlService.GetControlByIdAsync(payload.ControlId).ConfigureAwait(false);
-            controls.Add(result);
+            controls.Add((DHControlNodeWrapper)result);
             logger.LogInformation($"Trigger control job. ControlId {payload.ControlId}.");
         }
 
         foreach (var control in controls)
         {
             // Step 2: submit DQ jobs
+            var assessment = await assessmentService.GetAssessmentByIdAsync(control.AssessmentId!).ConfigureAwait(false);
             var jobId = Guid.NewGuid().ToString();
             var dqJobId = await dataQualityExecutionService.SubmitDQJob(
                 requestHeaderContext.TenantId.ToString(),
                 requestHeaderContext.AccountObjectId.ToString(),
-                control.Id,
+                control,
+                assessment,
                 jobId).ConfigureAwait(false);
 
             // Step 3: save into monitoring table

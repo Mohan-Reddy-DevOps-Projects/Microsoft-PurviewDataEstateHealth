@@ -1,6 +1,8 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetLocation;
@@ -8,7 +10,6 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.D
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Rule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
-using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetSchemaItem;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -19,17 +20,20 @@ public class ObserverAdapter
     private string containerName;
     private string dataProductId;
     private string dataAssetId;
+    private DHAssessmentWrapper assessment;
 
     public ObserverAdapter(
         string endpoint,
         string containerName,
         string dataProductId,
-        string dataAssetId)
+        string dataAssetId,
+        DHAssessmentWrapper assessment)
     {
         this.endpoint = endpoint;
         this.containerName = containerName;
         this.dataProductId = dataProductId;
         this.dataAssetId = dataAssetId;
+        this.assessment = assessment;
     }
 
     public ObserverWrapper FromControlAssessment()
@@ -62,32 +66,23 @@ public class ObserverAdapter
 
     private IEnumerable<RuleWrapper> GetRules()
     {
-        var hasDescriptionRule = new CustomTruthRuleWrapper(new JObject()
-        {
-            { DynamicEntityWrapper.keyType, CustomTruthRuleWrapper.EntityType },
-            { DynamicEntityWrapper.keyTypeProperties, new JObject() }
-        });
-        hasDescriptionRule.Id = "DPDescriptionNotNull";
-        hasDescriptionRule.Name = "DPDescriptionNotNull";
-        hasDescriptionRule.Condition = "HasDescription == true";
-        hasDescriptionRule.Status = RuleStatus.Active;
+        var convertedResult = DHAssessmentRulesAdapter.ToDqRules(this.assessment.Rules);
 
-        return new RuleWrapper[]
-        {
-            hasDescriptionRule,
-            this.GetAlwaysFailedRule()
-        };
+        var rules = convertedResult.CustomRules;
+        rules.Add(this.GetAlwaysFailedRule());
+
+        return rules;
     }
 
-    private RuleWrapper GetAlwaysFailedRule()
+    private CustomTruthRuleWrapper GetAlwaysFailedRule()
     {
         var alwaysFailedRule = new CustomTruthRuleWrapper(new JObject()
         {
             { DynamicEntityWrapper.keyType, CustomTruthRuleWrapper.EntityType },
             { DynamicEntityWrapper.keyTypeProperties, new JObject() }
         });
-        alwaysFailedRule.Id = "AlwaysFail";
-        alwaysFailedRule.Name = "AlwaysFail";
+        alwaysFailedRule.Id = DataEstateHealthConstants.ALWAYS_FAIL_RULE_ID;
+        alwaysFailedRule.Name = DataEstateHealthConstants.ALWAYS_FAIL_RULE_ID;
         alwaysFailedRule.Condition = "1 == 2";
         alwaysFailedRule.Status = RuleStatus.Active;
 
@@ -128,7 +123,7 @@ public class ObserverAdapter
             { DynamicEntityWrapper.keyTypeProperties, new JObject() }
         });
         datasetLocation.FileSystem = this.containerName;
-        datasetLocation.FolderPath = "Sink/DataProductSchema";
+        datasetLocation.FolderPath = DataEstateHealthConstants.SOURCE_DP_FOLDER_PATH;
         dataset.Location = new[] { datasetLocation };
 
         var businessDomainRef = new ReferenceObjectWrapper(new JObject());
@@ -156,15 +151,15 @@ public class ObserverAdapter
 
     private IEnumerable<DatasetSchemaItemWrapper> GetDataProductSchema()
     {
-        var hasDescriptionCol = new DatasetSchemaBooleanItemWrapper(new JObject()
+        var descriptionCol = new DatasetSchemaStringItemWrapper(new JObject()
         {
-            { DynamicEntityWrapper.keyType, DatasetSchemaBooleanItemWrapper.EntityType },
+            { DynamicEntityWrapper.keyType, DatasetSchemaStringItemWrapper.EntityType },
         });
-        hasDescriptionCol.Name = "HasDescription";
+        descriptionCol.Name = "DataProductDescription";
 
         return new DatasetSchemaItemWrapper[]
         {
-            hasDescriptionCol
+            descriptionCol
         };
     }
 }

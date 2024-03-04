@@ -6,6 +6,8 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -78,10 +80,9 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         return result;
     }
 
-    // TODO Will add more params later
-    public async Task<string> SubmitDQJob(string tenantId, string accountId, string controlId, string healthJobId)
+    public async Task<string> SubmitDQJob(string tenantId, string accountId, DHControlNodeWrapper control, DHAssessmentWrapper assessment, string healthJobId)
     {
-        this.logger.LogInformation($"Start SubmitDQJOb, tenantId:{tenantId}, accountId:{accountId}, controlId:{controlId}, healthJobId:{healthJobId}");
+        this.logger.LogInformation($"Start SubmitDQJOb, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
 
         // Query storage account
         var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
@@ -90,7 +91,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
         this.logger.LogInformation($"Found storage account, dfsEndpoint:{dfsEndpoint}, catalogId:{catalogId}");
 
-        var dataProductId = controlId;
+        var dataProductId = control.Id;
         var dataAssetId = healthJobId;
 
         // Convert to an observer
@@ -98,7 +99,8 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             dfsEndpoint,
             catalogId,
             dataProductId,
-            dataAssetId);
+            dataAssetId,
+            assessment);
         var observer = observerAdapter.FromControlAssessment();
 
         observer.ExecutionData = new JObject()
