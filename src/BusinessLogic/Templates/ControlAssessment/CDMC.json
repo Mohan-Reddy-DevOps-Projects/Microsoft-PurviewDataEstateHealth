@@ -1,3 +1,93 @@
 [
+    {
+        "controlGroup": {
+            "name": "Data Estate Curation",
+            "type": "ControlGroup",
+            "status": "Enabled",
+            "statusPaletteConfig": {
+                "targetScore": 80,
+                "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+                "statusPaletteRules": [
+                    {
+                        "statusPaletteId": "00000000-0000-0000-0000-000000000002",
+                        "rule": {
+                            "type": "SimpleRule",
+                            "typeProperties": {
+                                "checkPoint": "Score",
+                                "operator": "GreaterThanOrEqual",
+                                "operand": "80"
+                            }
+                        }
+                    },
+                    {
+                        "statusPaletteId": "00000000-0000-0000-0000-000000000003",
+                        "rule": {
+                            "type": "RuleGroup",
+                            "typeProperties": {
+                                "groupOperator": "And",
+                                "rules": [
+                                    {
+                                        "type": "SimpleRule",
+                                        "typeProperties": {
+                                            "checkPoint": "Score",
+                                            "operator": "LessThan",
+                                            "operand": "80"
+                                        }
+                                    },
+                                    {
+                                        "type": "SimpleRule",
+                                        "typeProperties": {
+                                            "checkPoint": "Score",
+                                            "operator": "GreaterThanOrEqual",
+                                            "operand": "60"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "items": [
+            {
+                "control": {
+                    "name": "Classification and labeling",
+                    "description": "Data assets are classified.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Classification and labeling",
+                    "targetEntityType": "DataAsset",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataAssetClassificationCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing classification on data assets",
+                                "severity": "Medium",
+                                "reason": "Missing classification on data assets.",
+                                "recommendation": "Go through classification process on data assets."
+                            }
 
+                        }
+                    ]
+                }
+            }
+        ]
+    }
 ]

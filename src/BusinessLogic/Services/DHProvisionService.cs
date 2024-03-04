@@ -16,37 +16,45 @@ public class DHProvisionService(
 {
     public async Task ProvisionControlTemplate(string templateName)
     {
-        var templatePayload = this.GetTemplatePayload(TemplateType.ControlAssessment, templateName);
+        if (!Enum.TryParse<SystemTemplateNames>(templateName, true, out var templateType))
+        {
+            throw new EntityValidationException("Wrong template name");
+        }
+
+        var templatePayload = this.GetTemplatePayload(TemplateType.ControlAssessment, templateType);
 
         var template = JsonConvert.DeserializeObject<IList<ControlAssessmentTemplate>>(templatePayload) ?? [];
 
         foreach (var group in template)
         {
             var controlGroupWrapper = DHControlBaseWrapper.Create(group.ControlGroup);
+            controlGroupWrapper.SyatemTemplate = templateType.ToString();
+
             var controlGroup = await controlService.CreateControlAsync(controlGroupWrapper).ConfigureAwait(false);
 
             foreach (var item in group.Items)
             {
-                var assessmentWrapper = DHAssessmentWrapper.Create(item.Assessment ?? []);
+                if (item.Control == null || item.Assessment == null)
+                {
+                    throw new EntityValidationException("Control and Assessment cannot be null");
+                }
+
+                var assessmentWrapper = DHAssessmentWrapper.Create(item.Assessment);
+                assessmentWrapper.SyatemTemplate = templateType.ToString();
                 var assessment = await assessmentService.CreateAssessmentAsync(assessmentWrapper).ConfigureAwait(false);
 
-                var controlWrapper = (DHControlNodeWrapper)DHControlBaseWrapper.Create(item.Control ?? []);
+                var controlWrapper = (DHControlNodeWrapper)DHControlBaseWrapper.Create(item.Control);
                 controlWrapper.AssessmentId = assessment.Id;
                 controlWrapper.GroupId = controlGroup.Id;
+                controlWrapper.SyatemTemplate = templateType.ToString();
                 await controlService.CreateControlAsync(controlWrapper).ConfigureAwait(false);
             }
         }
     }
 
-    private string GetTemplatePayload(TemplateType templateType, string templateName)
+    private string GetTemplatePayload(TemplateType templateType, SystemTemplateNames templateName)
     {
-        ArgumentNullException.ThrowIfNull(templateName);
-
-        var fileName = templateName.ToLower() switch
-        {
-            "cdmc" => "CDMC.json",
-            _ => throw new EntityValidationException()
-        };
+        var fileName = $"{templateName}.json";
 
         var fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", templateType.ToString(), fileName);
 
@@ -58,6 +66,11 @@ public class DHProvisionService(
     private enum TemplateType
     {
         ControlAssessment
+    }
+
+    private enum SystemTemplateNames
+    {
+        CDMC
     }
 }
 
@@ -79,5 +92,3 @@ public class ControlAssessmentItemTemplate
     [JsonProperty("assessment", NullValueHandling = NullValueHandling.Ignore)]
     public JObject Assessment { get; set; } = [];
 }
-
-

@@ -60,7 +60,7 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
     [EntityProperty(keyRules)]
     public IEnumerable<DHAssessmentRuleWrapper> Rules
     {
-        get => this.rules ??= this.GetPropertyValueAsWrappers<DHAssessmentRuleWrapper>(keyRules);
+        get => this.rules ??= this.GetPropertyValueAsWrappers<DHAssessmentRuleWrapper>(keyRules) ?? [];
         set
         {
             this.SetPropertyValueFromWrappers(keyRules, value);
@@ -88,10 +88,30 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
         set => this.SetPropertyValue(keySyatemTemplate, value);
     }
 
+    public override void OnCreate(string userId)
+    {
+        base.OnCreate(userId);
+
+        this.CheckAssessmentRuleId();
+    }
+
     public override void OnUpdate(DHAssessmentWrapper existWrapper, string userId)
     {
         base.OnUpdate(existWrapper, userId);
 
         this.SyatemTemplate = existWrapper.SyatemTemplate;
+
+        this.CheckAssessmentRuleId();
+    }
+
+    private void CheckAssessmentRuleId()
+    {
+        foreach (var rule in this.Rules)
+        {
+            if (string.IsNullOrEmpty(rule.Id))
+            {
+                rule.Id = Guid.NewGuid().ToString();
+            }
+        }
     }
 }
