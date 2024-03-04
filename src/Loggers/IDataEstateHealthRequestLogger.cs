@@ -4,8 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
-using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Represents a type for logging Data Estate Health logs.

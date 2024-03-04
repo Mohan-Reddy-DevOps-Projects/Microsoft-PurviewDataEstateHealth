@@ -4,14 +4,14 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
-using System;
-using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using System.Diagnostics;
-using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Audit.Geneva;
+using System;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Logger for singleton services that does not log scoped parameters
@@ -19,7 +19,7 @@ using OpenTelemetry.Audit.Geneva;
 public abstract class DataEstateHealthLogger
 {
     private readonly ILogger logger;
-    
+
     private static readonly ILogger dataPlaneAuditLogger =
        AuditLoggerFactory.Create(AuditOptions.DefaultForUnixDomainSocket).CreateDataPlaneLogger();
     private readonly EnvironmentConfiguration environmentConfiguration;
@@ -35,8 +35,8 @@ public abstract class DataEstateHealthLogger
 
     /// <inheritdoc/>
     public void LogTrace(
-        string message, 
-        Exception exception = null, 
+        string message,
+        Exception exception = null,
         bool isSensitive = false,
         [CallerMemberName] string operationName = "",
         [CallerFilePath] string sourceFilePath = "",
@@ -54,7 +54,7 @@ public abstract class DataEstateHealthLogger
 
     /// <inheritdoc/>
     public void LogInformation(
-        string message, 
+        string message,
         Exception exception = null,
         bool isSensitive = false,
         [CallerMemberName] string operationName = "",
@@ -73,7 +73,7 @@ public abstract class DataEstateHealthLogger
 
     /// <inheritdoc/>
     public void LogWarning(
-        string message, 
+        string message,
         Exception exception = null,
         bool isSensitive = false,
         [CallerMemberName] string operationName = "",
@@ -92,7 +92,7 @@ public abstract class DataEstateHealthLogger
 
     /// <inheritdoc/>
     public void LogError(
-        string message, 
+        string message,
         Exception exception = null,
         bool isSensitive = false,
         [CallerMemberName] string operationName = "",
@@ -111,8 +111,8 @@ public abstract class DataEstateHealthLogger
 
     /// <inheritdoc/>
     public void LogCritical(
-        string message, 
-        Exception exception, 
+        string message,
+        Exception exception,
         bool isSensitive = false,
         [CallerMemberName] string operationName = "",
         [CallerFilePath] string sourceFilePath = "",

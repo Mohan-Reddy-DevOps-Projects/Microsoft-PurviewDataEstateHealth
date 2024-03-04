@@ -13,6 +13,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,6 +69,12 @@ public class DHScheduleService(
             jobWrapper.ControlId = control.Id;
             await monitoringService.CreateComputingJob(jobWrapper, ScheduleOperationName).ConfigureAwait(false);
             logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}. Control Id:{control.Id}");
+            logger.LogTipInformation($"The MDQ job was triggered", new JObject
+            {
+                { "jobId" , dqJobId },
+                { "controlId", control.Id },
+                { "controlName", control.Name}
+            });
         }
     }
 
@@ -81,7 +88,11 @@ public class DHScheduleService(
         if (jobStatus == DHComputingJobStatus.Succeeded)
         {
             logger.LogInformation($"New succeed MDQ job. Process score computing. Job Id: {job.Id}. DQ job Id: {job.DQJobId}. Control Id: {job.ControlId}");
-
+            logger.LogTipInformation($"The MDQ job was finished successfully", new JObject
+            {
+                { "jobId" , job.DQJobId },
+                { "controlId", job.ControlId },
+            });
             try
             {
                 await monitoringService.EndComputingJob(job.Id, MDQEventOperationName);

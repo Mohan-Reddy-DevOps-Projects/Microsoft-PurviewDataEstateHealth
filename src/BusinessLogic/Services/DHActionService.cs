@@ -28,7 +28,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             using (logger.LogElapsed($"Start to enum actions"))
             {
                 return await dataHealthActionRepository.GetActionsByFilterAsync(query);
-
             }
         }
 
@@ -37,7 +36,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             using (logger.LogElapsed($"Start to get action facets"))
             {
                 return await dataHealthActionRepository.GetActionFacetsAsync(filters, facets);
-
             }
         }
 
