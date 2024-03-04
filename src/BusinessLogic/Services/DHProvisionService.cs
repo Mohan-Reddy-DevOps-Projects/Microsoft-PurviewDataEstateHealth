@@ -30,7 +30,7 @@ public class DHProvisionService(
             var controlGroupWrapper = DHControlBaseWrapper.Create(group.ControlGroup);
             controlGroupWrapper.SyatemTemplate = templateType.ToString();
 
-            var controlGroup = await controlService.CreateControlAsync(controlGroupWrapper).ConfigureAwait(false);
+            var controlGroup = await controlService.CreateControlAsync(controlGroupWrapper, isSystem: true).ConfigureAwait(false);
 
             foreach (var item in group.Items)
             {
@@ -41,13 +41,13 @@ public class DHProvisionService(
 
                 var assessmentWrapper = DHAssessmentWrapper.Create(item.Assessment);
                 assessmentWrapper.SyatemTemplate = templateType.ToString();
-                var assessment = await assessmentService.CreateAssessmentAsync(assessmentWrapper).ConfigureAwait(false);
+                var assessment = await assessmentService.CreateAssessmentAsync(assessmentWrapper, isSystem: true).ConfigureAwait(false);
 
                 var controlWrapper = (DHControlNodeWrapper)DHControlBaseWrapper.Create(item.Control);
                 controlWrapper.AssessmentId = assessment.Id;
                 controlWrapper.GroupId = controlGroup.Id;
                 controlWrapper.SyatemTemplate = templateType.ToString();
-                await controlService.CreateControlAsync(controlWrapper).ConfigureAwait(false);
+                await controlService.CreateControlAsync(controlWrapper, isSystem: true).ConfigureAwait(false);
             }
         }
     }

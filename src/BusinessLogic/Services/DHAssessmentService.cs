@@ -41,12 +41,16 @@ public class DHAssessmentService(DHAssessmentRepository assessmentRepository, IR
         return entity;
     }
 
-    public async Task<DHAssessmentWrapper> CreateAssessmentAsync(DHAssessmentWrapper entity)
+    public async Task<DHAssessmentWrapper> CreateAssessmentAsync(DHAssessmentWrapper entity, bool isSystem = false)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
         entity.Validate();
-        entity.NormalizeInput();
+
+        if (!isSystem)
+        {
+            entity.NormalizeInput();
+        }
 
         entity.OnCreate(requestHeaderContext.ClientObjectId);
 

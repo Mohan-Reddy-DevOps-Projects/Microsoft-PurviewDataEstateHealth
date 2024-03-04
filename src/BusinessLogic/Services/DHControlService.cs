@@ -16,7 +16,7 @@
     using System.Threading.Tasks;
 
     public class DHControlService(
-        DHControlRepository dHControlRepository, 
+        DHControlRepository dHControlRepository,
         DHScheduleInternalService scheduleService,
         DHAssessmentService assessmentService,
         IRequestHeaderContext requestHeaderContext)
@@ -46,12 +46,16 @@
             return result;
         }
 
-        public async Task<DHControlBaseWrapper> CreateControlAsync(DHControlBaseWrapper entity, bool withNewAssessment = false)
+        public async Task<DHControlBaseWrapper> CreateControlAsync(DHControlBaseWrapper entity, bool withNewAssessment = false, bool isSystem = false)
         {
             ArgumentNullException.ThrowIfNull(entity);
 
             entity.Validate();
-            entity.NormalizeInput();
+
+            if (!isSystem)
+            {
+                entity.NormalizeInput();
+            }
 
             if (withNewAssessment)
             {
@@ -190,7 +194,8 @@
                     {
                         scheduleWrapper.Id = existNode.ScheduleId;
                         await scheduleService.UpdateScheduleAsync(scheduleWrapper, existEntity.Id).ConfigureAwait(false);
-                    } else
+                    }
+                    else
                     {
                         var scheduleEntity = await scheduleService.CreateScheduleAsync(scheduleWrapper, existEntity.Id).ConfigureAwait(false);
                         newNode.ScheduleId = scheduleEntity.Id;
