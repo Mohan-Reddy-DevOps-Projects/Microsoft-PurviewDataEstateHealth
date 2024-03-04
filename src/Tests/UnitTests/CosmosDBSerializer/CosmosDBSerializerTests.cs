@@ -159,6 +159,49 @@ public class CosmosDBSerializerTests
             Assert.AreEqual(JToken.DeepEquals(jObject1, jObject2), true);
         }
     }
+
+    [TestMethod]
+    public void ToSteam_ReturnsCorrectSteamForNonWrapper()
+    {
+        // Arrange
+        var jsonContent = ReadContentFromFile("NonWrapper1.json");
+        var jObject1 = JObject.Parse(jsonContent);
+        var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonContent));
+        var result = serializer.FromStream<NonWrapper1>(memoryStream);
+
+        var stream = serializer.ToStream(result);
+
+        if (stream.CanSeek)
+        {
+            stream.Position = 0;
+        }
+
+        using (StreamReader reader = new StreamReader(stream))
+        {
+            var content = reader.ReadToEnd();
+            // Parse the string content to a JObject
+            var jObject2 = JObject.Parse(content);
+
+            Assert.AreEqual(JToken.DeepEquals(jObject1, jObject2), true);
+        }
+    }
+
+    [TestMethod]
+    public void Combo_NonWrapper()
+    {
+        var nonWrapper = new NonWrapper1
+        {
+            PropertyA = "A",
+            PropertyB = "B"
+        };
+
+        var stream = serializer.ToStream(nonWrapper);
+
+        var newNonWrapper = serializer.FromStream<NonWrapper1>(stream);
+
+        Assert.AreEqual(nonWrapper.PropertyA, newNonWrapper.PropertyA);
+        Assert.AreEqual(nonWrapper.PropertyB, newNonWrapper.PropertyB);
+    }
 }
 
 internal record NonWrapper1
