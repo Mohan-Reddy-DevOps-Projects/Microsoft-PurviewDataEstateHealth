@@ -5,7 +5,7 @@
             "type": "ControlGroup",
             "status": "Enabled",
             "statusPaletteConfig": {
-                "targetScore": 80,
+                "targetScore": 0.8,
                 "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
                 "statusPaletteRules": [
                     {
@@ -15,7 +15,7 @@
                             "typeProperties": {
                                 "checkPoint": "Score",
                                 "operator": "GreaterThanOrEqual",
-                                "operand": "80"
+                                "operand": "0.8"
                             }
                         }
                     },
@@ -31,7 +31,7 @@
                                         "typeProperties": {
                                             "checkPoint": "Score",
                                             "operator": "LessThan",
-                                            "operand": "80"
+                                            "operand": "0.8"
                                         }
                                     },
                                     {
@@ -39,7 +39,7 @@
                                         "typeProperties": {
                                             "checkPoint": "Score",
                                             "operator": "GreaterThanOrEqual",
-                                            "operand": "60"
+                                            "operand": "0.6"
                                         }
                                     }
                                 ]

@@ -3,6 +3,7 @@
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 
 public class DHControlStatusPaletteUnitWrapper(JObject jObject) : BaseEntityWrapper(jObject)
@@ -15,6 +16,7 @@ public class DHControlStatusPaletteUnitWrapper(JObject jObject) : BaseEntityWrap
     private DHRuleBaseWrapper? rule;
 
     [EntityProperty(keyRule)]
+    [EntityRequiredValidator]
     public DHRuleBaseWrapper Rule
     {
         get => this.rule ?? this.GetPropertyValueAsWrapper<DHRuleBaseWrapper>(keyRule);
@@ -26,6 +28,7 @@ public class DHControlStatusPaletteUnitWrapper(JObject jObject) : BaseEntityWrap
     }
 
     [EntityProperty(keyStatusPaletteId)]
+    [EntityRequiredValidator]
     public string StatusPaletteId
     {
         get => this.GetPropertyValue<string>(keyStatusPaletteId);

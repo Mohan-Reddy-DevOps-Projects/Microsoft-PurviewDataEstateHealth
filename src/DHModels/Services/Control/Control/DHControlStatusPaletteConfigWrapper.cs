@@ -2,6 +2,7 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
@@ -14,6 +15,8 @@ public class DHControlStatusPaletteConfigWrapper(JObject jObject) : BaseEntityWr
     public DHControlStatusPaletteConfigWrapper() : this([]) { }
 
     [EntityProperty(keyTargetScore)]
+    [EntityRequiredValidator]
+    [EntityNumberValidator(Min = 0, Max = 1)]
     public double TargetScore
     {
         get => this.GetPropertyValue<double>(keyTargetScore);
@@ -21,6 +24,7 @@ public class DHControlStatusPaletteConfigWrapper(JObject jObject) : BaseEntityWr
     }
 
     [EntityProperty(keyFallbackStatusPaletteId)]
+    [EntityRequiredValidator]
     public string FallbackStatusPaletteId
     {
         get => this.GetPropertyValue<string>(keyFallbackStatusPaletteId);

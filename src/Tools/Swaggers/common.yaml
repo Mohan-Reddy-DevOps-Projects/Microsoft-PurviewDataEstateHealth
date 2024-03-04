@@ -111,7 +111,7 @@ paths:
           description: OK
 
   /controls/schedule:
-    get: 
+    get:
       operationId: Get Schedule
       description: Get Schedule.
       tags:
@@ -142,7 +142,7 @@ paths:
                 $ref: "#/components/schemas/Schedule"
 
   /controls/alert:
-    get: 
+    get:
       operationId: Get Alert
       description: Get Alert.
       tags:
@@ -477,7 +477,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/action"
-  
+
   /actions/facets:
     post:
       operationId: get action facets
@@ -499,7 +499,14 @@ paths:
                     properties:
                       name:
                         type: string
-                        enum: [findingType, findingSubType, findingName, assignedTo, domainId]
+                        enum:
+                          [
+                            findingType,
+                            findingSubType,
+                            findingName,
+                            assignedTo,
+                            domainId,
+                          ]
       responses:
         "200":
           description: OK
@@ -621,11 +628,8 @@ components:
         - type: object
           required:
             - name
+            - type
           properties:
-            id:
-              type: string
-              readOnly: true
-              example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
             name:
               type: string
               description: The name of the control.
@@ -636,16 +640,20 @@ components:
               example: "Data estate curation"
             contacts:
               $ref: "#/components/schemas/Contacts"
-            reserved:
-              type: boolean
-              readOnly: true
-              description: Is system defined reserved control.
-              example: false
+            systemTemplate:
+              $ref: "#/components/schemas/SystemTemplateNames"
             statusPaletteConfig:
               type: object
               required:
+                - targetScore
                 - fallbackStatusPaletteId
               properties:
+                targetScore:
+                  type: number
+                  description: The target score of the control. The value should be between 0 and 1.
+                  minimum: 0
+                  maximum: 1
+                  example: 0.8
                 fallbackStatusPaletteId:
                   type: string
                   description: The fallback status palette id of the control.
@@ -654,6 +662,9 @@ components:
                   type: array
                   items:
                     type: object
+                    required:
+                      - rule
+                      - statusPaletteId
                     properties:
                       rule:
                         $ref: "#/components/schemas/Rule"
@@ -665,6 +676,7 @@ components:
               type: string
               enum: [Enabled, Disabled]
               description: The status of the control.
+              default: "Enabled"
               example: "Enabled"
             type:
               type: string
@@ -710,7 +722,7 @@ components:
                   type: string
                   description: The assessment id of the control.
                   example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
-                
+
     Schedule:
       allOf:
         - $ref: "#/components/schemas/BaseEntity"
@@ -744,33 +756,33 @@ components:
         hours:
           type: array
           items:
-              type: number
-              minimum: 0
-              maximum: 23
+            type: number
+            minimum: 0
+            maximum: 23
         minutes:
           type: array
           items:
-              type: number
-              minimum: 0
-              maximum: 59
+            type: number
+            minimum: 0
+            maximum: 59
         monthDays:
           type: array
           items:
-              type: number
-              minimum: 1
-              maximum: 31
+            type: number
+            minimum: 1
+            maximum: 31
         weekDays:
           type: array
           items:
-              type: string
-              enum:
-                - Sunday
-                - Monday
-                - Tuesday
-                - Wednesday
-                - Thursday
-                - Friday
-                - Saturday
+            type: string
+            enum:
+              - Sunday
+              - Monday
+              - Tuesday
+              - Wednesday
+              - Thursday
+              - Friday
+              - Saturday
         monthlyOccurrences:
           type: array
           items:
@@ -822,6 +834,8 @@ components:
       allOf:
         - $ref: "#/components/schemas/BaseEntity"
         - type: object
+          required:
+            - type
           properties:
             type:
               type: string
@@ -841,6 +855,9 @@ components:
               example: "RuleGroup"
             typeProperties:
               type: object
+              required:
+                - groupOperator
+                - rules
               properties:
                 groupOperator:
                   type: string
@@ -851,6 +868,7 @@ components:
                   type: array
                   items:
                     $ref: "#/components/schemas/Rule"
+                  minItems: 1
                   description: The rules of the group.
 
     RuleSimple:
@@ -865,35 +883,27 @@ components:
               example: "SimpleRule"
             typeProperties:
               type: object
+              required:
+                - checkPoint
+                - operator
               properties:
                 checkPoint:
-                  type: string
-                  enum: 
-                    [
-                      Score, 
-                      DataProductDescriptionContent, 
-                      DataProductDescriptionLength,
-                    ]
-                  description: The field of the rule.
-                  example: "Score"
+                  $ref: "#/components/schemas/CheckPoints"
                 operator:
                   type: string
-                  enum: 
+                  enum:
                     [
-                      Equal, 
-                      NotEqual, 
-                      GreaterThan, 
-                      LessThan, 
-                      GreaterThanOrEqual, 
-                      LessThanOrEqual, 
-                      Contains, 
-                      StartsWith, 
-                      EndsWith, 
-                      InRange, 
-                      IsNull, 
-                      IsEmpty, 
-                      IsTrue, 
-                      RegexMatch,
+                      Equal,
+                      NotEqual,
+                      GreaterThan,
+                      GreaterThanOrEqual,
+                      LessThan,
+                      LessThanOrEqual,
+                      IsNullOrEmpty,
+                      IsNotNullOrEmpty,
+                      IsTrue,
+                      IsFalse,
+                      Normalize,
                     ]
                   description: The operator of the rule.
                   example: "Equal"
@@ -916,24 +926,56 @@ components:
               type: object
               properties:
                 checkPoint:
-                  type: string
-                  enum: 
-                    [
-                      Score, 
-                      DataProductDescriptionContent, 
-                      DataProductDescriptionLength,
-                    ]
-                  description: The field of the rule.
-                  example: "Score"
+                  $ref: "#/components/schemas/CheckPoints"
                 expression:
                   type: string
                   description: The expression of the rule.
                   example: "Score > 1"
 
+    CheckPoints:
+      type: string
+      enum:
+        [
+          Score,
+          DataProductDescriptionLength,
+          DataProductBusinessUseLength,
+          DataProductOwnerCount,
+          DataProductAllRelatedAssetsHaveOwner,
+          DataProductRelatedDataAssetsCount,
+          DataProductRelatedObjectivesCount,
+          DataProductRelatedTermsCount,
+          DataProductHasDataAccessPolicy,
+          DataProductHasSelfServiceAccessPolicy,
+          DataProductHasDataUsagePurpose,
+          DataProductEndorsed,
+          DataProductStatus,
+          DataProductHasDQScore,
+          DataAssetClassificationCount,
+          CDERelatedDataAssetsCount,
+          CDEOwnerCount,
+          CDEDescriptionLength,
+          CDERelatedTermsCount,
+          CDEAllRelatedAssetsHaveClassification,
+          BusinessDomainCriticalDataElementCount,
+          DataQualityScore,
+        ]
+      description: The field of the rule.
+      example: "Score"
+
+    SystemTemplateNames:
+      type: string
+      readOnly: true
+      enum: [CDMC]
+      description: Is system defined control and the template name.
+      example: "CDMC"
+
     Assessment:
       allOf:
         - $ref: "#/components/schemas/BaseEntity"
         - type: object
+          required:
+            - name
+            - targetEntityType
           properties:
             name:
               type: string
@@ -942,11 +984,15 @@ components:
             targetEntityType:
               type: string
               enum:
-                [
-                  DataProduct,
-                ]
+                [DataProduct, DataAsset, CriticalDataElement, BusinessDomain]
               description: The target entity type of the assessment.
               example: "DataProduct"
+            targetQualityType:
+              type: string
+              enum: [MetadataQuality, DataQuality]
+              default: "MetadataQuality"
+              description: The target quality type of the assessment.
+              example: "MetadataQuality"
             rules:
               type: array
               items:
@@ -954,11 +1000,8 @@ components:
               description: The rules of the assessment.
             aggregation:
               $ref: "#/components/schemas/AssessmentAggregation"
-            reserved:
-              type: boolean
-              readOnly: true
-              description: Is system defined reserved assessment.
-              example: false
+            systemTemplate:
+              $ref: "#/components/schemas/SystemTemplateNames"
 
     AssessmentRule:
       type: object
@@ -973,16 +1016,20 @@ components:
         actionProperties:
           type: object
           properties:
-            actionName:
+            name:
               type: string
               description: The action name.
               example: "Missing classification"
-            actionSeverity:
+            severity:
               type: string
               enum: [Low, Medium, High]
               description: The severity of the action.
               example: "Low"
-            actionRecommendation:
+            reason:
+              type: string
+              description: The reason of the action.
+              example: "Missing classification"
+            recommendation:
               type: string
               description: The recommendation of the action.
               example: "Recommendation"
@@ -1343,7 +1390,7 @@ components:
             score:
               type: array
               items:
-                $ref: '#/components/schemas/ScoreUnit'
+                $ref: "#/components/schemas/ScoreUnit"
               description: A list of individual score units contributing to the aggregated score.
             aggregatedScore:
               type: number
