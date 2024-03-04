@@ -9,7 +9,6 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger logger) : IRepository<TEntity>
@@ -20,7 +19,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<TEntity> AddAsync(TEntity entity, string tenantId, string? accountId)
     {
-        var methodName = MethodBase.GetCurrentMethod()?.Name;
+        var methodName = nameof(AddAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
         {
             try
@@ -41,7 +40,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<IReadOnlyList<TEntity>> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId)
     {
-        var methodName = MethodBase.GetCurrentMethod()?.Name;
+        var methodName = nameof(AddAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
         {
             try
@@ -86,7 +85,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<TEntity> DeleteAsync(string id, string tenantId)
     {
-        var methodName = MethodBase.GetCurrentMethod()?.Name;
+        var methodName = nameof(DeleteAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, tenantId = {tenantId}"))
         {
             try
@@ -107,7 +106,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<IEnumerable<TEntity>> GetAllAsync(string tenantId)
     {
-        var methodName = MethodBase.GetCurrentMethod()?.Name;
+        var methodName = nameof(GetAllAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {tenantId}"))
         {
             try
@@ -138,7 +137,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<TEntity?> GetByIdAsync(string id, string tenantId)
     {
-        var methodName = MethodBase.GetCurrentMethod()?.Name;
+        var methodName = nameof(GetByIdAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, tenantId = {tenantId}"))
         {
             try
@@ -159,7 +158,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<TEntity> UpdateAsync(TEntity entity, string tenantId, string? accountId)
     {
-        var methodName = MethodBase.GetCurrentMethod()?.Name;
+        var methodName = nameof(UpdateAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
         {
             try
@@ -181,7 +180,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<IReadOnlyList<TEntity>> UpdateAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId)
     {
-        var methodName = MethodBase.GetCurrentMethod()?.Name;
+        var methodName = nameof(UpdateAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
         {
             try
