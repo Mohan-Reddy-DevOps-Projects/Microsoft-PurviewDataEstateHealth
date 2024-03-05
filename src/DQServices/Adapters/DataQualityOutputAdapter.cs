@@ -70,7 +70,8 @@ public class DataQualityOutputAdapter
                                 {
                                     { DQOutputFields.DP_ID, id },
                                     { DQOutputFields.DP_NAME, name },
-                                    { DQOutputFields.BD_ID, "NotSupported" }
+                                    // TODO hard code before join will be supported
+                                    { DQOutputFields.BD_ID, "f0010522-ee13-454a-8d92-85d67998b579" }
                                 },
                                 Scores = scores
                             });
