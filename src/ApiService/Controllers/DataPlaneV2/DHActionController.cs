@@ -6,10 +6,12 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.DataPlaneV2;
 
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Attributes;
@@ -22,6 +24,8 @@ using System.Globalization;
 
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
+[CertificateConfig(CertificateSet.DataQuality)]
+[Authorize(AuthenticationSchemes = "Certificate")]
 [Route("/actions")]
 public class DHActionController(DHActionService actionService) : DataPlaneController
 {
