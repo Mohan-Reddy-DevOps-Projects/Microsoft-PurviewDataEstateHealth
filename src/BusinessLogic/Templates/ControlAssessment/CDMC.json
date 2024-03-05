@@ -770,21 +770,6 @@
                                 "reason": "Data products without access policy",
                                 "recommendation": "Apply access policies for the data products."
                             }
-                        },
-                        {
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "DataProductHasSelfServiceAccessPolicy",
-                                    "operator": "IsTrue"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Missing self-serve policies on data products",
-                                "severity": "Medium",
-                                "reason": "Data products without self-serve policies",
-                                "recommendation": "Apply self-serve policies for the data products."
-                            }
                         }
                     ]
                 }

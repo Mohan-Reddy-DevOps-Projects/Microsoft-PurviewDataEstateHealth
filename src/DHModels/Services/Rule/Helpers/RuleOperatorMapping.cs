@@ -28,7 +28,6 @@ internal class RuleOperatorMapping
             { DHCheckPoint.DataProductRelatedObjectivesCount, DHCheckPointType.Number},
             { DHCheckPoint.DataProductRelatedTermsCount, DHCheckPointType.Number},
             { DHCheckPoint.DataProductHasDataAccessPolicy, DHCheckPointType.Boolean },
-            { DHCheckPoint.DataProductHasSelfServiceAccessPolicy, DHCheckPointType.Boolean },
             { DHCheckPoint.DataProductHasDataUsagePurpose, DHCheckPointType.Boolean },
             { DHCheckPoint.DataProductEndorsed, DHCheckPointType.Boolean },
             { DHCheckPoint.DataProductStatus, DHCheckPointType.String },
