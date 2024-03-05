@@ -284,13 +284,13 @@
             },
             {
                 "control": {
-                    "name": "Data Cataloging",
+                    "name": "Data cataloging",
                     "description": "Data products are cataloged.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
-                    "name": "Data Cataloging",
+                    "name": "Data cataloging",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -509,7 +509,7 @@
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
-                                    "checkPoint": "DataProductAllRelatedAssetsHaveOwner",
+                                    "checkPoint": "DataProductAllRelatedAssetsHaveDQScore",
                                     "operator": "IsTrue"
                                 }
                             },
@@ -545,15 +545,15 @@
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
-                                    "checkPoint": "DataProductEndorsed",
-                                    "operator": "IsTrue"
+                                    "checkPoint": "DataQualityScore",
+                                    "operator": "Normalize"
                                 }
                             },
                             "actionProperties": {
-                                "name": "Data product is not endorsed",
-                                "severity": "Low",
-                                "reason": "Data product is not endorsed.",
-                                "recommendation": "Endorse the data products."
+                                "name": "Data product with lower than set threshold data quality scores",
+                                "severity": "High",
+                                "reason": "Data product with lower than set threshold data quality scores",
+                                "recommendation": ""
                             }
                         }
                     ]
@@ -581,15 +581,15 @@
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
-                                    "checkPoint": "DataQualityScore",
-                                    "operator": "Normalize"
+                                    "checkPoint": "DataProductEndorsed",
+                                    "operator": "IsTrue"
                                 }
                             },
                             "actionProperties": {
-                                "name": "Data product with lower than set threshold data quality scores",
-                                "severity": "High",
-                                "reason": "Data product with lower than set threshold data quality scores",
-                                "recommendation": ""
+                                "name": "Data product is not endorsed",
+                                "severity": "Low",
+                                "reason": "Data product is not endorsed.",
+                                "recommendation": "Endorse the data products."
                             }
                         }
                     ]
