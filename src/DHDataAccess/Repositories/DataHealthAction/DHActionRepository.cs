@@ -41,7 +41,7 @@ public class DHActionRepository(
             var sqlQueryText = sqlQuery.ToString();
 
             var queryDefinition = new QueryDefinition(sqlQueryText);
-            var feedIterator = this.CosmosContainer.GetItemQueryIterator<DataHealthActionWrapper>(queryDefinition);
+            var feedIterator = this.CosmosContainer.GetItemQueryIterator<DataHealthActionWrapper>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
 
             var results = new List<DataHealthActionWrapper>();
 
@@ -95,7 +95,7 @@ public class DHActionRepository(
 
                     var queryDefinition = new QueryDefinition(sqlQueryText);
 
-                    FeedIterator<FacetEntityItem> sqlResultSetIterator = this.CosmosContainer.GetItemQueryIterator<FacetEntityItem>(queryDefinition);
+                    FeedIterator<FacetEntityItem> sqlResultSetIterator = this.CosmosContainer.GetItemQueryIterator<FacetEntityItem>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
 
                     List<FacetEntityItem> sqlResults = new List<FacetEntityItem>();
                     while (sqlResultSetIterator.HasMoreResults)
