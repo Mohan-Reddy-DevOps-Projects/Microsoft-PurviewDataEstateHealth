@@ -89,13 +89,13 @@
             },
             {
                 "control": {
-                    "name": "Data Products connection",
+                    "name": "Data products connection",
                     "description": "Data assets are mapped to data products for discoverability in the catalog.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
-                    "name": "Data Products connection",
+                    "name": "Data products connection",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -115,9 +115,9 @@
                                 }
                             },
                             "actionProperties": {
-                                "name": "Data product not linked to assets",
+                                "name": "Data product not linked to data assets",
                                 "severity": "Medium",
-                                "reason": "Data product not linked to assets.",
+                                "reason": "Data product not linked to data assets.",
                                 "recommendation": "Link assets to the data product."
                             }
                         }
@@ -156,6 +156,212 @@
                                 "severity": "Medium",
                                 "reason": "No critical data entities under the business domain.",
                                 "recommendation": "Create critical data entities in the business domain."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Critical data connection",
+                    "description": "Business critical data entities are mapped to the data assets.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Critical data connection",
+                    "targetEntityType": "CriticalDataElement",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "CDERelatedDataAssetsCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Critical data entities not linked to data assets",
+                                "severity": "Medium",
+                                "reason": "Critical data entities are not linked to data assets.",
+                                "recommendation": "Link the critical data entities to the data assets."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Critical data cataloging",
+                    "description": "Business critical data entities are cataloged.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Critical data cataloging",
+                    "targetEntityType": "CriticalDataElement",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "CDEOwnerCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing owners on critical data entities",
+                                "severity": "High",
+                                "reason": "Critical data entities don't have owners assigned.",
+                                "recommendation": "Assign owners to critical data entities."
+                            }
+                        },
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "CDEDescriptionLength",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing description on critical data entities",
+                                "severity": "High",
+                                "reason": "Critical data entities don't have description.",
+                                "recommendation": "Update description for critical data entities."
+                            }
+                        },
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "CDERelatedTermsCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing related terms on critical data entities",
+                                "severity": "High",
+                                "reason": "Critical data entities don't have terms assigned.",
+                                "recommendation": "Assign related terms to critical data entities."
+                            }
+                        },
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "CDEAllRelatedAssetsHaveClassification",
+                                    "operator": "IsTrue"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing classification on data assets related to critical data entities",
+                                "severity": "High",
+                                "reason": "Data assets without classification that are part of critical data entities.",
+                                "recommendation": "Apply classifications for the data assets related to the critical data entities."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Data Cataloging",
+                    "description": "Data products are cataloged.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Data Cataloging",
+                    "targetEntityType": "DataProduct",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductRelatedDataAssetsCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Data product not linked to data assets",
+                                "severity": "High",
+                                "reason": "Data product not linked to data assets.",
+                                "recommendation": "Link assets to the data product."
+                            }
+                        },
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductDescriptionLength",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing description on data products",
+                                "severity": "High",
+                                "reason": "Data products don't have description.",
+                                "recommendation": "Update description for data products."
+                            }
+                        },
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductRelatedTermsCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing related terms on data products",
+                                "severity": "High",
+                                "reason": "Data product don't have terms assigned.",
+                                "recommendation": "Assign related terms to data products."
+                            }
+                        },
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductBusinessUseLength",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing business use on data products",
+                                "severity": "High",
+                                "reason": "Data products don't have business use.",
+                                "recommendation": "Update business use for data products."
                             }
                         }
                     ]
@@ -319,15 +525,51 @@
             },
             {
                 "control": {
-                    "name": "Data Quality Score",
+                    "name": "Data quality Score",
                     "description": "The overall composite data quality score of the data estate computed across all data products",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
-                    "name": "Data Quality Score",
+                    "name": "Data quality Score",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "DataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductEndorsed",
+                                    "operator": "IsTrue"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Data product is not endorsed",
+                                "severity": "Low",
+                                "reason": "Data product is not endorsed.",
+                                "recommendation": "Endorse the data products."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Data product certification",
+                    "description": "Data products are certified by an authorized data product owner.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Data product certification",
+                    "targetEntityType": "DataProduct",
+                    "targetQualityType": "MetadataQuality",
                     "aggregation": {
                         "type": "Simple",
                         "typeProperties": {
@@ -438,6 +680,146 @@
                                 "severity": "Medium",
                                 "reason": "Data products with missing OKRs",
                                 "recommendation": "Link OKRs for the data products."
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "controlGroup": {
+            "name": "Data Accessibility",
+            "type": "ControlGroup",
+            "status": "Enabled",
+            "statusPaletteConfig": {
+                "targetScore": 0.8,
+                "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+                "statusPaletteRules": [
+                    {
+                        "statusPaletteId": "00000000-0000-0000-0000-000000000002",
+                        "rule": {
+                            "type": "SimpleRule",
+                            "typeProperties": {
+                                "checkPoint": "Score",
+                                "operator": "GreaterThanOrEqual",
+                                "operand": "0.8"
+                            }
+                        }
+                    },
+                    {
+                        "statusPaletteId": "00000000-0000-0000-0000-000000000003",
+                        "rule": {
+                            "type": "RuleGroup",
+                            "typeProperties": {
+                                "groupOperator": "And",
+                                "rules": [
+                                    {
+                                        "type": "SimpleRule",
+                                        "typeProperties": {
+                                            "checkPoint": "Score",
+                                            "operator": "LessThan",
+                                            "operand": "0.8"
+                                        }
+                                    },
+                                    {
+                                        "type": "SimpleRule",
+                                        "typeProperties": {
+                                            "checkPoint": "Score",
+                                            "operator": "GreaterThanOrEqual",
+                                            "operand": "0.6"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "items": [
+            {
+                "control": {
+                    "name": "Self-serve access enablement",
+                    "description": "Data products have self-serve policies and workflow(s) enabled to enable data consumers to self-serve in subscribing and managing subscriptions.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Self-serve access enablement",
+                    "targetEntityType": "DataProduct",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductHasDataAccessPolicy",
+                                    "operator": "IsTrue"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing access policy on data products",
+                                "severity": "Medium",
+                                "reason": "Data products without access policy",
+                                "recommendation": "Apply access policies for the data products."
+                            }
+                        },
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductHasSelfServiceAccessPolicy",
+                                    "operator": "IsTrue"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing self-serve policies on data products",
+                                "severity": "Medium",
+                                "reason": "Data products without self-serve policies",
+                                "recommendation": "Apply self-serve policies for the data products."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Compliant data use",
+                    "description": "Data use purpose must be provided by data consumer when subscribing to a data product, and must be compliant with data use policies.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Compliant data use",
+                    "targetEntityType": "DataProduct",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductHasDataUsagePurpose",
+                                    "operator": "IsTrue"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing data usage purpose policy on data products",
+                                "severity": "Medium",
+                                "reason": "Data products without data usage purpose policy",
+                                "recommendation": "Apply data usage purpose policies for the data products."
                             }
                         }
                     ]
