@@ -5,7 +5,6 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
-    using System.Threading.Tasks;
 
     /// <summary>
     /// Metadata service accessor
@@ -22,6 +21,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// </summary>
         /// <param name="payload"></param>
         /// <returns></returns>
-        Task TriggerMDQJobCallback(MDQJobCallbackPayload payload);
+        void TriggerMDQJobCallback(MDQJobCallbackPayload payload);
     }
 }

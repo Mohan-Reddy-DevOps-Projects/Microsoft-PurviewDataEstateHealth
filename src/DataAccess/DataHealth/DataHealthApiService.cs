@@ -33,19 +33,22 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             return this.apiServiceClientFactory.GetClient();
         }
 
-        public async Task TriggerMDQJobCallback(MDQJobCallbackPayload payload)
+        public void TriggerMDQJobCallback(MDQJobCallbackPayload payload)
         {
             this.logger.LogInformation($"Start to trigger MDQ Job callback. Job Id: {payload.DQJobId}. Job status: {payload.JobStatus}.");
-            var client = this.GetDEHServiceClient();
-            try
+            Task.Run(async () =>
             {
-                await client.TriggerMDQJobCallback(payload).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                this.logger.LogError("Fail to trigger MDQ Job callback", ex);
-                throw;
-            }
+                try
+                {
+                    var client = this.GetDEHServiceClient();
+                    await client.TriggerMDQJobCallback(payload).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    this.logger.LogError("Fail to trigger MDQ Job callback", ex);
+                    // TODO: save failed job in DB
+                }
+            });
         }
     }
 }

@@ -71,7 +71,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualitySourceModels = this.ParseSourcePayloads(events);
         this.DataEstateHealthRequestLogger.LogTrace($"Parsed {dataQualitySourceModels.Values.Sum(i => i.Count)} {this.EventProcessorType} source events for account Id: {accountId}.");
 
-        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqJobModels = await this.UpdateMDQJobStatus(dataQualitySourceModels);
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqJobModels = this.UpdateMDQJobStatus(dataQualitySourceModels);
         this.DataEstateHealthRequestLogger.LogTrace($"Updated {mdqJobModels.Values.Sum(i => i.Count)} {this.EventProcessorType} MDQ events for account Id: {accountId}.");
 
         Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels = await this.PrepareAndUploadSourcePayloads(dataQualitySourceModels, deltaTableWriter);
@@ -107,7 +107,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         return dataQualityResultModels;
     }
 
-    private async Task<Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>>> UpdateMDQJobStatus(
+    private Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> UpdateMDQJobStatus(
         Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels)
     {
         Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqJobModels = new();
@@ -122,6 +122,11 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
                 if (sourceModel.JobType == "MDQ" || (domainModelPayload != null && domainModelPayload.JobType == "MDQ"))
                 {
                     this.DataEstateHealthRequestLogger.LogInformation($"Process MDQ job. Job ID: {sourceModel.ResultId}. Job status: {sourceModel.JobStatus}.");
+                    if (domainModelPayload.TenantId == Guid.Empty.ToString())
+                    {
+                        this.DataEstateHealthRequestLogger.LogInformation($"Ignore MDQ job with empty tenant id. Job ID: {sourceModel.ResultId}.");
+                        continue;
+                    }
                     var resultId = this.ParseResultId(sourceModel.ResultId);
                     var payload = new MDQJobCallbackPayload
                     {
@@ -130,15 +135,8 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
                         TenantId = domainModelPayload.TenantId,
                         AccountId = sourceModel.AccountId,
                     };
-                    try
-                    {
-                        await this.dataHealthApiService.TriggerMDQJobCallback(payload).ConfigureAwait(false);
-                        jobModels.Add(sourceModel);
-                    }
-                    catch (Exception ex)
-                    {
-                        this.DataEstateHealthRequestLogger.LogError("Fail to trigger MDQ job callback", ex);
-                    }
+                    this.dataHealthApiService.TriggerMDQJobCallback(payload);
+                    jobModels.Add(sourceModel);
                 }
             }
         }
