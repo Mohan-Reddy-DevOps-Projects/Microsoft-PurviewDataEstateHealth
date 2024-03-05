@@ -819,6 +819,10 @@ components:
               type: string
               description: The color of the status palette.
               example: "#FF5733"
+            reserved:
+              type: boolean
+              default: false
+              readOnly: true
 
     Rule:
       oneOf:

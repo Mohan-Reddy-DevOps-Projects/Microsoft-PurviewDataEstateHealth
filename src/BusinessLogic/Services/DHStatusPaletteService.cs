@@ -22,7 +22,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         {
             var results = await dhControlStatusPaletteRepository.GetAllAsync().ConfigureAwait(false);
 
-            IEnumerable<DHControlStatusPaletteWrapper> resp = [.. SystemDefaultStatusPalettes, ..results];
+            IEnumerable<DHControlStatusPaletteWrapper> resp = [.. SystemDefaultStatusPalettes, .. results];
 
             return new BatchResults<DHControlStatusPaletteWrapper>(resp, resp.Count());
         }
@@ -125,31 +125,36 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             {
                 Id = "00000000-0000-0000-0000-000000000001",
                 Name = "Undefiend",
-                Color = "#949494"
+                Color = "#949494",
+                Reserved = true
             },
             new DHControlStatusPaletteWrapper
             {
                 Id = "00000000-0000-0000-0000-000000000002",
                 Name = "Healthy",
-                Color = "#009b51"
+                Color = "#009b51",
+                Reserved = true
             },
             new DHControlStatusPaletteWrapper
             {
                 Id = "00000000-0000-0000-0000-000000000003",
                 Name = "Fair",
-                Color = "#e67e00"
+                Color = "#e67e00",
+                Reserved = true
             },
             new DHControlStatusPaletteWrapper
             {
                 Id = "00000000-0000-0000-0000-000000000004",
                 Name = "Not healthy",
-                Color = "#d13438"
+                Color = "#d13438",
+                Reserved = true
             },
             new DHControlStatusPaletteWrapper
             {
                 Id = "00000000-0000-0000-0000-000000000005",
                 Name = "Critical",
-                Color = "#6b3f9e"
+                Color = "#6b3f9e",
+                Reserved = true
             },
         };
     }

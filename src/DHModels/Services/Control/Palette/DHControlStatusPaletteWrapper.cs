@@ -9,6 +9,7 @@ public class DHControlStatusPaletteWrapper(JObject jObject) : ContainerEntityBas
 {
     private const string keyName = "name";
     private const string keyColor = "color";
+    private const string keyReserved = "reserved";
 
     public static DHControlStatusPaletteWrapper Create(JObject jObject)
     {
@@ -33,5 +34,12 @@ public class DHControlStatusPaletteWrapper(JObject jObject) : ContainerEntityBas
     {
         get => this.GetPropertyValue<string>(keyColor);
         set => this.SetPropertyValue(keyColor, value);
+    }
+
+    [EntityProperty(keyReserved, true)]
+    public bool Reserved
+    {
+        get => this.GetPropertyValue<bool>(keyReserved);
+        set => this.SetPropertyValue(keyReserved, value);
     }
 }
