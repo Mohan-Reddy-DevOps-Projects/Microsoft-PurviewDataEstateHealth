@@ -14,6 +14,7 @@ public enum DHCheckPoint
     DataProductBusinessUseLength,
     DataProductOwnerCount,
     DataProductAllRelatedAssetsHaveOwner,
+    DataProductAllRelatedAssetsHaveDQScore,
     DataProductRelatedDataAssetsCount,
     DataProductRelatedObjectivesCount,
     DataProductRelatedTermsCount,

@@ -943,6 +943,7 @@ components:
           DataProductBusinessUseLength,
           DataProductOwnerCount,
           DataProductAllRelatedAssetsHaveOwner,
+          DataProductAllRelatedAssetsHaveDQScore,
           DataProductRelatedDataAssetsCount,
           DataProductRelatedObjectivesCount,
           DataProductRelatedTermsCount,

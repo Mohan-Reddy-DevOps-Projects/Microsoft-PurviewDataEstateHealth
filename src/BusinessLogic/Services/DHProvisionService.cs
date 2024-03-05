@@ -8,6 +8,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 public class DHProvisionService(
@@ -49,6 +50,64 @@ public class DHProvisionService(
                 controlWrapper.SyatemTemplate = templateType.ToString();
                 await controlService.CreateControlAsync(controlWrapper, isSystem: true).ConfigureAwait(false);
             }
+        }
+    }
+
+    public void ValidateControlTemplate(string templateName)
+    {
+        if (!Enum.TryParse<SystemTemplateNames>(templateName, true, out var templateType))
+        {
+            throw new EntityValidationException("Wrong template name");
+        }
+
+        var templatePayload = this.GetTemplatePayload(TemplateType.ControlAssessment, templateType);
+
+        var template = JsonConvert.DeserializeObject<IList<ControlAssessmentTemplate>>(templatePayload) ?? [];
+
+        foreach (var group in template)
+        {
+            var controlGroupWrapper = DHControlBaseWrapper.Create(group.ControlGroup);
+            controlGroupWrapper.Validate();
+
+            foreach (var item in group.Items)
+            {
+                if (item.Control == null || item.Assessment == null)
+                {
+                    throw new EntityValidationException("Control and Assessment cannot be null");
+                }
+
+                var assessmentWrapper = DHAssessmentWrapper.Create(item.Assessment);
+                assessmentWrapper.Validate();
+
+                var controlWrapper = (DHControlNodeWrapper)DHControlBaseWrapper.Create(item.Control);
+                controlWrapper.Validate();
+            }
+        }
+    }
+
+    public async Task CleanupControlTemplate(string templateName)
+    {
+        if (!Enum.TryParse<SystemTemplateNames>(templateName, true, out var templateType))
+        {
+            throw new EntityValidationException("Wrong template name");
+        }
+
+        var allControlsResponse = await controlService.ListControlsAsync().ConfigureAwait(false);
+
+        var allTemplateControls = allControlsResponse.Results.Where((x) => x.SyatemTemplate == templateType.ToString()).ToList();
+
+        foreach (var control in allTemplateControls)
+        {
+            await controlService.DeleteControlByIdAsync(control.Id).ConfigureAwait(false);
+        }
+
+        var allAssessmentsResponse = await assessmentService.ListAssessmentsAsync().ConfigureAwait(false);
+
+        var allTemplateAssessments = allAssessmentsResponse.Results.Where((x) => x.SyatemTemplate == templateType.ToString()).ToList();
+
+        foreach (var assessment in allTemplateAssessments)
+        {
+            await assessmentService.DeleteAssessmentByIdAsync(assessment.Id).ConfigureAwait(false);
         }
     }
 

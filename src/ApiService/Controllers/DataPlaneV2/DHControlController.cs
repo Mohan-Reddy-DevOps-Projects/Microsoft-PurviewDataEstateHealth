@@ -18,7 +18,7 @@ using Newtonsoft.Json.Linq;
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
 [Route("/controls")]
-public class DHControlController(DHControlService dataHealthControlService, DHProvisionService provisionService) : DataPlaneController
+public class DHControlController(DHControlService dataHealthControlService) : DataPlaneController
 {
     [HttpGet]
     [Route("")]
@@ -75,18 +75,5 @@ public class DHControlController(DHControlService dataHealthControlService, DHPr
         await dataHealthControlService.DeleteControlByIdAsync(id).ConfigureAwait(false);
 
         return this.NoContent();
-    }
-
-    [HttpPost]
-    [Route("Provision")]
-    public async Task<ActionResult> ProvisionControlsWithTemplateAsync()
-    {
-        //if (payload == null)
-        //{
-        //    throw new InvalidRequestException(StringResources.ErrorMessageInvalidPayload);
-        //}
-
-        await provisionService.ProvisionControlTemplate("CDMC").ConfigureAwait(false);
-        return this.Ok();
     }
 }

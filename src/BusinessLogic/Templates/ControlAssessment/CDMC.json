@@ -83,7 +83,362 @@
                                 "reason": "Missing classification on data assets.",
                                 "recommendation": "Go through classification process on data assets."
                             }
-
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Data Products connection",
+                    "description": "Data assets are mapped to data products for discoverability in the catalog.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Data Products connection",
+                    "targetEntityType": "DataProduct",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductRelatedDataAssetsCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Data product not linked to assets",
+                                "severity": "Medium",
+                                "reason": "Data product not linked to assets.",
+                                "recommendation": "Link assets to the data product."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Critical data identification",
+                    "description": "Business critical data entities and attributes are defined for business domains.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Critical data identification",
+                    "targetEntityType": "BusinessDomain",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "BusinessDomainCriticalDataElementCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Business domain without critical data entities",
+                                "severity": "Medium",
+                                "reason": "No critical data entities under the business domain.",
+                                "recommendation": "Create critical data entities in the business domain."
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "controlGroup": {
+            "name": "Trusted Data",
+            "type": "ControlGroup",
+            "status": "Enabled",
+            "statusPaletteConfig": {
+                "targetScore": 0.8,
+                "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+                "statusPaletteRules": [
+                    {
+                        "statusPaletteId": "00000000-0000-0000-0000-000000000002",
+                        "rule": {
+                            "type": "SimpleRule",
+                            "typeProperties": {
+                                "checkPoint": "Score",
+                                "operator": "GreaterThanOrEqual",
+                                "operand": "0.8"
+                            }
+                        }
+                    },
+                    {
+                        "statusPaletteId": "00000000-0000-0000-0000-000000000003",
+                        "rule": {
+                            "type": "RuleGroup",
+                            "typeProperties": {
+                                "groupOperator": "And",
+                                "rules": [
+                                    {
+                                        "type": "SimpleRule",
+                                        "typeProperties": {
+                                            "checkPoint": "Score",
+                                            "operator": "LessThan",
+                                            "operand": "0.8"
+                                        }
+                                    },
+                                    {
+                                        "type": "SimpleRule",
+                                        "typeProperties": {
+                                            "checkPoint": "Score",
+                                            "operator": "GreaterThanOrEqual",
+                                            "operand": "0.6"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "items": [
+            {
+                "control": {
+                    "name": "Data product ownership",
+                    "description": "Data product and related assets have authorized owners.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Data product ownership",
+                    "targetEntityType": "DataProduct",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductOwnerCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing owners on data products",
+                                "severity": "High",
+                                "reason": "Data products with missing owners",
+                                "recommendation": "Assign owners for the data products."
+                            }
+                        },
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductAllRelatedAssetsHaveOwner",
+                                    "operator": "IsTrue"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing owners on data assets",
+                                "severity": "High",
+                                "reason": "Data assets with missing owners that are part of data products",
+                                "recommendation": "Assign owners for the data assets related to the data product."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Data quality measurenment",
+                    "description": "Data quality scoring is enabled for data products, and data assets, and is visible in the data catalog",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Data quality measurenment",
+                    "targetEntityType": "DataProduct",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductHasDQScore",
+                                    "operator": "IsTrue"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing data quality scores on data products",
+                                "severity": "Medium",
+                                "reason": "Data products with missing data quality scores",
+                                "recommendation": ""
+                            }
+                        },
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductAllRelatedAssetsHaveOwner",
+                                    "operator": "IsTrue"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing data quality scores on data assets",
+                                "severity": "Medium",
+                                "reason": "Data assets with missing data quality scores that are part of data products",
+                                "recommendation": "Assign data quality rules for the data assets related to the data product."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Data Quality Score",
+                    "description": "The overall composite data quality score of the data estate computed across all data products",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Data Quality Score",
+                    "targetEntityType": "DataProduct",
+                    "targetQualityType": "DataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataQualityScore",
+                                    "operator": "Normalize"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Data product with lower than set threshold data quality scores",
+                                "severity": "High",
+                                "reason": "Data product with lower than set threshold data quality scores",
+                                "recommendation": ""
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "controlGroup": {
+            "name": "Data Value",
+            "type": "ControlGroup",
+            "status": "Enabled",
+            "statusPaletteConfig": {
+                "targetScore": 0.8,
+                "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+                "statusPaletteRules": [
+                    {
+                        "statusPaletteId": "00000000-0000-0000-0000-000000000002",
+                        "rule": {
+                            "type": "SimpleRule",
+                            "typeProperties": {
+                                "checkPoint": "Score",
+                                "operator": "GreaterThanOrEqual",
+                                "operand": "0.8"
+                            }
+                        }
+                    },
+                    {
+                        "statusPaletteId": "00000000-0000-0000-0000-000000000003",
+                        "rule": {
+                            "type": "RuleGroup",
+                            "typeProperties": {
+                                "groupOperator": "And",
+                                "rules": [
+                                    {
+                                        "type": "SimpleRule",
+                                        "typeProperties": {
+                                            "checkPoint": "Score",
+                                            "operator": "LessThan",
+                                            "operand": "0.8"
+                                        }
+                                    },
+                                    {
+                                        "type": "SimpleRule",
+                                        "typeProperties": {
+                                            "checkPoint": "Score",
+                                            "operator": "GreaterThanOrEqual",
+                                            "operand": "0.6"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "items": [
+            {
+                "control": {
+                    "name": "Business OKRs alignment",
+                    "description": "Data products serve 1 or more business OKRs.",
+                    "status": "Enabled",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Business OKRs alignment",
+                    "targetEntityType": "DataProduct",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "DataProductRelatedObjectivesCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing OKRs on data products",
+                                "severity": "Medium",
+                                "reason": "Data products with missing OKRs",
+                                "recommendation": "Link OKRs for the data products."
+                            }
                         }
                     ]
                 }

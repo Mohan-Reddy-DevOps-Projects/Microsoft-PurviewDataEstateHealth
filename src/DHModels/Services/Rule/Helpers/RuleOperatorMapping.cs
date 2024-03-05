@@ -23,6 +23,7 @@ internal class RuleOperatorMapping
             { DHCheckPoint.DataProductBusinessUseLength, DHCheckPointType.Number },
             { DHCheckPoint.DataProductOwnerCount, DHCheckPointType.Number },
             { DHCheckPoint.DataProductAllRelatedAssetsHaveOwner, DHCheckPointType.Boolean },
+            { DHCheckPoint.DataProductAllRelatedAssetsHaveDQScore, DHCheckPointType.Boolean },
             { DHCheckPoint.DataProductRelatedDataAssetsCount, DHCheckPointType.Number},
             { DHCheckPoint.DataProductRelatedObjectivesCount, DHCheckPointType.Number},
             { DHCheckPoint.DataProductRelatedTermsCount, DHCheckPointType.Number},
