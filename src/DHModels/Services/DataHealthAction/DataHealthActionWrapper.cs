@@ -58,13 +58,12 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     public const string keySeverity = "severity";
     public const string keyAssignedTo = "assignedTo";
     public const string keyDomainId = "domainId";
-    private const string keyId = "id";
+    public const string keyTargetEntityId = "targetEntityId";
     private const string keyCategory = "category";
     private const string keyFindingId = "findingId";
     private const string keyRecommendation = "recommendation";
     private const string keyStatus = "status";
     private const string keyTargetEntityType = "targetEntityType";
-    private const string keyTargetEntityId = "targetEntityId";
     private const string keySystemData = "systemData";
     private const string KeyReason = "reason";
     private const string KeyExtraProperties = "extraProperties";

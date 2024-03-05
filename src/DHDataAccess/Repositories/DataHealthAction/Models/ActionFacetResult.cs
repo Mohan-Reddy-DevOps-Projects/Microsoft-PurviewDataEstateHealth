@@ -20,4 +20,7 @@ public class ActionFacets
 
     [Facet(DataHealthActionWrapper.keyDomainId)]
     public FacetEntity? DomainId { get; set; }
+
+    [Facet(DataHealthActionWrapper.keyTargetEntityId)]
+    public FacetEntity? TargetEntityId { get; set; }
 }
