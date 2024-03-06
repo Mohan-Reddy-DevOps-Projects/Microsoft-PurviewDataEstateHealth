@@ -32,7 +32,7 @@ public class DHRawScore(JObject jObject) : BaseEntityWrapper(jObject)
     /**
      * For DataProduct
      * {
-     *   DataProductId,
+     *   DataProductID,
      *   DataProductDisplayName,
      *   BusinessDomainId (not supported now, wait DQ join)
      * }
@@ -59,7 +59,7 @@ public class DHRawScore(JObject jObject) : BaseEntityWrapper(jObject)
 
     public string EntityId => this.EntityType switch
     {
-        RowScoreEntityType.DataProduct => this.JObject.Value<string>(DQOutputFields.DP_ID)!,
+        RowScoreEntityType.DataProduct => this.EntityPayload.Value<string>(DQOutputFields.DP_ID)!,
         _ => throw new NotImplementedException($"EntityId for {this.EntityType} is not implemented")
     };
 }
