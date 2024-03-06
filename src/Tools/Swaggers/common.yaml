@@ -1119,7 +1119,8 @@ components:
               BusinessDomain,
               Term,
               DataAsset,
-              DataQualityAssessment,
+              DataQualityAsset,
+              CriticalDataElement
             ]
           description: The target entity type of the action.
         targetEntityIds:
@@ -1166,7 +1167,6 @@ components:
       type: object
       required:
         - category
-        - status
         - targetEntityType
         - targetEntityId
         - findingType

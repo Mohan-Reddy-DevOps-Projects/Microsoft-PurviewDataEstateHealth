@@ -28,7 +28,6 @@ public enum DataHealthActionStatus
     NotStarted,
     InProgress,
     Resolved,
-    Ignored
 }
 
 [JsonConverter(typeof(StringEnumConverter))]
@@ -46,7 +45,8 @@ public enum DataHealthActionTargetEntityType
     DataProduct,
     GlossaryTerm,
     DataAsset,
-    DataQualityAccessment
+    DataQualityAsset,
+    CriticalDataElement,
 }
 
 [EntityWrapper(EntityCategory.Action)]
@@ -135,13 +135,12 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyStatus)]
-    [EntityRequiredValidator]
-    public DataHealthActionStatus Status
+    public DataHealthActionStatus? Status
     {
         get
         {
             var enumStr = this.GetPropertyValue<string>(keyStatus);
-            return Enum.TryParse<DataHealthActionStatus>(enumStr, true, out var result) ? result : DataHealthActionStatus.NotStarted;
+            return Enum.TryParse<DataHealthActionStatus>(enumStr, true, out var result) ? result : null;
         }
         set => this.SetPropertyValue(keyStatus, value.ToString());
     }

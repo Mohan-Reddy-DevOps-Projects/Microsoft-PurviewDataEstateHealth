@@ -70,6 +70,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
                 actions.ForEach((action) =>
                 {
+                    action.Status = action.Status == null ? DataHealthActionStatus.NotStarted : action.Status;
                     action.Validate();
                     action.NormalizeInput();
                 });
@@ -126,6 +127,8 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                 {
                     throw new ArgumentNullException(nameof(action));
                 }
+
+                action.Status = action.Status == null ? DataHealthActionStatus.NotStarted : action.Status;
 
                 if (!string.Equals(actionId, action.Id, StringComparison.OrdinalIgnoreCase))
                 {
