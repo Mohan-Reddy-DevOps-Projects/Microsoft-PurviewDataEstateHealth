@@ -2,10 +2,13 @@
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 
 public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<DHAssessmentWrapper>(jObject)
 {
@@ -33,7 +36,6 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
     }
 
     [EntityProperty(keyTargetEntityType)]
-    [EntityRequiredValidator]
     public DHAssessmentTargetEntityType? TargetEntityType
     {
         get
@@ -71,6 +73,7 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
     private DHAssessmentAggregationBaseWrapper? Aggregation;
 
     [EntityProperty(keyAggregation)]
+    [EntityRequiredValidator]
     public DHAssessmentAggregationBaseWrapper AggregationWrapper
     {
         get => this.Aggregation ??= this.GetPropertyValueAsWrapper<DHAssessmentAggregationBaseWrapper>(keyAggregation);
@@ -92,7 +95,7 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
     {
         base.OnCreate(userId, id);
 
-        this.CheckAssessmentRuleId();
+        this.UpdateAssessmentRuleId();
     }
 
     public override void OnUpdate(DHAssessmentWrapper existWrapper, string userId)
@@ -101,10 +104,101 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
 
         this.SystemTemplate = existWrapper.SystemTemplate;
 
-        this.CheckAssessmentRuleId();
+        this.UpdateAssessmentRuleId();
     }
 
-    private void CheckAssessmentRuleId()
+    public override void Validate()
+    {
+        base.Validate();
+
+        switch (this.TargetQualityType)
+        {
+            case DHAssessmentQualityType.DataQuality:
+                switch (this.TargetEntityType)
+                {
+                    case DHAssessmentTargetEntityType.DataProduct:
+                        foreach (var item in this.Rules)
+                        {
+                            item.Rule.ValidateCheckPoints(Rule.Helpers.DHRuleSourceType.AssessmentDQDataProduct);
+                        }
+                        break;
+                    case null:
+                        if (this.Rules.Any())
+                        {
+                            throw new EntityValidationException(String.Format(
+                                CultureInfo.InvariantCulture,
+                                StringResources.ErrorMessageAssessmentRuleShouldBeEmpty
+                                ));
+                        }
+                        break;
+                    default:
+                        var supportedTargetEntityType = new[] { DHAssessmentTargetEntityType.DataProduct };
+                        throw new EntityValidationException(String.Format(
+                            CultureInfo.InvariantCulture,
+                            StringResources.ErrorMessageUnsupportedTargetEntityType,
+                            this.TargetEntityType,
+                            this.TargetQualityType,
+                            String.Join(", ", supportedTargetEntityType.Select(i => i.ToString()))
+                            ));
+                }
+                break;
+            case DHAssessmentQualityType.MetadataQuality:
+                switch (this.TargetEntityType)
+                {
+                    case DHAssessmentTargetEntityType.DataProduct:
+                        foreach (var item in this.Rules)
+                        {
+                            item.Rule.ValidateCheckPoints(Rule.Helpers.DHRuleSourceType.AssessmentMQDataProduct);
+                        }
+                        break;
+                    case DHAssessmentTargetEntityType.DataAsset:
+                        foreach (var item in this.Rules)
+                        {
+                            item.Rule.ValidateCheckPoints(Rule.Helpers.DHRuleSourceType.AssessmentMQDataAsset);
+                        }
+                        break;
+                    case DHAssessmentTargetEntityType.CriticalDataElement:
+                        foreach (var item in this.Rules)
+                        {
+                            item.Rule.ValidateCheckPoints(Rule.Helpers.DHRuleSourceType.AssessmentMQCDE);
+                        }
+                        break;
+                    case DHAssessmentTargetEntityType.BusinessDomain:
+                        foreach (var item in this.Rules)
+                        {
+                            item.Rule.ValidateCheckPoints(Rule.Helpers.DHRuleSourceType.AssessmentMQBusinessDomain);
+                        }
+                        break;
+                    case null:
+                        if (this.Rules.Any())
+                        {
+                            throw new EntityValidationException(String.Format(
+                                CultureInfo.InvariantCulture,
+                                StringResources.ErrorMessageAssessmentRuleShouldBeEmpty
+                            ));
+                        }
+                        break;
+                    default:
+                        var supportedTargetEntityType = new[]
+                        {
+                            DHAssessmentTargetEntityType.DataProduct,
+                            DHAssessmentTargetEntityType.DataAsset,
+                            DHAssessmentTargetEntityType.CriticalDataElement,
+                            DHAssessmentTargetEntityType.BusinessDomain
+                        };
+                        throw new EntityValidationException(String.Format(
+                            CultureInfo.InvariantCulture,
+                            StringResources.ErrorMessageUnsupportedTargetEntityType,
+                            this.TargetEntityType,
+                            this.TargetQualityType,
+                            String.Join(", ", supportedTargetEntityType.Select(i => i.ToString()))
+                        ));
+                }
+                break;
+        }
+    }
+
+    private void UpdateAssessmentRuleId()
     {
         foreach (var rule in this.Rules)
         {

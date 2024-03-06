@@ -67,6 +67,11 @@ public class DHAssessmentService(DHAssessmentRepository assessmentRepository, IR
 
         entity.Name = assessmentName;
 
+        var aggregationWrapper = new DHAssessmentSimpleAggregationWrapper();
+        aggregationWrapper.Type = DHAssessmentAggregationBaseWrapperDerivedTypes.Simple;
+        aggregationWrapper.AggregationType = DHAssessmentSimpleAggregationType.Average;
+        entity.AggregationWrapper = aggregationWrapper;
+
         return await this.CreateAssessmentAsync(entity).ConfigureAwait(false);
     }
 

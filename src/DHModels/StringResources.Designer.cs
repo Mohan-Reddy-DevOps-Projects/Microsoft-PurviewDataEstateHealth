@@ -79,6 +79,15 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot set rules when targetEntityType is not set or targetQualityType is not set..
+        /// </summary>
+        internal static string ErrorMessageAssessmentRuleShouldBeEmpty {
+            get {
+                return ResourceManager.GetString("ErrorMessageAssessmentRuleShouldBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The name connot be just composed of spaces..
         /// </summary>
         internal static string ErrorMessageEmptyEntityName {
@@ -210,6 +219,15 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels {
         internal static string ErrorMessageTypeNotString {
             get {
                 return ResourceManager.GetString("ErrorMessageTypeNotString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to TargetEntityType &quot;{0}&quot; is not supported for targetQualityType &quot;{1}&quot;. Supported TargetEntityTypes are &quot;{2}&quot;..
+        /// </summary>
+        internal static string ErrorMessageUnsupportedTargetEntityType {
+            get {
+                return ResourceManager.GetString("ErrorMessageUnsupportedTargetEntityType", resourceCulture);
             }
         }
         

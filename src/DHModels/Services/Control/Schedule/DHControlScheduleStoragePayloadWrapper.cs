@@ -32,6 +32,7 @@ public class DHControlScheduleStoragePayloadWrapper(JObject jObject) : Container
 
     private DHControlScheduleWrapper? properties;
     [EntityProperty(keyProperties)]
+    [EntityRequiredValidator]
     public DHControlScheduleWrapper Properties
     {
         get => this.properties ??= this.GetPropertyValueAsWrapper<DHControlScheduleWrapper>(keyProperties);

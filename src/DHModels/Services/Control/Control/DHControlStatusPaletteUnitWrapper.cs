@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.Helpers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
@@ -33,5 +34,12 @@ public class DHControlStatusPaletteUnitWrapper(JObject jObject) : BaseEntityWrap
     {
         get => this.GetPropertyValue<string>(keyStatusPaletteId);
         set => this.SetPropertyValue(keyStatusPaletteId, value);
+    }
+
+    public override void Validate()
+    {
+        base.Validate();
+
+        this.Rule.ValidateCheckPoints(DHRuleSourceType.ControlNode);
     }
 }

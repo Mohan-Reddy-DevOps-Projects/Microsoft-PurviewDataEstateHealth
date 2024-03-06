@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.Helpers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
@@ -12,6 +13,11 @@ public abstract class DHRuleBaseWrapper(JObject jObject) : DynamicEntityWrapper(
     {
         return EntityWrapperHelper.CreateEntityWrapper<DHRuleBaseWrapper>(EntityCategory.Rule, EntityWrapperHelper.GetEntityType(jObject), jObject);
     }
+
+    public void ValidateCheckPoints(DHRuleSourceType sourceType)
+    {
+        RuleValidator.Validate(this, sourceType);
+    }
 }
 
 public static class DHRuleBaseWrapperDerivedTypes
@@ -20,4 +26,3 @@ public static class DHRuleBaseWrapperDerivedTypes
     public const string ExpressionRule = "ExpressionRule";
     public const string Group = "RuleGroup";
 }
-

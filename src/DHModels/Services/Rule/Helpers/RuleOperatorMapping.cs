@@ -12,8 +12,57 @@ public enum DHCheckPointType
     Score,
 }
 
+public enum DHRuleSourceType
+{
+    ControlNode,
+    AssessmentMQDataProduct,
+    AssessmentMQDataAsset,
+    AssessmentMQCDE,
+    AssessmentMQBusinessDomain,
+    AssessmentDQDataProduct,
+}
+
 internal class RuleOperatorMapping
 {
+    private static readonly Dictionary<DHRuleSourceType, IList<DHCheckPoint>> SourceAvailableCheckPointsMapping =
+        new()
+        {
+            { DHRuleSourceType.ControlNode, [
+                DHCheckPoint.Score,
+            ] },
+            { DHRuleSourceType.AssessmentDQDataProduct, [
+                DHCheckPoint.DataQualityScore,
+            ] },
+            { DHRuleSourceType.AssessmentMQDataProduct, [
+                DHCheckPoint.DataProductDescriptionLength,
+                DHCheckPoint.DataProductBusinessUseLength,
+                DHCheckPoint.DataProductOwnerCount,
+                DHCheckPoint.DataProductAllRelatedAssetsHaveOwner,
+                DHCheckPoint.DataProductAllRelatedAssetsHaveDQScore,
+                DHCheckPoint.DataProductRelatedDataAssetsCount,
+                DHCheckPoint.DataProductRelatedObjectivesCount,
+                DHCheckPoint.DataProductRelatedTermsCount,
+                DHCheckPoint.DataProductHasDataAccessPolicy,
+                DHCheckPoint.DataProductHasDataUsagePurpose,
+                DHCheckPoint.DataProductEndorsed,
+                DHCheckPoint.DataProductStatus,
+                DHCheckPoint.DataProductHasDQScore,
+            ] },
+            { DHRuleSourceType.AssessmentMQDataAsset, [
+                DHCheckPoint.DataAssetClassificationCount,
+            ] },
+            { DHRuleSourceType.AssessmentMQCDE, [
+                DHCheckPoint.CDERelatedDataAssetsCount,
+                DHCheckPoint.CDEOwnerCount,
+                DHCheckPoint.CDEDescriptionLength,
+                DHCheckPoint.CDERelatedTermsCount,
+                DHCheckPoint.CDEAllRelatedAssetsHaveClassification,
+            ]},
+            {DHRuleSourceType.AssessmentMQBusinessDomain, [
+                DHCheckPoint.BusinessDomainCriticalDataElementCount,
+            ] },
+        };
+
     private static readonly Dictionary<DHCheckPoint, DHCheckPointType> CheckPointTypeMapping =
         new()
         {
@@ -48,10 +97,33 @@ internal class RuleOperatorMapping
 
     private static readonly Dictionary<DHCheckPointType, IList<DHOperator>> CheckPointTypeOperatorMapping = new()
     {
-        { DHCheckPointType.Number, [DHOperator.Equal, DHOperator.NotEqual, DHOperator.GreaterThan, DHOperator.GreaterThanOrEqual, DHOperator.LessThan, DHOperator.LessThanOrEqual] },
-        { DHCheckPointType.String, [DHOperator.Equal, DHOperator.NotEqual, DHOperator.IsNullOrEmpty, DHOperator.IsNotNullOrEmpty ] },
-        { DHCheckPointType.Boolean, [DHOperator.IsTrue, DHOperator.IsFalse] },
-        { DHCheckPointType.Score, [DHOperator.Normalize, DHOperator.Equal, DHOperator.NotEqual, DHOperator.GreaterThan, DHOperator.GreaterThanOrEqual, DHOperator.LessThan, DHOperator.LessThanOrEqual] },
+        { DHCheckPointType.Number, [
+            DHOperator.Equal,
+            DHOperator.NotEqual,
+            DHOperator.GreaterThan,
+            DHOperator.GreaterThanOrEqual,
+            DHOperator.LessThan,
+            DHOperator.LessThanOrEqual
+            ] },
+        { DHCheckPointType.String, [
+            DHOperator.Equal,
+            DHOperator.NotEqual,
+            DHOperator.IsNullOrEmpty,
+            DHOperator.IsNotNullOrEmpty
+            ] },
+        { DHCheckPointType.Boolean, [
+            DHOperator.IsTrue,
+            DHOperator.IsFalse
+            ] },
+        { DHCheckPointType.Score, [
+            DHOperator.Normalize,
+            DHOperator.Equal,
+            DHOperator.NotEqual,
+            DHOperator.GreaterThan,
+            DHOperator.GreaterThanOrEqual,
+            DHOperator.LessThan,
+            DHOperator.LessThanOrEqual
+            ] },
     };
 
     public static IList<DHOperator> GetAllowedOperators(DHCheckPoint? checkPoint)
@@ -73,5 +145,10 @@ internal class RuleOperatorMapping
         {
             throw new InvalidOperationException($"CheckPoint {checkPoint} is not supported");
         }
+    }
+
+    public static IList<DHCheckPoint> GetAllowedCheckPoints(DHRuleSourceType sourceType)
+    {
+        return SourceAvailableCheckPointsMapping[sourceType] ?? [];
     }
 }

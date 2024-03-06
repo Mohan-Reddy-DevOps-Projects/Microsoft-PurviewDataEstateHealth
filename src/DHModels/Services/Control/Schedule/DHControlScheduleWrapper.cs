@@ -5,10 +5,10 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 public class DHControlScheduleWrapper(JObject jObject) : BaseEntityWrapper(jObject)
 {
@@ -27,13 +27,19 @@ public class DHControlScheduleWrapper(JObject jObject) : BaseEntityWrapper(jObje
     public DHControlScheduleWrapper() : this([]) { }
 
     [EntityProperty(keyFrequency)]
-    public string Frequency
+    [EntityRequiredValidator]
+    public DHControlScheduleFrequency? Frequency
     {
-        get => this.GetPropertyValue<string>(keyFrequency);
-        set => this.SetPropertyValue(keyFrequency, value);
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyFrequency);
+            return Enum.TryParse<DHControlScheduleFrequency>(enumStr, true, out var result) ? result : null;
+        }
+        set => this.SetPropertyValue(keyFrequency, value?.ToString());
     }
 
     [EntityProperty(keyInterval)]
+    [EntityRequiredValidator]
     public int Interval
     {
         get => this.GetPropertyValue<int>(keyInterval);
@@ -96,7 +102,7 @@ public class DHControlSchedulePropertiesWrapper(JObject jObject) : BaseEntityWra
     public IEnumerable<int> Hours
     {
         get => this.hours ??= (this.GetPropertyValues<int>(keyHours) ?? []);
-        set 
+        set
         {
             this.hours = value;
             this.SetPropertyValue(keyHours, value);

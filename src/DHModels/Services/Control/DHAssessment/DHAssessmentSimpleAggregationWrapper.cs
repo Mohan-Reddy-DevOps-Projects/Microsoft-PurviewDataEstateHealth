@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 
@@ -12,6 +13,7 @@ public class DHAssessmentSimpleAggregationWrapper(JObject jObject) : DHAssessmen
     public DHAssessmentSimpleAggregationWrapper() : this([]) { }
 
     [EntityTypeProperty(keyAggregationType)]
+    [EntityRequiredValidator]
     public DHAssessmentSimpleAggregationType? AggregationType
     {
         get

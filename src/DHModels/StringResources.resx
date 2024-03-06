@@ -123,6 +123,9 @@
   <data name="ErrorMessageArrayLengthExceedMax" xml:space="preserve">
     <value>The length of array "{0}" must be less than {1}</value>
   </data>
+  <data name="ErrorMessageAssessmentRuleShouldBeEmpty" xml:space="preserve">
+    <value>Cannot set rules when targetEntityType is not set or targetQualityType is not set.</value>
+  </data>
   <data name="ErrorMessageEmptyEntityName" xml:space="preserve">
     <value>The name connot be just composed of spaces.</value>
   </data>
@@ -167,6 +170,9 @@
   </data>
   <data name="ErrorMessageTypeNotString" xml:space="preserve">
     <value>Property "{0}" must be a string.</value>
+  </data>
+  <data name="ErrorMessageUnsupportedTargetEntityType" xml:space="preserve">
+    <value>TargetEntityType "{0}" is not supported for targetQualityType "{1}". Supported TargetEntityTypes are "{2}".</value>
   </data>
   <data name="ErrorMessageValueRequired" xml:space="preserve">
     <value>Property "{0}" is required.</value>

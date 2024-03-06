@@ -525,13 +525,13 @@
             },
             {
                 "control": {
-                    "name": "Data quality Score",
+                    "name": "Data quality score",
                     "description": "The overall composite data quality score of the data estate computed across all data products",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
-                    "name": "Data quality Score",
+                    "name": "Data quality score",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "DataQuality",
                     "aggregation": {

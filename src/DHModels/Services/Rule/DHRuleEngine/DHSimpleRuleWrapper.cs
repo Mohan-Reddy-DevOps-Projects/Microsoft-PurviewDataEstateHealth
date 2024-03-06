@@ -7,9 +7,9 @@ using System;
 [EntityWrapper(DHRuleBaseWrapperDerivedTypes.SimpleRule, EntityCategory.Rule)]
 public class DHSimpleRuleWrapper(JObject jObject) : DHRuleBaseWrapper(jObject)
 {
-    private const string keyOperator = "operator";
+    public const string keyOperator = "operator";
     private const string keyOperand = "operand";
-    private const string keyCheckPoint = "checkPoint";
+    public const string keyCheckPoint = "checkPoint";
 
     public DHSimpleRuleWrapper() : this([]) { }
 
