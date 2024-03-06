@@ -16,6 +16,7 @@ using System;
 [JsonConverter(typeof(StringEnumConverter))]
 public enum DHActionType
 {
+    ControlAction,
     AssessmentAction,
     ProfilingAction
 }

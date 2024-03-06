@@ -1117,7 +1117,7 @@ components:
             [
               DataProduct,
               BusinessDomain,
-              Term,
+              GlossaryTerm,
               DataAsset,
               DataQualityAsset,
               CriticalDataElement
@@ -1240,7 +1240,7 @@ components:
             type:
               type: string
               description: The type of the extra properties.
-              enum: ["AssessmentAction", "ProfilingAction"]
+              enum: ["AssessmentAction", "ProfilingAction", "ControlAction"]
             data:
               type: object
               description: Any properties can be added here.

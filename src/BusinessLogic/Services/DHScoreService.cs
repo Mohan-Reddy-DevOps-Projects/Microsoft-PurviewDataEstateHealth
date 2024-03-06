@@ -5,14 +5,16 @@
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Output;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class DHScoreService(DHScoreRepository dhScoreRepository, DHControlRepository dhControlRepository, DHAssessmentRepository mqAssessmentRepository, IDataEstateHealthRequestLogger logger)
+    public class DHScoreService(DHScoreRepository dhScoreRepository, DHControlRepository dhControlRepository, DHAssessmentRepository mqAssessmentRepository, DHActionInternalService dHActionInternalService, IDataEstateHealthRequestLogger logger)
     {
         public async Task<IBatchResults<DHScoreBaseWrapper>> ListScoresAsync()
         {
@@ -30,46 +32,25 @@
                 {
                     var assessmentId = controlNode.AssessmentId ?? throw new InvalidOperationException($"Control with id {controlId} has no assessment id!");
                     var assessment = await mqAssessmentRepository.GetByIdAsync(assessmentId).ConfigureAwait(false) ?? throw new InvalidOperationException($"Assessment with id {assessmentId} not found!");
-                    var aggregation = assessment.AggregationWrapper ?? throw new InvalidOperationException($"Assessment with id {assessmentId} has no aggregation!");
-                    var currentTime = DateTime.UtcNow;
-                    switch (aggregation)
+                    try
                     {
-                        case DHAssessmentSimpleAggregationWrapper simpleAggregation:
-                            switch (simpleAggregation.AggregationType)
-                            {
-                                case DHAssessmentSimpleAggregationType.Average:
-                                    var scoreWrappers = scores.Select(x =>
-                                    {
-                                        switch (assessment.TargetEntityType)
-                                        {
-                                            case DHAssessmentTargetEntityType.DataProduct:
-                                                return new DHDataProductScoreWrapper
-                                                {
-                                                    Id = Guid.NewGuid().ToString(),
-                                                    ControlId = controlId,
-                                                    ControlGroupId = controlNode.GroupId,
-                                                    ComputingJobId = computingJobId,
-                                                    Time = currentTime,
-                                                    Scores = x.Scores,
-                                                    AggregatedScore = x.Scores.Average(scoreUnit => scoreUnit.Score),
-                                                    DataProductDomainId = x.EntityPayload[DQOutputFields.BD_ID]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
-                                                    DataProductId = x.EntityId ?? throw new InvalidOperationException("Data product id not found in entity payload!"),
-                                                    DataProductOwners = []
-                                                    // TODO will get this after join
-                                                    // DataProductOwners = x.EntityPayload["contacts"]?["owner"]?.OfType<JObject>().Select(x => ContactItemWrapper.Create(x)).ToList()
-                                                };
-                                            default:
-                                                throw new NotImplementedException($"Target entity type {assessment.TargetEntityType} not supported yet!");
-                                        }
-                                    }).ToList();
-                                    await dhScoreRepository.AddAsync(scoreWrappers).ConfigureAwait(false);
-                                    break;
-                                default:
-                                    throw new NotImplementedException($"Simple aggregation type {simpleAggregation.AggregationType} not supported yet!");
-                            }
-                            break;
-                        default:
-                            throw new NotImplementedException($"Aggregation type {aggregation.Type} not supported yet!");
+                        await Task.WhenAll(
+                            this.StoreScoreAsync(controlId, assessmentId, controlNode, assessment, scores, computingJobId),
+                            this.GenerateActionAsync(controlNode, assessment, scores, computingJobId)
+                        ).ConfigureAwait(false);
+                    }
+                    catch (AggregateException ae)
+                    {
+                        foreach (var e in ae.InnerExceptions)
+                        {
+                            logger.LogInformation(e.Message);
+                        }
+                        throw new Exception(ae.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogInformation(ex.Message);
+                        throw new Exception(ex.ToString());
                     }
                 }
                 else
@@ -82,6 +63,128 @@
         public Task<IEnumerable<DHScoreAggregatedByControl>> Query(IEnumerable<string>? domainIds, IEnumerable<string>? controlIds, int? recordLatestCounts, DateTime? start, DateTime? end)
         {
             return dhScoreRepository.Query(domainIds, controlIds, recordLatestCounts, start, end);
+        }
+
+        private async Task StoreScoreAsync(string controlId, string assessmentId, DHControlNodeWrapper controlNode, DHAssessmentWrapper assessment, IEnumerable<DHRawScore> scores, string computingJobId)
+        {
+            var aggregation = assessment.AggregationWrapper ?? throw new InvalidOperationException($"Assessment with id {assessmentId} has no aggregation!");
+            var currentTime = DateTime.UtcNow;
+            switch (aggregation)
+            {
+                case DHAssessmentSimpleAggregationWrapper simpleAggregation:
+                    switch (simpleAggregation.AggregationType)
+                    {
+                        case DHAssessmentSimpleAggregationType.Average:
+                            var scoreWrappers = scores.Select(x =>
+                            {
+                                switch (assessment.TargetEntityType)
+                                {
+                                    case DHAssessmentTargetEntityType.DataProduct:
+                                        return new DHDataProductScoreWrapper
+                                        {
+                                            Id = Guid.NewGuid().ToString(),
+                                            ControlId = controlId,
+                                            ControlGroupId = controlNode.GroupId,
+                                            ComputingJobId = computingJobId,
+                                            Time = currentTime,
+                                            Scores = x.Scores,
+                                            AggregatedScore = x.Scores.Average(scoreUnit => scoreUnit.Score),
+                                            DataProductDomainId = x.EntityPayload[DQOutputFields.BD_ID]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
+                                            DataProductId = x.EntityId ?? throw new InvalidOperationException("Data product id not found in entity payload!"),
+                                            DataProductOwners = []
+                                            // TODO will get this after join
+                                            // DataProductOwners = x.EntityPayload["contacts"]?["owner"]?.OfType<JObject>().Select(x => ContactItemWrapper.Create(x)).ToList()
+                                        };
+                                    default:
+                                        throw new NotImplementedException($"Target entity type {assessment.TargetEntityType} not supported yet!");
+                                }
+                            }).ToList();
+                            await dhScoreRepository.AddAsync(scoreWrappers).ConfigureAwait(false);
+                            break;
+                        default:
+                            throw new NotImplementedException($"Simple aggregation type {simpleAggregation.AggregationType} not supported yet!");
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException($"Aggregation type {aggregation.Type} not supported yet!");
+            }
+        }
+
+        private async Task GenerateActionAsync(DHControlNodeWrapper control, DHAssessmentWrapper assessment, IEnumerable<DHRawScore> scores, string computingJobId)
+        {
+            List<DataHealthActionWrapper> actions = new List<DataHealthActionWrapper>();
+            var controlGroupId = control.GroupId;
+            var controlGroup = await dhControlRepository.GetByIdAsync(controlGroupId).ConfigureAwait(false);
+            var findingType = controlGroup?.Name ?? "";
+            var findingSubType = control.Name;
+            var targetEntityType = (DataHealthActionTargetEntityType?)assessment.TargetEntityType;
+
+            if (targetEntityType == null)
+            {
+                throw new NotImplementedException($"Target entity type {assessment.TargetEntityType?.ToString()} is not supported in action center yet!");
+            }
+            foreach (var score in scores)
+            {
+                var entityOwners = new List<string>();
+                var contacts = (JObject?)score.EntityPayload["contacts"];
+                if (contacts?["owner"] != null)
+                {
+                    JArray owners = (JArray?)contacts["owner"] ?? [];
+
+                    foreach (JObject owner in owners)
+                    {
+                        if (owner["id"] != null)
+                        {
+                            entityOwners.Append((string?)owner["id"]);
+                        }
+                    }
+                }
+                var targetEntityId = (string?)score.EntityPayload[DQOutputFields.DP_ID] ?? "";
+                var businessDomainId = (string?)score.EntityPayload[DQOutputFields.BD_ID] ?? "";
+
+                foreach (var scoreUnit in score.Scores)
+                {
+                    if (scoreUnit.Score == 0)
+                    {
+                        var assessmentRuleId = scoreUnit.AssessmentRuleId;
+                        var matchedAssessment = assessment.Rules.FirstOrDefault((rule) =>
+                        {
+                            return rule.Id == assessmentRuleId;
+                        });
+                        if (matchedAssessment?.ActionProperties != null)
+                        {
+                            var action = new DataHealthActionWrapper()
+                            {
+                                Category = DataHealthActionCategory.HealthControl,
+                                Severity = matchedAssessment.ActionProperties?.Severity ?? DataHealthActionSeverity.Medium,
+                                FindingId = assessmentRuleId,
+                                FindingName = matchedAssessment.ActionProperties?.Name ?? "",
+                                Reason = matchedAssessment.ActionProperties?.Reason ?? "",
+                                Recommendation = matchedAssessment.ActionProperties?.Recommendation ?? "",
+                                FindingType = findingType,
+                                FindingSubType = findingSubType,
+                                TargetEntityType = (DataHealthActionTargetEntityType)targetEntityType,
+                                TargetEntityId = targetEntityId,
+                                AssignedTo = entityOwners,
+                                DomainId = businessDomainId,
+                                ExtraProperties = new ActionExtraPropertiesWrapper()
+                                {
+                                    Type = DHActionType.ControlAction,
+                                    Data = new JObject
+                                    {
+                                        ["jobId"] = computingJobId
+                                    }
+                                }
+                            };
+                            actions.Add(action);
+                        }
+                    }
+                }
+            }
+            if (actions.Any())
+            {
+                await dHActionInternalService.CreateActionsAsync(actions);
+            }
         }
     }
 }

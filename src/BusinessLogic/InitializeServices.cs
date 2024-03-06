@@ -13,6 +13,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic
         public static void SetupBusinessLogicServices(this IServiceCollection services)
         {
             services.AddScoped<DHScheduleInternalService>();
+            services.AddScoped<DHActionInternalService>();
 
             services.AddScoped<DHActionService>();
             services.AddScoped<DHControlService>();
