@@ -106,6 +106,7 @@ public class DHScheduleService(
             catch (Exception ex)
             {
                 logger.LogError("Exception happened when processing succeed MDQ job.", ex);
+                throw;
             }
         }
     }
