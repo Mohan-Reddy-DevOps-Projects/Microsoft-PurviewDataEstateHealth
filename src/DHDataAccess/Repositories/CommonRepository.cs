@@ -147,6 +147,10 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                 var response = await this.CosmosContainer.ReadItemAsync<TEntity>(id, tenantPartitionKey).ConfigureAwait(false);
                 return response.Resource;
             }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
             catch (Exception ex)
             {
                 logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {id}, tenantId = {tenantId}", ex);
