@@ -351,9 +351,7 @@ public class JobManager : IJobManager
     {
         this.UpdateDerivedMetadataProperties(metadata);
 
-        var repeatInterval = TimeSpan.FromMinutes(this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 5 : 15);
-
-        this.dataEstateHealthRequestLogger.LogInformation($"Create one time job. Interval {repeatInterval}");
+        var repeatInterval = TimeSpan.FromMinutes(5);
 
         JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
                     jobCallbackName,

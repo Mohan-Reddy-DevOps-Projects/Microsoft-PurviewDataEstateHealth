@@ -68,17 +68,37 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         this.DataEstateHealthRequestLogger.LogTrace($"Attempting to persisting {this.EventProcessorType} events under {storageEndpoint} for account Id: {accountId}.");
         IDeltaLakeOperator deltaTableWriter = this.DeltaWriterFactory.Build(new Uri(storageEndpoint), this.AzureCredentialFactory.CreateDefaultAzureCredential(new Uri(this.eventHubConfiguration.Authority)));
 
-        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualitySourceModels = this.ParseSourcePayloads(events);
-        this.DataEstateHealthRequestLogger.LogTrace($"Parsed {dataQualitySourceModels.Values.Sum(i => i.Count)} {this.EventProcessorType} source events for account Id: {accountId}.");
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> sourceModels = this.ParseSourcePayloads(events);
+        this.DataEstateHealthRequestLogger.LogTrace($"Parsed {sourceModels.Values.Sum(i => i.Count)} {this.EventProcessorType} source events for account Id: {accountId}.");
 
-        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqJobModels = this.UpdateMDQJobStatus(dataQualitySourceModels);
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqSourceModels = this.FitlerDataQualitySourceEvents(sourceModels, true);
+
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqJobModels = this.UpdateMDQJobStatus(mdqSourceModels);
         this.DataEstateHealthRequestLogger.LogTrace($"Updated {mdqJobModels.Values.Sum(i => i.Count)} {this.EventProcessorType} MDQ events for account Id: {accountId}.");
+
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualitySourceModels = this.FitlerDataQualitySourceEvents(sourceModels, true);
 
         Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels = await this.PrepareAndUploadSourcePayloads(dataQualitySourceModels, deltaTableWriter);
         this.DataEstateHealthRequestLogger.LogTrace($"Persisted {dataQualityResultModels.Values.Sum(i => i.Count)} {this.EventProcessorType} source events for account Id: {accountId}.");
 
         Dictionary<EventOperationType, List<DataQualitySinkEventHubEntityModel>> dataQualityScoreModels = await this.PrepareAndUploadSinkPayloads(dataQualityResultModels, deltaTableWriter);
         this.DataEstateHealthRequestLogger.LogTrace($"Persisted {dataQualityScoreModels.Values.Sum(i => i.Count)} {this.EventProcessorType} sink events for account Id: {accountId}.");
+    }
+
+    private Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> FitlerDataQualitySourceEvents(Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> sourceModels, bool pickMDQ)
+    {
+        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> result = new();
+        foreach (var sourceModel in sourceModels)
+        {
+            result[sourceModel.Key] = sourceModel.Value.Where((item) => pickMDQ ? this.CheckMDQSourceEvent(item) : !this.CheckMDQSourceEvent(item)).ToList();
+        }
+        return result;
+    }
+
+    private bool CheckMDQSourceEvent(DataQualitySourceEventHubEntityModel sourceModel)
+    {
+        var domainModelPayload = this.ParseDomainModelPayload(sourceModel.Domainmodel);
+        return domainModelPayload != null && domainModelPayload.JobType == "MDQ";
     }
 
     private Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> ParseSourcePayloads(List<EventHubModel> events)
@@ -119,25 +139,22 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
             foreach (DataQualitySourceEventHubEntityModel sourceModel in sourceModels)
             {
                 var domainModelPayload = this.ParseDomainModelPayload(sourceModel.Domainmodel);
-                if (sourceModel.JobType == "MDQ" || (domainModelPayload != null && domainModelPayload.JobType == "MDQ"))
+                this.DataEstateHealthRequestLogger.LogInformation($"Process MDQ job. Job ID: {sourceModel.ResultId}. Job status: {sourceModel.JobStatus}.");
+                if (domainModelPayload.TenantId == Guid.Empty.ToString())
                 {
-                    this.DataEstateHealthRequestLogger.LogInformation($"Process MDQ job. Job ID: {sourceModel.ResultId}. Job status: {sourceModel.JobStatus}.");
-                    if (domainModelPayload.TenantId == Guid.Empty.ToString())
-                    {
-                        this.DataEstateHealthRequestLogger.LogInformation($"Ignore MDQ job with empty tenant id. Job ID: {sourceModel.ResultId}.");
-                        continue;
-                    }
-                    var resultId = this.ParseResultId(sourceModel.ResultId);
-                    var payload = new MDQJobCallbackPayload
-                    {
-                        DQJobId = resultId.JobId,
-                        JobStatus = sourceModel.JobStatus,
-                        TenantId = domainModelPayload.TenantId,
-                        AccountId = sourceModel.AccountId,
-                    };
-                    this.dataHealthApiService.TriggerMDQJobCallback(payload);
-                    jobModels.Add(sourceModel);
+                    this.DataEstateHealthRequestLogger.LogInformation($"Ignore MDQ job with empty tenant id. Job ID: {sourceModel.ResultId}.");
+                    continue;
                 }
+                var resultId = this.ParseResultId(sourceModel.ResultId);
+                var payload = new MDQJobCallbackPayload
+                {
+                    DQJobId = resultId.JobId,
+                    JobStatus = sourceModel.JobStatus,
+                    TenantId = domainModelPayload.TenantId,
+                    AccountId = sourceModel.AccountId,
+                };
+                this.dataHealthApiService.TriggerMDQJobCallback(payload);
+                jobModels.Add(sourceModel);
             }
         }
         return mdqJobModels;
