@@ -60,9 +60,14 @@
             }
         }
 
-        public Task<IEnumerable<DHScoreAggregatedByControl>> Query(IEnumerable<string>? domainIds, IEnumerable<string>? controlIds, int? recordLatestCounts, DateTime? start, DateTime? end)
+        public Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end)
         {
-            return dhScoreRepository.Query(domainIds, controlIds, recordLatestCounts, start, end);
+            return dhScoreRepository.QueryScoreGroupByControl(controlIds, domainIds, recordLatestCounts, start, end);
+        }
+
+        public Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end)
+        {
+            return dhScoreRepository.QueryScoreGroupByControlGroup(controlGroupIds, domainIds, recordLatestCounts, start, end);
         }
 
         private async Task StoreScoreAsync(string controlId, string assessmentId, DHControlNodeWrapper controlNode, DHAssessmentWrapper assessment, IEnumerable<DHRawScore> scores, string computingJobId)

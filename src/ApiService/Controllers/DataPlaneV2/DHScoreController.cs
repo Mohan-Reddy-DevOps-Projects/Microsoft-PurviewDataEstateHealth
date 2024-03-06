@@ -31,12 +31,22 @@ public class DHScoreController(DHScoreService dhScoreService) : DataPlaneControl
     }
 
     [HttpPost]
-    [Route("query")]
-    public async Task<ActionResult> QueryScoresAsync(
-        [FromBody] QueryScoresRequest queryScoresRequest)
+    [Route("queryControlScores")]
+    public async Task<ActionResult> QueryControlScoresAsync(
+        [FromBody] QueryControlScoresRequest queryScoresRequest)
     {
         Validate(queryScoresRequest);
-        var results = await dhScoreService.Query(queryScoresRequest.DomainIds, queryScoresRequest.ControlIds, queryScoresRequest.RecordLatestCounts, queryScoresRequest.RecordTimeRange?.Start, queryScoresRequest.RecordTimeRange?.End).ConfigureAwait(false);
+        var results = await dhScoreService.QueryScoreGroupByControl(queryScoresRequest.ControlIds, queryScoresRequest.DomainIds, queryScoresRequest.RecordLatestCounts, queryScoresRequest.RecordTimeRange?.Start, queryScoresRequest.RecordTimeRange?.End).ConfigureAwait(false);
+        return this.Ok(results);
+    }
+
+    [HttpPost]
+    [Route("queryControlGroupScores")]
+    public async Task<ActionResult> QueryControlGroupScoresAsync(
+        [FromBody] QueryControlGroupScoresRequest queryScoresRequest)
+    {
+        Validate(queryScoresRequest);
+        var results = await dhScoreService.QueryScoreGroupByControlGroup(queryScoresRequest.ControlGroupIds, queryScoresRequest.DomainIds, queryScoresRequest.RecordLatestCounts, queryScoresRequest.RecordTimeRange?.Start, queryScoresRequest.RecordTimeRange?.End).ConfigureAwait(false);
         return this.Ok(results);
     }
 
@@ -51,16 +61,11 @@ public class DHScoreController(DHScoreService dhScoreService) : DataPlaneControl
         return this.Created();
     }
 
-    private static void Validate(QueryScoresRequest queryScoresRequest)
+    private static void Validate(QueryScoresRequestBase queryScoresRequest)
     {
         if (queryScoresRequest.RecordLatestCounts == null && queryScoresRequest.RecordTimeRange == null)
         {
             throw new InvalidRequestException("Either recordLatestCounts or recordTimeRange must be specified in the request");
-        }
-
-        if (queryScoresRequest.RecordLatestCounts != null && (queryScoresRequest.ControlIds == null || !queryScoresRequest.ControlIds.Any()))
-        {
-            throw new InvalidRequestException("ControlIds must be specified when recordLatestCounts is specified in the request");
         }
 
         if (queryScoresRequest.RecordTimeRange != null && queryScoresRequest.RecordTimeRange.Start > queryScoresRequest.RecordTimeRange.End)
@@ -106,11 +111,8 @@ public class UploadRawScoresRequest(JObject jObject) : BaseEntityWrapper(jObject
     }
 }
 
-public record QueryScoresRequest
+public record QueryScoresRequestBase
 {
-    [JsonProperty("controlIds")]
-    public IEnumerable<string>? ControlIds { get; set; }
-
     [JsonProperty("domainIds")]
     public IEnumerable<string>? DomainIds { get; set; }
 
@@ -119,6 +121,18 @@ public record QueryScoresRequest
 
     [JsonProperty("recordTimeRange")]
     public QueryScoresRequestTimeRange? RecordTimeRange { get; set; }
+}
+
+public record QueryControlScoresRequest : QueryScoresRequestBase
+{
+    [JsonProperty("controlIds")]
+    public required IEnumerable<string> ControlIds { get; set; }
+}
+
+public record QueryControlGroupScoresRequest : QueryScoresRequestBase
+{
+    [JsonProperty("controlGroupIds")]
+    public required IEnumerable<string> ControlGroupIds { get; set; }
 }
 
 public record QueryScoresRequestTimeRange

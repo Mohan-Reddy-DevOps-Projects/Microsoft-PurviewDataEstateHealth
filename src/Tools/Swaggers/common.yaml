@@ -529,60 +529,51 @@ paths:
                             type: number
                             example: 0
 
-  /controls/scores/query:
+  /controls/scores/queryControlScores:
     post:
-      operationId: Query scores
-      description: Query scores.
+      operationId: QueryControlScores
+      description: Query control scores.
       tags:
         - Score
       requestBody:
+        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                controlIds:
-                  type: array
-                  items:
-                    type: string
-                  description: The control ids of the score.
-                  example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
-                domainIds:
-                  type: array
-                  items:
-                    type: string
-                  description: The domain ids of the score.
-                  example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
-                recordLatestCounts:
-                  type: number
-                  description: The latest record counts of the score.
-                  example: 5
-                  default: 1
-                recordTimeRange:
-                  type: object
-                  description: The record time range of the score.
-                  properties:
-                    start:
-                      type: string
-                      description: The start time of the record time range.
-                    end:
-                      type: string
-                      description: The end time of the record time range.
+              $ref: "#/components/schemas/QueryControlScoresRequest"
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  count:
-                    type: number
-                    example: 100
-                  value:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Score"
+                type: array
+                items:
+                  $ref: "#/components/schemas/ControlScore"
+
+  
+  /controls/scores/queryControlGroupScores:
+    post:
+      operationId: QueryControlGroupScores
+      description: Query control group scores.
+      tags:
+        - Score
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryControlGroupScoresRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ControlGroupScore"
+
 
 components:
   schemas:
@@ -1372,48 +1363,89 @@ components:
             { id: 5e74f902-62f5-49f4-8258-92ed2b8537ba, description: db2 },
           ]
 
-    Score:
-      allOf:
-        - $ref: "#/components/schemas/BaseEntity"
-        - type: object
-          properties:
-            time:
-              type: string
-              format: date-time
-              description: The timestamp when the score was recorded.
-              example: "2023-04-01T12:34:56Z"
-            controlId:
-              type: string
-              description: An identifier for the control associated with this score.
-              example: "control123"
-            computingJobId:
-              type: string
-              description: The identifier of the computing job that generated this score.
-              example: "job456"
-            entitySnapshot:
-              type: object
-              description: A JSON object snapshot of the entity at the time of scoring.
-              additionalProperties: true
-            score:
-              type: array
-              items:
-                $ref: "#/components/schemas/ScoreUnit"
-              description: A list of individual score units contributing to the aggregated score.
-            aggregatedScore:
-              type: number
-              format: double
-              description: The aggregated score calculated from individual score units.
-              example: 92.5
-
-    ScoreUnit:
+    QueryScoresRequestBase:
       type: object
       properties:
-        ruleName:
+        domainIds:
+          type: array
+          items:
+            type: string
+          description: The domain ids of the score.
+          example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
+        recordLatestCounts:
+          type: number
+          description: The latest record counts of the score.
+          example: 5
+          default: 1
+        recordTimeRange:
+          type: object
+          description: The record time range of the score.
+          properties:
+            start:
+              type: string
+              description: The start time of the record time range.
+            end:
+              type: string
+              description: The end time of the record time range.
+
+    QueryControlScoresRequest:
+      allOf:
+        - $ref: '#/components/schemas/QueryScoresRequestBase'
+        - type: object
+          properties:
+            controlIds:
+              type: array
+              items:
+                type: string
+              description: The control ids of the score.
+              example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
+    
+    QueryControlGroupScoresRequest:
+      allOf:
+        - $ref: "#/components/schemas/QueryScoresRequestBase"
+        - type: object
+          properties:
+            controlGroupIds:
+              type: array
+              items:
+                type: string
+              description: The control group ids of the score.
+              example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
+
+    ControlScore:
+      type: object
+      properties:
+        time:
           type: string
-          description: The name of the rule applied to generate this score unit.
-          example: "Rule1"
+          format: date-time
+          description: The timestamp when the score was recorded.
+          example: "2023-04-01T12:34:56Z"
+        controlId:
+          type: string
+          description: An identifier for the control associated with this score.
+          example: "control123"
+        computingJobId:
+          type: string
+          description: The identifier of the computing job that generated this score.
+          example: "job456"
         score:
           type: number
-          format: double
-          description: The numerical score resulting from applying the rule.
-          example: 95.0
+          description: The aggregated score.
+          example: 0.85
+    
+    ControlGroupScore:
+      type: object
+      properties:
+        time:
+          type: string
+          format: date-time
+          description: The timestamp when the score was recorded.
+          example: "2023-04-01T12:34:56Z"
+        controlGroupId:
+          type: string
+          description: An identifier for the control group associated with this score.
+          example: "controlGroup123"
+        score:
+          type: number
+          description: The aggregated score.
+          example: 0.85

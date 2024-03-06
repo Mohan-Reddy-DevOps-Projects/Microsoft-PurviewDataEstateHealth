@@ -25,7 +25,7 @@ public class DHScoreRepository(
 
     protected override Azure.Cosmos.Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
-    public async Task<IEnumerable<DHScoreAggregatedByControl>> Query(IEnumerable<string>? domainIds, IEnumerable<string>? controlIds, int? recordLatestCounts, DateTime? start, DateTime? end)
+    public async Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end)
     {
         // Construct the SQL query
         var sqlQuery = new StringBuilder("SELECT c.ControlId, c.ComputingJobId, MAX(c.Time) AS Time, AVG(c.AggregatedScore) AS Score FROM c WHERE 1=1 ");
@@ -39,12 +39,9 @@ public class DHScoreRepository(
             sqlQuery.Append($"AND ARRAY_CONTAINS([{domainIdFilter}], c.DataProductDomainId) ");
         }
 
-        if (controlIds != null && controlIds.Any())
-        {
-            // Assuming controlIds is a validated and sanitized list of IDs
-            var controlIdFilter = string.Join(",", controlIds.Select(id => $"'{id}'"));
-            sqlQuery.Append($"AND ARRAY_CONTAINS([{controlIdFilter}], c.ControlId) ");
-        }
+        // Assuming controlIds is a validated and sanitized list of IDs
+        var controlIdFilter = string.Join(",", controlIds.Select(id => $"'{id}'"));
+        sqlQuery.Append($"AND ARRAY_CONTAINS([{controlIdFilter}], c.ControlId) ");
 
         if (start != null)
         {
@@ -71,6 +68,60 @@ public class DHScoreRepository(
         }
 
         return intermediateResults.GroupBy(x => new { x.ControlId }).SelectMany(g =>
+        {
+            var orderedSeq = g.OrderByDescending(x => x.Time);
+            return recordLatestCounts.HasValue ? orderedSeq.Take(recordLatestCounts.Value) : orderedSeq;
+        });
+    }
+
+    public async Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end)
+    {
+        // Construct the SQL query
+        var sqlQuery = new StringBuilder(@$"
+SELECT 
+    c.ControlGroupId,
+    SUBSTRING(c.Time, 0, 10) AS Time,
+    AVG(c.AggregatedScore) AS Score
+FROM c WHERE 1=1 ");
+
+        // Add filtering conditions based on provided parameters
+        if (domainIds != null && domainIds.Any())
+        {
+            // Assuming domainIds is a validated and sanitized list of IDs
+            var domainIdFilter = string.Join(",", domainIds.Select(id => $"'{id}'"));
+            // TODO: When added more supported artifact types, modify the SQL here.
+            sqlQuery.Append($"AND ARRAY_CONTAINS([{domainIdFilter}], c.DataProductDomainId) ");
+        }
+
+        // Assuming controlIds is a validated and sanitized list of IDs
+        var controlGroupIdFilter = string.Join(",", controlGroupIds.Select(id => $"'{id}'"));
+        sqlQuery.Append($"AND ARRAY_CONTAINS([{controlGroupIdFilter}], c.ControlGroupId) ");
+
+        if (start != null)
+        {
+            sqlQuery.Append($"AND c.Time >= '{start.Value.ToString("o")}' ");
+        }
+
+        if (end != null)
+        {
+            sqlQuery.Append($"AND c.Time <= '{end.Value.ToString("o")}' ");
+        }
+
+        sqlQuery.Append("GROUP BY c.ControlGroupId, SUBSTRING(c.Time, 0, 10)");
+
+        var queryDefinition = new QueryDefinition(sqlQuery.ToString());
+
+        // Execute the query
+        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreAggregatedByControlGroup>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+        var intermediateResults = new List<DHScoreAggregatedByControlGroup>();
+
+        while (queryResultSetIterator.HasMoreResults)
+        {
+            var currentResultSet = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
+            intermediateResults.AddRange(currentResultSet.Resource);
+        }
+
+        return intermediateResults.GroupBy(x => new { x.ControlGroupId }).SelectMany(g =>
         {
             var orderedSeq = g.OrderByDescending(x => x.Time);
             return recordLatestCounts.HasValue ? orderedSeq.Take(recordLatestCounts.Value) : orderedSeq;
