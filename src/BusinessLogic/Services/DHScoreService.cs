@@ -4,9 +4,9 @@
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Output;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
-    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -50,9 +50,11 @@
                                                 Time = currentTime,
                                                 Scores = x.Scores,
                                                 AggregatedScore = x.Scores.Average(scoreUnit => scoreUnit.Score),
-                                                DataProductDomainId = x.EntityPayload["domain"]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
-                                                DataProductId = x.EntityPayload["id"]?.ToString() ?? throw new InvalidOperationException("Data product id not found in entity payload!"),
-                                                DataProductOwners = x.EntityPayload["contacts"]?["owner"]?.OfType<JObject>().Select(x => ContactItemWrapper.Create(x)).ToList()
+                                                DataProductDomainId = x.EntityPayload[DQOutputFields.BD_ID]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
+                                                DataProductId = x.EntityId ?? throw new InvalidOperationException("Data product id not found in entity payload!"),
+                                                DataProductOwners = Enumerable.Empty<ContactItemWrapper>()
+                                                // TODO will get this after join
+                                                // DataProductOwners = x.EntityPayload["contacts"]?["owner"]?.OfType<JObject>().Select(x => ContactItemWrapper.Create(x)).ToList()
                                             };
                                         default:
                                             throw new NotImplementedException($"Target entity type {assessment.TargetEntityType} not supported yet!");
