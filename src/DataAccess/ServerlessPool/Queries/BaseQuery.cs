@@ -28,4 +28,9 @@ public class BaseQuery
     /// Filter clause
     /// </summary>
     public string FilterClause { get; set; }
+
+    /// <summary>
+    /// Timeout value in millisecond
+    /// </summary>
+    public int? Timeout { get; set; }
 }

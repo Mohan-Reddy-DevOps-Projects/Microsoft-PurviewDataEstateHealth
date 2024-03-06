@@ -45,7 +45,7 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
     /// <inheritdoc />
     public async Task<IList<TEntity>> ExecuteAsync<TIntermediate, TEntity>(
         IServerlessQueryRequest<TIntermediate, TEntity> request,
-        CancellationToken cancellationToken) where TEntity: BaseEntity where TIntermediate : BaseRecord
+        CancellationToken cancellationToken) where TEntity : BaseEntity where TIntermediate : BaseRecord
     {
         return await this.Populate(request, cancellationToken);
     }
@@ -64,7 +64,8 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
                 await foreach (IDataRecord item in this.client.ExecuteQueryAsync(
                                        request.Query,
                                        request.Database,
-                                       cancellationToken)
+                                       cancellationToken,
+                                       commandTimeout: request.Timeout ?? 15)
                                    .WithCancellation(cancellationToken))
                 {
                     TIntermediate data = request.ParseRow(item);
@@ -88,7 +89,7 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
                 this.logger.LogError("Error in executing synapse query", ex);
                 throw;
             }
-        }, this.ExceptionPredicate, maxRetries: MaxRetries, retryIntervalInMs: TimeoutDelayInMs);
+        }, this.ExceptionPredicate, maxRetries: MaxRetries, retryIntervalInMs: request.Timeout ?? TimeoutDelayInMs);
 
         IList<TEntity> outList = request.Finalize(recordList).ToList();
         return outList;
@@ -96,6 +97,6 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
 
     private bool ExceptionPredicate(Exception arg)
     {
-        return arg is SqlException se && TransientErrorNumbers.ErrorCodes.Contains(se.Number); 
+        return arg is SqlException se && TransientErrorNumbers.ErrorCodes.Contains(se.Number);
     }
 }

@@ -2,17 +2,22 @@
 
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.ArtifactStoreClient.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -28,7 +33,9 @@ public class DHScheduleService(
     DHControlService controlService,
     DHAssessmentService assessmentService,
     IDataEstateHealthRequestLogger logger,
-    IRequestHeaderContext requestHeaderContext
+    IRequestHeaderContext requestHeaderContext,
+    IDataQualityScoreRepository dataQualityScoreRepository,
+    DHScoreRepository dhScoreRepository
     )
 {
     private const string ScheduleOperationName = "DGSchedule Service";
@@ -55,8 +62,19 @@ public class DHScheduleService(
 
         foreach (var control in controls)
         {
+            if (control.Status == DHControlStatus.Disabled)
+            {
+                logger.LogInformation($"control is disabled, skip. ControlId: {payload.ControlId}.");
+                continue;
+            }
+
             // Step 2: submit DQ jobs
             var assessment = await assessmentService.GetAssessmentByIdAsync(control.AssessmentId!).ConfigureAwait(false);
+            if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
+            {
+                _ = this.UpdateDQScoreAsync(control);
+                continue;
+            }
             var jobId = Guid.NewGuid().ToString();
             var dqJobId = await dataQualityExecutionService.SubmitDQJob(
                 requestHeaderContext.TenantId.ToString(),
@@ -108,6 +126,42 @@ public class DHScheduleService(
                 logger.LogError("Exception happened when processing succeed MDQ job.", ex);
                 throw;
             }
+        }
+    }
+    public async Task UpdateDQScoreAsync(DHControlNodeWrapper control)
+    {
+        var jobId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
+        logger.LogInformation($"Starting to process DQ score computing. ControlId: {control.Id}, Name: {control.Name}");
+        try
+        {
+            // get all latest DQ score per BD/DP/Asset
+            var scoreResult = await dataQualityScoreRepository.GetMultiple(new DataQualityScoreKey(requestHeaderContext.AccountObjectId), new System.Threading.CancellationToken()).ConfigureAwait(false);
+            logger.LogInformation($"successfully fetched all scores: {scoreResult.Results.Count()}");
+            // group all scores by DP
+            var scores = scoreResult.Results.GroupBy(score => score.DataProductId).Select(group => new DHDataProductScoreWrapper()
+            {
+                ControlId = control.Id.ToString(),
+                ControlGroupId = control.GroupId.ToString(),
+                Id = Guid.NewGuid().ToString(),
+                ComputingJobId = jobId.ToString(),
+                Time = now,
+                Scores = group.Select(score => new DHScoreUnitWrapper()
+                {
+                    AssessmentRuleId = score.DataAssetId.ToString(),
+                    Score = score.Score
+                }),
+                AggregatedScore = group.Average(score => score.Score),
+                DataProductDomainId = group.First().BusinessDomainId.ToString(),
+                DataProductId = group.First().DataProductId.ToString(),
+                DataProductOwners = group.First().DataProductOwners.Select(item => new ContactItemWrapper() { Id = item })
+            }).ToList();
+            await dhScoreRepository.AddAsync(scores).ConfigureAwait(false);
+            logger.LogInformation($"successfully ingested all scores: {scores.Count()}");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Exception happened when processing DQ score job.", ex);
         }
     }
 

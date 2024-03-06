@@ -43,6 +43,11 @@ public interface IServerlessQueryRequest<out TIntermediate, out TEntity>
     string QueryPath { get; }
 
     /// <summary>
+    /// Timeout value in millisecond
+    /// </summary>
+    int? Timeout { get; }
+
+    /// <summary>
     /// Parse row
     /// </summary>
     TIntermediate ParseRow(IDataRecord row);
