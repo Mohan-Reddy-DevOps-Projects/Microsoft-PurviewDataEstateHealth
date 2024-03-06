@@ -14,7 +14,7 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
     private const string keyTargetQualityType = "targetQualityType";
     private const string keyRules = "rules";
     private const string keyAggregation = "aggregation";
-    private const string keySyatemTemplate = "systemTemplate";
+    private const string keySystemTemplate = "systemTemplate";
 
     public static DHAssessmentWrapper Create(JObject jObject)
     {
@@ -81,11 +81,11 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
         }
     }
 
-    [EntityProperty(keySyatemTemplate, true)]
-    public string SyatemTemplate
+    [EntityProperty(keySystemTemplate, true)]
+    public string SystemTemplate
     {
-        get => this.GetPropertyValue<string>(keySyatemTemplate);
-        set => this.SetPropertyValue(keySyatemTemplate, value);
+        get => this.GetPropertyValue<string>(keySystemTemplate);
+        set => this.SetPropertyValue(keySystemTemplate, value);
     }
 
     public override void OnCreate(string userId, string? id = null)
@@ -99,7 +99,7 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
     {
         base.OnUpdate(existWrapper, userId);
 
-        this.SyatemTemplate = existWrapper.SyatemTemplate;
+        this.SystemTemplate = existWrapper.SystemTemplate;
 
         this.CheckAssessmentRuleId();
     }

@@ -29,7 +29,7 @@ public class DHProvisionService(
         foreach (var group in template)
         {
             var controlGroupWrapper = DHControlBaseWrapper.Create(group.ControlGroup);
-            controlGroupWrapper.SyatemTemplate = templateType.ToString();
+            controlGroupWrapper.SystemTemplate = templateType.ToString();
 
             var controlGroup = await controlService.CreateControlAsync(controlGroupWrapper, isSystem: true).ConfigureAwait(false);
 
@@ -41,13 +41,13 @@ public class DHProvisionService(
                 }
 
                 var assessmentWrapper = DHAssessmentWrapper.Create(item.Assessment);
-                assessmentWrapper.SyatemTemplate = templateType.ToString();
+                assessmentWrapper.SystemTemplate = templateType.ToString();
                 var assessment = await assessmentService.CreateAssessmentAsync(assessmentWrapper, isSystem: true).ConfigureAwait(false);
 
                 var controlWrapper = (DHControlNodeWrapper)DHControlBaseWrapper.Create(item.Control);
                 controlWrapper.AssessmentId = assessment.Id;
                 controlWrapper.GroupId = controlGroup.Id;
-                controlWrapper.SyatemTemplate = templateType.ToString();
+                controlWrapper.SystemTemplate = templateType.ToString();
                 await controlService.CreateControlAsync(controlWrapper, isSystem: true).ConfigureAwait(false);
             }
         }
@@ -94,7 +94,7 @@ public class DHProvisionService(
 
         var allControlsResponse = await controlService.ListControlsAsync().ConfigureAwait(false);
 
-        var allTemplateControls = allControlsResponse.Results.Where((x) => x.SyatemTemplate == templateType.ToString()).ToList();
+        var allTemplateControls = allControlsResponse.Results.Where((x) => x.SystemTemplate == templateType.ToString()).ToList();
 
         foreach (var control in allTemplateControls)
         {
@@ -103,7 +103,7 @@ public class DHProvisionService(
 
         var allAssessmentsResponse = await assessmentService.ListAssessmentsAsync().ConfigureAwait(false);
 
-        var allTemplateAssessments = allAssessmentsResponse.Results.Where((x) => x.SyatemTemplate == templateType.ToString()).ToList();
+        var allTemplateAssessments = allAssessmentsResponse.Results.Where((x) => x.SystemTemplate == templateType.ToString()).ToList();
 
         foreach (var assessment in allTemplateAssessments)
         {

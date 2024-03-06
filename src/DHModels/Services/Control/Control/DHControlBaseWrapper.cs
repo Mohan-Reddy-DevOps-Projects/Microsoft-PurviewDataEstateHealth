@@ -14,7 +14,7 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
     private const string keyName = "name";
     private const string keyDescription = "description";
     private const string keyContacts = "contacts";
-    private const string keySyatemTemplate = "systemTemplate";
+    private const string keySystemTemplate = "systemTemplate";
     private const string keyStatusPaletteConfig = "statusPaletteConfig";
     private const string keyStatus = "status";
 
@@ -61,11 +61,11 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
         }
     }
 
-    [EntityProperty(keySyatemTemplate, true)]
-    public string SyatemTemplate
+    [EntityProperty(keySystemTemplate, true)]
+    public string SystemTemplate
     {
-        get => this.GetPropertyValue<string>(keySyatemTemplate);
-        set => this.SetPropertyValue(keySyatemTemplate, value);
+        get => this.GetPropertyValue<string>(keySystemTemplate);
+        set => this.SetPropertyValue(keySystemTemplate, value);
     }
 
     private DHControlStatusPaletteConfigWrapper? statusPaletteConfig;
@@ -96,7 +96,7 @@ public abstract class DHControlBaseWrapper(JObject jObject) : ContainerEntityDyn
     {
         base.OnUpdate(existWrapper, userId);
 
-        this.SyatemTemplate = existWrapper.SyatemTemplate;
+        this.SystemTemplate = existWrapper.SystemTemplate;
     }
 }
 
