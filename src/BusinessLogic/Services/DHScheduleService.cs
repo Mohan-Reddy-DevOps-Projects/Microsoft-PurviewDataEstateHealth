@@ -58,16 +58,19 @@ public class DHScheduleService(
             logger.LogInformation($"Trigger control job. ControlId {payload.ControlId}.");
         }
 
+        var assessments = await assessmentService.ListAssessmentsAsync().ConfigureAwait(false);
+
         foreach (var control in controls)
         {
+            logger.LogInformation($"start with control, Id: {control.Id}. AssessmentId: {control.AssessmentId}");
             if (control.Status == DHControlStatus.Disabled)
             {
-                logger.LogInformation($"control is disabled, skip. ControlId: {payload.ControlId}.");
+                logger.LogInformation($"control is disabled, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
                 continue;
             }
 
             // Step 2: submit DQ jobs
-            var assessment = await assessmentService.GetAssessmentByIdAsync(control.AssessmentId!).ConfigureAwait(false);
+            var assessment = assessments.Results.First(item => item.Id == control.AssessmentId);
             if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
             {
                 _ = this.UpdateDQScoreAsync(control);
