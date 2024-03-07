@@ -58,6 +58,12 @@ public class DHAssessmentRulesAdapter
                     case JoinRequirement.DataAssetCount:
                         joinAdapter = new DataAssetCountJoinAdapter(context);
                         break;
+                    case JoinRequirement.DataProductOwner:
+                        joinAdapter = new DataProductOwnerJoinAdapter(context);
+                        break;
+                    case JoinRequirement.DataProductTermCount:
+                        joinAdapter = new DataProductTermCountJoinAdapter(context);
+                        break;
                     default:
                         throw new System.NotImplementedException();
                 }

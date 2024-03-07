@@ -3,6 +3,7 @@ public enum JoinRequirement
 {
     BusinessDomain,
     DataProductStatus,
+    DataProductOwner,
     DataAssetCount,
-    TermCount
+    DataProductTermCount
 }

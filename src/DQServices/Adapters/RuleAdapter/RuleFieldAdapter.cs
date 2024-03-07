@@ -14,9 +14,15 @@ internal static class RuleFieldAdapter
             case DHCheckPoint.DataProductBusinessUseLength: return "length(UseCases)";
             case DHCheckPoint.DataProductEndorsed: return "Endorsed";
             case DHCheckPoint.DataProductStatus: return "DataProductStatusDisplayName";
+            case DHCheckPoint.DataProductOwnerCount:
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductOwner);
+                return "DataProductOwnerCount";
             case DHCheckPoint.DataProductRelatedDataAssetsCount:
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataAssetCount);
                 return "DataAssetCount";
+            case DHCheckPoint.DataProductRelatedTermsCount:
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTermCount);
+                return "DataProductTermCount";
             default: throw new NotImplementedException();
         }
     }

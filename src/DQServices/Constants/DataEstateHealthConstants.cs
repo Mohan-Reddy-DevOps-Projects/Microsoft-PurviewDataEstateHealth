@@ -5,6 +5,8 @@
 
 
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Constants;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
+
 public class DataEstateHealthConstants
 {
     // Keep the same as definition in DataQuality code
@@ -20,5 +22,16 @@ public class DataEstateHealthConstants
     public const string SOURCE_DP_FOLDER_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProduct";
     public const string SOURCE_DP_STATUS_FOLDER_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProductStatus";
     public const string SOURCE_DP_DA_ASSIGNMENT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProductAssetAssignment";
+    public const string SOURCE_DP_TERM_ASSIGNMENT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/GlossaryTermDataProductAssignment";
     public const string SOURCE_DP_BD_ASSIGNMENT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProductBusinessDomainAssignment";
+    public const string SOURCE_DP_OWNER_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProductOwner";
+
+    // TODO always join all for temporary test
+    public static readonly JoinRequirement[] ALWAYS_REQUIRED_JOIN_REQUIREMENTS = [
+        JoinRequirement.BusinessDomain,
+        JoinRequirement.DataProductStatus,
+        JoinRequirement.DataProductOwner,
+        JoinRequirement.DataAssetCount,
+        JoinRequirement.DataProductTermCount
+    ];
 }

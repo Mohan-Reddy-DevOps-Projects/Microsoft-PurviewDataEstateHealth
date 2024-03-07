@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
+using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using System.Collections.Generic;
 
@@ -24,8 +25,7 @@ public class RuleAdapterContext
         this.dataProductId = dataProductId;
         this.dataAssetId = dataAssetId;
         this.assessment = assessment;
-        // Domain id, status string are always needed.
-        this.joinRequirements = [JoinRequirement.BusinessDomain, JoinRequirement.DataProductStatus];
+        this.joinRequirements = new SortedSet<JoinRequirement>(DataEstateHealthConstants.ALWAYS_REQUIRED_JOIN_REQUIREMENTS);
     }
 
 

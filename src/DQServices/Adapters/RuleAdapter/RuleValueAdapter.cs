@@ -1,7 +1,10 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
+
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
+
 public class RuleValueAdapter
 {
-    public static string ToDqExpression(string userInputValue)
+    public static string ToDqExpression(DHCheckPoint checkPoint, string userInputValue)
     {
         if (userInputValue == null)
         {
@@ -9,6 +12,10 @@ public class RuleValueAdapter
         }
 
         // TODO
-        return userInputValue;
+        return checkPoint switch
+        {
+            DHCheckPoint.DataProductStatus => $"'{userInputValue}'",
+            _ => userInputValue
+        };
     }
 }

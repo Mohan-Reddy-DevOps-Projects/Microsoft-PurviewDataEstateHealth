@@ -12,12 +12,12 @@ public enum DHCheckPoint
     // Assessment - MQ - DataProduct
     DataProductDescriptionLength, // Supported in MDQ
     DataProductBusinessUseLength, // Supported in MDQ
-    DataProductOwnerCount,
+    DataProductOwnerCount, // Supported in MDQ
     DataProductAllRelatedAssetsHaveOwner,
     DataProductAllRelatedAssetsHaveDQScore,
     DataProductRelatedDataAssetsCount, // Supported in MDQ
-    DataProductRelatedObjectivesCount,
-    DataProductRelatedTermsCount,
+    DataProductRelatedObjectivesCount, // Cannot do, catalog is not posting OKR contract to EH
+    DataProductRelatedTermsCount, // Supported in MDQ
     DataProductHasDataAccessPolicy,
     DataProductHasDataUsagePurpose,
     DataProductEndorsed, // Supported in MDQ
