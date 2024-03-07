@@ -118,15 +118,12 @@ public class Program
             options.HeaderConverter = CertificateHeaderConverter.Convert;
         });
 
-        if (environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() || environmentConfiguration.IsCanaryEnvironment())
-        {
-            builder.Services.AddDHConfigurations(builder.Configuration);
-            builder.Services.SetupDHModelsServices();
-            builder.Services.SetupDHDataAccessServices();
-            builder.Services.SetupBusinessLogicServices();
+        builder.Services.AddDHConfigurations(builder.Configuration);
+        builder.Services.SetupDHModelsServices();
+        builder.Services.SetupDHDataAccessServices();
+        builder.Services.SetupBusinessLogicServices();
 
-            builder.Services.SetupDQServices(builder.Configuration);
-        }
+        builder.Services.SetupDQServices(builder.Configuration);
 
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {
