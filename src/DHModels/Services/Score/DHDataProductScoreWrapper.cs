@@ -10,6 +10,7 @@ public class DHDataProductScoreWrapper(JObject jObject) : DHScoreBaseWrapper(jOb
     private const string keyDataProductId = "dataProductId";
     private const string keyDataProductDomainId = "dataProductDomainId";
     private const string keyDataProductOwners = "dataProductOwners";
+    private const string keyDataProductStatus = "dataProductStatus";
 
     public DHDataProductScoreWrapper() : this([])
     {
@@ -41,5 +42,12 @@ public class DHDataProductScoreWrapper(JObject jObject) : DHScoreBaseWrapper(jOb
             this.SetPropertyValue(keyDataProductOwners, value);
             this.dataProductOwners = value;
         }
+    }
+
+    [EntityTypeProperty(keyDataProductStatus)]
+    public string DataProductStatus
+    {
+        get => this.GetTypePropertyValue<string>(keyDataProductStatus);
+        set => this.SetTypePropertyValue(keyDataProductStatus, value);
     }
 }

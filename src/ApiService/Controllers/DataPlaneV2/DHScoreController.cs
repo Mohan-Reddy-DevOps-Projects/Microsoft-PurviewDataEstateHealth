@@ -36,7 +36,7 @@ public class DHScoreController(DHScoreService dhScoreService) : DataPlaneControl
         [FromBody] QueryControlScoresRequest queryScoresRequest)
     {
         Validate(queryScoresRequest);
-        var results = await dhScoreService.QueryScoreGroupByControl(queryScoresRequest.ControlIds, queryScoresRequest.DomainIds, queryScoresRequest.RecordLatestCounts, queryScoresRequest.RecordTimeRange?.Start, queryScoresRequest.RecordTimeRange?.End).ConfigureAwait(false);
+        var results = await dhScoreService.QueryScoreGroupByControl(queryScoresRequest.ControlIds, queryScoresRequest.DomainIds, queryScoresRequest.RecordLatestCounts, queryScoresRequest.RecordTimeRange?.Start, queryScoresRequest.RecordTimeRange?.End, queryScoresRequest.Status).ConfigureAwait(false);
         return this.Ok(results);
     }
 
@@ -46,7 +46,7 @@ public class DHScoreController(DHScoreService dhScoreService) : DataPlaneControl
         [FromBody] QueryControlGroupScoresRequest queryScoresRequest)
     {
         Validate(queryScoresRequest);
-        var results = await dhScoreService.QueryScoreGroupByControlGroup(queryScoresRequest.ControlGroupIds, queryScoresRequest.DomainIds, queryScoresRequest.RecordLatestCounts, queryScoresRequest.RecordTimeRange?.Start, queryScoresRequest.RecordTimeRange?.End).ConfigureAwait(false);
+        var results = await dhScoreService.QueryScoreGroupByControlGroup(queryScoresRequest.ControlGroupIds, queryScoresRequest.DomainIds, queryScoresRequest.RecordLatestCounts, queryScoresRequest.RecordTimeRange?.Start, queryScoresRequest.RecordTimeRange?.End, queryScoresRequest.Status).ConfigureAwait(false);
         return this.Ok(results);
     }
 
@@ -121,6 +121,9 @@ public record QueryScoresRequestBase
 
     [JsonProperty("recordTimeRange")]
     public QueryScoresRequestTimeRange? RecordTimeRange { get; set; }
+
+    [JsonProperty("status")]
+    public string? Status { get; set; }
 }
 
 public record QueryControlScoresRequest : QueryScoresRequestBase

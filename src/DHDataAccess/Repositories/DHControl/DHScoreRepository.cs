@@ -25,7 +25,7 @@ public class DHScoreRepository(
 
     protected override Azure.Cosmos.Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
-    public async Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end)
+    public async Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
     {
         // Construct the SQL query
         var sqlQuery = new StringBuilder("SELECT c.ControlId, c.ComputingJobId, MAX(c.Time) AS Time, AVG(c.AggregatedScore) AS Score FROM c WHERE 1=1 ");
@@ -53,6 +53,11 @@ public class DHScoreRepository(
             sqlQuery.Append($"AND c.Time <= '{end.Value.ToString("o")}' ");
         }
 
+        if (status != null)
+        {
+            sqlQuery.Append($"AND c.DataProductStatus = '{status}' ");
+        }
+
         sqlQuery.Append("GROUP BY c.ControlId, c.ComputingJobId");
 
         var queryDefinition = new QueryDefinition(sqlQuery.ToString());
@@ -74,7 +79,7 @@ public class DHScoreRepository(
         });
     }
 
-    public async Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end)
+    public async Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
     {
         // Construct the SQL query
         var sqlQuery = new StringBuilder(@$"
@@ -105,6 +110,11 @@ FROM c WHERE 1=1 ");
         if (end != null)
         {
             sqlQuery.Append($"AND c.Time <= '{end.Value.ToString("o")}' ");
+        }
+
+        if (status != null)
+        {
+            sqlQuery.Append($"AND c.DataProductStatus = '{status}' ");
         }
 
         sqlQuery.Append("GROUP BY c.ControlGroupId, SUBSTRING(c.Time, 0, 10)");

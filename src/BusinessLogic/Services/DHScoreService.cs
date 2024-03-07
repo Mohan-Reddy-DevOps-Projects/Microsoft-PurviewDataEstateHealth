@@ -60,14 +60,14 @@
             }
         }
 
-        public Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end)
+        public Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
         {
-            return dhScoreRepository.QueryScoreGroupByControl(controlIds, domainIds, recordLatestCounts, start, end);
+            return dhScoreRepository.QueryScoreGroupByControl(controlIds, domainIds, recordLatestCounts, start, end, status);
         }
 
-        public Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end)
+        public Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
         {
-            return dhScoreRepository.QueryScoreGroupByControlGroup(controlGroupIds, domainIds, recordLatestCounts, start, end);
+            return dhScoreRepository.QueryScoreGroupByControlGroup(controlGroupIds, domainIds, recordLatestCounts, start, end, status);
         }
 
         private async Task StoreScoreAsync(string controlId, string assessmentId, DHControlNodeWrapper controlNode, DHAssessmentWrapper assessment, IEnumerable<DHRawScore> scores, string computingJobId)
@@ -95,6 +95,7 @@
                                             Scores = x.Scores,
                                             AggregatedScore = x.Scores.Average(scoreUnit => scoreUnit.Score),
                                             DataProductDomainId = x.EntityPayload[DQOutputFields.BD_ID]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
+                                            DataProductStatus = x.EntityPayload[DQOutputFields.DP_DESCRIPTION]?.ToString() ?? throw new InvalidOperationException("Data product status not found in entity payload!"),
                                             DataProductId = x.EntityId ?? throw new InvalidOperationException("Data product id not found in entity payload!"),
                                             DataProductOwners = []
                                             // TODO will get this after join

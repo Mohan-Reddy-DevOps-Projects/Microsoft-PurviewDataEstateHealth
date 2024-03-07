@@ -152,7 +152,8 @@ public class DHScheduleService(
                 AggregatedScore = group.Average(score => score.Score),
                 DataProductDomainId = group.First().BusinessDomainId.ToString(),
                 DataProductId = group.First().DataProductId.ToString(),
-                DataProductOwners = group.First().DataProductOwners
+                DataProductOwners = group.First().DataProductOwners,
+                DataProductStatus = group.First().DataProductStatus
             }).ToList();
             await dhScoreRepository.AddAsync(scores).ConfigureAwait(false);
             logger.LogInformation($"successfully ingested all scores: {scores.Count()}");
