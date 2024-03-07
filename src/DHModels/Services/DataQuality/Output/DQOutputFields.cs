@@ -12,7 +12,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Outpu
     {
         public const string DP_ID = "DataProductID";
         public const string DP_NAME = "DataProductDisplayName";
-        public const string DP_DESCRIPTION = "DataProductStatusDisplayName";
+        public const string DP_STATUS = "DataProductStatusDisplayName";
         public const string BD_ID = "BusinessDomainId";
     }
 }

@@ -18,8 +18,8 @@ public enum DHCheckPoint
     DataProductRelatedDataAssetsCount, // Supported in MDQ
     DataProductRelatedObjectivesCount, // Cannot do, catalog is not posting OKR contract to EH
     DataProductRelatedTermsCount, // Supported in MDQ
-    DataProductHasDataAccessPolicy,
-    DataProductHasDataUsagePurpose,
+    DataProductHasDataAccessPolicy, // Supported in MDQ
+    DataProductHasDataUsagePurpose, // Supported in MDQ
     DataProductEndorsed, // Supported in MDQ
     DataProductStatus, // Supported in MDQ
     DataProductHasDQScore,

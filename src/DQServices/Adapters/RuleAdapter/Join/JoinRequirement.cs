@@ -5,5 +5,6 @@ public enum JoinRequirement
     DataProductStatus,
     DataProductOwner,
     DataAssetCount,
-    DataProductTermCount
+    DataProductTermCount,
+    HasAccessPolicySetAndPurpose
 }

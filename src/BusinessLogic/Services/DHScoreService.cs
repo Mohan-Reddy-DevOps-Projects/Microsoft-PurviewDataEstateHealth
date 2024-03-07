@@ -95,7 +95,7 @@
                                             Scores = x.Scores,
                                             AggregatedScore = x.Scores.Average(scoreUnit => scoreUnit.Score),
                                             DataProductDomainId = x.EntityPayload[DQOutputFields.BD_ID]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
-                                            DataProductStatus = x.EntityPayload[DQOutputFields.DP_DESCRIPTION]?.ToString() ?? throw new InvalidOperationException("Data product status not found in entity payload!"),
+                                            DataProductStatus = x.EntityPayload[DQOutputFields.DP_STATUS]?.ToString() ?? throw new InvalidOperationException("Data product status not found in entity payload!"),
                                             DataProductId = x.EntityId ?? throw new InvalidOperationException("Data product id not found in entity payload!"),
                                             DataProductOwners = []
                                             // TODO will get this after join

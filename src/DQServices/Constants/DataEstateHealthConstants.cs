@@ -25,13 +25,14 @@ public class DataEstateHealthConstants
     public const string SOURCE_DP_TERM_ASSIGNMENT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/GlossaryTermDataProductAssignment";
     public const string SOURCE_DP_BD_ASSIGNMENT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProductBusinessDomainAssignment";
     public const string SOURCE_DP_OWNER_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProductOwner";
+    public const string SOURCE_ACCESS_POLICY_SET_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/AccessPolicySet";
+    public const string SOURCE_ACCESS_POLICY_USE_CASE_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/CustomAccessUseCase";
 
     // TODO always join all for temporary test
     public static readonly JoinRequirement[] ALWAYS_REQUIRED_JOIN_REQUIREMENTS = [
         JoinRequirement.BusinessDomain,
         JoinRequirement.DataProductStatus,
         JoinRequirement.DataProductOwner,
-        JoinRequirement.DataAssetCount,
-        JoinRequirement.DataProductTermCount
+        JoinRequirement.HasAccessPolicySetAndPurpose
     ];
 }

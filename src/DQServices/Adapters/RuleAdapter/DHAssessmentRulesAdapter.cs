@@ -64,6 +64,9 @@ public class DHAssessmentRulesAdapter
                     case JoinRequirement.DataProductTermCount:
                         joinAdapter = new DataProductTermCountJoinAdapter(context);
                         break;
+                    case JoinRequirement.HasAccessPolicySetAndPurpose:
+                        joinAdapter = new HasAccessPolicySetAndPurposeJoinAdapter(context);
+                        break;
                     default:
                         throw new System.NotImplementedException();
                 }

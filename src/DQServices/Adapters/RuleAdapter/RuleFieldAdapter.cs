@@ -23,6 +23,19 @@ internal static class RuleFieldAdapter
             case DHCheckPoint.DataProductRelatedTermsCount:
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTermCount);
                 return "DataProductTermCount";
+            case DHCheckPoint.DataProductHasDataAccessPolicy:
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.HasAccessPolicySetAndPurpose);
+                return "DataProductHasAccessPolicySet";
+            case DHCheckPoint.DataProductHasDataUsagePurpose:
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.HasAccessPolicySetAndPurpose);
+                return "DataProductHasDataUsagePurpose";
+            // TODO jar for the below
+            case DHCheckPoint.DataProductAllRelatedAssetsHaveOwner:
+                return "DataProductHasAccessPolicySet";
+            case DHCheckPoint.DataProductHasDQScore:
+                return "DataProductHasAccessPolicySet";
+            case DHCheckPoint.DataProductAllRelatedAssetsHaveDQScore:
+                return "DataProductHasAccessPolicySet";
             default: throw new NotImplementedException();
         }
     }

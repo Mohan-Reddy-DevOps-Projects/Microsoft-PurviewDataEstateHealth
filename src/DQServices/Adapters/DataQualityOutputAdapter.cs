@@ -26,7 +26,7 @@ public class DataQualityOutputAdapter
             var dataFields = schema.GetDataFields();
             var idColumnField = dataFields.FirstOrDefault(c => c.Name == DQOutputFields.DP_ID, null);
             var nameColumnField = dataFields.FirstOrDefault(c => c.Name == DQOutputFields.DP_NAME, null);
-            var descriptionColumnField = dataFields.FirstOrDefault(c => c.Name == DQOutputFields.DP_DESCRIPTION, null);
+            var statusColumnField = dataFields.FirstOrDefault(c => c.Name == DQOutputFields.DP_STATUS, null);
             var bdIdColumnField = dataFields.FirstOrDefault(c => c.Name == DQOutputFields.BD_ID, null);
             var ruleNameColumnField = dataFields.FirstOrDefault(c => c.Name == COL_NAME_RULE_NAME, null);
             var ruleResultColumnField = dataFields.FirstOrDefault(c => c.Name == COL_NAME_RULE_RESULT, null);
@@ -44,14 +44,14 @@ public class DataQualityOutputAdapter
                             // Read all columns in the Parquet file.  
                             var idColumn = await groupReader.ReadColumnAsync(idColumnField).ConfigureAwait(false);
                             var nameColumn = await groupReader.ReadColumnAsync(nameColumnField).ConfigureAwait(false);
-                            var descriptionColumn = await groupReader.ReadColumnAsync(descriptionColumnField).ConfigureAwait(false);
+                            var statusColumn = await groupReader.ReadColumnAsync(statusColumnField).ConfigureAwait(false);
                             var bdIdColumn = await groupReader.ReadColumnAsync(bdIdColumnField).ConfigureAwait(false);
                             var ruleNamesColumn = await groupReader.ReadColumnAsync(ruleNameColumnField).ConfigureAwait(false);
                             var ruleResultsColumn = await groupReader.ReadColumnAsync(ruleResultColumnField).ConfigureAwait(false);
 
                             var id = ((string[])idColumn.Data)[0];
                             var name = ((string[])nameColumn.Data)[0];
-                            var description = ((string[])descriptionColumn.Data)[0];
+                            var status = ((string[])statusColumn.Data)[0];
                             var bdId = ((string[])bdIdColumn.Data)[0];
                             var ruleNames = ((string[])ruleNamesColumn.Data);
                             var ruleResults = ((string[])ruleResultsColumn.Data);
@@ -76,7 +76,7 @@ public class DataQualityOutputAdapter
                                 {
                                     { DQOutputFields.DP_ID, id },
                                     { DQOutputFields.DP_NAME, name },
-                                    { DQOutputFields.DP_DESCRIPTION, description },
+                                    { DQOutputFields.DP_STATUS, status },
                                     { DQOutputFields.BD_ID, bdId }
                                 },
                                 Scores = scores
