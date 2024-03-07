@@ -27,8 +27,8 @@ public class DataQualityScoreRecord : BaseRecord
     [DataColumn("Score")]
     public double Score { get; set; }
 
-    [DataColumn("DataProductOwnerId")]
-    public string DataProductOwnerId { get; set; }
+    [DataColumn("DataProductOwnerIds")]
+    public string DataProductOwnerIds { get; set; }
 
     [DataColumn("DataProductStatus")]
     public string DataProductStatus { get; set; }

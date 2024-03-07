@@ -20,7 +20,7 @@ internal class DataQualityScoreQuery : BaseQuery, IServerlessQueryRequest<DataQu
     {
         get => @"
 SELECT
-    Score, BusinessDomainSourceId AS BusinessDomainId, DataProductSourceId AS DataProductId, DataAssetSourceId AS DataAssetId, DQJobSourceId AS DQJobId, ExecutionTime, DataProductStatusDisplayName AS DataProductStatus, DataProductOwnerID AS DataProductOwnerId
+    Score, BusinessDomainSourceId AS BusinessDomainId, DataProductSourceId AS DataProductId, DataAssetSourceId AS DataAssetId, DQJobSourceId AS DQJobId, ExecutionTime, DataProductStatusDisplayName AS DataProductStatus, DataProductOwnerIds
 FROM
     (SELECT
         *
@@ -44,8 +44,8 @@ JOIN (SELECT DataProductId, DataProductSourceId " + QueryConstants.ServerlessQue
 JOIN (SELECT DataAssetId, DataAssetSourceId " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataAssetQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DA ON DQFact.DataAssetId = DA.DataAssetId
 JOIN (SELECT DataProductId, DataProductStatusID " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductDetailQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DPDetail ON DP.DataProductSourceId = DPDetail.DataProductId
 JOIN (SELECT DataProductStatusID, DataProductStatusDisplayName " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductStatusQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DPStatus ON DPDetail.DataProductStatusID = DPStatus.DataProductStatusID
-JOIN (SELECT DataProductId, DataProductOwnerID " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductOwnersQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DPOwner ON DP.DataProductSourceId = DPOwner.DataProductId
-WHERE row_num = 1";
+JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOwnerIds " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductOwnersQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result] GROUP BY DataProductId) DPOwner ON DP.DataProductSourceId = DPOwner.DataProductId
+";
     }
 
     private string BusinessDomainQueryPath => $"{this.ContainerPath}/DimensionalModel/DimBusinessDomain/";
@@ -68,7 +68,7 @@ WHERE row_num = 1";
             DQJobId = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DQJobId).Name]?.ToString()).AsGuid(),
             ExecutionTime = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.ExecutionTime).Name]?.ToString()).AsDateTime(),
             DataProductStatus = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataProductStatus).Name]?.ToString()),
-            DataProductOwnerId = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataProductOwnerId).Name]?.ToString())
+            DataProductOwnerIds = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataProductOwnerIds).Name]?.ToString())
         };
     }
 
@@ -81,17 +81,16 @@ WHERE row_num = 1";
         }
 
         entityList = (records as IList<DataQualityScoreRecord>)
-            .GroupBy(item => item, new ScoreRecordGroupComparor())
-            .Select(group => new DataQualityScoreEntity()
+            .Select(item => new DataQualityScoreEntity()
             {
-                DataAssetId = group.First().DataAssetId,
-                BusinessDomainId = group.First().BusinessDomainId,
-                DataProductId = group.First().DataProductId,
-                DQJobId = group.First().DQJobId,
-                ExecutionTime = group.First().ExecutionTime,
-                Score = group.First().Score,
-                DataProductStatus = group.First().DataProductStatus,
-                DataProductOwners = group.Select(item => item.DataProductOwnerId).Distinct()
+                DataAssetId = item.DataAssetId,
+                BusinessDomainId = item.BusinessDomainId,
+                DataProductId = item.DataProductId,
+                DQJobId = item.DQJobId,
+                ExecutionTime = item.ExecutionTime,
+                Score = item.Score,
+                DataProductStatus = item.DataProductStatus,
+                DataProductOwners = item.DataProductOwnerIds.Split(',')
             }).ToList();
         return entityList;
     }
