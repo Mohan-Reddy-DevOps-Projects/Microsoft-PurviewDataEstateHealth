@@ -5,16 +5,19 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
 using Microsoft.AspNetCore.Diagnostics;
-using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json;
-using System.Net;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using System.Text;
-using System.Net.Http.Headers;
+using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.DGP.ServiceBasics.Errors;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Data.SqlClient;
+using Microsoft.DGP.ServiceBasics.Errors;
+using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Text;
 
 internal static class ExceptionHandler
 {
@@ -40,8 +43,9 @@ internal static class ExceptionHandler
         {
             return;
         }
-       
-        Exception exception = GetSqlDataNotFoundException(contextFeature.Error);
+
+        Exception exception = ConvertKnownExceptions(contextFeature.Error);
+
         HttpStatusCode statusCode = ExceptionConverter.GetHttpStatusCode(exception);
 
         ErrorResponseModel errorResponse = new()
@@ -71,15 +75,51 @@ internal static class ExceptionHandler
             jsonSerializerSettings), Encoding.UTF8);
     }
 
-    private static Exception GetSqlDataNotFoundException(Exception ex)
+    private static Exception ConvertKnownExceptions(Exception ex)
     {
+        // Handle SqlDataNotFoundException
         SqlException sqlException = ex.InnerException as SqlException;
         if (sqlException != null && (sqlException.Number == 13807 || (sqlException.InnerException is SqlException innerSqlException && innerSqlException.Number == 13807)))
         {
             return new ServiceError(ErrorCategory.ResourceNotFound, ErrorCode.AsyncOperation_ResultNotFound.Code, "The requested data could not be found.").ToException();
         }
 
-        return ex;
+        switch (ex)
+        {
+            case EntityNotFoundException:
+                return new ExtendedServiceException(
+                    ErrorCategory.ResourceNotFound,
+                    ErrorResponseCode.DataHealthNotFoundError,
+                    ex.Message
+                    );
+            case EntityConflictException:
+                return new ExtendedServiceException(
+                    ErrorCategory.Conflict,
+                    ErrorResponseCode.DataHealthConflictError,
+                    ex.Message
+                );
+            case EntityReferencedException:
+                return new ExtendedServiceException(
+                    ErrorCategory.Conflict,
+                    ErrorResponseCode.DataHealthEntityReferencedError,
+                    ex.Message
+                );
+            case EntityValidationException:
+            case InvalidRequestException:
+                return new ExtendedServiceException(
+                    ErrorCategory.InputError,
+                    ErrorResponseCode.DataHealthInvalidEntity,
+                    ex.Message
+                );
+            case EntityForbiddenException:
+                return new ExtendedServiceException(
+                    ErrorCategory.Forbidden,
+                    ErrorResponseCode.DataHealthForbiddenError,
+                    ex.Message
+                );
+            default:
+                return ex;
+        }
     }
 }
 

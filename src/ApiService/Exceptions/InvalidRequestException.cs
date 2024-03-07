@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Exceptions;
+﻿namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 
 public class InvalidRequestException : Exception
 {

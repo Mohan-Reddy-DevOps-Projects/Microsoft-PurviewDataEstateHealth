@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
+using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
@@ -63,7 +64,12 @@ internal static class ExceptionConverter
     /// <returns></returns>
     public static ErrorModel CreateKnownError(ServiceException serviceException, HttpStatusCode statusCode)
     {
-        ErrorModel error = new(serviceException.ServiceError.Code.ToString(), serviceException.Message);
+        var errorCodeStr = serviceException.ServiceError.Code.ToString();
+        if (serviceException is ExtendedServiceException extendedServiceException)
+        {
+            errorCodeStr = extendedServiceException.ErrorCode ?? errorCodeStr;
+        }
+        ErrorModel error = new(errorCodeStr, serviceException.Message);
         if (statusCode >= HttpStatusCode.InternalServerError)
         {
             return error;
@@ -73,7 +79,7 @@ internal static class ExceptionConverter
         Exception innerException = serviceException.InnerException;
         while (innerException != null)
         {
-            details.Add(new ErrorModel(serviceException.ServiceError.Code.ToString(), serviceException.ServiceError.Message));
+            details.Add(new ErrorModel(errorCodeStr, serviceException.ServiceError.Message));
 
             innerException = innerException.InnerException;
         }

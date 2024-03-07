@@ -7,8 +7,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.DataPl
 
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess;
