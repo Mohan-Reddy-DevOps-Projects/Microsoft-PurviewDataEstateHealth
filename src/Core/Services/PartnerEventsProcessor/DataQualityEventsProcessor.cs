@@ -49,7 +49,6 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
             catch (Exception exception)
             {
                 this.DataEstateHealthRequestLogger.LogCritical($"Failed to upload {accountEvents.Value.Count} events of {this.EventProcessorType} for account: {accountEvents.Key}.", exception);
-                this.EventArgsToCheckpoint.Remove(accountEvents.Key);
             }
         }
 
