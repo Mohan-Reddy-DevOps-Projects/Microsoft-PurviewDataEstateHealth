@@ -62,41 +62,48 @@ public class DHScheduleService(
 
         foreach (var control in controls)
         {
-            logger.LogInformation($"start with control, Id: {control.Id}. AssessmentId: {control.AssessmentId}");
-            if (control.Status == DHControlStatus.Disabled)
+            try
             {
-                logger.LogInformation($"control is disabled, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
-                continue;
-            }
+                logger.LogInformation($"start with control, Id: {control.Id}. AssessmentId: {control.AssessmentId}");
+                if (control.Status == DHControlStatus.Disabled)
+                {
+                    logger.LogInformation($"control is disabled, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                    continue;
+                }
 
-            // Step 2: submit DQ jobs
-            var assessment = assessments.Results.First(item => item.Id == control.AssessmentId);
-            if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
-            {
-                _ = this.UpdateDQScoreAsync(control);
-                continue;
-            }
-            var jobId = Guid.NewGuid().ToString();
-            var dqJobId = await dataQualityExecutionService.SubmitDQJob(
-                requestHeaderContext.TenantId.ToString(),
-                requestHeaderContext.AccountObjectId.ToString(),
-                control,
-                assessment,
-                jobId).ConfigureAwait(false);
+                // Step 2: submit DQ jobs
+                var assessment = assessments.Results.First(item => item.Id == control.AssessmentId);
+                if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
+                {
+                    _ = this.UpdateDQScoreAsync(control);
+                    continue;
+                }
+                var jobId = Guid.NewGuid().ToString();
+                var dqJobId = await dataQualityExecutionService.SubmitDQJob(
+                    requestHeaderContext.TenantId.ToString(),
+                    requestHeaderContext.AccountObjectId.ToString(),
+                    control,
+                    assessment,
+                    jobId).ConfigureAwait(false);
 
-            // Step 3: save into monitoring table
-            var jobWrapper = new DHComputingJobWrapper();
-            jobWrapper.Id = jobId;
-            jobWrapper.DQJobId = dqJobId;
-            jobWrapper.ControlId = control.Id;
-            await monitoringService.CreateComputingJob(jobWrapper, ScheduleOperationName).ConfigureAwait(false);
-            logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}. Control Id:{control.Id}");
-            logger.LogTipInformation($"The MDQ job was triggered", new JObject
+                // Step 3: save into monitoring table
+                var jobWrapper = new DHComputingJobWrapper();
+                jobWrapper.Id = jobId;
+                jobWrapper.DQJobId = dqJobId;
+                jobWrapper.ControlId = control.Id;
+                await monitoringService.CreateComputingJob(jobWrapper, ScheduleOperationName).ConfigureAwait(false);
+                logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}. Control Id:{control.Id}");
+                logger.LogTipInformation($"The MDQ job was triggered", new JObject
+                {
+                    { "jobId" , dqJobId },
+                    { "controlId", control.Id },
+                    { "controlName", control.Name}
+                });
+            }
+            catch (Exception ex)
             {
-                { "jobId" , dqJobId },
-                { "controlId", control.Id },
-                { "controlName", control.Name}
-            });
+                logger.LogError($"control failed to start. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}", ex);
+            }
         }
     }
 
