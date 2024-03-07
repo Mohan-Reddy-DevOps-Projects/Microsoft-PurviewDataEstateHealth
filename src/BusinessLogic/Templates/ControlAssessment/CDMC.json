@@ -2,6 +2,7 @@
     {
         "controlGroup": {
             "name": "Data Estate Curation",
+            "systemTemplateEntityId": "8f0a284c-413c-41be-ae03-b7d537de450e",
             "type": "ControlGroup",
             "status": "Enabled",
             "statusPaletteConfig": {
@@ -53,12 +54,14 @@
             {
                 "control": {
                     "name": "Classification and labeling",
+                    "systemTemplateEntityId": "9e62ce31-f657-4613-89cd-903e4a9234c4",
                     "description": "Data assets are classified.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Classification and labeling",
+                    "systemTemplateEntityId": "84be1364-1e4b-46ca-b987-ce0dbc0c69ee",
                     "targetEntityType": "DataAsset",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -90,12 +93,14 @@
             {
                 "control": {
                     "name": "Data products connection",
+                    "systemTemplateEntityId": "6f9ef0ed-0cab-4f29-a998-522bfba11d18",
                     "description": "Data assets are mapped to data products for discoverability in the catalog.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Data products connection",
+                    "systemTemplateEntityId": "df5fc9b0-ca83-49dc-9ca8-c8658316e449",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -127,12 +132,14 @@
             {
                 "control": {
                     "name": "Critical data identification",
+                    "systemTemplateEntityId": "ec6d401a-8d62-4bf4-b023-85b11f19dd77",
                     "description": "Business critical data entities and attributes are defined for business domains.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Critical data identification",
+                    "systemTemplateEntityId": "ef0ce1a0-4b3b-4b97-ba93-26434d5d10ee",
                     "targetEntityType": "BusinessDomain",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -164,12 +171,14 @@
             {
                 "control": {
                     "name": "Critical data connection",
+                    "systemTemplateEntityId": "7ac70358-17d4-4c7b-b651-eed78d9493cd",
                     "description": "Business critical data entities are mapped to the data assets.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Critical data connection",
+                    "systemTemplateEntityId": "bf24873a-df5a-4b76-a97f-8756c0d98004",
                     "targetEntityType": "CriticalDataElement",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -201,12 +210,14 @@
             {
                 "control": {
                     "name": "Critical data cataloging",
+                    "systemTemplateEntityId": "3a0d7e78-562c-44ae-bcef-3d74337f517a",
                     "description": "Business critical data entities are cataloged.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Critical data cataloging",
+                    "systemTemplateEntityId": "105a96ff-47da-4c49-a7db-7b2ddf0e03c8",
                     "targetEntityType": "CriticalDataElement",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -285,12 +296,14 @@
             {
                 "control": {
                     "name": "Data cataloging",
+                    "systemTemplateEntityId": "415f288a-ba47-40bd-b87f-b630df846226",
                     "description": "Data products are cataloged.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Data cataloging",
+                    "systemTemplateEntityId": "c3222c8b-9920-43db-b27b-de23b2f22da8",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -372,6 +385,7 @@
     {
         "controlGroup": {
             "name": "Trusted Data",
+            "systemTemplateEntityId": "186d14e4-26b2-4ec3-a57c-9645fe64b384",
             "type": "ControlGroup",
             "status": "Enabled",
             "statusPaletteConfig": {
@@ -423,12 +437,14 @@
             {
                 "control": {
                     "name": "Data product ownership",
+                    "systemTemplateEntityId": "c3d67c5a-14cb-41ec-bdaa-fd6cd5a27d60",
                     "description": "Data product and related assets have authorized owners.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Data product ownership",
+                    "systemTemplateEntityId": "efc04eb2-3922-4958-ac0e-195eb6862d10",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -475,12 +491,14 @@
             {
                 "control": {
                     "name": "Data quality measurenment",
+                    "systemTemplateEntityId": "ac184427-4d80-4129-9751-089dfa87f8d0",
                     "description": "Data quality scoring is enabled for data products, and data assets, and is visible in the data catalog",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Data quality measurenment",
+                    "systemTemplateEntityId": "8a374165-de95-4bd6-af56-45b3b9ad6648",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -526,12 +544,14 @@
             {
                 "control": {
                     "name": "Data quality score",
+                    "systemTemplateEntityId": "ee893a90-dc25-4e09-b78f-14ba3927cabc",
                     "description": "The overall composite data quality score of the data estate computed across all data products",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Data quality score",
+                    "systemTemplateEntityId": "1728998b-69b3-4739-a79f-ba0ae5b2669e",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "DataQuality",
                     "aggregation": {
@@ -562,12 +582,14 @@
             {
                 "control": {
                     "name": "Data product certification",
+                    "systemTemplateEntityId": "1015c258-0765-4014-866c-6621081e3d80",
                     "description": "Data products are certified by an authorized data product owner.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Data product certification",
+                    "systemTemplateEntityId": "244a4514-8700-4e1e-8eea-2217f99a2724",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -600,6 +622,7 @@
     {
         "controlGroup": {
             "name": "Data Value",
+            "systemTemplateEntityId": "67934d51-44c8-41b4-a06e-2d6ef7586d7f",
             "type": "ControlGroup",
             "status": "Enabled",
             "statusPaletteConfig": {
@@ -651,12 +674,14 @@
             {
                 "control": {
                     "name": "Business OKRs alignment",
+                    "systemTemplateEntityId": "f00d8f3c-d4e4-4b24-861b-f2be175761c9",
                     "description": "Data products serve 1 or more business OKRs.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Business OKRs alignment",
+                    "systemTemplateEntityId": "454008f0-7bdc-4b9a-b254-b90d4ca7049e",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -690,6 +715,7 @@
     {
         "controlGroup": {
             "name": "Data Accessibility",
+            "systemTemplateEntityId": "4ef7b81a-4f05-4588-b2d0-fa3e08090da7",
             "type": "ControlGroup",
             "status": "Enabled",
             "statusPaletteConfig": {
@@ -741,12 +767,14 @@
             {
                 "control": {
                     "name": "Self-serve access enablement",
+                    "systemTemplateEntityId": "a63be779-cc90-46bb-9494-e8eb46445608",
                     "description": "Data products have self-serve policies and workflow(s) enabled to enable data consumers to self-serve in subscribing and managing subscriptions.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Self-serve access enablement",
+                    "systemTemplateEntityId": "1a81f132-ae9b-440c-95d1-dcc89f7de0cb",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
@@ -777,12 +805,14 @@
             {
                 "control": {
                     "name": "Compliant data use",
+                    "systemTemplateEntityId": "fd451a55-db9f-444e-b5c5-52cbf3641843",
                     "description": "Data use purpose must be provided by data consumer when subscribing to a data product, and must be compliant with data use policies.",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
                     "name": "Compliant data use",
+                    "systemTemplateEntityId": "5164ee4a-3631-47d4-83ea-b0f812e17244",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {

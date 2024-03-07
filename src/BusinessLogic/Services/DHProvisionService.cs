@@ -3,6 +3,7 @@
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -64,10 +65,14 @@ public class DHProvisionService(
 
         var template = JsonConvert.DeserializeObject<IList<ControlAssessmentTemplate>>(templatePayload) ?? [];
 
+        var templateEntityIds = new List<string>();
+
         foreach (var group in template)
         {
             var controlGroupWrapper = DHControlBaseWrapper.Create(group.ControlGroup);
             controlGroupWrapper.Validate();
+            Ensure.IsNotNullOrWhitespace(controlGroupWrapper.SystemTemplateEntityId, $"SystemTemplateEntityId cannot be null or empty in ControlGroup {controlGroupWrapper.Name}");
+            templateEntityIds.Add(controlGroupWrapper.SystemTemplateEntityId);
 
             foreach (var item in group.Items)
             {
@@ -78,10 +83,20 @@ public class DHProvisionService(
 
                 var assessmentWrapper = DHAssessmentWrapper.Create(item.Assessment);
                 assessmentWrapper.Validate();
+                Ensure.IsNotNullOrWhitespace(assessmentWrapper.SystemTemplateEntityId, $"SystemTemplateEntityId cannot be null or empty in assessment {assessmentWrapper.Name}");
+                templateEntityIds.Add(assessmentWrapper.SystemTemplateEntityId);
 
                 var controlWrapper = (DHControlNodeWrapper)DHControlBaseWrapper.Create(item.Control);
                 controlWrapper.Validate();
+                Ensure.IsNotNullOrWhitespace(controlWrapper.SystemTemplateEntityId, $"SystemTemplateEntityId cannot be null or empty in control {controlWrapper.Name}");
+                templateEntityIds.Add(controlWrapper.SystemTemplateEntityId);
             }
+        }
+
+        var duplicateIds = templateEntityIds.GroupBy(x => x).Where(g => g.Count() > 1).Select(y => y.Key).ToList();
+        if (duplicateIds.Any())
+        {
+            throw new EntityValidationException($"Duplicate SystemTemplateEntityId found: {string.Join(", ", duplicateIds)}");
         }
     }
 
