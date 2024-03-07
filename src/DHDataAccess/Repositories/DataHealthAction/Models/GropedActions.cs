@@ -21,6 +21,7 @@ public class GroupedActions
                     { DataHealthActionWrapper.keyFindingSubType, item.FindingSubType},
                     { DataHealthActionWrapper.keyFindingName, item.FindingName},
                     { DataHealthActionWrapper.keySeverity, item.Severity.ToString()},
+                    { DataHealthActionWrapper.keyCategory, item.Category.ToString()},
                 })
             });
     }

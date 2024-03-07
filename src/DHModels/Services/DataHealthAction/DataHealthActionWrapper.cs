@@ -59,7 +59,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     public const string keyAssignedTo = "assignedTo";
     public const string keyDomainId = "domainId";
     public const string keyTargetEntityId = "targetEntityId";
-    private const string keyCategory = "category";
+    public const string keyCategory = "category";
     private const string keyFindingId = "findingId";
     private const string keyRecommendation = "recommendation";
     private const string keyStatus = "status";

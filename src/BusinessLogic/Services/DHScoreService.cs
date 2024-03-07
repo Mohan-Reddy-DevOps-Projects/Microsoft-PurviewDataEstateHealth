@@ -44,13 +44,13 @@
                     {
                         foreach (var e in ae.InnerExceptions)
                         {
-                            logger.LogInformation(e.Message);
+                            logger.LogError(e.Message);
                         }
                         throw new Exception(ae.ToString());
                     }
                     catch (Exception ex)
                     {
-                        logger.LogInformation(ex.Message);
+                        logger.LogError(ex.Message);
                         throw new Exception(ex.ToString());
                     }
                 }
@@ -136,44 +136,46 @@
                 {
                     entityOwners.AddRange(owners.Split(","));
                 }
-                var targetEntityId = (string?)score.EntityPayload[DQOutputFields.DP_ID] ?? "";
-                var businessDomainId = (string?)score.EntityPayload[DQOutputFields.BD_ID] ?? "";
-
-                foreach (var scoreUnit in score.Scores)
+                var targetEntityId = (string?)score.EntityPayload[DQOutputFields.DP_ID];
+                var businessDomainId = (string?)score.EntityPayload[DQOutputFields.BD_ID];
+                if (businessDomainId != null && targetEntityId != null)
                 {
-                    if (scoreUnit.Score == 0)
+                    foreach (var scoreUnit in score.Scores)
                     {
-                        var assessmentRuleId = scoreUnit.AssessmentRuleId;
-                        var matchedAssessment = assessment.Rules.FirstOrDefault((rule) =>
+                        if (scoreUnit.Score == 0)
                         {
-                            return rule.Id == assessmentRuleId;
-                        });
-                        if (matchedAssessment?.ActionProperties != null)
-                        {
-                            var action = new DataHealthActionWrapper()
+                            var assessmentRuleId = scoreUnit.AssessmentRuleId;
+                            var matchedAssessment = assessment.Rules.FirstOrDefault((rule) =>
                             {
-                                Category = DataHealthActionCategory.HealthControl,
-                                Severity = matchedAssessment.ActionProperties?.Severity ?? DataHealthActionSeverity.Medium,
-                                FindingId = assessmentRuleId,
-                                FindingName = matchedAssessment.ActionProperties?.Name ?? "",
-                                Reason = matchedAssessment.ActionProperties?.Reason ?? "",
-                                Recommendation = matchedAssessment.ActionProperties?.Recommendation ?? "",
-                                FindingType = findingType,
-                                FindingSubType = findingSubType,
-                                TargetEntityType = (DataHealthActionTargetEntityType)targetEntityType,
-                                TargetEntityId = targetEntityId,
-                                AssignedTo = entityOwners,
-                                DomainId = businessDomainId,
-                                ExtraProperties = new ActionExtraPropertiesWrapper()
+                                return rule.Id == assessmentRuleId;
+                            });
+                            if (matchedAssessment?.ActionProperties != null)
+                            {
+                                var action = new DataHealthActionWrapper()
                                 {
-                                    Type = DHActionType.ControlAction,
-                                    Data = new JObject
+                                    Category = DataHealthActionCategory.HealthControl,
+                                    Severity = matchedAssessment.ActionProperties?.Severity ?? DataHealthActionSeverity.Medium,
+                                    FindingId = assessmentRuleId,
+                                    FindingName = matchedAssessment.ActionProperties?.Name ?? "",
+                                    Reason = matchedAssessment.ActionProperties?.Reason ?? "",
+                                    Recommendation = matchedAssessment.ActionProperties?.Recommendation ?? "",
+                                    FindingType = findingType,
+                                    FindingSubType = findingSubType,
+                                    TargetEntityType = (DataHealthActionTargetEntityType)targetEntityType,
+                                    TargetEntityId = targetEntityId,
+                                    AssignedTo = entityOwners,
+                                    DomainId = businessDomainId,
+                                    ExtraProperties = new ActionExtraPropertiesWrapper()
                                     {
-                                        ["jobId"] = computingJobId
+                                        Type = DHActionType.ControlAction,
+                                        Data = new JObject
+                                        {
+                                            ["jobId"] = computingJobId
+                                        }
                                     }
-                                }
-                            };
-                            actions.Add(action);
+                                };
+                                actions.Add(action);
+                            }
                         }
                     }
                 }
