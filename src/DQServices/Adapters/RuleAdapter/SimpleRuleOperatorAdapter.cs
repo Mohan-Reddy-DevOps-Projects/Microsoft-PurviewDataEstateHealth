@@ -17,8 +17,8 @@ internal static class SimpleRuleOperatorAdapter
             DHOperator.LessThanOrEqual => $"{fieldVal} <= {operandVal}",
             DHOperator.IsNullOrEmpty => $"isNull({fieldVal}) || fieldVal === ''",
             DHOperator.IsNotNullOrEmpty => $"!(isNull({fieldVal}) || fieldVal === '')",
-            DHOperator.IsTrue => $"{fieldVal} === 1",
-            DHOperator.IsFalse => $"{fieldVal} === 0",
+            DHOperator.IsTrue => $"notNull({fieldVal}) && {fieldVal} === true",
+            DHOperator.IsFalse => $"isNull({fieldVal}) || {fieldVal} === false",
             _ => throw new NotImplementedException()
         };
     }
