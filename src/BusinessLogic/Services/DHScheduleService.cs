@@ -5,7 +5,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.Purview.ArtifactStoreClient.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
@@ -17,7 +16,6 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
-using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -154,7 +152,7 @@ public class DHScheduleService(
                 AggregatedScore = group.Average(score => score.Score),
                 DataProductDomainId = group.First().BusinessDomainId.ToString(),
                 DataProductId = group.First().DataProductId.ToString(),
-                DataProductOwners = group.First().DataProductOwners.Select(item => new ContactItemWrapper() { Id = item })
+                DataProductOwners = group.First().DataProductOwners
             }).ToList();
             await dhScoreRepository.AddAsync(scores).ConfigureAwait(false);
             logger.LogInformation($"successfully ingested all scores: {scores.Count()}");

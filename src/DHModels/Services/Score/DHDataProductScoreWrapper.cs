@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
-using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
@@ -31,15 +30,15 @@ public class DHDataProductScoreWrapper(JObject jObject) : DHScoreBaseWrapper(jOb
         set => this.SetTypePropertyValue(keyDataProductDomainId, value);
     }
 
-    private IEnumerable<ContactItemWrapper>? dataProductOwners;
+    private IEnumerable<string>? dataProductOwners;
 
     [EntityTypeProperty(keyDataProductOwners)]
-    public IEnumerable<ContactItemWrapper>? DataProductOwners
+    public IEnumerable<string>? DataProductOwners
     {
-        get => this.dataProductOwners ??= this.GetTypePropertyValueAsWrappers<ContactItemWrapper>(keyDataProductOwners);
+        get => this.dataProductOwners ??= this.GetPropertyValues<string>(keyDataProductOwners);
         set
         {
-            this.SetTypePropertyValueFromWrappers(keyDataProductOwners, value);
+            this.SetPropertyValue(keyDataProductOwners, value);
             this.dataProductOwners = value;
         }
     }
