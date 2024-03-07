@@ -15,7 +15,7 @@ public interface IRequestContext
     /// <summary>
     /// Microsoft Purview Account Object Id
     /// </summary>
-    Guid AccountObjectId { get; }
+    Guid AccountObjectId { get; set; }
 
     /// <summary>
     /// Microsoft Purview Account Resource Id
@@ -30,7 +30,7 @@ public interface IRequestContext
     /// <summary>
     /// Tenant Id of the client
     /// </summary>
-    Guid TenantId { get; }
+    Guid TenantId { get; set; }
 
     /// <summary>
     /// Request Correlation Id

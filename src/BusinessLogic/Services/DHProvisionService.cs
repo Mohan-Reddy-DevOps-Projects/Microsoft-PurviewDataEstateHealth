@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
@@ -14,8 +15,30 @@ using System.Threading.Tasks;
 
 public class DHProvisionService(
     DHControlService controlService,
-    DHAssessmentService assessmentService)
+    DHAssessmentService assessmentService,
+    IRequestHeaderContext requestHeaderContext
+    )
 {
+    public async Task ProvisionAccount(Guid tenantId, Guid accountId)
+    {
+        requestHeaderContext.TenantId = tenantId;
+        requestHeaderContext.AccountObjectId = accountId;
+
+        var allControls = await controlService.ListControlsAsync().ConfigureAwait(false);
+
+        var controlTemplates = new List<string>() { SystemTemplateNames.CDMC.ToString() };
+
+        foreach (var template in controlTemplates)
+        {
+            var templateProvisioned = allControls.Results.Any(x => x.SystemTemplate == template);
+
+            if (!templateProvisioned)
+            {
+                await this.ProvisionControlTemplate(template).ConfigureAwait(false);
+            }
+        }
+    }
+
     public async Task ProvisionControlTemplate(string templateName)
     {
         if (!Enum.TryParse<SystemTemplateNames>(templateName, true, out var templateType))

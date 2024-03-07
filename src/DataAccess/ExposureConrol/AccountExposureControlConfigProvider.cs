@@ -4,11 +4,11 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
-using System.Text.Json;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.ExposureControlLibrary;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 internal sealed class AccountExposureControlConfigProvider : IAccountExposureControlConfigProvider
 {
@@ -158,6 +158,18 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     public bool IsDataGovProvisioningServiceEnabled(string accountId, string subscriptionId, string tenantId)
     {
         ExposureControlOptions options = new(Features.DataGovProvisioningService.ToString(), false)
+        {
+            AccountId = accountId,
+            SubscriptionId = subscriptionId,
+            TenantId = tenantId
+        };
+        return this.IsFeatureEnabled(options);
+    }
+
+    /// <inheritdoc/>
+    public bool IsDGDataHealthEnabled(string accountId, string subscriptionId, string tenantId)
+    {
+        ExposureControlOptions options = new(Features.DGDataHealth.ToString(), false)
         {
             AccountId = accountId,
             SubscriptionId = subscriptionId,

@@ -4,22 +4,23 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
-using System;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
-using Microsoft.Azure.Purview.DataEstateHealth.Core;
-using System.Threading;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Extensions.Options;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService.Configurations;
-using OperationType = DataTransferObjects.OperationType;
-using System.Collections.Concurrent;
+using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
+using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService.Configurations;
+using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
+using System;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
+using OperationType = DataTransferObjects.OperationType;
 
 /// <summary>
 /// Purview account notifications controller.
@@ -35,7 +36,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     private readonly PartnerConfig<IPartnerDetails> partnerConfig;
     private readonly IAccountExposureControlConfigProvider exposureControl;
     private readonly IProcessingStorageManager processingStorageManager;
-
+    private readonly DHProvisionService dhProvisionService;
     /// <summary>
     /// Instantiate instance of PlatformAccountNotificationsController.
     /// </summary>
@@ -46,6 +47,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         IOptions<PartnerConfiguration> partnerConfiguration,
         IDataEstateHealthRequestLogger logger,
         IProcessingStorageManager processingStorageManager,
+        DHProvisionService provisionService,
         ControllerContext controllerContext = null)
     {
         this.coreLayerFactory = coreLayerFactory;
@@ -54,6 +56,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         this.exposureControl = exposureControl;
         this.partnerConfig = new(partnerConfiguration);
         this.processingStorageManager = processingStorageManager;
+        this.dhProvisionService = provisionService;
 
         if (controllerContext != null)
         {
@@ -105,6 +108,13 @@ public class PlatformAccountNotificationsController : ControlPlaneController
                 Guid.Parse(account.Id))
             .CreateOrUpdateNotification(account, cancellationToken);
             tasks.Add(healthTask);
+        }
+
+        if (this.exposureControl.IsDGDataHealthEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            // Provision control template
+            Task provisionControlTemplate = this.dhProvisionService.ProvisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
+            tasks.Add(provisionControlTemplate);
         }
 
         await Task.WhenAll(tasks);
