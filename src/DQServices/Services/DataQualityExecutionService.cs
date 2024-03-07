@@ -4,6 +4,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
@@ -95,12 +96,13 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         var dataAssetId = healthJobId;
 
         // Convert to an observer
-        var observerAdapter = new ObserverAdapter(
+        var adaptContext = new RuleAdapterContext(
             dfsEndpoint,
             catalogId,
             dataProductId,
             dataAssetId,
             assessment);
+        var observerAdapter = new ObserverAdapter(adaptContext);
         var observer = observerAdapter.FromControlAssessment();
 
         observer.ExecutionData = new JObject()
@@ -110,14 +112,16 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
         var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
 
-        // TODO For debug
+        // For debug
         var observerPayload = JsonConvert.SerializeObject(observer.JObject);
-        this.logger.LogInformation($"Observer payload: {observerPayload}");
+        this.logger.LogInformation($"Observer payload: {observerPayload}, healthJobId:{healthJobId}");
 
         // Create a temporary observer
         await dataQualityServiceClient.CreateObserver(observer, tenantId, accountId).ConfigureAwait(false);
 
         // Trigger run
+        var aliasList = observer.InputDatasets.Select(inputDataset => inputDataset.Alias).ToList();
+
         var dqJobId = await dataQualityServiceClient.TriggerJobRun(
             tenantId,
             accountId,
@@ -127,7 +131,8 @@ public class DataQualityExecutionService : IDataQualityExecutionService
                 dfsEndpoint,
                 catalogId,
                 dataProductId,
-                dataAssetId)).ConfigureAwait(false);
+                dataAssetId,
+                aliasList)).ConfigureAwait(false);
 
         this.logger.LogInformation($"End SubmitDQJOb, dqJobId:{dqJobId}");
 

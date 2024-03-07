@@ -32,9 +32,10 @@ public class DHRawScore(JObject jObject) : BaseEntityWrapper(jObject)
     /**
      * For DataProduct
      * {
-     *   DataProductID,
-     *   DataProductDisplayName,
-     *   BusinessDomainId (not supported now, wait DQ join)
+     *   DataProductID
+     *   DataProductDisplayName
+     *   BusinessDomainId
+     *   DataProductStatusDisplayName
      * }
      **/
     [EntityProperty(keyEntityPayload)]

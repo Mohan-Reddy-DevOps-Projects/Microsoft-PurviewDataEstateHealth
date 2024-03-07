@@ -18,4 +18,7 @@ public class DataEstateHealthConstants
 
     public const string SOURCE_DOMAIN_MODEL_FOLDER_PATH = "DomainModel";
     public const string SOURCE_DP_FOLDER_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProduct";
+    public const string SOURCE_DP_STATUS_FOLDER_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProductStatus";
+    public const string SOURCE_DP_DA_ASSIGNMENT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProductAssetAssignment";
+    public const string SOURCE_DP_BD_ASSIGNMENT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProductBusinessDomainAssignment";
 }

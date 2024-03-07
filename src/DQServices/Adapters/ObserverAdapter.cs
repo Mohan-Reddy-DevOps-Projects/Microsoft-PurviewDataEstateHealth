@@ -1,8 +1,8 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.Utils;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetLocation;
@@ -10,33 +10,22 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.D
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Rule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
+using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public class ObserverAdapter
 {
-    private string endpoint;
-    private string containerName;
-    private string dataProductId;
-    private string dataAssetId;
-    private DHAssessmentWrapper assessment;
+    private RuleAdapterContext context;
 
-    public ObserverAdapter(
-        string endpoint,
-        string containerName,
-        string dataProductId,
-        string dataAssetId,
-        DHAssessmentWrapper assessment)
+    public ObserverAdapter(RuleAdapterContext context)
     {
-        this.endpoint = endpoint;
-        this.containerName = containerName;
-        this.dataProductId = dataProductId;
-        this.dataAssetId = dataAssetId;
-        this.assessment = assessment;
+        this.context = context;
     }
 
-    public ObserverWrapper FromControlAssessment()
+    public BasicObserverWrapper FromControlAssessment()
     {
         var observer = new BasicObserverWrapper(new JObject()
         {
@@ -47,31 +36,42 @@ public class ObserverAdapter
         observer.Name = "deh_control_" + Guid.NewGuid().ToString();
         observer.Description = "MDQ observer";
 
-        observer.InputDatasets = this.GetDataProductInputDatasets();
-        observer.Rules = this.GetRules();
+        // Analyse rule and join requirements
+        var convertedResult = DHAssessmentRulesAdapter.ToDqRules(this.context, this.context.assessment.Rules);
+
+        // Add more input datasets for join needs
+        var inputDatasets = this.GetDataProductInputDatasets().ToList();
+        inputDatasets.AddRange(convertedResult.inputDatasetsFromJoin);
+        observer.InputDatasets = inputDatasets;
+
+        // Add projection sql and view schema
+        var projection = new ProjectionWrapper(new JObject());
+        projection.Type = ProjectionType.sql;
+        projection.Script = convertedResult.ProjectionSql;
+        var viewSchema = new DatasetSchemaWrapper(new JObject());
+        viewSchema.Origin = "DEH";
+        var viewSchemaItems = this.GetSparkDataProductSchema().ToList();
+        viewSchemaItems.AddRange(convertedResult.SchemaFromJoin);
+        projection.NativeSchema = viewSchemaItems;
+        observer.Projection = projection;
+
+        // Add all rules
+        var rules = new List<CustomTruthRuleWrapper>() { this.GetAlwaysFailedRule() };
+        rules.AddRange(convertedResult.CustomRules);
+        observer.Rules = rules;
         observer.FavouriteColumnPaths = Array.Empty<string>();
 
         var dataProductRef = new ReferenceObjectWrapper(new JObject());
         dataProductRef.Type = ReferenceType.DataProductReference;
-        dataProductRef.ReferenceId = this.dataProductId;
+        dataProductRef.ReferenceId = this.context.dataProductId;
         observer.DataProduct = dataProductRef;
 
         var dataAssetRef = new ReferenceObjectWrapper(new JObject());
         dataAssetRef.Type = ReferenceType.DataAssetReference;
-        dataAssetRef.ReferenceId = this.dataAssetId;
+        dataAssetRef.ReferenceId = this.context.dataAssetId;
         observer.DataAsset = dataAssetRef;
 
         return observer;
-    }
-
-    private IEnumerable<RuleWrapper> GetRules()
-    {
-        var convertedResult = DHAssessmentRulesAdapter.ToDqRules(this.assessment.Rules);
-
-        var rules = convertedResult.CustomRules;
-        rules.Add(this.GetAlwaysFailedRule());
-
-        return rules;
     }
 
     private CustomTruthRuleWrapper GetAlwaysFailedRule()
@@ -96,9 +96,8 @@ public class ObserverAdapter
             // TODO why set not work
             { "dataset", this.GetDataProductDataset().JObject }
         });
-        inputDataset.Alias = "primary";
+        inputDataset.Alias = "DataProduct";
         inputDataset.Primary = true;
-        /*inputDataset.Dataset = this.GetDataProductDataset();*/
 
         return new InputDatasetWrapper[]
         {
@@ -114,7 +113,7 @@ public class ObserverAdapter
             { DynamicEntityWrapper.keyTypeProperties, new JObject() }
         });
         dataset.ProjectAs = Array.Empty<DatasetProjectAsItemWrapper>();
-        dataset.DatasourceFQN = this.endpoint + "/";
+        dataset.DatasourceFQN = this.context.endpoint + "/";
         dataset.CompressionCodec = "snappy";
 
         var datasetLocation = new DatasetGen2FileLocationWrapper(new JObject()
@@ -122,7 +121,7 @@ public class ObserverAdapter
             { DynamicEntityWrapper.keyType, DatasetGen2FileLocationWrapper.EntityType },
             { DynamicEntityWrapper.keyTypeProperties, new JObject() }
         });
-        datasetLocation.FileSystem = this.containerName;
+        datasetLocation.FileSystem = this.context.containerName;
         datasetLocation.FolderPath = DataEstateHealthConstants.SOURCE_DP_FOLDER_PATH;
         dataset.Location = new[] { datasetLocation };
 
@@ -138,12 +137,12 @@ public class ObserverAdapter
 
         var dataProductRef = new ReferenceObjectWrapper(new JObject());
         dataProductRef.Type = ReferenceType.DataProductReference;
-        dataProductRef.ReferenceId = this.dataProductId;
+        dataProductRef.ReferenceId = this.context.dataProductId;
         dataset.DataProduct = dataProductRef;
 
         var dataAssetRef = new ReferenceObjectWrapper(new JObject());
         dataAssetRef.Type = ReferenceType.DataAssetReference;
-        dataAssetRef.ReferenceId = this.dataAssetId;
+        dataAssetRef.ReferenceId = this.context.dataAssetId;
         dataset.DataAsset = dataAssetRef;
 
         return dataset;
@@ -151,15 +150,23 @@ public class ObserverAdapter
 
     private IEnumerable<DatasetSchemaItemWrapper> GetDataProductSchema()
     {
-        var descriptionCol = new DatasetSchemaStringItemWrapper(new JObject()
-        {
-            { DynamicEntityWrapper.keyType, DatasetSchemaStringItemWrapper.EntityType },
-        });
-        descriptionCol.Name = "DataProductDescription";
+        return SchemaUtils.GenerateSchemaFromDefinition([
+            ["DataProductID", "String"],
+            ["DataProductDisplayName", "String"],
+            ["DataProductDescription", "String"],
+            ["UseCases", "String"],
+            ["Endorsed", "Boolean"],
+        ]);
+    }
 
-        return new DatasetSchemaItemWrapper[]
-        {
-            descriptionCol
-        };
+    private IEnumerable<SparkSchemaItemWrapper> GetSparkDataProductSchema()
+    {
+        return SchemaUtils.GenerateSparkSchemaFromDefinition([
+            ["DataProductID", "string"],
+            ["DataProductDisplayName", "string"],
+            ["DataProductDescription", "string"],
+            ["UseCases", "string"],
+            ["Endorsed", "boolean"],
+        ]);
     }
 }

@@ -3,6 +3,7 @@
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Linq;
 
 public class JobSubmitPayload
 {
@@ -11,12 +12,13 @@ public class JobSubmitPayload
         string storageEndpoint,
         string catalogId,
         string dataProductId,
-        string dataAssetId)
+        string dataAssetId,
+        List<string> aliasList)
     {
-        this.DatasetToDatasourceMappings = new List<DatasetToDatasourceMapping>
+        this.DatasetToDatasourceMappings = aliasList.Select(alias => new DatasetToDatasourceMapping()
         {
-            new DatasetToDatasourceMapping()
-        };
+            DatasetAliasName = alias,
+        }).ToList();
 
         this.Error = new ErrorOutputInfo(
             storageEndpoint,
@@ -35,7 +37,7 @@ public class JobSubmitPayload
 public class DatasetToDatasourceMapping
 {
     [JsonProperty("datasetAliasName")]
-    public string DatasetAliasName => "primary";
+    public string DatasetAliasName { get; set; }
 
     [JsonProperty("datasourceId")]
     public string DatasourceId => DataEstateHealthConstants.DEH_DATA_SOURCE_ID;

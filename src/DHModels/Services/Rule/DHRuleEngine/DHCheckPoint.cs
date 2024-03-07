@@ -10,18 +10,18 @@ public enum DHCheckPoint
     Score,
 
     // Assessment - MQ - DataProduct
-    DataProductDescriptionLength,
-    DataProductBusinessUseLength,
+    DataProductDescriptionLength, // Supported in MDQ
+    DataProductBusinessUseLength, // Supported in MDQ
     DataProductOwnerCount,
     DataProductAllRelatedAssetsHaveOwner,
     DataProductAllRelatedAssetsHaveDQScore,
-    DataProductRelatedDataAssetsCount,
+    DataProductRelatedDataAssetsCount, // Supported in MDQ
     DataProductRelatedObjectivesCount,
     DataProductRelatedTermsCount,
     DataProductHasDataAccessPolicy,
     DataProductHasDataUsagePurpose,
-    DataProductEndorsed,
-    DataProductStatus,
+    DataProductEndorsed, // Supported in MDQ
+    DataProductStatus, // Supported in MDQ
     DataProductHasDQScore,
 
     // Assessment - MQ - DataAsset
