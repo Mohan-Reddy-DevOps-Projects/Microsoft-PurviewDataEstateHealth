@@ -36,6 +36,7 @@ public class DHRawScore(JObject jObject) : BaseEntityWrapper(jObject)
      *   DataProductDisplayName
      *   BusinessDomainId
      *   DataProductStatusDisplayName
+     *   DataProductOwnerIds
      * }
      **/
     [EntityProperty(keyEntityPayload)]

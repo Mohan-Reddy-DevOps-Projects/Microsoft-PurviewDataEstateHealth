@@ -8,6 +8,7 @@
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Output;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
+    using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
@@ -97,9 +98,7 @@
                                             DataProductDomainId = x.EntityPayload[DQOutputFields.BD_ID]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
                                             DataProductStatus = x.EntityPayload[DQOutputFields.DP_STATUS]?.ToString() ?? throw new InvalidOperationException("Data product status not found in entity payload!"),
                                             DataProductId = x.EntityId ?? throw new InvalidOperationException("Data product id not found in entity payload!"),
-                                            DataProductOwners = []
-                                            // TODO will get this after join
-                                            // DataProductOwners = x.EntityPayload["contacts"]?["owner"]?.OfType<JObject>().Select(x => ContactItemWrapper.Create(x)).ToList()
+                                            DataProductOwners = x.EntityPayload[DQOutputFields.DP_OWNER_IDS]?.ToString().Split(",") ?? throw new InvalidOperationException("Data product owner ids not found in entity payload!")
                                         };
                                     default:
                                         throw new NotImplementedException($"Target entity type {assessment.TargetEntityType} not supported yet!");
@@ -132,18 +131,10 @@
             foreach (var score in scores)
             {
                 var entityOwners = new List<string>();
-                var contacts = (JObject?)score.EntityPayload["contacts"];
-                if (contacts?["owner"] != null)
+                var owners = (string?)score.EntityPayload[DQOutputFields.DP_OWNER_IDS] ?? "";
+                if (!string.IsNullOrEmpty(owners))
                 {
-                    JArray owners = (JArray?)contacts["owner"] ?? [];
-
-                    foreach (JObject owner in owners)
-                    {
-                        if (owner["id"] != null)
-                        {
-                            entityOwners.Append((string?)owner["id"]);
-                        }
-                    }
+                    entityOwners.AddRange(owners.Split(","));
                 }
                 var targetEntityId = (string?)score.EntityPayload[DQOutputFields.DP_ID] ?? "";
                 var businessDomainId = (string?)score.EntityPayload[DQOutputFields.BD_ID] ?? "";

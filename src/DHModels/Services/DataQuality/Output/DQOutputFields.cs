@@ -14,5 +14,6 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Outpu
         public const string DP_NAME = "DataProductDisplayName";
         public const string DP_STATUS = "DataProductStatusDisplayName";
         public const string BD_ID = "BusinessDomainId";
+        public const string DP_OWNER_IDS = "DataProductOwnerIds";
     }
 }
