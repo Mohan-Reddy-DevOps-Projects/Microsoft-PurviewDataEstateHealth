@@ -78,6 +78,8 @@ public class DHAssessmentRulesAdapter
             }
         }
 
+        projectionSqlList.Add(" WHERE BusinessDomainId IS NOT NULL ");
+
         return new RuleAdapterResult()
         {
             ProjectionSql = string.Join(" ", projectionSqlList),
