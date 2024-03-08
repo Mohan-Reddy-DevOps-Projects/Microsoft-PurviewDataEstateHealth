@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
@@ -11,6 +12,10 @@ public class DHScheduleCreateRequestPayload
 
     [JsonProperty("category")]
     public string Category { get; set; } = DHScheduleConstant.Category;
+
+    [JsonProperty("state")]
+    [JsonConverter(typeof(StringEnumConverter))]
+    public required DHScheduleState State { get; set; }
 
     [JsonProperty("callbackRequest")]
     public required DHScheduleCreateRequestCallback CallbackRequest { get; set; }
@@ -37,4 +42,10 @@ public class DHScheduleCreateRequestCallback
 
     [JsonProperty("headers")]
     public Dictionary<string, string>? Headers { get; set; }
+}
+
+public enum DHScheduleState
+{
+    Disabled,
+    Enabled
 }

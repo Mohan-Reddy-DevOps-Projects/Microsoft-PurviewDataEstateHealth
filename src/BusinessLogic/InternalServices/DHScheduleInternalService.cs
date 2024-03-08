@@ -102,7 +102,8 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                         ["x-ms-client-tenant-id"] = tenantId,
                         ["x-ms-account-id"] = accountId
                     }
-                }
+                },
+                State = DHScheduleState.Enabled
             };
             payload.SetRecurrence(schedule.Properties);
             return payload;
