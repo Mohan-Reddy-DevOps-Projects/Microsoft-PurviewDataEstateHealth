@@ -122,7 +122,7 @@
             var controlGroup = await dhControlRepository.GetByIdAsync(controlGroupId).ConfigureAwait(false);
             var findingType = controlGroup?.Name ?? "";
             var findingSubType = control.Name;
-            var targetEntityType = (DataHealthActionTargetEntityType?)assessment.TargetEntityType;
+            DataHealthActionTargetEntityType? targetEntityType = Enum.TryParse<DataHealthActionTargetEntityType>(assessment.TargetEntityType.ToString(), true, out var result) ? result : null;
 
             if (targetEntityType == null)
             {
