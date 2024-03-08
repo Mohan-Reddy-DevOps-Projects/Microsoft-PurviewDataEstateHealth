@@ -7,7 +7,7 @@
             "status": "Enabled",
             "statusPaletteConfig": {
                 "targetScore": 0.8,
-                "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+                "fallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
                 "statusPaletteRules": [
                     {
                         "statusPaletteId": "00000000-0000-0000-0000-000000000002",
@@ -390,7 +390,7 @@
             "status": "Enabled",
             "statusPaletteConfig": {
                 "targetScore": 0.8,
-                "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+                "fallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
                 "statusPaletteRules": [
                     {
                         "statusPaletteId": "00000000-0000-0000-0000-000000000002",
@@ -490,14 +490,14 @@
             },
             {
                 "control": {
-                    "name": "Data quality measurenment",
+                    "name": "Data quality measurement",
                     "systemTemplateEntityId": "ac184427-4d80-4129-9751-089dfa87f8d0",
                     "description": "Data quality scoring is enabled for data products, and data assets, and is visible in the data catalog",
                     "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
-                    "name": "Data quality measurenment",
+                    "name": "Data quality measurement",
                     "systemTemplateEntityId": "8a374165-de95-4bd6-af56-45b3b9ad6648",
                     "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
@@ -627,7 +627,7 @@
             "status": "Enabled",
             "statusPaletteConfig": {
                 "targetScore": 0.8,
-                "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+                "fallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
                 "statusPaletteRules": [
                     {
                         "statusPaletteId": "00000000-0000-0000-0000-000000000002",
@@ -720,7 +720,7 @@
             "status": "Enabled",
             "statusPaletteConfig": {
                 "targetScore": 0.8,
-                "FallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+                "fallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
                 "statusPaletteRules": [
                     {
                         "statusPaletteId": "00000000-0000-0000-0000-000000000002",
