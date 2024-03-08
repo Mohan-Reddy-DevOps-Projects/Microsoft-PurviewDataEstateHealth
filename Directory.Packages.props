@@ -79,5 +79,7 @@
     <PackageVersion Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+    <PackageVersion Include="Bogus" Version="35.4.1" />
+    <PackageVersion Include="Moq" Version="4.20.70" />
   </ItemGroup>
 </Project>
