@@ -72,6 +72,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                         else
                         {
                             failedItems.Add(entity);
+                            logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to add entity to CosmosDB in a bulk add, entityType = {entity.GetType().Name}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", responseTask.Exception);
                         }
                     });
                 })).ConfigureAwait(false);
@@ -225,6 +226,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                         else
                         {
                             failedItems.Add(entity);
+                            logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to update entity to CosmosDB in a bulk update, entityType = {entity.GetType().Name}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", responseTask.Exception);
                         }
                     });
                 })).ConfigureAwait(false);
