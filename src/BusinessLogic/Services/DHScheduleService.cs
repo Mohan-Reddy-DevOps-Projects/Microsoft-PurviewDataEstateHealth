@@ -65,9 +65,9 @@ public class DHScheduleService(
             try
             {
                 logger.LogInformation($"start with control, Id: {control.Id}. AssessmentId: {control.AssessmentId}");
-                if (control.Status == DHControlStatus.Disabled)
+                if (control.Status != DHControlStatus.Enabled)
                 {
-                    logger.LogInformation($"control is disabled, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                    logger.LogInformation($"control is not enabled, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
                     continue;
                 }
 

@@ -7,5 +7,6 @@ using Newtonsoft.Json.Converters;
 public enum DHControlStatus
 {
     Enabled,
-    Disabled
+    Disabled,
+    InDevelopment,
 }

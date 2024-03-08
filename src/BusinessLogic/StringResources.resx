@@ -135,6 +135,9 @@
   <data name="ErrorMessageForbiddenReadMessage" xml:space="preserve">
     <value>Don't have permission to read {0} in business domain {1}.</value>
   </data>
+  <data name="ErrorMessageInDevelopStatus" xml:space="preserve">
+    <value>Cannot create or update controls with InDevelopment status.</value>
+  </data>
   <data name="ErrorMessageInvalidEntityType" xml:space="preserve">
     <value>Entity type {0} is not supported.</value>
   </data>

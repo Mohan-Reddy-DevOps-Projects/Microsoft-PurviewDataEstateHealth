@@ -115,6 +115,15 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot create or update controls with InDevelopment status..
+        /// </summary>
+        internal static string ErrorMessageInDevelopStatus {
+            get {
+                return ResourceManager.GetString("ErrorMessageInDevelopStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Entity type {0} is not supported..
         /// </summary>
         internal static string ErrorMessageInvalidEntityType {

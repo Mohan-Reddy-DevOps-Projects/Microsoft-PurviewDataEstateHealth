@@ -55,6 +55,11 @@
             if (!isSystem)
             {
                 entity.NormalizeInput();
+
+                if (entity.Status == DHControlStatus.InDevelopment)
+                {
+                    throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageInDevelopStatus));
+                }
             }
 
             if (withNewAssessment)
@@ -80,7 +85,7 @@
             return entity;
         }
 
-        public async Task<DHControlBaseWrapper> UpdateControlByIdAsync(string id, DHControlBaseWrapper entity)
+        public async Task<DHControlBaseWrapper> UpdateControlByIdAsync(string id, DHControlBaseWrapper entity, bool isSystem = false)
         {
             ArgumentNullException.ThrowIfNull(id);
 
@@ -92,7 +97,16 @@
             }
 
             entity.Validate();
-            entity.NormalizeInput();
+
+            if (!isSystem)
+            {
+                entity.NormalizeInput();
+
+                if (entity.Status == DHControlStatus.InDevelopment)
+                {
+                    throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageInDevelopStatus));
+                }
+            }
 
             var existEntity = await dHControlRepository.GetByIdAsync(id).ConfigureAwait(false);
 
