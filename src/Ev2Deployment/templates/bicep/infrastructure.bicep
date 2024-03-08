@@ -21,6 +21,8 @@ param synapseLocation string
 param synapseDatabaseName string
 param subscriptionId string = subscription().subscriptionId
 param forceUpdateTag string = utcNow()
+param eventHubs array
+param consumerGroupName string
 
 //remove after EH migration
 param catalogEventHubName string
@@ -463,16 +465,17 @@ module secondaryEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bic
   }
 }
 
-var eventHubNames = ['catalogevent', 'dataaccessevent', 'dataqualityevent']
-var consumerGroupName = 'dg-health'
 
-module sharedEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHubName in eventHubNames: {
-  name: 'sharedEventHubConsumerGroupDeploy${eventHubName}'
+
+module sharedEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHub in eventHubs: {
+  name: 'sharedEventHubConsumerGroupDeploy${eventHub.name}'
   scope: resourceGroup(coreResourceGroupName)
   params: {
     eventHubNamespaceName: sharedEventHubNamespaceName
-    eventHubName: eventHubName
+    eventHubName: eventHub.name
     consumerGroupName: consumerGroupName
+    messageRetentionDays: eventHub.messageRetentionDays
+    partitionCount: eventHub.partitionCount
   }
 }]
 
@@ -501,12 +504,14 @@ module tempEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' =
   }
 }
 
-module catalogEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHubName in eventHubNames: {
-  name: 'catalogEventHubConsumerGroupDeploy${eventHubName}'
+module catalogEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHub in eventHubs: {
+  name: 'catalogEventHubConsumerGroupDeploy${eventHub.name}'
   scope: resourceGroup(catalogSubscriptionId, catalogResourceGroupName)
   params: {
     eventHubNamespaceName: catalogEventHubName
-    eventHubName: eventHubName
+    eventHubName: eventHub.name
     consumerGroupName: consumerGroupName
+    messageRetentionDays: eventHub.messageRetentionDays
+    partitionCount: eventHub.partitionCount
   }
 }]

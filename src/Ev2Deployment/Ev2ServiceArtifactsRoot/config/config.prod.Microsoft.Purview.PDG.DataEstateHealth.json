@@ -1,44 +1,109 @@
 {
-    "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
-    "settings": {
-        "dgh": {
-            "powerBiClientId": "28456abb-1abf-47c1-abc3-acb68b96484e",
-            "dgFPAClientId": "6afef871-d95c-4232-91b2-62e704ccaafa",
-            "powerBiEnabled": "true",
-            "resourceGroupName": "dgh-prod-$(regionName)-rg",
-            "serverlessPoolEnabled": "true",
-            "serviceShortName": "dgh",
-            "subdomainName": "prod-$(regionName)-health",
-            "synapseRegion": "$(regionName)",
-            "useEstsr": "true",
-            "sparkPoolTableName": "SparkPool",
-            "acrName":"$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
-            "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)$(regionShortName)common",
-            "synapseWorkspaceName": "$(dgh.serviceShortName)$(pdg.environment.shortName)$(regionShortName)workspace",
-            "apiServiceReadinessProbePort": 8081,
-            "workerServiceReadinessProbePort": 8082,
-            "sqlAdminUserSecretName": "synapseSqlAdminUsername",
-            "sqlAdminPassSecretName": "synapseSqlAdminPassword",
-            "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
-            "dataQualityServiceEndpoint": "purview-dqservice-$(pdg.environment.shortName)-$(pdg.firstParty.purviewShortRegion).babylon-service.azure.com"
-        }
-    },
-    "geographies": [
+  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
+  "settings": {
+    "dgh": {
+      "powerBiClientId": "28456abb-1abf-47c1-abc3-acb68b96484e",
+      "dgFPAClientId": "6afef871-d95c-4232-91b2-62e704ccaafa",
+      "powerBiEnabled": "true",
+      "resourceGroupName": "dgh-prod-$(regionName)-rg",
+      "serverlessPoolEnabled": "true",
+      "serviceShortName": "dgh",
+      "subdomainName": "prod-$(regionName)-health",
+      "synapseRegion": "$(regionName)",
+      "useEstsr": "true",
+      "sparkPoolTableName": "SparkPool",
+      "acrName": "$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
+      "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)$(regionShortName)common",
+      "synapseWorkspaceName": "$(dgh.serviceShortName)$(pdg.environment.shortName)$(regionShortName)workspace",
+      "apiServiceReadinessProbePort": 8081,
+      "workerServiceReadinessProbePort": 8082,
+      "sqlAdminUserSecretName": "synapseSqlAdminUsername",
+      "sqlAdminPassSecretName": "synapseSqlAdminPassword",
+      "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
+      "dataQualityServiceEndpoint": "purview-dqservice-$(pdg.environment.shortName)-$(pdg.firstParty.purviewShortRegion).babylon-service.azure.com",
+      "consumerGroupName": "dg-health",
+      "eventHubs": [
         {
-            "Name": "Canary (US)",
-            "regions": [
-                {
-                    "name": "centraluseuap",
-                    "settings": {
-                        "dgh": {
-                            "synapseRegion": "eastus2euap",
-                            "subdomainName": "prod-eastus2euap-health",
-                            "resourceGroupName": "dgh-canary-centraluseuap-rg",
-                            "synapseWorkspaceName": "$(dgh.serviceShortName)cnrycdmworkspace"
-                        }
-                    }
-                }
-            ]
+          "name": "catalogevent",
+          "messageRetentionDays": 90,
+          "partitionCount": 2
+        },
+        {
+          "name": "dataaccessevent",
+          "messageRetentionDays": 90,
+          "partitionCount": 1
+        },
+        {
+          "name": "dataqualityevent",
+          "messageRetentionDays": 90,
+          "partitionCount": 2
         }
-    ]
+      ]
+    }
+  },
+  "geographies": [
+    {
+      "Name": "Canary (US)",
+      "regions": [
+        {
+          "name": "centraluseuap",
+          "settings": {
+            "dgh": {
+              "synapseRegion": "eastus2euap",
+              "subdomainName": "prod-eastus2euap-health",
+              "resourceGroupName": "dgh-canary-centraluseuap-rg",
+              "synapseWorkspaceName": "$(dgh.serviceShortName)cnrycdmworkspace",
+              "consumerGroupName": "dg-health",
+              "eventHubs": [
+                {
+                  "name": "catalogevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 2
+                },
+                {
+                  "name": "dataaccessevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 1
+                },
+                {
+                  "name": "dataqualityevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 2
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "United States",
+      "regions": [
+        {
+          "name": "centralus",
+          "settings": {
+            "dgh": {
+              "eventHubs": [
+                {
+                  "name": "catalogevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 2
+                },
+                {
+                  "name": "dataaccessevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 1
+                },
+                {
+                  "name": "dataqualityevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 2
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
 }

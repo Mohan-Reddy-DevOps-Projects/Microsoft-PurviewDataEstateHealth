@@ -62,6 +62,12 @@
         "sqlAdminPassSecretName": {
             "value": "__INFRA_SQL_ADMIN_PASS_SECRET_NAME__"
         },
+        "eventHubs": {
+            "value": "__INFRA_EVENT_HUBS__"
+        },
+        "consumerGroupName": {
+            "value": "__INFRA_CONSUMER_GROUP_NAME__"
+        },
         //Remove after EH migraiton
         "catalogEventHubName": {
             "value": "__CATALOG_EVENT_HUB_NAMESPACE_NAME__"
