@@ -18,7 +18,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     protected abstract Container CosmosContainer { get; }
 
     /// <inheritdoc />
-    public async Task<TEntity> AddAsync(TEntity entity, string tenantId, string? accountId)
+    public async Task<TEntity> AddAsync(TEntity entity, string tenantId, string? accountId = null)
     {
         var methodName = nameof(AddAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
@@ -39,7 +39,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyCollection<TEntity> succeededItems, IReadOnlyCollection<TEntity> failedItems)> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId)
+    public async Task<(IReadOnlyCollection<TEntity> succeededItems, IReadOnlyCollection<TEntity> failedItems)> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
     {
         var methodName = nameof(AddAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
@@ -171,7 +171,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     }
 
     /// <inheritdoc />
-    public async Task<TEntity> UpdateAsync(TEntity entity, string tenantId, string? accountId)
+    public async Task<TEntity> UpdateAsync(TEntity entity, string tenantId, string? accountId = null)
     {
         var methodName = nameof(UpdateAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
@@ -193,7 +193,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyCollection<TEntity> succeededItems, IReadOnlyCollection<TEntity> failedItems)> UpdateAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId)
+    public async Task<(IReadOnlyCollection<TEntity> succeededItems, IReadOnlyCollection<TEntity> failedItems)> UpdateAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
     {
         var methodName = nameof(UpdateAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
@@ -241,7 +241,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
         }
     }
 
-    private static void PopulateMetadataForEntity(TEntity entity, string tenantId, string? accountId)
+    private static void PopulateMetadataForEntity(TEntity entity, string tenantId, string? accountId = null)
     {
         entity.TenantId = tenantId;
         if (accountId != null)
