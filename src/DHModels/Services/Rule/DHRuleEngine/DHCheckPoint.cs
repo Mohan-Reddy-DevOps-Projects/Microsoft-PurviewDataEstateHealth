@@ -14,7 +14,7 @@ public enum DHCheckPoint
     DataProductBusinessUseLength, // Supported in MDQ
     DataProductOwnerCount, // Supported in MDQ
     DataProductAllRelatedAssetsHaveOwner,
-    DataProductAllRelatedAssetsHaveDQScore,
+    DataProductAllRelatedAssetsHaveDQScore, // Supported in MDQ
     DataProductRelatedDataAssetsCount, // Supported in MDQ
     DataProductRelatedObjectivesCount, // Cannot do, catalog is not posting OKR contract to EH
     DataProductRelatedTermsCount, // Supported in MDQ
@@ -22,7 +22,7 @@ public enum DHCheckPoint
     DataProductHasDataUsagePurpose, // Supported in MDQ
     DataProductEndorsed, // Supported in MDQ
     DataProductStatus, // Supported in MDQ
-    DataProductHasDQScore,
+    DataProductHasDQScore, // Supported in MDQ
 
     // Assessment - MQ - DataAsset
     DataAssetClassificationCount,

@@ -6,5 +6,6 @@ public enum JoinRequirement
     DataProductOwner,
     DataAssetCount,
     DataProductTermCount,
-    HasAccessPolicySetAndPurpose
+    HasAccessPolicySetAndPurpose,
+    DataProductAssetDQScore
 }

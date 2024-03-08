@@ -67,6 +67,9 @@ public class DHAssessmentRulesAdapter
                     case JoinRequirement.HasAccessPolicySetAndPurpose:
                         joinAdapter = new HasAccessPolicySetAndPurposeJoinAdapter(context);
                         break;
+                    case JoinRequirement.DataProductAssetDQScore:
+                        joinAdapter = new AssetDQScoreJoinAdapter(context);
+                        break;
                     default:
                         throw new System.NotImplementedException();
                 }
