@@ -28,12 +28,12 @@ public class DataEstateHealthConstants
     public const string SOURCE_ACCESS_POLICY_SET_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/AccessPolicySet";
     public const string SOURCE_ACCESS_POLICY_USE_CASE_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/CustomAccessUseCase";
     public const string SOURCE_DQ_DA_RULE_EXECUTION_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataQualityAssetRuleExecution";
+    public const string SOURCE_DA_OWNER_ASSIGNMENT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataAssetOwnerAssignment";
 
     // TODO always join all for temporary test
     public static readonly JoinRequirement[] ALWAYS_REQUIRED_JOIN_REQUIREMENTS = [
         JoinRequirement.BusinessDomain,
         JoinRequirement.DataProductStatus,
-        JoinRequirement.DataProductOwner,
-        JoinRequirement.HasAccessPolicySetAndPurpose
+        JoinRequirement.DataProductOwner
     ];
 }

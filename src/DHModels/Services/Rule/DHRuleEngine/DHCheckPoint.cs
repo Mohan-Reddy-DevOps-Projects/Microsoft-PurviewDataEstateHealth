@@ -13,7 +13,7 @@ public enum DHCheckPoint
     DataProductDescriptionLength, // Supported in MDQ
     DataProductBusinessUseLength, // Supported in MDQ
     DataProductOwnerCount, // Supported in MDQ
-    DataProductAllRelatedAssetsHaveOwner,
+    DataProductAllRelatedAssetsHaveOwner, // Supported in MDQ
     DataProductAllRelatedAssetsHaveDQScore, // Supported in MDQ
     DataProductRelatedDataAssetsCount, // Supported in MDQ
     DataProductRelatedObjectivesCount, // Cannot do, catalog is not posting OKR contract to EH

@@ -35,9 +35,9 @@ internal static class RuleFieldAdapter
             case DHCheckPoint.DataProductAllRelatedAssetsHaveDQScore:
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductAssetDQScore);
                 return "DataProductAllRelatedAssetsHaveDQScore";
-            // TODO jar for the below
             case DHCheckPoint.DataProductAllRelatedAssetsHaveOwner:
-                return "DataProductHasAccessPolicySet";
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductAssetsOwner);
+                return "DataProductAllRelatedAssetsHaveOwner";
             default: throw new NotImplementedException();
         }
     }

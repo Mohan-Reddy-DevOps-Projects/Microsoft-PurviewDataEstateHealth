@@ -70,6 +70,9 @@ public class DHAssessmentRulesAdapter
                     case JoinRequirement.DataProductAssetDQScore:
                         joinAdapter = new AssetDQScoreJoinAdapter(context);
                         break;
+                    case JoinRequirement.DataProductAssetsOwner:
+                        joinAdapter = new DataProductAssetHasOwnerJoinAdapter(context);
+                        break;
                     default:
                         throw new System.NotImplementedException();
                 }

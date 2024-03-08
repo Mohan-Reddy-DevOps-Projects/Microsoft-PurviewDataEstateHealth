@@ -86,7 +86,7 @@ public class AssetDQScoreJoinAdapter : JoinAdapter
                     GROUP BY DataAssetId
                 ) TDataQualityAssetRuleExecution ON DataProductAssetAssignmentForDQSocre.DataAssetId = TDataQualityAssetRuleExecution.DataAssetId
                 GROUP BY DataProduct.DataProductID
-            ) DataProductAssetDQScore ON DataProduct.DataProductID = DataProductAssetDQScore.DACountDataProductId",
+            ) DataProductAssetDQScore ON DataProduct.DataProductID = DataProductAssetDQScore.DADQSCountDataProductId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema
         };
