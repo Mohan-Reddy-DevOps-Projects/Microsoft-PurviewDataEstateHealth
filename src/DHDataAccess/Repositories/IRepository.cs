@@ -33,14 +33,14 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// <returns>A task that represents the asynchronous operation. The task result contains the added entity of type T.</returns>
         Task<T> AddAsync(T entity, string tenantId, string? accountId);
 
-        /// <summary>
-        /// Asynchronously adds a range of entities of type T to the repository for a specified tenant, optionally associating them with an account.
-        /// </summary>
-        /// <param name="entities">The collection of entities to be added.</param>
-        /// <param name="tenantId">The tenant identifier under which the entities are added.</param>
-        /// <param name="accountId">The optional account identifier associated with the entities.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the collection of added entities of type T.</returns>
-        Task<IReadOnlyList<T>> AddAsync(IReadOnlyList<T> entities, string tenantId, string? accountId);
+        /// <summary>  
+        /// Asynchronously adds a range of entities of type T to the repository for a specified tenant, optionally associating them with an account.  
+        /// </summary>  
+        /// <param name="entities">The collection of entities to be added.</param>  
+        /// <param name="tenantId">The tenant identifier under which the entities are added.</param>  
+        /// <param name="accountId">The optional account identifier associated with the entities.</param>  
+        /// <returns>A task that represents the asynchronous operation. The task result contains a tuple with the collection of successfully added entities of type T and the collection of entities that failed to add.</returns>
+        Task<(IReadOnlyCollection<T> succeededItems, IReadOnlyCollection<T> failedItems)> AddAsync(IReadOnlyList<T> entities, string tenantId, string? accountId);
 
         /// <summary>
         /// Asynchronously updates an existing entity of type T in the repository for a specified tenant, optionally associating it with an account.
@@ -57,8 +57,8 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// <param name="entities">The collection of entities to update.</param>
         /// <param name="tenantId">The tenant identifier under which the entities are updated.</param>
         /// <param name="accountId">The optional account identifier associated with the entities.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the collection of updated entities of type T.</returns>
-        Task<IReadOnlyList<T>> UpdateAsync(IReadOnlyList<T> entities, string tenantId, string? accountId);
+        /// <returns>A task that represents the asynchronous operation. The task result contains a tuple with the collection of successfully updated entities of type T and the collection of entities that failed to update.</returns>
+        Task<(IReadOnlyCollection<T> succeededItems, IReadOnlyCollection<T> failedItems)> UpdateAsync(IReadOnlyList<T> entities, string tenantId, string? accountId);
 
         /// <summary>
         /// Asynchronously deletes an existing entity of type T from the repository for a specified tenant.

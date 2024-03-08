@@ -33,8 +33,8 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// Asynchronously adds a range of new entities of type T to the repository.
         /// </summary>
         /// <param name="entities">The collection of entities to add.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the collection of added entities of type T.</returns>
-        Task<IReadOnlyList<T>> AddAsync(IReadOnlyList<T> entities);
+        /// <returns>A task that represents the asynchronous operation. The task result contains a tuple with the collection of successfully added entities of type T and the collection of entities that failed to add.</returns>
+        Task<(IReadOnlyCollection<T> succeededItems, IReadOnlyCollection<T> failedItems)> AddAsync(IReadOnlyList<T> entities);
 
         /// <summary>
         /// Asynchronously updates an existing entity of type T in the repository.
@@ -47,8 +47,8 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// Asynchronously updates a range of existing entities of type T in the repository.
         /// </summary>
         /// <param name="entities">The collection of entities to update.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the collection of updated entities of type T.</returns>
-        Task<IReadOnlyList<T>> UpdateAsync(IReadOnlyList<T> entities);
+        /// <returns>A task that represents the asynchronous operation. The task result contains a tuple with the collection of successfully updated entities of type T and the collection of entities that failed to update.</returns>
+        Task<(IReadOnlyCollection<T> succeededItems, IReadOnlyCollection<T> failedItems)> UpdateAsync(IReadOnlyList<T> entities);
 
         /// <summary>
         /// Asynchronously deletes an existing entity of type T from the repository.

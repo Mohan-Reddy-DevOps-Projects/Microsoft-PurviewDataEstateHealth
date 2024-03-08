@@ -7,6 +7,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<TEntity>> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId)
+    public async Task<(IReadOnlyCollection<TEntity> succeededItems, IReadOnlyCollection<TEntity> failedItems)> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId)
     {
         var methodName = nameof(AddAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
@@ -47,7 +48,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             {
                 if (!entities.Any())
                 {
-                    return [];
+                    return ([], []);
                 }
 
                 foreach (var entity in entities)
@@ -57,16 +58,25 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 var tenantPartitionKey = new PartitionKey(tenantId);
 
-                var batch = this.CosmosContainer.CreateTransactionalBatch(tenantPartitionKey);
+                ConcurrentBag<TEntity> succeededItems = [];
+                ConcurrentBag<TEntity> failedItems = [];
 
-                foreach (var entity in entities)
+                await Task.WhenAll(entities.Select(entity =>
                 {
-                    batch.CreateItem(entity);
-                }
+                    return this.CosmosContainer.CreateItemAsync(entity, tenantPartitionKey).ContinueWith(responseTask =>
+                    {
+                        if (responseTask.IsCompletedSuccessfully)
+                        {
+                            succeededItems.Add(responseTask.Result.Resource);
+                        }
+                        else
+                        {
+                            failedItems.Add(entity);
+                        }
+                    });
+                })).ConfigureAwait(false);
 
-                await batch.ExecuteAsync().ConfigureAwait(false);
-
-                return entities;
+                return (succeededItems, failedItems);
             }
             catch (Exception ex)
             {
@@ -182,7 +192,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<TEntity>> UpdateAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId)
+    public async Task<(IReadOnlyCollection<TEntity> succeededItems, IReadOnlyCollection<TEntity> failedItems)> UpdateAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId)
     {
         var methodName = nameof(UpdateAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
@@ -191,7 +201,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             {
                 if (!entities.Any())
                 {
-                    return [];
+                    return ([], []);
                 }
 
                 foreach (var entity in entities)
@@ -201,16 +211,25 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 var tenantPartitionKey = new PartitionKey(tenantId);
 
-                var batch = this.CosmosContainer.CreateTransactionalBatch(tenantPartitionKey);
+                ConcurrentBag<TEntity> succeededItems = [];
+                ConcurrentBag<TEntity> failedItems = [];
 
-                foreach (var entity in entities)
+                await Task.WhenAll(entities.Select(entity =>
                 {
-                    batch.UpsertItem(entity);
-                }
+                    return this.CosmosContainer.UpsertItemAsync(entity, tenantPartitionKey).ContinueWith(responseTask =>
+                    {
+                        if (responseTask.IsCompletedSuccessfully)
+                        {
+                            succeededItems.Add(responseTask.Result.Resource);
+                        }
+                        else
+                        {
+                            failedItems.Add(entity);
+                        }
+                    });
+                })).ConfigureAwait(false);
 
-                await batch.ExecuteAsync().ConfigureAwait(false);
-
-                return entities;
+                return (succeededItems, failedItems);
             }
             catch (Exception ex)
             {

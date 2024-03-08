@@ -35,6 +35,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
                 {
                     ConnectionMode = ConnectionMode.Direct,
                     Serializer = new CosmosWrapperSerializer(),
+                    AllowBulkExecution = true
                 });
             });
 
