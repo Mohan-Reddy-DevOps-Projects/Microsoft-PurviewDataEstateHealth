@@ -55,7 +55,7 @@ public class AssetDQScoreJoinAdapter : JoinAdapter
         var inputDataset2 = new InputDatasetWrapper(new JObject()
         {
             // TODO why set not work
-            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_DP_DA_ASSIGNMENT_PATH, this.dataProductAssetSchema).JObject }
+            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_DQ_DA_RULE_EXECUTION_PATH, this.dataProductAssetSchema).JObject }
         });
         inputDataset2.Alias = "DataQualityAssetRuleExecution";
         inputDataset2.Primary = false;
