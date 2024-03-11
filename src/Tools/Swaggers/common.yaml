@@ -1173,7 +1173,6 @@ components:
         - findingName
         - findingId
         - severity
-        - recommendation
         - domainId
       properties:
         id:

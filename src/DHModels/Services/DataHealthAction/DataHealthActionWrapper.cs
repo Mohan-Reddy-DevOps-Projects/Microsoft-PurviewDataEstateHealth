@@ -119,8 +119,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(keyRecommendation)]
-    [EntityRequiredValidator]
-    public string Recommendation
+    public string? Recommendation
     {
         get => this.GetPropertyValue<string>(keyRecommendation);
         set => this.SetPropertyValue(keyRecommendation, value);
@@ -208,7 +207,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     }
 
     [EntityProperty(KeyReason)]
-    public string Reason
+    public string? Reason
     {
         get => this.GetPropertyValue<string>(KeyReason);
         set => this.SetPropertyValue(KeyReason, value);

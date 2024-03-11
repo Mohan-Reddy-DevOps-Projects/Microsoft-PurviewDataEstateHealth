@@ -24,7 +24,7 @@
             return new BatchResults<DHScoreBaseWrapper>(scores, scores.Count());
         }
 
-        public async Task ProcessControlComputingResultsAsync(string controlId, string computingJobId, IEnumerable<DHRawScore> scores)
+        public async Task ProcessControlComputingResultsAsync(string controlId, string computingJobId, IEnumerable<DHRawScore> scores, bool isRetry = false)
         {
             using (logger.LogElapsed($"{nameof(ProcessControlComputingResultsAsync)}, controlId = {controlId}, computingJobId = {computingJobId}, rawScoreCount = {scores.Count()}"))
             {
@@ -37,7 +37,7 @@
                     {
                         await Task.WhenAll(
                             this.StoreScoreAsync(controlId, assessmentId, controlNode, assessment, scores, computingJobId),
-                            this.GenerateActionAsync(controlNode, assessment, scores, computingJobId)
+                            this.GenerateActionAsync(controlNode, assessment, scores, computingJobId, isRetry)
                         ).ConfigureAwait(false);
                     }
                     catch (AggregateException ae)
@@ -115,74 +115,95 @@
             }
         }
 
-        private async Task GenerateActionAsync(DHControlNodeWrapper control, DHAssessmentWrapper assessment, IEnumerable<DHRawScore> scores, string computingJobId)
+        private async Task GenerateActionAsync(DHControlNodeWrapper control, DHAssessmentWrapper assessment, IEnumerable<DHRawScore> scores, string computingJobId, bool isRetry)
         {
-            List<DataHealthActionWrapper> actions = new List<DataHealthActionWrapper>();
-            var controlGroupId = control.GroupId;
-            var controlGroup = await dhControlRepository.GetByIdAsync(controlGroupId).ConfigureAwait(false);
-            var findingType = controlGroup?.Name ?? "";
-            var findingSubType = control.Name;
-            DataHealthActionTargetEntityType? targetEntityType = Enum.TryParse<DataHealthActionTargetEntityType>(assessment.TargetEntityType.ToString(), true, out var result) ? result : null;
+            using (logger.LogElapsed($"Start to generate action by Controls, isRetry={isRetry}"))
+            {
+                if (!isRetry)
+                {
+                    List<DataHealthActionWrapper> actions = new List<DataHealthActionWrapper>();
+                    var controlGroupId = control.GroupId;
+                    var controlGroup = await dhControlRepository.GetByIdAsync(controlGroupId).ConfigureAwait(false);
+                    var findingType = controlGroup?.Name ?? "";
+                    var findingSubType = control.Name;
+                    DataHealthActionTargetEntityType? targetEntityType = Enum.TryParse<DataHealthActionTargetEntityType>(assessment.TargetEntityType.ToString(), true, out var result) ? result : null;
 
-            if (targetEntityType == null)
-            {
-                throw new NotImplementedException($"Target entity type {assessment.TargetEntityType?.ToString()} is not supported in action center yet!");
-            }
-            foreach (var score in scores)
-            {
-                var entityOwners = new List<string>();
-                var owners = (string?)score.EntityPayload[DQOutputFields.DP_OWNER_IDS] ?? "";
-                if (!string.IsNullOrEmpty(owners))
-                {
-                    entityOwners.AddRange(owners.Split(","));
-                }
-                var targetEntityId = (string?)score.EntityPayload[DQOutputFields.DP_ID];
-                var businessDomainId = (string?)score.EntityPayload[DQOutputFields.BD_ID];
-                if (businessDomainId != null && targetEntityId != null)
-                {
-                    foreach (var scoreUnit in score.Scores)
+                    if (targetEntityType == null)
                     {
-                        if (scoreUnit.Score == 0)
+                        logger.LogError($"Target entity type {assessment.TargetEntityType?.ToString()} is not supported in action center yet!");
+                        throw new NotImplementedException($"Target entity type {assessment.TargetEntityType?.ToString()} is not supported in action center yet!");
+                    }
+                    foreach (var score in scores)
+                    {
+                        var entityOwners = new List<string>();
+                        var owners = (string?)score.EntityPayload[DQOutputFields.DP_OWNER_IDS] ?? "";
+                        if (!string.IsNullOrEmpty(owners))
                         {
-                            var assessmentRuleId = scoreUnit.AssessmentRuleId;
-                            var matchedAssessment = assessment.Rules.FirstOrDefault((rule) =>
+                            entityOwners.AddRange(owners.Split(","));
+                        }
+                        var targetEntityId = (string?)score.EntityPayload[DQOutputFields.DP_ID];
+                        var businessDomainId = (string?)score.EntityPayload[DQOutputFields.BD_ID];
+                        if (businessDomainId != null && targetEntityId != null)
+                        {
+                            foreach (var scoreUnit in score.Scores)
                             {
-                                return rule.Id == assessmentRuleId;
-                            });
-                            if (matchedAssessment?.ActionProperties != null)
-                            {
-                                var action = new DataHealthActionWrapper()
+                                if (scoreUnit.Score == 0)
                                 {
-                                    Category = DataHealthActionCategory.HealthControl,
-                                    Severity = matchedAssessment.ActionProperties?.Severity ?? DataHealthActionSeverity.Medium,
-                                    FindingId = assessmentRuleId,
-                                    FindingName = matchedAssessment.ActionProperties?.Name ?? "",
-                                    Reason = matchedAssessment.ActionProperties?.Reason ?? "",
-                                    Recommendation = matchedAssessment.ActionProperties?.Recommendation ?? "",
-                                    FindingType = findingType,
-                                    FindingSubType = findingSubType,
-                                    TargetEntityType = (DataHealthActionTargetEntityType)targetEntityType,
-                                    TargetEntityId = targetEntityId,
-                                    AssignedTo = entityOwners,
-                                    DomainId = businessDomainId,
-                                    ExtraProperties = new ActionExtraPropertiesWrapper()
+                                    var assessmentRuleId = scoreUnit.AssessmentRuleId;
+                                    var matchedAssessment = assessment.Rules.FirstOrDefault((rule) =>
                                     {
-                                        Type = DHActionType.ControlAction,
-                                        Data = new JObject
+                                        return rule.Id == assessmentRuleId;
+                                    });
+                                    if (matchedAssessment?.ActionProperties != null && matchedAssessment.ActionProperties?.Name != null)
+                                    {
+                                        var actionName = matchedAssessment.ActionProperties.Name;
+                                        var reason = matchedAssessment.ActionProperties.Reason;
+                                        var recommendation = matchedAssessment.ActionProperties.Recommendation;
+
+                                        var action = new DataHealthActionWrapper()
                                         {
-                                            ["jobId"] = computingJobId
-                                        }
+                                            Category = DataHealthActionCategory.HealthControl,
+                                            Severity = matchedAssessment.ActionProperties?.Severity ?? DataHealthActionSeverity.Medium,
+                                            FindingId = assessmentRuleId,
+                                            FindingName = actionName,
+                                            Reason = reason,
+                                            Recommendation = recommendation,
+                                            FindingType = findingType,
+                                            FindingSubType = findingSubType,
+                                            TargetEntityType = (DataHealthActionTargetEntityType)targetEntityType,
+                                            TargetEntityId = targetEntityId,
+                                            AssignedTo = entityOwners,
+                                            DomainId = businessDomainId,
+                                            ExtraProperties = new ActionExtraPropertiesWrapper()
+                                            {
+                                                Type = DHActionType.ControlAction,
+                                                Data = new JObject
+                                                {
+                                                    ["jobId"] = computingJobId
+                                                }
+                                            }
+                                        };
+                                        actions.Add(action);
                                     }
-                                };
-                                actions.Add(action);
+                                    else
+                                    {
+                                        logger.LogError($"The ActionProperties or ActionProperties.Name is null, controlId: {control.Id}, jobId: {computingJobId}, matchedAssessmentId: {matchedAssessment?.Id}");
+                                    }
+                                }
                             }
                         }
+                        else
+                        {
+                            logger.LogError($"The businessDomainId or targetEntityId is null, controlId: {control.Id}, jobId: {computingJobId}");
+                        }
+                    }
+                    logger.LogInformation($"The number of actions need to be stored: {actions.Count()}");
+
+                    if (actions.Any())
+                    {
+                        await dHActionInternalService.CreateActionsAsync(actions);
                     }
                 }
-            }
-            if (actions.Any())
-            {
-                await dHActionInternalService.CreateActionsAsync(actions);
             }
         }
     }
