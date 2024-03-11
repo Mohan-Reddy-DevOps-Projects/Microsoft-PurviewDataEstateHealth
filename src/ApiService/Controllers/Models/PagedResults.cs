@@ -25,7 +25,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
             return new PagedResults()
             {
                 Value = batchResults.Results.Select((item) => item.JObject),
-                Count = batchResults.Count
+                Count = batchResults.Count,
+                ContinuationToken = batchResults.ContinuationToken,
             };
         }
 
@@ -34,5 +35,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
 
         [JsonProperty("count", NullValueHandling = NullValueHandling.Ignore)]
         public int Count { get; set; }
+
+        [JsonProperty("continuationToken", NullValueHandling = NullValueHandling.Ignore)]
+        public string ContinuationToken { get; set; }
     }
 }

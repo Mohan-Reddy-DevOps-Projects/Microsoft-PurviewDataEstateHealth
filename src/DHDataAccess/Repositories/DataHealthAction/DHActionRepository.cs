@@ -30,7 +30,7 @@ public class DHActionRepository(
 
     protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
-    public async Task<List<DataHealthActionWrapper>> GetActionsByFilterAsync(CosmosDBQuery<ActionsFilter> query)
+    public async Task<BatchResults<DataHealthActionWrapper>> GetActionsByFilterAsync(CosmosDBQuery<ActionsFilter> query, bool fetchAll = false)
     {
         using (this.logger.LogElapsed("Start to query actions in DB"))
         {
@@ -38,21 +38,46 @@ public class DHActionRepository(
 
             sqlQuery.Append(this.GenerateFilterQueryStr(query.Filter));
 
+            if (query.Sorters != null && query.Sorters.Count != 0)
+            {
+                sqlQuery.Append(" ORDER BY ");
+                var orderByConditions = new List<string>();
+                foreach (var sorter in query.Sorters)
+                {
+                    orderByConditions.Add($"c.{sorter.Field} {(sorter.Order == SortOrder.Ascending ? "asc" : "desc")}");
+                }
+                sqlQuery.Append(string.Join(", ", orderByConditions));
+            }
+
             var sqlQueryText = sqlQuery.ToString();
 
             var queryDefinition = new QueryDefinition(sqlQueryText);
-            var feedIterator = this.CosmosContainer.GetItemQueryIterator<DataHealthActionWrapper>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+            var feedIterator = this.CosmosContainer.GetItemQueryIterator<DataHealthActionWrapper>(
+                queryDefinition,
+                query.ContinuationToken,
+                new QueryRequestOptions
+                {
+                    PartitionKey = this.TenantPartitionKey,
+                    MaxItemCount = query.PageSize ?? -1,
+                });
 
             var results = new List<DataHealthActionWrapper>();
 
-            while (feedIterator.HasMoreResults)
+            var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+            results.AddRange(response);
+
+            while (feedIterator.HasMoreResults && fetchAll)
             {
-                var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
                 results.AddRange(response);
             }
 
-            return results;
-        }
+            var totalCount = await this.queryCount(query.Filter).ConfigureAwait(false);
+
+            return new BatchResults<DataHealthActionWrapper>(
+                results, totalCount, response.ContinuationToken
+            );
+        };
     }
 
     public async Task<ActionFacets> GetActionFacetsAsync(ActionsFilter filters, ActionFacets facets)
@@ -186,12 +211,12 @@ public class DHActionRepository(
             {
                 if (filter.CreateTimeRange.Start != null)
                 {
-                    sqlQuery.Append($"AND c.SystemInfo.CreatedAt >= '{filter.CreateTimeRange.Start.Value.ToString("o")}' ");
+                    sqlQuery.Append($" AND c.SystemInfo.CreatedAt >= '{filter.CreateTimeRange.Start.Value.ToString("o")}'");
                 }
 
                 if (filter.CreateTimeRange.End != null)
                 {
-                    sqlQuery.Append($"AND c.SystemInfo.CreatedAt <= '{filter.CreateTimeRange.End.Value.ToString("o")}' ");
+                    sqlQuery.Append($" AND c.SystemInfo.CreatedAt <= '{filter.CreateTimeRange.End.Value.ToString("o")}'");
                 }
             }
         }
@@ -203,8 +228,21 @@ public class DHActionRepository(
         using (this.logger.LogElapsed("Start to query grouped actions in DB"))
         {
             var actions = await this.GetActionsByFilterAsync(query).ConfigureAwait(false);
-            return GroupedActions.ToGroupedActions(groupBy, actions);
+            return GroupedActions.ToGroupedActions(groupBy, actions.Results);
         }
+    }
 
+    private async Task<int> queryCount(ActionsFilter? filter)
+    {
+        var countQuery = new StringBuilder("SELECT VALUE COUNT(1) FROM c WHERE 1 = 1");
+        if (filter != null)
+        {
+            countQuery.Append(this.GenerateFilterQueryStr(filter));
+        }
+        var countQueryDefinition = new QueryDefinition(countQuery.ToString());
+        var countFeedIterator = this.CosmosContainer.GetItemQueryIterator<int>(countQueryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+
+        var countResponse = await countFeedIterator.ReadNextAsync().ConfigureAwait(false);
+        return countResponse.Resource.FirstOrDefault();
     }
 }

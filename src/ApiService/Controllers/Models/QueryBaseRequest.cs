@@ -9,11 +9,11 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
 
     public class QueryBaseRequest
     {
-        [JsonProperty("skip", NullValueHandling = NullValueHandling.Ignore)]
-        public int? Skip { get; set; }
+        [JsonProperty("continuationToken", NullValueHandling = NullValueHandling.Ignore)]
+        public string ContinuationToken { get; set; }
 
-        [JsonProperty("top", NullValueHandling = NullValueHandling.Ignore)]
-        public int? Top { get; set; }
+        [JsonProperty("pageSize", NullValueHandling = NullValueHandling.Ignore)]
+        public int PageSize { get; set; } = 100;
 
         [JsonProperty("orderBy", NullValueHandling = NullValueHandling.Ignore)]
         public List<OrderBy> OrderBy { get; set; }

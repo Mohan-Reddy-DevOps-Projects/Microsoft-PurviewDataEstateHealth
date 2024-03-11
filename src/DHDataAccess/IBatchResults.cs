@@ -17,5 +17,10 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
         /// Gets the result count.
         /// </summary>
         int Count { get; }
+
+        /// <summary>
+        /// Gets the continuation token.
+        /// </summary>
+        string? ContinuationToken { get; }
     }
 }

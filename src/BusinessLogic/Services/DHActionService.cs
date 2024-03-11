@@ -8,6 +8,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
     using Microsoft.Purview.DataEstateHealth.DHModels.Queries;
@@ -21,7 +22,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
     public class DHActionService(DHActionRepository dataHealthActionRepository, DHActionInternalService dHActionInternalService, IRequestHeaderContext requestHeaderContext, IDataEstateHealthRequestLogger logger)
     {
-        public async Task<IEnumerable<DataHealthActionWrapper>> EnumerateActionsAsync(CosmosDBQuery<ActionsFilter> query)
+        public async Task<IBatchResults<DataHealthActionWrapper>> EnumerateActionsAsync(CosmosDBQuery<ActionsFilter> query)
         {
             using (logger.LogElapsed($"Start to enum actions"))
             {
@@ -39,6 +40,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
         public async Task<IEnumerable<GroupedActions>> EnumerateActionsByGroupAsync(CosmosDBQuery<ActionsFilter> query, string groupBy)
         {
+            var a = typeof(DataHealthActionWrapper).GetProperty("findingName")?.Name;
             using (logger.LogElapsed($"Start to enum grouped actions"))
             {
                 HashSet<string> allowedKeys = new HashSet<string>

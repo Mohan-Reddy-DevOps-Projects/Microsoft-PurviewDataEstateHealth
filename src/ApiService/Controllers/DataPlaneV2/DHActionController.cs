@@ -7,11 +7,11 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.DataPl
 
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Helpers;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
-using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.Shared;
@@ -32,13 +32,14 @@ public class DHActionController(DHActionService actionService) : DataPlaneContro
     {
         var query = new CosmosDBQuery<ActionsFilter>()
         {
-            Filter = BuildActionFilter(payload.Filters)
+            Filter = BuildActionFilter(payload.Filters),
+            ContinuationToken = payload.ContinuationToken,
+            PageSize = payload.PageSize,
         };
+        query.Sorters = SorterHelper.ParseSorters(payload.OrderBy, ActionsSorter.SortFields);
         var results = await actionService.EnumerateActionsAsync(query).ConfigureAwait(false);
 
-        var batchResults = new BatchResults<DataHealthActionWrapper>(results, results.Count());
-
-        return this.Ok(PagedResults.FromBatchResults(batchResults));
+        return this.Ok(PagedResults.FromBatchResults(results));
     }
 
     [HttpPost]

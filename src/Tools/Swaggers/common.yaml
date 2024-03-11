@@ -354,16 +354,15 @@ paths:
               properties:
                 filters:
                   $ref: "#/components/schemas/actionFilter"
-                skip:
+                pageSize:
                   type: number
-                  description: The skip of the action.
+                  description: The page size of the action.
                   example: 30
-                  default: 0
-                top:
-                  type: number
-                  description: The top of the action.
-                  example: 100
-                  default: 1000
+                  default: 100
+                continuationToken:
+                  type: string
+                  description: The continuation token of the action query.
+                  example: "{\"OptimisticDirectExecutionToken\":{\"token\":\"+RID:~3sx7ANlv76tuhh4AAAAAAA==#RT:3#TRC:11#ISV:2#IEO:65567#QCF:8#FPC:AgF6enoOAGEGAMBBQAMA6oBxAPAP\",\"range\":{\"min\":\"\",\"max\":\"FF\"}}}"
                 orderBy:
                   type: array
                   description: The order by of the action.
@@ -372,7 +371,7 @@ paths:
                     properties:
                       field:
                         type: string
-                        enum: [name, status]
+                        enum: [createdAt, findingName, findingType, findingSubType, severity]
                         description: The field of the order by
                         example: name
                       direction:
@@ -387,9 +386,18 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/action"
+                type: object
+                properties:
+                  count:
+                    type: number
+                    example: 100
+                  continuationToken:
+                    type: string
+                    example: "{\"OptimisticDirectExecutionToken\":{\"token\":\"+RID:~3sx7ANlv76tshh4AAAAAAA==#RT:1#TRC:5#RTD:6KXA2it83DMnRddqkyOFBUlqaGkA#ISV:2#IEO:65567#QCF:8#FPC:AgF6enoWAGEG8P9BQAMA6oBxAPAPYQGA/3EBAAc=\",\"range\":{\"min\":\"\",\"max\":\"FF\"}}}"
+                  value:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/action"
 
   /actions/grouped:
     post:

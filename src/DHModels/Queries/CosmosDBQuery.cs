@@ -14,11 +14,9 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Queries
 
     public class CosmosDBQuery<TFilter>
     {
-        public static readonly int DefaultTop = 1000;
+        public string? ContinuationToken { get; set; }
 
-        public int Skip { get; set; }
-
-        public int Top { get; set; } = DefaultTop;
+        public int? PageSize { get; set; }
 
         public TFilter? Filter { get; set; }
 

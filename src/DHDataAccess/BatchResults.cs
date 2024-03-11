@@ -17,10 +17,12 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
         /// </summary>
         /// <param name="results">Result entities.</param>
         /// <param name="count">Result count.</param>
-        public BatchResults(IEnumerable<T> results, int count)
+        /// <param name="continuationToken">Continuation Token.</param>
+        public BatchResults(IEnumerable<T> results, int count, string? continuationToken = null)
         {
             this.Results = results;
             this.Count = count;
+            this.ContinuationToken = continuationToken;
         }
 
         /// <summary>
@@ -32,5 +34,10 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
         /// Gets the result count.
         /// </summary>
         public int Count { get; set; }
+
+        /// <summary>
+        /// Gets the next ContinuationToken.
+        /// </summary>
+        public string? ContinuationToken { get; set; }
     }
 }

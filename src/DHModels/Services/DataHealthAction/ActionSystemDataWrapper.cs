@@ -12,10 +12,10 @@ using System;
 
 public class ActionSystemDataWrapper(JObject jObject) : BaseEntityWrapper(jObject)
 {
-    private const string keyCreatedAt = "createdAt";
+    public const string keyCreatedAt = "createdAt";
+    private const string keyHintCount = "hintCount";
     private const string keyLastModifiedAt = "lastModifiedAt";
     private const string keyLastModifiedBy = "lastModifiedBy";
-    private const string keyHintCount = "hintCount";
     private const string keyLastHintAt = "lastHintAt";
 
     public ActionSystemDataWrapper() : this([]) { }
