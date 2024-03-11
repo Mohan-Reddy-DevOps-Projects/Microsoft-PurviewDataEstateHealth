@@ -40,7 +40,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// <param name="tenantId">The tenant identifier under which the entities are added.</param>  
         /// <param name="accountId">The optional account identifier associated with the entities.</param>  
         /// <returns>A task that represents the asynchronous operation. The task result contains a tuple with the collection of successfully added entities of type T and the collection of entities that failed to add.</returns>
-        Task<(IReadOnlyCollection<T> succeededItems, IReadOnlyCollection<T> failedItems)> AddAsync(IReadOnlyList<T> entities, string tenantId, string? accountId);
+        Task<(IReadOnlyCollection<T> SucceededItems, IReadOnlyCollection<T> FailedItems)> AddAsync(IReadOnlyList<T> entities, string tenantId, string? accountId);
 
         /// <summary>
         /// Asynchronously updates an existing entity of type T in the repository for a specified tenant, optionally associating it with an account.
@@ -58,7 +58,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// <param name="tenantId">The tenant identifier under which the entities are updated.</param>
         /// <param name="accountId">The optional account identifier associated with the entities.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a tuple with the collection of successfully updated entities of type T and the collection of entities that failed to update.</returns>
-        Task<(IReadOnlyCollection<T> succeededItems, IReadOnlyCollection<T> failedItems)> UpdateAsync(IReadOnlyList<T> entities, string tenantId, string? accountId);
+        Task<(IReadOnlyCollection<T> SucceededItems, IReadOnlyCollection<T> FailedItems)> UpdateAsync(IReadOnlyList<T> entities, string tenantId, string? accountId);
 
         /// <summary>
         /// Asynchronously deletes an existing entity of type T from the repository for a specified tenant.
@@ -66,7 +66,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// <param name="entity">The entity to delete.</param>
         /// <param name="tenantId">The tenant identifier under which the entity is deleted.</param>
         /// <returns>A task that represents the asynchronous operation. The task result is the deleted entity of type T.</returns>
-        Task<T> DeleteAsync(T entity, string tenantId);
+        Task DeleteAsync(T entity, string tenantId);
 
         /// <summary>
         /// Asynchronously deletes a specific entity of type T by its identifier from the repository for a given tenant.
@@ -74,6 +74,6 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// <param name="id">The unique identifier of the entity to delete.</param>
         /// <param name="tenantId">The tenant identifier under which the entity is deleted.</param>
         /// <returns>A task that represents the asynchronous operation. The task result is the deleted entity of type T.</returns>
-        Task<T> DeleteAsync(string id, string tenantId);
+        Task DeleteAsync(string id, string tenantId);
     }
 }

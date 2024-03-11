@@ -12,14 +12,14 @@ internal class TestEntityWrapper(JObject jObject) : ContainerEntityBaseWrapper<T
     public TestEntityWrapper() : this([]) { }
 
     [EntityProperty("name")]
-    public required string Name
+    public string Name
     {
         get => this.GetPropertyValue<string>("name");
         set => this.SetPropertyValue("name", value);
     }
 
     [EntityProperty("description")]
-    public required string Description
+    public string Description
     {
         get => this.GetPropertyValue<string>("description");
         set => this.SetPropertyValue("description", value);

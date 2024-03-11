@@ -24,25 +24,25 @@ public abstract class CommonHttpContextRepository<TEntity>(
     }
 
     /// <inheritdoc />
-    public Task<(IReadOnlyCollection<TEntity> succeededItems, IReadOnlyCollection<TEntity> failedItems)> AddAsync(IReadOnlyList<TEntity> entities)
+    public Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> AddAsync(IReadOnlyList<TEntity> entities)
     {
         return this.AddAsync(entities, this.TenantId, this.AccountId);
     }
 
     /// <inheritdoc />
-    public Task<(IReadOnlyCollection<TEntity> succeededItems, IReadOnlyCollection<TEntity> failedItems)> UpdateAsync(IReadOnlyList<TEntity> entities)
+    public Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> UpdateAsync(IReadOnlyList<TEntity> entities)
     {
         return this.UpdateAsync(entities, this.TenantId, this.AccountId);
     }
 
     /// <inheritdoc />
-    public Task<TEntity> DeleteAsync(TEntity entity)
+    public Task DeleteAsync(TEntity entity)
     {
         return this.DeleteAsync(entity.Id);
     }
 
     /// <inheritdoc />
-    public Task<TEntity> DeleteAsync(string id)
+    public Task DeleteAsync(string id)
     {
         return this.DeleteAsync(id, this.TenantId);
     }

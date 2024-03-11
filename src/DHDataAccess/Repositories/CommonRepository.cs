@@ -39,7 +39,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyCollection<TEntity> succeededItems, IReadOnlyCollection<TEntity> failedItems)> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
+    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
     {
         var methodName = nameof(AddAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
@@ -88,13 +88,13 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     }
 
     /// <inheritdoc />
-    public Task<TEntity> DeleteAsync(TEntity entity, string tenantId)
+    public Task DeleteAsync(TEntity entity, string tenantId)
     {
         return this.DeleteAsync(entity.Id, tenantId);
     }
 
     /// <inheritdoc />
-    public async Task<TEntity> DeleteAsync(string id, string tenantId)
+    public async Task DeleteAsync(string id, string tenantId)
     {
         var methodName = nameof(DeleteAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, tenantId = {tenantId}"))
@@ -103,8 +103,11 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             {
                 var tenantPartitionKey = new PartitionKey(tenantId);
 
-                var response = await this.CosmosContainer.DeleteItemAsync<TEntity>(id, tenantPartitionKey).ConfigureAwait(false);
-                return response.Resource;
+                await this.CosmosContainer.DeleteItemAsync<TEntity>(id, tenantPartitionKey).ConfigureAwait(false);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return;
             }
             catch (Exception ex)
             {
@@ -193,7 +196,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyCollection<TEntity> succeededItems, IReadOnlyCollection<TEntity> failedItems)> UpdateAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
+    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> UpdateAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
     {
         var methodName = nameof(UpdateAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
