@@ -34,7 +34,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// </summary>
         /// <param name="entities">The collection of entities to add.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains a tuple with the collection of successfully added entities of type T and the collection of entities that failed to add.</returns>
-        Task<(IReadOnlyCollection<T> SucceededItems, IReadOnlyCollection<T> FailedItems)> AddAsync(IReadOnlyList<T> entities);
+        Task<(IReadOnlyCollection<T> SucceededItems, IReadOnlyCollection<T> FailedItems, IReadOnlyCollection<T> IgnoredItems)> AddAsync(IReadOnlyList<T> entities);
 
         /// <summary>
         /// Asynchronously updates an existing entity of type T in the repository.

@@ -17,7 +17,7 @@ public abstract class ContainerEntityDynamicWrapper<T>(JObject jObject) : Dynami
 
     [JsonProperty(keyId)] // for cosmos DB
     [EntityProperty(keyId, true)]
-    [EntityIdValidator]
+    [EntityIdValidator(maxLength: 1023)] // https://learn.microsoft.com/en-us/azure/cosmos-db/concepts-limits#per-item-limits
     public string Id
     {
         get => this.GetPropertyValue<string>(keyId);

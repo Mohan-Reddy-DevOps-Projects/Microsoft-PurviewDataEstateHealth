@@ -39,7 +39,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
+    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems, IReadOnlyCollection<TEntity> IgnoredItems)> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
     {
         var methodName = nameof(AddAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
@@ -48,7 +48,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             {
                 if (!entities.Any())
                 {
-                    return ([], []);
+                    return ([], [], []);
                 }
 
                 foreach (var entity in entities)
@@ -60,6 +60,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 ConcurrentBag<TEntity> succeededItems = [];
                 ConcurrentBag<TEntity> failedItems = [];
+                ConcurrentBag<TEntity> ignoredItems = [];
 
                 await Task.WhenAll(entities.Select(entity =>
                 {
@@ -71,13 +72,21 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                         }
                         else
                         {
+                            if (responseTask.Exception?.Flatten().InnerExceptions.FirstOrDefault(x => x is CosmosException) is CosmosException cosmosException)
+                            {
+                                if (cosmosException.StatusCode == System.Net.HttpStatusCode.Conflict)
+                                {
+                                    ignoredItems.Add(entity);
+                                    return;
+                                }
+                            }
                             failedItems.Add(entity);
                             logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to add entity to CosmosDB in a bulk add, entityType = {entity.GetType().Name}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", responseTask.Exception);
                         }
                     });
                 })).ConfigureAwait(false);
 
-                return (succeededItems, failedItems);
+                return (succeededItems, failedItems, ignoredItems);
             }
             catch (Exception ex)
             {

@@ -24,7 +24,7 @@ public abstract class CommonHttpContextRepository<TEntity>(
     }
 
     /// <inheritdoc />
-    public Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> AddAsync(IReadOnlyList<TEntity> entities)
+    public Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems, IReadOnlyCollection<TEntity> IgnoredItems)> AddAsync(IReadOnlyList<TEntity> entities)
     {
         return this.AddAsync(entities, this.TenantId, this.AccountId);
     }

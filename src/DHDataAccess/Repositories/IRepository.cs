@@ -40,7 +40,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// <param name="tenantId">The tenant identifier under which the entities are added.</param>  
         /// <param name="accountId">The optional account identifier associated with the entities.</param>  
         /// <returns>A task that represents the asynchronous operation. The task result contains a tuple with the collection of successfully added entities of type T and the collection of entities that failed to add.</returns>
-        Task<(IReadOnlyCollection<T> SucceededItems, IReadOnlyCollection<T> FailedItems)> AddAsync(IReadOnlyList<T> entities, string tenantId, string? accountId);
+        Task<(IReadOnlyCollection<T> SucceededItems, IReadOnlyCollection<T> FailedItems, IReadOnlyCollection<T> IgnoredItems)> AddAsync(IReadOnlyList<T> entities, string tenantId, string? accountId);
 
         /// <summary>
         /// Asynchronously updates an existing entity of type T in the repository for a specified tenant, optionally associating it with an account.

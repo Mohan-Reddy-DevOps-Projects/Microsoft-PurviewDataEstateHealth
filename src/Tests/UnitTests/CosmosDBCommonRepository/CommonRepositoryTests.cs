@@ -135,10 +135,11 @@ public class CommonRepositoryTests
 
         var tenantId = this.faker.Random.Guid().ToString();
         var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
 
         Assert.AreEqual(0, FailedItems.Count, "The FailedItems list should be empty.");
         Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
+        Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
 
         var orderedList1 = entities.OrderBy(x => x.Id).ToList();
         var orderedList2 = SucceededItems.OrderBy(x => x.Id).ToList();
@@ -173,9 +174,10 @@ public class CommonRepositoryTests
 
         var tenantId = this.faker.Random.Guid().ToString();
         var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
 
         Assert.AreEqual(entities.Count, SucceededItems.Count + FailedItems.Count, "The sum of succeeded entities and failed entities should be the same as the number of entities passed to the AddAsync method.");
+        Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
 
         foreach (var item in SucceededItems)
         {
@@ -243,10 +245,11 @@ public class CommonRepositoryTests
 
         var tenantId = this.faker.Random.Guid().ToString();
         var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
 
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
+        Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
 
         var draftEntities = SucceededItems.Select(item => new TestEntityWrapper((JObject)item.JObject.DeepClone())
         {
@@ -361,6 +364,35 @@ public class CommonRepositoryTests
         }
 
         await testEntityRepository!.DeleteAsync(this.faker.Random.Guid().ToString(), this.faker.Random.Guid().ToString());
+    }
+
+    [TestMethod]
+    public async Task AddManyEntitiesIgnoresExistingEntitiesWithoutError()
+    {
+        if (!TestingDBAvailable)
+        {
+            Assert.Inconclusive($@"The test case ""{nameof(AddManyEntitiesIgnoresExistingEntitiesWithoutError)}"" is inconclusive.");
+        }
+
+        var entities = this.testEntityFaker.Generate(10);
+        foreach (var entity in entities)
+        {
+            Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
+        }
+
+        var tenantId = this.faker.Random.Guid().ToString();
+        var accountId = this.faker.Random.Guid().ToString();
+        var (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+
+        Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
+        Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
+        Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
+
+        (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+
+        Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
+        Assert.AreEqual(0, SucceededItems.Count, "The number of added entities should be zero.");
+        Assert.AreEqual(entities.Count, IgnoredItems.Count, "The number of ignored entities should be the same as the number of entities passed to the AddAsync method.");
     }
 
     private static bool AreJObjectsMostlyEqual(JObject obj1, JObject obj2, string propertyNameToExclude)

@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+    using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
@@ -15,7 +16,13 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class DHScoreService(DHScoreRepository dhScoreRepository, DHControlRepository dhControlRepository, DHAssessmentRepository mqAssessmentRepository, DHActionInternalService dHActionInternalService, IDataEstateHealthRequestLogger logger)
+    public class DHScoreService(
+        DHScoreRepository dhScoreRepository,
+        DHControlRepository dhControlRepository,
+        DHAssessmentRepository mqAssessmentRepository,
+        DHActionInternalService dHActionInternalService,
+        IDataEstateHealthRequestLogger logger,
+        IRequestHeaderContext requestHeaderContext)
     {
         public async Task<IBatchResults<DHScoreBaseWrapper>> ListScoresAsync()
         {
@@ -86,9 +93,11 @@
                                 switch (assessment.TargetEntityType)
                                 {
                                     case DHAssessmentTargetEntityType.DataProduct:
-                                        return new DHDataProductScoreWrapper
+                                        var dataProductId = x.EntityId ?? throw new InvalidOperationException("Data product id not found in entity payload!");
+                                        var id = $"{controlId}_{computingJobId}_{dataProductId}";
+                                        var score = new DHDataProductScoreWrapper
                                         {
-                                            Id = Guid.NewGuid().ToString(),
+                                            Id = id,
                                             ControlId = controlId,
                                             ControlGroupId = controlNode.GroupId,
                                             ComputingJobId = computingJobId,
@@ -97,9 +106,12 @@
                                             AggregatedScore = x.Scores.Average(scoreUnit => scoreUnit.Score),
                                             DataProductDomainId = x.EntityPayload[DQOutputFields.BD_ID]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
                                             DataProductStatus = x.EntityPayload[DQOutputFields.DP_STATUS]?.ToString() ?? throw new InvalidOperationException("Data product status not found in entity payload!"),
-                                            DataProductId = x.EntityId ?? throw new InvalidOperationException("Data product id not found in entity payload!"),
+                                            DataProductId = dataProductId,
                                             DataProductOwners = x.EntityPayload[DQOutputFields.DP_OWNER_IDS]?.ToString().Split(",") ?? throw new InvalidOperationException("Data product owner ids not found in entity payload!")
                                         };
+                                        score.Validate();
+                                        score.OnCreate(requestHeaderContext.ClientObjectId, id);
+                                        return score;
                                     default:
                                         throw new NotImplementedException($"Target entity type {assessment.TargetEntityType} not supported yet!");
                                 }
