@@ -66,7 +66,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             var memoryStream = new MemoryStream();
             await parquetStream.CopyToAsync(memoryStream).ConfigureAwait(false);
 
-            var resultFromSingleFile = await DataQualityOutputAdapter.ToScorePayload(memoryStream).ConfigureAwait(false);
+            var resultFromSingleFile = await DataQualityOutputAdapter.ToScorePayload(memoryStream, this.logger).ConfigureAwait(false);
             result.AddRange(resultFromSingleFile);
 
             this.logger.LogInformation($"End read single partitionedFile, partitionedFileName:{partitionedFileName}, resultCount:{resultFromSingleFile.Count()}");

@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Output;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
@@ -15,7 +16,7 @@ public class DataQualityOutputAdapter
     private static readonly string COL_NAME_RULE_NAME = "key";
     private static readonly string COL_NAME_RULE_RESULT = "value";
 
-    public static async Task<IEnumerable<DHRawScore>> ToScorePayload(MemoryStream parquetStream)
+    public static async Task<IEnumerable<DHRawScore>> ToScorePayload(MemoryStream parquetStream, IDataEstateHealthRequestLogger logger)
     {
         var result = new List<DHRawScore>();
 
@@ -58,6 +59,12 @@ public class DataQualityOutputAdapter
                             var ownerIds = ((string[])ownerIdsColumn.Data)[0];
                             var ruleNames = ((string[])ruleNamesColumn.Data);
                             var ruleResults = ((string[])ruleResultsColumn.Data);
+
+                            if (string.IsNullOrEmpty(bdId))
+                            {
+                                logger.LogWarning($"Skip data product without business domain id when parsing MDQ result, dataProductId:{id}");
+                                continue;
+                            }
 
                             var scores = new List<DHScoreUnitWrapper>();
 
