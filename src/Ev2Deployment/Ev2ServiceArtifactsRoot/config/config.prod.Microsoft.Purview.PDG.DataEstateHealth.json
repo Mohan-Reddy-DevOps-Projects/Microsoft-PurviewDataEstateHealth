@@ -12,6 +12,7 @@
       "synapseRegion": "$(regionName)",
       "useEstsr": "true",
       "sparkPoolTableName": "SparkPool",
+      "mdqFailedJobTableName": "MDQFailedJob",
       "acrName": "$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
       "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)$(regionShortName)common",
       "synapseWorkspaceName": "$(dgh.serviceShortName)$(pdg.environment.shortName)$(regionShortName)workspace",
