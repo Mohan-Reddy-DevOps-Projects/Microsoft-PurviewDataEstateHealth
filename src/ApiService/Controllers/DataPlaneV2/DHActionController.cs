@@ -57,17 +57,6 @@ public class DHActionController(DHActionService actionService) : DataPlaneContro
         return this.Ok(results);
     }
 
-    [HttpPost]
-    [Route("")]
-    public async Task<ActionResult> CreateActionAsync(
-        [FromBody] JArray payload)
-    {
-        var actionWrapperList = payload.Select(item => DataHealthActionWrapper.Create((JObject)item)).ToList();
-
-        var entites = await actionService.CreateActionsAsync(actionWrapperList).ConfigureAwait(false);
-        return this.Ok(entites.Select((item) => item.JObject));
-    }
-
     [HttpGet]
     [Route("{actionId}")]
     public async Task<ActionResult> GetActionByIdAsync(string actionId)
