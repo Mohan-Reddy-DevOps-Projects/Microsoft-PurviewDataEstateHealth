@@ -395,6 +395,46 @@ public class CommonRepositoryTests
         Assert.AreEqual(entities.Count, IgnoredItems.Count, "The number of ignored entities should be the same as the number of entities passed to the AddAsync method.");
     }
 
+    [TestMethod]
+    public async Task GetAllAsyncShouldReturnAllEntities()
+    {
+        if (!TestingDBAvailable)
+        {
+            Assert.Inconclusive($@"The test case ""{nameof(GetAllAsyncShouldReturnAllEntities)}"" is inconclusive.");
+        }
+
+        // Delete the container
+        await cosmosClient!.GetContainer(Constants.DatabaseName, Constants.ContainerName).DeleteContainerAsync();
+        // Create the container again
+        await cosmosClient.GetDatabase(Constants.DatabaseName).CreateContainerIfNotExistsAsync(Constants.ContainerName, "/TenantId");
+
+        var entities = this.testEntityFaker.Generate(10);
+        foreach (var entity in entities)
+        {
+            Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
+        }
+
+        var tenantId = this.faker.Random.Guid().ToString();
+        var accountId = this.faker.Random.Guid().ToString();
+        var (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+
+        Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
+        Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
+        Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
+
+        var retrievedEntities = await testEntityRepository.GetAllAsync(tenantId);
+        Assert.AreEqual(entities.Count, retrievedEntities.Count(), "The number of retrieved entities should be the same as the number of entities passed to the AddAsync method.");
+
+        foreach (var retrievedEntity in retrievedEntities)
+        {
+            var addedEntity = SucceededItems.Single(x => x.Id == retrievedEntity.Id);
+            Assert.IsNotNull(addedEntity, "The added entity should not be null.");
+            Assert.AreEqual(tenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the tenantId passed to the AddAsync method.");
+            Assert.AreEqual(accountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the accountId passed to the AddAsync method.");
+            Assert.IsTrue(JObject.DeepEquals(addedEntity.JObject, retrievedEntity.JObject), "The JObject of the retrieved entity should be the same as the JObject of the added entity.");
+        }
+    }
+
     private static bool AreJObjectsMostlyEqual(JObject obj1, JObject obj2, string propertyNameToExclude)
     {
         // Clone obj1 to avoid modifying the original object
