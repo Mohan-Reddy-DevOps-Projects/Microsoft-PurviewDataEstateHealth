@@ -8,11 +8,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
-using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
-using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 /// <summary>
 /// Health Reports controller.
@@ -50,17 +46,6 @@ public class DHScoreController(DHScoreService dhScoreService) : DataPlaneControl
         return this.Ok(results);
     }
 
-    [HttpPost]
-    [Route("uploadRawScores")]
-    public async Task<ActionResult> UploadRawScoresAsync(
-               [FromBody] JObject uploadRawScoresRequestJObject)
-    {
-        var uploadRawScoresRequest = new UploadRawScoresRequest(uploadRawScoresRequestJObject);
-
-        await dhScoreService.ProcessControlComputingResultsAsync(uploadRawScoresRequest.ControlId, uploadRawScoresRequest.ComputingJobId, uploadRawScoresRequest.RawScores).ConfigureAwait(false);
-        return this.Created();
-    }
-
     private static void Validate(QueryScoresRequestBase queryScoresRequest)
     {
         if (queryScoresRequest.RecordLatestCounts == null && queryScoresRequest.RecordTimeRange == null)
@@ -71,42 +56,6 @@ public class DHScoreController(DHScoreService dhScoreService) : DataPlaneControl
         if (queryScoresRequest.RecordTimeRange != null && queryScoresRequest.RecordTimeRange.Start > queryScoresRequest.RecordTimeRange.End)
         {
             throw new InvalidRequestException("Start time must be less than or equal to end time");
-        }
-    }
-}
-
-public class UploadRawScoresRequest(JObject jObject) : BaseEntityWrapper(jObject)
-{
-    private const string keyControlId = "controlId";
-    private const string keyComputingJobId = "computingJobId";
-    private const string keyRawScores = "rawScores";
-
-    public UploadRawScoresRequest() : this([]) { }
-
-    [EntityProperty(keyControlId)]
-    public string ControlId
-    {
-        get => this.GetPropertyValue<string>(keyControlId);
-        set => this.SetPropertyValue(keyControlId, value);
-    }
-
-    [EntityProperty(keyComputingJobId)]
-    public string ComputingJobId
-    {
-        get => this.GetPropertyValue<string>(keyComputingJobId);
-        set => this.SetPropertyValue(keyComputingJobId, value);
-    }
-
-    private IEnumerable<DHRawScore>? rawScores;
-
-    [EntityProperty(keyRawScores)]
-    public IEnumerable<DHRawScore> RawScores
-    {
-        get => this.rawScores ??= this.GetPropertyValueAsWrappers<DHRawScore>(keyRawScores);
-        set
-        {
-            this.SetPropertyValueFromWrappers(keyRawScores, value);
-            this.rawScores = value;
         }
     }
 }
