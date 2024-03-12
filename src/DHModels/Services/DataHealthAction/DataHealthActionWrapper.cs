@@ -202,7 +202,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
         set
         {
             this.SetPropertyValueFromWrapper(keySystemData, value);
-            this.systemData = value;
+            this.systemData = null;
         }
     }
 
@@ -243,5 +243,16 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
 
         this.SystemInfo = existed.SystemInfo;
         this.SystemInfo.OnModify(userId);
+        if (this.Status != DataHealthActionStatus.Resolved)
+        {
+            this.SystemInfo.OnActive();
+        }
+        else
+        {
+            if (existed.Status != DataHealthActionStatus.Resolved)
+            {
+                this.SystemInfo.OnResolve();
+            }
+        }
     }
 }

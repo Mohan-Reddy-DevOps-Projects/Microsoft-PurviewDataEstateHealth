@@ -598,7 +598,7 @@ components:
           properties:
             lastModifiedAt:
               type: string
-              example: "2020-12-11Z"
+              example: "2024-03-12T05:18:51.8846471Z"
               description: Date of the most recent change to the object.
             lastModifiedBy:
               type: string
@@ -606,7 +606,7 @@ components:
               description: Person id of the most recent change to the object.
             createdAt:
               type: string
-              example: "2020-12-11Z"
+              example: "2024-03-12T05:18:51.8846471Z"
               description: Date the object was created.
             createdBy:
               type: string
@@ -741,11 +741,11 @@ components:
             startTime:
               type: string
               description: The start time of the schedule.
-              example: "2020-12-11Z"
+              example: "2024-03-12T05:18:51.8846471Z"
             endTime:
               type: string
               description: The end time of the schedule.
-              example: "2020-12-11Z"
+              example: "2024-03-12T05:18:51.8846471Z"
             schedule:
               $ref: "#/components/schemas/ScheduleProperties"
             timeZone:
@@ -1248,7 +1248,7 @@ components:
           properties:
             lastModifiedAt:
               type: string
-              example: "2020-12-11Z"
+              example: "2024-03-12T05:18:51.8846471Z"
               description: Date of the most recent change to the object.
             lastModifiedBy:
               type: string
@@ -1256,16 +1256,20 @@ components:
               description: Person id of the most recent change to the object.
             createdAt:
               type: string
-              example: "2020-12-11Z"
+              example: "2024-03-12T05:18:51.8846471Z"
               description: Date the object was created.
             lastHintAt:
               type: string
-              example: 766BF2B9-5D8A-4FB1-B8D5-D30A53E22A9E
+              example: "2024-03-12T05:18:51.8846471Z"
               description: Date the object was created.
             hintCount:
               type: number
               example: 1
               description: The count of the hint.
+            resolvedAt:
+              type: string
+              example: "2024-03-12T05:18:51.8846471Z"
+              description: Date the object was created.
 
     simpleAction:
       type: object

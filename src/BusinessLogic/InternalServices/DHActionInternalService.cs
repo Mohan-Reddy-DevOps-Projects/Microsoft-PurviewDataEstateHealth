@@ -48,7 +48,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                         (v.Status == DataHealthActionStatus.NotStarted || v.Status == DataHealthActionStatus.InProgress));
                     if (matchedExistedAction != null)
                     {
-                        matchedExistedAction.SystemInfo.onHint();
+                        matchedExistedAction.SystemInfo.OnHint();
                         updateActionList.Add(matchedExistedAction);
                     }
                     else
