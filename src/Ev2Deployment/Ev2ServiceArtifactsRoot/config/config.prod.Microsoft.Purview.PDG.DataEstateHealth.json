@@ -64,7 +64,7 @@
                 {
                   "name": "dataaccessevent",
                   "messageRetentionDays": 7,
-                  "partitionCount": 2
+                  "partitionCount": 1
                 },
                 {
                   "name": "dataqualityevent",
@@ -93,7 +93,7 @@
                 {
                   "name": "dataaccessevent",
                   "messageRetentionDays": 7,
-                  "partitionCount": 2
+                  "partitionCount": 1
                 },
                 {
                   "name": "dataqualityevent",
