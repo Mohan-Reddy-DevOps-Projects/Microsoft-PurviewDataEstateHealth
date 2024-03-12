@@ -39,11 +39,11 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
             request.Content = this.CreateRequestContent(new Dictionary<string, string>()
             {
-                ["dqJobId"] = schedule.DQJobId,
+                ["dqJobId"] = schedule.DQJobId.ToString(),
                 ["jobStatus"] = schedule.JobStatus
             });
-            request.Headers.Add(HeaderAccountIdName, schedule.AccountId);
-            request.Headers.Add(HeaderTenantIdName, schedule.TenantId);
+            request.Headers.Add(HeaderAccountIdName, schedule.AccountId.ToString());
+            request.Headers.Add(HeaderTenantIdName, schedule.TenantId.ToString());
             var response = await this.Client.SendAsync(request).ConfigureAwait(false);
             this.HandleResponseStatusCode(response);
         }

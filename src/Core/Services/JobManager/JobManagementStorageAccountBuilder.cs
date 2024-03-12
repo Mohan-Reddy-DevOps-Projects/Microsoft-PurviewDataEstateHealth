@@ -4,11 +4,11 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Auth;
+using System.Threading.Tasks;
 
 /// <summary>
 /// JobManagementStorageAccountBuilder
@@ -37,17 +37,17 @@ public class JobManagementStorageAccountBuilder : IJobManagementStorageAccountBu
     /// <inheritdoc />
     public async Task<CloudStorageAccount> Build()
     {
-        if (environmentConfiguration.IsDevelopmentEnvironment())
+        if (this.environmentConfiguration.IsDevelopmentEnvironment())
         {
-            return CloudStorageAccount.Parse(jobConfiguration.StorageAccountName);
+            return CloudStorageAccount.Parse(this.jobConfiguration.StorageAccountName);
         }
         else
         {
-            StorageCredentials storageCredentials = await storageCredentialsProvider.GetRenewableCredentialsAsync();
+            StorageCredentials storageCredentials = await this.storageCredentialsProvider.GetRenewableCredentialsAsync();
             return new CloudStorageAccount(
                 storageCredentials: storageCredentials,
-                jobConfiguration.StorageAccountName,
-                endpointSuffix: environmentConfiguration.AzureEnvironment.StorageEndpointSuffix,
+                this.jobConfiguration.StorageAccountName,
+                endpointSuffix: this.environmentConfiguration.AzureEnvironment.StorageEndpointSuffix,
                 useHttps: true
             );
         }

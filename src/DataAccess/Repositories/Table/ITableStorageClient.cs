@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using global::Azure.Data.Tables;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using System.Linq.Expressions;
 
 /// <summary>
 /// Table storage client interface
@@ -27,6 +28,15 @@ internal interface ITableStorageClient<TConfig> where TConfig : StorageTableConf
         string tableName,
         string partitionKey,
         string rowKey,
+        CancellationToken cancellationToken) where T : class, ITableEntity;
+
+    /// <summary>
+    /// Gets the specified table entity of type T from Table <paramref name="tableName"/>. If it does not exist, return null.
+    /// </summary>
+    Task<List<T>> GetEntitiesAsync<T>(
+        string tableName,
+        Expression<Func<T, bool>> filter,
+        int maxPerPage,
         CancellationToken cancellationToken) where T : class, ITableEntity;
 
     /// <summary>

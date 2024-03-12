@@ -243,6 +243,10 @@
         {
           "find": "__INFRA_CONSUMER_GROUP_NAME__",
           "replaceWith": "$config(dgh.consumerGroupName)"
+        },
+        {
+          "find": "__INFRA_MDQ_FAILED_JOB_TABLE_NAME__",
+          "replaceWith": "$config(dgh.mdqFailedJobTableName)"
         }
       ]
     },

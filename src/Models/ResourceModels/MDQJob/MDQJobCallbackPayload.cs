@@ -11,7 +11,7 @@ public class MDQJobCallbackPayload
 {
     /// <inheritdoc />
     [JsonProperty("dqJobId")]
-    public string DQJobId { get; set; }
+    public Guid DQJobId { get; set; }
 
     /// <inheritdoc />
     [JsonProperty("jobStatus")]
@@ -19,9 +19,14 @@ public class MDQJobCallbackPayload
 
     /// <inheritdoc />
     [JsonProperty("tenantId")]
-    public string TenantId { get; set; }
+    public Guid TenantId { get; set; }
 
     /// <inheritdoc />
     [JsonProperty("accountId")]
-    public string AccountId { get; set; }
+    public Guid AccountId { get; set; }
+
+    /// <inheritdoc />
+    [JsonProperty("isRetry")]
+    public bool IsRetry { get; set; }
+
 }

@@ -50,6 +50,9 @@
         "sparkPoolTableName": {
             "value": "__INFRA_SYNAPSE_SPARK_POOL_TABLE_NAME__"
         },
+        "mdqFailedJobTableName": {
+            "value": "__INFRA_MDQ_FAILED_JOB_TABLE_NAME__"
+        },
         "synapseLocation": {
             "value": "__INFRA_SYNAPSE_LOCATION__"
         },

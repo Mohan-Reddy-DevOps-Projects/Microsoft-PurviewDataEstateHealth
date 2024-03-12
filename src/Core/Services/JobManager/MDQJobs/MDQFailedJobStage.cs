@@ -1,0 +1,63 @@
+// -----------------------------------------------------------
+//  Copyright (c) Microsoft Corporation.  All rights reserved.
+// -----------------------------------------------------------
+
+namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
+
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System.Threading.Tasks;
+
+internal class MDQFailedJobStage : IJobCallbackStage
+{
+    private const int GetBulkSize = 100;
+
+    private readonly JobCallbackUtils<MDQFailedJobMetadata> jobCallbackUtils;
+
+    private readonly MDQFailedJobMetadata metadata;
+
+    private readonly IDataEstateHealthRequestLogger logger;
+
+    private readonly IMDQFailedJobRepository mdqFailedJobRepsository;
+
+    private readonly IDataHealthApiService dataHealthApiService;
+
+    public MDQFailedJobStage(
+        IServiceScope scope,
+        MDQFailedJobMetadata metadata,
+        JobCallbackUtils<MDQFailedJobMetadata> jobCallbackUtils)
+    {
+        this.metadata = metadata;
+        this.jobCallbackUtils = jobCallbackUtils;
+        this.logger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
+        this.mdqFailedJobRepsository = scope.ServiceProvider.GetService<IMDQFailedJobRepository>();
+        this.dataHealthApiService = scope.ServiceProvider.GetService<IDataHealthApiService>();
+    }
+
+    public string StageName => nameof(MDQFailedJobStage);
+
+    public async Task<JobExecutionResult> Execute()
+    {
+        this.logger.LogInformation("Start to execute MDQFailedJobStage.");
+        var jobs = await this.mdqFailedJobRepsository.GetBulk(GetBulkSize, CancellationToken.None).ConfigureAwait(false);
+        this.logger.LogInformation($"Retrieved MDQ failed jobs: {jobs.Count}");
+        foreach (var job in jobs)
+        {
+            this.dataHealthApiService.TriggerMDQJobCallback(job, true);
+        }
+        this.metadata.MDQFailedJobProcessed = true;
+        return this.jobCallbackUtils.GetExecutionResult(JobExecutionStatus.Succeeded, "", DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
+    }
+
+    public bool IsStageComplete()
+    {
+        return this.metadata.MDQFailedJobProcessed;
+    }
+
+    public bool IsStagePreconditionMet()
+    {
+        return true;
+    }
+}

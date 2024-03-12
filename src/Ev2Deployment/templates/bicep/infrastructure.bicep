@@ -17,6 +17,7 @@ param synapseWorkspaceName string
 param synapseStorageAccountName string
 param synapseStorageAccountUrl string
 param sparkPoolTableName string
+param mdqFailedJobTableName string
 param synapseLocation string
 param synapseDatabaseName string
 param subscriptionId string = subscription().subscriptionId
@@ -124,6 +125,14 @@ module sparkPoolTableModule 'storageTable.bicep' = {
   params: {
     storageAccountName: commonStorageAccountModule.outputs.storageAccountName
     tableName: sparkPoolTableName
+  }
+}
+
+module mdqFailedJobTableModule 'storageTable.bicep' = {
+  name: 'mdqFailedJobTableDeploy'
+  params: {
+    storageAccountName: commonStorageAccountModule.outputs.storageAccountName
+    tableName: mdqFailedJobTableName
   }
 }
 

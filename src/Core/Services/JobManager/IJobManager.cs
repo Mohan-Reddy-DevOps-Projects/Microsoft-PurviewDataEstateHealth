@@ -4,12 +4,12 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Job Manager Interface that manages background jobs
@@ -103,6 +103,12 @@ public interface IJobManager
     /// </summary>
     /// <returns></returns>
     Task ProvisionEventProcessorJob();
+
+    /// <summary>
+    /// Provisions MDQ failed job.
+    /// </summary>
+    /// <returns></returns>
+    Task ProvisionMDQFailedJob();
 
     /// <summary>
     /// Start PBI refresh job

@@ -4,8 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
@@ -14,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.Storage;
+using System;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Job Dispatcher
@@ -91,6 +91,7 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
 
             // All jobs to be provisioned when service comes up...
             await jobManager.ProvisionEventProcessorJob();
+            await jobManager.ProvisionMDQFailedJob();
 
             this.logger.LogInformation("Job dispatcher started successfully.");
         }

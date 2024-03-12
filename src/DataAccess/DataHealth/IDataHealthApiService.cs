@@ -19,8 +19,9 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// <summary>
         /// Gets a sas token for the processing storage account.
         /// </summary>
-        /// <param name="payload"></param>
+        /// <param name="jobModel"></param>
+        /// <param name="isRetry"></param>
         /// <returns></returns>
-        void TriggerMDQJobCallback(MDQJobCallbackPayload payload);
+        void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry);
     }
 }

@@ -68,6 +68,11 @@ public static class DataAccessLayer
                 serviceProvider.GetRequiredService<IOptions<SparkPoolTableConfiguration>>(),
                 serviceProvider.GetRequiredService<AzureCredentialFactory>()));
 
+        services.AddSingleton<ITableStorageClient<MDQFailedJobTableConfiguration>>(
+            serviceProvider => new TableStorageClient<MDQFailedJobTableConfiguration>(
+                serviceProvider.GetRequiredService<IOptions<MDQFailedJobTableConfiguration>>(),
+                serviceProvider.GetRequiredService<AzureCredentialFactory>()));
+
         services.AddSingleton<IStorageAccountRepository<ProcessingStorageModel>, ProcessingStorageRepository>();
         services.AddSingleton<IServerlessPoolClient, ServerlessPoolClient>(provider =>
         {
@@ -87,6 +92,7 @@ public static class DataAccessLayer
         });
         services.AddSingleton<IODataModelProvider, ODataModelProvider>();
         services.AddSingleton<ISparkPoolRepository<SparkPoolModel>, SynapseSparkPoolRepository>();
+        services.AddSingleton<IMDQFailedJobRepository, MDQFailedJobRepository>();
 
         services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
         services.AddScoped<IDataQualityScoreRepository, DataQualityScoreRepository>();
@@ -153,7 +159,7 @@ public static class DataAccessLayer
         {
             Name = name,
             UserAgent = DEHWorkerUserAgent,
-            RetryCount = 3
+            RetryCount = 0
         };
 
         return services.AddCustomHttpClient<DataHealthApiServiceConfiguration>(httpClientSettings,

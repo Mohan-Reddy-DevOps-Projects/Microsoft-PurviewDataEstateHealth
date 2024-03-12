@@ -10,6 +10,7 @@ using global::Azure.Identity;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Common;
+using System.Linq.Expressions;
 
 internal sealed class TableStorageClient<TConfig> : ITableStorageClient<TConfig> where TConfig : StorageTableConfiguration, new()
 {
@@ -91,6 +92,31 @@ internal sealed class TableStorageClient<TConfig> : ITableStorageClient<TConfig>
                             cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
                     return response.HasValue ? response.Value : null;
+                });
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<T>> GetEntitiesAsync<T>(
+        string tableName,
+        Expression<Func<T, bool>> filter,
+        int maxPerPage,
+        CancellationToken cancellationToken) where T : class, ITableEntity
+    {
+        ArgumentNullException.ThrowIfNull(tableName, nameof(tableName));
+
+        return await this.ExecuteTableStorageOperation(
+                this.getRequestType(nameof(GetEntityIfExistsAsync)),
+                async () =>
+                {
+                    TableClient tableClient = this.serviceClient.GetTableClient(tableName);
+                    var response = tableClient
+                        .Query<T>(filter, maxPerPage, cancellationToken: cancellationToken);
+                    var list = new List<T>();
+                    foreach (var item in response.AsEnumerable())
+                    {
+                        list.Add(item);
+                    }
+                    return await Task.FromResult(list);
                 });
     }
 

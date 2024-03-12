@@ -145,14 +145,14 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
                     continue;
                 }
                 var resultId = this.ParseResultId(sourceModel.ResultId);
-                var payload = new MDQJobCallbackPayload
+                var model = new MDQJobModel
                 {
-                    DQJobId = resultId.JobId,
+                    DQJobId = Guid.Parse(resultId.JobId),
                     JobStatus = sourceModel.JobStatus,
-                    TenantId = domainModelPayload.TenantId,
-                    AccountId = sourceModel.AccountId,
+                    TenantId = Guid.Parse(domainModelPayload.TenantId),
+                    AccountId = Guid.Parse(sourceModel.AccountId),
                 };
-                this.dataHealthApiService.TriggerMDQJobCallback(payload);
+                this.dataHealthApiService.TriggerMDQJobCallback(model, false);
                 jobModels.Add(sourceModel);
             }
         }

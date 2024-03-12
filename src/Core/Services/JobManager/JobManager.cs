@@ -346,6 +346,30 @@ public class JobManager : IJobManager
         }
     }
 
+    /// <inheritdoc />
+    public async Task ProvisionMDQFailedJob()
+    {
+        string jobPartition = "MDQ-FAILED-JOB-CHECKER";
+        string jobId = "MDQ-FAILED-JOB-WORKER";
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new MDQFailedJobMetadata
+            {
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+                MDQFailedJobProcessed = false,
+            };
+            await this.CreateOneTimeJob(jobMetadata, nameof(MDQFailedJobCallback), jobPartition, jobId);
+        }
+    }
+
     private async Task CreateOneTimeJob<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, string jobId = null)
         where TMetadata : StagedWorkerJobMetadata
     {

@@ -21,6 +21,11 @@ public static class ResourceIds
     public const string Spark = $"spark/{{0}}";
 
     /// <summary>
+    /// The MDQ failed job
+    /// </summary>
+    public const string MDQFailedJob = $"mdqfailedjob/{{0}}";
+
+    /// <summary>
     /// Create a formatted resource id.
     /// </summary>
     /// <param name="resourceType"></param>

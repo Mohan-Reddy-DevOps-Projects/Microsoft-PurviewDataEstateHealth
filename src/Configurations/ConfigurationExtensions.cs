@@ -67,7 +67,8 @@ public static class ConfigurationExtensions
             .Configure<ServerlessPoolConfiguration>(configuration.GetSection("serverlessPool"))
             .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
             .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
-            .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"));
+            .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"))
+            .Configure<MDQFailedJobTableConfiguration>(configuration.GetSection("mdqFailedJobTable"));
 
         return services;
     }
