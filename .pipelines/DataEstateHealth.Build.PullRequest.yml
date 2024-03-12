@@ -25,3 +25,5 @@ extends:
     debug: ${{ parameters.debug }}
     postBuildSteps:
     - template: templates/DataEstateHealth.PostBuildSteps.yml
+    preBuildSteps:
+    - template: templates/DataEstateHealth.PreBuildSteps.yml

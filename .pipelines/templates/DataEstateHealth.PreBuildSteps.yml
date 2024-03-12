@@ -1,0 +1,4 @@
+steps:
+  - powershell: "Microsoft.Azure.Cosmos.Emulator.exe /NoExplorer /NoUI"
+    displayName: "Run CosmosDB Emulator"
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
