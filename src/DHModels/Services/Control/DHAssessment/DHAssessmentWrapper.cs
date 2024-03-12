@@ -160,12 +160,6 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
                             item.Rule.ValidateCheckPoints(Rule.Helpers.DHRuleSourceType.AssessmentMQDataProduct);
                         }
                         break;
-                    case DHAssessmentTargetEntityType.DataAsset:
-                        foreach (var item in this.Rules)
-                        {
-                            item.Rule.ValidateCheckPoints(Rule.Helpers.DHRuleSourceType.AssessmentMQDataAsset);
-                        }
-                        break;
                     case DHAssessmentTargetEntityType.CriticalDataElement:
                         foreach (var item in this.Rules)
                         {
@@ -191,7 +185,6 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
                         var supportedTargetEntityType = new[]
                         {
                             DHAssessmentTargetEntityType.DataProduct,
-                            DHAssessmentTargetEntityType.DataAsset,
                             DHAssessmentTargetEntityType.CriticalDataElement,
                             DHAssessmentTargetEntityType.BusinessDomain
                         };

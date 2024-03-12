@@ -7,7 +7,6 @@ using Newtonsoft.Json.Converters;
 public enum DHAssessmentTargetEntityType
 {
     DataProduct,
-    DataAsset,
     CriticalDataElement,
     BusinessDomain,
 }

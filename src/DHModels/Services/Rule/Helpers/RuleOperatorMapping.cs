@@ -16,7 +16,6 @@ public enum DHRuleSourceType
 {
     ControlNode,
     AssessmentMQDataProduct,
-    AssessmentMQDataAsset,
     AssessmentMQCDE,
     AssessmentMQBusinessDomain,
     AssessmentDQDataProduct,
@@ -40,6 +39,7 @@ internal class RuleOperatorMapping
                 DHCheckPoint.DataProductAllRelatedAssetsHaveOwner,
                 DHCheckPoint.DataProductAllRelatedAssetsHaveDQScore,
                 DHCheckPoint.DataProductRelatedDataAssetsCount,
+                DHCheckPoint.DataProductRelatedDataAssetsWithClassificationCount,
                 DHCheckPoint.DataProductRelatedObjectivesCount,
                 DHCheckPoint.DataProductRelatedTermsCount,
                 DHCheckPoint.DataProductHasDataAccessPolicy,
@@ -47,9 +47,6 @@ internal class RuleOperatorMapping
                 DHCheckPoint.DataProductEndorsed,
                 DHCheckPoint.DataProductStatus,
                 DHCheckPoint.DataProductHasDQScore,
-            ] },
-            { DHRuleSourceType.AssessmentMQDataAsset, [
-                DHCheckPoint.DataAssetClassificationCount,
             ] },
             { DHRuleSourceType.AssessmentMQCDE, [
                 DHCheckPoint.CDERelatedDataAssetsCount,
@@ -74,6 +71,7 @@ internal class RuleOperatorMapping
             { DHCheckPoint.DataProductAllRelatedAssetsHaveOwner, DHCheckPointType.Boolean },
             { DHCheckPoint.DataProductAllRelatedAssetsHaveDQScore, DHCheckPointType.Boolean },
             { DHCheckPoint.DataProductRelatedDataAssetsCount, DHCheckPointType.Number},
+            { DHCheckPoint.DataProductRelatedDataAssetsWithClassificationCount, DHCheckPointType.Number},
             { DHCheckPoint.DataProductRelatedObjectivesCount, DHCheckPointType.Number},
             { DHCheckPoint.DataProductRelatedTermsCount, DHCheckPointType.Number},
             { DHCheckPoint.DataProductHasDataAccessPolicy, DHCheckPointType.Boolean },
@@ -81,8 +79,6 @@ internal class RuleOperatorMapping
             { DHCheckPoint.DataProductEndorsed, DHCheckPointType.Boolean },
             { DHCheckPoint.DataProductStatus, DHCheckPointType.String },
             { DHCheckPoint.DataProductHasDQScore, DHCheckPointType.Boolean },
-
-            { DHCheckPoint.DataAssetClassificationCount, DHCheckPointType.Number },
 
             { DHCheckPoint.CDERelatedDataAssetsCount, DHCheckPointType.Number },
             { DHCheckPoint.CDEOwnerCount, DHCheckPointType.Number },

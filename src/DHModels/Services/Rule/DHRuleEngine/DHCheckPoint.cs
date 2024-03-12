@@ -16,6 +16,7 @@ public enum DHCheckPoint
     DataProductAllRelatedAssetsHaveOwner, // Supported in MDQ
     DataProductAllRelatedAssetsHaveDQScore, // Supported in MDQ
     DataProductRelatedDataAssetsCount, // Supported in MDQ
+    DataProductRelatedDataAssetsWithClassificationCount,
     DataProductRelatedObjectivesCount, // Cannot do, catalog is not posting OKR contract to EH
     DataProductRelatedTermsCount, // Supported in MDQ
     DataProductHasDataAccessPolicy, // Supported in MDQ
@@ -23,9 +24,6 @@ public enum DHCheckPoint
     DataProductEndorsed, // Supported in MDQ
     DataProductStatus, // Supported in MDQ
     DataProductHasDQScore, // Supported in MDQ
-
-    // Assessment - MQ - DataAsset
-    DataAssetClassificationCount,
 
     // Assessment - MQ - CDE
     CDERelatedDataAssetsCount,

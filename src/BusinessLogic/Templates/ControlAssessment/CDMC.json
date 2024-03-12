@@ -62,7 +62,7 @@
                 "assessment": {
                     "name": "Classification and labeling",
                     "systemTemplateEntityId": "84be1364-1e4b-46ca-b987-ce0dbc0c69ee",
-                    "targetEntityType": "DataAsset",
+                    "targetEntityType": "DataProduct",
                     "targetQualityType": "MetadataQuality",
                     "aggregation": {
                         "type": "Simple",
@@ -75,7 +75,7 @@
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
-                                    "checkPoint": "DataAssetClassificationCount",
+                                    "checkPoint": "DataProductRelatedDataAssetsWithClassificationCount",
                                     "operator": "GreaterThan",
                                     "operand": "0"
                                 }
