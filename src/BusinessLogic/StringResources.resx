@@ -132,6 +132,9 @@
   <data name="ErrorMessageEntityFieldAlreadyExists" xml:space="preserve">
     <value>{0} with {1} "{2}" already exists.</value>
   </data>
+  <data name="ErrorMessageEntityReferenced" xml:space="preserve">
+    <value>Cannot delete {0} with id "{1}" as it is referenced in {2} with ids {3}.</value>
+  </data>
   <data name="ErrorMessageForbiddenReadMessage" xml:space="preserve">
     <value>Don't have permission to read {0} in business domain {1}.</value>
   </data>
@@ -140,6 +143,9 @@
   </data>
   <data name="ErrorMessageInvalidEntityType" xml:space="preserve">
     <value>Entity type {0} is not supported.</value>
+  </data>
+  <data name="ErrorMessageStatusPaletteNotFound" xml:space="preserve">
+    <value>Cannot find the referenced {0} with id(s) {1}.</value>
   </data>
   <data name="ErrorMessageUpdateEntityIdNotMatch" xml:space="preserve">
     <value>{0} id in the payload "{1}" doesn't match the URL parameter "{2}".</value>

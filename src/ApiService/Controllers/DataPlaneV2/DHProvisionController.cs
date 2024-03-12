@@ -12,7 +12,7 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
-[Route("/controls/provision")]
+[Route("/provision")]
 public class DHProvisionController(DHProvisionService provisionService) : DataPlaneController
 {
     [HttpPost]
@@ -24,7 +24,7 @@ public class DHProvisionController(DHProvisionService provisionService) : DataPl
     }
 
     [HttpPost]
-    [Route("Validate")]
+    [Route("validate")]
     public async Task<ActionResult> ValidateControlsWithTemplateAsync([FromQuery(Name = "templateName")] string templateName)
     {
         provisionService.ValidateControlTemplate(templateName);

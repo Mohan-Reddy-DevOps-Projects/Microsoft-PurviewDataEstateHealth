@@ -1,11 +1,16 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Palette;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 public class DHControlStatusPaletteRepository(
     CosmosClient cosmosClient,
@@ -19,4 +24,26 @@ public class DHControlStatusPaletteRepository(
     private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHControl is not found in the configuration");
 
     protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
+
+    public async Task<IEnumerable<DHControlStatusPaletteWrapper>> QueryStatusPalettesAsync(StatusPaletteFilters filters)
+    {
+        IQueryable<DHControlStatusPaletteWrapper> query = this.CosmosContainer.GetItemLinqQueryable<DHControlStatusPaletteWrapper>(
+                       requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey });
+
+        if (filters?.ids?.Any() == true)
+        {
+            query = query.Where(x => filters.ids.Contains(x.Id));
+        }
+
+        var resultQuery = query.ToFeedIterator();
+
+        var results = new List<DHControlStatusPaletteWrapper>();
+        while (resultQuery.HasMoreResults)
+        {
+            var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
+            results.AddRange(response);
+        }
+
+        return results;
+    }
 }

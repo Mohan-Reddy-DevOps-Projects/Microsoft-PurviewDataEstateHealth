@@ -70,9 +70,9 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
 
     [HttpDelete]
     [Route("{id}")]
-    public async Task<ActionResult> DeleteControlByIdAsync(string id)
+    public async Task<ActionResult> DeleteControlByIdAsync(string id, [FromQuery(Name = "deleteAssessment")] bool deleteAssessment)
     {
-        await dataHealthControlService.DeleteControlByIdAsync(id).ConfigureAwait(false);
+        await dataHealthControlService.DeleteControlByIdAsync(id, deleteAssessment).ConfigureAwait(false);
 
         return this.NoContent();
     }

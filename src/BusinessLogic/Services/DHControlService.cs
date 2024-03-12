@@ -6,11 +6,13 @@
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl.Models;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
@@ -18,6 +20,7 @@
     public class DHControlService(
         DHControlRepository dHControlRepository,
         DHScheduleInternalService scheduleService,
+        DHStatusPaletteInternalService statusPaletteInternalService,
         DHAssessmentService assessmentService,
         IRequestHeaderContext requestHeaderContext)
     {
@@ -62,6 +65,8 @@
                 }
             }
 
+            await this.ValidateStatusPaletteConfig(entity).ConfigureAwait(false);
+
             if (withNewAssessment)
             {
                 switch (entity.Type)
@@ -93,7 +98,7 @@
 
             if (!string.IsNullOrEmpty(entity.Id) && !string.Equals(id, entity.Id, StringComparison.OrdinalIgnoreCase))
             {
-                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageUpdateEntityIdNotMatch, EntityCategory.StatusPalette.ToString(), entity.Id, id));
+                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageUpdateEntityIdNotMatch, EntityCategory.Control.ToString(), entity.Id, id));
             }
 
             entity.Validate();
@@ -108,11 +113,13 @@
                 }
             }
 
+            await this.ValidateStatusPaletteConfig(entity).ConfigureAwait(false);
+
             var existEntity = await dHControlRepository.GetByIdAsync(id).ConfigureAwait(false);
 
             if (existEntity == null)
             {
-                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.StatusPalette.ToString(), id));
+                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Control.ToString(), id));
             }
 
             entity.OnUpdate(existEntity, requestHeaderContext.ClientObjectId);
@@ -124,7 +131,7 @@
             return entity;
         }
 
-        public async Task DeleteControlByIdAsync(string id)
+        public async Task DeleteControlByIdAsync(string id, bool deleteAssessment = false)
         {
             ArgumentNullException.ThrowIfNull(id);
 
@@ -140,6 +147,29 @@
             await this.DeleteEntityScheduleAsync(existEntity);
 
             await dHControlRepository.DeleteAsync(id).ConfigureAwait(false);
+        }
+
+        private async Task ValidateStatusPaletteConfig(DHControlBaseWrapper wrapper)
+        {
+            if (wrapper.StatusPaletteConfig != null)
+            {
+                var statusPaletteIds = new HashSet<string>([wrapper.StatusPaletteConfig.FallbackStatusPaletteId], StringComparer.OrdinalIgnoreCase);
+                foreach (var statusPaletteConfig in wrapper.StatusPaletteConfig.StatusPaletteRules ?? [])
+                {
+                    statusPaletteIds.Add(statusPaletteConfig.StatusPaletteId);
+                }
+
+                var resultStatusPalettes = await statusPaletteInternalService.QueryStatusPalettesAsync(new StatusPaletteFilters() { ids = statusPaletteIds.ToList() }).ConfigureAwait(false);
+
+                if (resultStatusPalettes.Count() != statusPaletteIds.Count)
+                {
+                    throw new EntityValidationException(String.Format(
+                        CultureInfo.InvariantCulture,
+                        StringResources.ErrorMessageStatusPaletteNotFound,
+                        EntityCategory.StatusPalette.ToString(),
+                        string.Join(", ", statusPaletteIds.Except(resultStatusPalettes.Select(p => p.Id), StringComparer.OrdinalIgnoreCase))));
+                }
+            }
         }
 
         private async Task<DHControlBaseWrapper> ReadEntityScheduleAsync(DHControlBaseWrapper entity)

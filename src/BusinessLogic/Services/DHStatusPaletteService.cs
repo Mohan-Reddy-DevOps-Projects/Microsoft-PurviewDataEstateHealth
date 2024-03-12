@@ -5,24 +5,29 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl.Models;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Palette;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
     using System;
-    using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class DHStatusPaletteService(DHControlStatusPaletteRepository dhControlStatusPaletteRepository, IRequestHeaderContext requestHeaderContext)
+    public class DHStatusPaletteService(
+        DHControlStatusPaletteRepository dhControlStatusPaletteRepository,
+        DHStatusPaletteInternalService statusPaletteInternalService,
+        DHControlRepository controlRepository,
+        IRequestHeaderContext requestHeaderContext)
     {
         public async Task<IBatchResults<DHControlStatusPaletteWrapper>> ListStatusPalettesAsync()
         {
             var results = await dhControlStatusPaletteRepository.GetAllAsync().ConfigureAwait(false);
 
-            IEnumerable<DHControlStatusPaletteWrapper> resp = [.. SystemDefaultStatusPalettes, .. results];
+            var resp = statusPaletteInternalService.AppendSystemDefauleStatusPalettes(results);
 
             return new BatchResults<DHControlStatusPaletteWrapper>(resp, resp.Count());
         }
@@ -31,14 +36,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         {
             ArgumentNullException.ThrowIfNull(id);
 
-            var systemEntity = SystemDefaultStatusPalettes.FirstOrDefault(e => string.Equals(e.Id, id, StringComparison.OrdinalIgnoreCase));
-
-            if (systemEntity != null)
-            {
-                return systemEntity;
-            }
-
-            var entity = await dhControlStatusPaletteRepository.GetByIdAsync(id).ConfigureAwait(false);
+            var entity = await statusPaletteInternalService.TryGetStatusPaletteByIdInternalAsync(id).ConfigureAwait(false);
 
             if (entity == null)
             {
@@ -67,13 +65,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
             ArgumentNullException.ThrowIfNull(entity);
 
-            var systemEntity = SystemDefaultStatusPalettes.FirstOrDefault(e => string.Equals(e.Id, id, StringComparison.OrdinalIgnoreCase));
-
-            if (systemEntity != null)
-            {
-                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageCannotChangeSystemDefinedEntity));
-            }
-
             if (!string.IsNullOrEmpty(entity.Id) && !string.Equals(id, entity.Id, StringComparison.OrdinalIgnoreCase))
             {
                 throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageUpdateEntityIdNotMatch, EntityCategory.StatusPalette.ToString(), entity.Id, id));
@@ -82,11 +73,16 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             entity.Validate();
             entity.NormalizeInput();
 
-            var existEntity = await dhControlStatusPaletteRepository.GetByIdAsync(id).ConfigureAwait(false);
+            var existEntity = await statusPaletteInternalService.TryGetStatusPaletteByIdInternalAsync(id).ConfigureAwait(false);
 
             if (existEntity == null)
             {
                 throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.StatusPalette.ToString(), id));
+            }
+
+            if (existEntity.Reserved == true)
+            {
+                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageCannotChangeSystemDefinedEntity));
             }
 
             entity.OnUpdate(existEntity, requestHeaderContext.ClientObjectId);
@@ -100,14 +96,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         {
             ArgumentNullException.ThrowIfNull(id);
 
-            var systemEntity = SystemDefaultStatusPalettes.FirstOrDefault(e => string.Equals(e.Id, id, StringComparison.OrdinalIgnoreCase));
-
-            if (systemEntity != null)
-            {
-                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageCannotChangeSystemDefinedEntity));
-            }
-
-            var existEntity = await dhControlStatusPaletteRepository.GetByIdAsync(id).ConfigureAwait(false);
+            var existEntity = await statusPaletteInternalService.TryGetStatusPaletteByIdInternalAsync(id).ConfigureAwait(false);
 
             if (existEntity == null)
             {
@@ -116,46 +105,27 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                 return;
             }
 
+            if (existEntity.Reserved == true)
+            {
+                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageCannotChangeSystemDefinedEntity));
+            }
+
+            var relatedControls = await controlRepository.QueryControlNodesAsync(new ControlNodeFilters { StatusPaletteId = id }).ConfigureAwait(false);
+
+            if (relatedControls.Any())
+            {
+                throw new EntityReferencedException(String.Format(
+                    CultureInfo.InvariantCulture,
+                    StringResources.ErrorMessageEntityReferenced,
+                    EntityCategory.StatusPalette.ToString(),
+                    id,
+                    EntityCategory.Control,
+                    String.Join(", ", relatedControls.Select(x => $"\"{x.Id}\""))));
+            }
+
             await dhControlStatusPaletteRepository.DeleteAsync(id).ConfigureAwait(false);
         }
 
-        private static List<DHControlStatusPaletteWrapper> SystemDefaultStatusPalettes { get; } = new List<DHControlStatusPaletteWrapper>
-        {
-            new DHControlStatusPaletteWrapper
-            {
-                Id = "00000000-0000-0000-0000-000000000001",
-                Name = "Undefiend",
-                Color = "#949494",
-                Reserved = true
-            },
-            new DHControlStatusPaletteWrapper
-            {
-                Id = "00000000-0000-0000-0000-000000000002",
-                Name = "Healthy",
-                Color = "#009b51",
-                Reserved = true
-            },
-            new DHControlStatusPaletteWrapper
-            {
-                Id = "00000000-0000-0000-0000-000000000003",
-                Name = "Fair",
-                Color = "#e67e00",
-                Reserved = true
-            },
-            new DHControlStatusPaletteWrapper
-            {
-                Id = "00000000-0000-0000-0000-000000000004",
-                Name = "Not healthy",
-                Color = "#d13438",
-                Reserved = true
-            },
-            new DHControlStatusPaletteWrapper
-            {
-                Id = "00000000-0000-0000-0000-000000000005",
-                Name = "Critical",
-                Color = "#6b3f9e",
-                Reserved = true
-            },
-        };
+
     }
 }

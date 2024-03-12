@@ -37,7 +37,7 @@ public class DHControlStatusPaletteWrapper(JObject jObject) : ContainerEntityBas
     }
 
     [EntityProperty(keyReserved, true)]
-    public bool Reserved
+    public bool? Reserved
     {
         get => this.GetPropertyValue<bool>(keyReserved);
         set => this.SetPropertyValue(keyReserved, value);

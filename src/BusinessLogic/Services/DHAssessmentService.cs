@@ -10,6 +10,7 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
@@ -18,7 +19,10 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class DHAssessmentService(DHAssessmentRepository assessmentRepository, IRequestHeaderContext requestHeaderContext)
+public class DHAssessmentService(
+    DHAssessmentRepository assessmentRepository,
+    DHControlRepository controlRepository,
+    IRequestHeaderContext requestHeaderContext)
 {
     public async Task<IBatchResults<DHAssessmentWrapper>> ListAssessmentsAsync()
     {
@@ -113,6 +117,19 @@ public class DHAssessmentService(DHAssessmentRepository assessmentRepository, IR
             // Log
 
             return;
+        }
+
+        var relatedControls = await controlRepository.QueryControlNodesAsync(new ControlNodeFilters { AssessmentIds = [id] }).ConfigureAwait(false);
+
+        if (relatedControls.Any())
+        {
+            throw new EntityReferencedException(String.Format(
+                CultureInfo.InvariantCulture,
+                StringResources.ErrorMessageEntityReferenced,
+                EntityCategory.Assessment.ToString(),
+                id,
+                EntityCategory.Control,
+                String.Join(", ", relatedControls.Select(x => $"\"{x.Id}\""))));
         }
 
         await assessmentRepository.DeleteAsync(entity).ConfigureAwait(false);
