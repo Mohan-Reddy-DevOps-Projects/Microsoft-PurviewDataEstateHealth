@@ -69,17 +69,17 @@ public class CosmosWrapperSerializer : CosmosSerializer
                     if (type.IsArray)
                     {
                         var elementType = type.GetElementType() ?? throw new InvalidOperationException("No element type for an array!");
-                        var jObjects = jArray.OfType<JObject>();
 
                         object?[] objects;
 
                         if (elementType.IsSubclassOf(typeof(BaseEntityWrapper)))
                         {
+                            var jObjects = jArray.OfType<JObject>();
                             objects = jObjects.Select(x => DeserializeEntity<object>(x, elementType)).ToArray();
                         }
                         else
                         {
-                            objects = jObjects.Select(x => x.ToObject(elementType)).ToArray();
+                            objects = jArray.OfType<object>().Select(x => x is JObject jObject ? jObject.ToObject(elementType) : Convert.ChangeType(x, elementType)).ToArray();
                         }
 
                         var typedArray = Array.CreateInstance(elementType, objects.Length);

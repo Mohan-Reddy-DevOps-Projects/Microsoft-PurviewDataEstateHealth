@@ -135,6 +135,19 @@ public class CosmosDBSerializerTests
     }
 
     [TestMethod]
+    public void FromStream_ReturnsCorrectType_WhenIntArrayTypeStreamIsGiven()
+    {
+        // Arrange
+        var numberSteam = new MemoryStream(Encoding.UTF8.GetBytes("[10,20]"));
+
+        // Act
+        var numberSteamResult = serializer.FromStream<int[]>(numberSteam);
+        var numberSteamResultStr = string.Join(',', numberSteamResult);
+        // Assert
+        Assert.AreEqual(numberSteamResultStr, "10,20");
+    }
+
+    [TestMethod]
     public void ToSteam_ReturnsCorrectSteam()
     {
         // Arrange
