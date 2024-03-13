@@ -16,7 +16,7 @@ parameters:
 - name: regionExceptions
   type: string
   displayName: Comma-delimited list of regions to exclude from deployment - enter "none" if there are none
-  default: 'centraluseuap,westus2,francecentral,uaenorth' #Canary is excluded due to it being a demo environment; rest of regions are excluded because Data Catalog needs to be built out there first.
+  default: 'westus2,uaenorth' #Some regions are excluded because Data Catalog needs to be built out there first.
 
 - name: expediteRollout
   displayName: Expedite Rollout -  use when you need to rapidly deploy a hotfix. This sets the rollout type to "emergency" and miminizes the validation waiting time between tiers.  
