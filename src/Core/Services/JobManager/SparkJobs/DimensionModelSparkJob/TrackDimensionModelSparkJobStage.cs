@@ -13,19 +13,19 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 
-internal class TrackCatalogSparkJobStage : IJobCallbackStage
+internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
 {
     private readonly JobCallbackUtils<SparkJobMetadata> jobCallbackUtils;
     private readonly SparkJobMetadata metadata;
     private readonly IDataEstateHealthRequestLogger logger;
-    private readonly ICatalogSparkJobComponent catalogSparkJobComponent;
+    private readonly IDimensionModelSparkJobComponent dimensionModelSparkJobComponent;
     private readonly IJobManager backgroundJobManager;
     private static readonly JsonSerializerOptions jsonOptions = new()
     {
         Converters = { new JsonStringEnumConverter() }
     };
 
-    public TrackCatalogSparkJobStage(
+    public TrackDimensionModelSparkJobStage(
     IServiceScope scope,
     SparkJobMetadata metadata,
     JobCallbackUtils<SparkJobMetadata> jobCallbackUtils)
@@ -33,11 +33,11 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
         this.metadata = metadata;
         this.jobCallbackUtils = jobCallbackUtils;
         this.logger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
-        this.catalogSparkJobComponent = scope.ServiceProvider.GetService<ICatalogSparkJobComponent>();
+        this.dimensionModelSparkJobComponent = scope.ServiceProvider.GetService<IDimensionModelSparkJobComponent>();
         this.backgroundJobManager = scope.ServiceProvider.GetService<IJobManager>();
     }
 
-    public string StageName => nameof(TrackCatalogSparkJobStage);
+    public string StageName => nameof(TrackDimensionModelSparkJobStage);
 
     public async Task<JobExecutionResult> Execute()
     {
@@ -46,7 +46,7 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
 
         try
         {
-            SparkBatchJob jobDetails = await this.catalogSparkJobComponent.GetJob(
+            SparkBatchJob jobDetails = await this.dimensionModelSparkJobComponent.GetJob(
                 this.metadata.AccountServiceModel,
                 int.Parse(this.metadata.SparkJobBatchId),
                 new CancellationToken());
@@ -55,9 +55,11 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
             jobStatusMessage = SparkJobUtils.GenerateStatusMessage(this.metadata.AccountServiceModel.Id, jobDetails, jobStageStatus, this.StageName);
             this.logger.LogTrace(jobStatusMessage);
 
+
             if (SparkJobUtils.IsSuccess(jobDetails))
             {
-                await this.ProvisionDimensionModelRefreshJob(this.metadata, this.metadata.AccountServiceModel);
+                //Not enabled yet
+                //await this.ProvisionFabricRefreshJob(this.metadata, this.metadata.AccountServiceModel);
                 await this.ProvisionPBIRefreshJob(this.metadata, this.metadata.AccountServiceModel);
             }
 
@@ -66,7 +68,7 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
         catch (Exception exception)
         {
             jobStageStatus = JobExecutionStatus.Completed;
-            jobStatusMessage = $"{this.StageName}|Failed to track Catalog SPARK job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}";
+            jobStatusMessage = $"{this.StageName}|Failed to track Dimension Model SPARK job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}";
             this.logger.LogError(jobStatusMessage, exception);
         }
 
@@ -78,9 +80,9 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
         await this.backgroundJobManager.StartPBIRefreshJob(metadata, account);
     }
 
-    private async Task ProvisionDimensionModelRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel account)
+    private async Task ProvisionFabricRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel account)
     {
-        await this.backgroundJobManager.StartDimensionModelRefreshJob(metadata, account);
+        await this.backgroundJobManager.StartFabricelRefreshJob(metadata, account);
     }
 
 

@@ -4,27 +4,25 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using global::Azure.Analytics.Synapse.Spark.Models;
-using Microsoft.Azure.Management.Storage.Models;
-using Microsoft.Azure.ProjectBabylon.Metadata.Models;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Options;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Extensions.Options;
+using global::Azure.Analytics.Synapse.Spark.Models;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Identity.Client;
 
-internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
+internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
 {
     private readonly ISparkJobManager sparkJobManager;
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly ServerlessPoolConfiguration serverlessPoolConfiguration;
 
-    public CatalogSparkJobComponent(
+    public FabricSparkJobComponent(
         ISparkJobManager sparkJobManager,
         IProcessingStorageManager processingStorageManager,
         IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration)
@@ -40,9 +38,8 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
         string containerName = accountServiceModel.DefaultCatalogId;
         Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
-        //Update Main Method
-        string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";
-        SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jarClassName);
+        //string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";
+        SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host);
         return await this.sparkJobManager.SubmitJob(accountServiceModel, sparkJobRequest, cancellationToken);
     }
 
@@ -65,14 +62,15 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         return new()
         {
             Configuration = this.GetSinkConfiguration(sasUri, containerName),
-            ExecutorCount = 2,
-            File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-domainmodel-azure-purview-1.0-jar.jar",
-            Name = "DomainModelSparkJob",
+            ExecutorCount = 1,
+            File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-dehfabricsync-azure-purview-1.0-jar.jar",
+            Name = "FabricSparkJob",
             ClassName = jarClassName,
             RunManagerArgument = new List<string>()
             {
+
                 $"--CosmosDBLinkedServiceName", "analyticalCosmosDbLinkedService",
-                $"--AdlsTargetDirectory", $"abfss://{containerName}@{sinkLocation}/DomainModel",
+                $"--AdlsTargetDirectory", $"abfss://{containerName}@{sinkLocation}/DomainModelDev",
                 $"--AccountId", $"{accountId}",
                 $"--RefreshType", "incremental",
                 $"--ReProcessingThresholdInMins", "0"
@@ -90,13 +88,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
             {$"fs.azure.sas.fixed.token.{sasUri.Host}.dfs.core.windows.net", sasUri.Query[1..]},
             {$"spark.microsoft.delta.optimizeWrite.enabled" ,"true" },
             {$"spark.serializer","org.apache.spark.serializer.KryoSerializer" },
-            {$"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" },
-            {$"spark.dynamicAllocation.enabled", "true" },
-            {$"spark.dynamicAllocation.minExecutors","3" },
-            {$"spark.dynamicAllocation.maxExecutors","16" },
-            {$"spark.dynamicAllocation.executorIdleTimeout","900s" },
-            {$"spark.sql.adaptive.enabled", "true" },
-            {$"spark.sql.adaptive.skewJoin.enabled", "true" }
+            {$"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" }
         };
     }
 }

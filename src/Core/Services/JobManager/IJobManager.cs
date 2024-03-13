@@ -116,6 +116,19 @@ public interface IJobManager
     /// <returns></returns>
     Task StartPBIRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountModel);
 
+
+    /// <summary>
+    /// Start Dimension Model PBI refresh job
+    /// </summary>
+    /// <returns></returns>
+    Task StartDimensionModelRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountModel);
+
+    /// <summary>
+    /// Start Fabrick Models update refresh job
+    /// </summary>
+    /// <returns></returns>
+    Task StartFabricelRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountModel);
+
     /// <summary>
     /// Provisions catalog SPARK job per account.
     /// </summary>

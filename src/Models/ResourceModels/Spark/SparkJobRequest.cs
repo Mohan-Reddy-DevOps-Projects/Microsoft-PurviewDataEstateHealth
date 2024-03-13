@@ -33,4 +33,9 @@ public sealed class SparkJobRequest
     /// Gets or sets the arguments to pass to the run manager
     /// </summary>
     public List<string> RunManagerArgument { get; init; }
+
+    /// <summary>
+    /// Gets or sets the Class Name
+    /// </summary>
+    public string ClassName { get; init; }
 }

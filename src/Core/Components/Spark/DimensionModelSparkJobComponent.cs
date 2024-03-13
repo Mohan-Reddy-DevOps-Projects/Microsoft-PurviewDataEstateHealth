@@ -4,27 +4,28 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using global::Azure.Analytics.Synapse.Spark.Models;
-using Microsoft.Azure.Management.Storage.Models;
-using Microsoft.Azure.ProjectBabylon.Metadata.Models;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Options;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Extensions.Options;
+using global::Azure.Analytics.Synapse.Spark.Models;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Google.Protobuf.WellKnownTypes;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using StackExchange.Redis;
+using System.Net;
 
-internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
+internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobComponent
 {
     private readonly ISparkJobManager sparkJobManager;
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly ServerlessPoolConfiguration serverlessPoolConfiguration;
 
-    public CatalogSparkJobComponent(
+    public DimensionModelSparkJobComponent(
         ISparkJobManager sparkJobManager,
         IProcessingStorageManager processingStorageManager,
         IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration)
@@ -40,8 +41,8 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
         string containerName = accountServiceModel.DefaultCatalogId;
         Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
-        //Update Main Method
-        string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";
+        //TODO: Updated main method
+        string jarClassName = "com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.main.DimensionalModelMain";
         SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jarClassName);
         return await this.sparkJobManager.SubmitJob(accountServiceModel, sparkJobRequest, cancellationToken);
     }
@@ -60,21 +61,18 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         return await this.processingStorageManager.GetProcessingStorageSasUri(processingStorageModel, storageSasRequest, containerName, cancellationToken);
     }
 
-    private SparkJobRequest GetSparkJobRequest(Uri sasUri, string accountId, string containerName, string sinkLocation, string jarClassName = "")
+    private SparkJobRequest GetSparkJobRequest(Uri sasUri, string accountId, string containerName, string sinkLocation, string jarClassName)
     {
         return new()
         {
             Configuration = this.GetSinkConfiguration(sasUri, containerName),
             ExecutorCount = 2,
-            File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-domainmodel-azure-purview-1.0-jar.jar",
-            Name = "DomainModelSparkJob",
+            File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-dimensionalmodel-azure-purview-1.0-jar.jar",
+            Name = "DimensionModelSparkJob",
             ClassName = jarClassName,
             RunManagerArgument = new List<string>()
             {
-                $"--CosmosDBLinkedServiceName", "analyticalCosmosDbLinkedService",
-                $"--AdlsTargetDirectory", $"abfss://{containerName}@{sinkLocation}/DomainModel",
-                $"--AccountId", $"{accountId}",
-                $"--RefreshType", "incremental",
+                $"--AdlsTargetDirectory", $"abfss://{containerName}@{sinkLocation}",
                 $"--ReProcessingThresholdInMins", "0"
             },
         };

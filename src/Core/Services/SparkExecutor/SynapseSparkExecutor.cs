@@ -85,13 +85,14 @@ internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
     {
         SparkBatchJobOptions request = new(sparkJobRequest.Name, sparkJobRequest.File)
         {
-            ClassName = "sample",
+            ClassName = string.IsNullOrEmpty(sparkJobRequest.ClassName) ? "sample" : sparkJobRequest.ClassName,
             DriverMemory = poolConfig.DriverMemorySize,
             DriverCores = poolConfig.DriverCores,
             ExecutorMemory = poolConfig.ExecutorMemorySize,
             ExecutorCores = poolConfig.ExecutorCores,
-            ExecutorCount = sparkJobRequest.ExecutorCount,
+            ExecutorCount = sparkJobRequest.ExecutorCount,            
         };
+
 
         foreach (string argv in sparkJobRequest.RunManagerArgument)
         {

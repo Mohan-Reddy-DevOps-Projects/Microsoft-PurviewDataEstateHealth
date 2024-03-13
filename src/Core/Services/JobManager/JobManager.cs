@@ -317,6 +317,83 @@ public class JobManager : IJobManager
         await this.CreateOneTimeJob(jobMetadata, nameof(PBIRefreshCallback), jobPartition);
     }
 
+
+    /// <inheritdoc />
+    public async Task StartDimensionModelRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountServiceModel)
+    {
+        string accountId = accountServiceModel.Id;
+        string jobPartition = $"DIMENSION-SPARK-JOBS";
+        string jobId = $"{accountId}-DIMENSION-SPARK-JOBS";
+
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        var repeatInterval = TimeSpan.FromDays(1); // this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 5 : 15);
+
+        if (job == null)
+        {
+            var jobMetadata = new SparkJobMetadata
+            {
+                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+                AccountServiceModel = accountServiceModel,
+                SparkJobBatchId = string.Empty,
+                IsCompleted = false
+
+            };
+            this.UpdateDerivedMetadataProperties(jobMetadata);
+            await this.CreateOneTimeJobDEH(jobMetadata, nameof(DimensionModelSparkJobCallback), jobPartition, repeatInterval, jobId);
+
+        }
+    }
+
+
+    /// <inheritdoc />
+    public async Task StartFabricelRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountServiceModel)
+    {
+
+        string accountId = accountServiceModel.Id;
+
+        string jobPartition = $"FABRIC-SPARK-JOBS";
+        string jobId = $"{accountId}-FABRIC-SPARK-JOBS";
+
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+
+        var repeatInterval = TimeSpan.FromDays(1); // this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 5 : 15);
+
+        if (job == null)
+        {
+            var jobMetadata = new SparkJobMetadata
+            {
+                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+                AccountServiceModel = accountServiceModel,
+                SparkJobBatchId = string.Empty,
+                IsCompleted = false
+            };
+
+            this.UpdateDerivedMetadataProperties(jobMetadata);
+
+            await this.CreateOneTimeJobDEH(jobMetadata, nameof(FabricSparkJobCallback), jobPartition, repeatInterval, jobId);
+
+        }
+    }
+
+
+
+
     /// <inheritdoc />
     public async Task ProvisionEventProcessorJob()
     {
@@ -387,8 +464,34 @@ public class JobManager : IJobManager
                 .WithRetryStrategy(TimeSpan.FromMinutes(5))
                 .WithoutEndTime();
 
+
         await this.CreateJobAsync(jobBuilder);
     }
+
+
+    private async Task CreateOneTimeJobDEH<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, TimeSpan repeatInterval, string jobId = null)
+    where TMetadata : StagedWorkerJobMetadata
+    {
+        this.UpdateDerivedMetadataProperties(metadata);
+
+
+        this.dataEstateHealthRequestLogger.LogInformation($"Create one time job. Interval {repeatInterval}");
+
+        JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
+                    jobCallbackName,
+                    metadata,
+                    jobPartition,
+                    jobId)
+                .WithStartTime(DateTime.UtcNow.AddMinutes(1))
+                .WithRepeatStrategy(repeatInterval)
+                .WithRetryStrategy(TimeSpan.FromMinutes(5))
+                .WithoutEndTime();
+
+
+        await this.CreateJobAsync(jobBuilder);
+    }
+
+
 
     /// <inheritdoc />
     public async Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel)
@@ -396,7 +499,7 @@ public class JobManager : IJobManager
         const int catalogRepeatStrategyTime = 1; // Days
 
         string accountId = accountServiceModel.Id;
-        string jobPartition = $"{accountId}-SPARK-JOBS";
+        string jobPartition = $"{accountId}-CATALOG-SPARK-JOBS";
         string jobId = $"{accountId}-CATALOG-SPARK-JOB";
 
         BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
@@ -425,13 +528,19 @@ public class JobManager : IJobManager
                     jobPartition,
                     jobId)
                 .WithStartTime(DateTime.UtcNow.AddMinutes(SparkJobsStartTime))
-                .WithRepeatStrategy(TimeSpan.FromDays(catalogRepeatStrategyTime))
+                .WithRepeatStrategy(TimeSpan.FromHours(catalogRepeatStrategyTime))
                 .WithRetryStrategy(TimeSpan.FromMinutes(SparkJobsRetryStrategyTime))
                 .WithoutEndTime();
 
             await this.CreateJobAsync(jobBuilder);
         }
     }
+
+
+
+
+
+
 
     /// <inheritdoc />
     public async Task ProvisionDataQualitySparkJob(AccountServiceModel accountServiceModel)
