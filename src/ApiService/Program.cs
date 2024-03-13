@@ -118,6 +118,7 @@ public class Program
             options.HeaderConverter = CertificateHeaderConverter.Convert;
         });
 
+        builder.Services.AddSingleton(environmentConfiguration);
         builder.Services.AddDHConfigurations(builder.Configuration);
         builder.Services.SetupDHModelsServices();
         builder.Services.SetupDHDataAccessServices();

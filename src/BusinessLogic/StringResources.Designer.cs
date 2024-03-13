@@ -115,6 +115,26 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Don&apos;t have permission to change {0} in business domain {1}..
+        /// </summary>
+        internal static string ErrorMessageForbiddenMessage
+        {
+            get
+            {
+                return ResourceManager.GetString("ErrorMessageForbiddenMessage", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot delete {0} with id &quot;{1}&quot; as it is referenced in {2} with ids {3}..
+        /// </summary>
+        internal static string ErrorMessageEntityReferenced {
+            get {
+                return ResourceManager.GetString("ErrorMessageEntityReferenced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Don&apos;t have permission to read {0} in business domain {1}..
         /// </summary>
         internal static string ErrorMessageForbiddenReadMessage {

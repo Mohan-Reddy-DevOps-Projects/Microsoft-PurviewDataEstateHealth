@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities.ObligationHelper.Interfaces;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ public class ActionsFilter
     public DataHealthActionTargetEntityType? TargetEntityType { get; set; }
     public List<string>? TargetEntityIds { get; set; }
     public CreateTimeRangeFilter? CreateTimeRange { get; set; }
+    public Dictionary<DataHealthActionTargetEntityType, List<Obligation>>? PermissionObligations { get; set; }
 }
 
 public class CreateTimeRangeFilter

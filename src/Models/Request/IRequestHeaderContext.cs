@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities.ObligationHelper.Interfaces;
 
 /// <summary>
 /// The scoped service for request header handling.
@@ -113,9 +114,14 @@ public interface IRequestHeaderContext : IRequestContext
     string AuthorizationObligationType { get; }
 
     /// <summary>
-    /// Authorization obligations for caller.
+    /// Authorization obligations for caller. This should be removed once Obligations is available
     /// </summary>
     string AuthorizationObligations { get; }
+
+    /// <summary>
+    /// Authorization obligations for caller.
+    /// </summary>
+    public ObligationDictionary Obligations { get; }
 
     /// <summary>
     /// Sku of the Purview account. (Classic/Free/Enterprise)

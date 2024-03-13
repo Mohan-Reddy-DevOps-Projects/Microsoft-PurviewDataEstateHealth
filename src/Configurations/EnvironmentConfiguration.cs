@@ -166,6 +166,15 @@ public class EnvironmentConfiguration
     }
 
     /// <summary>
+    /// Boolean indicating whether the current environment is Dogfood or not
+    /// </summary>
+    /// <returns></returns>
+    public bool IsDogfoodEnvironment()
+    {
+        return this.Environment == Environment.Dogfood;
+    }
+
+    /// <summary>
     /// Authority Uri for the given tenant
     /// </summary>
     /// <param name="tenantId"></param>

@@ -4,12 +4,15 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
-using System;
-using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
+using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities.ObligationHelper.Interfaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Text;
 
 /// <inheritdoc />
 public class RequestHeaderContext : RequestContext, IRequestHeaderContext
@@ -57,7 +60,7 @@ public class RequestHeaderContext : RequestContext, IRequestHeaderContext
     /// </summary>
     public RequestHeaderContext(IHttpContextAccessor httpContextAccessor)
     {
-        this.HttpContent = httpContextAccessor?.HttpContext;   
+        this.HttpContent = httpContextAccessor?.HttpContext;
         IHeaderDictionary headers = httpContextAccessor?.HttpContext?.Request?.Headers;
 
         this.CorrelationId = headers.GetFirstOrDefault(RequestCorrelationContext.HeaderCorrelationRequestId) ?? Guid.NewGuid().ToString();
@@ -99,17 +102,40 @@ public class RequestHeaderContext : RequestContext, IRequestHeaderContext
         this.ClientPuid =
             httpContextAccessor?.HttpContext?.Request?.Headers.GetFirstOrDefault(
                 HeaderClientPuid);
-        
+
         this.ClientIpAddress = httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress.ToString() ?? "0.0.0.0";
         this.AuthorizationObligationType =
             headers.GetFirstOrDefault(HeaderAccountObligationType);
         this.AuthorizationObligations = headers.GetFirstOrDefault(HeaderAccountObligations);
 
+        string obligationsStr = headers.GetFirstOrDefault(HeaderAccountObligations);
+        if (!string.IsNullOrEmpty(obligationsStr))
+        {
+            var jsonObject = JObject.Parse(obligationsStr);
+            var firstKey = jsonObject.Properties().FirstOrDefault()?.Name;
+            if (firstKey?.StartsWith(Obligation.ContainerTypePrefix, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                this.Obligations = JsonConvert.DeserializeObject<ObligationDictionary>(obligationsStr);
+            }
+            else if (firstKey?.StartsWith(Obligation.PermissionPrefix, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                var permissionObligations = JsonConvert.DeserializeObject<Dictionary<string, Obligation>>(obligationsStr);
+                var containerType = permissionObligations.FirstOrDefault().Value?.ContainerType;
+                if (!string.IsNullOrEmpty(containerType))
+                {
+                    this.Obligations = new ObligationDictionary(new Dictionary<string, Dictionary<string, Obligation>>()
+                        {
+                            { containerType, permissionObligations }
+                        });
+                }
+            }
+        }
+
         string accountSkuName = headers.GetFirstOrDefault(AccountSkuName) ?? "";
         string accountReconciled = headers.GetFirstOrDefault(AccountReconciled) ?? "";
-        this.PurviewAccountSku = accountSkuName.EqualsOrdinalInsensitively("Free") 
-                            ? PurviewAccountSku.Free 
-                            : accountReconciled.EqualsOrdinalInsensitively("1") 
+        this.PurviewAccountSku = accountSkuName.EqualsOrdinalInsensitively("Free")
+                            ? PurviewAccountSku.Free
+                            : accountReconciled.EqualsOrdinalInsensitively("1")
                                 ? PurviewAccountSku.Enterprise
                                 : PurviewAccountSku.Classic;
     }
@@ -172,7 +198,10 @@ public class RequestHeaderContext : RequestContext, IRequestHeaderContext
     public string AuthorizationObligationType { get; set; }
 
     /// <inheritdoc />
+    /// Need to remove this one once Obligations is available
     public string AuthorizationObligations { get; set; }
+
+    public ObligationDictionary Obligations { get; private set; }
 
     /// <inheritdoc />
     public PurviewAccountSku PurviewAccountSku { get; set; }

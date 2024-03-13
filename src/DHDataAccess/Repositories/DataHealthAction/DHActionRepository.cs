@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities.ObligationHelper.Interfaces;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
@@ -217,6 +218,44 @@ public class DHActionRepository(
                 if (filter.CreateTimeRange.End != null)
                 {
                     sqlQuery.Append($" AND c.SystemInfo.CreatedAt <= '{filter.CreateTimeRange.End.Value.ToString("o")}'");
+                }
+            }
+
+            if (filter.PermissionObligations != null)
+            {
+                var permissionObligationsConditions = new List<string>();
+
+                foreach (var permissionObligation in filter.PermissionObligations)
+                {
+                    var entityType = $"'{permissionObligation.Key}'";
+                    var obligations = new List<string>();
+
+                    foreach (var obligation in permissionObligation.Value)
+                    {
+                        obligation.BusinessDomains = obligation.BusinessDomains ?? [];
+
+                        var businessDomains = string.Join(", ", obligation.BusinessDomains.Select(x => $"'{x}'"));
+
+                        if (obligation.Type == ObligationType.Permit)
+                        {
+                            obligations.Add($"(c.TargetEntityType = {entityType} AND c.DomainId IN ({businessDomains}))");
+                        }
+                        else if (obligation.Type == ObligationType.NotApplicable && businessDomains.Any())
+                        {
+                            obligations.Add($"(c.TargetEntityType = {entityType} AND c.DomainId NOT IN ({businessDomains}))");
+                        }
+                    }
+
+                    if (obligations.Any())
+                    {
+                        var obligationsQuery = string.Join(" OR ", obligations);
+                        permissionObligationsConditions.Add($"({obligationsQuery})");
+                    }
+                }
+                if (permissionObligationsConditions.Any())
+                {
+                    var permissionObligationsQuery = string.Join(" OR ", permissionObligationsConditions);
+                    sqlQuery.Append($" AND ({permissionObligationsQuery})");
                 }
             }
         }

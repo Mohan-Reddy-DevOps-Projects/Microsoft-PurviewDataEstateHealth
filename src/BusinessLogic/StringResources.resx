@@ -135,6 +135,12 @@
   <data name="ErrorMessageEntityFieldAlreadyExists" xml:space="preserve">
     <value>{0} with {1} "{2}" already exists.</value>
   </data>
+  <data name="ErrorMessageForbiddenMessage" xml:space="preserve">
+    <value>Don't have permission to change {0} in business domain {1}.</value>
+  </data>
+  <data name="ErrorMessageEntityReferenced" xml:space="preserve">
+    <value>Cannot delete {0} with id "{1}" as it is referenced in {2} with ids {3}.</value>
+  </data>
   <data name="ErrorMessageForbiddenReadMessage" xml:space="preserve">
     <value>Don't have permission to read {0} in business domain {1}.</value>
   </data>

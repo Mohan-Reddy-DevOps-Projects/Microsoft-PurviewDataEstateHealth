@@ -4,6 +4,9 @@
 
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
+    using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities.ObligationHelper;
+    using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities.ObligationHelper.Interfaces;
+    using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
@@ -15,17 +18,31 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
+    using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Threading.Tasks;
 
-    public class DHActionService(DHActionRepository dataHealthActionRepository, DHActionInternalService dHActionInternalService, IRequestHeaderContext requestHeaderContext, IDataEstateHealthRequestLogger logger)
+    public class DHActionService(
+        DHActionRepository dataHealthActionRepository,
+        DHActionInternalService dHActionInternalService,
+        IRequestHeaderContext requestHeaderContext,
+        IDataEstateHealthRequestLogger logger,
+        EnvironmentConfiguration environmentConfiguration
+        )
     {
         public async Task<IBatchResults<DataHealthActionWrapper>> EnumerateActionsAsync(CosmosDBQuery<ActionsFilter> query)
         {
             using (logger.LogElapsed($"Start to enum actions"))
             {
+                var filter = query.Filter ?? new ActionsFilter();
+                filter.PermissionObligations = new Dictionary<DataHealthActionTargetEntityType, List<Obligation>>
+                {
+                    { DataHealthActionTargetEntityType.DataProduct, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, GovernancePermissions.DataProductRead) },
+                    { DataHealthActionTargetEntityType.DataQualityAsset, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, DataQualityPermissions.ObserverRead) },
+                };
+                query.Filter = filter;
                 return await dataHealthActionRepository.GetActionsByFilterAsync(query);
             }
         }
@@ -40,7 +57,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
         public async Task<IEnumerable<GroupedActions>> EnumerateActionsByGroupAsync(CosmosDBQuery<ActionsFilter> query, string groupBy)
         {
-            var a = typeof(DataHealthActionWrapper).GetProperty("findingName")?.Name;
             using (logger.LogElapsed($"Start to enum grouped actions"))
             {
                 HashSet<string> allowedKeys = new HashSet<string>
@@ -55,6 +71,13 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                     logger.LogInformation($"The value of {nameof(groupBy)} is not supported");
                     throw new UnsupportedParamException($"The value of {nameof(groupBy)} is not supported");
                 }
+                var filter = query.Filter ?? new ActionsFilter();
+                filter.PermissionObligations = new Dictionary<DataHealthActionTargetEntityType, List<Obligation>>
+                {
+                    { DataHealthActionTargetEntityType.DataProduct, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, GovernancePermissions.DataProductRead) },
+                    { DataHealthActionTargetEntityType.DataQualityAsset, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, DataQualityPermissions.ObserverRead) },
+                };
+                query.Filter = filter;
                 return await dataHealthActionRepository.EnumerateActionsByGroupAsync(query, groupBy);
             }
         }
@@ -102,6 +125,8 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
                 action.OnUpdate(existedAction, requestHeaderContext.ClientObjectId);
 
+                // todo: check permission
+
                 await dataHealthActionRepository.UpdateAsync(action).ConfigureAwait(false);
                 return action;
             }
@@ -116,6 +141,8 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                     throw new ArgumentNullException(nameof(actionId));
                 }
 
+                // todo: check permission
+
                 return await this.GetExistedAction(actionId).ConfigureAwait(false);
             }
         }
@@ -129,6 +156,69 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                 throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Action.ToString(), actionId));
             }
             return result;
+        }
+        internal List<Obligation> GetObligationQueryFilter(string obligationContainerType, string permission)
+        {
+            return this.GetObligationQueryFilter(new List<string> { obligationContainerType }, permission);
+        }
+
+        internal List<Obligation> GetObligationQueryFilter(List<string> obligationContainerTypes, string permission)
+        {
+            if (!this.EnableObligationCheck())
+            {
+                // Permit all by default.
+                return new List<Obligation>()
+                    {
+                        new Obligation()
+                        {
+                            Type = ObligationType.NotApplicable,
+                        }
+                    };
+            }
+            var obligationDict = requestHeaderContext.Obligations;
+
+            // TODO: need to remove this log.
+            logger.LogInformation($"Obligation: {JsonConvert.SerializeObject(obligationDict)}");
+
+            var obligations = ObligationHelper.GetObligations(obligationDict, obligationContainerTypes, permission);
+
+            return obligations;
+        }
+
+        internal bool CheckObligation(string permission, string obligationContainerType, string domainId, EntityCategory entityType, bool throwException = false)
+        {
+            return this.CheckObligation(permission, new List<string> { obligationContainerType }, domainId, entityType, throwException);
+        }
+
+        internal bool CheckObligation(string permission, List<string> obligationContainerTypes, string domainId, EntityCategory entityType, bool throwException = false)
+        {
+            using (logger.LogElapsed("Check obligation."))
+            {
+                if (!this.EnableObligationCheck())
+                {
+                    logger.LogInformation($"Obligation passed because it is not enabled.");
+                    return true;
+                }
+
+                var obligationDict = requestHeaderContext.Obligations;
+
+                bool isAccessAllowed = ObligationHelper.IsAccessAllowed(obligationDict, obligationContainerTypes, permission, domainId);
+                if (!isAccessAllowed)
+                {
+                    logger.LogInformation($"Obligation denied.");
+                    if (throwException)
+                    {
+                        throw new EntityForbiddenException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageForbiddenMessage, entityType, domainId));
+                    }
+                    return false;
+                }
+                logger.LogInformation($"Obligation passed.");
+                return isAccessAllowed;
+            }
+        }
+        private bool EnableObligationCheck()
+        {
+            return environmentConfiguration.IsDogfoodEnvironment();
         }
     }
 }
