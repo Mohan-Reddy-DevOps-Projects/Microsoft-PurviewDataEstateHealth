@@ -103,7 +103,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                         ["x-ms-account-id"] = accountId
                     }
                 },
-                State = DHScheduleState.Enabled
+                State = schedule.Properties.Status,
             };
             payload.SetRecurrence(schedule.Properties);
             return payload;

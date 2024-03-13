@@ -729,6 +729,12 @@ components:
         - $ref: "#/components/schemas/BaseEntity"
         - type: object
           properties:
+            status:
+              type: string
+              enum: [Enabled, Disabled]
+              description: The status of the schedule.
+              default: "Enabled"
+              example: "Enabled"
             frequency:
               type: string
               enum: [Hour, Day, Week, Month]

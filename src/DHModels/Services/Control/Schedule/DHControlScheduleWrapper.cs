@@ -18,6 +18,7 @@ public class DHControlScheduleWrapper(JObject jObject) : BaseEntityWrapper(jObje
     private const string keyEndTime = "endTime";
     private const string keyTimeZone = "timeZone";
     private const string keySchedule = "schedule";
+    private const string keyStatus = "status";
 
     public static DHControlScheduleWrapper Create(JObject jObject)
     {
@@ -25,6 +26,17 @@ public class DHControlScheduleWrapper(JObject jObject) : BaseEntityWrapper(jObje
     }
 
     public DHControlScheduleWrapper() : this([]) { }
+
+    [EntityProperty(keyStatus)]
+    public DHScheduleState Status
+    {
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyStatus);
+            return Enum.TryParse<DHScheduleState>(enumStr, true, out var result) ? result : DHScheduleState.Enabled;
+        }
+        set => this.SetPropertyValue(keyStatus, value.ToString());
+    }
 
     [EntityProperty(keyFrequency)]
     [EntityRequiredValidator]
