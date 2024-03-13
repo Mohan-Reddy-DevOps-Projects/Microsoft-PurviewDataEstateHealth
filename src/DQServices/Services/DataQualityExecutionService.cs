@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services;
 
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Repositories.DataQualityOutput;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
@@ -14,7 +15,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,15 +24,18 @@ public class DataQualityExecutionService : IDataQualityExecutionService
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly DataQualityServiceClientFactory dataQualityServiceClientFactory;
     private readonly IDataEstateHealthRequestLogger logger;
+    private readonly IDataQualityOutputRepository dataQualityOutputRepository;
 
     public DataQualityExecutionService(
         IProcessingStorageManager processingStorageManager,
         DataQualityServiceClientFactory dataQualityServiceClientFactory,
+        IDataQualityOutputRepository dataQualityOutputRepository,
         IDataEstateHealthRequestLogger logger)
     {
         this.processingStorageManager = processingStorageManager;
         this.dataQualityServiceClientFactory = dataQualityServiceClientFactory;
         this.logger = logger;
+        this.dataQualityOutputRepository = dataQualityOutputRepository;
     }
 
     public async Task<IEnumerable<DHRawScore>> ParseDQResult(
@@ -46,36 +49,20 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         var dataProductId = controlId;
         var dataAssetId = healthJobId;
 
-        var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
-
-        var folderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={dqJobId}";
-
-        var partitionedFileNames = await this.processingStorageManager.GetDataQualityOutputFileNames(accountStorageModel, folderPath).ConfigureAwait(false);
-
-        var result = new List<DHRawScore>();
-
-        foreach (var partitionedFileName in partitionedFileNames)
+        var outputResult = await this.dataQualityOutputRepository.GetMultiple(new DataQualityOutputQueryCriteria()
         {
-            this.logger.LogInformation($"Start read single partitionedFile, partitionedFileName:{partitionedFileName}");
+            AccountId = accountId,
+            FolderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={dqJobId}"
+        }, CancellationToken.None).ConfigureAwait(false);
 
-            var parquetStream = await this.processingStorageManager.GetDataQualityOutput(
-                accountStorageModel,
-                folderPath,
-                partitionedFileName).ConfigureAwait(false);
+        this.logger.LogInformation($"Read output is done, row count:{outputResult.Results.Count()}, healthJobId:{healthJobId}");
 
-            var memoryStream = new MemoryStream();
-            await parquetStream.CopyToAsync(memoryStream).ConfigureAwait(false);
+        var result = DataQualityOutputAdapter.ToScorePayload(outputResult.Results, this.logger);
 
-            var resultFromSingleFile = await DataQualityOutputAdapter.ToScorePayload(memoryStream, this.logger).ConfigureAwait(false);
-            result.AddRange(resultFromSingleFile);
-
-            this.logger.LogInformation($"End read single partitionedFile, partitionedFileName:{partitionedFileName}, resultCount:{resultFromSingleFile.Count()}");
-        }
-
-        this.logger.LogInformation($"End ParseDQResult, resultCount:{result.Count()}");
+        this.logger.LogInformation($"End ParseDQResult, resultCount:{result.Count()}, healthJobId:{healthJobId}");
         if (result.Count() > 0)
         {
-            this.logger.LogInformation($"End ParseDQResult, parsedRuleCount:{result.First().Scores.Count()}");
+            this.logger.LogInformation($"End ParseDQResult, parsedRuleCount:{result.First().Scores.Count()}, healthJobId:{healthJobId}");
         }
 
         return result;

@@ -4,11 +4,9 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Microsoft.Azure.Purview.DataEstateHealth.Common.QueryUtils;
 
 [ServerlessQuery(typeof(DataQualityScoreRecord))]

@@ -4,14 +4,13 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Repositories.DataQualityOutput;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.DGP.ServiceBasics.Adapters;
 using Microsoft.DGP.ServiceBasics.BaseModels;
 using System.Threading.Tasks;
 
-internal class DataQualityScoreRepository : IDataQualityScoreRepository
+internal class DataQualityOutputRepository : IDataQualityOutputRepository
 {
-    private readonly ModelAdapterRegistry modelAdapterRegistry;
 
     private readonly IProcessingStorageManager processingStorageManager;
 
@@ -21,34 +20,32 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
 
     private const int DefaultTimeout = 60 * 60 * 1000;
 
-    public DataQualityScoreRepository(
-         ModelAdapterRegistry modelAdapterRegistry,
+    public DataQualityOutputRepository(
          IProcessingStorageManager processingStorageManager,
          IServerlessQueryExecutor queryExecutor,
          IServerlessQueryRequestBuilder queryRequestBuilder)
     {
-        this.modelAdapterRegistry = modelAdapterRegistry;
         this.processingStorageManager = processingStorageManager;
         this.queryExecutor = queryExecutor;
         this.queryRequestBuilder = queryRequestBuilder;
     }
 
-    public async Task<IBatchResults<DataQualityScoreEntity>> GetMultiple(
-          DataQualityScoreKey dataQualityScoreKey,
+    public async Task<IBatchResults<DataQualityDataProductOutputEntity>> GetMultiple(
+          DataQualityOutputQueryCriteria criteria,
           CancellationToken cancellationToken,
           string continuationToken = null)
     {
-        string containerPath = await this.ConstructContainerPath(dataQualityScoreKey.AccountId, cancellationToken);
+        string containerPath = await this.ConstructContainerPath(new Guid(criteria.AccountId), cancellationToken);
 
-        DataQualityScoreQuery query;
-        query = this.queryRequestBuilder.Build<DataQualityDataProductOutputRecord>(containerPath) as DataQualityScoreQuery;
+        DataQualityOutputQuery query = this.queryRequestBuilder.Build<DataQualityDataProductOutputRecord>(containerPath) as DataQualityOutputQuery;
+        query.QueryPath = $"{containerPath}/{criteria.FolderPath}/*.parquet";
         query.Timeout = DefaultTimeout;
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-        IList<DataQualityScoreEntity> list = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+        IList<DataQualityDataProductOutputEntity> list = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
-        return new BaseBatchResults<DataQualityScoreEntity>
+        return new BaseBatchResults<DataQualityDataProductOutputEntity>
         {
             Results = list,
             ContinuationToken = continuationToken

@@ -102,6 +102,8 @@ public static class DataAccessLayer
         services.AddScoped<IArtifactStoreAccessorServiceBuilder, ArtifactStoreAccessorServiceBuilder>();
         services.AddScoped<IHealthTrendRepository, HealthTrendRepository>();
 
+        services.AddSingleton<IDataQualityOutputRepository, DataQualityOutputRepository>();
+
         services.AddScoped<IArtifactStoreAccessorServiceBuilder, ArtifactStoreAccessorServiceBuilder>();
 
         return services;
