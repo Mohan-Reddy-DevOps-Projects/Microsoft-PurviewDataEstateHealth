@@ -138,7 +138,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 var feedIterator = this.CosmosContainer.GetItemLinqQueryable<TEntity>(
                     requestOptions: new QueryRequestOptions { PartitionKey = tenantPartitionKey }
-                ).ToFeedIterator();
+                ).Where(x => true).ToFeedIterator();
 
                 var results = new List<TEntity>();
                 while (feedIterator.HasMoreResults)
