@@ -88,7 +88,7 @@
                     switch (simpleAggregation.AggregationType)
                     {
                         case DHAssessmentSimpleAggregationType.Average:
-                            var scoreWrappers = scores.Select(x =>
+                            var scoreWrappers = scores.Where(x => x.Scores.Any()).Select(x =>
                             {
                                 switch (assessment.TargetEntityType)
                                 {
