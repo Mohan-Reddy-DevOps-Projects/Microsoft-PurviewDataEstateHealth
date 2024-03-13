@@ -12,12 +12,12 @@
       "synapseRegion": "$(regionName)",
       "useEstsr": "true",
       "sparkPoolTableName": "SparkPool",
-      "mdqFailedJobTableName": "MDQFailedJob",
       "acrName": "$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
       "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)$(regionShortName)common",
       "synapseWorkspaceName": "$(dgh.serviceShortName)$(pdg.environment.shortName)$(regionShortName)workspace",
       "apiServiceReadinessProbePort": 8081,
       "workerServiceReadinessProbePort": 8082,
+      "mdqFailedJobTableName": "MDQFailedJob",
       "sqlAdminUserSecretName": "synapseSqlAdminUsername",
       "sqlAdminPassSecretName": "synapseSqlAdminPassword",
       "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
@@ -93,7 +93,7 @@
                 {
                   "name": "dataaccessevent",
                   "messageRetentionDays": 7,
-                  "partitionCount": 1
+                  "partitionCount": 2
                 },
                 {
                   "name": "dataqualityevent",
