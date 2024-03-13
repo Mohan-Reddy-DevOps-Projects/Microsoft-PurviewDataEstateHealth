@@ -125,7 +125,7 @@ public class DHAssessmentService(
         {
             throw new EntityReferencedException(String.Format(
                 CultureInfo.InvariantCulture,
-                StringResources.ErrorMessageEntityReferenced,
+                StringResources.ErrorMessageDeleteFailureEntityReferenced,
                 EntityCategory.Assessment.ToString(),
                 id,
                 EntityCategory.Control,

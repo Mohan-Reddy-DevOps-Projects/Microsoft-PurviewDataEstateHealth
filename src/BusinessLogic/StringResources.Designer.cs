@@ -79,6 +79,15 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot delete {0} with id &quot;{1}&quot; as it is referenced in {2} with ids {3}..
+        /// </summary>
+        internal static string ErrorMessageDeleteFailureEntityReferenced {
+            get {
+                return ResourceManager.GetString("ErrorMessageDeleteFailureEntityReferenced", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} with id &quot;{1}&quot; already exists..
         /// </summary>
         internal static string ErrorMessageEntityAlreadyExists {
@@ -102,15 +111,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic {
         internal static string ErrorMessageEntityFieldAlreadyExists {
             get {
                 return ResourceManager.GetString("ErrorMessageEntityFieldAlreadyExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot delete {0} with id &quot;{1}&quot; as it is referenced in {2} with ids {3}..
-        /// </summary>
-        internal static string ErrorMessageEntityReferenced {
-            get {
-                return ResourceManager.GetString("ErrorMessageEntityReferenced", resourceCulture);
             }
         }
         
@@ -142,11 +142,47 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find statusPaletteConfig on control and all parent control groups..
+        /// </summary>
+        internal static string ErrorMessageMissingStatusPaletteConfig {
+            get {
+                return ResourceManager.GetString("ErrorMessageMissingStatusPaletteConfig", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property &quot;{0}&quot; cannot be changed. Old value: &quot;{1}&quot;. New value: &quot;{2}&quot;..
+        /// </summary>
+        internal static string ErrorMessagePropertyCannotBeChanged {
+            get {
+                return ResourceManager.GetString("ErrorMessagePropertyCannotBeChanged", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Property &quot;{0}&quot; is required..
+        /// </summary>
+        internal static string ErrorMessagePropertyRequired {
+            get {
+                return ResourceManager.GetString("ErrorMessagePropertyRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cannot find the referenced {0} with id(s) {1}..
         /// </summary>
-        internal static string ErrorMessageStatusPaletteNotFound {
+        internal static string ErrorMessageReferenceNotFound {
             get {
-                return ResourceManager.GetString("ErrorMessageStatusPaletteNotFound", resourceCulture);
+                return ResourceManager.GetString("ErrorMessageReferenceNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Referenced {0} in property &quot;{1}&quot; with id {2} has a wrong type &quot;{3}&quot;. Valid types are {4}..
+        /// </summary>
+        internal static string ErrorMessageReferenceNotMatch {
+            get {
+                return ResourceManager.GetString("ErrorMessageReferenceNotMatch", resourceCulture);
             }
         }
         
@@ -156,15 +192,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic {
         internal static string ErrorMessageUpdateEntityIdNotMatch {
             get {
                 return ResourceManager.GetString("ErrorMessageUpdateEntityIdNotMatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} with id &quot;{1}&quot; cannot be updated with &quot;{2}&quot; status..
-        /// </summary>
-        internal static string ErrorMessageUpdateEntityInIllegeStatus {
-            get {
-                return ResourceManager.GetString("ErrorMessageUpdateEntityInIllegeStatus", resourceCulture);
             }
         }
     }

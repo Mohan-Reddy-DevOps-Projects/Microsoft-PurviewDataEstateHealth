@@ -67,18 +67,66 @@
 
             await this.ValidateStatusPaletteConfig(entity).ConfigureAwait(false);
 
-            if (withNewAssessment)
+            switch (entity.Type)
             {
-                switch (entity.Type)
-                {
-                    case DHControlBaseWrapperDerivedTypes.Node:
+                case DHControlBaseWrapperDerivedTypes.Node:
+                    var nodeEntity = (DHControlNodeWrapper)entity;
+                    if (withNewAssessment)
+                    {
                         var assessment = await assessmentService.CreateEmptyAssessmentAsync(entity.Name).ConfigureAwait(false);
-                        var nodeEntity = (DHControlNodeWrapper)entity;
                         nodeEntity.AssessmentId = assessment.Id;
-                        break;
-                    default:
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(nodeEntity.AssessmentId))
+                        {
+                            throw new EntityValidationException(String.Format(
+                                CultureInfo.InvariantCulture,
+                                StringResources.ErrorMessagePropertyRequired,
+                                DHControlNodeWrapper.keyAssessmentId));
+                        }
+                        var assessment = await assessmentService.GetAssessmentByIdAsync(nodeEntity.AssessmentId).ConfigureAwait(false);
+                        if (assessment == null)
+                        {
+                            throw new EntityValidationException(String.Format(
+                                CultureInfo.InvariantCulture,
+                                StringResources.ErrorMessageReferenceNotFound,
+                                EntityCategory.Assessment.ToString(),
+                                nodeEntity.AssessmentId));
+                        }
+                    }
+
+                    if (nodeEntity.GroupId != null)
+                    {
+                        var group = await dHControlRepository.GetByIdAsync(nodeEntity.GroupId).ConfigureAwait(false);
+                        if (group == null)
+                        {
+                            throw new EntityValidationException(String.Format(
+                                CultureInfo.InvariantCulture,
+                                StringResources.ErrorMessageReferenceNotFound,
+                                EntityCategory.Control.ToString(),
+                                nodeEntity.GroupId));
+                        }
+                        if (group.Type != DHControlBaseWrapperDerivedTypes.Group)
+                        {
+                            throw new EntityValidationException(String.Format(
+                                CultureInfo.InvariantCulture,
+                                StringResources.ErrorMessageReferenceNotMatch,
+                                EntityCategory.Control.ToString(),
+                                DHControlNodeWrapper.keyGroupId,
+                                nodeEntity.GroupId,
+                                nodeEntity.Type,
+                                DHControlBaseWrapperDerivedTypes.Group));
+                        }
+                    }
+
+                    break;
+                default:
+                    if (withNewAssessment)
+                    {
                         throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageAddAssessmentOnlyOnNode, entity.Type));
-                }
+                    }
+                    break;
             }
 
             entity.OnCreate(requestHeaderContext.ClientObjectId);
@@ -106,11 +154,6 @@
             if (!isSystem)
             {
                 entity.NormalizeInput();
-
-                if (entity.Status == DHControlStatus.InDevelopment)
-                {
-                    throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageInDevelopStatus));
-                }
             }
 
             await this.ValidateStatusPaletteConfig(entity).ConfigureAwait(false);
@@ -120,6 +163,49 @@
             if (existEntity == null)
             {
                 throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Control.ToString(), id));
+            }
+
+            if (existEntity.Type != entity.Type)
+            {
+                throw new EntityValidationException(String.Format(
+                    CultureInfo.InvariantCulture,
+                    StringResources.ErrorMessagePropertyCannotBeChanged,
+                    DHControlBaseWrapper.keyType,
+                    existEntity.Type,
+                    entity.Type));
+            }
+
+            if (!isSystem && existEntity.Status == DHControlStatus.InDevelopment)
+            {
+                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageInDevelopStatus));
+            }
+
+            if (existEntity.Type == DHControlBaseWrapperDerivedTypes.Node)
+            {
+                var newNodeEntity = (DHControlNodeWrapper)entity;
+                var existNodeEntity = (DHControlNodeWrapper)existEntity;
+
+                if (!string.IsNullOrEmpty(existNodeEntity.GroupId) &&
+                    !string.Equals(existNodeEntity.GroupId, newNodeEntity.GroupId, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new EntityValidationException(String.Format(
+                        CultureInfo.InvariantCulture,
+                        StringResources.ErrorMessagePropertyCannotBeChanged,
+                        DHControlNodeWrapper.keyGroupId,
+                        existNodeEntity.GroupId,
+                        newNodeEntity.GroupId));
+                }
+
+                if (!string.IsNullOrEmpty(existNodeEntity.AssessmentId) &&
+                    !string.Equals(existNodeEntity.AssessmentId, newNodeEntity.AssessmentId, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new EntityValidationException(String.Format(
+                        CultureInfo.InvariantCulture,
+                        StringResources.ErrorMessagePropertyCannotBeChanged,
+                        DHControlNodeWrapper.keyAssessmentId,
+                        existNodeEntity.AssessmentId,
+                        newNodeEntity.AssessmentId));
+                }
             }
 
             entity.OnUpdate(existEntity, requestHeaderContext.ClientObjectId);
@@ -144,9 +230,35 @@
                 return;
             }
 
+            var referencedControls = await dHControlRepository.QueryControlNodesAsync(new ControlNodeFilters() { ParentControlIds = [id] }).ConfigureAwait(false);
+
+            if (referencedControls.Any())
+            {
+                throw new EntityReferencedException(String.Format(
+                    CultureInfo.InvariantCulture,
+                    StringResources.ErrorMessageDeleteFailureEntityReferenced,
+                    EntityCategory.Control.ToString(),
+                    id,
+                    EntityCategory.Control,
+                    String.Join(", ", referencedControls.Select(x => $"\"{x.Id}\""))));
+            }
+
             await this.DeleteEntityScheduleAsync(existEntity);
 
             await dHControlRepository.DeleteAsync(id).ConfigureAwait(false);
+
+            if (deleteAssessment)
+            {
+                if (existEntity.Type == DHControlBaseWrapperDerivedTypes.Node)
+                {
+                    var nodeEntity = (DHControlNodeWrapper)existEntity;
+                    var assessmentId = nodeEntity.AssessmentId;
+                    if (!string.IsNullOrEmpty(assessmentId))
+                    {
+                        await assessmentService.DeleteAssessmentByIdAsync(assessmentId).ConfigureAwait(false);
+                    }
+                }
+            }
         }
 
         private async Task ValidateStatusPaletteConfig(DHControlBaseWrapper wrapper)
@@ -165,9 +277,28 @@
                 {
                     throw new EntityValidationException(String.Format(
                         CultureInfo.InvariantCulture,
-                        StringResources.ErrorMessageStatusPaletteNotFound,
+                        StringResources.ErrorMessageReferenceNotFound,
                         EntityCategory.StatusPalette.ToString(),
                         string.Join(", ", statusPaletteIds.Except(resultStatusPalettes.Select(p => p.Id), StringComparer.OrdinalIgnoreCase))));
+                }
+            }
+            else
+            {
+                switch (wrapper.Type)
+                {
+                    case DHControlBaseWrapperDerivedTypes.Node:
+                        var node = (DHControlNodeWrapper)wrapper;
+                        var parentNode = node.GroupId == null ? null : await dHControlRepository.GetByIdAsync(node.GroupId).ConfigureAwait(false);
+                        if (parentNode == null)
+                        {
+                            throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageMissingStatusPaletteConfig));
+                        }
+                        await this.ValidateStatusPaletteConfig(parentNode).ConfigureAwait(false);
+                        break;
+                    case DHControlBaseWrapperDerivedTypes.Group:
+                        throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageMissingStatusPaletteConfig));
+                    default:
+                        throw new NotImplementedException();
                 }
             }
         }

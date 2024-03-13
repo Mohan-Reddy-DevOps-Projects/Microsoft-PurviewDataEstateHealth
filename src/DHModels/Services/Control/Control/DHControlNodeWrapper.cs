@@ -8,11 +8,11 @@ using System.Collections.Generic;
 [EntityWrapper(DHControlBaseWrapperDerivedTypes.Node, EntityCategory.Control)]
 public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObject)
 {
-    private const string keyGroupId = "groupId";
+    public const string keyGroupId = "groupId";
     private const string keyDomains = "domains";
     private const string keySchedule = "schedule";
     private const string keyScheduleId = "scheduleId";
-    private const string keyAssessmentId = "assessmentId";
+    public const string keyAssessmentId = "assessmentId";
 
     public DHControlNodeWrapper() : this([]) { }
 

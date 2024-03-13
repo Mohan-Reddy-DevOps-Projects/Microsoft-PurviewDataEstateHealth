@@ -116,7 +116,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             {
                 throw new EntityReferencedException(String.Format(
                     CultureInfo.InvariantCulture,
-                    StringResources.ErrorMessageEntityReferenced,
+                    StringResources.ErrorMessageDeleteFailureEntityReferenced,
                     EntityCategory.StatusPalette.ToString(),
                     id,
                     EntityCategory.Control,

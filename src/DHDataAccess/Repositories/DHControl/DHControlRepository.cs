@@ -50,6 +50,11 @@ public class DHControlRepository(
             );
         }
 
+        if (filters?.ParentControlIds?.Any() == true)
+        {
+            query = query.Where(x => filters.ParentControlIds.Contains(x.GroupId ?? string.Empty));
+        }
+
         var resultQuery = query.ToFeedIterator();
 
         var results = new List<DHControlNodeWrapper>();

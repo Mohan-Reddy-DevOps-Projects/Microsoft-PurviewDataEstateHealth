@@ -5,4 +5,5 @@ public class ControlNodeFilters
 {
     public IList<string>? AssessmentIds { get; set; }
     public string? StatusPaletteId { get; set; }
+    public IList<string>? ParentControlIds { get; set; }
 }
