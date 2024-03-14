@@ -232,7 +232,10 @@ public class DHActionRepository(
 
                     foreach (var obligation in permissionObligation.Value)
                     {
-                        obligation.BusinessDomains = obligation.BusinessDomains ?? [];
+                        if (obligation.BusinessDomains == null || obligation.BusinessDomains.Count == 0)
+                        {
+                            obligation.BusinessDomains = new List<string> { "FAKE_GUID" };
+                        }
 
                         var businessDomains = string.Join(", ", obligation.BusinessDomains.Select(x => $"'{x}'"));
 

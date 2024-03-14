@@ -56,6 +56,11 @@ public class RequestHeaderContext : RequestContext, IRequestHeaderContext
     public const string HeaderAccountObligations = "x-ms-account-authorization-obligations";
 
     /// <summary>
+    /// Header that conveys the auth obligation type
+    /// </summary>
+    public const string AuthObligationsV2 = "x-ms-account-authorization-obligations-v2";
+
+    /// <summary>
     /// Instantiate instance of RequestHeaderContext.
     /// </summary>
     public RequestHeaderContext(IHttpContextAccessor httpContextAccessor)
@@ -108,7 +113,7 @@ public class RequestHeaderContext : RequestContext, IRequestHeaderContext
             headers.GetFirstOrDefault(HeaderAccountObligationType);
         this.AuthorizationObligations = headers.GetFirstOrDefault(HeaderAccountObligations);
 
-        string obligationsStr = headers.GetFirstOrDefault(HeaderAccountObligations);
+        string obligationsStr = headers.GetFirstOrDefault(AuthObligationsV2);
         if (!string.IsNullOrEmpty(obligationsStr))
         {
             var jsonObject = JObject.Parse(obligationsStr);
