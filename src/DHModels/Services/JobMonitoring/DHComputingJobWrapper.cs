@@ -11,6 +11,7 @@ public class DHComputingJobWrapper(JObject jObject) : ContainerEntityDynamicWrap
 {
     private const string keyControlId = "controlId";
     private const string keyDQJobId = "dqJobId";
+    private const string keyScheduleRunId = "scheduleRunId";
     private const string keyCreateTime = "createTime";
     private const string keyStartTime = "startTime";
     private const string keyEndTime = "endTime";
@@ -38,6 +39,14 @@ public class DHComputingJobWrapper(JObject jObject) : ContainerEntityDynamicWrap
     {
         get => this.GetPropertyValue<string>(keyControlId);
         set => this.SetPropertyValue(keyControlId, value);
+    }
+
+    [EntityRequiredValidator]
+    [EntityProperty(keyScheduleRunId)]
+    public string ScheduleRunId
+    {
+        get => this.GetPropertyValue<string>(keyScheduleRunId);
+        set => this.SetPropertyValue(keyScheduleRunId, value);
     }
 
     [EntityProperty(keyCreateTime)]

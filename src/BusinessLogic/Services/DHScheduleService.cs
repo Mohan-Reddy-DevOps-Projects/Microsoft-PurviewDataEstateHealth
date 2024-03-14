@@ -58,6 +58,7 @@ public class DHScheduleService(
             logger.LogInformation($"Trigger control job. ControlId {payload.ControlId}.");
         }
 
+        var scheduleRunId = Guid.NewGuid().ToString();
         var assessments = await assessmentService.ListAssessmentsAsync().ConfigureAwait(false);
 
         foreach (var control in controls)
@@ -91,13 +92,15 @@ public class DHScheduleService(
                 jobWrapper.Id = jobId;
                 jobWrapper.DQJobId = dqJobId;
                 jobWrapper.ControlId = control.Id;
+                jobWrapper.ScheduleRunId = scheduleRunId;
                 await monitoringService.CreateComputingJob(jobWrapper, ScheduleOperationName).ConfigureAwait(false);
-                logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}. Control Id:{control.Id}");
+                logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}. Control Id:{control.Id}. Schedule Run Id: {scheduleRunId}");
                 logger.LogTipInformation($"The MDQ job was triggered", new JObject
                 {
                     { "jobId" , dqJobId },
                     { "controlId", control.Id },
-                    { "controlName", control.Name}
+                    { "controlName", control.Name},
+                    { "scheduleRunId", scheduleRunId }
                 });
             }
             catch (Exception ex)
