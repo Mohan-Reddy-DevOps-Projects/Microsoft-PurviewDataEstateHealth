@@ -72,6 +72,7 @@
                     },
                     "rules": [
                         {
+                            "id": "8154548e-4cdc-4503-a2dc-9e4b9ce4724e",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -111,6 +112,7 @@
                     },
                     "rules": [
                         {
+                            "id": "273abf21-e0dc-4b57-9e08-30ebd4bcfc62",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -124,170 +126,6 @@
                                 "severity": "Medium",
                                 "reason": "Data product not linked to data assets.",
                                 "recommendation": "Link assets to the data product."
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                "control": {
-                    "name": "Critical data identification",
-                    "systemTemplateEntityId": "ec6d401a-8d62-4bf4-b023-85b11f19dd77",
-                    "description": "Business critical data entities and attributes are defined for business domains.",
-                    "status": "Enabled",
-                    "type": "ControlNode"
-                },
-                "assessment": {
-                    "name": "Critical data identification",
-                    "systemTemplateEntityId": "ef0ce1a0-4b3b-4b97-ba93-26434d5d10ee",
-                    "targetEntityType": "BusinessDomain",
-                    "targetQualityType": "MetadataQuality",
-                    "aggregation": {
-                        "type": "Simple",
-                        "typeProperties": {
-                            "aggregationType": "Average"
-                        }
-                    },
-                    "rules": [
-                        {
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "BusinessDomainCriticalDataElementCount",
-                                    "operator": "GreaterThan",
-                                    "operand": "0"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Business domain without critical data entities",
-                                "severity": "Medium",
-                                "reason": "No critical data entities under the business domain.",
-                                "recommendation": "Create critical data entities in the business domain."
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                "control": {
-                    "name": "Critical data connection",
-                    "systemTemplateEntityId": "7ac70358-17d4-4c7b-b651-eed78d9493cd",
-                    "description": "Business critical data entities are mapped to the data assets.",
-                    "status": "Enabled",
-                    "type": "ControlNode"
-                },
-                "assessment": {
-                    "name": "Critical data connection",
-                    "systemTemplateEntityId": "bf24873a-df5a-4b76-a97f-8756c0d98004",
-                    "targetEntityType": "CriticalDataElement",
-                    "targetQualityType": "MetadataQuality",
-                    "aggregation": {
-                        "type": "Simple",
-                        "typeProperties": {
-                            "aggregationType": "Average"
-                        }
-                    },
-                    "rules": [
-                        {
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "CDERelatedDataAssetsCount",
-                                    "operator": "GreaterThan",
-                                    "operand": "0"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Critical data entities not linked to data assets",
-                                "severity": "Medium",
-                                "reason": "Critical data entities are not linked to data assets.",
-                                "recommendation": "Link the critical data entities to the data assets."
-                            }
-                        }
-                    ]
-                }
-            },
-            {
-                "control": {
-                    "name": "Critical data cataloging",
-                    "systemTemplateEntityId": "3a0d7e78-562c-44ae-bcef-3d74337f517a",
-                    "description": "Business critical data entities are cataloged.",
-                    "status": "Enabled",
-                    "type": "ControlNode"
-                },
-                "assessment": {
-                    "name": "Critical data cataloging",
-                    "systemTemplateEntityId": "105a96ff-47da-4c49-a7db-7b2ddf0e03c8",
-                    "targetEntityType": "CriticalDataElement",
-                    "targetQualityType": "MetadataQuality",
-                    "aggregation": {
-                        "type": "Simple",
-                        "typeProperties": {
-                            "aggregationType": "Average"
-                        }
-                    },
-                    "rules": [
-                        {
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "CDEOwnerCount",
-                                    "operator": "GreaterThan",
-                                    "operand": "0"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Missing owners on critical data entities",
-                                "severity": "High",
-                                "reason": "Critical data entities don't have owners assigned.",
-                                "recommendation": "Assign owners to critical data entities."
-                            }
-                        },
-                        {
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "CDEDescriptionLength",
-                                    "operator": "GreaterThan",
-                                    "operand": "0"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Missing description on critical data entities",
-                                "severity": "High",
-                                "reason": "Critical data entities don't have description.",
-                                "recommendation": "Update description for critical data entities."
-                            }
-                        },
-                        {
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "CDERelatedTermsCount",
-                                    "operator": "GreaterThan",
-                                    "operand": "0"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Missing related terms on critical data entities",
-                                "severity": "High",
-                                "reason": "Critical data entities don't have terms assigned.",
-                                "recommendation": "Assign related terms to critical data entities."
-                            }
-                        },
-                        {
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "CDEAllRelatedAssetsHaveClassification",
-                                    "operator": "IsTrue"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Missing classification on data assets related to critical data entities",
-                                "severity": "High",
-                                "reason": "Data assets without classification that are part of critical data entities.",
-                                "recommendation": "Apply classifications for the data assets related to the critical data entities."
                             }
                         }
                     ]
@@ -314,6 +152,7 @@
                     },
                     "rules": [
                         {
+                            "id": "c85ad015-1149-4b2f-9e39-7aed3b904ccd",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -330,6 +169,7 @@
                             }
                         },
                         {
+                            "id": "fb76fd51-6345-4a36-89bd-80eda91a9221",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -346,6 +186,7 @@
                             }
                         },
                         {
+                            "id": "9ad8e08b-1adf-4427-ae11-56838719a5a4",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -362,6 +203,7 @@
                             }
                         },
                         {
+                            "id": "dc0bb501-6476-4a51-93cb-44268234b766",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -378,6 +220,196 @@
                             }
                         }
                     ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Critical data identification",
+                    "systemTemplateEntityId": "ec6d401a-8d62-4bf4-b023-85b11f19dd77",
+                    "description": "Business critical data entities and attributes are defined for business domains.",
+                    "status": "InDevelopment",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Critical data identification",
+                    "systemTemplateEntityId": "ef0ce1a0-4b3b-4b97-ba93-26434d5d10ee",
+                    "targetEntityType": "BusinessDomain",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "id": "fb77e2ad-d162-44d1-a686-4ce0bdfadc0f",
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "BusinessDomainCriticalDataElementCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Business domain without critical data entities",
+                                "severity": "Medium",
+                                "reason": "No critical data entities under the business domain.",
+                                "recommendation": "Create critical data entities in the business domain."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Critical data connection",
+                    "systemTemplateEntityId": "7ac70358-17d4-4c7b-b651-eed78d9493cd",
+                    "description": "Business critical data entities are mapped to the data assets.",
+                    "status": "InDevelopment",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Critical data connection",
+                    "systemTemplateEntityId": "bf24873a-df5a-4b76-a97f-8756c0d98004",
+                    "targetEntityType": "CriticalDataElement",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "id": "9943a8ce-7845-4f0d-8199-7a97a58e3815",
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "CDERelatedDataAssetsCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Critical data entities not linked to data assets",
+                                "severity": "Medium",
+                                "reason": "Critical data entities are not linked to data assets.",
+                                "recommendation": "Link the critical data entities to the data assets."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Critical data cataloging",
+                    "systemTemplateEntityId": "3a0d7e78-562c-44ae-bcef-3d74337f517a",
+                    "description": "Business critical data entities are cataloged.",
+                    "status": "InDevelopment",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Critical data cataloging",
+                    "systemTemplateEntityId": "105a96ff-47da-4c49-a7db-7b2ddf0e03c8",
+                    "targetEntityType": "CriticalDataElement",
+                    "targetQualityType": "MetadataQuality",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": [
+                        {
+                            "id": "a02d6961-0686-4f11-9f2b-b3a9e7334675",
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "CDEOwnerCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing owners on critical data entities",
+                                "severity": "High",
+                                "reason": "Critical data entities don't have owners assigned.",
+                                "recommendation": "Assign owners to critical data entities."
+                            }
+                        },
+                        {
+                            "id": "871743d6-7dd9-4f6b-8325-d55d37fbc4b5",
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "CDEDescriptionLength",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing description on critical data entities",
+                                "severity": "High",
+                                "reason": "Critical data entities don't have description.",
+                                "recommendation": "Update description for critical data entities."
+                            }
+                        },
+                        {
+                            "id": "8a9a735b-379a-4fca-946f-ab9f39202709",
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "CDERelatedTermsCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing related terms on critical data entities",
+                                "severity": "High",
+                                "reason": "Critical data entities don't have terms assigned.",
+                                "recommendation": "Assign related terms to critical data entities."
+                            }
+                        },
+                        {
+                            "id": "909df848-8fc7-4fcb-8e0e-f69bd7336a3e",
+                            "rule": {
+                                "type": "SimpleRule",
+                                "typeProperties": {
+                                    "checkPoint": "CDEAllRelatedAssetsHaveClassification",
+                                    "operator": "IsTrue"
+                                }
+                            },
+                            "actionProperties": {
+                                "name": "Missing classification on data assets related to critical data entities",
+                                "severity": "High",
+                                "reason": "Data assets without classification that are part of critical data entities.",
+                                "recommendation": "Apply classifications for the data assets related to the critical data entities."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Business alignment",
+                    "systemTemplateEntityId": "339034bc-aa9a-4423-a634-bc52cd74cb14",
+                    "description": "Physical data collections and platform domains in the data map are mapped to at least 1 business domain.",
+                    "status": "InDevelopment",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Business alignment",
+                    "systemTemplateEntityId": "1bb8b156-f6af-4525-8483-49ede96a06b2",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": []
                 }
             }
         ]
@@ -455,6 +487,7 @@
                     },
                     "rules": [
                         {
+                            "id": "5eab3f52-277e-4517-b042-25f2c1738b9b",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -471,6 +504,7 @@
                             }
                         },
                         {
+                            "id": "1f21ceae-69d7-4077-9e27-0cededb86faf",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -509,6 +543,7 @@
                     },
                     "rules": [
                         {
+                            "id": "a81cf9fd-ce5e-4bb9-8b2f-f77b06e3c84c",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -524,6 +559,7 @@
                             }
                         },
                         {
+                            "id": "c456880c-2775-4674-9aac-0ea25fcee899",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -562,6 +598,7 @@
                     },
                     "rules": [
                         {
+                            "id": "79e31b52-d07c-4737-89ba-9e8efe57558d",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -600,6 +637,7 @@
                     },
                     "rules": [
                         {
+                            "id": "96a061f8-8b1b-4d3b-9373-f24e98330f6b",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -692,6 +730,7 @@
                     },
                     "rules": [
                         {
+                            "id": "566eb519-810e-43e9-a0d1-1f3cf4402da0",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -708,6 +747,46 @@
                             }
                         }
                     ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Operational costs",
+                    "systemTemplateEntityId": "0fd9ff5b-9170-4028-9a9c-8de98b077e0b",
+                    "description": "Operational costs are reported for business domains, data products, and data assets.",
+                    "status": "InDevelopment",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Operational costs",
+                    "systemTemplateEntityId": "9f0e7a21-b813-40e7-91e0-ec578cfd1534",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": []
+                }
+            },
+            {
+                "control": {
+                    "name": "Business value",
+                    "systemTemplateEntityId": "4e8ca84e-7078-4da3-860d-e5bc1a842f8b",
+                    "description": "Business value outcomes from OKRs served are reported for data products.",
+                    "status": "InDevelopment",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Business value",
+                    "systemTemplateEntityId": "138a24fd-0147-4163-8411-63669efef332",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": []
                 }
             }
         ]
@@ -785,6 +864,7 @@
                     },
                     "rules": [
                         {
+                            "id": "dfc18455-36ea-4641-ab14-f812b64db9db",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -823,6 +903,7 @@
                     },
                     "rules": [
                         {
+                            "id": "f2d3b82e-0cb5-4a8b-9276-70c5144d7f4d",
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
@@ -838,6 +919,140 @@
                             }
                         }
                     ]
+                }
+            },
+            {
+                "control": {
+                    "name": "Data security and compliance",
+                    "systemTemplateEntityId": "c020e1d3-7a22-4296-9b0b-f4c758119ece",
+                    "description": "Data security and compliance policies are met by business domains, data products, and data assets.",
+                    "status": "InDevelopment",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Data security and compliance",
+                    "systemTemplateEntityId": "ada224ad-82ed-420f-8aa8-25dd07ec9611",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": []
+                }
+            },
+            {
+                "control": {
+                    "name": "Access request SLA",
+                    "systemTemplateEntityId": "348c7438-765e-4b0b-87c2-0b99297f845d",
+                    "description": "Access requests for data products are addressed within published SLAs.",
+                    "status": "InDevelopment",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Access request SLA",
+                    "systemTemplateEntityId": "74d14f86-5bd3-40e8-92e2-6f3e1bf021cd",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": []
+                }
+            },
+            {
+                "control": {
+                    "name": "Zero-trust default access",
+                    "systemTemplateEntityId": "b070fdd0-0687-4a9b-9bf5-87e7bed22280",
+                    "description": "Data products should by default only be accessible by their owners.",
+                    "status": "InDevelopment",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Zero-trust default access",
+                    "systemTemplateEntityId": "0bd44cfc-5e0c-4cca-9f5f-1b3f3c132a9a",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": []
+                }
+            }
+        ]
+    },
+    {
+        "controlGroup": {
+            "name": "Data Estate Health Observability",
+            "systemTemplateEntityId": "63ab74eb-b8a2-4fcd-afb0-e539440b8a0e",
+            "type": "ControlGroup",
+            "status": "Enabled",
+            "statusPaletteConfig": {
+                "targetScore": 0.8,
+                "fallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
+                "statusPaletteRules": [
+                    {
+                        "statusPaletteId": "00000000-0000-0000-0000-000000000002",
+                        "rule": {
+                            "type": "SimpleRule",
+                            "typeProperties": {
+                                "checkPoint": "Score",
+                                "operator": "GreaterThanOrEqual",
+                                "operand": "0.8"
+                            }
+                        }
+                    },
+                    {
+                        "statusPaletteId": "00000000-0000-0000-0000-000000000003",
+                        "rule": {
+                            "type": "RuleGroup",
+                            "typeProperties": {
+                                "groupOperator": "And",
+                                "rules": [
+                                    {
+                                        "type": "SimpleRule",
+                                        "typeProperties": {
+                                            "checkPoint": "Score",
+                                            "operator": "LessThan",
+                                            "operand": "0.8"
+                                        }
+                                    },
+                                    {
+                                        "type": "SimpleRule",
+                                        "typeProperties": {
+                                            "checkPoint": "Score",
+                                            "operator": "GreaterThanOrEqual",
+                                            "operand": "0.6"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "items": [
+            {
+                "control": {
+                    "name": "Data estate health monitoring, alerting, and insights",
+                    "systemTemplateEntityId": "a7bbd4bd-eb95-4ad4-8645-8a7c36d785a4",
+                    "description": "Observability for controls compliance across the data estate.",
+                    "status": "InDevelopment",
+                    "type": "ControlNode"
+                },
+                "assessment": {
+                    "name": "Data estate health monitoring, alerting, and insights",
+                    "systemTemplateEntityId": "0dbadef9-7e60-4d12-9343-8503e02a3564",
+                    "aggregation": {
+                        "type": "Simple",
+                        "typeProperties": {
+                            "aggregationType": "Average"
+                        }
+                    },
+                    "rules": []
                 }
             }
         ]

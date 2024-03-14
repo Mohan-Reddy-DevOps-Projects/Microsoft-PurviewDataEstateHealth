@@ -26,9 +26,9 @@ public class DHControlNodeWrapper(JObject jObject) : DHControlBaseWrapper(jObjec
     private IEnumerable<string>? domains;
 
     [EntityTypeProperty(keyDomains)]
-    public IEnumerable<string> Domains
+    public IEnumerable<string>? Domains
     {
-        get => this.domains ??= (this.GetTypePropertyValues<string>(keyDomains) ?? []);
+        get => this.domains ??= this.GetTypePropertyValues<string>(keyDomains);
         set
         {
             this.SetTypePropertyValue(keyDomains, value);

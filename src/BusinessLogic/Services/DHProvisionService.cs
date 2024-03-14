@@ -115,6 +115,13 @@ public class DHProvisionService(
                 var assessmentWrapper = DHAssessmentWrapper.Create(item.Assessment);
                 assessmentWrapper.Validate();
                 Ensure.IsNotNullOrWhitespace(assessmentWrapper.SystemTemplateEntityId, $"SystemTemplateEntityId cannot be null or empty in assessment {assessmentWrapper.Name}");
+
+                foreach (var rule in assessmentWrapper.Rules)
+                {
+                    Ensure.IsNotNullOrWhitespace(rule.Id, $"Id cannot be null or empty in assessment rule {JsonConvert.SerializeObject(rule)}");
+                    templateEntityIds.Add(rule.Id);
+                }
+
                 templateEntityIds.Add(assessmentWrapper.SystemTemplateEntityId);
 
                 var controlWrapper = (DHControlNodeWrapper)DHControlBaseWrapper.Create(item.Control);
@@ -271,13 +278,20 @@ public class DHProvisionService(
 
         var template = JsonConvert.DeserializeObject<IList<ControlAssessmentTemplate>>(templatePayload) ?? [];
 
+        var allExistingTemplateControlGroups = await controlRepository.QueryControlGroupsAsync(new TemplateFilters() { TemplateName = templateType.ToString() }).ConfigureAwait(false);
+
+        var allExistingTemplateControlNodes = await controlRepository.QueryControlNodesAsync(new ControlNodeFilters() { TemplateName = templateType.ToString() }).ConfigureAwait(false);
+
+        var allExistingTemplateAssessments = await assessmentRepository.QueryAssessmentsAsync(new TemplateFilters() { TemplateName = templateType.ToString() }).ConfigureAwait(false);
+
+        List<string> controlIds = [];
+        List<string> assessmentIds = [];
+
         foreach (var group in template)
         {
             var controlGroupWrapper = DHControlBaseWrapper.Create(group.ControlGroup);
 
-            var existControlGroups = await controlRepository.QueryControlGroupsAsync(new TemplateFilters() { TemplateName = templateType.ToString(), TemplateEntityIds = [controlGroupWrapper.SystemTemplateEntityId] }).ConfigureAwait(false);
-
-            var existControlGroup = existControlGroups.FirstOrDefault();
+            var existControlGroup = allExistingTemplateControlGroups.FirstOrDefault(x => x.SystemTemplateEntityId == controlGroupWrapper.SystemTemplateEntityId);
 
             DHControlBaseWrapper controlGroup;
 
@@ -294,6 +308,8 @@ public class DHProvisionService(
                 controlGroup = await controlService.UpdateControlByIdAsync(existControlGroup.Id, controlGroupWrapper, true).ConfigureAwait(false);
             }
 
+            controlIds.Add(controlGroup.Id);
+
             foreach (var item in group.Items)
             {
                 if (item.Control == null || item.Assessment == null)
@@ -305,9 +321,7 @@ public class DHProvisionService(
 
                 var assessmentWrapper = DHAssessmentWrapper.Create(item.Assessment);
 
-                var existAssessments = await assessmentRepository.QueryAssessmentsAsync(new TemplateFilters() { TemplateName = templateType.ToString(), TemplateEntityIds = [assessmentWrapper.SystemTemplateEntityId] }).ConfigureAwait(false);
-
-                var existAssessment = existAssessments.FirstOrDefault();
+                var existAssessment = allExistingTemplateAssessments.FirstOrDefault(x => x.SystemTemplateEntityId == assessmentWrapper.SystemTemplateEntityId);
 
                 DHAssessmentWrapper assessment;
 
@@ -325,13 +339,15 @@ public class DHProvisionService(
                     assessment = await assessmentService.UpdateAssessmentByIdAsync(existAssessment.Id, assessmentWrapper, true).ConfigureAwait(false);
                 }
 
+                assessmentIds.Add(assessment.Id);
+
                 // Reset control
 
                 var controlWrapper = (DHControlNodeWrapper)DHControlBaseWrapper.Create(item.Control);
 
-                var existControls = await controlRepository.QueryControlNodesAsync(new ControlNodeFilters() { TemplateName = templateType.ToString(), TemplateEntityIds = [controlWrapper.SystemTemplateEntityId] }).ConfigureAwait(false);
+                var existControl = allExistingTemplateControlNodes.FirstOrDefault(x => x.SystemTemplateEntityId == controlWrapper.SystemTemplateEntityId);
 
-                var existControl = existControls.FirstOrDefault();
+                DHControlBaseWrapper controlNode;
 
                 controlWrapper.AssessmentId = assessment.Id;
                 controlWrapper.GroupId = controlGroup.Id;
@@ -341,15 +357,38 @@ public class DHProvisionService(
                 {
                     controlWrapper.SystemTemplate = templateType.ToString();
 
-                    await controlService.CreateControlAsync(controlWrapper, isSystem: true).ConfigureAwait(false);
+                    controlNode = await controlService.CreateControlAsync(controlWrapper, isSystem: true).ConfigureAwait(false);
                 }
                 else
                 {
                     controlWrapper.Id = existControl.Id;
 
-                    await controlService.UpdateControlByIdAsync(existControl.Id, controlWrapper, true).ConfigureAwait(false);
+                    controlNode = await controlService.UpdateControlByIdAsync(existControl.Id, controlWrapper, true).ConfigureAwait(false);
                 }
+
+                controlIds.Add(controlNode.Id);
             }
+        }
+
+        var allAssessmentsNotInTemplate = allExistingTemplateAssessments.Where(x => !assessmentIds.Contains(x.Id)).Select(x => x.Id).ToList();
+
+        foreach (var assessmentId in allAssessmentsNotInTemplate)
+        {
+            await assessmentService.DeleteAssessmentByIdAsync(assessmentId).ConfigureAwait(false);
+        }
+
+        var allControlNodesNotInTemplate = allExistingTemplateControlNodes.Where(x => !controlIds.Contains(x.Id)).Select(x => x.Id).ToList();
+
+        foreach (var controlId in allControlNodesNotInTemplate)
+        {
+            await controlService.DeleteControlByIdAsync(controlId).ConfigureAwait(false);
+        }
+
+        var allControlGroupsNotInTemplate = allExistingTemplateControlGroups.Where(x => !controlIds.Contains(x.Id)).Select(x => x.Id).ToList();
+
+        foreach (var controlId in allControlGroupsNotInTemplate)
+        {
+            await controlService.DeleteControlByIdAsync(controlId).ConfigureAwait(false);
         }
     }
 
