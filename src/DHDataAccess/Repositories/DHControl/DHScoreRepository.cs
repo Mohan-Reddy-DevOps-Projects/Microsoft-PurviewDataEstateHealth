@@ -86,7 +86,7 @@ public class DHScoreRepository(
 SELECT 
     c.ControlGroupId,
     c.ScheduleRunId,
-    MAX(c.Time),
+    MAX(c.Time) AS Time,
     AVG(c.AggregatedScore) AS Score
 FROM c WHERE 1=1 ");
 
