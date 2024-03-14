@@ -497,6 +497,9 @@ public class JobManager : IJobManager
     public async Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel)
     {
         const int catalogRepeatStrategyTime = 1; // Days
+        var catalogRepeatStrategy = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ?
+        TimeSpan.FromHours(catalogRepeatStrategyTime) : TimeSpan.FromDays(catalogRepeatStrategyTime);
+
 
         string accountId = accountServiceModel.Id;
         string jobPartition = $"{accountId}-CATALOG-SPARK-JOBS";
@@ -528,7 +531,7 @@ public class JobManager : IJobManager
                     jobPartition,
                     jobId)
                 .WithStartTime(DateTime.UtcNow.AddMinutes(SparkJobsStartTime))
-                .WithRepeatStrategy(TimeSpan.FromHours(catalogRepeatStrategyTime))
+                .WithRepeatStrategy(catalogRepeatStrategy)
                 .WithRetryStrategy(TimeSpan.FromMinutes(SparkJobsRetryStrategyTime))
                 .WithoutEndTime();
 
