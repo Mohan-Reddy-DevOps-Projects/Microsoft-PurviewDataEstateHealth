@@ -138,19 +138,19 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
             foreach (DataQualitySourceEventHubEntityModel sourceModel in sourceModels)
             {
                 var domainModelPayload = this.ParseDomainModelPayload(sourceModel.Domainmodel);
-                this.DataEstateHealthRequestLogger.LogInformation($"Process MDQ job. Job ID: {sourceModel.ResultId}. Job status: {sourceModel.JobStatus}.");
-                if (domainModelPayload.TenantId == Guid.Empty.ToString())
+                var resultId = this.ParseResultId(sourceModel.ResultId);
+                if (!Guid.TryParse(resultId.JobId, out var dqJobId) || !Guid.TryParse(domainModelPayload.TenantId, out var tenantId) || !Guid.TryParse(sourceModel.AccountId, out var accountId))
                 {
-                    this.DataEstateHealthRequestLogger.LogInformation($"Ignore MDQ job with empty tenant id. Job ID: {sourceModel.ResultId}.");
+                    this.DataEstateHealthRequestLogger.LogInformation($"Ignore MDQ job with invalid id. JobId: {resultId.JobId}. TenantId: {domainModelPayload.TenantId}. AccountId: {sourceModel.AccountId}.");
                     continue;
                 }
-                var resultId = this.ParseResultId(sourceModel.ResultId);
+                this.DataEstateHealthRequestLogger.LogInformation($"Process MDQ job. Job ID: {dqJobId}. Tenant ID: {tenantId}. Account ID: {accountId}. Job status: {sourceModel.JobStatus}.");
                 var model = new MDQJobModel
                 {
-                    DQJobId = Guid.Parse(resultId.JobId),
+                    DQJobId = dqJobId,
                     JobStatus = sourceModel.JobStatus,
-                    TenantId = Guid.Parse(domainModelPayload.TenantId),
-                    AccountId = Guid.Parse(sourceModel.AccountId),
+                    TenantId = tenantId,
+                    AccountId = accountId,
                 };
                 this.dataHealthApiService.TriggerMDQJobCallback(model, false);
                 jobModels.Add(sourceModel);

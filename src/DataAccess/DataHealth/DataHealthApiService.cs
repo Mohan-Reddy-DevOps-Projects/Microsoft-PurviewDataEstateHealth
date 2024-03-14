@@ -53,6 +53,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                     };
                     var client = this.GetDEHServiceClient();
                     await client.TriggerMDQJobCallback(payload).ConfigureAwait(false);
+                    this.logger.LogInformation($"Succeed to trigger MDQ Job callback. Job Id: {jobModel.DQJobId}.");
 
                     if (isRetry)
                     {
@@ -61,7 +62,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 }
                 catch (Exception ex)
                 {
-                    this.logger.LogError("Fail to trigger MDQ Job callback", ex);
+                    this.logger.LogError($"Fail to trigger MDQ Job callback. Job Id: {jobModel.DQJobId}.", ex);
                     await this.CreateMDQFailedJob(jobModel).ConfigureAwait(false);
                 }
             });
