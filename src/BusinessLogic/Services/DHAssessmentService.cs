@@ -79,7 +79,7 @@ public class DHAssessmentService(
         return await this.CreateAssessmentAsync(entity).ConfigureAwait(false);
     }
 
-    public async Task<DHAssessmentWrapper> UpdateAssessmentByIdAsync(string id, DHAssessmentWrapper entity)
+    public async Task<DHAssessmentWrapper> UpdateAssessmentByIdAsync(string id, DHAssessmentWrapper entity, bool isSystem = false)
     {
         ArgumentNullException.ThrowIfNull(id);
         ArgumentNullException.ThrowIfNull(entity);
@@ -90,7 +90,11 @@ public class DHAssessmentService(
         }
 
         entity.Validate();
-        entity.NormalizeInput();
+
+        if (!isSystem)
+        {
+            entity.NormalizeInput();
+        }
 
         var existEntity = await assessmentRepository.GetByIdAsync(id).ConfigureAwait(false);
 

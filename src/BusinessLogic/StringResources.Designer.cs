@@ -171,6 +171,15 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} with id &quot;{1}&quot; is not created by system template..
+        /// </summary>
+        internal static string ErrorMessageNotCreatedWithTemplate {
+            get {
+                return ResourceManager.GetString("ErrorMessageNotCreatedWithTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Property &quot;{0}&quot; cannot be changed. Old value: &quot;{1}&quot;. New value: &quot;{2}&quot;..
         /// </summary>
         internal static string ErrorMessagePropertyCannotBeChanged {

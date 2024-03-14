@@ -1,14 +1,20 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
+using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +22,8 @@ using System.Threading.Tasks;
 public class DHProvisionService(
     DHControlService controlService,
     DHAssessmentService assessmentService,
+    DHControlRepository controlRepository,
+    DHAssessmentRepository assessmentRepository,
     IRequestHeaderContext requestHeaderContext
     )
 {
@@ -46,7 +54,7 @@ public class DHProvisionService(
             throw new EntityValidationException("Wrong template name");
         }
 
-        var templatePayload = this.GetTemplatePayload(TemplateType.ControlAssessment, templateType);
+        var templatePayload = this.GetTemplatePayload(templateType);
 
         var template = JsonConvert.DeserializeObject<IList<ControlAssessmentTemplate>>(templatePayload) ?? [];
 
@@ -84,7 +92,7 @@ public class DHProvisionService(
             throw new EntityValidationException("Wrong template name");
         }
 
-        var templatePayload = this.GetTemplatePayload(TemplateType.ControlAssessment, templateType);
+        var templatePayload = this.GetTemplatePayload(templateType);
 
         var template = JsonConvert.DeserializeObject<IList<ControlAssessmentTemplate>>(templatePayload) ?? [];
 
@@ -134,7 +142,16 @@ public class DHProvisionService(
 
         var allTemplateControls = allControlsResponse.Results.Where((x) => x.SystemTemplate == templateType.ToString()).ToList();
 
-        foreach (var control in allTemplateControls)
+        var groupControls = allTemplateControls.Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Group).ToList();
+
+        var nodeControls = allTemplateControls.Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Node).ToList();
+
+        foreach (var control in nodeControls)
+        {
+            await controlService.DeleteControlByIdAsync(control.Id, true).ConfigureAwait(false);
+        }
+
+        foreach (var control in groupControls)
         {
             await controlService.DeleteControlByIdAsync(control.Id).ConfigureAwait(false);
         }
@@ -149,20 +166,202 @@ public class DHProvisionService(
         }
     }
 
-    private string GetTemplatePayload(TemplateType templateType, SystemTemplateNames templateName)
+    public async Task<DHControlBaseWrapper> ResetControlByIdAsync(string controlId)
+    {
+        var entity = await controlService.GetControlByIdAsync(controlId).ConfigureAwait(false);
+
+        if (entity == null)
+        {
+            throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Control.ToString(), controlId));
+        }
+
+        if (entity.SystemTemplate == null)
+        {
+            throw new EntityValidationException(string.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageNotCreatedWithTemplate, EntityCategory.Control.ToString(), controlId));
+        }
+
+        if (!Enum.TryParse<SystemTemplateNames>(entity.SystemTemplate, true, out var templateType))
+        {
+            throw new EntityValidationException("Wrong template name");
+        }
+
+        var templatePayload = this.GetTemplatePayload(templateType);
+
+        var template = JsonConvert.DeserializeObject<IList<ControlAssessmentTemplate>>(templatePayload) ?? [];
+
+        switch (entity.Type)
+        {
+            case DHControlBaseWrapperDerivedTypes.Group:
+                var allControlGroupsInTemplate = template.Select(x => DHControlBaseWrapper.Create(x.ControlGroup)).ToList();
+
+                var templateGroup = allControlGroupsInTemplate.FirstOrDefault(x => x.SystemTemplateEntityId == entity.SystemTemplateEntityId);
+                if (templateGroup == null)
+                {
+                    throw new EntityValidationException("Group not found in template");
+                }
+
+                templateGroup.Id = entity.Id;
+
+                return await controlService.UpdateControlByIdAsync(controlId, templateGroup, true).ConfigureAwait(false);
+            case DHControlBaseWrapperDerivedTypes.Node:
+                var nodeEntity = (DHControlNodeWrapper)entity;
+
+                var allControlItemsInTemplate = template.SelectMany(x => x.Items).Select(x => (DHControlNodeWrapper)DHControlBaseWrapper.Create(x.Control)).ToList();
+
+                var templateNode = allControlItemsInTemplate.FirstOrDefault(x => x.SystemTemplateEntityId == entity.SystemTemplateEntityId);
+                if (templateNode == null)
+                {
+                    throw new EntityValidationException("Node not found in template");
+                }
+
+                templateNode.Id = nodeEntity.Id;
+                templateNode.AssessmentId = nodeEntity.AssessmentId;
+                templateNode.GroupId = nodeEntity.GroupId;
+                return await controlService.UpdateControlByIdAsync(controlId, templateNode, true).ConfigureAwait(false);
+            default:
+                throw new EntityValidationException("Wrong control type");
+        }
+    }
+
+    public async Task<DHAssessmentWrapper> ResetAssessmentByIdAsync(string assessmentId)
+    {
+        var entity = await assessmentService.GetAssessmentByIdAsync(assessmentId).ConfigureAwait(false);
+
+        if (entity == null)
+        {
+            throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Assessment.ToString(), assessmentId));
+        }
+
+        if (entity.SystemTemplate == null)
+        {
+            throw new EntityValidationException(string.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageNotCreatedWithTemplate, EntityCategory.Assessment.ToString(), assessmentId));
+        }
+
+        if (!Enum.TryParse<SystemTemplateNames>(entity.SystemTemplate, true, out var templateType))
+        {
+            throw new EntityValidationException("Wrong template name");
+        }
+
+        var templatePayload = this.GetTemplatePayload(templateType);
+
+        var template = JsonConvert.DeserializeObject<IList<ControlAssessmentTemplate>>(templatePayload) ?? [];
+
+        var allAssessmentsInTemplate = template.SelectMany(x => x.Items).Select(x => DHAssessmentWrapper.Create(x.Assessment)).ToList();
+
+        var templateAssessment = allAssessmentsInTemplate.FirstOrDefault(x => x.SystemTemplateEntityId == entity.SystemTemplateEntityId);
+
+        if (templateAssessment == null)
+        {
+            throw new EntityValidationException("Assessment not found in template");
+        }
+
+        templateAssessment.Id = entity.Id;
+
+        return await assessmentService.UpdateAssessmentByIdAsync(assessmentId, templateAssessment, true).ConfigureAwait(false);
+    }
+
+    public async Task ResetControlTemplate(string templateName)
+    {
+        if (!Enum.TryParse<SystemTemplateNames>(templateName, true, out var templateType))
+        {
+            throw new EntityValidationException("Wrong template name");
+        }
+
+        var templatePayload = this.GetTemplatePayload(templateType);
+
+        var template = JsonConvert.DeserializeObject<IList<ControlAssessmentTemplate>>(templatePayload) ?? [];
+
+        foreach (var group in template)
+        {
+            var controlGroupWrapper = DHControlBaseWrapper.Create(group.ControlGroup);
+
+            var existControlGroups = await controlRepository.QueryControlGroupsAsync(new TemplateFilters() { TemplateName = templateType.ToString(), TemplateEntityIds = [controlGroupWrapper.SystemTemplateEntityId] }).ConfigureAwait(false);
+
+            var existControlGroup = existControlGroups.FirstOrDefault();
+
+            DHControlBaseWrapper controlGroup;
+
+            if (existControlGroup == null)
+            {
+                controlGroupWrapper.SystemTemplate = templateType.ToString();
+
+                controlGroup = await controlService.CreateControlAsync(controlGroupWrapper, isSystem: true).ConfigureAwait(false);
+            }
+            else
+            {
+                controlGroupWrapper.Id = existControlGroup.Id;
+
+                controlGroup = await controlService.UpdateControlByIdAsync(existControlGroup.Id, controlGroupWrapper, true).ConfigureAwait(false);
+            }
+
+            foreach (var item in group.Items)
+            {
+                if (item.Control == null || item.Assessment == null)
+                {
+                    throw new EntityValidationException("Control and Assessment cannot be null");
+                }
+
+                // Reset assessment
+
+                var assessmentWrapper = DHAssessmentWrapper.Create(item.Assessment);
+
+                var existAssessments = await assessmentRepository.QueryAssessmentsAsync(new TemplateFilters() { TemplateName = templateType.ToString(), TemplateEntityIds = [assessmentWrapper.SystemTemplateEntityId] }).ConfigureAwait(false);
+
+                var existAssessment = existAssessments.FirstOrDefault();
+
+                DHAssessmentWrapper assessment;
+
+                if (existAssessment == null)
+                {
+                    assessmentWrapper.SystemTemplate = templateType.ToString();
+
+                    assessment = await assessmentService.CreateAssessmentAsync(assessmentWrapper, isSystem: true).ConfigureAwait(false);
+
+                }
+                else
+                {
+                    assessmentWrapper.Id = existAssessment.Id;
+
+                    assessment = await assessmentService.UpdateAssessmentByIdAsync(existAssessment.Id, assessmentWrapper, true).ConfigureAwait(false);
+                }
+
+                // Reset control
+
+                var controlWrapper = (DHControlNodeWrapper)DHControlBaseWrapper.Create(item.Control);
+
+                var existControls = await controlRepository.QueryControlNodesAsync(new ControlNodeFilters() { TemplateName = templateType.ToString(), TemplateEntityIds = [controlWrapper.SystemTemplateEntityId] }).ConfigureAwait(false);
+
+                var existControl = existControls.FirstOrDefault();
+
+                controlWrapper.AssessmentId = assessment.Id;
+                controlWrapper.GroupId = controlGroup.Id;
+                controlWrapper.SystemTemplate = templateType.ToString();
+
+                if (existControl == null)
+                {
+                    controlWrapper.SystemTemplate = templateType.ToString();
+
+                    await controlService.CreateControlAsync(controlWrapper, isSystem: true).ConfigureAwait(false);
+                }
+                else
+                {
+                    controlWrapper.Id = existControl.Id;
+
+                    await controlService.UpdateControlByIdAsync(existControl.Id, controlWrapper, true).ConfigureAwait(false);
+                }
+            }
+        }
+    }
+
+    private string GetTemplatePayload(SystemTemplateNames templateName)
     {
         var fileName = $"{templateName}.json";
 
-        var fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", templateType.ToString(), fileName);
+        var fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", fileName);
 
         var jsonStr = File.ReadAllText(fullPath);
 
         return jsonStr;
-    }
-
-    private enum TemplateType
-    {
-        ControlAssessment
     }
 
     private enum SystemTemplateNames

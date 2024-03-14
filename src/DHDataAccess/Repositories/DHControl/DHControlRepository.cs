@@ -25,39 +25,77 @@ public class DHControlRepository(
 
     protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
-    public async Task<IEnumerable<DHControlNodeWrapper>> QueryControlNodesAsync(ControlNodeFilters filters)
+    public async Task<IEnumerable<DHControlNodeWrapper>> QueryControlNodesAsync(ControlNodeFilters filter)
     {
         var query = this.CosmosContainer.GetItemLinqQueryable<DHControlNodeWrapper>(
             requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
             .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Node);
 
-        if (filters?.AssessmentIds?.Any() == true)
+        if (filter?.AssessmentIds?.Any() == true)
         {
-            query = query.Where(x => filters.AssessmentIds.Contains(x.AssessmentId ?? string.Empty));
+            query = query.Where(x => filter.AssessmentIds.Contains(x.AssessmentId ?? string.Empty));
         }
 
-        if (!string.IsNullOrWhiteSpace(filters?.StatusPaletteId))
+        if (!string.IsNullOrWhiteSpace(filter?.StatusPaletteId))
         {
             query = query.Where(x =>
             x.StatusPaletteConfig != null &&
             (
-                x.StatusPaletteConfig.FallbackStatusPaletteId == filters.StatusPaletteId ||
+                x.StatusPaletteConfig.FallbackStatusPaletteId == filter.StatusPaletteId ||
                 (
                     x.StatusPaletteConfig.StatusPaletteRules != null &&
-                    x.StatusPaletteConfig.StatusPaletteRules.Select(y => y.StatusPaletteId).Contains(filters.StatusPaletteId)
+                    x.StatusPaletteConfig.StatusPaletteRules.Select(y => y.StatusPaletteId).Contains(filter.StatusPaletteId)
                 )
             )
             );
         }
 
-        if (filters?.ParentControlIds?.Any() == true)
+        if (filter?.ParentControlIds?.Any() == true)
         {
-            query = query.Where(x => filters.ParentControlIds.Contains(x.GroupId ?? string.Empty));
+            query = query.Where(x => filter.ParentControlIds.Contains(x.GroupId ?? string.Empty));
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter?.TemplateName))
+        {
+            query = query.Where(x => x.SystemTemplate == filter.TemplateName);
+        }
+
+        if (filter?.TemplateEntityIds?.Any() == true)
+        {
+            query = query.Where(x => filter.TemplateEntityIds.Contains(x.SystemTemplateEntityId));
         }
 
         var resultQuery = query.ToFeedIterator();
 
         var results = new List<DHControlNodeWrapper>();
+        while (resultQuery.HasMoreResults)
+        {
+            var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
+            results.AddRange([.. response]);
+        }
+
+        return results;
+    }
+
+    public async Task<IEnumerable<DHControlGroupWrapper>> QueryControlGroupsAsync(TemplateFilters filter)
+    {
+        var query = this.CosmosContainer.GetItemLinqQueryable<DHControlGroupWrapper>(
+            requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
+            .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Group);
+
+        if (!string.IsNullOrWhiteSpace(filter?.TemplateName))
+        {
+            query = query.Where(x => x.SystemTemplate == filter.TemplateName);
+        }
+
+        if (filter?.TemplateEntityIds?.Any() == true)
+        {
+            query = query.Where(x => filter.TemplateEntityIds.Contains(x.SystemTemplateEntityId));
+        }
+
+        var resultQuery = query.ToFeedIterator();
+
+        var results = new List<DHControlGroupWrapper>();
         while (resultQuery.HasMoreResults)
         {
             var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);

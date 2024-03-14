@@ -18,7 +18,7 @@ using Newtonsoft.Json.Linq;
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
 [Route("/controls")]
-public class DHControlController(DHControlService dataHealthControlService) : DataPlaneController
+public class DHControlController(DHControlService dataHealthControlService, DHProvisionService provisionService) : DataPlaneController
 {
     [HttpGet]
     [Route("")]
@@ -75,5 +75,23 @@ public class DHControlController(DHControlService dataHealthControlService) : Da
         await dataHealthControlService.DeleteControlByIdAsync(id, deleteAssessment).ConfigureAwait(false);
 
         return this.NoContent();
+    }
+
+    [HttpPost]
+    [Route("{id}/reset")]
+    public async Task<ActionResult> ResetControlByIdAsync(string id)
+    {
+        var entity = await provisionService.ResetControlByIdAsync(id).ConfigureAwait(false);
+
+        return this.Ok(entity.JObject);
+    }
+
+    [HttpPost]
+    [Route("reset")]
+    public async Task<ActionResult> ResetAllControlsAsync()
+    {
+        await provisionService.ResetControlTemplate("CDMC").ConfigureAwait(false);
+
+        return this.Ok();
     }
 }
