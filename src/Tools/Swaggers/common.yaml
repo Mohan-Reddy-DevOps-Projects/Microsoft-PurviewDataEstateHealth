@@ -537,18 +537,28 @@ paths:
                             type: number
                             example: 0
 
-  /controls/scores/queryControlScores:
+  /controls/scores/query:
     post:
-      operationId: QueryControlScores
-      description: Query control scores.
+      operationId: QueryScores
+      description: Query control scores or control group scores based on the type specified.
       tags:
         - Score
+      parameters:
+        - in: query
+          name: type
+          required: true
+          schema:
+            type: string
+            enum: [ControlNode, ControlGroup]
+          description: Type of the scores to query, either ControlNode or ControlGroup.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/QueryControlScoresRequest"
+              oneOf:
+                - $ref: '#/components/schemas/QueryControlScoresRequest'
+                - $ref: '#/components/schemas/QueryControlGroupScoresRequest'
       responses:
         "200":
           description: OK
@@ -557,31 +567,9 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ControlScore"
-
-  
-  /controls/scores/queryControlGroupScores:
-    post:
-      operationId: QueryControlGroupScores
-      description: Query control group scores.
-      tags:
-        - Score
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/QueryControlGroupScoresRequest"
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ControlGroupScore"
-
+                  oneOf:
+                    - $ref: '#/components/schemas/ControlScore'
+                    - $ref: '#/components/schemas/ControlGroupScore'
 
 components:
   schemas:

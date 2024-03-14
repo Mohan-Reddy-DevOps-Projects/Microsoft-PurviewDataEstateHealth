@@ -3,11 +3,13 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.DataPl
 
 using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Newtonsoft.Json;
 
 /// <summary>
@@ -27,7 +29,8 @@ public class DHScoreController(DHScoreService dhScoreService) : DataPlaneControl
     }
 
     [HttpPost]
-    [Route("queryControlScores")]
+    [Route("query")]
+    [QueryStringConstraint("type", DHControlBaseWrapperDerivedTypes.Node)]
     public async Task<ActionResult> QueryControlScoresAsync(
         [FromBody] QueryControlScoresRequest queryScoresRequest)
     {
@@ -37,7 +40,8 @@ public class DHScoreController(DHScoreService dhScoreService) : DataPlaneControl
     }
 
     [HttpPost]
-    [Route("queryControlGroupScores")]
+    [Route("query")]
+    [QueryStringConstraint("type", DHControlBaseWrapperDerivedTypes.Group)]
     public async Task<ActionResult> QueryControlGroupScoresAsync(
         [FromBody] QueryControlGroupScoresRequest queryScoresRequest)
     {
@@ -94,4 +98,21 @@ public record QueryScoresRequestTimeRange
 
     [JsonProperty("end")]
     public DateTime End { get; set; }
+}
+
+[AttributeUsage(AttributeTargets.Method)]
+internal class QueryStringConstraintAttribute(string parameterName, string expectedValue) : Attribute, IActionConstraint
+{
+    public bool Accept(ActionConstraintContext context)
+    {
+        var request = context.RouteContext.HttpContext.Request;
+        if (!request.Query.TryGetValue(parameterName, out var actualValue))
+        {
+            return false;
+        }
+
+        return string.Equals(actualValue, expectedValue, StringComparison.OrdinalIgnoreCase);
+    }
+
+    public int Order => 0;
 }
