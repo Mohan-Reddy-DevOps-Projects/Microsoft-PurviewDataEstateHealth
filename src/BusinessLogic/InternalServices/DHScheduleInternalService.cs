@@ -82,6 +82,12 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
             await this.dhControlScheduleRepository.DeleteAsync(scheduleId).ConfigureAwait(false);
         }
 
+        public async Task TriggerScheduleAsync(string scheduleId)
+        {
+            var payload = new DHScheduleTriggerRequestPayload { ScheduleId = scheduleId };
+            await this.scheduleServiceClient.TriggerSchedule(payload).ConfigureAwait(false);
+        }
+
         private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleStoragePayloadWrapper schedule, string? controlId)
         {
             var tenantId = this.requestHeaderContext.TenantId.ToString();

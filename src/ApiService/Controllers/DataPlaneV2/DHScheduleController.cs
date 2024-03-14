@@ -26,6 +26,14 @@ public class DHScheduleController(DHScheduleService scheduleService) : DataPlane
         return this.Ok(result.JObject);
     }
 
+    [HttpPost]
+    [Route("trigger")]
+    public async Task<ActionResult> TriggerScheduleAsync()
+    {
+        await scheduleService.TriggerScheduleAsync().ConfigureAwait(false);
+        return this.Ok(new Dictionary<string, bool>() { { "succeeded", true } });
+    }
+
     [HttpPut]
     [Route("")]
     public async Task<ActionResult> CreateOrUpdateGlobalScheduleAsync(

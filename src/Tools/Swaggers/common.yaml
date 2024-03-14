@@ -141,6 +141,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/Schedule"
 
+  /controls/schedule/trigger:
+    post:
+      operationId: Trigger Schedule
+      description: Trigger Schedule.
+      tags:
+        - Schedule
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  succeeded:
+                    type: boolean
+
   /controls/alert:
     get:
       operationId: Get Alert

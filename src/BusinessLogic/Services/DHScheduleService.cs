@@ -39,7 +39,7 @@ public class DHScheduleService(
     private const string ScheduleOperationName = "DGSchedule Service";
     private const string MDQEventOperationName = "MDQ event";
 
-    public async Task TriggerScheduleAsync(DHScheduleCallbackPayload payload)
+    public async Task TriggerScheduleJobCallbackAsync(DHScheduleCallbackPayload payload)
     {
         // Step 1: query all controls
         var controls = new List<DHControlNodeWrapper>();
@@ -220,6 +220,20 @@ public class DHScheduleService(
         response.SystemData = globalSchedule.SystemData;
 
         return response;
+    }
+
+    public async Task TriggerScheduleAsync()
+    {
+        var globalSchedule = await this.GetGlobalScheduleInternalAsync().ConfigureAwait(false);
+
+        if (globalSchedule == null)
+        {
+            throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), "Global"));
+        }
+
+        var scheduleId = globalSchedule.Id;
+
+        await scheduleService.TriggerScheduleAsync(scheduleId).ConfigureAwait(false);
     }
 
     private async Task<DHControlScheduleStoragePayloadWrapper?> GetGlobalScheduleInternalAsync()
