@@ -7,12 +7,14 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using System.Net;
 
 internal static class ExceptionConverter
 {
+    private const string UnhandledServiceExceptionMessage = "Unhandle service exception caught";
     /// <summary>
     /// Convert an exception to an error model.
     /// </summary>
@@ -21,7 +23,7 @@ internal static class ExceptionConverter
     /// <param name="envConfig">The environment configuration.</param>
     /// <param name="requestContext"></param>
     /// <returns></returns>
-    public static ErrorModel CreateErrorModel(Exception ex, HttpStatusCode statusCode, EnvironmentConfiguration envConfig, IRequestContext requestContext)
+    public static ErrorModel CreateErrorModel(Exception ex, HttpStatusCode statusCode, EnvironmentConfiguration envConfig, IRequestContext requestContext, IDataEstateHealthRequestLogger logger)
     {
         ServiceException serviceException = GetKnownException(ex);
         if (serviceException != null)
@@ -30,6 +32,7 @@ internal static class ExceptionConverter
         }
         else if (ex == null || !envConfig.IsDevelopmentEnvironment())
         {
+            logger.LogCritical(UnhandledServiceExceptionMessage, ex);
             // by default do not throw unhandled exceptions to customer.
             return new(HttpStatusCode.InternalServerError.ToString(), "Unknown error")
             {
@@ -38,6 +41,7 @@ internal static class ExceptionConverter
         }
         else
         {
+            logger.LogCritical(UnhandledServiceExceptionMessage, ex);
             // allow unknown exceptions to be throw in dev environments.
             return CreateDetailedError(ex, statusCode);
         }

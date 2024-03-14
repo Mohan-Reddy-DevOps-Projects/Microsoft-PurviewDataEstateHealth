@@ -50,7 +50,7 @@ internal static class ExceptionHandler
 
         ErrorResponseModel errorResponse = new()
         {
-            Error = ExceptionConverter.CreateErrorModel(exception, statusCode, envConfig, requestContextAccessor.GetRequestContext())
+            Error = ExceptionConverter.CreateErrorModel(exception, statusCode, envConfig, requestContextAccessor.GetRequestContext(), logger)
         };
 
         await ModifyHttpResponse(context, statusCode, errorResponse);
