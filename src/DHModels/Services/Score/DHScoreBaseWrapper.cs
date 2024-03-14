@@ -3,6 +3,7 @@
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ public abstract class DHScoreBaseWrapper(JObject jObject) : ContainerEntityDynam
     private const string keyControlId = "controlId";
     private const string keyControlGroupId = "controlGroupId";
     private const string keyComputingJobId = "computingJobId";
+    private const string keyScheduleRunId = "scheduleRunId";
     private const string keyScore = "scores";
     private const string keyAggregatedScore = "aggregatedScore";
 
@@ -50,6 +52,14 @@ public abstract class DHScoreBaseWrapper(JObject jObject) : ContainerEntityDynam
     {
         get => this.GetPropertyValue<string>(keyComputingJobId);
         set => this.SetPropertyValue(keyComputingJobId, value);
+    }
+
+    [EntityRequiredValidator]
+    [EntityProperty(keyScheduleRunId)]
+    public string ScheduleRunId
+    {
+        get => this.GetPropertyValue<string>(keyScheduleRunId);
+        set => this.SetPropertyValue(keyScheduleRunId, value);
     }
 
     private IEnumerable<DHScoreUnitWrapper>? scores;

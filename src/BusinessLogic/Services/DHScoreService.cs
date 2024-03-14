@@ -8,6 +8,7 @@
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Output;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
     using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
     using Newtonsoft.Json.Linq;
@@ -31,8 +32,11 @@
             return new BatchResults<DHScoreBaseWrapper>(scores, scores.Count());
         }
 
-        public async Task ProcessControlComputingResultsAsync(string controlId, string computingJobId, IEnumerable<DHRawScore> scores, bool isRetry = false)
+        public async Task ProcessControlComputingResultsAsync(DHComputingJobWrapper job, IEnumerable<DHRawScore> scores, bool isRetry = false)
         {
+            var controlId = job.ControlId;
+            var computingJobId = job.Id;
+
             using (logger.LogElapsed($"{nameof(ProcessControlComputingResultsAsync)}, controlId = {controlId}, computingJobId = {computingJobId}, rawScoreCount = {scores.Count()}"))
             {
                 var control = await dhControlRepository.GetByIdAsync(controlId).ConfigureAwait(false) ?? throw new InvalidOperationException($"Control with id {controlId} not found!");
@@ -43,7 +47,7 @@
                     try
                     {
                         await Task.WhenAll(
-                            this.StoreScoreAsync(controlId, assessmentId, controlNode, assessment, scores, computingJobId),
+                            this.StoreScoreAsync(job, assessmentId, controlNode, assessment, scores),
                             this.GenerateActionAsync(controlNode, assessment, scores, computingJobId, isRetry)
                         ).ConfigureAwait(false);
                     }
@@ -78,8 +82,12 @@
             return dhScoreRepository.QueryScoreGroupByControlGroup(controlGroupIds, domainIds, recordLatestCounts, start, end, status);
         }
 
-        private async Task StoreScoreAsync(string controlId, string assessmentId, DHControlNodeWrapper controlNode, DHAssessmentWrapper assessment, IEnumerable<DHRawScore> scores, string computingJobId)
+        private async Task StoreScoreAsync(DHComputingJobWrapper job, string assessmentId, DHControlNodeWrapper controlNode, DHAssessmentWrapper assessment, IEnumerable<DHRawScore> scores)
         {
+            var controlId = job.ControlId;
+            var computingJobId = job.Id;
+            var scheduleRunId = job.ScheduleRunId;
+
             var aggregation = assessment.AggregationWrapper ?? throw new InvalidOperationException($"Assessment with id {assessmentId} has no aggregation!");
             var currentTime = DateTime.UtcNow;
             switch (aggregation)
@@ -101,6 +109,7 @@
                                             ControlId = controlId,
                                             ControlGroupId = controlNode.GroupId,
                                             ComputingJobId = computingJobId,
+                                            ScheduleRunId = scheduleRunId,
                                             Time = currentTime,
                                             Scores = x.Scores,
                                             AggregatedScore = x.Scores.Average(scoreUnit => scoreUnit.Score),
