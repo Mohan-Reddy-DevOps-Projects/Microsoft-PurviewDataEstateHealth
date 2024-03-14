@@ -1,75 +1,23 @@
 namespace UnitTests.CosmosDBCommonRepository;
 
 using Bogus;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using UnitTests.CosmosDBTestingMetadata;
 
 [TestClass]
 public class CommonRepositoryTests
 {
-    private static CosmosClient? cosmosClient;
-    private static TestEntityRepository? testEntityRepository;
     private readonly Faker faker = new();
     private readonly Faker<TestEntityWrapper> testEntityFaker = new Faker<TestEntityWrapper>()
         .RuleFor(o => o.Id, f => f.Random.Guid().ToString())
         .RuleFor(o => o.Name, f => f.Lorem.Word())
         .RuleFor(o => o.Description, f => f.Lorem.Sentence());
-    private static bool TestingDBAvailable => testEntityRepository != null;
-
-    [ClassInitialize]
-#pragma warning disable IDE0060 // Method has specific requirements for their signatures to be recognized by the MSTest framework.
-    public static async Task TestSetup(TestContext context)
-#pragma warning restore IDE0060
-    {
-        try
-        {
-            cosmosClient = new CosmosClient(Constants.CosmosDbEndpoint, Constants.CosmosDbKey, new CosmosClientOptions
-            {
-                ConnectionMode = ConnectionMode.Direct,
-                Serializer = new CosmosWrapperSerializer(),
-                AllowBulkExecution = true
-            });
-
-            var databaseResponse = await cosmosClient.CreateDatabaseIfNotExistsAsync(Constants.DatabaseName);
-            var database = databaseResponse.Database;
-            await database.CreateContainerIfNotExistsAsync(Constants.ContainerName, "/TenantId");
-
-            testEntityRepository = new TestEntityRepository(cosmosClient);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Test setup failed: {ex.Message}");
-        }
-    }
-
-    [ClassCleanup]
-    public static async Task TestCleanup()
-    {
-        if (cosmosClient != null)
-        {
-            try
-            {
-                // Delete a container
-                await cosmosClient.GetContainer(Constants.DatabaseName, Constants.ContainerName).DeleteContainerAsync();
-
-                // Delete a database
-                await cosmosClient.GetDatabase(Constants.DatabaseName).DeleteAsync();
-
-                cosmosClient.Dispose();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Test cleanup failed: {ex.Message}");
-            }
-        }
-    }
 
     [TestMethod]
     public async Task ICanAddEntityToContainerWithoutAccountId()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(ICanAddEntityToContainerWithoutAccountId)}"" is inconclusive.");
         }
@@ -80,12 +28,12 @@ public class CommonRepositoryTests
 
         var tenantId = this.faker.Random.Guid().ToString();
 
-        var addedEntity = await testEntityRepository!.AddAsync(entity, tenantId);
+        var addedEntity = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, tenantId);
         Assert.AreEqual(tenantId, addedEntity.TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
         Assert.IsNull(addedEntity.AccountId, "The AccountId of the added entity should be null.");
         Assert.IsTrue(JObject.DeepEquals(entity.JObject, addedEntity.JObject), "The JObject of the added entity should be the same as the JObject of the entity passed to the AddAsync method.");
 
-        var retrievedEntity = await testEntityRepository.GetByIdAsync(addedEntity.Id, tenantId);
+        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(addedEntity.Id, tenantId);
         Assert.AreEqual(addedEntity.Id, retrievedEntity!.Id, "The Id of the retrieved entity should be the same as the Id of the added entity.");
         Assert.AreEqual(addedEntity.TenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the TenantId of the added entity.");
         Assert.AreEqual(addedEntity.AccountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the AccountId of the added entity.");
@@ -95,7 +43,7 @@ public class CommonRepositoryTests
     [TestMethod]
     public async Task ICanAddEntityToContainerWithAccountId()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(ICanAddEntityToContainerWithAccountId)}"" is inconclusive.");
         }
@@ -107,12 +55,12 @@ public class CommonRepositoryTests
         var tenantId = this.faker.Random.Guid().ToString();
         var accountId = this.faker.Random.Guid().ToString();
 
-        var addedEntity = await testEntityRepository!.AddAsync(entity, tenantId, accountId);
+        var addedEntity = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, tenantId, accountId);
         Assert.AreEqual(tenantId, addedEntity.TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
         Assert.AreEqual(accountId, addedEntity.AccountId, "The AccountId of the added entity should be the same as the accountId passed to the AddAsync method.");
         Assert.IsTrue(JObject.DeepEquals(entity.JObject, addedEntity.JObject), "The JObject of the added entity should be the same as the JObject of the entity passed to the AddAsync method.");
 
-        var retrievedEntity = await testEntityRepository.GetByIdAsync(addedEntity.Id, tenantId);
+        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(addedEntity.Id, tenantId);
         Assert.AreEqual(addedEntity.Id, retrievedEntity!.Id, "The Id of the retrieved entity should be the same as the Id of the added entity.");
         Assert.AreEqual(addedEntity.TenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the TenantId of the added entity.");
         Assert.AreEqual(addedEntity.AccountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the AccountId of the added entity.");
@@ -122,7 +70,7 @@ public class CommonRepositoryTests
     [TestMethod]
     public async Task ICanAddMultipleEntitiesToContainer()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(ICanAddMultipleEntitiesToContainer)}"" is inconclusive.");
         }
@@ -135,7 +83,7 @@ public class CommonRepositoryTests
 
         var tenantId = this.faker.Random.Guid().ToString();
         var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
 
         Assert.AreEqual(0, FailedItems.Count, "The FailedItems list should be empty.");
         Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
@@ -150,7 +98,7 @@ public class CommonRepositoryTests
             Assert.AreEqual(accountId, orderedList2[i].AccountId, "The AccountId of the added entity should be the same as the accountId passed to the AddAsync method.");
             Assert.IsTrue(JObject.DeepEquals(orderedList1[i].JObject, orderedList2[i].JObject), "The JObject of the added entity should be the same as the JObject of the entity passed to the AddAsync method.");
 
-            var retrievedEntity = await testEntityRepository.GetByIdAsync(orderedList2[i].Id, tenantId);
+            var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(orderedList2[i].Id, tenantId);
             Assert.AreEqual(orderedList2[i].Id, retrievedEntity!.Id, "The Id of the retrieved entity should be the same as the Id of the added entity.");
             Assert.AreEqual(orderedList2[i].TenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the TenantId of the added entity.");
             Assert.AreEqual(orderedList2[i].AccountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the AccountId of the added entity.");
@@ -161,7 +109,7 @@ public class CommonRepositoryTests
     [TestMethod]
     public async Task ICanAddManyEntitiesToContainer()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(ICanAddManyEntitiesToContainer)}"" is inconclusive.");
         }
@@ -174,7 +122,7 @@ public class CommonRepositoryTests
 
         var tenantId = this.faker.Random.Guid().ToString();
         var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
 
         Assert.AreEqual(entities.Count, SucceededItems.Count + FailedItems.Count, "The sum of succeeded entities and failed entities should be the same as the number of entities passed to the AddAsync method.");
         Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
@@ -189,7 +137,7 @@ public class CommonRepositoryTests
 
             Assert.IsTrue(JObject.DeepEquals(originalEntity.JObject, item.JObject), "The JObject of the added entity should be the same as the JObject of the entity passed to the AddAsync method.");
 
-            var retrievedEntity = await testEntityRepository.GetByIdAsync(item.Id, tenantId);
+            var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(item.Id, tenantId);
             Assert.AreEqual(item.Id, retrievedEntity!.Id, "The Id of the retrieved entity should be the same as the Id of the added entity.");
             Assert.AreEqual(item.TenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the TenantId of the added entity.");
             Assert.AreEqual(item.AccountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the AccountId of the added entity.");
@@ -200,7 +148,7 @@ public class CommonRepositoryTests
     [TestMethod]
     public async Task ICanUpdateEntityInContainerWithoutAccountId()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(ICanUpdateEntityInContainerWithoutAccountId)}"" is inconclusive.");
         }
@@ -211,7 +159,7 @@ public class CommonRepositoryTests
 
         var tenantId = this.faker.Random.Guid().ToString();
 
-        await testEntityRepository!.AddAsync(entity, tenantId);
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, tenantId);
 
         var draftEntity = new TestEntityWrapper((JObject)entity.JObject.DeepClone())
         {
@@ -222,7 +170,7 @@ public class CommonRepositoryTests
         Assert.AreNotEqual(entity.Description, draftEntity.Description, "The description of the draft entity should be different from the description of the original entity.");
         Assert.IsTrue(AreJObjectsMostlyEqual(entity.JObject, draftEntity.JObject, "description"), "The JObject of the draft entity should be mostly the same as the JObject of the original entity, except for the Description property.");
 
-        var updatedEntity = await testEntityRepository!.UpdateAsync(draftEntity, tenantId);
+        var updatedEntity = await CosmosDBClient.DBTestEntityRepository!.UpdateAsync(draftEntity, tenantId);
         Assert.AreEqual(tenantId, updatedEntity.TenantId, "The TenantId of the updated entity should be the same as the tenantId passed to the UpdateAsync method.");
         Assert.IsNull(updatedEntity.AccountId, "The AccountId of the updated entity should be null.");
         Assert.AreEqual(draftEntity.Description, updatedEntity.Description, "The Description of the updated entity should be the same as the Description of the draft entity.");
@@ -232,7 +180,7 @@ public class CommonRepositoryTests
     [TestMethod]
     public async Task ICanUpdateMultipleEntitiesInContainer()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(ICanUpdateMultipleEntitiesInContainer)}"" is inconclusive.");
         }
@@ -245,7 +193,7 @@ public class CommonRepositoryTests
 
         var tenantId = this.faker.Random.Guid().ToString();
         var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
 
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
@@ -266,7 +214,7 @@ public class CommonRepositoryTests
             Assert.IsTrue(AreJObjectsMostlyEqual(addedEntity.JObject, draftEntity.JObject, "description"), "The JObject of the draft entity should be mostly the same as the JObject of the original entity, except for the Description property.");
         }
 
-        (SucceededItems, FailedItems) = await testEntityRepository!.UpdateAsync(draftEntities, tenantId, accountId);
+        (SucceededItems, FailedItems) = await CosmosDBClient.DBTestEntityRepository!.UpdateAsync(draftEntities, tenantId, accountId);
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(draftEntities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the UpdateAsync method.");
 
@@ -283,7 +231,7 @@ public class CommonRepositoryTests
     [TestMethod]
     public async Task ICanDeleteEntityFromContainer()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(ICanDeleteEntityFromContainer)}"" is inconclusive.");
         }
@@ -293,21 +241,21 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
         var tenantId = this.faker.Random.Guid().ToString();
-        await testEntityRepository!.AddAsync(entity, tenantId);
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, tenantId);
 
-        var retrievedEntity = await testEntityRepository.GetByIdAsync(entity.Id, tenantId);
+        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, tenantId);
         Assert.IsNotNull(retrievedEntity, "The retrieved entity should not be null.");
 
-        await testEntityRepository!.DeleteAsync(entity, tenantId);
+        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(entity, tenantId);
 
-        retrievedEntity = await testEntityRepository.GetByIdAsync(entity.Id, tenantId);
+        retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, tenantId);
         Assert.IsNull(retrievedEntity, "The retrieved entity should be null.");
     }
 
     [TestMethod]
     public async Task ICanDeleteEntityByIdFromContainer()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(ICanDeleteEntityByIdFromContainer)}"" is inconclusive.");
         }
@@ -317,33 +265,33 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
         var tenantId = this.faker.Random.Guid().ToString();
-        await testEntityRepository!.AddAsync(entity, tenantId);
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, tenantId);
 
-        var retrievedEntity = await testEntityRepository.GetByIdAsync(entity.Id, tenantId);
+        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, tenantId);
         Assert.IsNotNull(retrievedEntity, "The retrieved entity should not be null.");
 
-        await testEntityRepository!.DeleteAsync(entity.Id, tenantId);
+        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(entity.Id, tenantId);
 
-        retrievedEntity = await testEntityRepository.GetByIdAsync(entity.Id, tenantId);
+        retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, tenantId);
         Assert.IsNull(retrievedEntity, "The retrieved entity should be null.");
     }
 
     [TestMethod]
     public async Task GetByIdShouldReturnNullIfIdNotExist()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(GetByIdShouldReturnNullIfIdNotExist)}"" is inconclusive.");
         }
 
-        var retrievedEntity = await testEntityRepository!.GetByIdAsync(this.faker.Random.Guid().ToString(), this.faker.Random.Guid().ToString());
+        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository!.GetByIdAsync(this.faker.Random.Guid().ToString(), this.faker.Random.Guid().ToString());
         Assert.IsNull(retrievedEntity, "The retrieved entity should be null.");
     }
 
     [TestMethod]
     public async Task DeleteShouldNotThrowIfEntityNotExist()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(DeleteShouldNotThrowIfEntityNotExist)}"" is inconclusive.");
         }
@@ -352,24 +300,24 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
-        await testEntityRepository!.DeleteAsync(entity, this.faker.Random.Guid().ToString());
+        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(entity, this.faker.Random.Guid().ToString());
     }
 
     [TestMethod]
     public async Task DeleteShouldNotThrowIfEntityIdNotExist()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(DeleteShouldNotThrowIfEntityIdNotExist)}"" is inconclusive.");
         }
 
-        await testEntityRepository!.DeleteAsync(this.faker.Random.Guid().ToString(), this.faker.Random.Guid().ToString());
+        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(this.faker.Random.Guid().ToString(), this.faker.Random.Guid().ToString());
     }
 
     [TestMethod]
     public async Task AddManyEntitiesIgnoresExistingEntitiesWithoutError()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(AddManyEntitiesIgnoresExistingEntitiesWithoutError)}"" is inconclusive.");
         }
@@ -382,13 +330,13 @@ public class CommonRepositoryTests
 
         var tenantId = this.faker.Random.Guid().ToString();
         var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
 
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
         Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
 
-        (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+        (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
 
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(0, SucceededItems.Count, "The number of added entities should be zero.");
@@ -398,15 +346,12 @@ public class CommonRepositoryTests
     [TestMethod]
     public async Task GetAllAsyncShouldReturnAllEntities()
     {
-        if (!TestingDBAvailable)
+        if (!CosmosDBClient.TestingDBAvailable)
         {
             Assert.Inconclusive($@"The test case ""{nameof(GetAllAsyncShouldReturnAllEntities)}"" is inconclusive.");
         }
 
-        // Delete the container
-        await cosmosClient!.GetContainer(Constants.DatabaseName, Constants.ContainerName).DeleteContainerAsync();
-        // Create the container again
-        await cosmosClient.GetDatabase(Constants.DatabaseName).CreateContainerIfNotExistsAsync(Constants.ContainerName, "/TenantId");
+        await CosmosDBClient.ResetContainer();
 
         var entities = this.testEntityFaker.Generate(10);
         foreach (var entity in entities)
@@ -416,13 +361,13 @@ public class CommonRepositoryTests
 
         var tenantId = this.faker.Random.Guid().ToString();
         var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems, IgnoredItems) = await testEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
 
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
         Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
 
-        var retrievedEntities = await testEntityRepository.GetAllAsync(tenantId);
+        var retrievedEntities = await CosmosDBClient.DBTestEntityRepository.GetAllAsync(tenantId);
         Assert.AreEqual(entities.Count, retrievedEntities.Count(), "The number of retrieved entities should be the same as the number of entities passed to the AddAsync method.");
 
         foreach (var retrievedEntity in retrievedEntities)

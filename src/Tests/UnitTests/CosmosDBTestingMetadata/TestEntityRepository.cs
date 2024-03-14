@@ -1,4 +1,4 @@
-﻿namespace UnitTests.CosmosDBCommonRepository;
+﻿namespace UnitTests.CosmosDBTestingMetadata;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
@@ -29,5 +29,5 @@ internal class TestEntityWrapper(JObject jObject) : ContainerEntityBaseWrapper<T
 internal class TestEntityRepository(CosmosClient cosmosClient)
     : CommonRepository<TestEntityWrapper>(new Mock<IDataEstateHealthRequestLogger>().Object)
 {
-    protected override Container CosmosContainer => cosmosClient.GetDatabase(Constants.DatabaseName).GetContainer(Constants.ContainerName);
+    protected override Container CosmosContainer => cosmosClient.GetDatabase(CosmosDBConstants.DatabaseName).GetContainer(CosmosDBConstants.ContainerName);
 }

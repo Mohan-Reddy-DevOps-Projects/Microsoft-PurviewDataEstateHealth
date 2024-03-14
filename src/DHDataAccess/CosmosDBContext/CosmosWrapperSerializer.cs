@@ -70,30 +70,29 @@ public class CosmosWrapperSerializer : CosmosSerializer
                     {
                         var elementType = type.GetElementType() ?? throw new InvalidOperationException("No element type for an array!");
 
-                        object?[] objects;
 
                         if (elementType.IsSubclassOf(typeof(BaseEntityWrapper)))
                         {
                             var jObjects = jArray.OfType<JObject>();
-                            objects = jObjects.Select(x => DeserializeEntity<object>(x, elementType)).ToArray();
-                        }
-                        else
-                        {
-                            objects = jArray.OfType<object>().Select(x => x is JObject jObject ? jObject.ToObject(elementType) : Convert.ChangeType(x, elementType)).ToArray();
+                            var objects = jObjects.Select(x => DeserializeEntity<object>(x, elementType)).ToArray();
+
+                            var typedArray = Array.CreateInstance(elementType, objects.Length);
+
+                            for (int i = 0; i < objects.Length; i++)
+                            {
+                                // Convert each element as necessary and assign it to the new array
+                                // This example assumes that a direct cast is sufficient
+                                // If not, you might need additional conversion logic here
+                                typedArray.SetValue(objects[i], i);
+                            }
+
+                            // Convert the array to type T
+                            return (T)(object)typedArray;
                         }
 
-                        var typedArray = Array.CreateInstance(elementType, objects.Length);
-
-                        for (int i = 0; i < objects.Length; i++)
-                        {
-                            // Convert each element as necessary and assign it to the new array
-                            // This example assumes that a direct cast is sufficient
-                            // If not, you might need additional conversion logic here
-                            typedArray.SetValue(objects[i], i);
-                        }
-
-                        // Convert the array to type T
-                        return (T)(object)typedArray;
+#nullable disable
+                        return jArray.ToObject<T>();
+#nullable enable
                     }
                     throw new InvalidCastException("The type is not an array!");
                 default:
