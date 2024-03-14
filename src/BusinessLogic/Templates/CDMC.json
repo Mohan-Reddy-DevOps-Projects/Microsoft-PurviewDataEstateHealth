@@ -714,7 +714,7 @@
                     "name": "Business OKRs alignment",
                     "systemTemplateEntityId": "f00d8f3c-d4e4-4b24-861b-f2be175761c9",
                     "description": "Data products serve 1 or more business OKRs.",
-                    "status": "Enabled",
+                    "status": "InDevelopment",
                     "type": "ControlNode"
                 },
                 "assessment": {
