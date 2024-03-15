@@ -1,0 +1,5203 @@
+{
+  "compatibilityLevel": 1567,
+  "model": {
+    "annotations": [
+      {
+        "name": "PBI_QueryOrder",
+        "value": "[\"SERVER\",\"DATABASE\",\"DATABASE_SCHEMA\",\"TENANT_ID\",\"DirectQuery to AS - DQ_Health_Report_Dataset\"]"
+      },
+      {
+        "name": "__PBI_TimeIntelligenceEnabled",
+        "value": "1"
+      },
+      {
+        "name": "PBIDesktopVersion",
+        "value": "2.127.808.0 (24.03)"
+      },
+      {
+        "name": "PBI_ProTooling",
+        "value": "[\"DevMode\"]"
+      }
+    ],
+    "culture": "en-US",
+    "cultures": [
+      {
+        "name": "en-US",
+        "linguisticMetadata": {
+          "content": {
+            "Entities": {
+              "pbi_businessdomain.businessdomaindisplayname": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi BusinessDomain",
+                    "ConceptualProperty": "BusinessDomainDisplayName"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Business domain": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
+              },
+              "pbi_dataasset.dataassetdisplayname": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi DataAsset",
+                    "ConceptualProperty": "DataAssetDisplayName"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Data asset": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
+              },
+              "pbi_dataproduct.dataproductdisplayname": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "pbi DataProduct",
+                    "ConceptualProperty": "DataProductDisplayName"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "Data product": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
+              },
+              "table_measurestable.m_dqpassscore": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "_MeasuresTable",
+                    "ConceptualProperty": "M_DQPassScore"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "DQ Score": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
+              }
+            },
+            "Language": "en-US",
+            "Version": "2.0.0"
+          },
+          "contentType": "json"
+        }
+      }
+    ],
+    "dataAccessOptions": {
+      "legacyRedirects": true,
+      "returnErrorValuesAsNull": true
+    },
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "expressions": [
+      {
+        "name": "SERVER",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Text"
+          }
+        ],
+        "expression": "\"dghdogfoodsynapse-ondemand.sql.azuresynapse.net\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "cc283591-7d74-461c-99fd-e4e64359f30f"
+      },
+      {
+        "name": "DATABASE",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Text"
+          }
+        ],
+        "expression": "\"SQL_ON_DEMAND\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "d02b7984-409b-4f10-b3ec-ee8f8fb870d1"
+      },
+      {
+        "name": "DATABASE_SCHEMA",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Text"
+          }
+        ],
+        "expression": "\"ecf09339-34e0-464b-a8fb-661209048543\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "5dae7524-fb85-4661-8339-09816a9887cc"
+      },
+      {
+        "name": "TENANT_ID",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Text"
+          }
+        ],
+        "expression": "\"12d98746-0b5a-4778-8bd0-449994469062\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "acabc7ae-0291-4563-89e1-0dfc2a1c47c9"
+      },
+      {
+        "name": "DirectQuery to AS - DQ_Health_Report_Dataset",
+        "annotations": [
+          {
+            "name": "PBI_IncludeFutureArtifacts",
+            "value": "True"
+          }
+        ],
+        "expression": [
+          "let",
+          "    Source = AnalysisServices.Database(\"powerbi://df-msit-scus-redirect.analysis.windows.net/v1.0/myorg/InsightsWorkspace\", \"DQ_Health_Report_Dataset\"),",
+          "    Cubes = Table.Combine(Source[Data]),",
+          "    Cube = Cubes{[Id=\"Model\", Kind=\"Cube\"]}[Data]",
+          "in",
+          "    Cube"
+        ],
+        "kind": "m",
+        "lineageTag": "bc818c48-dc64-4918-83d9-c37b202a6317"
+      }
+    ],
+    "relationships": [
+      {
+        "name": "67cf73cb-2b07-44ae-9194-4c1e99435837",
+        "fromColumn": "CreatedDatetime",
+        "fromTable": "DimBusinessDomain",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_3a7bc8d0-445b-47b5-a665-443a5dc55aeb"
+      },
+      {
+        "name": "4118f03a-a24b-49df-832a-ea569b69a583",
+        "fromColumn": "ModifiedDatetime",
+        "fromTable": "DimBusinessDomain",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_b0d21fe9-8623-48a1-8d91-4045c82bf688"
+      },
+      {
+        "name": "571285ff-555e-4563-9e42-67ca085ca18a",
+        "fromColumn": "EffectiveDateTime",
+        "fromTable": "DimBusinessDomain",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_1da78420-d65e-4c9b-83fe-35feed98b428"
+      },
+      {
+        "name": "e39c83de-9e03-48af-b7d8-1e83f49b91c8",
+        "fromColumn": "ExpiredDateTime",
+        "fromTable": "DimBusinessDomain",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_4dabbb02-85c0-4c23-bad2-572095f26c50"
+      },
+      {
+        "name": "c5a20698-2e3f-4fd9-9f1a-f6bc842932ca",
+        "fromColumn": "CreatedDatetime",
+        "fromTable": "DimDataAsset",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_c90c5857-0c4b-46e2-864e-0ea538c9ef67"
+      },
+      {
+        "name": "f46792aa-cb0f-4cdb-b0d9-f11a705466f1",
+        "fromColumn": "ModifiedDatetime",
+        "fromTable": "DimDataAsset",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_dd28c169-1ac7-48ff-b501-8f0cae5a7b80"
+      },
+      {
+        "name": "f58b0eea-847d-4741-88c0-6dd6c7901b1f",
+        "fromColumn": "EffectiveDateTime",
+        "fromTable": "DimDataAsset",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_4948e53a-5f64-4614-bca9-98312e0b1369"
+      },
+      {
+        "name": "8fd4c874-820c-4cea-9a4f-c2e674575e5a",
+        "fromColumn": "ExpiredDateTime",
+        "fromTable": "DimDataAsset",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_a5de0586-4a64-4dd9-ae96-ea02c9438b23"
+      },
+      {
+        "name": "e38706e8-a0bd-4459-b910-1461ce599d6d",
+        "fromColumn": "CreatedDatetime",
+        "fromTable": "DimDataProduct",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_f26ed20b-9a46-425e-b6ae-15318bbbf830"
+      },
+      {
+        "name": "3f64c05e-0430-4b6e-8cb2-60e1e6f80222",
+        "fromColumn": "ModifiedDatetime",
+        "fromTable": "DimDataProduct",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_045e7fe5-7175-4194-8740-e4e882ec0155"
+      },
+      {
+        "name": "aa8bb2be-e3ce-403d-8184-c73f5f722a8b",
+        "fromColumn": "CreatedDatetime",
+        "fromTable": "DimDataAssetColumn",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_61487324-08de-4812-b3ef-6ddfd827dbb4"
+      },
+      {
+        "name": "f20bd254-d623-4e7a-80b5-36c6fb5ffe10",
+        "fromColumn": "ModifiedDatetime",
+        "fromTable": "DimDataAssetColumn",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_36baea46-b7b4-4dc4-bc06-b4bf9cda36dc"
+      },
+      {
+        "name": "68af15bd-4733-488a-9543-d1face0b494c",
+        "fromColumn": "EffectiveDateTime",
+        "fromTable": "DimDataAssetColumn",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_bd5cd023-6e59-49a1-b90d-a08110cee908"
+      },
+      {
+        "name": "f86f9796-6d49-4f12-a926-c26e73c79e10",
+        "fromColumn": "ExpiredDateTime",
+        "fromTable": "DimDataAssetColumn",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_848baab0-1b6a-44ff-89a6-1e5d7d249ddb"
+      },
+      {
+        "name": "0026a6b9-75d0-4b35-9b63-e48cacc118a6",
+        "fromColumn": "RuleScanCompletionDatetime",
+        "fromTable": "FactDataQuality",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_f57d0ab9-4d88-4e96-89f1-5f936949731a"
+      },
+      {
+        "name": "2d0c6c0a-0a19-4dcc-ab3a-68be0d553978",
+        "fromColumn": "DEHLastProcessedDatetime",
+        "fromTable": "FactDataQuality",
+        "toColumn": "Date",
+        "toTable": "LocalDateTable_3a2c90d3-7eb5-4837-9e50-392213f153a7"
+      },
+      {
+        "name": "357ca9b2-7ad0-4f2d-853d-9919da346e5a",
+        "fromColumn": "BusinessDomainId",
+        "fromTable": "FactDataQuality",
+        "toColumn": "BusinessDomainId",
+        "toTable": "DimBusinessDomain"
+      },
+      {
+        "name": "4866d594-6bdb-49a9-b062-019cc722edde",
+        "fromColumn": "DataAssetId",
+        "fromTable": "FactDataQuality",
+        "toColumn": "DataAssetId",
+        "toTable": "DimDataAsset"
+      },
+      {
+        "name": "79ce48ed-247d-4cea-8340-23598b612a5e",
+        "fromColumn": "DataProductId",
+        "fromTable": "FactDataQuality",
+        "toColumn": "DataProductId",
+        "toTable": "DimDataProduct"
+      },
+      {
+        "name": "94e2a25c-f7a2-4502-99d1-4ada825a2d6e",
+        "fromColumn": "DataAssetColumnId",
+        "fromTable": "FactDataQuality",
+        "toColumn": "DataAssetColumnId",
+        "toTable": "DimDataAssetColumn"
+      },
+      {
+        "name": "61a03af0-9e7a-4391-9650-7ce793f46f57",
+        "fromColumn": "DQRuleId",
+        "fromTable": "FactDataQuality",
+        "toColumn": "DQRuleId",
+        "toTable": "DimDQRuleName"
+      },
+      {
+        "name": "e6691cb2-e7af-406a-b4e1-33b085502c3b",
+        "fromColumn": "DQRuleTypeId",
+        "fromTable": "FactDataQuality",
+        "toColumn": "DQRuleTypeId",
+        "toTable": "DimDQRuleType"
+      },
+      {
+        "name": "9c12dc1c-6ea3-4978-a974-63d7da2d614c",
+        "fromColumn": "DQScanProfileId",
+        "fromTable": "FactDataQuality",
+        "toColumn": "DQScanProfileId",
+        "toTable": "DimDQScanProfile"
+      },
+      {
+        "name": "b511e7ff-0de1-4ee6-8c6c-89c9e34e4e7e",
+        "fromColumn": "ScanCompletionDateId",
+        "fromTable": "FactDataQuality",
+        "toColumn": "DateId",
+        "toTable": "DimDate"
+      },
+      {
+        "name": "3895bb22-fc89-48a7-ac00-bbaf19456789",
+        "fromColumn": "JobTypeId",
+        "fromTable": "FactDataQuality",
+        "toColumn": "JobTypeId",
+        "toTable": "DimDQJobType"
+      }
+    ],
+    "sourceQueryCulture": "en-US",
+    "tables": [
+      {
+        "name": "DimBusinessDomain",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "BusinessDomainId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isNullable": false,
+            "lineageTag": "e9ff7aba-e90a-4759-93d7-84002bd7a947",
+            "sourceColumn": "BusinessDomainId",
+            "sourceLineageTag": "9dbec40b-7c79-4dff-97b9-e8bf20fd83ea",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "BusinessDomainSourceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "1c4eecb1-6765-416b-b7e8-6ba9662f0ea8",
+            "sourceColumn": "BusinessDomainSourceId",
+            "sourceLineageTag": "391f9bb9-9510-41f4-ac32-c20f1c617056",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Business Domain",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "76f99aad-ce4a-4f4d-b48d-fc1614daa1e8",
+            "sourceColumn": "Business Domain",
+            "sourceLineageTag": "68c71baf-49e2-4a13-a3fd-0065926f5871",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CreatedDatetime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "cb81ae3e-00a9-409c-9fed-06c66eaf32bf",
+            "sourceColumn": "CreatedDatetime",
+            "sourceLineageTag": "cfa9d137-295f-4c04-b9d2-cd6a76e508a1",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_3a7bc8d0-445b-47b5-a665-443a5dc55aeb"
+                },
+                "isDefault": true,
+                "relationship": "67cf73cb-2b07-44ae-9194-4c1e99435837"
+              }
+            ]
+          },
+          {
+            "name": "ModifiedDatetime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "19b08161-5f67-4f4c-b642-6f73e4f53c37",
+            "sourceColumn": "ModifiedDatetime",
+            "sourceLineageTag": "b44d8cc8-4b94-4d6a-9ebd-1365033ceea6",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_b0d21fe9-8623-48a1-8d91-4045c82bf688"
+                },
+                "isDefault": true,
+                "relationship": "4118f03a-a24b-49df-832a-ea569b69a583"
+              }
+            ]
+          },
+          {
+            "name": "EffectiveDateTime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "a1554a67-7394-4c5e-9825-bb60d0e093b3",
+            "sourceColumn": "EffectiveDateTime",
+            "sourceLineageTag": "98c58a1a-12ca-419d-af92-2e1de5f4c563",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_1da78420-d65e-4c9b-83fe-35feed98b428"
+                },
+                "isDefault": true,
+                "relationship": "571285ff-555e-4563-9e42-67ca085ca18a"
+              }
+            ]
+          },
+          {
+            "name": "ExpiredDateTime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "97e671ae-e906-494c-8157-2bd3ff4e3157",
+            "sourceColumn": "ExpiredDateTime",
+            "sourceLineageTag": "d5ffaf18-fce3-4a56-91c0-2f87a36a5c6f",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_4dabbb02-85c0-4c23-bad2-572095f26c50"
+                },
+                "isDefault": true,
+                "relationship": "e39c83de-9e03-48af-b7d8-1e83f49b91c8"
+              }
+            ]
+          },
+          {
+            "name": "CurrentIndicator",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "a738888f-7cdc-49b3-81ec-03b7d9def8c6",
+            "sourceColumn": "CurrentIndicator",
+            "sourceLineageTag": "0ff42a4d-a0c7-47a0-879b-55a3c2324df9",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "9a213d4e-5eb3-4312-900a-312c3508aa98",
+        "partitions": [
+          {
+            "name": "DimBusinessDomain",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "DimBusinessDomain",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "1e42b4a6-ae6f-4dc6-b428-f9626875a8af"
+      },
+      {
+        "name": "LocalDateTable_3a7bc8d0-445b-47b5-a665-443a5dc55aeb",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "d4fcf8e5-4cb5-4fec-a7bc-470492f38448",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "c8e40c19-e981-4e24-91a5-b4b4fb75695c",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "5f8b9ef4-d948-4a4c-86b2-9816689cbd1f",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "f8bc3baa-0b1f-4f70-a372-600e86ed4663",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "6eb8ba49-23fe-495b-bc00-2ee390dc908f",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "f533ccc1-d863-4289-8c0d-cca977b99e08",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "c88c964b-e331-4c29-82ef-1201539078cb",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "fcf49958-b6bf-4fd8-bbd5-eebe86c041b4",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "81ec904a-4780-4fd8-85c4-6e90768a0918",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "3a01465a-3e4b-4bbc-968c-3601770a7479",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "5be94813-e1a9-42a5-b126-58d4984e5712",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "8054a292-5863-413c-b2ee-539f17823e5b",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "537d8066-5f1b-4dfd-a7fc-edfbc5e440ef",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "1286a515-5f2a-4e61-aba2-6214b23a1ea0",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "61143e1a-e19c-4d9e-b953-5f8ddc583aab",
+                "ordinal": 0,
+                "sourceLineageTag": "5f232da6-ca93-4d3f-83a0-c9b22db5243e"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "00c98182-2d3d-41dd-9c79-11e94bb51930",
+                "ordinal": 1,
+                "sourceLineageTag": "28075b48-61cd-4246-b0db-7029c8d3d20d"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "dabb6aab-2d7b-4a83-ae75-94748938aa32",
+                "ordinal": 2,
+                "sourceLineageTag": "abadff90-1665-4723-94f8-c53853988249"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "de9320ff-6242-4f5b-9fd7-7555b02fc7ad",
+                "ordinal": 3,
+                "sourceLineageTag": "9682a121-dd12-45ed-9030-b797c6e62abc"
+              }
+            ],
+            "lineageTag": "42bf70b3-6552-4b84-aa4d-c464bb58b795",
+            "sourceLineageTag": "5a435ab2-2386-400d-9385-8abdd3011e69"
+          }
+        ],
+        "lineageTag": "ec72327a-f4d5-49f9-85de-5719b2fb7c86",
+        "partitions": [
+          {
+            "name": "LocalDateTable_3a7bc8d0-445b-47b5-a665-443a5dc55aeb",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_3a7bc8d0-445b-47b5-a665-443a5dc55aeb",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "d2b8f2b3-fd0a-46af-a737-85713955b6a3"
+      },
+      {
+        "name": "LocalDateTable_b0d21fe9-8623-48a1-8d91-4045c82bf688",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "55f259a4-2f81-4ee2-af4d-9c90bdb2faea",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "f3fdba0c-4b57-4ae3-90e5-232d9b189bcf",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "66e1d5f3-e811-42e1-8ffb-47e18c4113da",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "3858fe5e-8270-4ebf-96b9-46f9856bb424",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "ac061b9b-1827-47e3-938b-9170d9659b10",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "2ad3058c-b600-4ecb-973b-78a354d6d3f0",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "248bcf00-9662-4c64-b509-ec63bf588be0",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "7f65d29a-dcd5-48dc-bbec-532adea5d763",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "25182917-91d8-44e8-888e-1e4a4d6ea686",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "bdf7a195-2197-4af3-9c94-c61c42e7644a",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "431f2e30-c326-4a66-b59b-b9fbf38aa727",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "9779ed58-230d-45cf-a790-53ed8d8e0d72",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "044700fd-520f-4bf5-bce9-5f24c0388f01",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "6c56ac88-745b-48c0-92ae-aaf989e864bf",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "c45b7c6b-46bd-4f19-b583-2cf02262c1cb",
+                "ordinal": 0,
+                "sourceLineageTag": "8d138a11-b4b1-4d0c-b3a0-f7a98d17a949"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "dd93d2d5-3328-4b33-adf3-c6aa4813acab",
+                "ordinal": 1,
+                "sourceLineageTag": "d5bf0226-7ec6-477e-8aaf-0a0b43f9ba36"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "bf967cf8-9534-4d91-b9ad-b5b9ab361065",
+                "ordinal": 2,
+                "sourceLineageTag": "26ae0837-69fe-427d-8ee9-31d1ad0dc147"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "f4c3068e-5850-4b8c-8f39-0ba8ceb163e6",
+                "ordinal": 3,
+                "sourceLineageTag": "ba9184fc-9041-494c-a896-95c79150bebd"
+              }
+            ],
+            "lineageTag": "53cd770f-c73d-4e69-b41f-e8ec85dd2b78",
+            "sourceLineageTag": "473722aa-b150-46d3-8f5b-1c9475030fc0"
+          }
+        ],
+        "lineageTag": "30a9a2da-fcf1-4a35-849c-ea0e68894734",
+        "partitions": [
+          {
+            "name": "LocalDateTable_b0d21fe9-8623-48a1-8d91-4045c82bf688",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_b0d21fe9-8623-48a1-8d91-4045c82bf688",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "b01c7cfc-5c2c-4ec2-8e98-651cafe98586"
+      },
+      {
+        "name": "LocalDateTable_1da78420-d65e-4c9b-83fe-35feed98b428",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "9bad5368-a2f0-49ff-a7e0-3ac4ec9f9820",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "29bf95bc-4a0d-4142-b233-485c7c330eca",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "11a58889-eee7-4966-80dc-c6ceee42f298",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "c594ac83-aa83-4878-99d1-d8e7b6c9bdd6",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "1817894e-2fb0-40fb-b2c8-56787124afa2",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "9da15491-79b5-4071-b02e-54e6619414b5",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "1436543d-fd3a-4842-80f8-707f188e5384",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "adf45b15-14f8-45c8-9183-d57b9cfed3ee",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "7e7bf4ab-e40f-40ea-abf4-ac2cfde6fb94",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "6ec268a0-4500-4e53-a2bc-ae8ddb4fda8b",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "106d7ea0-0787-4d83-96d6-86f5987db926",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "7df073da-adbc-4f03-a523-81b11e42a8f4",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "55c1a4fe-086d-4c0f-b35e-c08284e60da0",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "21a7eea5-41a7-4e35-97a2-4c8e186a6413",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "276e9448-c655-4f82-8300-fff9b91f06d7",
+                "ordinal": 0,
+                "sourceLineageTag": "feb86649-58b3-439d-abd7-4c3e0be89f44"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "c048ab66-f9b1-4f46-ab0b-222964d9bc42",
+                "ordinal": 1,
+                "sourceLineageTag": "ff222576-0dcf-4e5c-9535-7857643cb7de"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "d1fb2481-285d-44f0-8543-9151003d840c",
+                "ordinal": 2,
+                "sourceLineageTag": "5df17bc5-195e-4667-8b2c-916dd1ba2878"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "5556c36f-5324-4d72-953d-26b8dc50f00d",
+                "ordinal": 3,
+                "sourceLineageTag": "a7d401e8-566e-4287-afe6-de54c9896601"
+              }
+            ],
+            "lineageTag": "46914a12-9272-4cd2-a6ab-e91ba56f705f",
+            "sourceLineageTag": "c3ed7b09-7f28-4e1b-9590-bde4e6d4e85b"
+          }
+        ],
+        "lineageTag": "664e078d-e8ae-49cd-bede-91130ec9773c",
+        "partitions": [
+          {
+            "name": "LocalDateTable_1da78420-d65e-4c9b-83fe-35feed98b428",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_1da78420-d65e-4c9b-83fe-35feed98b428",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "de4a1205-ef78-45fe-9822-ff19d2ac2c18"
+      },
+      {
+        "name": "LocalDateTable_4dabbb02-85c0-4c23-bad2-572095f26c50",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "54ce0a5c-3711-4734-a05a-08f6a4b5bbc5",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "cd84f1cc-5f87-4df3-8c01-aea4d42de106",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "4db76960-1d9f-4a29-8d5b-073fdbb23f3a",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "6ea9e716-99dc-45c7-9c5b-648545e74ff7",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "4b001563-56f4-466f-af4a-19d4a1f9ce7f",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "e6fbf73c-c0c3-4bb8-a37a-904a6cf6234a",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "1c4a61fd-f6b0-41ca-aabe-35ffcd4776b6",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "edde2029-56f2-48fe-bbaa-2d997122ed3a",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "5c10c3cf-0d94-4cf7-b834-9c283b091773",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "8d56ba61-7e38-470e-8875-585a8d0d2360",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "238d754b-1088-4d13-b27b-5a4774758f88",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "a55c4ff3-4021-46f1-b3c6-35298a9038e2",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "b3cbb3bd-d99b-4a78-b72e-e3881e1cb99b",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "ee5a0383-d31d-48ce-ab25-20fe05974e8c",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "265b5c5c-803d-42d2-ad7b-15db3ad80217",
+                "ordinal": 0,
+                "sourceLineageTag": "f7355269-d1fb-4767-bf70-00146084cd80"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "5b5045d6-2dd8-49d3-86fc-3ea2a4c1c0bf",
+                "ordinal": 1,
+                "sourceLineageTag": "dc372253-726d-4783-a47d-126ca4b84275"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "3fc0ddb2-6d88-4a07-96e0-786984e675ad",
+                "ordinal": 2,
+                "sourceLineageTag": "0e068e43-7a2b-4105-a191-c45b778d6aa2"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "537d5c5c-2cdc-48c7-be55-9ba9f7210f3d",
+                "ordinal": 3,
+                "sourceLineageTag": "3b445e23-ecfb-49c8-9df2-51de32628600"
+              }
+            ],
+            "lineageTag": "e4268419-dd70-4f19-bf7f-ad765ef6a36b",
+            "sourceLineageTag": "327fe6e7-7cb8-43d3-b2f8-902faba958e2"
+          }
+        ],
+        "lineageTag": "4fb0458d-d9fb-4955-bcd0-fe250e0810b7",
+        "partitions": [
+          {
+            "name": "LocalDateTable_4dabbb02-85c0-4c23-bad2-572095f26c50",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_4dabbb02-85c0-4c23-bad2-572095f26c50",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "b0542652-c9a7-45ea-b4bf-b9fa1100a516"
+      },
+      {
+        "name": "DimDataAsset",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DataAssetId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isNullable": false,
+            "lineageTag": "30a541b3-c1d7-4925-b19d-c4b9b519e15c",
+            "sourceColumn": "DataAssetId",
+            "sourceLineageTag": "9e90a7f4-f4f7-40d1-9849-cd17f4586147",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataAssetSourceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "e659828e-eda9-4558-aeb8-12694044e746",
+            "sourceColumn": "DataAssetSourceId",
+            "sourceLineageTag": "f2a66186-dae0-46e8-aba7-0cdcb5558786",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataAsset",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "98cf0ee2-4815-4932-9393-33e40d3d3375",
+            "sourceColumn": "DataAsset",
+            "sourceLineageTag": "34d2577d-0b2f-40fb-93dd-947cc46c12b0",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CreatedDatetime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "b0375b8c-c6bb-46c6-aa18-0d5b8d5ac90f",
+            "sourceColumn": "CreatedDatetime",
+            "sourceLineageTag": "46e3681f-1e29-4979-946b-8916c5f94a7d",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_c90c5857-0c4b-46e2-864e-0ea538c9ef67"
+                },
+                "isDefault": true,
+                "relationship": "c5a20698-2e3f-4fd9-9f1a-f6bc842932ca"
+              }
+            ]
+          },
+          {
+            "name": "ModifiedDatetime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "60660ebd-d0ea-4731-8534-8dbdb94ded22",
+            "sourceColumn": "ModifiedDatetime",
+            "sourceLineageTag": "6614da8a-499e-4b81-81a3-2afb639e4653",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_dd28c169-1ac7-48ff-b501-8f0cae5a7b80"
+                },
+                "isDefault": true,
+                "relationship": "f46792aa-cb0f-4cdb-b0d9-f11a705466f1"
+              }
+            ]
+          },
+          {
+            "name": "EffectiveDateTime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "a698fa39-6fb1-419e-92b5-0ef1185c1c73",
+            "sourceColumn": "EffectiveDateTime",
+            "sourceLineageTag": "25c05d40-a03f-4366-86a0-0a7be8d9f36b",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_4948e53a-5f64-4614-bca9-98312e0b1369"
+                },
+                "isDefault": true,
+                "relationship": "f58b0eea-847d-4741-88c0-6dd6c7901b1f"
+              }
+            ]
+          },
+          {
+            "name": "ExpiredDateTime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "a5e60d30-536f-4dae-87cb-862c11e40822",
+            "sourceColumn": "ExpiredDateTime",
+            "sourceLineageTag": "8d0b700d-50f5-49bc-a782-60155bcfade2",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_a5de0586-4a64-4dd9-ae96-ea02c9438b23"
+                },
+                "isDefault": true,
+                "relationship": "8fd4c874-820c-4cea-9a4f-c2e674575e5a"
+              }
+            ]
+          },
+          {
+            "name": "CurrentIndicator",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "2b6cd9f9-3713-4f61-90b9-c11319523381",
+            "sourceColumn": "CurrentIndicator",
+            "sourceLineageTag": "d3f5dd36-0c36-4f13-ad3f-2bf7b132e038",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "127a252b-723d-4162-afb6-ef5f98a50c5c",
+        "partitions": [
+          {
+            "name": "DimDataAsset",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "DimDataAsset",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "e5cb6078-8a0e-49e5-82e5-7258380917e9"
+      },
+      {
+        "name": "LocalDateTable_c90c5857-0c4b-46e2-864e-0ea538c9ef67",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "3b7e3481-8846-4a67-a1ff-35d73ee76f50",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "cca52d70-fcc5-4f33-a974-a435e0ac8caa",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "acd16667-bf54-4b45-b0fb-aa7d1c483aed",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "3d05f45b-9682-4d99-af19-cab12ec4b6a2",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "a8bda16b-1243-40ef-8944-09cff16d6870",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "aad7c784-a89e-4da4-b4e0-afbd2f7543e0",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "e885668d-5b7a-4f95-b565-f0645ea0cda4",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "e84d7710-57c1-4aec-ab1a-8ed0b007c40f",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "f5cdf396-b699-4d83-a784-39bd7bf0975a",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "5c173e38-779e-476f-8ba7-c7c86711dd32",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "bdd3ca1d-92d1-4d7c-afc8-c7feeaee41a6",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "f74efd79-c0d5-4486-8b8e-373240f469ac",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "ee48c156-4fb0-4544-83ac-937a5ade1fdb",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "7064c191-49d0-4d57-a2c3-d0a6a57faa70",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "180d961b-4d97-4c30-ac8f-4c06f236a069",
+                "ordinal": 0,
+                "sourceLineageTag": "2c95fbf9-36db-40fb-9584-a0c2f703f74b"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "a52a56c7-c9cc-481b-a86e-3fc608ea9a6a",
+                "ordinal": 1,
+                "sourceLineageTag": "f771845b-ba10-49c7-b64a-d652af95cc33"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "4a079dc5-135a-4861-8870-6f54182e909a",
+                "ordinal": 2,
+                "sourceLineageTag": "7efde086-9581-4695-9b5e-931ca234f289"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "71073e24-9535-4845-aaa1-fa955ab3321d",
+                "ordinal": 3,
+                "sourceLineageTag": "9ef9daed-884f-4bb4-9ddd-f11deecbe04d"
+              }
+            ],
+            "lineageTag": "37149c4c-d217-4abe-b7f7-ba1da68e8a7c",
+            "sourceLineageTag": "0b91227f-9441-489e-8fb6-7a3cf85fb394"
+          }
+        ],
+        "lineageTag": "5958cb6e-e2c8-44ce-b538-57a161394ad3",
+        "partitions": [
+          {
+            "name": "LocalDateTable_c90c5857-0c4b-46e2-864e-0ea538c9ef67",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_c90c5857-0c4b-46e2-864e-0ea538c9ef67",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "a3c39f8c-a627-48dd-b4c2-74bab8885bcf"
+      },
+      {
+        "name": "LocalDateTable_dd28c169-1ac7-48ff-b501-8f0cae5a7b80",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "cba1075d-bddb-46d6-819d-6efefd83be68",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "8b5b77e7-e261-4aba-8dff-fba1302a557d",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "d625da91-2b04-428e-b976-8500a183a97f",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "fe4a953b-c530-4065-a3a1-d03bd5898d21",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "cd17c884-797c-4024-b870-7dadefcb09aa",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "37e0a534-02cc-4754-a63d-38986531259d",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "3fe51df1-3f72-48fa-ad7e-e3eac5e0557f",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "250a3d07-b87e-4386-8aa5-77cbcd445dc3",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "725a5719-0c3d-42e2-8b49-ff1572dd2570",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "41b41683-ce0d-4434-ba89-96936f626e0a",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "81ed277d-03db-4698-af64-9423c1e6c3ab",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "63dced1c-f29d-4d79-87b5-a2fd604ed47b",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "163510df-c7a2-4ae4-9ae7-5718c9b3022d",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "3ac6d80e-d19b-445a-aa0d-22b6f1d60a11",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "d5d7e3b3-77c3-4cfc-8baf-4131776942a0",
+                "ordinal": 0,
+                "sourceLineageTag": "73bb5d45-da57-4acb-b5f7-65ac767ef13d"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "98a953ec-7b47-4156-a8eb-b1cb5d425a03",
+                "ordinal": 1,
+                "sourceLineageTag": "db0591b2-fb74-41c3-83a1-4c683268f396"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "79039ef7-1c00-4592-b683-8458d2d8e674",
+                "ordinal": 2,
+                "sourceLineageTag": "beb52517-23ae-4884-adf6-613f1a382288"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "00f4dfb8-cf01-4b8f-ba3f-72b8dde4d628",
+                "ordinal": 3,
+                "sourceLineageTag": "01958171-5480-4e0f-b676-d750109107ab"
+              }
+            ],
+            "lineageTag": "c936b101-0d18-42d8-823e-b6448dc8bb0a",
+            "sourceLineageTag": "7cd01f9f-b57c-4ec9-b551-4e1da7cebe4c"
+          }
+        ],
+        "lineageTag": "60436f00-cf6e-485f-bfb2-10aafec29cfc",
+        "partitions": [
+          {
+            "name": "LocalDateTable_dd28c169-1ac7-48ff-b501-8f0cae5a7b80",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_dd28c169-1ac7-48ff-b501-8f0cae5a7b80",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "b95ec52e-ebc0-4378-b2cc-48114cbba0fe"
+      },
+      {
+        "name": "LocalDateTable_4948e53a-5f64-4614-bca9-98312e0b1369",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "4bb0861a-db37-4631-840a-2a8572d61d81",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "8e440fbe-2f8d-44c3-a846-2b4e8baddb3c",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "9136611b-ad0b-46ea-8e97-88dd6b30c6b5",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "abeca3e8-8994-4666-bb25-235b6f16e2fc",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "1a177a16-251f-45af-ac0d-53b9b82a426b",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "ff6fc7ca-cd08-43f3-9c0d-184a34cfb1d8",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "f8d888fd-3416-48d3-acb2-b424c2b344af",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "7dc2b927-d504-49ac-9b9b-845c46081fa3",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "06823ba0-e2bb-4760-96e6-e643489a8863",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "b4a1a216-3fc6-4a6d-b55d-4ba0467963fd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "fb2238ef-80df-4c65-981f-bf1d6526137a",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "dda8a91c-bc3f-4ad5-9cc5-9fd88eaf064a",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "74c92df4-7029-40a4-85b5-78754610edff",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "6c9f2d9c-d949-4ab2-b0cc-74b2aac75fec",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "a274bdc7-d97f-4e42-9f7d-ac404a752d00",
+                "ordinal": 0,
+                "sourceLineageTag": "d8c73a93-c69d-4359-9623-76dd2befc99a"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "623cfcd4-fd25-4cee-9727-c33d073eeabb",
+                "ordinal": 1,
+                "sourceLineageTag": "eb3f63c9-8d67-4437-94a2-a47bd9d9b076"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "c9e100ad-ae00-49cd-8627-e788f7396a86",
+                "ordinal": 2,
+                "sourceLineageTag": "be5f8919-0085-4a10-925a-022cedfa0d4f"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "f4bdafd7-0927-4d87-8e26-26840e387857",
+                "ordinal": 3,
+                "sourceLineageTag": "cc272359-6fc3-4694-aa3d-fb80f918928e"
+              }
+            ],
+            "lineageTag": "e0cc041a-0e56-4264-a3e9-5ad0745066c0",
+            "sourceLineageTag": "613ace66-b83e-4385-aabc-67c1af4f5eb1"
+          }
+        ],
+        "lineageTag": "d53806c7-1633-42d5-979c-bbd5123f5ccc",
+        "partitions": [
+          {
+            "name": "LocalDateTable_4948e53a-5f64-4614-bca9-98312e0b1369",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_4948e53a-5f64-4614-bca9-98312e0b1369",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "c20d2194-89a6-4aa8-968d-1ca32d9f8dc3"
+      },
+      {
+        "name": "LocalDateTable_a5de0586-4a64-4dd9-ae96-ea02c9438b23",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "6e6a126f-ec28-42a8-8c48-8eecfd234d53",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "21ae29c7-c72e-4317-a775-47b6534f9e31",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "37ee229b-6e87-4636-ba6e-b51e61661cad",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "8e69a622-07aa-4633-abd9-dd6e244fb7ff",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "78730002-ce71-4244-bec1-2ed53b56cffc",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "2201bc54-01ad-4f75-9023-1d78c335e3ff",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "ad75a2f9-6ce4-4f75-84bf-28e8b806ab89",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "bf82fa82-04a3-491e-b8e5-07f786229ed6",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "6f14340f-af5d-4a3b-897a-7b1daf56140b",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "1da600af-17b6-4719-a3c6-7c10190ca9b1",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "5a579555-155e-4967-b493-7246722ce8f5",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "59a2459d-b3bf-493f-9aed-c01d057bbf87",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "6dcb48c4-5baa-4010-bbb1-ece188655d19",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "4fa88f43-a7c0-466f-9584-b2e62a7d3b2f",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "77dec8c8-1c62-4886-99bd-680e27451758",
+                "ordinal": 0,
+                "sourceLineageTag": "e7e5333e-db25-4ab3-a8d0-0a7bf126b6ab"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "27154599-ed51-44b4-af3a-e80008ababcb",
+                "ordinal": 1,
+                "sourceLineageTag": "c087dc16-c129-4b44-b0fb-a9fddf5a7e51"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "43b48c3a-24a0-409f-9c91-2507a35860bc",
+                "ordinal": 2,
+                "sourceLineageTag": "21387454-4424-489d-a56d-63e2fe7f1e98"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "49c73a13-324b-4681-92f3-fb84a0523490",
+                "ordinal": 3,
+                "sourceLineageTag": "17e56d0d-99e5-463b-8ea2-1b7885ab5341"
+              }
+            ],
+            "lineageTag": "cc2f8a6e-48fb-4c02-8cbc-b7a72ef2f3ff",
+            "sourceLineageTag": "0b99288a-8b21-4e2f-b652-7d9feb8439a0"
+          }
+        ],
+        "lineageTag": "f4cd5216-a75b-439e-839e-74168291af91",
+        "partitions": [
+          {
+            "name": "LocalDateTable_a5de0586-4a64-4dd9-ae96-ea02c9438b23",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_a5de0586-4a64-4dd9-ae96-ea02c9438b23",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "32bd4132-003d-44f3-87b5-d550c0b3b1a6"
+      },
+      {
+        "name": "DimDataProduct",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DataProductId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isNullable": false,
+            "lineageTag": "9e901a29-14dc-4caa-830c-b8237b76985b",
+            "sourceColumn": "DataProductId",
+            "sourceLineageTag": "dd53a32c-d811-49c7-8f5c-1dbaea92e362",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataProductSourceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "3b56e011-facd-4fd0-a7bb-d30a7853725b",
+            "sourceColumn": "DataProductSourceId",
+            "sourceLineageTag": "2e491aea-de43-4112-abc6-f4a385e06461",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataProduct",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "5b0ca2f8-e122-4352-a2c5-31996ab5b621",
+            "sourceColumn": "DataProduct",
+            "sourceLineageTag": "7d0fb36e-e333-4a15-b86b-786e32bb8edd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CreatedDatetime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "491c9452-1d33-4ca1-b3fd-fe0d15820830",
+            "sourceColumn": "CreatedDatetime",
+            "sourceLineageTag": "18bd5c7f-ba9d-459d-a895-caeae2ee7fc5",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_f26ed20b-9a46-425e-b6ae-15318bbbf830"
+                },
+                "isDefault": true,
+                "relationship": "e38706e8-a0bd-4459-b910-1461ce599d6d"
+              }
+            ]
+          },
+          {
+            "name": "ModifiedDatetime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "e7362a8f-0bdb-41c9-828e-0a4d73b5b6df",
+            "sourceColumn": "ModifiedDatetime",
+            "sourceLineageTag": "8b0500c0-4ac7-4691-a909-6fe43f1f087f",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_045e7fe5-7175-4194-8740-e4e882ec0155"
+                },
+                "isDefault": true,
+                "relationship": "3f64c05e-0430-4b6e-8cb2-60e1e6f80222"
+              }
+            ]
+          },
+          {
+            "name": "DataProductStatus",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "c9341735-17fb-49d3-a904-bc9b3d9b8da6",
+            "sourceColumn": "DataProductStatus",
+            "sourceLineageTag": "219e73ed-6626-4fed-9265-f88fa1f905be",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "IsActive",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "boolean",
+            "formatString": "\"TRUE\";\"TRUE\";\"FALSE\"",
+            "lineageTag": "e20091bd-4b8d-479e-98ca-52cdf745213f",
+            "sourceColumn": "IsActive",
+            "sourceLineageTag": "72962dde-84f5-43da-a0f8-c0fa0520876b",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "9c12913d-799a-448d-917c-9b55625611ac",
+        "partitions": [
+          {
+            "name": "DimDataProduct",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "DimDataProduct",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "f010b5a6-738a-4332-955a-0221a9e241ca"
+      },
+      {
+        "name": "LocalDateTable_f26ed20b-9a46-425e-b6ae-15318bbbf830",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "61b05556-ddae-4ce9-847e-e2400c594a3c",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "f4c312f6-428d-4e46-89d7-78d5c7330200",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "859b0188-ed4d-4b6b-899f-c196866fcdda",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "3c6db9c8-70b3-4159-aa5d-6b213548342c",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "f3139d1b-fe99-43c0-b29a-cbddfe8b9ccc",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "4cbd9e7e-872a-417a-96de-ee2db0756ab4",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "d7f71811-f100-44b4-afa9-51d4f0e7c160",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "e06307ea-01da-4d34-8194-d9df13166805",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "db267d5a-9b1f-4469-b066-00c2d8be784a",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "b4f1c760-8cb7-4c31-bd9f-2fc05bae4801",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "776b65f2-24b5-4415-8a70-9a01eabe6d78",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "b7987022-f1a5-417b-9155-8af95d3803b7",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "24586f22-fb0b-4333-8997-6a0f647ebd19",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "7698fdc3-b08a-407a-9864-2e65c7bc810e",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "71050dad-2325-441b-9f2e-2722c915179a",
+                "ordinal": 0,
+                "sourceLineageTag": "bde07567-8ce1-469a-a507-a80f60427879"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "868a3de4-2b66-40f9-9d1f-2a8cae5649de",
+                "ordinal": 1,
+                "sourceLineageTag": "1e748fa3-c784-48a6-9ce1-fe51791d5b81"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "651e7ad6-c86a-44a6-828b-07334d93173e",
+                "ordinal": 2,
+                "sourceLineageTag": "3dff373e-0ef1-4840-a3da-d346322e8b0c"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "ce9d8ab4-863f-4fd7-bdf5-57c8be694c57",
+                "ordinal": 3,
+                "sourceLineageTag": "03b113de-25fb-48b7-8bdf-fc876d91a037"
+              }
+            ],
+            "lineageTag": "d39c7e42-3e57-45f9-aee5-2d4596016bc4",
+            "sourceLineageTag": "0ea0ddf9-e617-4e77-b67a-94bc42b0df95"
+          }
+        ],
+        "lineageTag": "05dbb7a9-9fcf-488f-b16a-849f284c8cac",
+        "partitions": [
+          {
+            "name": "LocalDateTable_f26ed20b-9a46-425e-b6ae-15318bbbf830",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_f26ed20b-9a46-425e-b6ae-15318bbbf830",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "0c8ab2b8-b81b-4c3f-b32f-24daf3cd73b9"
+      },
+      {
+        "name": "LocalDateTable_045e7fe5-7175-4194-8740-e4e882ec0155",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "87d51c0d-cc2e-46e5-ab8f-be33f52ad061",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "39c814a0-ab43-4b9e-b15a-bd1563f9709d",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "a2a7f679-bad6-461f-b548-ddf7c38b66c2",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "0e0d0f6f-ebdc-444b-950a-1db73d1e397f",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "7145d958-b059-4efc-9289-b9f9a72b4342",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "6aada334-91d5-47c0-b5c2-2f78bfa620ed",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "ba8822b3-5815-4d6f-ad96-850e9e381fb5",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "83759614-dc61-4f6f-a549-3549c18292d4",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "22e64473-9a90-4beb-ad69-05cdb48a00a9",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "08449f30-c2d1-4091-8fed-1f803d7e13eb",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "72280f62-efe7-4b4a-95ae-c9a84f1fdcbf",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "38d29fc3-fb44-415a-8466-da230499c3de",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "bb7bd78a-c1e7-4412-b2c5-47118351bd30",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "cbd39925-c82d-4faf-9f83-a67ee8bb52f0",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "3ec0ad21-d271-4c11-a6ab-64b53e331fbc",
+                "ordinal": 0,
+                "sourceLineageTag": "7502f696-b4dd-4955-bf37-c3274b73929e"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "f1255714-07ff-4368-8a85-a2e3bc4e9d8f",
+                "ordinal": 1,
+                "sourceLineageTag": "3a802e45-df60-45c6-b776-166068c6384c"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "32b48745-1c66-4941-b77c-b6015480fe63",
+                "ordinal": 2,
+                "sourceLineageTag": "79002988-d6cb-4aa0-b35c-c716fe5b2aea"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "cf82f041-e499-4769-88e3-0f6830596967",
+                "ordinal": 3,
+                "sourceLineageTag": "f25abbde-28d7-4a9b-9850-649c71063851"
+              }
+            ],
+            "lineageTag": "33f1ed2a-a268-4fd2-9e4f-4923685533c9",
+            "sourceLineageTag": "8f836d70-cb51-4f23-ae88-e0387cdc94a9"
+          }
+        ],
+        "lineageTag": "70021d0b-1e6e-4f1c-8668-99e0bd261cbc",
+        "partitions": [
+          {
+            "name": "LocalDateTable_045e7fe5-7175-4194-8740-e4e882ec0155",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_045e7fe5-7175-4194-8740-e4e882ec0155",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "ec7ebd72-b41f-4367-93cf-c1d0ce82f25c"
+      },
+      {
+        "name": "DimDataAssetColumn",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DataAssetColumnId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isNullable": false,
+            "lineageTag": "1318bd67-0bbb-4a55-8a53-75943a406223",
+            "sourceColumn": "DataAssetColumnId",
+            "sourceLineageTag": "7fd8cec1-e071-4c2a-b9c1-f8f31b689440",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataAssetColumnSourceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "3e28d129-9a0d-49d9-8d83-2bc949461f20",
+            "sourceColumn": "DataAssetColumnSourceId",
+            "sourceLineageTag": "217fd080-7e5f-48c0-9535-6d7b025562f0",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataAssetColumn",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "e3e18327-b544-431e-bda3-783c87363f4c",
+            "sourceColumn": "DataAssetColumn",
+            "sourceLineageTag": "60ec14f4-d9a0-48b6-ad19-4d23c92907ee",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CreatedDatetime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "3f0cc161-a263-4193-bd3f-8349b175e7d7",
+            "sourceColumn": "CreatedDatetime",
+            "sourceLineageTag": "6f162114-af50-49d6-92fe-dd59eb35d7f0",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_61487324-08de-4812-b3ef-6ddfd827dbb4"
+                },
+                "isDefault": true,
+                "relationship": "aa8bb2be-e3ce-403d-8184-c73f5f722a8b"
+              }
+            ]
+          },
+          {
+            "name": "ModifiedDatetime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "e11782b3-4da0-41e9-a36c-7cb4a58e194d",
+            "sourceColumn": "ModifiedDatetime",
+            "sourceLineageTag": "14bef06c-3b4a-4e59-9f06-54f65a5c21d5",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_36baea46-b7b4-4dc4-bc06-b4bf9cda36dc"
+                },
+                "isDefault": true,
+                "relationship": "f20bd254-d623-4e7a-80b5-36c6fb5ffe10"
+              }
+            ]
+          },
+          {
+            "name": "EffectiveDateTime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "0102f92d-245f-4ddd-902a-1e84770992e0",
+            "sourceColumn": "EffectiveDateTime",
+            "sourceLineageTag": "ad3a25b7-839b-45ad-9975-7033ee8b76f4",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_bd5cd023-6e59-49a1-b90d-a08110cee908"
+                },
+                "isDefault": true,
+                "relationship": "68af15bd-4733-488a-9543-d1face0b494c"
+              }
+            ]
+          },
+          {
+            "name": "ExpiredDateTime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "c6769975-1689-4e46-ba0b-7c2bf628cf82",
+            "sourceColumn": "ExpiredDateTime",
+            "sourceLineageTag": "95b36702-ed97-49c8-b65e-89eb6ced3fe5",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_848baab0-1b6a-44ff-89a6-1e5d7d249ddb"
+                },
+                "isDefault": true,
+                "relationship": "f86f9796-6d49-4f12-a926-c26e73c79e10"
+              }
+            ]
+          },
+          {
+            "name": "CurrentIndicator",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "555dd9bf-7ea4-4b9b-8a1e-f216f3e66c54",
+            "sourceColumn": "CurrentIndicator",
+            "sourceLineageTag": "f8006e67-a611-4f4f-b165-5bfb4761f324",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "f3a5275e-e497-48b3-a6ee-5a348eeae7a0",
+        "partitions": [
+          {
+            "name": "DimDataAssetColumn",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "DimDataAssetColumn",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "f134e7a5-65bd-47bc-9034-c529242e4e22"
+      },
+      {
+        "name": "LocalDateTable_61487324-08de-4812-b3ef-6ddfd827dbb4",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "c5a10157-99d3-46f6-8399-38bc371a11cd",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "f3600d28-8981-45c7-bcf2-aadfcc518952",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "40647dc0-8f18-4a62-972d-dbdc4224487a",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "b40a4b42-ddc8-4df1-bdfa-b49d46b83a59",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "372e7c16-5775-4550-8820-6d53f985b7f5",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "a0f9b782-4f3e-4a82-99ed-9535d01c5cb9",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "a99c17fd-901b-4d18-a6cc-af1fdf4c13c2",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "45cd9d2c-651a-46e6-972b-ac390e4983b3",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "82e8b5b8-4247-4c32-97ce-d08599f72cc3",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "d3e6191b-951b-4a45-b038-ee150368ec75",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "d27e6381-53c1-4278-8f76-f6e07b69e7d7",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "001a0994-1f26-4f76-b82b-6ce00668e377",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "fde09879-afe9-4a44-86a3-32affffae9ad",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "4532a14e-cd7f-42d2-920b-da2d290b821e",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "441576b5-2a85-4120-9291-2d9b6386e3bf",
+                "ordinal": 0,
+                "sourceLineageTag": "e1da8bbb-29a9-464d-9da2-00bb21ac5753"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "f6cb6f94-629b-4b84-a149-1753e0daf477",
+                "ordinal": 1,
+                "sourceLineageTag": "b3d6f780-6fdf-4312-9595-73793984f2c6"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "737a4a7d-57dc-4e9f-8f2b-4cfb3b5ff853",
+                "ordinal": 2,
+                "sourceLineageTag": "174afe3b-de5f-48a1-823f-87679a6a3de6"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "da6d706b-9355-47eb-ad8a-a5c787eaadf8",
+                "ordinal": 3,
+                "sourceLineageTag": "202cf817-5b8a-41fb-9f8d-e41d1fb0c08c"
+              }
+            ],
+            "lineageTag": "55385dbc-fccf-46ff-aa63-f11a97fff5da",
+            "sourceLineageTag": "1d6ac875-6503-4e1e-b594-9f35846b92a4"
+          }
+        ],
+        "lineageTag": "330e8724-fc77-4d97-a02f-306d466d0f13",
+        "partitions": [
+          {
+            "name": "LocalDateTable_61487324-08de-4812-b3ef-6ddfd827dbb4",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_61487324-08de-4812-b3ef-6ddfd827dbb4",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "9f39997f-2fed-4b94-9d49-7c0bc95b8470"
+      },
+      {
+        "name": "LocalDateTable_36baea46-b7b4-4dc4-bc06-b4bf9cda36dc",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "443a6d48-f040-4139-a8a2-3ce897e0fbc9",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "11e209d3-229f-4dbd-adec-e798db9fb65c",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "0acd7828-8272-4e69-93fc-fa1fe3ac873e",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "c150168c-ce03-442d-b783-2819372c2e65",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "e5840a4f-d7d0-4b3e-95d9-64a1dcb09678",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "f921412a-e2ee-4d29-bd63-3be1a5867d9f",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "389c7bcf-844c-46c8-a58d-98f8841d1416",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "473b38e2-c678-4266-ae7d-33fc0353081e",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "4216ec39-cf47-4f3b-a953-ba1b226481f3",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "543cfaf3-d173-4fef-b79c-a5cd57c61da8",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "e335653b-791b-435b-a6f9-6a6f509313c9",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "03ce6ea0-6b17-439e-a1af-4666815f17ac",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "543fa115-1c5a-4827-b858-f417106c7cc6",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "aa4dad6b-70d9-4c2c-ac47-d77ebe03feec",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "5a32eb57-ac99-4632-8a2f-0f65cedf31d3",
+                "ordinal": 0,
+                "sourceLineageTag": "c48d8230-a097-432c-8dd0-b7a181f125a9"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "5431b73d-4d36-4944-ad86-c980e02101b8",
+                "ordinal": 1,
+                "sourceLineageTag": "9825610a-47c2-4085-9ab4-0cb9bc621d35"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "6ecb9634-1410-491c-985f-31ca3b358494",
+                "ordinal": 2,
+                "sourceLineageTag": "d1acc9b2-adb7-4afd-a420-dc52c57676e3"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "7d33b55c-e0d5-4509-8206-fe27636bf70b",
+                "ordinal": 3,
+                "sourceLineageTag": "a8e5c519-b5f8-4941-a918-a9e7f1a2b8ca"
+              }
+            ],
+            "lineageTag": "52a7988b-0f1b-4329-880b-1107ec317ed7",
+            "sourceLineageTag": "4a3e9f6d-33ee-4e39-8516-18e5c06c609b"
+          }
+        ],
+        "lineageTag": "65e94f9d-eadd-4f87-918f-2442f7dc8040",
+        "partitions": [
+          {
+            "name": "LocalDateTable_36baea46-b7b4-4dc4-bc06-b4bf9cda36dc",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_36baea46-b7b4-4dc4-bc06-b4bf9cda36dc",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "45a34ef5-2507-491f-97dc-81fbaaa97e8c"
+      },
+      {
+        "name": "LocalDateTable_bd5cd023-6e59-49a1-b90d-a08110cee908",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "271549e4-c9c8-4174-98ba-4e7c09e791a2",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "68b5808c-5eb9-4956-b8f9-9b02563afc66",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "8c8f5078-a442-412b-93c3-b371e9aa606f",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "5968d974-06b4-4590-a1c1-8eebb9c7568d",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "375ddf26-9e54-4538-bd98-2ff3751c3670",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "01a02243-8ee8-47db-89c8-2bfb2574bd65",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "6c123bdb-fa7f-42fb-92e1-bab0b27336ea",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "18cb5183-2b60-4e69-87a6-c78f69f246ae",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "d8627d18-eed4-43c4-82de-122c29ac5579",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "5eaaa892-9a0a-4a63-aad0-de68ee720adc",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "670959a9-3fd4-425f-b775-dff18b060dbd",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "38168e99-0f2c-43fe-8a20-e1fe02164d17",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "4d491667-8a39-4079-946b-e42c4412ae10",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "613b1da4-b3eb-4577-a85d-29a3c0112a81",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "3ab94ebe-5f84-4f5c-a979-46440f3d0e73",
+                "ordinal": 0,
+                "sourceLineageTag": "0d77bd9d-a83e-4ef8-9dee-12f186866373"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "8715210e-dffe-4eaf-8eca-3f4c87759f50",
+                "ordinal": 1,
+                "sourceLineageTag": "e263f604-b899-46b9-b3fa-8b002e708058"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "c0ff04fa-000a-4da4-bae7-b48984f5f05d",
+                "ordinal": 2,
+                "sourceLineageTag": "5e1222be-22f6-4fb0-832d-ebc7d4b34b13"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "3e4403a6-7e3c-4ac6-97cd-729fcea11148",
+                "ordinal": 3,
+                "sourceLineageTag": "9db3a1c5-e0f0-4d85-a843-6daa53c6cf66"
+              }
+            ],
+            "lineageTag": "276415ff-c07c-467b-a2ba-b195cc7d8e49",
+            "sourceLineageTag": "f93c175c-0e88-4270-8a3a-f59cd81cfbe4"
+          }
+        ],
+        "lineageTag": "befd176f-579a-40bc-9fc9-3bd07fcb3a5d",
+        "partitions": [
+          {
+            "name": "LocalDateTable_bd5cd023-6e59-49a1-b90d-a08110cee908",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_bd5cd023-6e59-49a1-b90d-a08110cee908",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "0001a59b-2897-413b-8b5e-64823897cff6"
+      },
+      {
+        "name": "LocalDateTable_848baab0-1b6a-44ff-89a6-1e5d7d249ddb",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "4406467b-a1a6-4cd3-a7f5-829b1d39d0be",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "04217a0e-9d9c-442d-a67f-ad3a76e6f4bf",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "0d16eec4-20e0-40d0-8996-6ed8b378de1f",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "3375ecf0-b0e0-496c-bc93-fa41857d006b",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "995be1f3-8001-4c62-915a-ea1b6b9c2e07",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "d75609e1-fe28-4947-8cd0-72093931815b",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "41a5d96c-0909-47a5-91af-de909e761edc",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "d95c0f35-4836-494a-9e1a-4daa9db39dc8",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "b8c683c8-8eae-470a-81af-55c4441ec26c",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "eccd40ec-1a46-439d-a56c-88836defff46",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "0161c75b-253d-4f73-93da-b33d8522b2b0",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "7b83f043-3be4-4b88-9a9c-e46ab101e27a",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "92dc90b8-6e16-46cc-ad79-c9d50c553d9f",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "7382e2ac-a523-4bbf-9441-4e25b95b0db5",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "0edf4f43-a47f-400e-b127-41d37a5b96a7",
+                "ordinal": 0,
+                "sourceLineageTag": "c66b9112-c4fa-4f93-8452-ec9869789899"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "bf66cdb2-fa66-4e56-8dd0-94c258832b85",
+                "ordinal": 1,
+                "sourceLineageTag": "f5224bec-3661-434b-9f46-4ffb36d897bc"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "2fc09d54-db35-4e97-ac4c-2d97892c2789",
+                "ordinal": 2,
+                "sourceLineageTag": "e656d353-7a91-4dda-84fd-1959eabbdad8"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "a7fa2b3d-2372-462a-9949-b84806d776b5",
+                "ordinal": 3,
+                "sourceLineageTag": "bba51717-8a6e-4d43-99c9-dd27b99d7604"
+              }
+            ],
+            "lineageTag": "c5b8176d-92a7-4c2c-9e6b-4a5b1ff1c4e0",
+            "sourceLineageTag": "4d470ec9-f87d-4e3c-9f00-2a1e5ad86bbd"
+          }
+        ],
+        "lineageTag": "bdca020e-24c6-4d35-80c7-3426d86f188d",
+        "partitions": [
+          {
+            "name": "LocalDateTable_848baab0-1b6a-44ff-89a6-1e5d7d249ddb",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_848baab0-1b6a-44ff-89a6-1e5d7d249ddb",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "37281d93-0bd8-4262-b373-61dc56786a08"
+      },
+      {
+        "name": "DimDQRuleName",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DQRuleId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isNullable": false,
+            "lineageTag": "4c125bbe-7a87-481e-b129-8d0abcbe0895",
+            "sourceColumn": "DQRuleId",
+            "sourceLineageTag": "f6d955c0-c30e-496f-b97b-e2bd09234c20",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DQRuleNameId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "10f0d579-fc30-4272-a4dd-8fe87a037fa6",
+            "sourceColumn": "DQRuleNameId",
+            "sourceLineageTag": "4b5d6f97-cf3e-4716-8663-8f7b6d63ca7e",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DQRuleNameSourceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "e684952f-8f31-4240-826e-0513361341de",
+            "sourceColumn": "DQRuleNameSourceId",
+            "sourceLineageTag": "b7fd5f0d-a874-46d7-9828-88c6aa160060",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "RuleName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "8b46dac2-ad0c-4eae-a752-b98edfc35061",
+            "sourceColumn": "RuleName",
+            "sourceLineageTag": "0f20da9c-02be-4f03-9a45-c4778ec953b9",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "11939935-e80c-4cd8-a95c-5e1e1d0ca1c6",
+        "partitions": [
+          {
+            "name": "DimDQRuleName",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "DimDQRuleName",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "dc55d1fa-3c14-410e-bfe3-ecd1274073e7"
+      },
+      {
+        "name": "DimDQRuleType",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DQRuleTypeId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isNullable": false,
+            "lineageTag": "b4981567-3524-43c7-bba8-a06a6728de03",
+            "sourceColumn": "DQRuleTypeId",
+            "sourceLineageTag": "e505d324-a27e-48a6-bb0c-150ffe9fef62",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DQRuleTypeSourceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "bcddeb95-c778-4302-a529-4ef5b1fa25c0",
+            "sourceColumn": "DQRuleTypeSourceId",
+            "sourceLineageTag": "bc039f87-10c6-4dda-8ce9-4e72c7d1fa6a",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "RuleTypeName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "d90c90e7-3143-4df9-b38a-3553df5539de",
+            "sourceColumn": "RuleTypeName",
+            "sourceLineageTag": "8b13b9ae-4bd4-4855-9793-e15c6b6e8bcc",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QualityDimension",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "8a1d5909-ea26-4e97-846b-d90674b2938a",
+            "sourceColumn": "QualityDimension",
+            "sourceLineageTag": "eb64b795-1839-4c36-b0ac-e36d2178e393",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QualityDimensionCustomIndicator",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "6fe42fd8-c0e5-48da-82fe-ff451ab7c2cd",
+            "sourceColumn": "QualityDimensionCustomIndicator",
+            "sourceLineageTag": "14517e4a-368e-4653-a785-8452ccc2dcbc",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "95eca0c4-2562-4a0a-89ed-07af157c960c",
+        "partitions": [
+          {
+            "name": "DimDQRuleType",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "DimDQRuleType",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "2b0e44c2-1403-4604-9d63-7c31f3e326bd"
+      },
+      {
+        "name": "DimDQScanProfile",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DQScanProfileId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isNullable": false,
+            "lineageTag": "7fa417d4-300f-4748-ab7b-e37dd8d224eb",
+            "sourceColumn": "DQScanProfileId",
+            "sourceLineageTag": "9212cdaa-7360-4964-9d72-e39dc6e962d7",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "RuleOriginDisplayName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "abdd3a0f-4441-4a93-83bb-ed4f4e236931",
+            "sourceColumn": "RuleOriginDisplayName",
+            "sourceLineageTag": "2eff1109-7308-44ab-8f9f-a9d44a3fa422",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "RuleAppliedOn",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "2f9e4c59-97b1-4731-8afd-60e5e781e781",
+            "sourceColumn": "RuleAppliedOn",
+            "sourceLineageTag": "9421f7af-e387-4fe1-8cfd-792782c28895",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "937c6efd-c6c9-4a6b-b87f-5cc9d1d84114",
+        "partitions": [
+          {
+            "name": "DimDQScanProfile",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "DimDQScanProfile",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "98e121dc-6db9-41a6-952f-d771f564ee7a"
+      },
+      {
+        "name": "FactDataQuality",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "FactDataQualityId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "f810992d-dbf9-4f62-a63c-7ab8eae156b9",
+            "sourceColumn": "FactDataQualityId",
+            "sourceLineageTag": "9afa9992-7d84-48bc-ab2b-be4179f754cb",
+            "summarizeBy": "count"
+          },
+          {
+            "name": "DQJobSourceId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "c272b486-1c96-4c1f-a60c-3693aa980209",
+            "sourceColumn": "DQJobSourceId",
+            "sourceLineageTag": "da4c9a24-6aa1-4bb9-9fcb-f151f9a31c85",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DQRuleId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "2699b274-e4da-4c21-9b02-7d42f409a96d",
+            "sourceColumn": "DQRuleId",
+            "sourceLineageTag": "ea22736b-48d1-4190-8252-fbf51b053081",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "RuleScanCompletionDatetime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "0fd44c9f-0535-4a19-adff-6b0dd46365bc",
+            "sourceColumn": "RuleScanCompletionDatetime",
+            "sourceLineageTag": "57d47924-266e-493b-b91c-d78a69c5d0fd",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_f57d0ab9-4d88-4e96-89f1-5f936949731a"
+                },
+                "isDefault": true,
+                "relationship": "0026a6b9-75d0-4b35-9b63-e48cacc118a6"
+              }
+            ]
+          },
+          {
+            "name": "DEHLastProcessedDatetime",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "lineageTag": "7ea85329-4d69-4bba-a824-8239dc694ecc",
+            "sourceColumn": "DEHLastProcessedDatetime",
+            "sourceLineageTag": "c69a8480-a3a1-4ade-b867-25902d595d98",
+            "summarizeBy": "none",
+            "variations": [
+              {
+                "name": "Variation",
+                "defaultHierarchy": {
+                  "hierarchy": "Date Hierarchy",
+                  "table": "LocalDateTable_3a2c90d3-7eb5-4837-9e50-392213f153a7"
+                },
+                "isDefault": true,
+                "relationship": "2d0c6c0a-0a19-4dcc-ab3a-68be0d553978"
+              }
+            ]
+          },
+          {
+            "name": "BusinessDomainId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "e3c71f6a-b644-4e3b-95dc-210fe79c08e2",
+            "sourceColumn": "BusinessDomainId",
+            "sourceLineageTag": "e6c693e8-7dcc-4262-b9d1-08d56aa89ccd",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataProductId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "e12a06ad-168b-403a-85d1-b34befdfcfb3",
+            "sourceColumn": "DataProductId",
+            "sourceLineageTag": "e83b88a1-842a-46f1-9a62-9684c5862d51",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataAssetId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "e4bc744a-a326-42b8-8245-bba9c25c65ea",
+            "sourceColumn": "DataAssetId",
+            "sourceLineageTag": "891c5d20-cebc-458d-aa76-4ef0436b9f2b",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DataAssetColumnId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "4085eae0-c83f-43e9-be91-4b24452faa30",
+            "sourceColumn": "DataAssetColumnId",
+            "sourceLineageTag": "2244432f-f9c2-4d31-a39b-5b6bd6b37023",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DQRuleTypeId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "f97375ce-cab9-47a4-bbb1-36d66c0499ef",
+            "sourceColumn": "DQRuleTypeId",
+            "sourceLineageTag": "3974c394-2693-444c-a5ee-2d07df063acb",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DQScanProfileId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "4815702b-a186-4183-a9c9-d0c616e8fef2",
+            "sourceColumn": "DQScanProfileId",
+            "sourceLineageTag": "955eeab0-a0c8-441a-9862-1b4a0b209fb2",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ScanCompletionDateId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "7725214a-a2f3-4211-ae1f-afc40d2cea0a",
+            "sourceColumn": "ScanCompletionDateId",
+            "sourceLineageTag": "3fe9f708-e12a-4eef-ace2-908998531642",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DQOverallProfileQualityScore",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "double",
+            "lineageTag": "7c107f96-e55a-48db-b41f-537c9f007cee",
+            "sourceColumn": "DQOverallProfileQualityScore",
+            "sourceLineageTag": "c1d15110-2a22-4bcd-88bf-581d8bfa2620",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DQPassedCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "b18e1375-14fe-49cb-8ab4-6feb66a99d58",
+            "sourceColumn": "DQPassedCount",
+            "sourceLineageTag": "790f477b-043a-4a5a-8d12-038fdfc7f23d",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DQFailedCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "a26493ca-c1b2-4716-a11e-752aa7389176",
+            "sourceColumn": "DQFailedCount",
+            "sourceLineageTag": "720ee82d-666c-46cc-9057-8faf61be9de6",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DQIgnoredCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "dcc451bb-2aa1-433b-b362-98f8acce6f96",
+            "sourceColumn": "DQIgnoredCount",
+            "sourceLineageTag": "e7c8919a-454c-40bb-ae47-60bb0342c0df",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DQEmptyCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "a919b2fb-2021-464a-95f7-d92ba468c57f",
+            "sourceColumn": "DQEmptyCount",
+            "sourceLineageTag": "773c939d-7f63-434f-92d4-8c23171284d7",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DQMiscastCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "612bd7a8-65da-46c6-a320-9924bac2b3f4",
+            "sourceColumn": "DQMiscastCount",
+            "sourceLineageTag": "c6e0a092-3146-4d18-bef3-4bdf2391678c",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "TotalCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "3ddb9796-1317-47a2-96a6-8c219d4ae7fc",
+            "sourceColumn": "TotalCount",
+            "sourceLineageTag": "e7d63166-a415-4df4-8682-fc7adbeb3128",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "TotalUnHealthyCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "896cd6fb-893e-4405-ad3c-8841017475bf",
+            "sourceColumn": "TotalUnHealthyCount",
+            "sourceLineageTag": "bdacf62b-0cfa-4db9-b57a-85dd2ac7dd15",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "JobTypeId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "f81d7632-ba5a-48e1-86bd-f37921364793",
+            "sourceColumn": "JobTypeId",
+            "sourceLineageTag": "d9599c13-5ca8-45fa-a6d1-731a8959da7b",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "dcc70044-9454-4125-b730-c56af66b265a",
+        "partitions": [
+          {
+            "name": "FactDataQuality",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "FactDataQuality",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "1167acfb-fda9-446c-841a-ed66e00bbdcb"
+      },
+      {
+        "name": "LocalDateTable_f57d0ab9-4d88-4e96-89f1-5f936949731a",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "0ce77209-7176-4933-918a-e5ac19c85163",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "ee5b26a3-4291-4ad6-9b21-f3c14d45e13b",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "85bb0e46-ed02-4593-817b-e1fd0fb0a710",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "557b93e8-2650-4063-8a16-9ab2d4d5cd31",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "f6dcc980-a14c-4d88-a5a8-c6bd191e8a72",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "dca44627-9223-4824-9d7f-b9e93d2da495",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "6798e6fb-2fbe-4d98-8ab2-604d3c988749",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "b9158189-e508-4deb-894e-1aa4b8a9a905",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "7e8df515-7e40-4783-af5e-f8d2ca5220fa",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "8ee1031b-8737-4844-b555-8948ce015a02",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "a6b69688-63ac-43cb-9a2e-e5322f3c8fa9",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "8f21ed67-35cd-4f11-ab37-cf2357170adc",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "e1fd1519-9dd4-4755-8e29-e4183ca949d2",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "038400dd-2dff-4762-9b7e-52b1d262038b",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "80570683-26de-4d7b-a713-88d463d59b71",
+                "ordinal": 0,
+                "sourceLineageTag": "17ca5265-afe4-4d5d-9137-63dceb11407c"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "ba1c7caf-e5f6-4b17-ada2-0df01b7cadd9",
+                "ordinal": 1,
+                "sourceLineageTag": "c798499c-4608-4c31-863f-390a81cda3a1"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "b0fdd1b5-b2df-48a0-a5fc-c2e5bcb46abe",
+                "ordinal": 2,
+                "sourceLineageTag": "335c88cc-042c-42b7-998c-58389c8b4ffa"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "879bda61-20df-4b65-928d-dcb33b003dbc",
+                "ordinal": 3,
+                "sourceLineageTag": "843dc7de-683c-4a7d-a329-e46eebe924a2"
+              }
+            ],
+            "lineageTag": "297cc39d-1aed-4d93-9e85-c26c1ad7d69e",
+            "sourceLineageTag": "16120546-5743-462b-bfd7-ad4dbf1fe425"
+          }
+        ],
+        "lineageTag": "66ae92f4-e1af-410a-94fb-3581928f255b",
+        "partitions": [
+          {
+            "name": "LocalDateTable_f57d0ab9-4d88-4e96-89f1-5f936949731a",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_f57d0ab9-4d88-4e96-89f1-5f936949731a",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "3daa59c9-9b16-4694-8a8e-6adfb80c9ae7"
+      },
+      {
+        "name": "LocalDateTable_3a2c90d3-7eb5-4837-9e50-392213f153a7",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Date",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isHidden": true,
+            "isNullable": false,
+            "lineageTag": "dbe11087-25a7-4f0a-b9de-dea9b3f9aad7",
+            "sourceColumn": "Date",
+            "sourceLineageTag": "6e2e6ff7-1bc9-4437-9493-58db0aff9c00",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Year",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "87727f40-f930-4bdd-87d7-2a08796da1a0",
+            "sourceColumn": "Year",
+            "sourceLineageTag": "333d6c00-028f-44d2-bd6f-ed26d68a5673",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "0f4a9751-e822-4ff7-9ef5-9b90f3f0c9bb",
+            "sourceColumn": "MonthNo",
+            "sourceLineageTag": "7d341b53-ad6b-40ce-bddf-1c6a00a79ed1",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Month",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "88b16902-a1aa-4f17-8c88-f21df0b3a097",
+            "sortByColumn": "MonthNo",
+            "sourceColumn": "Month",
+            "sourceLineageTag": "dc013df6-c98a-4c5d-a152-2c39cd17c1f6",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "QuarterNo",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "c282c401-f0e9-4237-80b5-3a636d1528de",
+            "sourceColumn": "QuarterNo",
+            "sourceLineageTag": "cb7f4270-516a-4813-93f5-4ef1971867e1",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Quarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "e7c7e520-422e-4382-841c-ef9cb50a9055",
+            "sortByColumn": "QuarterNo",
+            "sourceColumn": "Quarter",
+            "sourceLineageTag": "2762ec5d-ae9b-445d-951a-9228913f6145",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Day",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isHidden": true,
+            "lineageTag": "c8f2ac38-c6fa-4142-bf5c-284501c6c123",
+            "sourceColumn": "Day",
+            "sourceLineageTag": "43cfc1b2-c6e6-4069-8add-6d2afe4b302a",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date Hierarchy",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "Year",
+                "lineageTag": "cbffb83c-4593-402f-aaec-0aee20f8ec7a",
+                "ordinal": 0,
+                "sourceLineageTag": "df417826-bc88-429f-9d79-998c374aacf3"
+              },
+              {
+                "name": "Quarter",
+                "column": "Quarter",
+                "lineageTag": "f51ceed5-ad10-40f9-b4b2-281b5f768889",
+                "ordinal": 1,
+                "sourceLineageTag": "e670d290-1885-4684-96f0-53bb80f3d003"
+              },
+              {
+                "name": "Month",
+                "column": "Month",
+                "lineageTag": "79b74b92-2e75-42f8-bba1-3e38d7f90ee4",
+                "ordinal": 2,
+                "sourceLineageTag": "6ad5fd3f-1a38-4205-a875-ec3b19ed96d4"
+              },
+              {
+                "name": "Day",
+                "column": "Day",
+                "lineageTag": "a665f459-f500-4502-88a9-b949fbd9fc76",
+                "ordinal": 3,
+                "sourceLineageTag": "6c09e48b-7482-427c-b90d-d441ce7f60e8"
+              }
+            ],
+            "lineageTag": "a6d6106b-ec03-4c1b-bdf7-ed28a5149192",
+            "sourceLineageTag": "006abb3d-4a44-4b0e-ad55-c80e5b62382a"
+          }
+        ],
+        "lineageTag": "d68b76dc-3017-4d06-aa03-ac7806ac0c4c",
+        "partitions": [
+          {
+            "name": "LocalDateTable_3a2c90d3-7eb5-4837-9e50-392213f153a7",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "LocalDateTable_3a2c90d3-7eb5-4837-9e50-392213f153a7",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "showAsVariationsOnly": true,
+        "sourceLineageTag": "248943d3-2493-404f-800c-83061a78eaaa"
+      },
+      {
+        "name": "DimDate",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "DateId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isNullable": false,
+            "lineageTag": "d490772a-5c4e-4501-94b0-a2fcf07edabd",
+            "sourceColumn": "DateId",
+            "sourceLineageTag": "de0cf8ec-9223-4a54-96c2-1e19a89766a8",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "YearId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "3385a45c-c7fe-427a-93d7-ac4129bc4d26",
+            "sourceColumn": "YearId",
+            "sourceLineageTag": "38912d7e-7cb0-4f8d-b6e6-cc8d652b3c7e",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "YearName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "60434ea1-9e65-4674-bb0e-2f2be1ab3614",
+            "sourceColumn": "YearName",
+            "sourceLineageTag": "bb58c85f-1b47-40d6-8884-74fddb3485c0",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CalendarSemesterId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "e9edf981-897f-4bf3-97ae-607517fb3128",
+            "sourceColumn": "CalendarSemesterId",
+            "sourceLineageTag": "b6ca8eae-8f77-4574-887d-90c64344de20",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CalendarSemesterDisplayName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "068d4149-c91e-48a3-9d95-d5c80fe77dc4",
+            "sourceColumn": "CalendarSemesterDisplayName",
+            "sourceLineageTag": "60029a0c-44fc-4750-9c27-27902d2d934a",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "YearSemester",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "2b2d55d7-1220-42ab-962a-7d24f0ab4a8e",
+            "sourceColumn": "YearSemester",
+            "sourceLineageTag": "ec5c5da9-b9d5-42cd-8b39-7869b586c87a",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CalendarQuarterId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "5aa956c5-eaab-47ed-a968-064469d306bf",
+            "sourceColumn": "CalendarQuarterId",
+            "sourceLineageTag": "144e219c-6ca2-468e-92b6-3665d3c2769b",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CalendarQuarterDisplayName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "6d7ed949-8d9e-41af-9930-e41e84c7466f",
+            "sourceColumn": "CalendarQuarterDisplayName",
+            "sourceLineageTag": "17920eda-ff1d-4891-a038-97f439c9e398",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "YearQuarter",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "b06890ee-7f38-4167-b5bd-cf747b9e05e9",
+            "sourceColumn": "YearQuarter",
+            "sourceLineageTag": "fd32e3e1-0196-4f89-8224-ab269bf5a1f5",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "c5f4c359-bbde-4ee2-84fa-714f526a3430",
+            "sourceColumn": "MonthId",
+            "sourceLineageTag": "b21e8f86-06e5-455a-90ea-14ba1a660a06",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "MonthDisplayName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "1435f954-43a1-4064-bfd6-299ad980aee9",
+            "sourceColumn": "MonthDisplayName",
+            "sourceLineageTag": "104e422c-5909-4648-9ad4-702057b6e9cb",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "YearMonth",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "9f5849ec-0532-4cef-b09c-248fa6aea635",
+            "sourceColumn": "YearMonth",
+            "sourceLineageTag": "f6ecd9dd-5e82-4278-8d2b-84240c49cef9",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CalendarWeekId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "b4f4ad48-ed58-4fdb-8643-d540895fcedf",
+            "sourceColumn": "CalendarWeekId",
+            "sourceLineageTag": "4abe9f58-3364-44d3-a673-78805a15e502",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "YearWeek",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "af0bd5c1-6604-49b4-a691-19aea78ff0e6",
+            "sourceColumn": "YearWeek",
+            "sourceLineageTag": "3be75f4d-8489-4314-8076-9f6418e68672",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CalendarDateId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "96d978cb-9056-4f4b-94db-3f5e6d73d6e1",
+            "sourceColumn": "CalendarDateId",
+            "sourceLineageTag": "f72e89c4-c9b7-42f6-9918-cf0d7045405b",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CalendarDayDisplayName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "c3e1fe0b-7ee7-4979-aeb1-2099ce8af4f8",
+            "sourceColumn": "CalendarDayDisplayName",
+            "sourceLineageTag": "1d8e42ac-1f55-44f3-ac90-5a8de9db8d85",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "CalendarDayDate",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "dateTime",
+            "formatString": "General Number",
+            "isNullable": false,
+            "lineageTag": "818df6e2-59bc-4099-bfba-9be6c773cece",
+            "sourceColumn": "CalendarDayDate",
+            "sourceLineageTag": "c987acf0-5b65-4561-9e5e-1cc52971a7bf",
+            "summarizeBy": "none"
+          }
+        ],
+        "hierarchies": [
+          {
+            "name": "Date",
+            "levels": [
+              {
+                "name": "Year",
+                "column": "YearName",
+                "lineageTag": "5edd46e1-7429-4d56-bda8-faa24d0f668d",
+                "ordinal": 0,
+                "sourceLineageTag": "23113bd7-76a5-4018-b91e-f114ce4d7e14"
+              },
+              {
+                "name": "Semester",
+                "column": "CalendarSemesterId",
+                "lineageTag": "d99a6161-da45-4fb6-8cf2-bfede7a1da21",
+                "ordinal": 1,
+                "sourceLineageTag": "c3c66000-998a-4f4f-b5e6-2e4f4a7bff33"
+              },
+              {
+                "name": "Quarter",
+                "column": "CalendarQuarterId",
+                "lineageTag": "ef91b464-2ea3-4c0d-9f00-4a544e077092",
+                "ordinal": 2,
+                "sourceLineageTag": "26ad845a-6cef-4f34-bd09-16c13b8fe472"
+              },
+              {
+                "name": "MonthNumber",
+                "column": "MonthId",
+                "lineageTag": "0b63a3f5-fd6f-43ba-ab1d-ce82b0bbe0de",
+                "ordinal": 3,
+                "sourceLineageTag": "df8fd791-5ffc-4be2-82cb-9a049af67e0a"
+              },
+              {
+                "name": "WeekNumber",
+                "column": "CalendarWeekId",
+                "lineageTag": "5e606aaf-7bb6-4408-8bf3-b599375455df",
+                "ordinal": 4,
+                "sourceLineageTag": "1f68c8e7-951f-4d3c-b917-27bb56012533"
+              },
+              {
+                "name": "DayofMonth",
+                "column": "CalendarDateId",
+                "lineageTag": "0105d431-6213-4a87-8172-bd3cfddac6cb",
+                "ordinal": 5,
+                "sourceLineageTag": "c3dfe324-e15b-4d14-9ce3-880dd4f8573c"
+              }
+            ],
+            "lineageTag": "d7febf32-d4f7-4453-8f6c-a61fb2ff06a8",
+            "sourceLineageTag": "5707b18a-d5ec-47c3-a82c-70b56dbb59a7"
+          }
+        ],
+        "lineageTag": "8624e522-ac1e-4700-8b6b-cb78b013ce97",
+        "partitions": [
+          {
+            "name": "DimDate",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "DimDate",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "c3312153-ea1a-43c7-9e46-4e71ccaac9a9"
+      },
+      {
+        "name": "_Measures",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "lineageTag": "5f0b30cd-2715-4ffc-80de-343d9ee856bb",
+        "measures": [
+          {
+            "name": "M_DQPassScore",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"M_DQPassScore\", DOUBLE, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0.00%;-0.00%;0.00%",
+            "lineageTag": "37477322-a461-4fb6-a1c8-aff1067e5da2",
+            "sourceLineageTag": "4df44691-84c1-4583-86d6-c717baeab91d"
+          },
+          {
+            "name": "M_PassScoreAccuracy",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"M_PassScoreAccuracy\", DOUBLE, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0.00%;-0.00%;0.00%",
+            "lineageTag": "99004931-4004-464e-b841-49f2189c573d",
+            "sourceLineageTag": "04849020-4e29-4f9c-93b3-dd54ade318d3"
+          },
+          {
+            "name": "_DPMissingRules",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"_DPMissingRules\", INTEGER, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0",
+            "lineageTag": "c93f779d-4caa-4834-af32-f95c0654e198",
+            "sourceLineageTag": "81f24c8b-7d66-4cba-b09b-5e2109e03d8f"
+          },
+          {
+            "name": "M_PassScoreCompleteness",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"M_PassScoreCompleteness\", DOUBLE, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0.00%;-0.00%;0.00%",
+            "lineageTag": "708d0dbf-ac7b-41c2-a779-09389de6ef85",
+            "sourceLineageTag": "367b7065-2d89-4063-8c35-90b9de1bf827"
+          },
+          {
+            "name": "_DAMissingRules",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"_DAMissingRules\", INTEGER, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0",
+            "lineageTag": "ff81a260-484c-415e-bf47-ebff8df501f8",
+            "sourceLineageTag": "a3dc3d0c-f306-49ab-aaef-048ca1bed31b"
+          },
+          {
+            "name": "_DAMissingDims",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"_DAMissingDims\", INTEGER, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0",
+            "lineageTag": "a9ace7bd-c9b8-4ed1-a2ae-e0083211dc47",
+            "sourceLineageTag": "495bec24-58d2-4d69-b21f-06f6c76da0e5"
+          },
+          {
+            "name": "M_PassScoreConformity",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"M_PassScoreConformity\", DOUBLE, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0.00%;-0.00%;0.00%",
+            "lineageTag": "9a9aa611-194b-434f-9e14-76d40e3ee2fe",
+            "sourceLineageTag": "5ef30c7c-870d-45ec-9e28-6799eb63dadc"
+          },
+          {
+            "name": "M_PassScoreConsistency",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"M_PassScoreConsistency\", DOUBLE, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0.00%;-0.00%;0.00%",
+            "lineageTag": "9574e733-82fe-4f0a-b1c3-beb61d392f2b",
+            "sourceLineageTag": "bcf8f73e-297e-456f-b1f5-3406dfc92924"
+          },
+          {
+            "name": "M_PassScoreTimeliness",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"M_PassScoreTimeliness\", DOUBLE, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0.00%;-0.00%;0.00%",
+            "lineageTag": "e0dffc9f-1deb-4c9a-b06d-94f74b9cf91b",
+            "sourceLineageTag": "dd644561-af96-44e0-a960-9eb9df008872"
+          },
+          {
+            "name": "M_PassScoreUniqueness",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"M_PassScoreUniqueness\", DOUBLE, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0.00%;-0.00%;0.00%",
+            "lineageTag": "7395dd8c-9e0e-4b3c-8c47-0201f83403ce",
+            "sourceLineageTag": "10c6b980-1f94-4a73-8e6c-9ef32753d8d3"
+          },
+          {
+            "name": "_ActionItems",
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"_ActionItems\", INTEGER, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "formatString": "0",
+            "lineageTag": "74c1d0bd-8fc8-4760-8608-609794852cb0",
+            "sourceLineageTag": "f89443f2-1c87-4afa-b674-9d0a5e064692"
+          },
+          {
+            "name": "OverallQualityScore",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "expression": "EXTERNALMEASURE(\"OverallQualityScore\", DOUBLE, \"DirectQuery to AS - DQ_Health_Report_Dataset\")",
+            "lineageTag": "6877aa93-656a-4f44-8828-d182b4721094",
+            "sourceLineageTag": "2c44af04-59c4-4fd0-bb5a-247088303e91"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "_Measures",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "_Measures",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "c60fab0b-a8e1-466d-9ae2-ef2c9f53017a"
+      },
+      {
+        "name": "DimDQJobType",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Exception"
+          }
+        ],
+        "columns": [
+          {
+            "name": "JobTypeId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "int64",
+            "formatString": "0",
+            "isNullable": false,
+            "lineageTag": "2c01bc8d-67ae-4abd-85b4-2ff58e6d2cf3",
+            "sourceColumn": "JobTypeId",
+            "sourceLineageTag": "a9201b87-8190-4fba-a285-b97bf64b9270",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "JobTypeDisplayName",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              }
+            ],
+            "dataCategory": "Uncategorized",
+            "dataType": "string",
+            "lineageTag": "2661c511-35c6-40c8-9455-0ed4c423bafc",
+            "sourceColumn": "JobTypeDisplayName",
+            "sourceLineageTag": "0aa04fda-8b73-4013-be01-3abffb75ac19",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "14ebab90-3447-4ee0-99d1-2bcfb99b399b",
+        "partitions": [
+          {
+            "name": "DimDQJobType",
+            "mode": "directQuery",
+            "source": {
+              "entityName": "DimDQJobType",
+              "expressionSource": "DirectQuery to AS - DQ_Health_Report_Dataset",
+              "type": "entity"
+            }
+          }
+        ],
+        "sourceLineageTag": "3f2d6a6d-fad7-4070-bea4-160fa85f6f2c"
+      }
+    ]
+  }
+}

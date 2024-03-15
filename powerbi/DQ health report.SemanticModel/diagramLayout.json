@@ -1,0 +1,165 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 251.07691838191104
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 1150.2075158818946,
+            "y": 492.14265916463057
+          },
+          "nodeIndex": "_Measures",
+          "nodeLineageTag": "5f0b30cd-2715-4ffc-80de-343d9ee856bb",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 254.52436199196012,
+            "y": 24.229494587247473
+          },
+          "nodeIndex": "DimBusinessDomain",
+          "nodeLineageTag": "9a213d4e-5eb3-4312-900a-312c3508aa98",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 829.99601429020549,
+            "y": 135.38203814542385
+          },
+          "nodeIndex": "DimDataAsset",
+          "nodeLineageTag": "127a252b-723d-4162-afb6-ef5f98a50c5c",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 92.004999778023546,
+            "y": 794.8852894407089
+          },
+          "nodeIndex": "DimDataAssetColumn",
+          "nodeLineageTag": "f3a5275e-e497-48b3-a6ee-5a348eeae7a0",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 586.3380053784324,
+            "y": 819.652612744212
+          },
+          "nodeIndex": "DimDataProduct",
+          "nodeLineageTag": "9c12913d-799a-448d-917c-9b55625611ac",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 10,
+            "y": 353.13723278123393
+          },
+          "nodeIndex": "DimDate",
+          "nodeLineageTag": "8624e522-ac1e-4700-8b6b-cb78b013ce97",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 830.059010891812,
+            "y": 462.25652189344089
+          },
+          "nodeIndex": "DimDQJobType",
+          "nodeLineageTag": "14ebab90-3447-4ee0-99d1-2bcfb99b399b",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 543.676499314629,
+            "y": -10
+          },
+          "nodeIndex": "DimDQRuleName",
+          "nodeLineageTag": "11939935-e80c-4cd8-a95c-5e1e1d0ca1c6",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 876.20751588189478,
+            "y": 641.90003614968145
+          },
+          "nodeIndex": "DimDQRuleType",
+          "nodeLineageTag": "95eca0c4-2562-4a0a-89ed-07af157c960c",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 355.45280572197328,
+            "y": 1122.2853183292611
+          },
+          "nodeIndex": "DimDQScanProfile",
+          "nodeLineageTag": "937c6efd-c6c9-4a6b-b87f-5cc9d1d84114",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 540.07495699936749,
+            "y": 388.3749071818321
+          },
+          "nodeIndex": "FactDataQuality",
+          "nodeLineageTag": "dcc70044-9454-4125-b730-c56af66b265a",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 65,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}
