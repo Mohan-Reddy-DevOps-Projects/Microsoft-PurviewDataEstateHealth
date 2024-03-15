@@ -73,6 +73,9 @@ public class DHAssessmentRulesAdapter
                     case JoinRequirement.DataProductAssetsOwner:
                         joinAdapter = new DataProductAssetHasOwnerJoinAdapter(context);
                         break;
+                    case JoinRequirement.DataAssetClassification:
+                        joinAdapter = new AssetWithClassificationCountJoinAdapter(context);
+                        break;
                     default:
                         throw new System.NotImplementedException();
                 }

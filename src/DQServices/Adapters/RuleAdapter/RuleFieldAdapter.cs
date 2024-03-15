@@ -38,6 +38,9 @@ internal static class RuleFieldAdapter
             case DHCheckPoint.DataProductAllRelatedAssetsHaveOwner:
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductAssetsOwner);
                 return "DataProductAllRelatedAssetsHaveOwner";
+            case DHCheckPoint.DataProductRelatedDataAssetsWithClassificationCount:
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataAssetClassification);
+                return "DataProductRelatedDataAssetsWithClassificationCount";
             default: throw new NotImplementedException();
         }
     }
