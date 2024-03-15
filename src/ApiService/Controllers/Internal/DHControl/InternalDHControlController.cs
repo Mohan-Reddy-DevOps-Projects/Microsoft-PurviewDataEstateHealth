@@ -28,6 +28,7 @@ public class InternalDHControlController(DHScheduleService dhScheduleService, ID
             return this.BadRequest();
         }
         logger.LogInformation($"Schedule job callback start. TenantId: {requestHeaderContext.TenantId}. AccountId: {requestHeaderContext.AccountObjectId}.");
+        requestBody.Operator = DHScheduleCallbackPayload.DGScheduleServiceOperatorName;
         await dhScheduleService.TriggerScheduleJobCallbackAsync(requestBody).ConfigureAwait(false);
         return this.Ok();
     }

@@ -9,6 +9,8 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Newtonsoft.Json.Linq;
@@ -16,7 +18,10 @@ using Newtonsoft.Json.Linq;
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
 [Route("/controls/schedule")]
-public class DHScheduleController(DHScheduleService scheduleService) : DataPlaneController
+public class DHScheduleController(
+    DHScheduleService scheduleService,
+    IDataEstateHealthRequestLogger logger,
+    IRequestHeaderContext requestHeaderContext) : DataPlaneController
 {
     [HttpGet]
     [Route("")]
@@ -30,8 +35,15 @@ public class DHScheduleController(DHScheduleService scheduleService) : DataPlane
     [Route("trigger")]
     public async Task<ActionResult> TriggerScheduleAsync()
     {
-        await scheduleService.TriggerScheduleAsync().ConfigureAwait(false);
-        return this.Ok(new Dictionary<string, bool>() { { "succeeded", true } });
+        logger.LogInformation("Manually trigger schedule start.");
+        var payload = new DHScheduleCallbackPayload
+        {
+            Operator = requestHeaderContext.ClientObjectId,
+            TriggerType = DHScheduleCallbackTriggerType.Manually
+        };
+        var scheduleRunId = await scheduleService.TriggerScheduleJobCallbackAsync(payload).ConfigureAwait(false);
+        logger.LogInformation($"Manually trigger schedule successfully. ScheduleRunId: {scheduleRunId}. Operator: {requestHeaderContext.ClientObjectId}.");
+        return this.Ok(new Dictionary<string, string>() { { "scheduleRunId", scheduleRunId } });
     }
 
     [HttpPut]

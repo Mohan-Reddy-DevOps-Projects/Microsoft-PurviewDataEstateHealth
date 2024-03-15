@@ -36,10 +36,9 @@ public class DHScheduleService(
     DHScoreRepository dhScoreRepository
     )
 {
-    private const string ScheduleOperationName = "DGSchedule Service";
     private const string MDQEventOperationName = "MDQ event";
 
-    public async Task TriggerScheduleJobCallbackAsync(DHScheduleCallbackPayload payload)
+    public async Task<string> TriggerScheduleJobCallbackAsync(DHScheduleCallbackPayload payload)
     {
         // Step 1: query all controls
         var controls = new List<DHControlNodeWrapper>();
@@ -59,6 +58,8 @@ public class DHScheduleService(
         }
 
         var scheduleRunId = Guid.NewGuid().ToString();
+        logger.LogInformation($"New scheduleRunId generated {scheduleRunId}");
+
         var assessments = await assessmentService.ListAssessmentsAsync().ConfigureAwait(false);
 
         foreach (var control in controls)
@@ -100,7 +101,7 @@ public class DHScheduleService(
                 jobWrapper.DQJobId = dqJobId;
                 jobWrapper.ControlId = control.Id;
                 jobWrapper.ScheduleRunId = scheduleRunId;
-                await monitoringService.CreateComputingJob(jobWrapper, ScheduleOperationName).ConfigureAwait(false);
+                await monitoringService.CreateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
                 logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}. Control Id:{control.Id}. Schedule Run Id: {scheduleRunId}");
                 logger.LogTipInformation($"The MDQ job was triggered", new JObject
                 {
@@ -115,6 +116,10 @@ public class DHScheduleService(
                 logger.LogError($"control failed to start. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}", ex);
             }
         }
+
+        logger.LogInformation($"All MDQ jobs in schedule run {scheduleRunId} are created.");
+
+        return scheduleRunId;
     }
 
     public async Task UpdateMDQJobStatusAsync(DHControlMDQJobCallbackPayload payload)
@@ -227,20 +232,6 @@ public class DHScheduleService(
         response.SystemData = globalSchedule.SystemData;
 
         return response;
-    }
-
-    public async Task TriggerScheduleAsync()
-    {
-        var globalSchedule = await this.GetGlobalScheduleInternalAsync().ConfigureAwait(false);
-
-        if (globalSchedule == null)
-        {
-            throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), "Global"));
-        }
-
-        var scheduleId = globalSchedule.Id;
-
-        await scheduleService.TriggerScheduleAsync(scheduleId).ConfigureAwait(false);
     }
 
     private async Task<DHControlScheduleStoragePayloadWrapper?> GetGlobalScheduleInternalAsync()

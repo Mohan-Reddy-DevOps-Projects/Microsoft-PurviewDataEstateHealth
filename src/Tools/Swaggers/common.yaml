@@ -155,8 +155,8 @@ paths:
               schema:
                 type: object
                 properties:
-                  succeeded:
-                    type: boolean
+                  scheduleRunId:
+                    type: string
 
   /controls/alert:
     get:
