@@ -36,13 +36,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         {
             using (logger.LogElapsed($"Start to enum actions"))
             {
-                var filter = query.Filter ?? new ActionsFilter();
-                filter.PermissionObligations = new Dictionary<DataHealthActionTargetEntityType, List<Obligation>>
-                {
-                    { DataHealthActionTargetEntityType.DataProduct, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, GovernancePermissions.DataProductRead) },
-                    { DataHealthActionTargetEntityType.DataQualityAsset, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, DataQualityPermissions.ObserverRead) },
-                };
-                query.Filter = filter;
+                query.Filter = this.BuildEnumPermissionFilter(query.Filter);
                 return await dataHealthActionRepository.GetActionsByFilterAsync(query);
             }
         }
@@ -51,6 +45,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         {
             using (logger.LogElapsed($"Start to get action facets"))
             {
+                filters = this.BuildEnumPermissionFilter(filters);
                 return await dataHealthActionRepository.GetActionFacetsAsync(filters, facets);
             }
         }
@@ -71,13 +66,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                     logger.LogInformation($"The value of {nameof(groupBy)} is not supported");
                     throw new UnsupportedParamException($"The value of {nameof(groupBy)} is not supported");
                 }
-                var filter = query.Filter ?? new ActionsFilter();
-                filter.PermissionObligations = new Dictionary<DataHealthActionTargetEntityType, List<Obligation>>
-                {
-                    { DataHealthActionTargetEntityType.DataProduct, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, GovernancePermissions.DataProductRead) },
-                    { DataHealthActionTargetEntityType.DataQualityAsset, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, DataQualityPermissions.ObserverRead) },
-                };
-                query.Filter = filter;
+                query.Filter = this.BuildEnumPermissionFilter(query.Filter);
                 return await dataHealthActionRepository.EnumerateActionsByGroupAsync(query, groupBy);
             }
         }
@@ -125,8 +114,19 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
                 action.OnUpdate(existedAction, requestHeaderContext.ClientObjectId);
 
-                // todo: check permission
+                var hasDHWritePermission = this.CheckObligation(GovernancePermissions.DgHealthWrite, ObligationContainerTypes.DataGovernanceApp, "FAKE_GUID", EntityCategory.Action);
+                var permissionMap = new Dictionary<DataHealthActionTargetEntityType, string>
+                {
+                    { DataHealthActionTargetEntityType.DataProduct, GovernancePermissions.DataProductWrite },
+                    { DataHealthActionTargetEntityType.DataQualityAsset, GovernancePermissions.ObserverWrite },
+                    { DataHealthActionTargetEntityType.BusinessDomain, GovernancePermissions.BusinessDomainWrite },
+                    { DataHealthActionTargetEntityType.GlossaryTerm, GovernancePermissions.TermWrite }
+                };
 
+                if (!hasDHWritePermission && permissionMap.TryGetValue(action.TargetEntityType, out var permissionName))
+                {
+                    this.CheckObligation(permissionName, ObligationContainerTypes.DataGovernanceScope, action.DomainId, EntityCategory.Action, true);
+                }
                 await dataHealthActionRepository.UpdateAsync(action).ConfigureAwait(false);
                 return action;
             }
@@ -140,10 +140,26 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                 {
                     throw new ArgumentNullException(nameof(actionId));
                 }
+                var existAction = await this.GetExistedAction(actionId).ConfigureAwait(false);
 
-                // todo: check permission
+                var hasDHReadPermission = this.CheckObligation(GovernancePermissions.DgHealthRead, ObligationContainerTypes.DataGovernanceApp, "FAKE_GUID", EntityCategory.Action);
+                var permissionMap = new Dictionary<DataHealthActionTargetEntityType, string>
+                {
+                    { DataHealthActionTargetEntityType.DataProduct, GovernancePermissions.DataProductRead },
+                    { DataHealthActionTargetEntityType.DataQualityAsset, GovernancePermissions.ObserverRead },
+                    { DataHealthActionTargetEntityType.BusinessDomain, GovernancePermissions.BusinessDomainRead },
+                    { DataHealthActionTargetEntityType.GlossaryTerm, GovernancePermissions.TermRead }
+                };
 
-                return await this.GetExistedAction(actionId).ConfigureAwait(false);
+                if (!hasDHReadPermission && permissionMap.TryGetValue(existAction.TargetEntityType, out var permissionName))
+                {
+                    var hasPermission = this.CheckObligation(permissionName, ObligationContainerTypes.DataGovernanceScope, existAction.DomainId, EntityCategory.Action);
+                    if (!hasPermission)
+                    {
+                        throw new EntityForbiddenException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageForbiddenReadMessage, EntityCategory.Action, existAction.DomainId));
+                    }
+                }
+                return existAction;
             }
         }
 
@@ -157,6 +173,24 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             }
             return result;
         }
+
+        internal ActionsFilter BuildEnumPermissionFilter(ActionsFilter? filter)
+        {
+            filter ??= new ActionsFilter();
+            var hasDHReadPermission = this.CheckObligation(GovernancePermissions.DgHealthRead, ObligationContainerTypes.DataGovernanceApp, "FAKE_GUID", EntityCategory.Action);
+            if (!hasDHReadPermission)
+            {
+                filter.PermissionObligations = new Dictionary<DataHealthActionTargetEntityType, List<Obligation>>
+                    {
+                        { DataHealthActionTargetEntityType.BusinessDomain, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, GovernancePermissions.BusinessDomainRead) },
+                        { DataHealthActionTargetEntityType.DataProduct, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, GovernancePermissions.DataProductRead) },
+                        { DataHealthActionTargetEntityType.DataQualityAsset, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, GovernancePermissions.ObserverRead) },
+                        { DataHealthActionTargetEntityType.GlossaryTerm, this.GetObligationQueryFilter(ObligationContainerTypes.DataGovernanceScope, GovernancePermissions.TermRead) },
+                };
+            }
+            return filter;
+        }
+
         internal List<Obligation> GetObligationQueryFilter(string obligationContainerType, string permission)
         {
             return this.GetObligationQueryFilter(new List<string> { obligationContainerType }, permission);
