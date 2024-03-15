@@ -85,6 +85,7 @@ public class DHScoreRepository(
         var sqlQuery = new StringBuilder(@$"
 SELECT 
     c.ControlGroupId,
+    c.ControlId,
     c.ScheduleRunId,
     MAX(c.Time) AS Time,
     AVG(c.AggregatedScore) AS Score
@@ -118,13 +119,13 @@ FROM c WHERE 1=1 ");
             sqlQuery.Append($"AND c.DataProductStatus = '{status}' ");
         }
 
-        sqlQuery.Append("GROUP BY c.ControlGroupId, c.ScheduleRunId");
+        sqlQuery.Append("GROUP BY c.ControlGroupId, c.ControlId, c.ScheduleRunId");
 
         var queryDefinition = new QueryDefinition(sqlQuery.ToString());
 
         // Execute the query
-        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreAggregatedByControlGroup>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
-        var intermediateResults = new List<DHScoreAggregatedByControlGroup>();
+        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreSQLQueryResponse>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+        var intermediateResults = new List<DHScoreSQLQueryResponse>();
 
         while (queryResultSetIterator.HasMoreResults)
         {
@@ -132,10 +133,25 @@ FROM c WHERE 1=1 ");
             intermediateResults.AddRange(currentResultSet.Resource);
         }
 
-        return intermediateResults.GroupBy(x => new { x.ControlGroupId }).SelectMany(g =>
+        return intermediateResults.GroupBy(x => new { x.ControlGroupId, x.ScheduleRunId }).Select(g => new DHScoreAggregatedByControlGroup
+        {
+            ControlGroupId = g.Key.ControlGroupId,
+            ScheduleRunId = g.Key.ScheduleRunId,
+            Time = g.Max(x => x.Time),
+            Score = g.Average(x => x.Score)
+        }).GroupBy(x => new { x.ControlGroupId }).SelectMany(g =>
         {
             var orderedSeq = g.OrderByDescending(x => x.Time);
             return recordLatestCounts.HasValue ? orderedSeq.Take(recordLatestCounts.Value) : orderedSeq;
         });
+    }
+
+    internal record DHScoreSQLQueryResponse
+    {
+        public required string ControlGroupId { get; set; }
+        public required string ControlId { get; set; }
+        public required string ScheduleRunId { get; set; }
+        public required DateTime Time { get; set; }
+        public required double Score { get; set; }
     }
 }
