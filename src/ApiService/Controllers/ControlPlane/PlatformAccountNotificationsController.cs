@@ -80,25 +80,20 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         {
             return this.Ok();
         }
-
-        if (this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        List<Task> tasks = new();
+        if (!this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
-            return this.Ok();
+            await this.processingStorageManager.Provision(account, cancellationToken);
+            Task partnerTask = PartnerNotifier.NotifyPartners(
+                    this.logger,
+                    this.partnerService,
+                    this.partnerConfig,
+                    account,
+                    ProvisioningService.OperationType.CreateOrUpdate,
+                    InitPartnerContext(this.partnerConfig.Partners));
+
+            tasks.Add(partnerTask);
         }
-
-        await this.processingStorageManager.Provision(account, cancellationToken);
-        Task partnerTask = PartnerNotifier.NotifyPartners(
-                this.logger,
-                this.partnerService,
-                this.partnerConfig,
-                account,
-                ProvisioningService.OperationType.CreateOrUpdate,
-                InitPartnerContext(this.partnerConfig.Partners));
-
-        List<Task> tasks = new()
-        {
-            partnerTask
-        };
 
         if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
@@ -106,7 +101,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
                 .CreatePartnerNotificationComponent(
                 Guid.Parse(account.TenantId),
                 Guid.Parse(account.Id))
-            .CreateOrUpdateNotification(account, cancellationToken);
+                .CreateOrUpdateNotification(account, cancellationToken);
             tasks.Add(healthTask);
         }
 
