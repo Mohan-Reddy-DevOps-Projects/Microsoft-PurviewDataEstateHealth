@@ -40,6 +40,9 @@ resource container 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/container
           {
             path: '/_etag/?'
           }
+          {
+            path: '/JObject/*'
+          }
         ]
       }
     }
