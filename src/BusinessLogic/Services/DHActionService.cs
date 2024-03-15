@@ -114,7 +114,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
                 action.OnUpdate(existedAction, requestHeaderContext.ClientObjectId);
 
-                var hasDHWritePermission = this.CheckObligation(GovernancePermissions.DgHealthWrite, ObligationContainerTypes.DataGovernanceApp, "FAKE_GUID", EntityCategory.Action);
+                var hasDHWritePermission = this.CheckObligation(GovernancePermissions.DgHealthWrite, ObligationContainerTypes.DataGovernanceApp, requestHeaderContext.TenantId.ToString(), EntityCategory.Action);
                 var permissionMap = new Dictionary<DataHealthActionTargetEntityType, string>
                 {
                     { DataHealthActionTargetEntityType.DataProduct, GovernancePermissions.DataProductWrite },
@@ -142,7 +142,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                 }
                 var existAction = await this.GetExistedAction(actionId).ConfigureAwait(false);
 
-                var hasDHReadPermission = this.CheckObligation(GovernancePermissions.DgHealthRead, ObligationContainerTypes.DataGovernanceApp, "FAKE_GUID", EntityCategory.Action);
+                var hasDHReadPermission = this.CheckObligation(GovernancePermissions.DgHealthRead, ObligationContainerTypes.DataGovernanceApp, requestHeaderContext.TenantId.ToString(), EntityCategory.Action);
                 var permissionMap = new Dictionary<DataHealthActionTargetEntityType, string>
                 {
                     { DataHealthActionTargetEntityType.DataProduct, GovernancePermissions.DataProductRead },
@@ -177,7 +177,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         internal ActionsFilter BuildEnumPermissionFilter(ActionsFilter? filter)
         {
             filter ??= new ActionsFilter();
-            var hasDHReadPermission = this.CheckObligation(GovernancePermissions.DgHealthRead, ObligationContainerTypes.DataGovernanceApp, "FAKE_GUID", EntityCategory.Action);
+            var hasDHReadPermission = this.CheckObligation(GovernancePermissions.DgHealthRead, ObligationContainerTypes.DataGovernanceApp, requestHeaderContext.TenantId.ToString(), EntityCategory.Action);
             if (!hasDHReadPermission)
             {
                 filter.PermissionObligations = new Dictionary<DataHealthActionTargetEntityType, List<Obligation>>
