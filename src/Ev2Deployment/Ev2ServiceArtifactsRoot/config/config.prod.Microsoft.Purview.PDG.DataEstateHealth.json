@@ -103,6 +103,30 @@
               ]
             }
           }
+        },
+        {
+          "name": "eastus2",
+          "settings": {
+            "dgh": {
+              "eventHubs": [
+                {
+                  "name": "catalogevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 2
+                },
+                {
+                  "name": "dataaccessevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 2
+                },
+                {
+                  "name": "dataqualityevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 2
+                }
+              ]
+            }
+          }
         }
       ]
     }
