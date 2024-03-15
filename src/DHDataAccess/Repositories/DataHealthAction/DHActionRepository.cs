@@ -155,38 +155,44 @@ public class DHActionRepository(
         if (filter != null)
         {
             this.logger.LogInformation("Query filter is not null");
-            if (filter.DomainIds != null && filter.DomainIds.Any())
+            if (filter.DomainIds != null && filter.DomainIds.Count != 0)
             {
                 var domainIds = string.Join(", ", filter.DomainIds.Select(x => $"'{x}'"));
                 sqlQuery.Append($" AND c.DomainId IN ({domainIds})");
             }
 
-            if (filter.Status != null && filter.Status.Any())
+            if (filter.Categories != null && filter.Categories.Count != 0)
+            {
+                var categories = string.Join(", ", filter.Categories.Select(x => $"'{x}'"));
+                sqlQuery.Append($" AND c.Category IN ({categories})");
+            }
+
+            if (filter.Status != null && filter.Status.Count != 0)
             {
                 var statuses = string.Join(", ", filter.Status.Select(x => $"'{x}'"));
                 sqlQuery.Append($" AND c.Status IN ({statuses})");
             }
 
-            if (filter.AssignedTo != null && filter.AssignedTo.Any())
+            if (filter.AssignedTo != null && filter.AssignedTo.Count != 0)
             {
                 var assignedToConditions = filter.AssignedTo.Select(assignedTo => $"ARRAY_CONTAINS(c.AssignedTo, '{assignedTo}')");
                 var assignedToQuery = string.Join(" OR ", assignedToConditions);
                 sqlQuery.Append($" AND ({assignedToQuery})");
             }
 
-            if (filter.FindingTypes != null && filter.FindingTypes.Any())
+            if (filter.FindingTypes != null && filter.FindingTypes.Count != 0)
             {
                 var findingTypes = string.Join(", ", filter.FindingTypes.Select(x => $"'{x}'"));
                 sqlQuery.Append($" AND c.FindingType IN ({findingTypes})");
             }
 
-            if (filter.FindingSubTypes != null && filter.FindingSubTypes.Any())
+            if (filter.FindingSubTypes != null && filter.FindingSubTypes.Count != 0)
             {
                 var findingSubTypes = string.Join(", ", filter.FindingSubTypes.Select(x => $"'{x}'"));
                 sqlQuery.Append($" AND c.FindingSubType IN ({findingSubTypes})");
             }
 
-            if (filter.FindingNames != null && filter.FindingNames.Any())
+            if (filter.FindingNames != null && filter.FindingNames.Count != 0)
             {
                 var findingNames = string.Join(", ", filter.FindingNames.Select(x => $"'{x}'"));
                 sqlQuery.Append($" AND c.FindingName IN ({findingNames})");
@@ -202,7 +208,7 @@ public class DHActionRepository(
                 sqlQuery.Append($" AND c.TargetEntityType = '{filter.TargetEntityType}'");
             }
 
-            if (filter.TargetEntityIds != null && filter.TargetEntityIds.Any())
+            if (filter.TargetEntityIds != null && filter.TargetEntityIds.Count != 0)
             {
                 var targetEntityIds = string.Join(", ", filter.TargetEntityIds.Select(x => $"'{x}'"));
                 sqlQuery.Append($" AND c.TargetEntityId IN ({targetEntityIds})");
@@ -249,7 +255,7 @@ public class DHActionRepository(
                         }
                     }
 
-                    if (obligations.Any())
+                    if (obligations.Count != 0)
                     {
                         var obligationsQuery = string.Join(" OR ", obligations);
                         permissionObligationsConditions.Add($"({obligationsQuery})");

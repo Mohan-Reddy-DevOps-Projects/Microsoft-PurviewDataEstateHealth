@@ -14,6 +14,9 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
         [JsonProperty("domainIds", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> DomainIds { get; set; }
 
+        [JsonProperty("categories", NullValueHandling = NullValueHandling.Ignore)]
+        public List<string> Categories { get; set; }
+
         [JsonProperty("assignedTo", NullValueHandling = NullValueHandling.Ignore)]
         public List<string> AssignedTo { get; set; }
 

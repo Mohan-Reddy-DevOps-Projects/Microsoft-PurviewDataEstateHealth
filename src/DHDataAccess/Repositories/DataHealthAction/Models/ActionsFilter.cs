@@ -9,6 +9,7 @@ public class ActionsFilter
 {
     public List<DataHealthActionStatus>? Status { get; set; }
     public List<string>? DomainIds { get; set; }
+    public List<string>? Categories { get; set; }
     public List<string>? AssignedTo { get; set; }
     public List<string>? FindingTypes { get; set; }
     public List<string>? FindingSubTypes { get; set; }

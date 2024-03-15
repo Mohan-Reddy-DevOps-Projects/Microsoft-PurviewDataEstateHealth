@@ -1121,6 +1121,12 @@ components:
             type: string
             enum: [NotStarted, InProgress, Resolved, Ignored]
           description: The status of the action.
+        categories:
+          type: array
+          items:
+            type: string
+            enum: [DataQuality, HealthControl]
+          description: The categories of the action.
         targetEntityType:
           type: string
           enum:
