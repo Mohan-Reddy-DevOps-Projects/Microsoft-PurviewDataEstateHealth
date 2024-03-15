@@ -10,8 +10,8 @@ internal static class RuleFieldAdapter
     {
         switch (checkpoint)
         {
-            case DHCheckPoint.DataProductDescriptionLength: return "length(DataProductDescription)";
-            case DHCheckPoint.DataProductBusinessUseLength: return "length(UseCases)";
+            case DHCheckPoint.DataProductDescriptionLength: return "length(regexReplace(DataProductDescription, '(<(.*?)>)', ''))";
+            case DHCheckPoint.DataProductBusinessUseLength: return "length(regexReplace(UseCases, '(<(.*?)>)', ''))";
             case DHCheckPoint.DataProductEndorsed: return "Endorsed";
             case DHCheckPoint.DataProductStatus: return "DataProductStatusDisplayName";
             case DHCheckPoint.DataProductOwnerCount:
