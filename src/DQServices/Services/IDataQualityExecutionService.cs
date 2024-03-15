@@ -11,5 +11,7 @@ public interface IDataQualityExecutionService
 {
     public Task<string> SubmitDQJob(string tenantId, string accountId, DHControlNodeWrapper control, DHAssessmentWrapper assessment, string healthJobId);
 
+    public Task PurgeObserver(DHComputingJobWrapper job);
+
     public Task<IEnumerable<DHRawScore>> ParseDQResult(DHComputingJobWrapper job);
 }

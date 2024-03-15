@@ -119,8 +119,16 @@ public class DataQualityExecutionService : IDataQualityExecutionService
                 dataAssetId,
                 aliasList)).ConfigureAwait(false);
 
-        this.logger.LogInformation($"End SubmitDQJOb, dqJobId:{dqJobId}");
+        this.logger.LogInformation($"End SubmitDQJOb, controlId: {control.Id}, healthJobId: {healthJobId}, dqJobId:{dqJobId}");
 
         return dqJobId;
+    }
+
+    public async Task PurgeObserver(DHComputingJobWrapper job)
+    {
+        this.logger.LogInformation($"Start PurgeObserver, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
+        var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
+        await dataQualityServiceClient.DeleteObserver(job.TenantId, job.AccountId, job.ControlId, job.Id).ConfigureAwait(false);
+        this.logger.LogInformation($"End PurgeObserver, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
     }
 }

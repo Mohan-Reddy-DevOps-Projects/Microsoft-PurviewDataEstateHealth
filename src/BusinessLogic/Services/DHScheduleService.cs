@@ -137,6 +137,7 @@ public class DHScheduleService(
                 await monitoringService.EndComputingJob(job.Id, MDQEventOperationName);
                 var scoreResult = await dataQualityExecutionService.ParseDQResult(job).ConfigureAwait(false);
                 await scoreService.ProcessControlComputingResultsAsync(job, scoreResult).ConfigureAwait(false);
+                await dataQualityExecutionService.PurgeObserver(job).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

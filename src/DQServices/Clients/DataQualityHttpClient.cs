@@ -11,6 +11,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
 {
@@ -65,17 +66,20 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
         return responseBody.Substring(1, responseBody.Length - 2);
     }
 
-    // TODO will delete
-    public async Task Test()
+    public async Task DeleteObserver(string tenantId, string accountId, string dataProductId, string dataAssetId)
     {
-        var requestUri = this.CreateRequestUri($"/mdq/observers");
+        var queryParams = HttpUtility.ParseQueryString(string.Empty);
+        queryParams["dataProductId"] = dataProductId;
+        queryParams["dataAssetId"] = dataAssetId;
 
-        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUri);
-        request.Headers.Add("x-ms-account-id", "ecf09339-34e0-464b-a8fb-661209048543");
+        var requestUri = this.CreateRequestUri("/mdq/observers", queryParams.ToString());
+
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, requestUri);
+        request.Headers.Add("x-ms-client-tenant-id", tenantId);
+        request.Headers.Add("x-ms-account-id", accountId);
 
         var response = await this.Client.SendAsync(request).ConfigureAwait(false);
         this.HandleResponseStatusCode(response);
-        var responseBody = await this.ParseResponse<JObject>(response).ConfigureAwait(false);
     }
 
     private HttpContent CreateRequestContent(object obj)
@@ -84,11 +88,12 @@ public class DataQualityHttpClient : ServiceClient<DataQualityHttpClient>
         return new StringContent(content, Encoding.UTF8, "application/json");
     }
 
-    private Uri CreateRequestUri(string pathname)
+    private Uri CreateRequestUri(string pathname, string query = null)
     {
         var builder = new UriBuilder(this.BaseUri)
         {
-            Path = pathname
+            Path = pathname,
+            Query = query
         };
         return builder.Uri;
     }
