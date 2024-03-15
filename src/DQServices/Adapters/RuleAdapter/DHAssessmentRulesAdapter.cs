@@ -13,6 +13,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 public class DHAssessmentRulesAdapter
 {
@@ -85,6 +86,12 @@ public class DHAssessmentRulesAdapter
                 schemaFromJoin.AddRange(joinResult.SchemaFromJoin);
                 inputDatasetsFromJoin.AddRange(joinResult.inputDatasetsFromJoin);
             }
+        }
+
+        if (context.fitlerDomainIds != null && context.fitlerDomainIds.Any())
+        {
+            var filterDomainIds = string.Join(",", context.fitlerDomainIds.Select(domainId => $"'{domainId}'"));
+            projectionSqlList.Add($" WHERE BusinessDomainId IN ({filterDomainIds}) ");
         }
 
         return new RuleAdapterResult()

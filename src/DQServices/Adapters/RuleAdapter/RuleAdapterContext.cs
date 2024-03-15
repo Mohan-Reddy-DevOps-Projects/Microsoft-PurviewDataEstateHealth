@@ -11,6 +11,7 @@ public class RuleAdapterContext
     public string containerName;
     public string dataProductId;
     public string dataAssetId;
+    public IEnumerable<string> fitlerDomainIds;
     public DHAssessmentWrapper assessment;
 
     public RuleAdapterContext(
@@ -18,7 +19,8 @@ public class RuleAdapterContext
         string containerName,
         string dataProductId,
         string dataAssetId,
-        DHAssessmentWrapper assessment)
+        DHAssessmentWrapper assessment,
+        IEnumerable<string> fitlerDomainIds)
     {
         this.endpoint = endpoint;
         this.containerName = containerName;
@@ -26,6 +28,7 @@ public class RuleAdapterContext
         this.dataAssetId = dataAssetId;
         this.assessment = assessment;
         this.joinRequirements = new SortedSet<JoinRequirement>(DataEstateHealthConstants.ALWAYS_REQUIRED_JOIN_REQUIREMENTS);
+        this.fitlerDomainIds = fitlerDomainIds;
     }
 
 

@@ -85,7 +85,8 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             catalogId,
             dataProductId,
             dataAssetId,
-            assessment);
+            assessment,
+            control.Domains);
         var observerAdapter = new ObserverAdapter(adaptContext);
         var observer = observerAdapter.FromControlAssessment();
 
