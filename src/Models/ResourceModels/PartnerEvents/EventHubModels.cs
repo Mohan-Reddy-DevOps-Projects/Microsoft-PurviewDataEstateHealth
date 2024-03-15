@@ -94,7 +94,7 @@ public class EventHubModel : BaseEventHubModel
     /// Person object id who create/update/delete
     /// </summary>
     [JsonProperty("changedBy")]
-    public Guid ChangedBy { get; set; }
+    public Guid? ChangedBy { get; set; }
 }
 
 /// <summary>
@@ -210,7 +210,12 @@ public enum PayloadKind
     /// <summary>
     /// Data Quality score
     /// </summary>
-    DataQualityScore
+    DataQualityScore,
+
+    /// <summary>
+    /// CustomMetadata
+    /// </summary>
+    CustomMetadata
 }
 
 /// <summary>
