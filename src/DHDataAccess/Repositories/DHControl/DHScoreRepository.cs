@@ -28,7 +28,7 @@ public class DHScoreRepository(
     public async Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
     {
         // Construct the SQL query
-        var sqlQuery = new StringBuilder("SELECT c.ControlId, c.ComputingJobId, c.ScheduleRunId, MAX(c.Time) AS Time, AVG(c.AggregatedScore) AS Score FROM c WHERE 1=1 ");
+        var sqlQuery = new StringBuilder("SELECT c.ControlGroupId, c.ControlId, c.ScheduleRunId, c.ComputingJobId, MAX(c.Time) AS Time, AVG(c.AggregatedScore) AS Score FROM c WHERE 1=1 ");
 
         // Add filtering conditions based on provided parameters
         if (domainIds != null && domainIds.Any())
@@ -58,7 +58,7 @@ public class DHScoreRepository(
             sqlQuery.Append($"AND c.DataProductStatus = '{status}' ");
         }
 
-        sqlQuery.Append("GROUP BY c.ControlId, c.ScheduleRunId, c.ComputingJobId");
+        sqlQuery.Append("GROUP BY c.ControlGroupId, c.ControlId, c.ScheduleRunId, c.ComputingJobId ");
 
         var queryDefinition = new QueryDefinition(sqlQuery.ToString());
 
