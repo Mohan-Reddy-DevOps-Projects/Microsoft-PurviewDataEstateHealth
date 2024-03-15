@@ -68,6 +68,7 @@ internal sealed class SparkJobManager : ISparkJobManager
         this.logger.LogInformation($"Get spark job {batchId} in pool={sparkPoolId.Name}");
         SparkBatchJob response = await this.synapseSparkExecutor.GetJob(sparkPoolId.Name, batchId, cancellationToken);
         this.logger.LogInformation($"Retrieved spark job {JsonSerializer.Serialize(response, this.jsonOptions)} in pool={sparkPoolId.Name}");
+        this.logger.LogInformation($"spark job status, tenant: {accountServiceModel.TenantId}, status: {response.Result}, livy: {response.LivyInfo}");
 
         return response;
     }
