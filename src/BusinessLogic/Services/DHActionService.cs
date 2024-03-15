@@ -118,6 +118,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                 var permissionMap = new Dictionary<DataHealthActionTargetEntityType, string>
                 {
                     { DataHealthActionTargetEntityType.DataProduct, GovernancePermissions.DataProductWrite },
+                    { DataHealthActionTargetEntityType.DataAsset, GovernancePermissions.DataProductWrite },
                     { DataHealthActionTargetEntityType.DataQualityAsset, GovernancePermissions.ObserverWrite },
                     { DataHealthActionTargetEntityType.BusinessDomain, GovernancePermissions.BusinessDomainWrite },
                     { DataHealthActionTargetEntityType.GlossaryTerm, GovernancePermissions.TermWrite }
@@ -146,6 +147,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                 var permissionMap = new Dictionary<DataHealthActionTargetEntityType, string>
                 {
                     { DataHealthActionTargetEntityType.DataProduct, GovernancePermissions.DataProductRead },
+                    { DataHealthActionTargetEntityType.DataAsset, GovernancePermissions.DataProductRead },
                     { DataHealthActionTargetEntityType.DataQualityAsset, GovernancePermissions.ObserverRead },
                     { DataHealthActionTargetEntityType.BusinessDomain, GovernancePermissions.BusinessDomainRead },
                     { DataHealthActionTargetEntityType.GlossaryTerm, GovernancePermissions.TermRead }
