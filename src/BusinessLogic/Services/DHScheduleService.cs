@@ -79,6 +79,13 @@ public class DHScheduleService(
                     _ = this.UpdateDQScoreAsync(control);
                     continue;
                 }
+
+                if (assessment.Rules == null || !assessment.Rules.Any())
+                {
+                    logger.LogInformation($"Control has no rules, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                    continue;
+                }
+
                 var jobId = Guid.NewGuid().ToString();
                 var dqJobId = await dataQualityExecutionService.SubmitDQJob(
                     requestHeaderContext.TenantId.ToString(),
