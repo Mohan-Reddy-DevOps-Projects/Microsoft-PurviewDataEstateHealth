@@ -10,6 +10,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -38,31 +39,27 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         this.dataQualityOutputRepository = dataQualityOutputRepository;
     }
 
-    public async Task<IEnumerable<DHRawScore>> ParseDQResult(
-        string accountId,
-        string controlId,
-        string healthJobId,
-        string dqJobId)
+    public async Task<IEnumerable<DHRawScore>> ParseDQResult(DHComputingJobWrapper job)
     {
-        this.logger.LogInformation($"Start ParseDQResult, accountId:{accountId}, controlId:{controlId}, healthJobId:{healthJobId}, dqJobId:{dqJobId}");
+        this.logger.LogInformation($"Start ParseDQResult, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
 
-        var dataProductId = controlId;
-        var dataAssetId = healthJobId;
+        var dataProductId = job.ControlId;
+        var dataAssetId = job.Id;
 
         var outputResult = await this.dataQualityOutputRepository.GetMultiple(new DataQualityOutputQueryCriteria()
         {
-            AccountId = accountId,
-            FolderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={dqJobId}"
+            AccountId = job.AccountId,
+            FolderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={job.DQJobId}"
         }, CancellationToken.None).ConfigureAwait(false);
 
-        this.logger.LogInformation($"Read output is done, row count:{outputResult.Results.Count()}, healthJobId:{healthJobId}");
+        this.logger.LogInformation($"Read output is done, row count:{outputResult.Results.Count()}, healthJobId:{job.Id}");
 
         var result = DataQualityOutputAdapter.ToScorePayload(outputResult.Results, this.logger);
 
-        this.logger.LogInformation($"End ParseDQResult, resultCount:{result.Count()}, healthJobId:{healthJobId}");
+        this.logger.LogInformation($"End ParseDQResult, resultCount:{result.Count()}, healthJobId:{job.Id}");
         if (result.Count() > 0)
         {
-            this.logger.LogInformation($"End ParseDQResult, parsedRuleCount:{result.First().Scores.Count()}, healthJobId:{healthJobId}");
+            this.logger.LogInformation($"End ParseDQResult, parsedRuleCount:{result.First().Scores.Count()}, healthJobId:{job.Id}");
         }
 
         return result;
