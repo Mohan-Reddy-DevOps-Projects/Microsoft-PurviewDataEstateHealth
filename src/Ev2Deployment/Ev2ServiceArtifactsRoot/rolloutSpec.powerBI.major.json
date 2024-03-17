@@ -36,6 +36,13 @@
             "actions": [ "wait/skip" ]
         },
         {
+            "name": "setupCosmosStorage",
+            "dependsOn": ["deployInfrastructure"],
+            "targetType": "ServiceResourceDefinition",
+            "targetName": "cosmosStorageSetupResourceDefinition",
+            "actions": ["wait/skip"]
+        },
+        {
           "name": "deployProcessingStorageRoleAssignments",
           "dependsOn": ["deployInfrastructure"],
           "targetType": "ServiceResourceDefinition",
