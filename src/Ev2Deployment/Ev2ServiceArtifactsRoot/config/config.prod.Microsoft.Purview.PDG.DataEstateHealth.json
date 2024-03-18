@@ -104,6 +104,14 @@
               "dataQualityServiceEndpoint": "purview-dqservice-prod-centralus.babylon-service.azure.com"
             }
           }
+        },
+        {
+          "name": "eastus",
+          "settings": {
+            "dgh": {
+              "dataQualityServiceEndpoint": "purview-dqservice-prod-eastus.babylon-service.azure.com"
+            }
+          }
         }
       ]
     },
@@ -115,6 +123,19 @@
           "settings": {
             "dgh": {
               "dataQualityServiceEndpoint": "purview-dqservice-prod-southeastasia.babylon-service.azure.com"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "United Kingdom",
+      "regions": [
+        {
+          "name": "uksouth",
+          "settings": {
+            "dgh": {
+              "dataQualityServiceEndpoint": "purview-dqservice-prod-uksouth.babylon-service.azure.com"
             }
           }
         }
