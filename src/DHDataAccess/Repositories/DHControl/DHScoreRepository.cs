@@ -28,7 +28,16 @@ public class DHScoreRepository(
     public async Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
     {
         // Construct the SQL query
-        var sqlQuery = new StringBuilder("SELECT c.ControlGroupId, c.ControlId, c.ScheduleRunId, c.ComputingJobId, MAX(c.Time) AS Time, AVG(c.AggregatedScore) AS Score FROM c WHERE 1=1 ");
+        var sqlQuery = new StringBuilder(@$"
+SELECT
+    c.ControlGroupId,
+    c.ControlId,
+    c.ScheduleRunId,
+    c.ComputingJobId,
+    MAX(c.Time) AS Time,
+    SUM(c.ScoreSum) AS ScoreSum,
+    SUM(c.ScoreCount) AS ScoreCount
+FROM c WHERE 1=1 ");
 
         // Add filtering conditions based on provided parameters
         if (domainIds != null && domainIds.Any())
@@ -63,13 +72,21 @@ public class DHScoreRepository(
         var queryDefinition = new QueryDefinition(sqlQuery.ToString());
 
         // Execute the query
-        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreAggregatedByControl>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreSQLQueryResponse1>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
         var intermediateResults = new List<DHScoreAggregatedByControl>();
 
         while (queryResultSetIterator.HasMoreResults)
         {
             var currentResultSet = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
-            intermediateResults.AddRange(currentResultSet.Resource);
+            intermediateResults.AddRange(currentResultSet.Resource.Where(x => x.ScoreCount > 0).Select(x => new DHScoreAggregatedByControl
+            {
+                ControlGroupId = x.ControlGroupId,
+                ControlId = x.ControlId,
+                ScheduleRunId = x.ScheduleRunId,
+                ComputingJobId = x.ComputingJobId,
+                Time = x.Time,
+                Score = x.ScoreSum / x.ScoreCount
+            }));
         }
 
         return intermediateResults.GroupBy(x => new { x.ControlId }).SelectMany(g =>
@@ -88,7 +105,8 @@ SELECT
     c.ControlId,
     c.ScheduleRunId,
     MAX(c.Time) AS Time,
-    AVG(c.AggregatedScore) AS Score
+    SUM(c.ScoreSum) as ScoreSum,
+    SUM(c.ScoreCount) AS ScoreCount
 FROM c WHERE 1=1 ");
 
         // Add filtering conditions based on provided parameters
@@ -124,8 +142,8 @@ FROM c WHERE 1=1 ");
         var queryDefinition = new QueryDefinition(sqlQuery.ToString());
 
         // Execute the query
-        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreSQLQueryResponse>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
-        var intermediateResults = new List<DHScoreSQLQueryResponse>();
+        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreSQLQueryResponse2>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+        var intermediateResults = new List<DHScoreSQLQueryResponse2>();
 
         while (queryResultSetIterator.HasMoreResults)
         {
@@ -133,25 +151,41 @@ FROM c WHERE 1=1 ");
             intermediateResults.AddRange(currentResultSet.Resource);
         }
 
-        return intermediateResults.GroupBy(x => new { x.ControlGroupId, x.ScheduleRunId }).Select(g => new DHScoreAggregatedByControlGroup
-        {
-            ControlGroupId = g.Key.ControlGroupId,
-            ScheduleRunId = g.Key.ScheduleRunId,
-            Time = g.Max(x => x.Time),
-            Score = g.Average(x => x.Score)
-        }).GroupBy(x => new { x.ControlGroupId }).SelectMany(g =>
-        {
-            var orderedSeq = g.OrderByDescending(x => x.Time);
-            return recordLatestCounts.HasValue ? orderedSeq.Take(recordLatestCounts.Value) : orderedSeq;
-        });
+        return intermediateResults
+            .GroupBy(x => new { x.ControlGroupId, x.ScheduleRunId })
+            .Where(g => g.Sum(x => x.ScoreCount) > 0)
+            .Select(g => new DHScoreAggregatedByControlGroup
+            {
+                ControlGroupId = g.Key.ControlGroupId,
+                ScheduleRunId = g.Key.ScheduleRunId,
+                Time = g.Max(x => x.Time),
+                Score = g.Sum(x => x.ScoreSum) / g.Sum(x => x.ScoreCount)
+            })
+            .GroupBy(x => new { x.ControlGroupId }).SelectMany(g =>
+            {
+                var orderedSeq = g.OrderByDescending(x => x.Time);
+                return recordLatestCounts.HasValue ? orderedSeq.Take(recordLatestCounts.Value) : orderedSeq;
+            });
     }
 
-    internal record DHScoreSQLQueryResponse
+    internal record DHScoreSQLQueryResponse1
+    {
+        public required string ControlGroupId { get; set; }
+        public required string ControlId { get; set; }
+        public required string ScheduleRunId { get; set; }
+        public required string ComputingJobId { get; set; }
+        public required DateTime Time { get; set; }
+        public required double ScoreSum { get; set; }
+        public required int ScoreCount { get; set; }
+    }
+
+    internal record DHScoreSQLQueryResponse2
     {
         public required string ControlGroupId { get; set; }
         public required string ControlId { get; set; }
         public required string ScheduleRunId { get; set; }
         public required DateTime Time { get; set; }
-        public required double Score { get; set; }
+        public required double ScoreSum { get; set; }
+        public required int ScoreCount { get; set; }
     }
 }

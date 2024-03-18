@@ -7,6 +7,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Validators;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 [EntityWrapper(EntityCategory.Score)]
 public abstract class DHScoreBaseWrapper(JObject jObject) : ContainerEntityDynamicWrapper<DHScoreBaseWrapper>(jObject)
@@ -80,6 +81,18 @@ public abstract class DHScoreBaseWrapper(JObject jObject) : ContainerEntityDynam
     {
         get => this.GetPropertyValue<double>(keyAggregatedScore);
         set => this.SetPropertyValue(keyAggregatedScore, value);
+    }
+
+    public int ScoreCount
+    {
+        get => this.scores?.Count() ?? 0;
+        private set { }
+    }
+
+    public double ScoreSum
+    {
+        get => this.scores?.Sum(x => x.Score) ?? 0;
+        private set { }
     }
 }
 
