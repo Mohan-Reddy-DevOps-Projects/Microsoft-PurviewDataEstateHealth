@@ -31,6 +31,12 @@ internal class RuleOperatorMapping
             ] },
             { DHRuleSourceType.AssessmentDQDataProduct, [
                 DHCheckPoint.DataQualityScore,
+                DHCheckPoint.DataQualityAccuracyScore,
+                DHCheckPoint.DataQualityTimelinessScore,
+                DHCheckPoint.DataQualityConformityScore,
+                DHCheckPoint.DataQualityConsistencyScore,
+                DHCheckPoint.DataQualityCompletenessScore,
+                DHCheckPoint.DataQualityUniquenessScore,
             ] },
             { DHRuleSourceType.AssessmentMQDataProduct, [
                 DHCheckPoint.DataProductDescriptionLength,
@@ -47,6 +53,10 @@ internal class RuleOperatorMapping
                 DHCheckPoint.DataProductEndorsed,
                 DHCheckPoint.DataProductStatus,
                 DHCheckPoint.DataProductHasDQScore,
+                DHCheckPoint.DataProductDomainDescriptionLength,
+                DHCheckPoint.DataProductDomainHasOwner,
+                DHCheckPoint.DataProductAllRelatedTermsDescriptionLength,
+                DHCheckPoint.DataProductAllRelatedTermsHaveOwner,
             ] },
             { DHRuleSourceType.AssessmentMQCDE, [
                 DHCheckPoint.CDERelatedDataAssetsCount,
@@ -79,6 +89,10 @@ internal class RuleOperatorMapping
             { DHCheckPoint.DataProductEndorsed, DHCheckPointType.Boolean },
             { DHCheckPoint.DataProductStatus, DHCheckPointType.String },
             { DHCheckPoint.DataProductHasDQScore, DHCheckPointType.Boolean },
+            { DHCheckPoint.DataProductDomainDescriptionLength, DHCheckPointType.Number},
+            { DHCheckPoint.DataProductDomainHasOwner, DHCheckPointType.Boolean},
+            { DHCheckPoint.DataProductAllRelatedTermsDescriptionLength, DHCheckPointType.Number},
+            { DHCheckPoint.DataProductAllRelatedTermsHaveOwner, DHCheckPointType.Boolean},
 
             { DHCheckPoint.CDERelatedDataAssetsCount, DHCheckPointType.Number },
             { DHCheckPoint.CDEOwnerCount, DHCheckPointType.Number },
@@ -89,6 +103,12 @@ internal class RuleOperatorMapping
             { DHCheckPoint.BusinessDomainCriticalDataElementCount, DHCheckPointType.Number },
 
             { DHCheckPoint.DataQualityScore, DHCheckPointType.Score },
+            { DHCheckPoint.DataQualityAccuracyScore, DHCheckPointType.Score },
+            { DHCheckPoint.DataQualityTimelinessScore, DHCheckPointType.Score },
+            { DHCheckPoint.DataQualityConformityScore, DHCheckPointType.Score },
+            { DHCheckPoint.DataQualityConsistencyScore, DHCheckPointType.Score },
+            { DHCheckPoint.DataQualityCompletenessScore, DHCheckPointType.Score },
+            { DHCheckPoint.DataQualityUniquenessScore, DHCheckPointType.Score },
         };
 
     private static readonly Dictionary<DHCheckPointType, IList<DHOperator>> CheckPointTypeOperatorMapping = new()
