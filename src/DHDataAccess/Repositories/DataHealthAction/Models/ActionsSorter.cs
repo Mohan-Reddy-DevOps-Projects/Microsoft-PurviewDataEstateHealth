@@ -12,5 +12,6 @@ public static class ActionsSorter
         { DataHealthActionWrapper.keyFindingType, "FindingType" },
         { DataHealthActionWrapper.keyFindingSubType, "FindingSubType" },
         { DataHealthActionWrapper.keySeverity, "Severity" },
+        { DataHealthActionWrapper.keyStatus, "Status" },
     };
 }
