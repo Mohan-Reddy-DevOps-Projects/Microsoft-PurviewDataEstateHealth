@@ -78,7 +78,7 @@ public class DHScheduleService(
                 var assessment = assessments.Results.First(item => item.Id == control.AssessmentId);
                 if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
                 {
-                    _ = this.UpdateDQScoreAsync(control, assessment);
+                    _ = this.UpdateDQScoreAsync(scheduleRunId, control, assessment);
                     continue;
                 }
 
@@ -152,7 +152,7 @@ public class DHScheduleService(
             }
         }
     }
-    public async Task UpdateDQScoreAsync(DHControlNodeWrapper control, DHAssessmentWrapper assessment)
+    public async Task UpdateDQScoreAsync(string scheduleRunId, DHControlNodeWrapper control, DHAssessmentWrapper assessment)
     {
         var jobId = Guid.NewGuid();
         var now = DateTime.UtcNow;
@@ -170,6 +170,7 @@ public class DHScheduleService(
             {
                 ControlId = control.Id.ToString(),
                 ControlGroupId = control.GroupId.ToString(),
+                ScheduleRunId = scheduleRunId,
                 Id = Guid.NewGuid().ToString(),
                 ComputingJobId = jobId.ToString(),
                 Time = now,
