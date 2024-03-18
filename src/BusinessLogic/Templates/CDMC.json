@@ -662,7 +662,7 @@
             "name": "Health Observability",
             "systemTemplateEntityId": "63ab74eb-b8a2-4fcd-afb0-e539440b8a0e",
             "type": "ControlGroup",
-            "status": "Enabled",
+            "status": "InDevelopment",
             "statusPaletteConfig": {
                 "targetScore": 0.8,
                 "fallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
@@ -736,7 +736,7 @@
             "name": "Value Creation",
             "systemTemplateEntityId": "67934d51-44c8-41b4-a06e-2d6ef7586d7f",
             "type": "ControlGroup",
-            "status": "Enabled",
+            "status": "InDevelopment",
             "statusPaletteConfig": {
                 "targetScore": 0.8,
                 "fallbackStatusPaletteId": "00000000-0000-0000-0000-000000000004",
@@ -1277,7 +1277,7 @@
                     "name": "Ownership",
                     "systemTemplateEntityId": "2f0c5e7a-6eb9-480d-adde-c6efac137a87",
                     "description": "",
-                    "status": "InDevelopment",
+                    "status": "Enabled",
                     "type": "ControlNode"
                 },
                 "assessment": {
