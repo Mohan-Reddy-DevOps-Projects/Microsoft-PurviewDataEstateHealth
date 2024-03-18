@@ -106,6 +106,19 @@
           }
         }
       ]
+    },
+    {
+      "name": "Asia Pacific",
+      "regions": [
+        {
+          "name": "southeastasia",
+          "settings": {
+            "dgh": {
+              "dataQualityServiceEndpoint": "purview-dqservice-prod-southeastasia.babylon-service.azure.com"
+            }
+          }
+        }
+      ]
     }
   ]
 }
