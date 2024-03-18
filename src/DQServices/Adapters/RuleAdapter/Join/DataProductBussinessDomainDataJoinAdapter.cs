@@ -50,7 +50,7 @@ public class DataProductBusinessDomainDataJoinAdapter : JoinAdapter
                     'true' AS DataProductDomainHasOwner
                 FROM BusinessDomain
                 ) TBusinessDomain
-                ON TDataProductBusinessDomainAssignment.BusinessDomainId = TBusinessDomain.BusinessDomainId",
+                ON TDataProductBusinessDomainAssignment.BusinessDomainId = TBusinessDomain.DPBusinessDomainId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset },
             SchemaFromJoin = this.outputSchema
         };

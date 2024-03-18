@@ -74,7 +74,7 @@ public class DataProductTermJoinAdapter : JoinAdapter
                 LEFT JOIN GlossaryTerm ON GlossaryTermDataProductAssignment.GlossaryTermID = GlossaryTerm.GlossaryTermId
                     AND GlossaryTerm.Status = 'Published'
                 GROUP BY DataProduct.DataProductID
-            ) DataProductTermCount ON DataProduct.DataProductID = DataProductTermCount.DPTCountDataProductId",
+            ) TDataProductTerm ON DataProduct.DataProductID = TDataProductTerm.DPTCountDataProductId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema
         };
