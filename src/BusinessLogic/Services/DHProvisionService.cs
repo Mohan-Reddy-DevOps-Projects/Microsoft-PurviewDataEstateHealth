@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 public class DHProvisionService(
@@ -370,13 +371,6 @@ public class DHProvisionService(
             }
         }
 
-        var allAssessmentsNotInTemplate = allExistingTemplateAssessments.Where(x => !assessmentIds.Contains(x.Id)).Select(x => x.Id).ToList();
-
-        foreach (var assessmentId in allAssessmentsNotInTemplate)
-        {
-            await assessmentService.DeleteAssessmentByIdAsync(assessmentId).ConfigureAwait(false);
-        }
-
         var allControlNodesNotInTemplate = allExistingTemplateControlNodes.Where(x => !controlIds.Contains(x.Id)).Select(x => x.Id).ToList();
 
         foreach (var controlId in allControlNodesNotInTemplate)
@@ -390,6 +384,13 @@ public class DHProvisionService(
         {
             await controlService.DeleteControlByIdAsync(controlId).ConfigureAwait(false);
         }
+
+        var allAssessmentsNotInTemplate = allExistingTemplateAssessments.Where(x => !assessmentIds.Contains(x.Id)).Select(x => x.Id).ToList();
+
+        foreach (var assessmentId in allAssessmentsNotInTemplate)
+        {
+            await assessmentService.DeleteAssessmentByIdAsync(assessmentId).ConfigureAwait(false);
+        }
     }
 
     private string GetTemplatePayload(SystemTemplateNames templateName)
@@ -400,7 +401,9 @@ public class DHProvisionService(
 
         var jsonStr = File.ReadAllText(fullPath);
 
-        return jsonStr;
+        var removeComments = Regex.Replace(jsonStr, @"^\s*//.*$", "", RegexOptions.Multiline);  // removes comments like this
+
+        return removeComments;
     }
 
     private enum SystemTemplateNames

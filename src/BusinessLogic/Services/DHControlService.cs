@@ -185,7 +185,8 @@
                 var newNodeEntity = (DHControlNodeWrapper)entity;
                 var existNodeEntity = (DHControlNodeWrapper)existEntity;
 
-                if (!string.IsNullOrEmpty(existNodeEntity.GroupId) &&
+                if (!isSystem &&
+                    !string.IsNullOrEmpty(existNodeEntity.GroupId) &&
                     !string.Equals(existNodeEntity.GroupId, newNodeEntity.GroupId, StringComparison.OrdinalIgnoreCase))
                 {
                     throw new EntityValidationException(String.Format(

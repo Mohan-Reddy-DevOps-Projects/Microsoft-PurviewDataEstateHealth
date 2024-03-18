@@ -55,8 +55,8 @@ internal class RuleOperatorMapping
                 DHCheckPoint.DataProductHasDQScore,
                 DHCheckPoint.DataProductDomainDescriptionLength,
                 DHCheckPoint.DataProductDomainHasOwner,
-                DHCheckPoint.DataProductAllRelatedTermsDescriptionLength,
-                DHCheckPoint.DataProductAllRelatedTermsHaveOwner,
+                DHCheckPoint.DataProductAllRelatedTermsMinimalDescriptionLength,
+                //DHCheckPoint.DataProductAllRelatedTermsHaveOwner,
             ] },
             { DHRuleSourceType.AssessmentMQCDE, [
                 DHCheckPoint.CDERelatedDataAssetsCount,
@@ -91,8 +91,8 @@ internal class RuleOperatorMapping
             { DHCheckPoint.DataProductHasDQScore, DHCheckPointType.Boolean },
             { DHCheckPoint.DataProductDomainDescriptionLength, DHCheckPointType.Number},
             { DHCheckPoint.DataProductDomainHasOwner, DHCheckPointType.Boolean},
-            { DHCheckPoint.DataProductAllRelatedTermsDescriptionLength, DHCheckPointType.Number},
-            { DHCheckPoint.DataProductAllRelatedTermsHaveOwner, DHCheckPointType.Boolean},
+            { DHCheckPoint.DataProductAllRelatedTermsMinimalDescriptionLength, DHCheckPointType.Number},
+            //{ DHCheckPoint.DataProductAllRelatedTermsHaveOwner, DHCheckPointType.Boolean},
 
             { DHCheckPoint.CDERelatedDataAssetsCount, DHCheckPointType.Number },
             { DHCheckPoint.CDEOwnerCount, DHCheckPointType.Number },
