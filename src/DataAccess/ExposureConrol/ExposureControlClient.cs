@@ -4,15 +4,15 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.ExposureControlLibrary;
+using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Purview.ExposureControlLibrary;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Extensions.Options;
-using Microsoft.Purview.DataGovernance.Reporting.Common;
 
 internal class ExposureControlClient : IExposureControlClient
 {
@@ -35,7 +35,7 @@ internal class ExposureControlClient : IExposureControlClient
     /// <inheritdoc/>
     public bool IsFeatureEnabled(string feature, string accountId, string subscriptionId, string tenantId)
     {
-        bool result = exposureControl?.IsFeatureEnabled(feature, accountId, subscriptionId, tenantId) ?? false;
+        bool result = this.exposureControl?.IsFeatureEnabled(feature, accountId, subscriptionId, tenantId) ?? false;
         this.logger.LogTrace($"{Tag} | Features: {feature}, IsEnabled: {result}");
 
         return result;
@@ -99,12 +99,12 @@ internal class ExposureControlClient : IExposureControlClient
                 tokenProvider,
                 logger: new ExposureControlLogger(this.logger, this.config.LoggingLevel));
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             this.logger.LogCritical($"{Tag}|Exposure control failed to initialize.", ex);
             throw;
         }
-        
+
 
         try
         {

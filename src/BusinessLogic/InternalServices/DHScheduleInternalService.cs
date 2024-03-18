@@ -102,6 +102,8 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                     Body = new DHScheduleCallbackPayload
                     {
                         ControlId = controlId,
+                        Operator = DHScheduleCallbackPayload.DGScheduleServiceOperatorName,
+                        TriggerType = DHScheduleCallbackTriggerType.Schedule,
                     },
                     Headers = new Dictionary<string, string>
                     {

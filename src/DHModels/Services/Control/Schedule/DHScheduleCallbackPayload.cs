@@ -5,7 +5,7 @@ using Newtonsoft.Json.Converters;
 
 public class DHScheduleCallbackPayload
 {
-    public const string DGScheduleServiceOperatorName = "DGSchedule Service";
+    public const string DGScheduleServiceOperatorName = "DGScheduleService";
 
     [JsonProperty("controlId")]
     public string? ControlId { get; set; }
