@@ -14,7 +14,7 @@ public class DataProductBusinessDomainDataJoinAdapter : JoinAdapter
     private readonly string[][] outputSchemaDef =
     [
         ["BusinessDomainDescription", "string"],
-        ["DataProductDomainHasOwner", "string"]
+        ["DataProductDomainHasOwner", "boolean"]
     ];
 
     private readonly string[][] businessDomainDef =
