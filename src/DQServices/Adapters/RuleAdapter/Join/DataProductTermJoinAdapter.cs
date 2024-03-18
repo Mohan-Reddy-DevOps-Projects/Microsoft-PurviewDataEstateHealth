@@ -29,7 +29,7 @@ public class DataProductTermJoinAdapter : JoinAdapter
     private readonly string[][] outputSchemaDef =
     [
         ["DataProductTermCount", "long"],
-        ["DataProductAllRelatedTermsDescriptionLength", "long"]
+        ["DataProductAllRelatedTermsMinimalDescriptionLength", "long"]
     ];
 
     private List<DatasetSchemaItemWrapper> dataProductTermSchema;
