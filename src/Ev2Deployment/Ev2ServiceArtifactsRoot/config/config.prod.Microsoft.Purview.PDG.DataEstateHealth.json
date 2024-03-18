@@ -21,7 +21,6 @@
       "sqlAdminUserSecretName": "synapseSqlAdminUsername",
       "sqlAdminPassSecretName": "synapseSqlAdminPassword",
       "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
-      "dataQualityServiceEndpoint": "purview-dqservice-$(pdg.environment.shortName)-$(pdg.firstParty.purviewShortRegion).babylon-service.azure.com",
       "consumerGroupName": "dg-health",
       "eventHubs": [
         {
@@ -71,7 +70,8 @@
                   "messageRetentionDays": 7,
                   "partitionCount": 2
                 }
-              ]
+              ],
+              "dataQualityServiceEndpoint": "purview-dqservice-prod-eastus2euap.babylon-service.azure.com"
             }
           }
         }
@@ -100,7 +100,8 @@
                   "messageRetentionDays": 7,
                   "partitionCount": 2
                 }
-              ]
+              ],
+              "dataQualityServiceEndpoint": "purview-dqservice-prod-centralus.babylon-service.azure.com"
             }
           }
         }

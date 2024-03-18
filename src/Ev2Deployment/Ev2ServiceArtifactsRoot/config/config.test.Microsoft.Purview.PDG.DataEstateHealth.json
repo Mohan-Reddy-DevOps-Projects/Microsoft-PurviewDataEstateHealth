@@ -38,7 +38,8 @@
                     "messageRetentionDays": 1,
                     "partitionCount": 4
                 }
-            ]
+            ],
+            "dataQualityServiceEndpoint": "purview-dqservice-df-westus2.babylon-service.azure-test.com"
         }
     }
 }
