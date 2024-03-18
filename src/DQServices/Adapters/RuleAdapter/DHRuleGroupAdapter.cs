@@ -11,7 +11,7 @@ internal class DHRuleGroupAdapter
             DHRuleGroupOperator.And => $"({DHRuleAdapter.ToDQExpression(ruleAdapterContext, groupRule.Rules.ElementAt(0))}) && ({DHRuleAdapter.ToDQExpression(ruleAdapterContext, groupRule.Rules.ElementAt(1))})",
             DHRuleGroupOperator.Or => $"({DHRuleAdapter.ToDQExpression(ruleAdapterContext, groupRule.Rules.ElementAt(0))}) || ({DHRuleAdapter.ToDQExpression(ruleAdapterContext, groupRule.Rules.ElementAt(1))})",
             DHRuleGroupOperator.Not => $"!({DHRuleAdapter.ToDQExpression(ruleAdapterContext, groupRule.Rules.ElementAt(0))})",
-            _ => throw new System.NotImplementedException()
+            _ => throw new System.NotImplementedException("Group operator: " + groupRule.GroupOperator)
         };
     }
 }

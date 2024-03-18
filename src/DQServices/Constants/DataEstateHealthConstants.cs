@@ -30,6 +30,8 @@ public class DataEstateHealthConstants
     public const string SOURCE_DQ_DA_RULE_EXECUTION_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataQualityAssetRuleExecution";
     public const string SOURCE_DA_OWNER_ASSIGNMENT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataAssetOwnerAssignment";
     public const string SOURCE_DA_CLASSIFICATION_ASSIGNMENT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataAssetColumnClassificationAssignment";
+    public const string SOURCE_BD_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/BusinessDomain";
+    public const string SOURCE_GT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/GlossaryTerm";
 
     public static readonly JoinRequirement[] ALWAYS_REQUIRED_JOIN_REQUIREMENTS = [
         JoinRequirement.BusinessDomain,

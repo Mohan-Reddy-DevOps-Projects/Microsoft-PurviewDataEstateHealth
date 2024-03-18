@@ -24,9 +24,9 @@ public enum DHCheckPoint
     DataProductEndorsed, // Supported in MDQ
     DataProductStatus, // Supported in MDQ
     DataProductHasDQScore, // Supported in MDQ
-    DataProductDomainDescriptionLength,
-    DataProductDomainHasOwner,
-    DataProductAllRelatedTermsMinimalDescriptionLength,
+    DataProductDomainDescriptionLength, // Supported in MDQ
+    DataProductDomainHasOwner, // Supported in MDQ
+    DataProductAllRelatedTermsMinimalDescriptionLength, // Supported in MDQ
     //DataProductAllRelatedTermsHaveOwner,
 
     // Assessment - MQ - CDE

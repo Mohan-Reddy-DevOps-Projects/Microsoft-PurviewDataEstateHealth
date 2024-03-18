@@ -9,7 +9,7 @@ using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-public class DataProductTermCountJoinAdapter : JoinAdapter
+public class DataProductTermJoinAdapter : JoinAdapter
 {
 
     private readonly string[][] dataProductTermDef =
@@ -19,40 +19,63 @@ public class DataProductTermCountJoinAdapter : JoinAdapter
         ["ActiveFlag", "Number", "true"]
     ];
 
+    private readonly string[][] glossaryTermDef =
+    [
+        ["GlossaryTermId", "String"],
+        ["GlossaryDescription", "String"],
+        ["Status", "String"]
+    ];
+
     private readonly string[][] outputSchemaDef =
     [
         ["DataProductTermCount", "long"],
+        ["DataProductAllRelatedTermsDescriptionLength", "long"]
     ];
 
     private List<DatasetSchemaItemWrapper> dataProductTermSchema;
+    private List<DatasetSchemaItemWrapper> glossaryTermSchema;
     private List<SparkSchemaItemWrapper> outputSchema;
 
-    public DataProductTermCountJoinAdapter(RuleAdapterContext context) : base(context)
+    public DataProductTermJoinAdapter(RuleAdapterContext context) : base(context)
     {
         this.dataProductTermSchema = SchemaUtils.GenerateSchemaFromDefinition(this.dataProductTermDef);
+        this.glossaryTermSchema = SchemaUtils.GenerateSchemaFromDefinition(this.glossaryTermDef);
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
 
     public override JoinAdapterResult Adapt()
     {
-        var inputDataset = new InputDatasetWrapper(new JObject()
+        var inputDataset1 = new InputDatasetWrapper(new JObject()
         {
             // TODO why set not work
             { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_DP_TERM_ASSIGNMENT_PATH, this.dataProductTermSchema).JObject }
         });
-        inputDataset.Alias = "GlossaryTermDataProductAssignment";
-        inputDataset.Primary = false;
+        inputDataset1.Alias = "GlossaryTermDataProductAssignment";
+        inputDataset1.Primary = false;
+
+        var inputDataset2 = new InputDatasetWrapper(new JObject()
+        {
+            // TODO why set not work
+            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_GT_PATH, this.glossaryTermSchema).JObject }
+        });
+        inputDataset2.Alias = "GlossaryTerm";
+        inputDataset2.Primary = false;
 
         return new JoinAdapterResult
         {
             JoinSql = @"LEFT JOIN (
-                SELECT DataProduct.DataProductID as DPTCountDataProductId, COUNT(GlossaryTermDataProductAssignment.GlossaryTermID) as DataProductTermCount  
+                SELECT
+                    DataProduct.DataProductID as DPTCountDataProductId,
+                    COUNT(GlossaryTermDataProductAssignment.GlossaryTermID) as DataProductTermCount,
+                    COALESCE(MIN(LEN(GlossaryTerm.GlossaryDescription)), 0) as DataProductAllRelatedTermsMinimalDescriptionLength
                 FROM DataProduct 
                 LEFT JOIN GlossaryTermDataProductAssignment ON DataProduct.DataProductID = GlossaryTermDataProductAssignment.DataProductId
-                AND GlossaryTermDataProductAssignment.ActiveFlag = 1
+                    AND GlossaryTermDataProductAssignment.ActiveFlag = 1
+                LEFT JOIN GlossaryTerm ON GlossaryTermDataProductAssignment.GlossaryTermID = GlossaryTerm.GlossaryTermId
+                    AND GlossaryTerm.Status = 'Published'
                 GROUP BY DataProduct.DataProductID
             ) DataProductTermCount ON DataProduct.DataProductID = DataProductTermCount.DPTCountDataProductId",
-            inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset },
+            inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema
         };
     }

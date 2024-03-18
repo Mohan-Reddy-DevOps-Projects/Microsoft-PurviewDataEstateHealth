@@ -19,12 +19,6 @@ public class AssetDQScoreJoinAdapter : JoinAdapter
         ["ActiveFlag", "Number", "true"]
     ];
 
-    private readonly string[][] dqAssetRuleExecutionDef =
-    [
-        ["DataAssetId", "String"],
-        ["AssetResultScore", "Number", "false"]
-    ];
-
     private readonly string[][] outputSchemaDef =
     [
         ["DataProductHasDQScore", "boolean"],
@@ -32,13 +26,11 @@ public class AssetDQScoreJoinAdapter : JoinAdapter
     ];
 
     private List<DatasetSchemaItemWrapper> dataProductAssetSchema;
-    private List<DatasetSchemaItemWrapper> dqAssetRuleExecutionSchema;
     private List<SparkSchemaItemWrapper> outputSchema;
 
     public AssetDQScoreJoinAdapter(RuleAdapterContext context) : base(context)
     {
         this.dataProductAssetSchema = SchemaUtils.GenerateSchemaFromDefinition(this.dataProductAssetDef);
-        this.dqAssetRuleExecutionSchema = SchemaUtils.GenerateSchemaFromDefinition(this.dqAssetRuleExecutionDef);
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
 

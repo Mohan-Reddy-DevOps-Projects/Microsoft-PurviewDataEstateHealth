@@ -21,7 +21,7 @@ internal static class RuleFieldAdapter
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataAssetCount);
                 return "DataAssetCount";
             case DHCheckPoint.DataProductRelatedTermsCount:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTermCount);
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTerm);
                 return "DataProductTermCount";
             case DHCheckPoint.DataProductHasDataAccessPolicy:
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.HasAccessPolicySetAndPurpose);
@@ -41,7 +41,17 @@ internal static class RuleFieldAdapter
             case DHCheckPoint.DataProductRelatedDataAssetsWithClassificationCount:
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataAssetClassification);
                 return "DataProductRelatedDataAssetsWithClassificationCount";
-            default: throw new NotImplementedException();
+            case DHCheckPoint.DataProductDomainHasOwner:
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.BusinessDomainData);
+                return "DataProductDomainHasOwner";
+            case DHCheckPoint.DataProductDomainDescriptionLength:
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.BusinessDomainData);
+                return "length(regexReplace(BusinessDomainDescription, '(<(.*?)>)', ''))";
+            case DHCheckPoint.DataProductAllRelatedTermsMinimalDescriptionLength:
+                // TODO handle rich text
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTerm);
+                return "DataProductAllRelatedTermsMinimalDescriptionLength";
+            default: throw new NotImplementedException("Checkpoint: " + checkpoint.ToString());
         }
     }
 }

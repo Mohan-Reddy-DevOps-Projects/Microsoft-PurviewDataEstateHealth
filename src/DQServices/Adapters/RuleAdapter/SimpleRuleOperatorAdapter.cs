@@ -19,7 +19,7 @@ internal static class SimpleRuleOperatorAdapter
             DHOperator.IsNotNullOrEmpty => $"!(isNull({fieldVal}) || fieldVal === '')",
             DHOperator.IsTrue => $"notNull({fieldVal}) && {fieldVal} === true",
             DHOperator.IsFalse => $"isNull({fieldVal}) || {fieldVal} === false",
-            _ => throw new NotImplementedException()
+            _ => throw new NotImplementedException("Rule operator: " + ruleOperator.ToString())
         };
     }
 }
