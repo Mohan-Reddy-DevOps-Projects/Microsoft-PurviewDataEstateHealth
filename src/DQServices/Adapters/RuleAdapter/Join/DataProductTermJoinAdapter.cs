@@ -67,7 +67,7 @@ public class DataProductTermJoinAdapter : JoinAdapter
                 SELECT
                     DataProduct.DataProductID as DPTCountDataProductId,
                     COUNT(GlossaryTermDataProductAssignment.GlossaryTermID) as DataProductTermCount,
-                    COALESCE(MIN(LEN(GlossaryTerm.GlossaryDescription)), 0) as DataProductAllRelatedTermsMinimalDescriptionLength
+                    0 as DataProductAllRelatedTermsMinimalDescriptionLength
                 FROM DataProduct 
                 LEFT JOIN GlossaryTermDataProductAssignment ON DataProduct.DataProductID = GlossaryTermDataProductAssignment.DataProductId
                     AND GlossaryTermDataProductAssignment.ActiveFlag = 1
