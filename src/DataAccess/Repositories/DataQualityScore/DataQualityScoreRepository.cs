@@ -45,7 +45,7 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
             {
                 if (!string.IsNullOrEmpty(dataQualityScoreKey.Dimension))
                 {
-                    x.WhereClause("DQRuleTypeDisplayName", dataQualityScoreKey.Dimension);
+                    x.WhereClause("QualityDimension", dataQualityScoreKey.Dimension);
                 }
             }) as DataQualityScoreQuery;
         query.Timeout = DefaultTimeout;
