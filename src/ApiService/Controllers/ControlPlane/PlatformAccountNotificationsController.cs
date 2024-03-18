@@ -141,20 +141,17 @@ public class PlatformAccountNotificationsController : ControlPlaneController
             return this.Ok();
         }
 
-        if (this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        if (!this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
-            return this.Ok();
-        }
-
-        await this.processingStorageManager.Delete(account, cancellationToken);
-
-        await PartnerNotifier.NotifyPartners(
+            await this.processingStorageManager.Delete(account, cancellationToken);
+            await PartnerNotifier.NotifyPartners(
                 this.logger,
                 this.partnerService,
                 this.partnerConfig,
                 account,
                 ProvisioningService.OperationType.Delete,
                 InitPartnerContext(this.partnerConfig.Partners)).ConfigureAwait(false);
+        }
 
         return this.Ok();
     }
