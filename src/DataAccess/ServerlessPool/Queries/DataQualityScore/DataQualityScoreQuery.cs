@@ -33,7 +33,9 @@ FROM
                         AVG(DQOverallProfileQualityScore) as Score,
                         BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId, MAX(RuleScanCompletionDatetime) AS ExecutionTime
                         " + QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]
+                        JOIN " + QueryConstants.ServerlessQuery.OpenRowSet(this.RuleTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result2] ON [result].DQRuleTypeId = [result2].DQRuleTypeId
                     GROUP BY BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId
+                    " + this.FilterClause + @"
             ) TMP1
         ) TMP2 WHERE row_num = 1
     ) DQFact
@@ -52,6 +54,7 @@ JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOw
     private string DataProductDetailQueryPath => $"{this.ContainerPath}/DomainModel/DataProduct/";
     private string DataProductOwnersQueryPath => $"{this.ContainerPath}/DomainModel/DataProductOwner/";
     private string DataProductStatusQueryPath => $"{this.ContainerPath}/DomainModel/DataProductStatus/";
+    private string RuleTypeQueryPath => $"{this.ContainerPath}/DimensionalModel/DimDQRuleType/";
 
     public DataQualityScoreRecord ParseRow(IDataRecord row)
     {

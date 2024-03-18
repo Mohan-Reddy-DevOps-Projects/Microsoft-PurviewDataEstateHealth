@@ -14,6 +14,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
@@ -77,7 +78,7 @@ public class DHScheduleService(
                 var assessment = assessments.Results.First(item => item.Id == control.AssessmentId);
                 if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
                 {
-                    _ = this.UpdateDQScoreAsync(control);
+                    _ = this.UpdateDQScoreAsync(control, assessment);
                     continue;
                 }
 
@@ -151,15 +152,18 @@ public class DHScheduleService(
             }
         }
     }
-    public async Task UpdateDQScoreAsync(DHControlNodeWrapper control)
+    public async Task UpdateDQScoreAsync(DHControlNodeWrapper control, DHAssessmentWrapper assessment)
     {
         var jobId = Guid.NewGuid();
         var now = DateTime.UtcNow;
-        logger.LogInformation($"Starting to process DQ score computing. ControlId: {control.Id}, Name: {control.Name}");
+        var dimension = (assessment.Rules.First()?.Rule as DHSimpleRuleWrapper)?.CheckPoint;
+        logger.LogInformation($"Starting to process DQ score computing. ControlId: {control.Id}, Name: {control.Name}, Dimenstion: {dimension}");
         try
         {
             // get all latest DQ score per BD/DP/Asset
-            var scoreResult = await dataQualityScoreRepository.GetMultiple(new DataQualityScoreKey(requestHeaderContext.AccountObjectId), new System.Threading.CancellationToken()).ConfigureAwait(false);
+            var scoreResult = await dataQualityScoreRepository.GetMultiple(
+                new DataQualityScoreKey(requestHeaderContext.AccountObjectId, DQDimentionConvert.ConvertCheckPointToDQDimension(dimension)),
+                new System.Threading.CancellationToken()).ConfigureAwait(false);
             logger.LogInformation($"successfully fetched all scores: {scoreResult.Results.Count()}");
             // group all scores by DP
             var scores = scoreResult.Results.GroupBy(score => score.DataProductId).Select(group => new DHDataProductScoreWrapper()

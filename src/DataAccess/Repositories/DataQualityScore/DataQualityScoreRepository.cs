@@ -40,8 +40,14 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
     {
         string containerPath = await this.ConstructContainerPath(dataQualityScoreKey.AccountId, cancellationToken);
 
-        DataQualityScoreQuery query;
-        query = this.queryRequestBuilder.Build<DataQualityDataProductOutputRecord>(containerPath) as DataQualityScoreQuery;
+        var query = this.queryRequestBuilder.Build<DataQualityScoreRecord>(containerPath,
+            (x) =>
+            {
+                if (!string.IsNullOrEmpty(dataQualityScoreKey.Dimension))
+                {
+                    x.WhereClause("DQRuleTypeDisplayName", dataQualityScoreKey.Dimension);
+                }
+            }) as DataQualityScoreQuery;
         query.Timeout = DefaultTimeout;
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));

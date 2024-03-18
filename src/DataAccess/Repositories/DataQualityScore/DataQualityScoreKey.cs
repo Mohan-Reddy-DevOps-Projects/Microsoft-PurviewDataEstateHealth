@@ -9,13 +9,16 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 /// </summary>
 public class DataQualityScoreKey
 {
-    public DataQualityScoreKey(Guid accountId)
+    public DataQualityScoreKey(Guid accountId, string dimension)
     {
         this.AccountId = accountId;
+        this.Dimension = dimension;
     }
 
     /// <summary>
     /// Account id.
     /// </summary>
     public Guid AccountId { get; set; }
+
+    public string Dimension { get; set; }
 }
