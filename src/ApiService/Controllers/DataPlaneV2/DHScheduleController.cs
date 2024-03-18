@@ -9,6 +9,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
@@ -21,7 +22,8 @@ using Newtonsoft.Json.Linq;
 public class DHScheduleController(
     DHScheduleService scheduleService,
     IDataEstateHealthRequestLogger logger,
-    IRequestHeaderContext requestHeaderContext) : DataPlaneController
+    IRequestHeaderContext requestHeaderContext,
+    IAccountExposureControlConfigProvider exposureControl) : DataPlaneController
 {
     [HttpGet]
     [Route("")]
@@ -35,6 +37,13 @@ public class DHScheduleController(
     [Route("trigger")]
     public async Task<ActionResult> TriggerScheduleAsync()
     {
+        var accountId = requestHeaderContext.AccountObjectId.ToString();
+        var tenantId = requestHeaderContext.TenantId.ToString();
+        if (!exposureControl.IsDataGovProvisioningEnabled(accountId, string.Empty, tenantId))
+        {
+            logger.LogInformation($"Not allowed to trigger schedule. Account id: {accountId}. Tenant id: {tenantId}.");
+            return this.Unauthorized();
+        }
         logger.LogInformation("Manually trigger schedule start.");
         var payload = new DHScheduleCallbackPayload
         {
