@@ -1487,7 +1487,17 @@ CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[FactDataGovernanceScan]
 	[DataProductCertifiedCount] [int],
 	[DataProductAccessGrantCount] [int],
 	[DataProductInSLAAccessGrantCount] [int],
-	[DataProductAccessGrantScore] [float]
+	[DataProductAccessGrantScore] [float],
+    [DataProductDescHasLenGr100Char] [int],
+	[DataProductAssoBusinessDomainDescHasLenGr100Char] [int],
+	[DataProductAssoAllTremDescHasLenGr25Char] [int],
+	[DataProductUsabilityScore] [float],
+	[DataProductHasParentBusinessDomain] [int],
+	[DataProductHasAtLeast1Asset] [int],
+	[DataProductHasAssoPubTerm] [int],
+	[LinkedAssetsScore] [float],
+	[DataProductAllAssoAssetsHasOwners] [int],
+	[OwnershipScore] [float]
 )
 WITH (
     DATA_SOURCE = [@containerName],
