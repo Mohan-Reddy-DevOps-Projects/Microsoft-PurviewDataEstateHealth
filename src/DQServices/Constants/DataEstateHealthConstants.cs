@@ -38,4 +38,6 @@ public class DataEstateHealthConstants
         JoinRequirement.DataProductStatus,
         JoinRequirement.DataProductOwner
     ];
+
+    public const string DP_PUBLISHED_STATUS_TEXT = "Published";
 }

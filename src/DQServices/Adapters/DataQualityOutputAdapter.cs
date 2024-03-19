@@ -24,6 +24,12 @@ public class DataQualityOutputAdapter
                 continue;
             }
 
+            if (!outputEntity.DataProductStatusDisplayName.Equals(DataEstateHealthConstants.DP_PUBLISHED_STATUS_TEXT, System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                logger.LogInformation($"Skip not published data product when parsing MDQ result, dataProductId:{outputEntity.DataProductID}");
+                continue;
+            }
+
             var scores = new List<DHScoreUnitWrapper>();
 
             foreach (var ruleKeyValue in outputEntity.Result)
