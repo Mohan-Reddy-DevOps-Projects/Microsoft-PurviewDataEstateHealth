@@ -91,7 +91,7 @@ JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOw
                 DataProductId = item.DataProductId,
                 DQJobId = item.DQJobId,
                 ExecutionTime = item.ExecutionTime,
-                Score = item.Score,
+                Score = item.Score / 100,
                 DataProductStatus = item.DataProductStatus,
                 DataProductOwners = item.DataProductOwnerIds.Split(',')
             }).ToList();
