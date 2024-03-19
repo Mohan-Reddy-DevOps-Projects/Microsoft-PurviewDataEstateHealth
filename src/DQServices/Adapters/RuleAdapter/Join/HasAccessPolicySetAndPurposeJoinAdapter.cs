@@ -54,7 +54,7 @@ public class HasAccessPolicySetAndPurposeJoinAdapter : JoinAdapter
 
         var inputDataset2 = new InputDatasetWrapper(new JObject()
         {
-            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_ACCESS_POLICY_USE_CASE_PATH, this.accessPolicySetSchema).JObject }
+            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_ACCESS_POLICY_USE_CASE_PATH, this.accessPolicyUseCaseSchema).JObject }
         });
         inputDataset2.Alias = "CustomAccessUseCase";
         inputDataset2.Primary = false;

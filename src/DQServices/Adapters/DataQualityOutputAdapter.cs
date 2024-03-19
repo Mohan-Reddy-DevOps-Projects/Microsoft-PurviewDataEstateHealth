@@ -40,6 +40,8 @@ public class DataQualityOutputAdapter
                     unit.AssessmentRuleId = ruleKeyValue.Key; ;
                     unit.Score = ruleKeyValue.Value == "PASS" ? 1 : 0;
                     scores.Add(unit);
+                    // TODO perhaps will delete this log if it logs too much
+                    logger.LogInformation($"MDQ rule result, dataProductId:${outputEntity.DataProductID}, ruleId:{ruleKeyValue.Key}, result:${ruleKeyValue.Value}");
                 }
             }
 

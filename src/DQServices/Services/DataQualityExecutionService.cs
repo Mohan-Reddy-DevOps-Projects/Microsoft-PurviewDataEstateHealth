@@ -99,6 +99,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
         // For debug
         var observerPayload = JsonConvert.SerializeObject(observer.JObject);
+        // TODO will delete this log after everything is stable
         this.logger.LogInformation($"Observer payload: {observerPayload}, healthJobId:{healthJobId}");
 
         // Create a temporary observer
