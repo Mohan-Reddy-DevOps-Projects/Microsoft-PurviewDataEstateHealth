@@ -236,7 +236,7 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
 
                     return new JobExecutionResult
                     {
-                        Status = JobExecutionStatus.Completed,
+                        Status = JobExecutionStatus.Succeeded,
                         Message = "Exhausted postpone count.",
                         NextMetadata = this.Metadata.ToString()
                     };
