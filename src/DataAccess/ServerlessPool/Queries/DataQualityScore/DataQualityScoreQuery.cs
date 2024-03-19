@@ -34,7 +34,8 @@ FROM
                         BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId, MAX(RuleScanCompletionDatetime) AS ExecutionTime
                     " + QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]
                         JOIN (SELECT DQRuleTypeId, QualityDimension " + QueryConstants.ServerlessQuery.OpenRowSet(this.RuleTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]) RuleType ON [result].DQRuleTypeId = RuleType.DQRuleTypeId
-                    " + this.FilterClause + @"
+                        JOIN (SELECT JobTypeId, JobTypeDisplayName " + QueryConstants.ServerlessQuery.OpenRowSet(this.JobTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]) JobType ON [result].JobTypeId = JobType.JobTypeId
+                    " + this.FilterClause + @" AND JobTypeDisplayName = 'DQ'
                     GROUP BY BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId
             ) TMP1
         ) TMP2 WHERE row_num = 1
@@ -55,6 +56,7 @@ JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOw
     private string DataProductOwnersQueryPath => $"{this.ContainerPath}/DomainModel/DataProductOwner/";
     private string DataProductStatusQueryPath => $"{this.ContainerPath}/DomainModel/DataProductStatus/";
     private string RuleTypeQueryPath => $"{this.ContainerPath}/DimensionalModel/DimDQRuleType/";
+    private string JobTypeQueryPath => $"{this.ContainerPath}/DimensionalModel/DimDQJobType/";
 
     public DataQualityScoreRecord ParseRow(IDataRecord row)
     {
