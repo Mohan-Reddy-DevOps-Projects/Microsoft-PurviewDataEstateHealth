@@ -81,9 +81,11 @@ public class PlatformAccountNotificationsController : ControlPlaneController
             return this.Ok();
         }
         List<Task> tasks = new();
+
+        await this.processingStorageManager.Provision(account, cancellationToken);
+
         if (!this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
-            await this.processingStorageManager.Provision(account, cancellationToken);
             Task partnerTask = PartnerNotifier.NotifyPartners(
                     this.logger,
                     this.partnerService,
@@ -143,7 +145,6 @@ public class PlatformAccountNotificationsController : ControlPlaneController
 
         if (!this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
-            await this.processingStorageManager.Delete(account, cancellationToken);
             await PartnerNotifier.NotifyPartners(
                 this.logger,
                 this.partnerService,
@@ -151,6 +152,13 @@ public class PlatformAccountNotificationsController : ControlPlaneController
                 account,
                 ProvisioningService.OperationType.Delete,
                 InitPartnerContext(this.partnerConfig.Partners)).ConfigureAwait(false);
+        }
+
+        await this.processingStorageManager.Delete(account, cancellationToken);
+
+        if (this.exposureControl.IsDGDataHealthEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            await this.dhProvisionService.DeprovisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
         }
 
         return this.Ok();

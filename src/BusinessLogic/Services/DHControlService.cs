@@ -262,6 +262,11 @@
             }
         }
 
+        public async Task DeprovisionForControlsAsync()
+        {
+            await dHControlRepository.DeprovisionAsync().ConfigureAwait(false);
+        }
+
         private async Task ValidateStatusPaletteConfig(DHControlBaseWrapper wrapper)
         {
             if (wrapper.StatusPaletteConfig != null)

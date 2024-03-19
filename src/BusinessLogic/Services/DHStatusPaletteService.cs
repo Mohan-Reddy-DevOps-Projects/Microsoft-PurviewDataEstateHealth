@@ -126,6 +126,9 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
             await dhControlStatusPaletteRepository.DeleteAsync(id).ConfigureAwait(false);
         }
 
-
+        public async Task DeprovisionForStatusPalettesAsync()
+        {
+            await dhControlStatusPaletteRepository.DeprovisionAsync().ConfigureAwait(false);
+        }
     }
 }

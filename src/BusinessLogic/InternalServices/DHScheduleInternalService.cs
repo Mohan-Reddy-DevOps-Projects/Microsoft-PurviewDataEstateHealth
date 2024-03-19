@@ -12,8 +12,11 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
+
     public class DHScheduleInternalService
     {
         private readonly DHControlScheduleRepository dhControlScheduleRepository;
@@ -115,6 +118,23 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
             };
             payload.SetRecurrence(schedule.Properties);
             return payload;
+        }
+
+        public async Task DeprovisionForSchedulesAsync()
+        {
+            var allSchedules = await this.dhControlScheduleRepository.GetAllAsync().ConfigureAwait(false);
+
+            await Task.WhenAll(allSchedules.Select(async schedule =>
+            {
+                try
+                {
+                    await this.DeleteScheduleAsync(schedule.Id).ConfigureAwait(false);
+                }
+                catch (Exception)
+                {
+                    // Log the exception
+                }
+            })).ConfigureAwait(false);
         }
     }
 }

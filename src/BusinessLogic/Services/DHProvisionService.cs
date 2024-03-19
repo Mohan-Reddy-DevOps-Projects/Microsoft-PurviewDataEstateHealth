@@ -3,6 +3,7 @@
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
+using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
@@ -23,6 +24,8 @@ using System.Threading.Tasks;
 public class DHProvisionService(
     DHControlService controlService,
     DHAssessmentService assessmentService,
+    DHStatusPaletteService statusPaletteService,
+    DHScheduleInternalService scheduleInternalService,
     DHControlRepository controlRepository,
     DHAssessmentRepository assessmentRepository,
     IRequestHeaderContext requestHeaderContext
@@ -46,6 +49,26 @@ public class DHProvisionService(
                 await this.ProvisionControlTemplate(template).ConfigureAwait(false);
             }
         }
+    }
+
+    public async Task DeprovisionAccount()
+    {
+        List<Task> tasks = [
+            controlService.DeprovisionForControlsAsync(),
+            assessmentService.DeprovisionForAssessmentsAsync(),
+            statusPaletteService.DeprovisionForStatusPalettesAsync(),
+            scheduleInternalService.DeprovisionForSchedulesAsync()
+        ];
+
+        await Task.WhenAll(tasks).ConfigureAwait(false);
+    }
+
+    public async Task DeprovisionAccount(Guid tenantId, Guid accountId)
+    {
+        requestHeaderContext.TenantId = tenantId;
+        requestHeaderContext.AccountObjectId = accountId;
+
+        await this.DeprovisionAccount().ConfigureAwait(false);
     }
 
     public async Task ProvisionControlTemplate(string templateName)

@@ -63,5 +63,11 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories
         /// <param name="id">The unique identifier of the entity to delete.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the deleted entity of type T, or null if no such entity was found.</returns>
         Task DeleteAsync(string id);
+
+        /// <summary>
+        /// Asynchronously delete all entities of type T by its identifier from the repository.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the deleted entity of type T, or null if no such entity was found.</returns>
+        Task DeprovisionAsync();
     }
 }

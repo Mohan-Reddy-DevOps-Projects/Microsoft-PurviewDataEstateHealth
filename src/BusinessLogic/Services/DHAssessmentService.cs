@@ -138,4 +138,9 @@ public class DHAssessmentService(
 
         await assessmentRepository.DeleteAsync(entity).ConfigureAwait(false);
     }
+
+    public async Task DeprovisionForAssessmentsAsync()
+    {
+        await assessmentRepository.DeprovisionAsync().ConfigureAwait(false);
+    }
 }

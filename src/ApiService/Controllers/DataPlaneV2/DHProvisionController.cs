@@ -41,4 +41,13 @@ public class DHProvisionController(DHProvisionService provisionService) : DataPl
 
         return this.Ok();
     }
+
+    [HttpPost]
+    [Route("deprovision")]
+    public async Task<ActionResult> DeprovisionAsync()
+    {
+        await provisionService.DeprovisionAccount().ConfigureAwait(false);
+
+        return this.Ok();
+    }
 }

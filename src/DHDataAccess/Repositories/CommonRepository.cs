@@ -253,6 +253,38 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
         }
     }
 
+    /// <inheritdoc />
+    public async Task DeprovisionAsync(string tenantId)
+    {
+        var methodName = nameof(DeprovisionAsync);
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {tenantId}"))
+        {
+            try
+            {
+                // TODO: Delete by partition key feature is in preview in Cosmos SDK.
+                // Will switch to that once it's GA. https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-delete-by-partition-key?tabs=dotnet-example
+
+                var allItems = await this.GetAllAsync(tenantId).ConfigureAwait(false);
+
+                await Task.WhenAll(allItems.Select(async item =>
+                {
+                    try
+                    {
+                        await this.DeleteAsync(item.Id, tenantId).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError($"{this.GetType().Name}#{methodName}, failed to delete entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id}, tenantId = {tenantId}", ex);
+                    }
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {tenantId}", ex);
+            }
+        }
+    }
+
     private static void PopulateMetadataForEntity(TEntity entity, string tenantId, string? accountId = null)
     {
         entity.TenantId = tenantId;
