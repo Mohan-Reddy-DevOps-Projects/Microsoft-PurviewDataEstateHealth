@@ -5,6 +5,7 @@
 namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
 {
     using Microsoft.Azure.Cosmos;
+    using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Purview.ActiveGlossary.Scheduler.Setup.Secret;
@@ -27,6 +28,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
             services.AddSingleton<CosmosClient>(serviceProvider =>
             {
                 var credential = serviceProvider.GetRequiredService<DHCosmosDBContextAzureCredentialManager>().Credential;
+                var logger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
 
                 var configuration = serviceProvider.GetRequiredService<IConfiguration>();
                 var cosmosDbEndpoint = configuration["cosmosDb:accountEndpoint"];
@@ -34,7 +36,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
                 return new CosmosClient(cosmosDbEndpoint, credential, new CosmosClientOptions
                 {
                     ConnectionMode = ConnectionMode.Direct,
-                    Serializer = new CosmosWrapperSerializer(),
+                    Serializer = new CosmosWrapperSerializer(logger),
                     AllowBulkExecution = true
                 });
             });

@@ -1,8 +1,10 @@
 namespace UnitTests.CosmosDBSerializer;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
@@ -11,7 +13,7 @@ using System.Text;
 [TestClass]
 public class CosmosDBSerializerTests
 {
-    private static readonly CosmosWrapperSerializer serializer = new();
+    private static readonly CosmosWrapperSerializer serializer = new(new Mock<IDataEstateHealthRequestLogger>().Object);
 
     private static string ReadContentFromFile(string fileName)
     {

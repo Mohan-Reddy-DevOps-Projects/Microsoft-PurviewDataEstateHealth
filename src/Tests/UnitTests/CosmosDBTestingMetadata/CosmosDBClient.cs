@@ -1,8 +1,10 @@
 ﻿namespace UnitTests.CosmosDBTestingMetadata;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Threading.Tasks;
 
@@ -25,7 +27,7 @@ internal class CosmosDBClient
             DBClient = new CosmosClient(CosmosDBConstants.CosmosDbEndpoint, CosmosDBConstants.CosmosDbKey, new CosmosClientOptions
             {
                 ConnectionMode = ConnectionMode.Direct,
-                Serializer = new CosmosWrapperSerializer(),
+                Serializer = new CosmosWrapperSerializer(new Mock<IDataEstateHealthRequestLogger>().Object),
                 AllowBulkExecution = true
             });
 

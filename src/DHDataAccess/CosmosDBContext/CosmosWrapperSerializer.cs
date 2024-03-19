@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Helpers;
@@ -14,6 +15,7 @@ using System.Reflection;
 public class CosmosWrapperSerializer : CosmosSerializer
 {
     private readonly JsonSerializer serializer;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     // Map static method as static method
     private static readonly MethodInfo methodCreateEntityWrapper = typeof(EntityWrapperHelper)
@@ -24,7 +26,7 @@ public class CosmosWrapperSerializer : CosmosSerializer
              && m.GetParameters()[0].ParameterType == typeof(JObject))
         ?? throw new InvalidOperationException("Can not find the method CreateEntityWrapper for CosmosSerializer to use!");
 
-    public CosmosWrapperSerializer()
+    public CosmosWrapperSerializer(IDataEstateHealthRequestLogger logger)
     {
         // JsonSerializer is not guaranteed as thread-safe, so we need to create a new instance for each request
         this.serializer = new JsonSerializer
@@ -33,6 +35,8 @@ public class CosmosWrapperSerializer : CosmosSerializer
             Formatting = Formatting.None,
             // Add more settings here as needed
         };
+
+        this.logger = logger;
     }
 
     public override T FromStream<T>(Stream stream)
@@ -47,9 +51,21 @@ public class CosmosWrapperSerializer : CosmosSerializer
         using (var sr = new StreamReader(stream))
         using (var jsonTextReader = new JsonTextReader(sr))
         {
+            object? jsonObject;
+            try
+            {
+                jsonObject = this.serializer.Deserialize(jsonTextReader);
+            }
+            catch (Exception e)
+            {
+                this.logger.LogWarning(
+                    message: "Failed to deserialize the stream to JObject or JArray! The stream is not a valid JSON object!",
+                    operationName: $"{nameof(CosmosWrapperSerializer)}#{nameof(FromStream)}",
+                    exception: e
+                );
+                throw;
+            }
 
-
-            var jsonObject = this.serializer.Deserialize(jsonTextReader);
             switch (jsonObject)
             {
                 case JObject jObject:
@@ -57,7 +73,7 @@ public class CosmosWrapperSerializer : CosmosSerializer
 
                     if (type.IsSubclassOf(typeof(BaseEntityWrapper)))
                     {
-                        return DeserializeEntity<T>(jObject);
+                        return this.DeserializeEntity<T>(jObject);
                     }
 
 #nullable disable
@@ -74,7 +90,7 @@ public class CosmosWrapperSerializer : CosmosSerializer
                         if (elementType.IsSubclassOf(typeof(BaseEntityWrapper)))
                         {
                             var jObjects = jArray.OfType<JObject>();
-                            var objects = jObjects.Select(x => DeserializeEntity<object>(x, elementType)).ToArray();
+                            var objects = jObjects.Select(x => this.DeserializeEntity<object>(x, elementType)).ToArray();
 
                             var typedArray = Array.CreateInstance(elementType, objects.Length);
 
@@ -94,8 +110,16 @@ public class CosmosWrapperSerializer : CosmosSerializer
                         return jArray.ToObject<T>();
 #nullable enable
                     }
+                    this.logger.LogWarning(
+                        message: $"The steam type is an array, but the target generic type is not an array!",
+                        operationName: $"{nameof(CosmosWrapperSerializer)}#{nameof(FromStream)}"
+                    );
                     throw new InvalidCastException("The type is not an array!");
                 default:
+                    this.logger.LogWarning(
+                        message: $"The steam type ({jsonObject?.GetType().Name}) is not JObject or JArray!",
+                        operationName: $"{nameof(CosmosWrapperSerializer)}#{nameof(FromStream)}"
+                    );
                     throw new InvalidCastException("The type is not JObject or JArray!");
             }
         }
@@ -103,56 +127,80 @@ public class CosmosWrapperSerializer : CosmosSerializer
 
     public override Stream ToStream<T>(T input)
     {
-        var stream = new MemoryStream();
-
-        // Convert the input object to JObject
-        JObject jObject = JObject.FromObject(input, this.serializer);
-
-        // Modify the JObject here as needed
-        if (input is JObjectBaseWrapper jObjectBaseWrapper)
+        try
         {
-            jObject.Add(nameof(JObjectBaseWrapper.JObject), jObjectBaseWrapper.JObject);
-        }
+            var stream = new MemoryStream();
 
-        using (var sw = new StreamWriter(stream, leaveOpen: true))
-        using (var writer = new JsonTextWriter(sw))
-        {
-            this.serializer.Serialize(writer, jObject);
-            writer.Flush();
-            sw.Flush();
+            // Convert the input object to JObject
+            JObject jObject = JObject.FromObject(input, this.serializer);
+
+            // Modify the JObject here as needed
+            if (input is JObjectBaseWrapper jObjectBaseWrapper)
+            {
+                jObject.Add(nameof(JObjectBaseWrapper.JObject), jObjectBaseWrapper.JObject);
+            }
+
+            using (var sw = new StreamWriter(stream, leaveOpen: true))
+            using (var writer = new JsonTextWriter(sw))
+            {
+                this.serializer.Serialize(writer, jObject);
+                writer.Flush();
+                sw.Flush();
+            }
+            stream.Position = 0;
+            return stream;
         }
-        stream.Position = 0;
-        return stream;
+        catch (Exception e)
+        {
+            this.logger.LogWarning(
+                message: "Failed to serialize the input object to stream!",
+                operationName: $"{nameof(CosmosWrapperSerializer)}#{nameof(ToStream)}",
+                exception: e
+            );
+            throw;
+        }
     }
 
-    private static T DeserializeEntity<T>(JObject jObject)
+    private T DeserializeEntity<T>(JObject jObject)
     {
-        return DeserializeEntity<T>(jObject, typeof(T));
+        return this.DeserializeEntity<T>(jObject, typeof(T));
     }
 
-    private static T DeserializeEntity<T>(JObject jObject, Type entityType)
+    private T DeserializeEntity<T>(JObject jObject, Type entityType)
     {
-        var genericMethodToInvoke = methodCreateEntityWrapper.MakeGenericMethod(entityType);
-        var wrappedJObject = jObject.GetValue(nameof(JObjectBaseWrapper.JObject));
-        if (wrappedJObject == null)
+        try
         {
+            var genericMethodToInvoke = methodCreateEntityWrapper.MakeGenericMethod(entityType);
+            var wrappedJObject = jObject.GetValue(nameof(JObjectBaseWrapper.JObject));
+            if (wrappedJObject == null)
+            {
 #nullable disable
-            return default;
+                return default;
 #nullable enable
-        }
+            }
 #nullable disable
-        // Invoke the generic method with the JObject parameter
-        var entity = (T)genericMethodToInvoke.Invoke(null, [wrappedJObject]);
+            // Invoke the generic method with the JObject parameter
+            var entity = (T)genericMethodToInvoke.Invoke(null, [wrappedJObject]);
 #nullable enable
 
-        if (entity is IContainerEntityWrapper containerEntityWrapper)
-        {
-            containerEntityWrapper.TenantId = jObject.GetValue(nameof(IContainerEntityWrapper.TenantId))?.ToObject<string>();
-            containerEntityWrapper.AccountId = jObject.GetValue(nameof(IContainerEntityWrapper.AccountId))?.ToObject<string>();
-        }
+            if (entity is IContainerEntityWrapper containerEntityWrapper)
+            {
+                containerEntityWrapper.TenantId = jObject.GetValue(nameof(IContainerEntityWrapper.TenantId))?.ToObject<string>();
+                containerEntityWrapper.AccountId = jObject.GetValue(nameof(IContainerEntityWrapper.AccountId))?.ToObject<string>();
+            }
 
 #nullable disable
-        return entity;
+            return entity;
 #nullable enable
+        }
+        catch (Exception e)
+        {
+            this.logger.LogWarning(
+                message: "Failed to deserialize the JObject to the target entity!",
+                operationName: $"{nameof(CosmosWrapperSerializer)}#{nameof(DeserializeEntity)}",
+                exception: e
+            );
+            throw;
+        }
     }
 }
