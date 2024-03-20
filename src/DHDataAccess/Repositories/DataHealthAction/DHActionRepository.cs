@@ -6,6 +6,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Attributes;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.Shared;
 using Microsoft.Purview.DataEstateHealth.DHModels.Queries;
@@ -20,10 +21,13 @@ public class DHActionRepository(
     CosmosClient cosmosClient,
     IRequestHeaderContext requestHeaderContext,
     IConfiguration configuration,
-    IDataEstateHealthRequestLogger logger)
-    : CommonHttpContextRepository<DataHealthActionWrapper>(requestHeaderContext, logger)
+    IDataEstateHealthRequestLogger logger,
+    CosmosMetricsTracker cosmosMetricsTracker)
+    : CommonHttpContextRepository<DataHealthActionWrapper>(requestHeaderContext, logger, cosmosMetricsTracker)
 {
     private readonly IDataEstateHealthRequestLogger logger = logger;
+
+    private readonly CosmosMetricsTracker cosmosMetricsTracker = cosmosMetricsTracker;
 
     private const string ContainerName = "DHAction";
 
@@ -65,15 +69,17 @@ public class DHActionRepository(
             var results = new List<DataHealthActionWrapper>();
 
             var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
             results.AddRange(response);
 
             while (feedIterator.HasMoreResults && fetchAll)
             {
                 response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
                 results.AddRange(response);
             }
 
-            var totalCount = await this.queryCount(query.Filter).ConfigureAwait(false);
+            var totalCount = await this.QueryCount(query.Filter).ConfigureAwait(false);
 
             return new BatchResults<DataHealthActionWrapper>(
                 results, totalCount, response.ContinuationToken
@@ -127,6 +133,7 @@ public class DHActionRepository(
                     while (sqlResultSetIterator.HasMoreResults)
                     {
                         FeedResponse<FacetEntityItem> currentResultSet = await sqlResultSetIterator.ReadNextAsync().ConfigureAwait(false);
+                        this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, currentResultSet);
                         foreach (FacetEntityItem facetResult in currentResultSet)
                         {
                             sqlResults.Add(facetResult);
@@ -280,7 +287,7 @@ public class DHActionRepository(
         }
     }
 
-    private async Task<int> queryCount(ActionsFilter? filter)
+    private async Task<int> QueryCount(ActionsFilter? filter)
     {
         var countQuery = new StringBuilder("SELECT VALUE COUNT(1) FROM c WHERE 1 = 1");
         if (filter != null)
@@ -291,6 +298,7 @@ public class DHActionRepository(
         var countFeedIterator = this.CosmosContainer.GetItemQueryIterator<int>(countQueryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
 
         var countResponse = await countFeedIterator.ReadNextAsync().ConfigureAwait(false);
+        this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, countResponse);
         return countResponse.Resource.FirstOrDefault();
     }
 }

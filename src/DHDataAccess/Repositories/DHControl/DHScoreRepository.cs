@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
@@ -16,10 +17,13 @@ public class DHScoreRepository(
     CosmosClient cosmosClient,
     IRequestHeaderContext requestHeaderContext,
     IConfiguration configuration,
-    IDataEstateHealthRequestLogger logger)
-    : CommonHttpContextRepository<DHScoreBaseWrapper>(requestHeaderContext, logger)
+    IDataEstateHealthRequestLogger logger,
+    CosmosMetricsTracker cosmosMetricsTracker)
+    : CommonHttpContextRepository<DHScoreBaseWrapper>(requestHeaderContext, logger, cosmosMetricsTracker)
 {
     private const string ContainerName = "DHScore";
+
+    private readonly CosmosMetricsTracker cosmosMetricsTracker = cosmosMetricsTracker;
 
     private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHControl is not found in the configuration");
 
@@ -77,8 +81,9 @@ FROM c WHERE 1=1 ");
 
         while (queryResultSetIterator.HasMoreResults)
         {
-            var currentResultSet = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
-            intermediateResults.AddRange(currentResultSet.Resource.Where(x => x.ScoreCount > 0).Select(x => new DHScoreAggregatedByControl
+            var response = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+            intermediateResults.AddRange(response.Resource.Where(x => x.ScoreCount > 0).Select(x => new DHScoreAggregatedByControl
             {
                 ControlGroupId = x.ControlGroupId,
                 ControlId = x.ControlId,
@@ -147,8 +152,9 @@ FROM c WHERE 1=1 ");
 
         while (queryResultSetIterator.HasMoreResults)
         {
-            var currentResultSet = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
-            intermediateResults.AddRange(currentResultSet.Resource);
+            var response = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+            intermediateResults.AddRange(response.Resource);
         }
 
         return intermediateResults

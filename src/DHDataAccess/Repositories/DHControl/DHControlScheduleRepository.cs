@@ -5,6 +5,7 @@ using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,13 @@ public class DHControlScheduleRepository(
     CosmosClient cosmosClient,
     IRequestHeaderContext requestHeaderContext,
     IConfiguration configuration,
-    IDataEstateHealthRequestLogger logger)
-    : CommonHttpContextRepository<DHControlScheduleStoragePayloadWrapper>(requestHeaderContext, logger)
+    IDataEstateHealthRequestLogger logger,
+    CosmosMetricsTracker cosmosMetricsTracker)
+    : CommonHttpContextRepository<DHControlScheduleStoragePayloadWrapper>(requestHeaderContext, logger, cosmosMetricsTracker)
 {
     private const string ContainerName = "DHSchedule";
+
+    private readonly CosmosMetricsTracker cosmosMetricsTracker = cosmosMetricsTracker;
 
     private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHControl is not found in the configuration");
 
@@ -35,6 +39,7 @@ public class DHControlScheduleRepository(
         while (query.HasMoreResults)
         {
             var response = await query.ReadNextAsync().ConfigureAwait(false);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
             results.AddRange([.. response]);
         }
 

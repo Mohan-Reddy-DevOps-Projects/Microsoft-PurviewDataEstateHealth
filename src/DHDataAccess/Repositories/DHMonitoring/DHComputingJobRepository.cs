@@ -5,6 +5,7 @@ using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 using System;
 using System.Collections.Generic;
@@ -15,10 +16,13 @@ public class DHComputingJobRepository(
     CosmosClient cosmosClient,
     IRequestHeaderContext requestHeaderContext,
     IConfiguration configuration,
-    IDataEstateHealthRequestLogger logger)
-    : CommonHttpContextRepository<DHComputingJobWrapper>(requestHeaderContext, logger)
+    IDataEstateHealthRequestLogger logger,
+    CosmosMetricsTracker cosmosMetricsTracker)
+    : CommonHttpContextRepository<DHComputingJobWrapper>(requestHeaderContext, logger, cosmosMetricsTracker)
 {
     private const string ContainerName = "DHComputingJob";
+
+    private readonly CosmosMetricsTracker cosmosMetricsTracker = cosmosMetricsTracker;
 
     private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHComputingJob is not found in the configuration");
 
@@ -34,6 +38,7 @@ public class DHComputingJobRepository(
         while (feedIterator.HasMoreResults)
         {
             var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
             results.AddRange([.. response]);
         }
         return results.FirstOrDefault();

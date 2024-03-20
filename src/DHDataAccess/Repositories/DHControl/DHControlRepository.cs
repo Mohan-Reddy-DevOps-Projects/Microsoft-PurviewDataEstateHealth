@@ -5,6 +5,7 @@ using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using System;
@@ -16,10 +17,13 @@ public class DHControlRepository(
     CosmosClient cosmosClient,
     IRequestHeaderContext requestHeaderContext,
     IConfiguration configuration,
-    IDataEstateHealthRequestLogger logger)
-    : CommonHttpContextRepository<DHControlBaseWrapper>(requestHeaderContext, logger)
+    IDataEstateHealthRequestLogger logger,
+     CosmosMetricsTracker cosmosMetricsTracker)
+    : CommonHttpContextRepository<DHControlBaseWrapper>(requestHeaderContext, logger, cosmosMetricsTracker)
 {
     private const string ContainerName = "DHControl";
+
+    private readonly CosmosMetricsTracker cosmosMetricsTracker = cosmosMetricsTracker;
 
     private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHControl is not found in the configuration");
 
@@ -71,6 +75,7 @@ public class DHControlRepository(
         while (resultQuery.HasMoreResults)
         {
             var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
             results.AddRange([.. response]);
         }
 
@@ -99,6 +104,7 @@ public class DHControlRepository(
         while (resultQuery.HasMoreResults)
         {
             var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
             results.AddRange([.. response]);
         }
 

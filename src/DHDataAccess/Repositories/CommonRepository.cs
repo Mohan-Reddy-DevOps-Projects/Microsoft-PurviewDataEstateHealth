@@ -3,6 +3,7 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -12,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger logger) : IRepository<TEntity>
+public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger logger, CosmosMetricsTracker cosmosMetricsTracker) : IRepository<TEntity>
     where TEntity : BaseEntityWrapper, IContainerEntityWrapper
 {
     protected abstract Container CosmosContainer { get; }
@@ -28,6 +29,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                 PopulateMetadataForEntity(entity, tenantId, accountId);
                 var tenantPartitionKey = new PartitionKey(tenantId);
                 var response = await this.CosmosContainer.CreateItemAsync(entity, tenantPartitionKey).ConfigureAwait(false);
+                cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
                 return response.Resource;
             }
             catch (Exception ex)
@@ -69,6 +71,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                         if (responseTask.IsCompletedSuccessfully)
                         {
                             succeededItems.Add(responseTask.Result.Resource);
+                            cosmosMetricsTracker.LogCosmosMetrics(tenantId, responseTask.Result);
                         }
                         else
                         {
@@ -112,7 +115,9 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             {
                 var tenantPartitionKey = new PartitionKey(tenantId);
 
-                await this.CosmosContainer.DeleteItemAsync<TEntity>(id, tenantPartitionKey).ConfigureAwait(false);
+                var response = await this.CosmosContainer.DeleteItemAsync<TEntity>(id, tenantPartitionKey).ConfigureAwait(false);
+
+                cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -144,6 +149,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                 while (feedIterator.HasMoreResults)
                 {
                     var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                    cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
                     results.AddRange([.. response]);
                 }
 
@@ -168,6 +174,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                 var tenantPartitionKey = new PartitionKey(tenantId);
 
                 var response = await this.CosmosContainer.ReadItemAsync<TEntity>(id, tenantPartitionKey).ConfigureAwait(false);
+                cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
                 return response.Resource;
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -194,6 +201,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                 var tenantPartitionKey = new PartitionKey(tenantId);
 
                 var response = await this.CosmosContainer.UpsertItemAsync(entity, tenantPartitionKey).ConfigureAwait(false);
+                cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
                 return response.Resource;
             }
             catch (Exception ex)
@@ -234,6 +242,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                         if (responseTask.IsCompletedSuccessfully)
                         {
                             succeededItems.Add(responseTask.Result.Resource);
+                            cosmosMetricsTracker.LogCosmosMetrics(tenantId, responseTask.Result);
                         }
                         else
                         {

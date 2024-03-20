@@ -3,14 +3,15 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 public abstract class CommonHttpContextRepository<TEntity>(
-    IRequestHeaderContext requestHeaderContext, IDataEstateHealthRequestLogger logger)
-    : CommonRepository<TEntity>(logger), IHttpContextRepository<TEntity>
+    IRequestHeaderContext requestHeaderContext, IDataEstateHealthRequestLogger logger, CosmosMetricsTracker cosmosMetricsTracker)
+    : CommonRepository<TEntity>(logger, cosmosMetricsTracker), IHttpContextRepository<TEntity>
     where TEntity : BaseEntityWrapper, IContainerEntityWrapper
 {
     protected string TenantId => requestHeaderContext.TenantId.ToString();
