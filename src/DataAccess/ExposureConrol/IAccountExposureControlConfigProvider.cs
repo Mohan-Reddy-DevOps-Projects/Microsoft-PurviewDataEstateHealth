@@ -61,4 +61,14 @@ public interface IAccountExposureControlConfigProvider
     /// <param name="tenantId"></param>
     /// <returns></returns>
     public bool IsDGDataHealthEnabled(string accountId, string subscriptionId, string tenantId);
+
+
+    /// <summary>
+    /// Determines if DG health schedule trigger API is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDataGovHealthScheduleTriggerEnabled(string accountId, string subscriptionId, string tenantId);
 }
