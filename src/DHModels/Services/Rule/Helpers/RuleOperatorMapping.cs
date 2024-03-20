@@ -89,6 +89,10 @@ internal class RuleOperatorMapping
             { DHCheckPoint.DataProductEndorsed, DHCheckPointType.Boolean },
             { DHCheckPoint.DataProductStatus, DHCheckPointType.String },
             { DHCheckPoint.DataProductHasDQScore, DHCheckPointType.Boolean },
+            { DHCheckPoint.DataProductDomainDescriptionLength, DHCheckPointType.Number},
+            { DHCheckPoint.DataProductDomainHasOwner, DHCheckPointType.Boolean},
+            { DHCheckPoint.DataProductAllRelatedTermsMinimalDescriptionLength, DHCheckPointType.Number},
+            //{ DHCheckPoint.DataProductAllRelatedTermsHaveOwner, DHCheckPointType.Boolean},
 
             { DHCheckPoint.CDERelatedDataAssetsCount, DHCheckPointType.Number },
             { DHCheckPoint.CDEOwnerCount, DHCheckPointType.Number },
