@@ -310,24 +310,24 @@
                                 "reason": "Data products don't have business use.",
                                 "recommendation": "Update business use for data products."
                             }
-                        },
-                        {
-                            "id": "332916b0-327d-4184-8fd8-777a45f9f4c9",
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "DataProductStatus",
-                                    "operator": "Equal",
-                                    "operand": "Published"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Data product is not published.",
-                                "severity": "High",
-                                "reason": "Data product is not published.",
-                                "recommendation": "Publish the data product."
-                            }
                         }
+                        //{
+                        //    "id": "332916b0-327d-4184-8fd8-777a45f9f4c9",
+                        //    "rule": {
+                        //        "type": "SimpleRule",
+                        //        "typeProperties": {
+                        //            "checkPoint": "DataProductStatus",
+                        //            "operator": "Equal",
+                        //            "operand": "Published"
+                        //        }
+                        //    },
+                        //    "actionProperties": {
+                        //        "name": "Data product is not published.",
+                        //        "severity": "High",
+                        //        "reason": "Data product is not published.",
+                        //        "recommendation": "Publish the data product."
+                        //    }
+                        //}
                     ]
                 }
             },
@@ -1271,95 +1271,95 @@
                         }
                     ]
                 }
-            },
-            {
-                "control": {
-                    "name": "Ownership",
-                    "systemTemplateEntityId": "2f0c5e7a-6eb9-480d-adde-c6efac137a87",
-                    "description": "",
-                    "status": "Enabled",
-                    "type": "ControlNode"
-                },
-                "assessment": {
-                    "name": "Ownership",
-                    "systemTemplateEntityId": "a65f2b39-6564-4c9f-9960-9145e8e803bc",
-                    "targetEntityType": "DataProduct",
-                    "targetQualityType": "MetadataQuality",
-                    "aggregation": {
-                        "type": "Simple",
-                        "typeProperties": {
-                            "aggregationType": "Average"
-                        }
-                    },
-                    "rules": [
-                        {
-                            "id": "260cb559-779d-490e-be38-a0f232dcd87b",
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "DataProductOwnerCount",
-                                    "operator": "GreaterThan",
-                                    "operand": "0"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Missing owners on data products",
-                                "severity": "Medium",
-                                "reason": "Data products with missing owners",
-                                "recommendation": "Assign owners for the data products."
-                            }
-                        },
-                        {
-                            "id": "9eb3402f-d62b-4fd4-9e46-ca97746f4405",
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "DataProductAllRelatedAssetsHaveOwner",
-                                    "operator": "IsTrue"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Missing owners on data assets",
-                                "severity": "Medium",
-                                "reason": "Data assets with missing owners that are part of data products",
-                                "recommendation": "Assign owners for the data assets related to the data product."
-                            }
-                        },
-                        //{
-                        //    "id": "d8a9fedc-f00d-4e08-abe2-1f8ebfcbe63b",
-                        //    "rule": {
-                        //        "type": "SimpleRule",
-                        //        "typeProperties": {
-                        //            "checkPoint": "DataProductAllRelatedTermsHaveOwner",
-                        //            "operator": "IsTrue"
-                        //        }
-                        //    },
-                        //    "actionProperties": {
-                        //        "name": "Missing owners on glossary terms",
-                        //        "severity": "Medium",
-                        //        "reason": "Glossary terms with missing owners that are part of data products",
-                        //        "recommendation": "Assign owners for the glossary terms related to the data product."
-                        //    }
-                        //},
-                        {
-                            "id": "a957f43f-0eba-4f58-b9a7-beb56f029367",
-                            "rule": {
-                                "type": "SimpleRule",
-                                "typeProperties": {
-                                    "checkPoint": "DataProductDomainHasOwner",
-                                    "operator": "IsTrue"
-                                }
-                            },
-                            "actionProperties": {
-                                "name": "Missing owners on business domains",
-                                "severity": "Medium",
-                                "reason": "business domains with missing owners that the data products belongs to.",
-                                "recommendation": "Assign owners for the business domains of the data product."
-                            }
-                        }
-                    ]
-                }
             }
+            //{
+            //    "control": {
+            //        "name": "Ownership",
+            //        "systemTemplateEntityId": "2f0c5e7a-6eb9-480d-adde-c6efac137a87",
+            //        "description": "",
+            //        "status": "Enabled",
+            //        "type": "ControlNode"
+            //    },
+            //    "assessment": {
+            //        "name": "Ownership",
+            //        "systemTemplateEntityId": "a65f2b39-6564-4c9f-9960-9145e8e803bc",
+            //        "targetEntityType": "DataProduct",
+            //        "targetQualityType": "MetadataQuality",
+            //        "aggregation": {
+            //            "type": "Simple",
+            //            "typeProperties": {
+            //                "aggregationType": "Average"
+            //            }
+            //        },
+            //        "rules": [
+            //            {
+            //                "id": "260cb559-779d-490e-be38-a0f232dcd87b",
+            //                "rule": {
+            //                    "type": "SimpleRule",
+            //                    "typeProperties": {
+            //                        "checkPoint": "DataProductOwnerCount",
+            //                        "operator": "GreaterThan",
+            //                        "operand": "0"
+            //                    }
+            //                },
+            //                "actionProperties": {
+            //                    "name": "Missing owners on data products",
+            //                    "severity": "Medium",
+            //                    "reason": "Data products with missing owners",
+            //                    "recommendation": "Assign owners for the data products."
+            //                }
+            //            },
+            //            {
+            //                "id": "9eb3402f-d62b-4fd4-9e46-ca97746f4405",
+            //                "rule": {
+            //                    "type": "SimpleRule",
+            //                    "typeProperties": {
+            //                        "checkPoint": "DataProductAllRelatedAssetsHaveOwner",
+            //                        "operator": "IsTrue"
+            //                    }
+            //                },
+            //                "actionProperties": {
+            //                    "name": "Missing owners on data assets",
+            //                    "severity": "Medium",
+            //                    "reason": "Data assets with missing owners that are part of data products",
+            //                    "recommendation": "Assign owners for the data assets related to the data product."
+            //                }
+            //            },
+            //            //{
+            //            //    "id": "d8a9fedc-f00d-4e08-abe2-1f8ebfcbe63b",
+            //            //    "rule": {
+            //            //        "type": "SimpleRule",
+            //            //        "typeProperties": {
+            //            //            "checkPoint": "DataProductAllRelatedTermsHaveOwner",
+            //            //            "operator": "IsTrue"
+            //            //        }
+            //            //    },
+            //            //    "actionProperties": {
+            //            //        "name": "Missing owners on glossary terms",
+            //            //        "severity": "Medium",
+            //            //        "reason": "Glossary terms with missing owners that are part of data products",
+            //            //        "recommendation": "Assign owners for the glossary terms related to the data product."
+            //            //    }
+            //            //},
+            //            {
+            //                "id": "a957f43f-0eba-4f58-b9a7-beb56f029367",
+            //                "rule": {
+            //                    "type": "SimpleRule",
+            //                    "typeProperties": {
+            //                        "checkPoint": "DataProductDomainHasOwner",
+            //                        "operator": "IsTrue"
+            //                    }
+            //                },
+            //                "actionProperties": {
+            //                    "name": "Missing owners on business domains",
+            //                    "severity": "Medium",
+            //                    "reason": "business domains with missing owners that the data products belongs to.",
+            //                    "recommendation": "Assign owners for the business domains of the data product."
+            //                }
+            //            }
+            //        ]
+            //    }
+            //}
         ]
     },
     {

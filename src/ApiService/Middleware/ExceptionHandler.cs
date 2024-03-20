@@ -106,6 +106,7 @@ internal static class ExceptionHandler
                 );
             case EntityValidationException:
             case InvalidRequestException:
+            case InvalidOperationException:
                 return new ExtendedServiceException(
                     ErrorCategory.InputError,
                     ErrorResponseCode.DataHealthInvalidEntity,
