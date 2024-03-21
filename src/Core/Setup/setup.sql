@@ -1099,7 +1099,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[DimBusinessDomain]
 (
-    [BusinessDomainId] [int],
+    [BusinessDomainId] [nvarchar](512),
      [BusinessDomainSourceId] [nvarchar](256),
      [BusinessDomainDisplayName] [nvarchar](512),
      [CreatedDatetime] [datetime2],
@@ -1129,7 +1129,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[DimDataProduct]
 (
-    [DataProductId] [int],
+    [DataProductId] [nvarchar](512),
 	[DataProductSourceId] [nvarchar](256),
 	[DataProductDisplayName] [nvarchar](512),
 	[DataProductStatus] [nvarchar](50),
@@ -1156,7 +1156,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[DimDataAsset]
 (
-     [DataAssetId] [int],
+     [DataAssetId] [nvarchar](512),
      [DataAssetSourceId] [nvarchar](256),
      [DataAssetDisplayName] [nvarchar](512),
      [CreatedDatetime] [datetime2],
@@ -1184,7 +1184,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[DimDataAssetColumn]
 (
-    [DataAssetColumnId] [int],
+    [DataAssetColumnId] [nvarchar](512),
      [DataAssetColumnSourceId] [nvarchar](256),
      [DataAssetColumnDisplayName] [nvarchar](512),
      [CreatedDatetime] [datetime2],
@@ -1401,10 +1401,10 @@ CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[FactDataQuality]
 	[DQRuleId] [int],
 	[RuleScanCompletionDatetime] [datetime2](7),
 	[DEHLastProcessedDatetime] [datetime2](7),
-	[BusinessDomainId] [int],
-	[DataProductId] [int],
-	[DataAssetId] [int],
-	[DataAssetColumnId] [int],
+	[BusinessDomainId] [nvarchar](512),
+	[DataProductId] [nvarchar](512),
+	[DataAssetId] [nvarchar](512),
+	[DataAssetColumnId] [nvarchar](512),
 	[JobTypeId] [int],
 	[DQRuleTypeId] [int],
 	[DQScanProfileId] [int],
@@ -1440,10 +1440,10 @@ SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[FactDataGovernanceScan]
 (
     [HealthControlId] [bigint],
-	[DataProductId] [bigint],
+	[DataProductId] [nvarchar](512),
 	[DEHProcessingDateId] [int],
 	[LastProcessedDatetime] [datetime2](7),
-	[BusinessDomainId] [bigint],
+	[BusinessDomainId] [nvarchar](512),
 	[TotalDataProductAssetCount] [int],
 	[DataProductCounter] [int],
 	[ClassifiedAssetCount] [int],
