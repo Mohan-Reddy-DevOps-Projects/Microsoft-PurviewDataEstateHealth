@@ -213,9 +213,34 @@ public enum PayloadKind
     DataQualityScore,
 
     /// <summary>
-    /// CustomMetadata
+    /// No OKR events published currently.
     /// </summary>
-    CustomMetadata
+    OKR,
+
+    /// <summary>
+    /// No critical data element events published currently.
+    /// </summary>
+    CriticalDataElement,
+
+    /// <summary>
+    /// No critical data column events published currently.
+    /// </summary>
+    CriticalDataColumn,
+
+    /// <summary>
+    /// Custom metadata events
+    /// </summary>
+    CustomMetadata,
+
+    /// <summary>
+    /// Attribute events
+    /// </summary>
+    Attribute,
+
+    /// <summary>
+    /// Attribute instance events
+    /// </summary>
+    AttributeInstance
 }
 
 /// <summary>
