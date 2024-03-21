@@ -2,8 +2,10 @@
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using System;
     using System.Threading.Tasks;
 
@@ -25,7 +27,7 @@
         public async Task<DHComputingJobWrapper> GetComputingJobByDQJobId(string jobId)
         {
             var job = await this.dhComputingJobRepository.GetByDQJobId(jobId).ConfigureAwait(false);
-            return job ?? throw new ComputingJobNotFoundException();
+            return job ?? throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.MonitoringJob.ToString(), jobId));
         }
 
         public async Task CreateComputingJob(DHComputingJobWrapper job, string user)
@@ -55,7 +57,7 @@
         private async Task<DHComputingJobWrapper> GetComputingJobById(string jobId)
         {
             var job = await this.dhComputingJobRepository.GetByIdAsync(jobId).ConfigureAwait(false);
-            return job ?? throw new ComputingJobNotFoundException();
+            return job ?? throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.MonitoringJob.ToString(), jobId));
         }
     }
 }
