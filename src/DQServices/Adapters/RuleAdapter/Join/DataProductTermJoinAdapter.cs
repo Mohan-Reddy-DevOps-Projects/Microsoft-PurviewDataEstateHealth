@@ -66,7 +66,7 @@ public class DataProductTermJoinAdapter : JoinAdapter
             JoinSql = @"LEFT JOIN (
                 SELECT
                     DataProduct.DataProductID as DPTCountDataProductId,
-                    COUNT(GlossaryTermDataProductAssignment.GlossaryTermID) as DataProductTermCount,
+                    COUNT(GlossaryTerm.GlossaryTermId) as DataProductTermCount,
                     30 as DataProductAllRelatedTermsMinimalDescriptionLength
                 FROM DataProduct 
                 LEFT JOIN GlossaryTermDataProductAssignment ON DataProduct.DataProductID = GlossaryTermDataProductAssignment.DataProductId
