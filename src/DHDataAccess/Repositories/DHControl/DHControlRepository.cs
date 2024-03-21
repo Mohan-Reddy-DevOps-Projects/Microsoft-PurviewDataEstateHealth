@@ -29,85 +29,113 @@ public class DHControlRepository(
 
     protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
+    private readonly IDataEstateHealthRequestLogger logger = logger;
+
     public async Task<IEnumerable<DHControlNodeWrapper>> QueryControlNodesAsync(ControlNodeFilters filter)
     {
-        var query = this.CosmosContainer.GetItemLinqQueryable<DHControlNodeWrapper>(
-            requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
-            .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Node);
+        var methodName = nameof(QueryControlNodesAsync);
 
-        if (filter?.AssessmentIds?.Any() == true)
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {base.TenantId}"))
         {
-            query = query.Where(x => filter.AssessmentIds.Contains(x.AssessmentId ?? string.Empty));
+            try
+            {
+                var query = this.CosmosContainer.GetItemLinqQueryable<DHControlNodeWrapper>(
+                    requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
+                    .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Node);
+
+                if (filter?.AssessmentIds?.Any() == true)
+                {
+                    query = query.Where(x => filter.AssessmentIds.Contains(x.AssessmentId ?? string.Empty));
+                }
+
+                if (!string.IsNullOrWhiteSpace(filter?.StatusPaletteId))
+                {
+                    query = query.Where(x =>
+                    x.StatusPaletteConfig != null &&
+                    (
+                        x.StatusPaletteConfig.FallbackStatusPaletteId == filter.StatusPaletteId ||
+                        (
+                            x.StatusPaletteConfig.StatusPaletteRules != null &&
+                            x.StatusPaletteConfig.StatusPaletteRules.Select(y => y.StatusPaletteId).Contains(filter.StatusPaletteId)
+                        )
+                    )
+                    );
+                }
+
+                if (filter?.ParentControlIds?.Any() == true)
+                {
+                    query = query.Where(x => filter.ParentControlIds.Contains(x.GroupId ?? string.Empty));
+                }
+
+                if (!string.IsNullOrWhiteSpace(filter?.TemplateName))
+                {
+                    query = query.Where(x => x.SystemTemplate == filter.TemplateName);
+                }
+
+                if (filter?.TemplateEntityIds?.Any() == true)
+                {
+                    query = query.Where(x => filter.TemplateEntityIds.Contains(x.SystemTemplateEntityId));
+                }
+
+                var resultQuery = query.ToFeedIterator();
+
+                var results = new List<DHControlNodeWrapper>();
+                while (resultQuery.HasMoreResults)
+                {
+                    var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    results.AddRange([.. response]);
+                }
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {base.TenantId}", ex);
+                throw;
+            }
         }
-
-        if (!string.IsNullOrWhiteSpace(filter?.StatusPaletteId))
-        {
-            query = query.Where(x =>
-            x.StatusPaletteConfig != null &&
-            (
-                x.StatusPaletteConfig.FallbackStatusPaletteId == filter.StatusPaletteId ||
-                (
-                    x.StatusPaletteConfig.StatusPaletteRules != null &&
-                    x.StatusPaletteConfig.StatusPaletteRules.Select(y => y.StatusPaletteId).Contains(filter.StatusPaletteId)
-                )
-            )
-            );
-        }
-
-        if (filter?.ParentControlIds?.Any() == true)
-        {
-            query = query.Where(x => filter.ParentControlIds.Contains(x.GroupId ?? string.Empty));
-        }
-
-        if (!string.IsNullOrWhiteSpace(filter?.TemplateName))
-        {
-            query = query.Where(x => x.SystemTemplate == filter.TemplateName);
-        }
-
-        if (filter?.TemplateEntityIds?.Any() == true)
-        {
-            query = query.Where(x => filter.TemplateEntityIds.Contains(x.SystemTemplateEntityId));
-        }
-
-        var resultQuery = query.ToFeedIterator();
-
-        var results = new List<DHControlNodeWrapper>();
-        while (resultQuery.HasMoreResults)
-        {
-            var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
-            results.AddRange([.. response]);
-        }
-
-        return results;
     }
 
     public async Task<IEnumerable<DHControlGroupWrapper>> QueryControlGroupsAsync(TemplateFilters filter)
     {
-        var query = this.CosmosContainer.GetItemLinqQueryable<DHControlGroupWrapper>(
-            requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
-            .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Group);
+        var methodName = nameof(QueryControlGroupsAsync);
 
-        if (!string.IsNullOrWhiteSpace(filter?.TemplateName))
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {base.TenantId}"))
         {
-            query = query.Where(x => x.SystemTemplate == filter.TemplateName);
+            try
+            {
+                var query = this.CosmosContainer.GetItemLinqQueryable<DHControlGroupWrapper>(
+                    requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
+                    .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Group);
+
+                if (!string.IsNullOrWhiteSpace(filter?.TemplateName))
+                {
+                    query = query.Where(x => x.SystemTemplate == filter.TemplateName);
+                }
+
+                if (filter?.TemplateEntityIds?.Any() == true)
+                {
+                    query = query.Where(x => filter.TemplateEntityIds.Contains(x.SystemTemplateEntityId));
+                }
+
+                var resultQuery = query.ToFeedIterator();
+
+                var results = new List<DHControlGroupWrapper>();
+                while (resultQuery.HasMoreResults)
+                {
+                    var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    results.AddRange([.. response]);
+                }
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {base.TenantId}", ex);
+                throw;
+            }
         }
-
-        if (filter?.TemplateEntityIds?.Any() == true)
-        {
-            query = query.Where(x => filter.TemplateEntityIds.Contains(x.SystemTemplateEntityId));
-        }
-
-        var resultQuery = query.ToFeedIterator();
-
-        var results = new List<DHControlGroupWrapper>();
-        while (resultQuery.HasMoreResults)
-        {
-            var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
-            results.AddRange([.. response]);
-        }
-
-        return results;
     }
 }

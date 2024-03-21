@@ -29,26 +29,41 @@ public class DHControlStatusPaletteRepository(
 
     protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
+    private readonly IDataEstateHealthRequestLogger logger = logger;
+
     public async Task<IEnumerable<DHControlStatusPaletteWrapper>> QueryStatusPalettesAsync(StatusPaletteFilters filters)
     {
-        IQueryable<DHControlStatusPaletteWrapper> query = this.CosmosContainer.GetItemLinqQueryable<DHControlStatusPaletteWrapper>(
-                       requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey });
+        var methodName = nameof(QueryStatusPalettesAsync);
 
-        if (filters?.ids?.Any() == true)
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {base.TenantId}"))
         {
-            query = query.Where(x => filters.ids.Contains(x.Id));
+            try
+            {
+                IQueryable<DHControlStatusPaletteWrapper> query = this.CosmosContainer.GetItemLinqQueryable<DHControlStatusPaletteWrapper>(
+                    requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey });
+
+                if (filters?.ids?.Any() == true)
+                {
+                    query = query.Where(x => filters.ids.Contains(x.Id));
+                }
+
+                var resultQuery = query.ToFeedIterator();
+
+                var results = new List<DHControlStatusPaletteWrapper>();
+                while (resultQuery.HasMoreResults)
+                {
+                    var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    results.AddRange(response);
+                }
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {base.TenantId}", ex);
+                throw;
+            }
         }
-
-        var resultQuery = query.ToFeedIterator();
-
-        var results = new List<DHControlStatusPaletteWrapper>();
-        while (resultQuery.HasMoreResults)
-        {
-            var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
-            results.AddRange(response);
-        }
-
-        return results;
     }
 }

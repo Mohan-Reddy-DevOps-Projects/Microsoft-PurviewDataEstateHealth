@@ -1,4 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
+
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Palette;
@@ -8,32 +10,39 @@ using System.Linq;
 using System.Threading.Tasks;
 
 public class DHStatusPaletteInternalService(
-    DHControlStatusPaletteRepository dhControlStatusPaletteRepository
+    DHControlStatusPaletteRepository dhControlStatusPaletteRepository,
+    IDataEstateHealthRequestLogger logger
     )
 {
     public async Task<IEnumerable<DHControlStatusPaletteWrapper>> QueryStatusPalettesAsync(StatusPaletteFilters filters)
     {
-        var systemEntities = SystemDefaultStatusPalettes.Where(e => filters.ids?.Contains(e.Id) ?? true);
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(QueryStatusPalettesAsync)}"))
+        {
+            var systemEntities = SystemDefaultStatusPalettes.Where(e => filters.ids?.Contains(e.Id) ?? true);
 
-        var entities = await dhControlStatusPaletteRepository.QueryStatusPalettesAsync(filters).ConfigureAwait(false);
+            var entities = await dhControlStatusPaletteRepository.QueryStatusPalettesAsync(filters).ConfigureAwait(false);
 
-        return [.. systemEntities, .. entities];
+            return [.. systemEntities, .. entities];
+        }
     }
 
     public async Task<DHControlStatusPaletteWrapper?> TryGetStatusPaletteByIdInternalAsync(string id)
     {
         ArgumentNullException.ThrowIfNull(id);
 
-        var systemEntity = SystemDefaultStatusPalettes.FirstOrDefault(e => string.Equals(e.Id, id, StringComparison.OrdinalIgnoreCase));
-
-        if (systemEntity != null)
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(TryGetStatusPaletteByIdInternalAsync)}: Get by ID {id}."))
         {
-            return systemEntity;
+            var systemEntity = SystemDefaultStatusPalettes.FirstOrDefault(e => string.Equals(e.Id, id, StringComparison.OrdinalIgnoreCase));
+
+            if (systemEntity != null)
+            {
+                return systemEntity;
+            }
+
+            var entity = await dhControlStatusPaletteRepository.GetByIdAsync(id).ConfigureAwait(false);
+
+            return entity;
         }
-
-        var entity = await dhControlStatusPaletteRepository.GetByIdAsync(id).ConfigureAwait(false);
-
-        return entity;
     }
 
     public IEnumerable<DHControlStatusPaletteWrapper> AppendSystemDefauleStatusPalettes(IEnumerable<DHControlStatusPaletteWrapper> results)

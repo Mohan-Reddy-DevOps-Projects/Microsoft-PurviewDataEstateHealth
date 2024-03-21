@@ -198,45 +198,58 @@ public class DHScheduleService(
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        entity.Validate();
-        entity.NormalizeInput();
-
-        var existingGlobalSchedule = await this.GetGlobalScheduleInternalAsync().ConfigureAwait(false);
-
-        var scheduleStoragePayload = DHControlScheduleStoragePayloadWrapper.Create([]);
-        scheduleStoragePayload.Properties = entity;
-        scheduleStoragePayload.Type = DHControlScheduleType.ControlGlobal;
-
-        if (existingGlobalSchedule == null)
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(CreateOrUpdateGlobalScheduleAsync)}"))
         {
-            // Create Global Schedule
-            var result = await scheduleService.CreateScheduleAsync(scheduleStoragePayload).ConfigureAwait(false);
-            entity.SystemData = result.SystemData;
-            return entity;
+            entity.Validate();
+            entity.NormalizeInput();
+
+            var existingGlobalSchedule = await this.GetGlobalScheduleInternalAsync().ConfigureAwait(false);
+
+            var scheduleStoragePayload = DHControlScheduleStoragePayloadWrapper.Create([]);
+            scheduleStoragePayload.Properties = entity;
+            scheduleStoragePayload.Type = DHControlScheduleType.ControlGlobal;
+
+            if (existingGlobalSchedule == null)
+            {
+                // Create Global Schedule
+
+                logger.LogInformation($"Creating Global Schedule");
+
+                var result = await scheduleService.CreateScheduleAsync(scheduleStoragePayload).ConfigureAwait(false);
+                entity.SystemData = result.SystemData;
+                return entity;
+            }
+            else
+            {
+                // Update Global Schedule
+
+                logger.LogInformation($"Updating Global Schedule {existingGlobalSchedule.Id}");
+
+                scheduleStoragePayload.Id = existingGlobalSchedule.Id;
+                var result = await scheduleService.UpdateScheduleAsync(scheduleStoragePayload).ConfigureAwait(false);
+                entity.SystemData = result.SystemData;
+                return entity;
+            }
         }
-        else
-        {
-            // Update Global Schedule
-            scheduleStoragePayload.Id = existingGlobalSchedule.Id;
-            var result = await scheduleService.UpdateScheduleAsync(scheduleStoragePayload).ConfigureAwait(false);
-            entity.SystemData = result.SystemData;
-            return entity;
-        }
+
     }
 
     public async Task<DHControlGlobalSchedulePayloadWrapper> GetGlobalScheduleAsync()
     {
-        var globalSchedule = await this.GetGlobalScheduleInternalAsync().ConfigureAwait(false);
-
-        if (globalSchedule == null)
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(GetGlobalScheduleAsync)}"))
         {
-            throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), "Global"));
+            var globalSchedule = await this.GetGlobalScheduleInternalAsync().ConfigureAwait(false);
+
+            if (globalSchedule == null)
+            {
+                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), "Global"));
+            }
+
+            var response = new DHControlGlobalSchedulePayloadWrapper(globalSchedule.Properties.JObject);
+            response.SystemData = globalSchedule.SystemData;
+
+            return response;
         }
-
-        var response = new DHControlGlobalSchedulePayloadWrapper(globalSchedule.Properties.JObject);
-        response.SystemData = globalSchedule.SystemData;
-
-        return response;
     }
 
     private async Task<DHControlScheduleStoragePayloadWrapper?> GetGlobalScheduleInternalAsync()

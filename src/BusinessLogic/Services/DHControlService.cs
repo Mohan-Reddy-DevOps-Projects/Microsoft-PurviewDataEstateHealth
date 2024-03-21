@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
+    using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
@@ -22,120 +23,140 @@
         DHScheduleInternalService scheduleService,
         DHStatusPaletteInternalService statusPaletteInternalService,
         DHAssessmentService assessmentService,
-        IRequestHeaderContext requestHeaderContext)
+        IRequestHeaderContext requestHeaderContext,
+        IDataEstateHealthRequestLogger logger)
     {
         public async Task<IBatchResults<DHControlBaseWrapper>> ListControlsAsync()
         {
-            var entities = await dHControlRepository.GetAllAsync().ConfigureAwait(false);
+            using (logger.LogElapsed($"{this.GetType().Name}#{nameof(ListControlsAsync)}"))
+            {
+                var entities = await dHControlRepository.GetAllAsync().ConfigureAwait(false);
 
-            var results = await Task.WhenAll(entities.Select(e => this.ReadEntityScheduleAsync(e)));
+                logger.LogInformation($"Found {entities.Count()} controls. Start reading schedule information.");
 
-            return new BatchResults<DHControlBaseWrapper>(results, results.Length);
+                var results = await Task.WhenAll(entities.Select(e => this.ReadEntityScheduleAsync(e)));
+
+                return new BatchResults<DHControlBaseWrapper>(results, results.Length);
+            }
         }
 
         public async Task<DHControlBaseWrapper> GetControlByIdAsync(string id)
         {
             ArgumentNullException.ThrowIfNull(id);
 
-            var entity = await dHControlRepository.GetByIdAsync(id).ConfigureAwait(false);
-
-            if (entity == null)
+            using (logger.LogElapsed($"{this.GetType().Name}#{nameof(GetControlByIdAsync)}: Read for control with ID {id}"))
             {
-                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Control.ToString(), id));
+                var entity = await dHControlRepository.GetByIdAsync(id).ConfigureAwait(false);
+
+                if (entity == null)
+                {
+                    throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Control.ToString(), id));
+                }
+
+                var result = await this.ReadEntityScheduleAsync(entity);
+
+                return result;
             }
-
-            var result = await this.ReadEntityScheduleAsync(entity);
-
-            return result;
         }
 
         public async Task<DHControlBaseWrapper> CreateControlAsync(DHControlBaseWrapper entity, bool withNewAssessment = false, bool isSystem = false)
         {
             ArgumentNullException.ThrowIfNull(entity);
 
-            entity.Validate();
-
-            if (!isSystem)
+            using (logger.LogElapsed($"{this.GetType().Name}#{nameof(CreateControlAsync)}: Create control. Created by system: {isSystem}"))
             {
-                entity.NormalizeInput();
+                entity.Validate();
 
-                if (entity.Status == DHControlStatus.InDevelopment)
+                if (!isSystem)
                 {
-                    throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageInDevelopStatus));
+                    entity.NormalizeInput();
+
+                    if (entity.Status == DHControlStatus.InDevelopment)
+                    {
+                        throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageInDevelopStatus));
+                    }
                 }
+
+                await this.ValidateStatusPaletteConfig(entity).ConfigureAwait(false);
+
+                logger.LogInformation($"Creating with control type {entity.Type}.");
+
+                switch (entity.Type)
+                {
+                    case DHControlBaseWrapperDerivedTypes.Node:
+                        var nodeEntity = (DHControlNodeWrapper)entity;
+                        if (withNewAssessment)
+                        {
+                            logger.LogInformation($"Creating new assessment for control.");
+
+                            var assessment = await assessmentService.CreateEmptyAssessmentAsync(entity.Name).ConfigureAwait(false);
+                            nodeEntity.AssessmentId = assessment.Id;
+
+                            logger.LogInformation($"Created new assessment with ID {assessment.Id} for control.");
+                        }
+                        else
+                        {
+                            if (string.IsNullOrEmpty(nodeEntity.AssessmentId))
+                            {
+                                throw new EntityValidationException(String.Format(
+                                    CultureInfo.InvariantCulture,
+                                    StringResources.ErrorMessagePropertyRequired,
+                                    DHControlNodeWrapper.keyAssessmentId));
+                            }
+                            var assessment = await assessmentService.GetAssessmentByIdAsync(nodeEntity.AssessmentId).ConfigureAwait(false);
+                            if (assessment == null)
+                            {
+                                throw new EntityValidationException(String.Format(
+                                    CultureInfo.InvariantCulture,
+                                    StringResources.ErrorMessageReferenceNotFound,
+                                    EntityCategory.Assessment.ToString(),
+                                    nodeEntity.AssessmentId));
+                            }
+                        }
+
+                        if (nodeEntity.GroupId != null)
+                        {
+                            logger.LogInformation($"Validating group ID {nodeEntity.GroupId} for control.");
+
+                            var group = await dHControlRepository.GetByIdAsync(nodeEntity.GroupId).ConfigureAwait(false);
+                            if (group == null)
+                            {
+                                throw new EntityValidationException(String.Format(
+                                    CultureInfo.InvariantCulture,
+                                    StringResources.ErrorMessageReferenceNotFound,
+                                    EntityCategory.Control.ToString(),
+                                    nodeEntity.GroupId));
+                            }
+                            if (group.Type != DHControlBaseWrapperDerivedTypes.Group)
+                            {
+                                throw new EntityValidationException(String.Format(
+                                    CultureInfo.InvariantCulture,
+                                    StringResources.ErrorMessageReferenceNotMatch,
+                                    EntityCategory.Control.ToString(),
+                                    DHControlNodeWrapper.keyGroupId,
+                                    nodeEntity.GroupId,
+                                    nodeEntity.Type,
+                                    DHControlBaseWrapperDerivedTypes.Group));
+                            }
+                        }
+
+                        break;
+                    default:
+                        if (withNewAssessment)
+                        {
+                            throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageAddAssessmentOnlyOnNode, entity.Type));
+                        }
+                        break;
+                }
+
+                entity.OnCreate(requestHeaderContext.ClientObjectId);
+
+                var result = await this.CreateEntityScheduleAsync(entity);
+
+                await dHControlRepository.AddAsync(result).ConfigureAwait(false);
+
+                return entity;
             }
-
-            await this.ValidateStatusPaletteConfig(entity).ConfigureAwait(false);
-
-            switch (entity.Type)
-            {
-                case DHControlBaseWrapperDerivedTypes.Node:
-                    var nodeEntity = (DHControlNodeWrapper)entity;
-                    if (withNewAssessment)
-                    {
-                        var assessment = await assessmentService.CreateEmptyAssessmentAsync(entity.Name).ConfigureAwait(false);
-                        nodeEntity.AssessmentId = assessment.Id;
-                    }
-                    else
-                    {
-                        if (string.IsNullOrEmpty(nodeEntity.AssessmentId))
-                        {
-                            throw new EntityValidationException(String.Format(
-                                CultureInfo.InvariantCulture,
-                                StringResources.ErrorMessagePropertyRequired,
-                                DHControlNodeWrapper.keyAssessmentId));
-                        }
-                        var assessment = await assessmentService.GetAssessmentByIdAsync(nodeEntity.AssessmentId).ConfigureAwait(false);
-                        if (assessment == null)
-                        {
-                            throw new EntityValidationException(String.Format(
-                                CultureInfo.InvariantCulture,
-                                StringResources.ErrorMessageReferenceNotFound,
-                                EntityCategory.Assessment.ToString(),
-                                nodeEntity.AssessmentId));
-                        }
-                    }
-
-                    if (nodeEntity.GroupId != null)
-                    {
-                        var group = await dHControlRepository.GetByIdAsync(nodeEntity.GroupId).ConfigureAwait(false);
-                        if (group == null)
-                        {
-                            throw new EntityValidationException(String.Format(
-                                CultureInfo.InvariantCulture,
-                                StringResources.ErrorMessageReferenceNotFound,
-                                EntityCategory.Control.ToString(),
-                                nodeEntity.GroupId));
-                        }
-                        if (group.Type != DHControlBaseWrapperDerivedTypes.Group)
-                        {
-                            throw new EntityValidationException(String.Format(
-                                CultureInfo.InvariantCulture,
-                                StringResources.ErrorMessageReferenceNotMatch,
-                                EntityCategory.Control.ToString(),
-                                DHControlNodeWrapper.keyGroupId,
-                                nodeEntity.GroupId,
-                                nodeEntity.Type,
-                                DHControlBaseWrapperDerivedTypes.Group));
-                        }
-                    }
-
-                    break;
-                default:
-                    if (withNewAssessment)
-                    {
-                        throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageAddAssessmentOnlyOnNode, entity.Type));
-                    }
-                    break;
-            }
-
-            entity.OnCreate(requestHeaderContext.ClientObjectId);
-
-            var result = await this.CreateEntityScheduleAsync(entity);
-
-            await dHControlRepository.AddAsync(result).ConfigureAwait(false);
-
-            return entity;
         }
 
         public async Task<DHControlBaseWrapper> UpdateControlByIdAsync(string id, DHControlBaseWrapper entity, bool isSystem = false)
@@ -144,119 +165,127 @@
 
             ArgumentNullException.ThrowIfNull(entity);
 
-            if (!string.IsNullOrEmpty(entity.Id) && !string.Equals(id, entity.Id, StringComparison.OrdinalIgnoreCase))
+            using (logger.LogElapsed($"{this.GetType().Name}#{nameof(UpdateControlByIdAsync)}: Update control with ID {id}. Updated by system: {isSystem}"))
             {
-                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageUpdateEntityIdNotMatch, EntityCategory.Control.ToString(), entity.Id, id));
-            }
+                if (!string.IsNullOrEmpty(entity.Id) && !string.Equals(id, entity.Id, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageUpdateEntityIdNotMatch, EntityCategory.Control.ToString(), entity.Id, id));
+                }
 
-            entity.Validate();
+                entity.Validate();
 
-            if (!isSystem)
-            {
-                entity.NormalizeInput();
-            }
+                if (!isSystem)
+                {
+                    entity.NormalizeInput();
+                }
 
-            await this.ValidateStatusPaletteConfig(entity).ConfigureAwait(false);
+                await this.ValidateStatusPaletteConfig(entity).ConfigureAwait(false);
 
-            var existEntity = await dHControlRepository.GetByIdAsync(id).ConfigureAwait(false);
+                var existEntity = await dHControlRepository.GetByIdAsync(id).ConfigureAwait(false);
 
-            if (existEntity == null)
-            {
-                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Control.ToString(), id));
-            }
+                if (existEntity == null)
+                {
+                    throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Control.ToString(), id));
+                }
 
-            if (existEntity.Type != entity.Type)
-            {
-                throw new EntityValidationException(String.Format(
-                    CultureInfo.InvariantCulture,
-                    StringResources.ErrorMessagePropertyCannotBeChanged,
-                    DHControlBaseWrapper.keyType,
-                    existEntity.Type,
-                    entity.Type));
-            }
-
-            if (!isSystem && existEntity.Status == DHControlStatus.InDevelopment)
-            {
-                throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageInDevelopStatus));
-            }
-
-            if (existEntity.Type == DHControlBaseWrapperDerivedTypes.Node)
-            {
-                var newNodeEntity = (DHControlNodeWrapper)entity;
-                var existNodeEntity = (DHControlNodeWrapper)existEntity;
-
-                if (!isSystem &&
-                    !string.IsNullOrEmpty(existNodeEntity.GroupId) &&
-                    !string.Equals(existNodeEntity.GroupId, newNodeEntity.GroupId, StringComparison.OrdinalIgnoreCase))
+                if (existEntity.Type != entity.Type)
                 {
                     throw new EntityValidationException(String.Format(
                         CultureInfo.InvariantCulture,
                         StringResources.ErrorMessagePropertyCannotBeChanged,
-                        DHControlNodeWrapper.keyGroupId,
-                        existNodeEntity.GroupId,
-                        newNodeEntity.GroupId));
+                        DHControlBaseWrapper.keyType,
+                        existEntity.Type,
+                        entity.Type));
                 }
 
-                if (!string.IsNullOrEmpty(existNodeEntity.AssessmentId) &&
-                    !string.Equals(existNodeEntity.AssessmentId, newNodeEntity.AssessmentId, StringComparison.OrdinalIgnoreCase))
+                if (!isSystem && existEntity.Status == DHControlStatus.InDevelopment)
                 {
-                    throw new EntityValidationException(String.Format(
-                        CultureInfo.InvariantCulture,
-                        StringResources.ErrorMessagePropertyCannotBeChanged,
-                        DHControlNodeWrapper.keyAssessmentId,
-                        existNodeEntity.AssessmentId,
-                        newNodeEntity.AssessmentId));
+                    throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageInDevelopStatus));
                 }
+
+                logger.LogInformation($"Updating with control type {existEntity.Type}.");
+
+                if (existEntity.Type == DHControlBaseWrapperDerivedTypes.Node)
+                {
+                    var newNodeEntity = (DHControlNodeWrapper)entity;
+                    var existNodeEntity = (DHControlNodeWrapper)existEntity;
+
+                    if (!isSystem &&
+                        !string.IsNullOrEmpty(existNodeEntity.GroupId) &&
+                        !string.Equals(existNodeEntity.GroupId, newNodeEntity.GroupId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new EntityValidationException(String.Format(
+                            CultureInfo.InvariantCulture,
+                            StringResources.ErrorMessagePropertyCannotBeChanged,
+                            DHControlNodeWrapper.keyGroupId,
+                            existNodeEntity.GroupId,
+                            newNodeEntity.GroupId));
+                    }
+
+                    if (!string.IsNullOrEmpty(existNodeEntity.AssessmentId) &&
+                        !string.Equals(existNodeEntity.AssessmentId, newNodeEntity.AssessmentId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new EntityValidationException(String.Format(
+                            CultureInfo.InvariantCulture,
+                            StringResources.ErrorMessagePropertyCannotBeChanged,
+                            DHControlNodeWrapper.keyAssessmentId,
+                            existNodeEntity.AssessmentId,
+                            newNodeEntity.AssessmentId));
+                    }
+                }
+
+                entity.OnUpdate(existEntity, requestHeaderContext.ClientObjectId);
+
+                var result = await this.UpdateEntityScheduleAsync(existEntity, entity);
+
+                await dHControlRepository.UpdateAsync(result).ConfigureAwait(false);
+
+                return entity;
             }
-
-            entity.OnUpdate(existEntity, requestHeaderContext.ClientObjectId);
-
-            var result = await this.UpdateEntityScheduleAsync(existEntity, entity);
-
-            await dHControlRepository.UpdateAsync(result).ConfigureAwait(false);
-
-            return entity;
         }
 
         public async Task DeleteControlByIdAsync(string id, bool deleteAssessment = false)
         {
             ArgumentNullException.ThrowIfNull(id);
 
-            var existEntity = await dHControlRepository.GetByIdAsync(id).ConfigureAwait(false);
-
-            if (existEntity == null)
+            using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeleteControlByIdAsync)}: Delete control with ID {id}."))
             {
-                // Log
+                var existEntity = await dHControlRepository.GetByIdAsync(id).ConfigureAwait(false);
 
-                return;
-            }
-
-            var referencedControls = await dHControlRepository.QueryControlNodesAsync(new ControlNodeFilters() { ParentControlIds = [id] }).ConfigureAwait(false);
-
-            if (referencedControls.Any())
-            {
-                throw new EntityReferencedException(String.Format(
-                    CultureInfo.InvariantCulture,
-                    StringResources.ErrorMessageDeleteFailureEntityReferenced,
-                    EntityCategory.Control.ToString(),
-                    id,
-                    EntityCategory.Control,
-                    String.Join(", ", referencedControls.Select(x => $"\"{x.Id}\""))));
-            }
-
-            await this.DeleteEntityScheduleAsync(existEntity);
-
-            await dHControlRepository.DeleteAsync(id).ConfigureAwait(false);
-
-            if (deleteAssessment)
-            {
-                if (existEntity.Type == DHControlBaseWrapperDerivedTypes.Node)
+                if (existEntity == null)
                 {
-                    var nodeEntity = (DHControlNodeWrapper)existEntity;
-                    var assessmentId = nodeEntity.AssessmentId;
-                    if (!string.IsNullOrEmpty(assessmentId))
+                    logger.LogWarning($"Control with ID {id} not found. No action taken.");
+
+                    return;
+                }
+
+                var referencedControls = await dHControlRepository.QueryControlNodesAsync(new ControlNodeFilters() { ParentControlIds = [id] }).ConfigureAwait(false);
+
+                if (referencedControls.Any())
+                {
+                    throw new EntityReferencedException(String.Format(
+                        CultureInfo.InvariantCulture,
+                        StringResources.ErrorMessageDeleteFailureEntityReferenced,
+                        EntityCategory.Control.ToString(),
+                        id,
+                        EntityCategory.Control,
+                        String.Join(", ", referencedControls.Select(x => $"\"{x.Id}\""))));
+                }
+
+                await this.DeleteEntityScheduleAsync(existEntity);
+
+                await dHControlRepository.DeleteAsync(id).ConfigureAwait(false);
+
+                if (deleteAssessment)
+                {
+                    if (existEntity.Type == DHControlBaseWrapperDerivedTypes.Node)
                     {
-                        await assessmentService.DeleteAssessmentByIdAsync(assessmentId).ConfigureAwait(false);
+                        var nodeEntity = (DHControlNodeWrapper)existEntity;
+                        var assessmentId = nodeEntity.AssessmentId;
+                        if (!string.IsNullOrEmpty(assessmentId))
+                        {
+                            await assessmentService.DeleteAssessmentByIdAsync(assessmentId).ConfigureAwait(false);
+                        }
                     }
                 }
             }
@@ -264,13 +293,18 @@
 
         public async Task DeprovisionForControlsAsync()
         {
-            await dHControlRepository.DeprovisionAsync().ConfigureAwait(false);
+            using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForControlsAsync)}: Deprovision for assessments"))
+            {
+                await dHControlRepository.DeprovisionAsync().ConfigureAwait(false);
+            }
         }
 
         private async Task ValidateStatusPaletteConfig(DHControlBaseWrapper wrapper)
         {
             if (wrapper.StatusPaletteConfig != null)
             {
+                logger.LogInformation($"StatusPaletteConfig is not null in wrapper. Start to validate the StatusPaletteConfig.");
+
                 var statusPaletteIds = new HashSet<string>([wrapper.StatusPaletteConfig.FallbackStatusPaletteId], StringComparer.OrdinalIgnoreCase);
                 foreach (var statusPaletteConfig in wrapper.StatusPaletteConfig.StatusPaletteRules ?? [])
                 {
@@ -290,6 +324,8 @@
             }
             else
             {
+                logger.LogInformation($"StatusPaletteConfig is null in wrapper. Start to read StatusPaletteConfig on parent entities.");
+
                 switch (wrapper.Type)
                 {
                     case DHControlBaseWrapperDerivedTypes.Node:
@@ -297,6 +333,8 @@
                         var parentNode = node.GroupId == null ? null : await dHControlRepository.GetByIdAsync(node.GroupId).ConfigureAwait(false);
                         if (parentNode == null)
                         {
+                            logger.LogInformation($"Parent node is null. Failed to read StatusPaletteConfig for parent entities.");
+
                             throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageMissingStatusPaletteConfig));
                         }
                         await this.ValidateStatusPaletteConfig(parentNode).ConfigureAwait(false);
@@ -319,6 +357,8 @@
 
                 if (!string.IsNullOrEmpty(scheduleId))
                 {
+                    logger.LogInformation($"Reading schedule for control node {node.Id} with schedule id {scheduleId}");
+
                     var scheduleEntity = await scheduleService.GetScheduleByIdAsync(scheduleId).ConfigureAwait(false);
                     node.Schedule = scheduleEntity.Properties;
                 }
@@ -340,12 +380,16 @@
 
                 if (schedule != null)
                 {
+                    logger.LogInformation($"Creating schedule for control node {node.Id}");
+
                     var scheduleWrapper = new DHControlScheduleStoragePayloadWrapper([]);
                     scheduleWrapper.Properties = schedule;
                     scheduleWrapper.Type = DHControlScheduleType.ControlNode;
 
                     var scheduleEntity = await scheduleService.CreateScheduleAsync(scheduleWrapper, entity.Id).ConfigureAwait(false);
                     node.ScheduleId = scheduleEntity.Id;
+
+                    logger.LogInformation($"Created schedule for control node {node.Id} with schedule id {scheduleEntity.Id}");
                 }
 
                 node.Schedule = null;
@@ -367,19 +411,29 @@
 
                 if (schedule != null)
                 {
+                    logger.LogInformation($"Updating schedule for control node {existNode.Id}");
+
                     var scheduleWrapper = new DHControlScheduleStoragePayloadWrapper([]);
                     scheduleWrapper.Properties = schedule;
                     scheduleWrapper.Type = DHControlScheduleType.ControlNode;
 
                     if (existNode.ScheduleId != null)
                     {
+                        logger.LogInformation($"Existing schedule ID {existNode.ScheduleId} Start updating schedule for control node {existNode.Id}");
+
                         scheduleWrapper.Id = existNode.ScheduleId;
                         await scheduleService.UpdateScheduleAsync(scheduleWrapper, existEntity.Id).ConfigureAwait(false);
+
+                        logger.LogInformation($"Updated schedule for control node {existNode.Id} with schedule id {existNode.ScheduleId}");
                     }
                     else
                     {
+                        logger.LogInformation($"No existing schedule ID. Creating schedule for control node {existNode.Id}");
+
                         var scheduleEntity = await scheduleService.CreateScheduleAsync(scheduleWrapper, existEntity.Id).ConfigureAwait(false);
                         newNode.ScheduleId = scheduleEntity.Id;
+
+                        logger.LogInformation($"Created schedule for control node {existNode.Id} with schedule id {scheduleEntity.Id}");
                     }
                 }
 
@@ -400,6 +454,8 @@
 
                 if (!string.IsNullOrEmpty(scheduleId))
                 {
+                    logger.LogInformation($"Deleting schedule for control node {node.Id} with schedule id {scheduleId}");
+
                     await scheduleService.DeleteScheduleAsync(scheduleId).ConfigureAwait(false);
                 }
             }

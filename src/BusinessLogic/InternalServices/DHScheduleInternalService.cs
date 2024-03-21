@@ -3,6 +3,7 @@
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Common;
+    using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Extensions.Options;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
@@ -23,72 +24,94 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
         private readonly ScheduleServiceClient scheduleServiceClient;
         private readonly DHScheduleConfiguration scheduleConfiguration;
         private readonly IRequestHeaderContext requestHeaderContext;
+        private readonly IDataEstateHealthRequestLogger logger;
 
         public DHScheduleInternalService(
             IRequestHeaderContext requestHeaderContext,
             DHControlScheduleRepository dhControlScheduleRepository,
             ScheduleServiceClientFactory scheduleServiceClientFactory,
-            IOptions<DHScheduleConfiguration> scheduleConfiguration)
+            IOptions<DHScheduleConfiguration> scheduleConfiguration,
+            IDataEstateHealthRequestLogger logger)
         {
             this.dhControlScheduleRepository = dhControlScheduleRepository;
             this.scheduleServiceClient = scheduleServiceClientFactory.GetClient();
             this.scheduleConfiguration = scheduleConfiguration.Value;
             this.requestHeaderContext = requestHeaderContext;
+            this.logger = logger;
         }
 
         public async Task<DHControlScheduleStoragePayloadWrapper> GetScheduleByIdAsync(string scheduleId)
         {
-            var schedule = await this.dhControlScheduleRepository.GetByIdAsync(scheduleId).ConfigureAwait(false);
-
-            if (schedule == null)
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(GetScheduleByIdAsync)}: Read for schedule with ID {scheduleId}"))
             {
-                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), scheduleId));
-            }
+                var schedule = await this.dhControlScheduleRepository.GetByIdAsync(scheduleId).ConfigureAwait(false);
 
-            return schedule;
+                if (schedule == null)
+                {
+                    throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), scheduleId));
+                }
+
+                return schedule;
+            }
         }
 
         public async Task<DHControlScheduleStoragePayloadWrapper> CreateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string? controlId = null)
         {
-            var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
-            var response = await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(CreateScheduleAsync)}"))
+            {
+                var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
+                var response = await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
 
-            schedule.OnCreate(this.requestHeaderContext.ClientObjectId, response.ScheduleId);
+                this.logger.LogInformation($"Schedule with ID {response.ScheduleId} created in schedule service.");
 
-            await this.dhControlScheduleRepository.AddAsync(schedule).ConfigureAwait(false);
+                schedule.OnCreate(this.requestHeaderContext.ClientObjectId, response.ScheduleId);
 
-            return schedule;
+                await this.dhControlScheduleRepository.AddAsync(schedule).ConfigureAwait(false);
+
+                return schedule;
+            }
         }
 
         public async Task<DHControlScheduleStoragePayloadWrapper> UpdateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string? controlId = null)
         {
-            var existEntity = await this.dhControlScheduleRepository.GetByIdAsync(schedule.Id).ConfigureAwait(false);
-
-            if (existEntity == null)
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(UpdateScheduleAsync)}: Update for schedule with ID {schedule.Id}"))
             {
-                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), schedule.Id));
+                var existEntity = await this.dhControlScheduleRepository.GetByIdAsync(schedule.Id).ConfigureAwait(false);
+
+                if (existEntity == null)
+                {
+                    throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), schedule.Id));
+                }
+
+                var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
+                await this.scheduleServiceClient.UpdateSchedule(schedulePayload).ConfigureAwait(false);
+
+                this.logger.LogInformation($"Schedule with ID {schedule.Id} updated in schedule service.");
+
+                schedule.OnUpdate(existEntity, this.requestHeaderContext.ClientObjectId);
+
+                await this.dhControlScheduleRepository.UpdateAsync(schedule).ConfigureAwait(false);
+
+                return schedule;
             }
-
-            var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
-            await this.scheduleServiceClient.UpdateSchedule(schedulePayload).ConfigureAwait(false);
-
-            schedule.OnUpdate(existEntity, this.requestHeaderContext.ClientObjectId);
-
-            await this.dhControlScheduleRepository.UpdateAsync(schedule).ConfigureAwait(false);
-
-            return schedule;
         }
 
         public async Task DeleteScheduleAsync(string scheduleId)
         {
-            await this.scheduleServiceClient.DeleteSchedule(scheduleId).ConfigureAwait(false);
-            await this.dhControlScheduleRepository.DeleteAsync(scheduleId).ConfigureAwait(false);
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(DeleteScheduleAsync)}: Delete for schedule with ID {scheduleId}"))
+            {
+                await this.scheduleServiceClient.DeleteSchedule(scheduleId).ConfigureAwait(false);
+                await this.dhControlScheduleRepository.DeleteAsync(scheduleId).ConfigureAwait(false);
+            }
         }
 
         public async Task TriggerScheduleAsync(string scheduleId)
         {
-            var payload = new DHScheduleTriggerRequestPayload { ScheduleId = scheduleId };
-            await this.scheduleServiceClient.TriggerSchedule(payload).ConfigureAwait(false);
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(TriggerScheduleAsync)}: Trigger for schedule with ID {scheduleId}"))
+            {
+                var payload = new DHScheduleTriggerRequestPayload { ScheduleId = scheduleId };
+                await this.scheduleServiceClient.TriggerSchedule(payload).ConfigureAwait(false);
+            }
         }
 
         private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleStoragePayloadWrapper schedule, string? controlId)
@@ -122,19 +145,26 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
 
         public async Task DeprovisionForSchedulesAsync()
         {
-            var allSchedules = await this.dhControlScheduleRepository.GetAllAsync().ConfigureAwait(false);
-
-            await Task.WhenAll(allSchedules.Select(async schedule =>
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForSchedulesAsync)}: Deprovision all schedules"))
             {
-                try
+                var allSchedules = await this.dhControlScheduleRepository.GetAllAsync().ConfigureAwait(false);
+
+                this.logger.LogInformation($"Found {allSchedules.Count()} schedules to deprovision. Schedule IDs: {String.Join(", ", allSchedules.Select(s => s.Id) ?? [])}");
+
+                await Task.WhenAll(allSchedules.Select(async schedule =>
                 {
-                    await this.DeleteScheduleAsync(schedule.Id).ConfigureAwait(false);
-                }
-                catch (Exception)
-                {
-                    // Log the exception
-                }
-            })).ConfigureAwait(false);
+                    try
+                    {
+                        await this.DeleteScheduleAsync(schedule.Id).ConfigureAwait(false);
+
+                        this.logger.LogInformation($"Successfully deprovision schedule with ID {schedule.Id}.");
+                    }
+                    catch (Exception ex)
+                    {
+                        this.logger.LogError($"Failed to deprovision schedule with ID {schedule.Id}.", ex);
+                    }
+                })).ConfigureAwait(false);
+            }
         }
     }
 }

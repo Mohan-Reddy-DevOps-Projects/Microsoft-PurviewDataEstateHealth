@@ -28,21 +28,36 @@ public class DHControlScheduleRepository(
 
     protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
+    private readonly IDataEstateHealthRequestLogger logger = logger;
+
     public async Task<IEnumerable<DHControlScheduleStoragePayloadWrapper>> QueryScheduleAsync(DHControlScheduleType scheduleType)
     {
-        var query = this.CosmosContainer.GetItemLinqQueryable<DHControlScheduleStoragePayloadWrapper>(
-            requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
-            .Where(c => c.Type == scheduleType)
-            .ToFeedIterator();
+        var methodName = nameof(QueryScheduleAsync);
 
-        var results = new List<DHControlScheduleStoragePayloadWrapper>();
-        while (query.HasMoreResults)
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {base.TenantId}"))
         {
-            var response = await query.ReadNextAsync().ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
-            results.AddRange([.. response]);
-        }
+            try
+            {
+                var query = this.CosmosContainer.GetItemLinqQueryable<DHControlScheduleStoragePayloadWrapper>(
+                    requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
+                    .Where(c => c.Type == scheduleType)
+                    .ToFeedIterator();
 
-        return results;
+                var results = new List<DHControlScheduleStoragePayloadWrapper>();
+                while (query.HasMoreResults)
+                {
+                    var response = await query.ReadNextAsync().ConfigureAwait(false);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    results.AddRange([.. response]);
+                }
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {base.TenantId}", ex);
+                throw;
+            }
+        }
     }
 }

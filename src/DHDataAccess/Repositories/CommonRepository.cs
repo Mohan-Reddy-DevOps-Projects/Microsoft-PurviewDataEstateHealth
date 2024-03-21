@@ -275,11 +275,15 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 var allItems = await this.GetAllAsync(tenantId).ConfigureAwait(false);
 
+                logger.LogInformation($"{this.GetType().Name}#{methodName}, deleting {allItems.Count()} entities from CosmosDB during deprovisioning, tenantId = {tenantId}");
+
                 await Task.WhenAll(allItems.Select(async item =>
                 {
                     try
                     {
                         await this.DeleteAsync(item.Id, tenantId).ConfigureAwait(false);
+
+                        logger.LogInformation($"{this.GetType().Name}#{methodName}, deleted entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id}, tenantId = {tenantId}");
                     }
                     catch (Exception ex)
                     {
