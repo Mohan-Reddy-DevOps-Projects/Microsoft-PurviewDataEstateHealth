@@ -1508,4 +1508,84 @@ EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: FactDataGovernanceScan';
 PRINT 'DIMENSIONAL TABLES CREATION COMPLETE!'
 
+PRINT 'CREATING VIEWs';
+IF EXISTS (
+    SELECT *
+    FROM sys.views 
+    WHERE [name] = 'vwFactDataGovernanceScan'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DimensionalSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP VIEW [' + @DimensionalSchema + '].[vwFactDataGovernanceScan]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'VIEW dropped: vwFactDataGovernanceScan';
+END
+SET @DynamicSQL = '
+CREATE VIEW [' + @DimensionalSchema + '].[vwFactDataGovernanceScan]
+AS 
+SELECT * 
+FROM     
+	(SELECT *, ROW_NUMBER() OVER (PARTITION BY BusinessDomainId, DataProductId, HealthControlId, CAST(LastProcessedDatetime AS DATE) 
+	                              ORDER BY LastProcessedDatetime DESC) RID   
+	FROM  ['+@DimensionalSchema+'].[FactDataGovernanceScan]) X  
+WHERE X.RID=1';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'VIEW created: vwFactDataGovernanceScan';
+IF EXISTS (
+    SELECT *
+    FROM sys.views 
+    WHERE [name] = 'vwFactDataQuality'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DimensionalSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP VIEW [' + @DimensionalSchema + '].[vwFactDataQuality]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'VIEW dropped: vwFactDataQuality';
+END
+SET @DynamicSQL = '
+CREATE VIEW [' + @DimensionalSchema + '].[vwFactDataQuality]
+AS 
+SELECT [DQRuleId]       ,[RuleScanCompletionDatetime]       ,[BusinessDomainId]       ,[DataProductId]       ,[DataAssetId]       
+,[DataAssetColumnId]       ,[DQRuleTypeId]       ,[DQScanProfileId]       ,[ScanCompletionDateId]       
+,[DQOverallProfileQualityScore]       ,[DQPassedCount]       ,[DQFailedCount]       ,[DQIgnoredCount]       
+,[DQEmptyCount]       ,[DQMiscastCount] ,[JobTypeId]
+FROM ( SELECT *, ROW_NUMBER() OVER (PARTITION BY DQRuleId, DataAssetId,DataAssetColumnId ORDER BY RuleScanCompletionDatetime DESC) RID   
+FROM  ['+@DimensionalSchema+'].[FactDataQuality]) X  
+WHERE X.RID=1';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'VIEW created: vwFactDataQuality';
+IF EXISTS (
+    SELECT *
+    FROM sys.views 
+    WHERE [name] = 'vwDataAssetClassification'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP VIEW [' + @DomainSchema + '].[vwDataAssetClassification]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'VIEW dropped: vwDataAssetClassification';
+END
+SET @DynamicSQL = '
+CREATE VIEW [' + @DomainSchema + '].[vwDataAssetClassification]
+AS 
+SELECT DISTINCT DP.DataProductID DataProductSourceId, DDP.DataProductID, DP.DataProductDisplayName, DA.DataAssetId AS DataAssetSourceId, DDA.DataAssetId, DA.AssetDisplayName, 
+CASE WHEN DACC.DataAssetId IS NULL THEN 0 ELSE 1 END AS AssetClassificationFlag,DACC.ColumnId DataAssetColumnSourceId, 
+DDAC.DataAssetColumnId,DACC.ColumnId 
+FROM [' + @DomainSchema + '].[DataProduct] DP 
+INNER JOIN [' + @DimensionalSchema + '].[DimDataProduct]DDP 
+	on DP.DataProductId=DDP.DataProductSourceId 
+INNER JOIN [' + @DomainSchema + '].[DataProductAssetAssignment]DPA 
+	on DPA.DataProductId=DP.DataProductID 
+INNER JOIN [' + @DomainSchema + '].[DataAsset]DA 
+	on DA.DataAssetId=DPA.DataAssetId  
+INNER JOIN [' + @DimensionalSchema + '].[DimDataAsset]DDA 
+	on DA.DataAssetId=DDA.DataAssetSourceId 
+LEFT JOIN [' + @DomainSchema + '].[DataAssetColumnClassificationAssignment] DACC 
+	ON DA.DataAssetId=DACC.DataAssetId 
+LEFT JOIN [' + @DimensionalSchema + '].[DimDataAssetColumn] DDAC 
+	ON DACC.ColumnId=DDAC.DataAssetColumnSourceId';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'VIEW created: vwDataAssetClassification';
+PRINT 'VIEW COMPLETE';
+
 COMMIT TRAN
