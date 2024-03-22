@@ -268,6 +268,7 @@ public class DHProvisionService(
                     }
 
                     templateGroup.Id = entity.Id;
+                    templateGroup.Contacts = entity.Contacts;
 
                     return await controlService.UpdateControlByIdAsync(controlId, templateGroup, true).ConfigureAwait(false);
                 case DHControlBaseWrapperDerivedTypes.Node:
@@ -284,6 +285,7 @@ public class DHProvisionService(
                     templateNode.Id = nodeEntity.Id;
                     templateNode.AssessmentId = nodeEntity.AssessmentId;
                     templateNode.GroupId = nodeEntity.GroupId;
+                    templateNode.Contacts = nodeEntity.Contacts;
                     return await controlService.UpdateControlByIdAsync(controlId, templateNode, true).ConfigureAwait(false);
                 default:
                     throw new EntityValidationException("Wrong control type");
@@ -380,6 +382,7 @@ public class DHProvisionService(
                     logger.LogInformation($"Found exist control group. Update ControlGroup {controlGroupWrapper.Name} with ID {existControlGroup.Id} (SystemEntityId {controlGroupWrapper.SystemTemplateEntityId}) for the template {templateName}");
 
                     controlGroupWrapper.Id = existControlGroup.Id;
+                    controlGroupWrapper.Contacts = existControlGroup.Contacts;
 
                     controlGroup = await controlService.UpdateControlByIdAsync(existControlGroup.Id, controlGroupWrapper, true).ConfigureAwait(false);
                 }
@@ -445,6 +448,7 @@ public class DHProvisionService(
                         logger.LogInformation($"Found exist control node. Update ControlNode {controlWrapper.Name} with ID {existControl.Id} (SystemEntityId {controlWrapper.SystemTemplateEntityId}) for the template {templateName}");
 
                         controlWrapper.Id = existControl.Id;
+                        controlWrapper.Contacts = existControl.Contacts;
 
                         controlNode = await controlService.UpdateControlByIdAsync(existControl.Id, controlWrapper, true).ConfigureAwait(false);
                     }
