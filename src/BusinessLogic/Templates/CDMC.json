@@ -305,10 +305,10 @@
                                 }
                             },
                             "actionProperties": {
-                                "name": "Missing business use on data products",
+                                "name": "Missing use case on data products",
                                 "severity": "High",
-                                "reason": "Data products don't have business use.",
-                                "recommendation": "Update business use for data products."
+                                "reason": "Data products don't have use cases.",
+                                "recommendation": "Update use cases for data products."
                             }
                         }
                         //{
@@ -1206,10 +1206,10 @@
                                 }
                             },
                             "actionProperties": {
-                                "name": "Related glossary terms' description lengths are less than 25 characters",
+                                "name": "Published glossary terms' description length is less than 25 characters",
                                 "severity": "Medium",
                                 "reason": "The description length of the glossary terms that related to the data product is less than 25 characters.",
-                                "recommendation": "Enrich the description of the glossary terms."
+                                "recommendation": "Enrich the description of the published glossary terms."
                             }
                         }
                     ]
@@ -1266,7 +1266,7 @@
                                 "name": "Missing published glossary terms on data products",
                                 "severity": "High",
                                 "reason": "Data product don't have terms assigned.",
-                                "recommendation": "Assign related terms to data products."
+                                "recommendation": "Assign glossary terms to data products."
                             }
                         }
                     ]
