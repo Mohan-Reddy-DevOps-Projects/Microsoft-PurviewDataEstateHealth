@@ -23,4 +23,7 @@ public class ActionFacets
 
     [Facet(DataHealthActionWrapper.keyTargetEntityId)]
     public FacetEntity? TargetEntityId { get; set; }
+
+    [Facet(DataHealthActionWrapper.keySeverity)]
+    public FacetEntity? Severity { get; set; }
 }

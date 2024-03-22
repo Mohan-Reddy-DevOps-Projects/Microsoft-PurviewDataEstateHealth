@@ -24,6 +24,7 @@ public class ActionSystemDataWrapper(JObject jObject) : BaseEntityWrapper(jObjec
     public ActionSystemDataWrapper(DateTime createdAt) : this(new JObject())
     {
         this.CreatedAt = createdAt;
+        this.LastModifiedAt = createdAt;
         this.HintCount = 1;
     }
 
