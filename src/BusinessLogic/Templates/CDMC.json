@@ -288,7 +288,7 @@
                                 }
                             },
                             "actionProperties": {
-                                "name": "Missing related terms on data products",
+                                "name": "Missing published glossary terms on data products",
                                 "severity": "High",
                                 "reason": "Data product don't have terms assigned.",
                                 "recommendation": "Assign related terms to data products."
@@ -610,7 +610,7 @@
             //                    }
             //                },
             //                "actionProperties": {
-            //                    "name": "Missing related terms on critical data entities",
+            //                    "name": "Missing published glossary terms on critical data entities",
             //                    "severity": "High",
             //                    "reason": "Critical data entities don't have terms assigned.",
             //                    "recommendation": "Assign related terms to critical data entities."
@@ -1263,7 +1263,7 @@
                                 }
                             },
                             "actionProperties": {
-                                "name": "Missing related terms on data products",
+                                "name": "Missing published glossary terms on data products",
                                 "severity": "High",
                                 "reason": "Data product don't have terms assigned.",
                                 "recommendation": "Assign related terms to data products."
