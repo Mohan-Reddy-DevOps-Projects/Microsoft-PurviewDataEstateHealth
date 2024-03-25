@@ -11,5 +11,5 @@ public enum JoinRequirement
     DataProductAssetsOwner,
     DataAssetClassification,
     BusinessDomainData,
-    DataProductHasTermsOfUse
+    DataProductTermsOfUseCount
 }

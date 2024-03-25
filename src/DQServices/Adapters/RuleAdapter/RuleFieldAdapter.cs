@@ -27,8 +27,11 @@ internal static class RuleFieldAdapter
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.HasAccessPolicySet);
                 return "DataProductHasAccessPolicySet";
             case DHCheckPoint.DataProductHasDataUsagePurpose:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductHasTermsOfUse);
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTermsOfUseCount);
                 return "DataProductHasDataUsagePurpose";
+            case DHCheckPoint.DataProductTermsOfUseCount:
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTermsOfUseCount);
+                return "DataProductTermsOfUseCount";
             case DHCheckPoint.DataProductHasDQScore:
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductAssetDQScore);
                 return "DataProductHasDQScore";

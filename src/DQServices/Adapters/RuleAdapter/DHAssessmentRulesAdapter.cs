@@ -80,8 +80,8 @@ public class DHAssessmentRulesAdapter
                     case JoinRequirement.BusinessDomainData:
                         joinAdapter = new DataProductBusinessDomainDataJoinAdapter(context);
                         break;
-                    case JoinRequirement.DataProductHasTermsOfUse:
-                        joinAdapter = new DataProductAssetHasOwnerJoinAdapter(context);
+                    case JoinRequirement.DataProductTermsOfUseCount:
+                        joinAdapter = new DataProductTermsOfUseJoinAdapter(context);
                         break;
                     default:
                         throw new System.NotImplementedException("Join requirement: " + joinRequirement.ToString());

@@ -21,7 +21,7 @@ public enum DHCheckPoint
     DataProductRelatedTermsCount, // Supported in MDQ
     DataProductHasDataAccessPolicy, // Supported in MDQ
     DataProductHasDataUsagePurpose, // Supported in MDQ
-    DataProductTermsOfUseCount,
+    DataProductTermsOfUseCount, // Supported in MDQ
     DataProductEndorsed, // Supported in MDQ
     DataProductStatus, // Supported in MDQ
     DataProductHasDQScore, // Supported in MDQ

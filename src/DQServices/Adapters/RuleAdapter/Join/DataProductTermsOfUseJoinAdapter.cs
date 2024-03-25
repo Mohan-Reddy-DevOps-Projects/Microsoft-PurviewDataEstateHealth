@@ -21,6 +21,7 @@ public class DataProductTermsOfUseJoinAdapter : JoinAdapter
     private readonly string[][] outputSchemaDef =
     [
         ["DataProductHasDataUsagePurpose", "boolean"],
+        ["DataProductTermsOfUseCount", "long"],
     ];
 
     private List<DatasetSchemaItemWrapper> dataProductTermsOfUseSchema;
@@ -47,6 +48,7 @@ public class DataProductTermsOfUseJoinAdapter : JoinAdapter
             JoinSql = @"LEFT JOIN (
                 SELECT
                     DataProduct.DataProductID as TOUDataProductId,
+                    COUNT(DataProductTermsOfUse.TermsOfUseId) as DataProductTermsOfUseCount,
                     CASE
                         WHEN COUNT(DataProductTermsOfUse.TermsOfUseId) > 0 THEN 'true'
                         ELSE 'false'
