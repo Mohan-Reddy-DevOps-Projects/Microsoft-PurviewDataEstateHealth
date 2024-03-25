@@ -115,15 +115,16 @@
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
-                                    "checkPoint": "DataProductHasDataUsagePurpose",
-                                    "operator": "IsTrue"
+                                    "checkPoint": "DataProductTermsOfUseCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
                                 }
                             },
                             "actionProperties": {
-                                "name": "Missing data usage purpose policy on data products",
+                                "name": "Missing terms of use on data products",
                                 "severity": "Medium",
-                                "reason": "Data products without data usage purpose policy",
-                                "recommendation": "Apply data usage purpose policies for the data products."
+                                "reason": "Data products without terms of use",
+                                "recommendation": "Apply terms of use for the data products."
                             }
                         }
                     ]
