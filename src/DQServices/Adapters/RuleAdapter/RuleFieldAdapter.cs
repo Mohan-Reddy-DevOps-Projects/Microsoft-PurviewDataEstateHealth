@@ -24,10 +24,10 @@ internal static class RuleFieldAdapter
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTerm);
                 return "DataProductTermCount";
             case DHCheckPoint.DataProductHasDataAccessPolicy:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.HasAccessPolicySetAndPurpose);
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.HasAccessPolicySet);
                 return "DataProductHasAccessPolicySet";
             case DHCheckPoint.DataProductHasDataUsagePurpose:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.HasAccessPolicySetAndPurpose);
+                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductHasTermsOfUse);
                 return "DataProductHasDataUsagePurpose";
             case DHCheckPoint.DataProductHasDQScore:
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductAssetDQScore);

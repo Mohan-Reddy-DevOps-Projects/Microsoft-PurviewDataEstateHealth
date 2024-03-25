@@ -65,8 +65,8 @@ public class DHAssessmentRulesAdapter
                     case JoinRequirement.DataProductTerm:
                         joinAdapter = new DataProductTermJoinAdapter(context);
                         break;
-                    case JoinRequirement.HasAccessPolicySetAndPurpose:
-                        joinAdapter = new HasAccessPolicySetAndPurposeJoinAdapter(context);
+                    case JoinRequirement.HasAccessPolicySet:
+                        joinAdapter = new HasAccessPolicySetJoinAdapter(context);
                         break;
                     case JoinRequirement.DataProductAssetDQScore:
                         joinAdapter = new AssetDQScoreJoinAdapter(context);
@@ -79,6 +79,9 @@ public class DHAssessmentRulesAdapter
                         break;
                     case JoinRequirement.BusinessDomainData:
                         joinAdapter = new DataProductBusinessDomainDataJoinAdapter(context);
+                        break;
+                    case JoinRequirement.DataProductHasTermsOfUse:
+                        joinAdapter = new DataProductAssetHasOwnerJoinAdapter(context);
                         break;
                     default:
                         throw new System.NotImplementedException("Join requirement: " + joinRequirement.ToString());

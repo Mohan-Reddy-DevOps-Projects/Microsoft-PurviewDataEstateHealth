@@ -6,9 +6,10 @@ public enum JoinRequirement
     DataProductOwner,
     DataAssetCount,
     DataProductTerm,
-    HasAccessPolicySetAndPurpose,
+    HasAccessPolicySet,
     DataProductAssetDQScore,
     DataProductAssetsOwner,
     DataAssetClassification,
-    BusinessDomainData
+    BusinessDomainData,
+    DataProductHasTermsOfUse
 }

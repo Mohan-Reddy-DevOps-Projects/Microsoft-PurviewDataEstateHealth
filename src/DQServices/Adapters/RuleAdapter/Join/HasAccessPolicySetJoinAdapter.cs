@@ -9,7 +9,7 @@ using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-public class HasAccessPolicySetAndPurposeJoinAdapter : JoinAdapter
+public class HasAccessPolicySetJoinAdapter : JoinAdapter
 {
 
     private readonly string[][] accessPolicySetDef =
@@ -20,26 +20,17 @@ public class HasAccessPolicySetAndPurposeJoinAdapter : JoinAdapter
         ["ActiveFlag", "Number", "true"]
     ];
 
-    private readonly string[][] accessPolicySetUseCaseDef =
-    [
-        ["AccessPolicySetId", "String"],
-        ["AccessUseCaseDisplayName", "String"]
-    ];
-
     private readonly string[][] outputSchemaDef =
     [
-        ["DataProductHasAccessPolicySet", "boolean"],
-        ["DataProductHasDataUsagePurpose", "boolean"]
+        ["DataProductHasAccessPolicySet", "boolean"]
     ];
 
     private List<DatasetSchemaItemWrapper> accessPolicySetSchema;
-    private List<DatasetSchemaItemWrapper> accessPolicyUseCaseSchema;
     private List<SparkSchemaItemWrapper> outputSchema;
 
-    public HasAccessPolicySetAndPurposeJoinAdapter(RuleAdapterContext context) : base(context)
+    public HasAccessPolicySetJoinAdapter(RuleAdapterContext context) : base(context)
     {
         this.accessPolicySetSchema = SchemaUtils.GenerateSchemaFromDefinition(this.accessPolicySetDef);
-        this.accessPolicyUseCaseSchema = SchemaUtils.GenerateSchemaFromDefinition(this.accessPolicySetUseCaseDef);
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
 
@@ -52,13 +43,6 @@ public class HasAccessPolicySetAndPurposeJoinAdapter : JoinAdapter
         inputDataset1.Alias = "AccessPolicySet";
         inputDataset1.Primary = false;
 
-        var inputDataset2 = new InputDatasetWrapper(new JObject()
-        {
-            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_ACCESS_POLICY_USE_CASE_PATH, this.accessPolicyUseCaseSchema).JObject }
-        });
-        inputDataset2.Alias = "CustomAccessUseCase";
-        inputDataset2.Primary = false;
-
         return new JoinAdapterResult
         {
             JoinSql = @"LEFT JOIN (
@@ -67,21 +51,15 @@ public class HasAccessPolicySetAndPurposeJoinAdapter : JoinAdapter
                     CASE
                         WHEN COUNT(AccessPolicySet.AccessPolicySetId) > 0 THEN 'true'
                         ELSE 'false'
-                    END as DataProductHasAccessPolicySet,
-                    CASE
-                        WHEN COUNT(CustomAccessUseCase.AccessUseCaseDisplayName) > 0 THEN 'true'
-                        ELSE 'false'
-                    END as DataProductHasDataUsagePurpose
+                    END as DataProductHasAccessPolicySet
                 FROM DataProduct 
                 LEFT JOIN AccessPolicySet
                     ON AccessPolicySet.PolicyAppliedOn = 'DataProduct'
                     AND DataProduct.DataProductID = AccessPolicySet.PolicyAppliedOnId
                     AND AccessPolicySet.ActiveFlag = 1
-                LEFT JOIN CustomAccessUseCase
-                    ON AccessPolicySet.AccessPolicySetId = CustomAccessUseCase.AccessPolicySetId
                 GROUP BY DataProduct.DataProductID
             ) TAccessPolicySetPurpose ON DataProduct.DataProductID = TAccessPolicySetPurpose.APSPDataProductId",
-            inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
+            inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1 },
             SchemaFromJoin = this.outputSchema
         };
     }
