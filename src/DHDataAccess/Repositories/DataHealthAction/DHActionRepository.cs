@@ -189,19 +189,19 @@ public class DHActionRepository(
 
             if (filter.FindingTypes != null && filter.FindingTypes.Count != 0)
             {
-                var findingTypes = string.Join(", ", filter.FindingTypes.Select(x => $"'{x}'"));
+                var findingTypes = string.Join(", ", filter.FindingTypes.Select(x => EscapStr(x)));
                 sqlQuery.Append($" AND c.FindingType IN ({findingTypes})");
             }
 
             if (filter.FindingSubTypes != null && filter.FindingSubTypes.Count != 0)
             {
-                var findingSubTypes = string.Join(", ", filter.FindingSubTypes.Select(x => $"'{x}'"));
+                var findingSubTypes = string.Join(", ", filter.FindingSubTypes.Select(x => EscapStr(x)));
                 sqlQuery.Append($" AND c.FindingSubType IN ({findingSubTypes})");
             }
 
             if (filter.FindingNames != null && filter.FindingNames.Count != 0)
             {
-                var findingNames = string.Join(", ", filter.FindingNames.Select(x => $"'{x}'"));
+                var findingNames = string.Join(", ", filter.FindingNames.Select(x => EscapStr(x)));
                 sqlQuery.Append($" AND c.FindingName IN ({findingNames})");
             }
 
@@ -300,5 +300,10 @@ public class DHActionRepository(
         var countResponse = await countFeedIterator.ReadNextAsync().ConfigureAwait(false);
         this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, countResponse);
         return countResponse.Resource.FirstOrDefault();
+    }
+
+    private static string EscapStr(string originStr)
+    {
+        return $"'{originStr.Replace("'", "\\\'").Replace("\"", "\\\"")}'";
     }
 }
