@@ -62,6 +62,12 @@ public class JobManager : IJobManager
     private const int SparkJobsStartTime = 7; //Minutes
     private const int SparkJobsRetryStrategyTime = 15; //Minutes
 
+    static readonly string CatalogSparkJobPartitionAffix = "-CATALOG-SPARK-JOBS";
+    static readonly string CatalogSparkJobIdAffix = "-CATALOG-SPARK-JOB";
+
+    static readonly string DataQualitySparkJobPartitionAffix = "-SPARK-JOBS";
+    static readonly string DataQualitySparkJobIdAffix = "-DATAQUALITY-SPARK-JOB";
+
     private EnvironmentConfiguration environmentConfiguration;
 
     /// <summary>
@@ -491,8 +497,6 @@ public class JobManager : IJobManager
         await this.CreateJobAsync(jobBuilder);
     }
 
-
-
     /// <inheritdoc />
     public async Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel)
     {
@@ -500,8 +504,8 @@ public class JobManager : IJobManager
         TimeSpan.FromHours(1) : TimeSpan.FromHours(3);
 
         string accountId = accountServiceModel.Id;
-        string jobPartition = $"{accountId}-CATALOG-SPARK-JOBS";
-        string jobId = $"{accountId}-CATALOG-SPARK-JOB";
+        string jobPartition = $"{accountId}{CatalogSparkJobPartitionAffix}";
+        string jobId = $"{accountId}{CatalogSparkJobIdAffix}";
 
         BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
 
@@ -537,11 +541,13 @@ public class JobManager : IJobManager
         }
     }
 
-
-
-
-
-
+    public async Task DeprovisionCatalogSparkJob(AccountServiceModel accountServiceModel)
+    {
+        string accountId = accountServiceModel.Id;
+        string jobPartition = $"{accountId}{CatalogSparkJobPartitionAffix}";
+        string jobId = $"{accountId}{CatalogSparkJobIdAffix}";
+        await this.DeleteJobAsync(jobPartition, jobId);
+    }
 
     /// <inheritdoc />
     public async Task ProvisionDataQualitySparkJob(AccountServiceModel accountServiceModel)
@@ -549,8 +555,8 @@ public class JobManager : IJobManager
         const int dqRepeatStrategyTime = 1; // Hours
 
         string accountId = accountServiceModel.Id;
-        string jobPartition = $"{accountId}-SPARK-JOBS";
-        string jobId = $"{accountId}-DATAQUALITY-SPARK-JOB";
+        string jobPartition = $"{accountId}{DataQualitySparkJobPartitionAffix}";
+        string jobId = $"{accountId}{DataQualitySparkJobIdAffix}";
 
         BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
 
@@ -585,6 +591,13 @@ public class JobManager : IJobManager
 
             await this.CreateJobAsync(jobBuilder);
         }
+    }
+    public async Task DeprovisionDataQualitySparkJob(AccountServiceModel accountServiceModel)
+    {
+        string accountId = accountServiceModel.Id;
+        string jobPartition = $"{accountId}{DataQualitySparkJobPartitionAffix}";
+        string jobId = $"{accountId}{DataQualitySparkJobIdAffix}";
+        await this.DeleteJobAsync(jobPartition, jobId);
     }
 
     private void UpdateDerivedMetadataProperties<TMetadata>(TMetadata metadata) where TMetadata : JobMetadataBase

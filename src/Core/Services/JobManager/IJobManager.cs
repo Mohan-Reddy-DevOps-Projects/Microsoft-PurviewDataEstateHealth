@@ -137,9 +137,23 @@ public interface IJobManager
     Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel);
 
     /// <summary>
+    /// Deprovisions catalog SPARK job per account.
+    /// </summary>
+    /// <param name="accountServiceModel"></param>
+    /// <returns></returns>
+    Task DeprovisionCatalogSparkJob(AccountServiceModel accountServiceModel);
+
+    /// <summary>
     /// Provisions data quality SPARK job per account.
     /// </summary>
     /// <param name="accountServiceModel"></param>
     /// <returns></returns>
     Task ProvisionDataQualitySparkJob(AccountServiceModel accountServiceModel);
+
+    /// <summary>
+    /// Deprovisions data quality SPARK job per account.
+    /// </summary>
+    /// <param name="accountServiceModel"></param>
+    /// <returns></returns>
+    Task DeprovisionDataQualitySparkJob(AccountServiceModel accountServiceModel);
 }

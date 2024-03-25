@@ -19,4 +19,11 @@ public interface IPartnerNotificationComponent : IComponent<IPartnerNotification
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Deprovision spark jobs
+    /// </summary>
+    /// <param name="account"></param>
+    /// <returns></returns>
+    Task DeprovisionSparkJobs(AccountServiceModel account);
 }

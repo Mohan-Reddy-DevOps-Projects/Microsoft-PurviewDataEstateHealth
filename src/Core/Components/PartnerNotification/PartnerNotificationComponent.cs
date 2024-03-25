@@ -4,8 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
@@ -14,6 +12,8 @@ using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using Microsoft.PowerBI.Api.Models;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
+using System.Threading;
+using System.Threading.Tasks;
 
 [Component(typeof(IPartnerNotificationComponent), ServiceVersion.V1)]
 internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotificationContext>, IPartnerNotificationComponent
@@ -42,7 +42,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 
     [Inject]
     private readonly IArtifactStoreAccountComponent artifactStoreAccountComponent;
-    
+
     [Inject]
     private readonly IJobManager backgroundJobManager;
 
@@ -97,6 +97,19 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
             await this.backgroundJobManager.ProvisionDataQualitySparkJob(account);
+        }
+    }
+
+    public async Task DeprovisionSparkJobs(AccountServiceModel account)
+    {
+        if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            await this.backgroundJobManager.DeprovisionCatalogSparkJob(account);
+        }
+
+        if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            await this.backgroundJobManager.DeprovisionDataQualitySparkJob(account);
         }
     }
 }

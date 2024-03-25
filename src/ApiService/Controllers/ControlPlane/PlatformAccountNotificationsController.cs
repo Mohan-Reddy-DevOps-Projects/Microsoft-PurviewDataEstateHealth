@@ -154,6 +154,15 @@ public class PlatformAccountNotificationsController : ControlPlaneController
                 InitPartnerContext(this.partnerConfig.Partners)).ConfigureAwait(false);
         }
 
+        if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                .CreatePartnerNotificationComponent(
+                Guid.Parse(account.TenantId),
+                Guid.Parse(account.Id))
+                .DeprovisionSparkJobs(account);
+        }
+
         await this.processingStorageManager.Delete(account, cancellationToken);
 
         if (this.exposureControl.IsDGDataHealthEnabled(account.Id, account.SubscriptionId, account.TenantId))
