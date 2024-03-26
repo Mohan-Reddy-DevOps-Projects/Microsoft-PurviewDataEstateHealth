@@ -75,7 +75,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         {
             using (logger.LogElapsed($"Start to create actions"))
             {
-                return await dHActionInternalService.CreateActionsAsync(actions);
+                return await dHActionInternalService.BatchCreateOrUpdateActionsAsync(actions);
             }
         }
 

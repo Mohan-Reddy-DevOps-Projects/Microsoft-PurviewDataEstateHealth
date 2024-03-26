@@ -13,18 +13,22 @@ using System;
 public class ActionSystemDataWrapper(JObject jObject) : BaseEntityWrapper(jObject)
 {
     public const string keyCreatedAt = "createdAt";
+    private const string keyCreatedBy = "createdBy";
     private const string keyHintCount = "hintCount";
     private const string keyLastModifiedAt = "lastModifiedAt";
     private const string keyLastModifiedBy = "lastModifiedBy";
     private const string keyLastHintAt = "lastHintAt";
     private const string keyResolvedAt = "resolvedAt";
+    private const string keyResolvedBy = "resolvedBy";
 
     public ActionSystemDataWrapper() : this([]) { }
 
-    public ActionSystemDataWrapper(DateTime createdAt) : this(new JObject())
+    public ActionSystemDataWrapper(DateTime createdAt, string createdBy) : this(new JObject())
     {
         this.CreatedAt = createdAt;
         this.LastModifiedAt = createdAt;
+        this.CreatedBy = createdBy;
+        this.LastModifiedBy = createdBy;
         this.HintCount = 1;
     }
 
@@ -34,6 +38,13 @@ public class ActionSystemDataWrapper(JObject jObject) : BaseEntityWrapper(jObjec
     {
         get => this.GetPropertyValue<DateTime?>(keyCreatedAt);
         set => this.SetPropertyValue(keyCreatedAt, value);
+    }
+
+    [EntityProperty(keyCreatedBy, true)]
+    public string? CreatedBy
+    {
+        get => this.GetPropertyValue<string>(keyCreatedBy);
+        private set => this.SetOrRemovePropertyValue(keyCreatedBy, value);
     }
 
     [EntityProperty(keyLastModifiedAt, true)]
@@ -68,7 +79,14 @@ public class ActionSystemDataWrapper(JObject jObject) : BaseEntityWrapper(jObjec
     public DateTime? ResolvedAt
     {
         get => this.GetPropertyValue<DateTime?>(keyResolvedAt);
-        set => this.SetPropertyValue(keyResolvedAt, value);
+        set => this.SetOrRemovePropertyValue(keyResolvedAt, value);
+    }
+
+    [EntityProperty(keyResolvedBy, true)]
+    public string? ResolvedBy
+    {
+        get => this.GetPropertyValue<string>(keyResolvedBy);
+        private set => this.SetOrRemovePropertyValue(keyResolvedBy, value);
     }
 
     public void OnModify(string? modifiedBy, DateTime? modifiedAt = null)
@@ -84,13 +102,15 @@ public class ActionSystemDataWrapper(JObject jObject) : BaseEntityWrapper(jObjec
         this.LastHintAt = hintAt ?? now;
         this.HintCount += 1;
     }
-    public void OnResolve(DateTime? resolvedAt = null)
+    public void OnResolve(string? resolvedBy, DateTime? resolvedAt = null)
     {
         var now = DateTime.UtcNow;
         this.ResolvedAt = resolvedAt ?? now;
+        this.ResolvedBy = resolvedBy;
     }
     public void OnActive()
     {
         this.ResolvedAt = null;
+        this.ResolvedBy = null;
     }
 }

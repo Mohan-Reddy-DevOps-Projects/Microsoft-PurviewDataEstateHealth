@@ -234,7 +234,13 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
     {
         base.OnCreate(userId, id);
 
-        this.SystemInfo = new ActionSystemDataWrapper(DateTime.UtcNow);
+        this.SystemInfo = new ActionSystemDataWrapper(DateTime.UtcNow, userId);
+    }
+
+    public void OnResolve(string userId)
+    {
+        this.Status = DataHealthActionStatus.Resolved;
+        this.SystemInfo.OnResolve(userId);
     }
 
     public override void OnUpdate(DataHealthActionWrapper existed, string userId)
@@ -251,7 +257,7 @@ public class DataHealthActionWrapper(JObject jObject) : ContainerEntityBaseWrapp
         {
             if (existed.Status != DataHealthActionStatus.Resolved)
             {
-                this.SystemInfo.OnResolve();
+                this.SystemInfo.OnResolve(userId);
             }
         }
     }

@@ -5,9 +5,9 @@
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-    using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
     using Microsoft.Purview.DataEstateHealth.DHModels.Queries;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
     using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -16,9 +16,9 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class DHActionInternalService(DHActionRepository dataHealthActionRepository, IRequestHeaderContext requestHeaderContext, IDataEstateHealthRequestLogger logger)
+    public class DHActionInternalService(DHActionRepository dataHealthActionRepository, IDataEstateHealthRequestLogger logger)
     {
-        public async Task<IEnumerable<DataHealthActionWrapper>> CreateActionsAsync(IEnumerable<DataHealthActionWrapper> actions)
+        public async Task<IEnumerable<DataHealthActionWrapper>> BatchCreateOrUpdateActionsAsync(IEnumerable<DataHealthActionWrapper> actions)
         {
             using (logger.LogElapsed($"Start to create actions, internal call, number: {actions.Count()}"))
             {
@@ -53,16 +53,22 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                         v.FindingSubType == action.FindingSubType &&
                         v.FindingId == action.FindingId &&
                         v.TargetEntityType == action.TargetEntityType &&
-                        v.TargetEntityId == action.TargetEntityId &&
-                        (v.Status == DataHealthActionStatus.NotStarted || v.Status == DataHealthActionStatus.InProgress));
+                        v.TargetEntityId == action.TargetEntityId);
                     if (matchedExistedAction != null)
                     {
-                        matchedExistedAction.SystemInfo.OnHint();
+                        if (action.Status == DataHealthActionStatus.Resolved)
+                        {
+                            matchedExistedAction.OnResolve(DHModelConstants.SYSTEM_USER);
+                        }
+                        else
+                        {
+                            matchedExistedAction.SystemInfo.OnHint();
+                        }
                         updateActionList.Add(matchedExistedAction);
                     }
                     else
                     {
-                        action.OnCreate(requestHeaderContext.ClientObjectId);
+                        action.OnCreate(DHModelConstants.SYSTEM_USER);
                         createActionList.Add(action);
                     }
                 }

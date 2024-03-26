@@ -168,48 +168,46 @@
                         {
                             foreach (var scoreUnit in score.Scores)
                             {
-                                if (scoreUnit.Score == 0)
+                                var assessmentRuleId = scoreUnit.AssessmentRuleId;
+                                var matchedAssessment = assessment.Rules.FirstOrDefault((rule) =>
                                 {
-                                    var assessmentRuleId = scoreUnit.AssessmentRuleId;
-                                    var matchedAssessment = assessment.Rules.FirstOrDefault((rule) =>
-                                    {
-                                        return rule.Id == assessmentRuleId;
-                                    });
-                                    if (matchedAssessment?.ActionProperties != null && matchedAssessment.ActionProperties?.Name != null)
-                                    {
-                                        var actionName = matchedAssessment.ActionProperties.Name;
-                                        var reason = matchedAssessment.ActionProperties.Reason;
-                                        var recommendation = matchedAssessment.ActionProperties.Recommendation;
+                                    return rule.Id == assessmentRuleId;
+                                });
+                                if (matchedAssessment?.ActionProperties != null && matchedAssessment.ActionProperties?.Name != null)
+                                {
+                                    var actionName = matchedAssessment.ActionProperties.Name;
+                                    var reason = matchedAssessment.ActionProperties.Reason;
+                                    var recommendation = matchedAssessment.ActionProperties.Recommendation;
 
-                                        var action = new DataHealthActionWrapper()
-                                        {
-                                            Category = DataHealthActionCategory.HealthControl,
-                                            Severity = matchedAssessment.ActionProperties?.Severity ?? DataHealthActionSeverity.Medium,
-                                            FindingId = assessmentRuleId,
-                                            FindingName = actionName,
-                                            Reason = reason,
-                                            Recommendation = recommendation,
-                                            FindingType = findingType,
-                                            FindingSubType = findingSubType,
-                                            TargetEntityType = (DataHealthActionTargetEntityType)targetEntityType,
-                                            TargetEntityId = targetEntityId,
-                                            AssignedTo = entityOwners,
-                                            DomainId = businessDomainId,
-                                            ExtraProperties = new ActionExtraPropertiesWrapper()
-                                            {
-                                                Type = DHActionType.ControlAction,
-                                                Data = new JObject
-                                                {
-                                                    ["jobId"] = computingJobId
-                                                }
-                                            }
-                                        };
-                                        actions.Add(action);
-                                    }
-                                    else
+                                    var action = new DataHealthActionWrapper()
                                     {
-                                        logger.LogError($"The ActionProperties or ActionProperties.Name is null, controlId: {control.Id}, jobId: {computingJobId}, matchedAssessmentId: {matchedAssessment?.Id}");
-                                    }
+                                        Status = scoreUnit.Score == 0 ? DataHealthActionStatus.NotStarted : DataHealthActionStatus.Resolved,
+                                        Category = DataHealthActionCategory.HealthControl,
+                                        Severity = matchedAssessment.ActionProperties?.Severity ?? DataHealthActionSeverity.Medium,
+                                        FindingId = assessmentRuleId,
+                                        FindingName = actionName,
+                                        Reason = reason,
+                                        Recommendation = recommendation,
+                                        FindingType = findingType,
+                                        FindingSubType = findingSubType,
+                                        TargetEntityType = (DataHealthActionTargetEntityType)targetEntityType,
+                                        TargetEntityId = targetEntityId,
+                                        AssignedTo = entityOwners,
+                                        DomainId = businessDomainId,
+                                        ExtraProperties = new ActionExtraPropertiesWrapper()
+                                        {
+                                            Type = DHActionType.ControlAction,
+                                            Data = new JObject
+                                            {
+                                                ["jobId"] = computingJobId
+                                            }
+                                        }
+                                    };
+                                    actions.Add(action);
+                                }
+                                else
+                                {
+                                    logger.LogError($"The ActionProperties or ActionProperties.Name is null, controlId: {control.Id}, jobId: {computingJobId}, matchedAssessmentId: {matchedAssessment?.Id}");
                                 }
                             }
                         }
@@ -222,7 +220,7 @@
 
                     if (actions.Any())
                     {
-                        await dHActionInternalService.CreateActionsAsync(actions);
+                        await dHActionInternalService.BatchCreateOrUpdateActionsAsync(actions);
                     }
                 }
             }
