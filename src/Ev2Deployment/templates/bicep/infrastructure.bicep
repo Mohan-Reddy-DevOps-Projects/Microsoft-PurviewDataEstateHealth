@@ -483,8 +483,6 @@ module sharedEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for e
     eventHubNamespaceName: sharedEventHubNamespaceName
     eventHubName: eventHub.name
     consumerGroupName: consumerGroupName
-    messageRetentionDays: eventHub.messageRetentionDays
-    partitionCount: eventHub.partitionCount
   }
 }]
 
@@ -520,7 +518,5 @@ module catalogEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for 
     eventHubNamespaceName: catalogEventHubName
     eventHubName: eventHub.name
     consumerGroupName: consumerGroupName
-    messageRetentionDays: eventHub.messageRetentionDays
-    partitionCount: eventHub.partitionCount
   }
 }]
