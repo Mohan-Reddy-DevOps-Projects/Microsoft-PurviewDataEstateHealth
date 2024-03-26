@@ -68,21 +68,26 @@ public class DHActionRepository(
 
             var results = new List<DataHealthActionWrapper>();
 
-            var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
-            results.AddRange(response);
+            FeedResponse<DataHealthActionWrapper>? response = null;
 
-            while (feedIterator.HasMoreResults && fetchAll)
+            if (query.PageSize != 0)
             {
                 response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
                 this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
                 results.AddRange(response);
+
+                while (feedIterator.HasMoreResults && fetchAll)
+                {
+                    response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    results.AddRange(response);
+                }
             }
 
             var totalCount = await this.QueryCount(query.Filter).ConfigureAwait(false);
 
             return new BatchResults<DataHealthActionWrapper>(
-                results, totalCount, response.ContinuationToken
+                results, totalCount, response?.ContinuationToken
             );
         };
     }

@@ -7,6 +7,8 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Queries;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
     using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
     using System;
@@ -31,14 +33,21 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                     action.Validate();
                     action.NormalizeInput();
                 });
-                //TODO: Consider the perfermance while get all actions.
-                var existedActions = await dataHealthActionRepository.GetAllAsync();
+
+                var query = new CosmosDBQuery<ActionsFilter>()
+                {
+                    Filter = new ActionsFilter()
+                    {
+                        Status = [DataHealthActionStatus.NotStarted, DataHealthActionStatus.InProgress]
+                    },
+                };
+                var existedActions = await dataHealthActionRepository.GetActionsByFilterAsync(query, true);
 
                 var createActionList = new List<DataHealthActionWrapper>();
                 var updateActionList = new List<DataHealthActionWrapper>();
                 foreach (var action in actions)
                 {
-                    var matchedExistedAction = existedActions.FirstOrDefault(v =>
+                    var matchedExistedAction = existedActions.Results?.FirstOrDefault(v =>
                         v.Category == action.Category &&
                         v.FindingType == action.FindingType &&
                         v.FindingSubType == action.FindingSubType &&
