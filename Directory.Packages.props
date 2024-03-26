@@ -70,6 +70,7 @@
     <PackageVersion Include="Azure.Messaging.EventHubs.Processor" Version="5.10.0" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.5.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageVersion Include="ConfigureAwaitChecker.Analyzer" Version="5.0.0.1" />
     <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.38.0" />
   </ItemGroup>
@@ -81,5 +82,6 @@
     <PackageVersion Include="coverlet.collector" Version="6.0.0" />
     <PackageVersion Include="Bogus" Version="35.4.1" />
     <PackageVersion Include="Moq" Version="4.20.70" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.24" />
   </ItemGroup>
 </Project>

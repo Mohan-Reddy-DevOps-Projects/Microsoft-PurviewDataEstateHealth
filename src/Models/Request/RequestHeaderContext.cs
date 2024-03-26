@@ -108,7 +108,7 @@ public class RequestHeaderContext : RequestContext, IRequestHeaderContext
             httpContextAccessor?.HttpContext?.Request?.Headers.GetFirstOrDefault(
                 HeaderClientPuid);
 
-        this.ClientIpAddress = httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress.ToString() ?? "0.0.0.0";
+        this.ClientIpAddress = httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "0.0.0.0";
         this.AuthorizationObligationType =
             headers.GetFirstOrDefault(HeaderAccountObligationType);
         this.AuthorizationObligations = headers.GetFirstOrDefault(HeaderAccountObligations);

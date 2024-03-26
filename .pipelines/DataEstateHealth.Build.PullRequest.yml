@@ -22,6 +22,7 @@ extends:
     buildSolution: dirs.proj
     majorVersion: 1
     minorVersion: 0
+    customTestArgs: -e AZURE_CLIENT_ID=$(spId) -e AZURE_CLIENT_SECRET=$(spKey) -e AZURE_TENANT_ID=$(tenantId)
     debug: ${{ parameters.debug }}
     postBuildSteps:
     - template: templates/DataEstateHealth.PostBuildSteps.yml
