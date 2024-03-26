@@ -6,4 +6,5 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 public class DHModelConstants
 {
     public const string SYSTEM_USER = "system";
+    public const int RESOLVED_ACTION_RETENTION_DAYS = 15;
 }

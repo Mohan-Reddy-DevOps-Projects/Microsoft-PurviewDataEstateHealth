@@ -17,11 +17,13 @@ public class ActionsFilter
     public DataHealthActionSeverity? Severity { get; set; }
     public DataHealthActionTargetEntityType? TargetEntityType { get; set; }
     public List<string>? TargetEntityIds { get; set; }
-    public CreateTimeRangeFilter? CreateTimeRange { get; set; }
+    public TimeRangeFilter? CreatedTimeRange { get; set; }
+    public TimeRangeFilter? ResolvedTimeRange { get; set; }
+
     public Dictionary<DataHealthActionTargetEntityType, List<Obligation>>? PermissionObligations { get; set; }
 }
 
-public class CreateTimeRangeFilter
+public class TimeRangeFilter
 {
     public DateTime? Start { get; set; }
     public DateTime? End { get; set; }

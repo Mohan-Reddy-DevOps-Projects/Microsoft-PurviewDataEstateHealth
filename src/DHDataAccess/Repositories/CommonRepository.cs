@@ -241,13 +241,63 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                     {
                         if (responseTask.IsCompletedSuccessfully)
                         {
-                            succeededItems.Add(responseTask.Result.Resource);
+                            succeededItems.Add(entity);
                             cosmosMetricsTracker.LogCosmosMetrics(tenantId, responseTask.Result);
                         }
                         else
                         {
                             failedItems.Add(entity);
                             logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to update entity to CosmosDB in a bulk update, entityType = {entity.GetType().Name}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", responseTask.Exception);
+                        }
+                    });
+                })).ConfigureAwait(false);
+
+                return (succeededItems, failedItems);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", ex);
+                throw;
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> DeleteAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
+    {
+        var methodName = nameof(DeleteAsync);
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
+        {
+            try
+            {
+                if (!entities.Any())
+                {
+                    return ([], []);
+                }
+
+                foreach (var entity in entities)
+                {
+                    PopulateMetadataForEntity(entity, tenantId, accountId);
+                }
+
+                var tenantPartitionKey = new PartitionKey(tenantId);
+
+                ConcurrentBag<TEntity> succeededItems = [];
+                ConcurrentBag<TEntity> failedItems = [];
+
+                await Task.WhenAll(entities.Select(entity =>
+                {
+                    return this.CosmosContainer.DeleteItemAsync<TEntity>(entity.Id, tenantPartitionKey).ContinueWith(responseTask =>
+                    {
+                        if (responseTask.IsCompletedSuccessfully)
+                        {
+                            succeededItems.Add(responseTask.Result.Resource);
+                            cosmosMetricsTracker.LogCosmosMetrics(tenantId, responseTask.Result);
+                        }
+                        else
+                        {
+                            failedItems.Add(entity);
+                            logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to delete entity from CosmosDB in a bulk delete, entityType = {entity.GetType().Name}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", responseTask.Exception);
                         }
                     });
                 })).ConfigureAwait(false);

@@ -43,6 +43,12 @@ public abstract class CommonHttpContextRepository<TEntity>(
     }
 
     /// <inheritdoc />
+    public Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> DeleteAsync(IReadOnlyList<TEntity> entities)
+    {
+        return this.DeleteAsync(entities, this.TenantId, this.AccountId);
+    }
+
+    /// <inheritdoc />
     public Task DeleteAsync(string id)
     {
         return this.DeleteAsync(id, this.TenantId);

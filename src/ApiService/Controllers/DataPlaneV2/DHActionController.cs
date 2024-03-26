@@ -141,8 +141,8 @@ public class DHActionController(DHActionService actionService) : DataPlaneContro
             TargetEntityIds = filters?.TargetEntityIds,
             AssignedTo = filters?.AssignedTo,
             Severity = Enum.TryParse<DataHealthActionSeverity>(filters?.Severity, true, out var severity) ? severity : null,
-            CreateTimeRange =
-                    new CreateTimeRangeFilter()
+            CreatedTimeRange =
+                    new TimeRangeFilter()
                     {
                         Start = filters?.CreateTimeRange?.Start ?? null,
                         End = filters?.CreateTimeRange?.End ?? null,

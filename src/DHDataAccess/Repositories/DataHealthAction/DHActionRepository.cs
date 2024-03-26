@@ -226,16 +226,29 @@ public class DHActionRepository(
                 sqlQuery.Append($" AND c.TargetEntityId IN ({targetEntityIds})");
             }
 
-            if (filter.CreateTimeRange != null)
+            if (filter.CreatedTimeRange != null)
             {
-                if (filter.CreateTimeRange.Start != null)
+                if (filter.CreatedTimeRange.Start != null)
                 {
-                    sqlQuery.Append($" AND c.SystemInfo.CreatedAt >= '{filter.CreateTimeRange.Start.Value.ToString("o")}'");
+                    sqlQuery.Append($" AND c.SystemInfo.CreatedAt >= '{filter.CreatedTimeRange.Start.Value.ToString("o")}'");
                 }
 
-                if (filter.CreateTimeRange.End != null)
+                if (filter.CreatedTimeRange.End != null)
                 {
-                    sqlQuery.Append($" AND c.SystemInfo.CreatedAt <= '{filter.CreateTimeRange.End.Value.ToString("o")}'");
+                    sqlQuery.Append($" AND c.SystemInfo.CreatedAt <= '{filter.CreatedTimeRange.End.Value.ToString("o")}'");
+                }
+            }
+
+            if (filter.ResolvedTimeRange != null)
+            {
+                if (filter.ResolvedTimeRange.Start != null)
+                {
+                    sqlQuery.Append($" AND c.SystemInfo.ResolvedAt >= '{filter.ResolvedTimeRange.Start.Value.ToString("o")}'");
+                }
+
+                if (filter.ResolvedTimeRange.End != null)
+                {
+                    sqlQuery.Append($" AND c.SystemInfo.ResolvedAt <= '{filter.ResolvedTimeRange.End.Value.ToString("o")}'");
                 }
             }
 

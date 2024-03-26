@@ -14,6 +14,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction.Models;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
     using Microsoft.Purview.DataEstateHealth.DHModels.Queries;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
@@ -22,6 +23,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using System.Threading.Tasks;
 
     public class DHActionService(
@@ -162,6 +164,34 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                     }
                 }
                 return existAction;
+            }
+        }
+
+        public async Task DeprovisionForActionsAsync()
+        {
+            using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForActionsAsync)}: Deprovision for actions"))
+            {
+                await dataHealthActionRepository.DeprovisionAsync().ConfigureAwait(false);
+            }
+        }
+
+        public async Task CleanUpActionsAsync()
+        {
+            using (logger.LogElapsed($"Start to clean up actions"))
+            {
+                var query = new CosmosDBQuery<ActionsFilter>()
+                {
+                    Filter = new ActionsFilter()
+                    {
+                        Status = [DataHealthActionStatus.Resolved],
+                        ResolvedTimeRange = new TimeRangeFilter()
+                        {
+                            End = DateTime.UtcNow.AddDays(-DHModelConstants.RESOLVED_ACTION_RETENTION_DAYS)
+                        }
+                    },
+                };
+                var outDateActions = await dataHealthActionRepository.GetActionsByFilterAsync(query, true);
+                await dataHealthActionRepository.DeleteAsync(outDateActions.Results.ToList()).ConfigureAwait(false);
             }
         }
 
