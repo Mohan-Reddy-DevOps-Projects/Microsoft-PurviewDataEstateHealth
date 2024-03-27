@@ -203,4 +203,18 @@ internal interface IComponentContextFactory
         Guid domainId,
         Guid dataProductId,
         Guid dataAssetId);
+
+    /// <summary>
+    /// Creates an <see cref="IDHControlTriggerContext"/>
+    /// </summary>
+    /// <param name="version"></param>
+    /// <param name="location"></param>
+    /// <param name="accountId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public IDHControlTriggerContext CreateDHControlTriggerContext(
+        ServiceVersion version,
+        string location,
+        Guid tenantId,
+        Guid accountId);
 }

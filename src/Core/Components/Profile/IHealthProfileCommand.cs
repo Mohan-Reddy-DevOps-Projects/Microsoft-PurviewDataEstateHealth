@@ -7,7 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 
-internal interface IHealthProfileCommand : IEntityCreateOperation<ProfileKey, IProfileModel>,
+public interface IHealthProfileCommand : IEntityCreateOperation<ProfileKey, IProfileModel>,
     IRetrieveEntityByIdOperation<ProfileKey, IProfileModel>,
     IEntityDeleteOperation<ProfileKey>
 {

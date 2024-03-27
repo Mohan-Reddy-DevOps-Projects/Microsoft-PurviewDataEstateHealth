@@ -119,4 +119,10 @@ public interface ICoreLayerFactoryOperations
         Guid domainId,
         Guid dataProductId,
         Guid dataAssetId);
+
+    /// <summary>
+    /// Creates an instance of DHControlTriggerComponent. 
+    /// </summary>
+    /// <returns>An <see cref="IDataQualityScoreComponent"/>.</returns>
+    public IDHControlTriggerComponent CreateDHControlTriggerComponent(Guid tenantId, Guid accountId);
 }

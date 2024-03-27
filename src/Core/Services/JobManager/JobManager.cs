@@ -323,6 +323,28 @@ public class JobManager : IJobManager
         await this.CreateOneTimeJob(jobMetadata, nameof(PBIRefreshCallback), jobPartition);
     }
 
+    /// <inheritdoc />
+    public async Task RunPBIRefreshJob(AccountServiceModel accountModel)
+    {
+        string jobPartition = $"PBI-REFRESH-CALLBACK-IMMEDIEATE-{accountModel.Id}";
+        StartPBIRefreshMetadata jobMetadata = new()
+        {
+            RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+            WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+            Account = accountModel,
+            RefreshLookups = new List<RefreshLookup>()
+        };
+        JobBuilder jobBuilder = JobBuilder.Create(jobPartition, Guid.NewGuid().ToString())
+            .WithCallback(nameof(PBIRefreshCallback))
+            .WithoutRepeatStrategy()
+            .WithRetryStrategy(JobManager.DefaultRetryInterval, JobRecurrenceUnit.Second)
+            .WithStartTime(DateTime.UtcNow)
+            .WithMetadata(jobMetadata);
+
+        var jobClient = await this.JobManagementClient.Value;
+        await jobClient.CreateJob(jobBuilder);
+        this.dataEstateHealthRequestLogger.LogInformation($"PBIRefresh job created. Partition key: {jobPartition}.");
+    }
 
     /// <inheritdoc />
     public async Task StartDimensionModelRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountServiceModel)
@@ -473,7 +495,6 @@ public class JobManager : IJobManager
 
         await this.CreateJobAsync(jobBuilder);
     }
-
 
     private async Task CreateOneTimeJobDEH<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, TimeSpan repeatInterval, string jobId = null)
     where TMetadata : StagedWorkerJobMetadata

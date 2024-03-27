@@ -216,4 +216,15 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
                 dataProductId,
                 dataAssetId));
     }
+
+    public IDHControlTriggerComponent CreateDHControlTriggerComponent(Guid tenantId, Guid accountId)
+    {
+        return this.componentRuntime.Resolve<IDHControlTriggerComponent, IDHControlTriggerContext>(
+            this.contextFactory.CreateDHControlTriggerContext(
+                this.version,
+                null,
+                tenantId,
+                accountId),
+            this.version.Numeric);
+    }
 }

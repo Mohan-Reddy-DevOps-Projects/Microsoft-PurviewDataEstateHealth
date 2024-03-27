@@ -116,6 +116,11 @@ public interface IJobManager
     /// <returns></returns>
     Task StartPBIRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountModel);
 
+    /// <summary>
+    /// Run PBI refresh job immediately
+    /// </summary>
+    /// <returns></returns>
+    Task RunPBIRefreshJob(AccountServiceModel accountModel);
 
     /// <summary>
     /// Start Dimension Model PBI refresh job
