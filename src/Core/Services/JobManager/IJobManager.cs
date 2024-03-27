@@ -111,6 +111,19 @@ public interface IJobManager
     Task ProvisionMDQFailedJob();
 
     /// <summary>
+    /// Clean resolved actions.
+    /// </summary>
+    /// <returns></returns>
+    Task ProvisionActionsCleanupJob(AccountServiceModel accountModel);
+
+    /// <summary>
+    /// Delete Clean up actions job
+    /// </summary>
+    /// <param name="accountServiceModel"></param>
+    /// <returns></returns>
+    Task DeprovisionActionsCleanupJob(AccountServiceModel accountServiceModel);
+
+    /// <summary>
     /// Start PBI refresh job
     /// </summary>
     /// <returns></returns>

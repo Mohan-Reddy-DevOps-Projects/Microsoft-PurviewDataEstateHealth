@@ -68,6 +68,9 @@ public class JobManager : IJobManager
     static readonly string DataQualitySparkJobPartitionAffix = "-SPARK-JOBS";
     static readonly string DataQualitySparkJobIdAffix = "-DATAQUALITY-SPARK-JOB";
 
+    static readonly string ActionCleanUpJobPartitionAffix = "-ACTION-CLEAN-UP-JOBS";
+    static readonly string ActionCleanUpJobIdAffix = "-ACTION-CLEAN-UP-JOB";
+
     private EnvironmentConfiguration environmentConfiguration;
 
     /// <summary>
@@ -473,6 +476,43 @@ public class JobManager : IJobManager
             };
             await this.CreateOneTimeJob(jobMetadata, nameof(MDQFailedJobCallback), jobPartition, jobId);
         }
+    }
+
+    public async Task ProvisionActionsCleanupJob(AccountServiceModel accountServiceModel)
+    {
+        string accountId = accountServiceModel.Id;
+        string jobPartition = $"{accountId}{ActionCleanUpJobPartitionAffix}";
+        string jobId = $"{accountId}{ActionCleanUpJobIdAffix}";
+
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null && job.State == JobState.Faulted)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new ActionCleanUpJobMetadata
+            {
+                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+                AccountServiceModel = accountServiceModel,
+                ActionCleanUpCompleted = false,
+            };
+
+            var repeatInterval = TimeSpan.FromDays(1);
+            await this.CreateOneTimeJobDEH(jobMetadata, nameof(DHActionJobCallback), jobPartition, repeatInterval, jobId);
+        }
+    }
+
+    public async Task DeprovisionActionsCleanupJob(AccountServiceModel accountServiceModel)
+    {
+        string accountId = accountServiceModel.Id;
+        string jobPartition = $"{accountId}{ActionCleanUpJobPartitionAffix}";
+        string jobId = $"{accountId}{ActionCleanUpJobIdAffix}";
+        await this.DeleteJobAsync(jobPartition, jobId);
     }
 
     private async Task CreateOneTimeJob<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, string jobId = null)

@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
 {
+    using Microsoft.Azure.ProjectBabylon.Metadata.Models;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
     /// <summary>
@@ -23,5 +24,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// <param name="isRetry"></param>
         /// <returns></returns>
         void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry);
+
+        /// <summary>
+        /// Clean up actions.
+        /// </summary>
+        /// <param name="account"></param>
+        /// <returns></returns>
+        Task<bool> CleanUpActionsJobCallback(AccountServiceModel account);
     }
 }

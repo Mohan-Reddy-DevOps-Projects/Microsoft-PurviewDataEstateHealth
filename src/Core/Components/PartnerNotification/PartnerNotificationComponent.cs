@@ -62,12 +62,14 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         await this.databaseManagementService.Initialize(account, cancellationToken);
         await this.CreatePowerBIResources(account, cancellationToken);
         await this.ProvisionSparkJobs(account);
+        await this.ProvisionActionsCleanUpJob(account);
         await this.artifactStoreAccountComponent.CreateArtifactStoreResources(account, cancellationToken);
     }
 
     public async Task DeleteNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
         await this.DeprovisionSparkJobs(account);
+        await this.DeprovisionActionCleanUpJob(account);
         await this.DeletePowerBIResources(account, cancellationToken);
         await this.sparkJobManager.DeleteSparkPool(account, cancellationToken);
     }
@@ -119,6 +121,13 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         }
     }
 
+    private async Task ProvisionActionsCleanUpJob(AccountServiceModel account)
+    {
+        if (this.exposureControl.IsDGDataHealthEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            await this.backgroundJobManager.ProvisionActionsCleanupJob(account);
+        }
+    }
     private async Task DeprovisionSparkJobs(AccountServiceModel account)
     {
         if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
@@ -129,6 +138,14 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
             await this.backgroundJobManager.DeprovisionDataQualitySparkJob(account);
+        }
+    }
+
+    private async Task DeprovisionActionCleanUpJob(AccountServiceModel account)
+    {
+        if (this.exposureControl.IsDGDataHealthEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        {
+            await this.backgroundJobManager.DeprovisionActionsCleanupJob(account);
         }
     }
 }

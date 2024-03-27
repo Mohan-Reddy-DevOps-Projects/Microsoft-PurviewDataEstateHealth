@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
 {
+    using Microsoft.Azure.ProjectBabylon.Metadata.Models;
     using Microsoft.Azure.Purview.DataEstateHealth.Common;
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
@@ -44,6 +45,17 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             });
             request.Headers.Add(HeaderAccountIdName, schedule.AccountId.ToString());
             request.Headers.Add(HeaderTenantIdName, schedule.TenantId.ToString());
+            var response = await this.Client.SendAsync(request).ConfigureAwait(false);
+            this.HandleResponseStatusCode(response);
+        }
+
+        public async Task CleanUpActionJobCallback(AccountServiceModel account)
+        {
+            var requestUri = this.CreateRequestUri("/internal/actions/cleanup");
+            var request = new HttpRequestMessage(HttpMethod.Delete, requestUri);
+
+            request.Headers.Add(HeaderAccountIdName, account.Id.ToString());
+            request.Headers.Add(HeaderTenantIdName, account.TenantId.ToString());
             var response = await this.Client.SendAsync(request).ConfigureAwait(false);
             this.HandleResponseStatusCode(response);
         }

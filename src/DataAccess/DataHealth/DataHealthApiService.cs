@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
 {
+    using Microsoft.Azure.ProjectBabylon.Metadata.Models;
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using System;
@@ -66,6 +67,23 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                     await this.CreateMDQFailedJob(jobModel).ConfigureAwait(false);
                 }
             });
+        }
+
+        public async Task<bool> CleanUpActionsJobCallback(AccountServiceModel account)
+        {
+            this.logger.LogInformation($"Start to clean up actions callback.");
+            try
+            {
+                var client = this.GetDEHServiceClient();
+                await client.CleanUpActionJobCallback(account).ConfigureAwait(false);
+                this.logger.LogInformation($"Succeed to clean up actions. Tenant Id: {account.TenantId}.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"Fail to clean up actions. Tenant Id: {account.TenantId}.", ex);
+                return false;
+            }
         }
 
         public async Task CreateMDQFailedJob(MDQJobModel model)
