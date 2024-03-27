@@ -27,6 +27,7 @@ public class DHProvisionService(
     DHAssessmentService assessmentService,
     DHStatusPaletteService statusPaletteService,
     DHActionService actionService,
+    DHScoreService scoreService,
     DHScheduleInternalService scheduleInternalService,
     DHControlRepository controlRepository,
     DHAssessmentRepository assessmentRepository,
@@ -72,7 +73,8 @@ public class DHProvisionService(
                 assessmentService.DeprovisionForAssessmentsAsync(),
                 statusPaletteService.DeprovisionForStatusPalettesAsync(),
                 scheduleInternalService.DeprovisionForSchedulesAsync(),
-                actionService.DeprovisionForActionsAsync()
+                actionService.DeprovisionForActionsAsync(),
+                scoreService.DeprovisionForScoresAsync()
             ];
 
             await Task.WhenAll(tasks).ConfigureAwait(false);

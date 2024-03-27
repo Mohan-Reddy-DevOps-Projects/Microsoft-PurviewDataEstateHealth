@@ -82,6 +82,14 @@
             return dhScoreRepository.QueryScoreGroupByControlGroup(controlGroupIds, domainIds, recordLatestCounts, start, end, status);
         }
 
+        public async Task DeprovisionForScoresAsync()
+        {
+            using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForScoresAsync)}: Deprovision scores"))
+            {
+                await dhScoreRepository.DeprovisionAsync().ConfigureAwait(false);
+            }
+        }
+
         private async Task StoreScoreAsync(DHComputingJobWrapper job, string assessmentId, DHControlNodeWrapper controlNode, DHAssessmentWrapper assessment, IEnumerable<DHRawScore> scores)
         {
             var controlId = job.ControlId;
