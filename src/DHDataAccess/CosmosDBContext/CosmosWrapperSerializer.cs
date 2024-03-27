@@ -134,6 +134,8 @@ public class CosmosWrapperSerializer : CosmosSerializer
             // Convert the input object to JObject
             JObject jObject = JObject.FromObject(input, this.serializer);
 
+            this.ValidateInputSteamJObject(jObject);
+
             // Modify the JObject here as needed
             if (input is JObjectBaseWrapper jObjectBaseWrapper)
             {
@@ -201,6 +203,52 @@ public class CosmosWrapperSerializer : CosmosSerializer
                 exception: e
             );
             throw;
+        }
+    }
+
+    private void ValidateInputSteamJObject(JObject jObject)
+    {
+        var tenantIdFieldName = nameof(IContainerEntityWrapper.TenantId);
+
+        // Check if "TenantId" field exists
+        if (!jObject.TryGetValue(tenantIdFieldName, out var tenantIdToken))
+        {
+            var error = $"The '{tenantIdFieldName}' field does not exist in the input stream!";
+            this.logger.LogCritical(
+                message: error
+            );
+            throw new ArgumentException(error);
+        }
+
+        // Check if the value is null
+        if (tenantIdToken.Type == JTokenType.Null)
+        {
+            var error = $"The '{tenantIdFieldName}' field cannot be null in the input stream!";
+            this.logger.LogCritical(
+                message: error
+            );
+            throw new ArgumentException(error);
+        }
+
+        // Convert to string and check if it's a valid GUID
+        var tenantIdStr = tenantIdToken.ToString();
+        if (!Guid.TryParse(tenantIdStr, out var tenantId))
+        {
+            var error = $"The '{tenantIdFieldName}' field ({tenantIdStr}) is not a valid GUID in the input stream!";
+            this.logger.LogCritical(
+                message: error
+            );
+            throw new FormatException(error);
+        }
+
+        // Check if the GUID is empty
+        if (tenantId == Guid.Empty)
+        {
+            var error = $"The '{tenantIdFieldName}' field cannot be an empty GUID in the input stream!";
+            this.logger.LogCritical(
+                message: error
+            );
+            throw new ArgumentException(error);
         }
     }
 }

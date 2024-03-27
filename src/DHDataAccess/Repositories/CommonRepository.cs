@@ -21,6 +21,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<TEntity> AddAsync(TEntity entity, string tenantId, string? accountId = null)
     {
+        ValidateTenantId(tenantId);
         var methodName = nameof(AddAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
         {
@@ -43,6 +44,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems, IReadOnlyCollection<TEntity> IgnoredItems)> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
     {
+        ValidateTenantId(tenantId);
         var methodName = nameof(AddAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
         {
@@ -102,12 +104,14 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public Task DeleteAsync(TEntity entity, string tenantId)
     {
+        ValidateTenantId(tenantId);
         return this.DeleteAsync(entity.Id, tenantId);
     }
 
     /// <inheritdoc />
     public async Task DeleteAsync(string id, string tenantId)
     {
+        ValidateTenantId(tenantId);
         var methodName = nameof(DeleteAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, tenantId = {tenantId}"))
         {
@@ -134,6 +138,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<IEnumerable<TEntity>> GetAllAsync(string tenantId)
     {
+        ValidateTenantId(tenantId);
         var methodName = nameof(GetAllAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {tenantId}"))
         {
@@ -166,6 +171,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<TEntity?> GetByIdAsync(string id, string tenantId)
     {
+        ValidateTenantId(tenantId);
         var methodName = nameof(GetByIdAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, tenantId = {tenantId}"))
         {
@@ -192,6 +198,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<TEntity> UpdateAsync(TEntity entity, string tenantId, string? accountId = null)
     {
+        ValidateTenantId(tenantId);
         var methodName = nameof(UpdateAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
         {
@@ -215,6 +222,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> UpdateAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
     {
+        ValidateTenantId(tenantId);
         var methodName = nameof(UpdateAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
         {
@@ -315,6 +323,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     /// <inheritdoc />
     public async Task DeprovisionAsync(string tenantId)
     {
+        ValidateTenantId(tenantId);
         var methodName = nameof(DeprovisionAsync);
         using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {tenantId}"))
         {
@@ -348,8 +357,18 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
         }
     }
 
+    private static void ValidateTenantId(string tenantId)
+    {
+        // tenantId is a GUID string, it should not be null or all-zero id or invalid GUID string.
+        if (string.IsNullOrEmpty(tenantId) || tenantId == Guid.Empty.ToString() || !Guid.TryParse(tenantId, out _))
+        {
+            throw new ArgumentException($@"Invalid tenantId: ""{tenantId}""", nameof(tenantId));
+        }
+    }
+
     private static void PopulateMetadataForEntity(TEntity entity, string tenantId, string? accountId = null)
     {
+        ValidateTenantId(tenantId);
         entity.TenantId = tenantId;
         if (accountId != null)
         {

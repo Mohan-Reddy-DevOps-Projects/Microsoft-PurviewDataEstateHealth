@@ -380,6 +380,56 @@ public class CommonRepositoryTests
         }
     }
 
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public async Task AddEntityToContainerWithoutTenantIdWillThrowException()
+    {
+        if (!CosmosDBClient.TestingDBAvailable)
+        {
+            Assert.Inconclusive($@"The test case ""{nameof(AddEntityToContainerWithoutTenantIdWillThrowException)}"" is inconclusive.");
+        }
+
+        var entity = this.testEntityFaker.Generate();
+        Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
+        Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
+
+#nullable disable
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, null);
+#nullable enable
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public async Task AddEntityToContainerWithInvalidTenantIdWillThrowException()
+    {
+        if (!CosmosDBClient.TestingDBAvailable)
+        {
+            Assert.Inconclusive($@"The test case ""{nameof(AddEntityToContainerWithInvalidTenantIdWillThrowException)}"" is inconclusive.");
+        }
+
+        var entity = this.testEntityFaker.Generate();
+        Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
+        Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
+
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, "Invalid GUID");
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public async Task AddEntityToContainerWithAllZeroTenantIdWillThrowException()
+    {
+        if (!CosmosDBClient.TestingDBAvailable)
+        {
+            Assert.Inconclusive($@"The test case ""{nameof(AddEntityToContainerWithAllZeroTenantIdWillThrowException)}"" is inconclusive.");
+        }
+
+        var entity = this.testEntityFaker.Generate();
+        Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
+        Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
+
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, Guid.Empty.ToString());
+    }
+
     private static bool AreJObjectsMostlyEqual(JObject obj1, JObject obj2, string propertyNameToExclude)
     {
         // Clone obj1 to avoid modifying the original object

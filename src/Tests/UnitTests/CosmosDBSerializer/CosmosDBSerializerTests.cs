@@ -1,7 +1,9 @@
 namespace UnitTests.CosmosDBSerializer;
 
+using Bogus;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
+using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -9,11 +11,16 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
 using System.Text;
+using UnitTests.CosmosDBTestingMetadata;
 
 [TestClass]
 public class CosmosDBSerializerTests
 {
     private static readonly CosmosWrapperSerializer serializer = new(new Mock<IDataEstateHealthRequestLogger>().Object);
+    private readonly Faker<TestEntityWrapper> testEntityFaker = new Faker<TestEntityWrapper>()
+        .RuleFor(o => o.Id, f => f.Random.Guid().ToString())
+        .RuleFor(o => o.Name, f => f.Lorem.Word())
+        .RuleFor(o => o.Description, f => f.Lorem.Sentence());
 
     private static string ReadContentFromFile(string fileName)
     {
@@ -206,6 +213,7 @@ public class CosmosDBSerializerTests
     {
         var nonWrapper = new NonWrapper1
         {
+            TenantId = Guid.NewGuid().ToString(),
             PropertyA = "A",
             PropertyB = "B"
         };
@@ -217,10 +225,39 @@ public class CosmosDBSerializerTests
         Assert.AreEqual(nonWrapper.PropertyA, newNonWrapper.PropertyA);
         Assert.AreEqual(nonWrapper.PropertyB, newNonWrapper.PropertyB);
     }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void ToStream_TenantIdShouldBePresent()
+    {
+        var testEntity = this.testEntityFaker.Generate();
+        serializer.ToStream(testEntity);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(FormatException))]
+    public void ToStream_TenantIdShouldBeValidGUID()
+    {
+        var testEntity = this.testEntityFaker.Generate();
+        testEntity.TenantId = "Invalid GUID";
+        serializer.ToStream(testEntity);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void ToStream_TenantIdShouldNotBeEmptyGUID()
+    {
+        var testEntity = this.testEntityFaker.Generate();
+        testEntity.TenantId = Guid.Empty.ToString();
+        serializer.ToStream(testEntity);
+    }
 }
 
 internal record NonWrapper1
 {
+    [JsonProperty(nameof(IContainerEntityWrapper.TenantId))]
+    public required string TenantId { get; set; }
+
     [JsonProperty("propertyA")]
     public required string PropertyA { get; set; }
 

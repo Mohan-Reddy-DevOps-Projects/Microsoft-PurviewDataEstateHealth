@@ -23,6 +23,8 @@ public class DHScoreRepository(
 {
     private const string ContainerName = "DHScore";
 
+    private readonly IDataEstateHealthRequestLogger logger = logger;
+
     private readonly CosmosMetricsTracker cosmosMetricsTracker = cosmosMetricsTracker;
 
     private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHControl is not found in the configuration");
@@ -31,8 +33,11 @@ public class DHScoreRepository(
 
     public async Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
     {
-        // Construct the SQL query
-        var sqlQuery = new StringBuilder(@$"
+        var methodName = nameof(QueryScoreGroupByControl);
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {this.TenantId}, accountId = {this.AccountId ?? "N/A"}"))
+        {
+            // Construct the SQL query
+            var sqlQuery = new StringBuilder(@$"
 SELECT
     c.ControlGroupId,
     c.ControlId,
@@ -43,62 +48,63 @@ SELECT
     SUM(c.ScoreCount) AS ScoreCount
 FROM c WHERE 1=1 ");
 
-        // Add filtering conditions based on provided parameters
-        if (domainIds != null && domainIds.Any())
-        {
-            // Assuming domainIds is a validated and sanitized list of IDs
-            var domainIdFilter = string.Join(",", domainIds.Select(id => $"'{id}'"));
-            // TODO: When added more supported artifact types, modify the SQL here.
-            sqlQuery.Append($"AND ARRAY_CONTAINS([{domainIdFilter}], c.DataProductDomainId) ");
-        }
-
-        // Assuming controlIds is a validated and sanitized list of IDs
-        var controlIdFilter = string.Join(",", controlIds.Select(id => $"'{id}'"));
-        sqlQuery.Append($"AND ARRAY_CONTAINS([{controlIdFilter}], c.ControlId) ");
-
-        if (start != null)
-        {
-            sqlQuery.Append($"AND c.Time >= '{start.Value.ToString("o")}' ");
-        }
-
-        if (end != null)
-        {
-            sqlQuery.Append($"AND c.Time <= '{end.Value.ToString("o")}' ");
-        }
-
-        if (status != null)
-        {
-            sqlQuery.Append($"AND c.DataProductStatus = '{status}' ");
-        }
-
-        sqlQuery.Append("GROUP BY c.ControlGroupId, c.ControlId, c.ScheduleRunId, c.ComputingJobId ");
-
-        var queryDefinition = new QueryDefinition(sqlQuery.ToString());
-
-        // Execute the query
-        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreSQLQueryResponse1>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
-        var intermediateResults = new List<DHScoreAggregatedByControl>();
-
-        while (queryResultSetIterator.HasMoreResults)
-        {
-            var response = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
-            intermediateResults.AddRange(response.Resource.Where(x => x.ScoreCount > 0).Select(x => new DHScoreAggregatedByControl
+            // Add filtering conditions based on provided parameters
+            if (domainIds != null && domainIds.Any())
             {
-                ControlGroupId = x.ControlGroupId,
-                ControlId = x.ControlId,
-                ScheduleRunId = x.ScheduleRunId,
-                ComputingJobId = x.ComputingJobId,
-                Time = x.Time,
-                Score = x.ScoreSum / x.ScoreCount
-            }));
-        }
+                // Assuming domainIds is a validated and sanitized list of IDs
+                var domainIdFilter = string.Join(",", domainIds.Select(id => $"'{id}'"));
+                // TODO: When added more supported artifact types, modify the SQL here.
+                sqlQuery.Append($"AND ARRAY_CONTAINS([{domainIdFilter}], c.DataProductDomainId) ");
+            }
 
-        return intermediateResults.GroupBy(x => new { x.ControlId }).SelectMany(g =>
-        {
-            var orderedSeq = g.OrderByDescending(x => x.Time);
-            return recordLatestCounts.HasValue ? orderedSeq.Take(recordLatestCounts.Value) : orderedSeq;
-        });
+            // Assuming controlIds is a validated and sanitized list of IDs
+            var controlIdFilter = string.Join(",", controlIds.Select(id => $"'{id}'"));
+            sqlQuery.Append($"AND ARRAY_CONTAINS([{controlIdFilter}], c.ControlId) ");
+
+            if (start != null)
+            {
+                sqlQuery.Append($"AND c.Time >= '{start.Value.ToString("o")}' ");
+            }
+
+            if (end != null)
+            {
+                sqlQuery.Append($"AND c.Time <= '{end.Value.ToString("o")}' ");
+            }
+
+            if (status != null)
+            {
+                sqlQuery.Append($"AND c.DataProductStatus = '{status}' ");
+            }
+
+            sqlQuery.Append("GROUP BY c.ControlGroupId, c.ControlId, c.ScheduleRunId, c.ComputingJobId ");
+
+            var queryDefinition = new QueryDefinition(sqlQuery.ToString());
+
+            // Execute the query
+            var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreSQLQueryResponse1>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+            var intermediateResults = new List<DHScoreAggregatedByControl>();
+
+            while (queryResultSetIterator.HasMoreResults)
+            {
+                var response = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
+                this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response, queryDefinition.QueryText);
+                intermediateResults.AddRange(response.Resource.Where(x => x.ScoreCount > 0).Select(x => new DHScoreAggregatedByControl
+                {
+                    ControlGroupId = x.ControlGroupId,
+                    ControlId = x.ControlId,
+                    ScheduleRunId = x.ScheduleRunId,
+                    ComputingJobId = x.ComputingJobId,
+                    Time = x.Time,
+                    Score = x.ScoreSum / x.ScoreCount
+                }));
+            }
+
+            return intermediateResults.GroupBy(x => new { x.ControlId }).SelectMany(g =>
+            {
+                var orderedSeq = g.OrderByDescending(x => x.Time);
+                return recordLatestCounts.HasValue ? orderedSeq.Take(recordLatestCounts.Value) : orderedSeq;
+            });
+        }
     }
 
     public async Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
@@ -153,7 +159,7 @@ FROM c WHERE 1=1 ");
         while (queryResultSetIterator.HasMoreResults)
         {
             var response = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response, queryDefinition.QueryText);
             intermediateResults.AddRange(response.Resource);
         }
 
