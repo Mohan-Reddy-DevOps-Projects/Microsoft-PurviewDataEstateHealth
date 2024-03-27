@@ -65,6 +65,13 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         await this.artifactStoreAccountComponent.CreateArtifactStoreResources(account, cancellationToken);
     }
 
+    public async Task DeleteNotification(AccountServiceModel account, CancellationToken cancellationToken)
+    {
+        await this.DeprovisionSparkJobs(account);
+        await this.DeletePowerBIResources(account, cancellationToken);
+        await this.sparkJobManager.DeleteSparkPool(account, cancellationToken);
+    }
+
     private async Task CreatePowerBIResources(AccountServiceModel account, CancellationToken cancellationToken)
     {
         ProfileKey profileKey = new(this.Context.AccountId);
@@ -87,6 +94,18 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken);
     }
 
+    private async Task DeletePowerBIResources(AccountServiceModel account, CancellationToken cancellationToken)
+    {
+        ProfileKey profileKey = new(this.Context.AccountId);
+        IProfileModel profile = await this.profileCommand.Get(profileKey, cancellationToken);
+        IWorkspaceContext context = new WorkspaceContext(this.Context)
+        {
+            ProfileId = profile.Id
+        };
+        await this.workspaceCommand.Delete(context, cancellationToken);
+        await this.profileCommand.Delete(profileKey, cancellationToken);
+    }
+
     private async Task ProvisionSparkJobs(AccountServiceModel account)
     {
         if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
@@ -100,7 +119,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         }
     }
 
-    public async Task DeprovisionSparkJobs(AccountServiceModel account)
+    private async Task DeprovisionSparkJobs(AccountServiceModel account)
     {
         if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {

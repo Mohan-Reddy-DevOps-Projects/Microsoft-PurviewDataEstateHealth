@@ -4,13 +4,13 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using global::Azure;
+using global::Azure.Core;
+using global::Azure.ResourceManager;
+using global::Azure.ResourceManager.Synapse;
+using global::Azure.ResourceManager.Synapse.Models;
 using System;
 using System.Threading.Tasks;
-using global::Azure.Core;
-using global::Azure.ResourceManager.Synapse;
-using global::Azure.ResourceManager;
-using global::Azure;
-using global::Azure.ResourceManager.Synapse.Models;
 
 internal sealed partial class AzureResourceManager<TAuthConfig>
 {
@@ -31,6 +31,14 @@ internal sealed partial class AzureResourceManager<TAuthConfig>
         return lro.Value.Data;
     }
 
+    public async Task DeleteSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, CancellationToken cancellationToken)
+    {
+        SynapseBigDataPoolInfoCollection collection = this.GetSynapseWorkspace(subscriptionId, resourceGroupName, workspaceName);
+        Response<SynapseBigDataPoolInfoResource> lro = await collection.GetAsync(bigDataPoolName, cancellationToken);
+
+        await lro.Value.DeleteAsync(WaitUntil.Completed, cancellationToken);
+    }
+
     public async Task<bool> SparkPoolExists(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, CancellationToken cancellationToken)
     {
         SynapseBigDataPoolInfoCollection collection = this.GetSynapseWorkspace(subscriptionId, resourceGroupName, workspaceName);
@@ -43,7 +51,7 @@ internal sealed partial class AzureResourceManager<TAuthConfig>
     {
         ResourceIdentifier synapseWorkspaceResourceId = SynapseWorkspaceResource.CreateResourceIdentifier(subscriptionId.ToString(), resourceGroupName, workspaceName);
         SynapseWorkspaceResource synapseWorkspace = this.armClient.GetSynapseWorkspaceResource(synapseWorkspaceResourceId);
-        
+
         return synapseWorkspace.GetSynapseBigDataPoolInfos();
     }
 

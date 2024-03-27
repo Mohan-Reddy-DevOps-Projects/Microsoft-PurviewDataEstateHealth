@@ -4,21 +4,21 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading;
-using System.Threading.Tasks;
+using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.Core;
 using global::Azure.ResourceManager.Synapse;
-using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.DGP.ServiceBasics.Errors;
-using System.Text.Json.Serialization;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 internal sealed class SparkJobManager : ISparkJobManager
 {
@@ -108,6 +108,26 @@ internal sealed class SparkJobManager : ISparkJobManager
         return await this.sparkPoolRepository.GetSingle(storageAccountKey, cancellationToken);
     }
 
+    /// <inheritdoc/>
+    public async Task DeleteSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
+    {
+        this.logger.LogInformation($"Deleting spark pool");
+
+        SparkPoolLocator storageAccountKey = new(accountServiceModel.Id, OwnerNames.Health);
+
+        var existingModel = await this.sparkPoolRepository.GetSingle(storageAccountKey, cancellationToken);
+
+        if (existingModel == null)
+        {
+            return;
+        }
+
+        ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(existingModel);
+
+        await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
+
+        await this.sparkPoolRepository.Delete(storageAccountKey, cancellationToken);
+    }
 
     /// <summary>
     /// Generates a valid spark pool name that is available.

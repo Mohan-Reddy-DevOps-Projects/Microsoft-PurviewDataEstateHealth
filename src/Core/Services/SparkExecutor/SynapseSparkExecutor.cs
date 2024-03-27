@@ -4,7 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading;
 using global::Azure.Analytics.Synapse.Spark;
 using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.Core;
@@ -15,6 +14,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Common;
+using System.Threading;
 
 internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
 {
@@ -43,6 +43,12 @@ internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
     public async Task<SynapseBigDataPoolInfoData> GetSparkPool(string sparkPoolName, CancellationToken cancellationToken)
     {
         return await this.azureResourceManager.GetSparkPool(this.synapseSparkConfiguration.SubscriptionId, this.synapseSparkConfiguration.ResourceGroup, this.synapseSparkConfiguration.Workspace, sparkPoolName, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task DeleteSparkPool(string sparkPoolName, CancellationToken cancellationToken)
+    {
+        await this.azureResourceManager.DeleteSparkPool(this.synapseSparkConfiguration.SubscriptionId, this.synapseSparkConfiguration.ResourceGroup, this.synapseSparkConfiguration.Workspace, sparkPoolName, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -90,7 +96,7 @@ internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
             DriverCores = poolConfig.DriverCores,
             ExecutorMemory = poolConfig.ExecutorMemorySize,
             ExecutorCores = poolConfig.ExecutorCores,
-            ExecutorCount = sparkJobRequest.ExecutorCount,            
+            ExecutorCount = sparkJobRequest.ExecutorCount,
         };
 
 

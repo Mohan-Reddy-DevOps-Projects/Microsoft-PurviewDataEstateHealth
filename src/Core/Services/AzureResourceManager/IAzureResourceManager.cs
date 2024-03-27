@@ -4,12 +4,12 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading;
-using System.Threading.Tasks;
 using global::Azure.ResourceManager.Resources;
 using global::Azure.ResourceManager.Storage;
 using global::Azure.ResourceManager.Storage.Models;
 using global::Azure.ResourceManager.Synapse;
+using System.Threading;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Interface for Azure Resource Manager.
@@ -86,6 +86,17 @@ public interface IAzureResourceManager
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<SynapseBigDataPoolInfoData> GetSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Deletes the Synapse spark pool.
+    /// </summary>
+    /// <param name="subscriptionId"></param>
+    /// <param name="resourceGroupName"></param>
+    /// <param name="workspaceName"></param>
+    /// <param name="bigDataPoolName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task DeleteSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, CancellationToken cancellationToken);
 
     /// <summary>
     /// Whether the Synapse spark pool exists or not.

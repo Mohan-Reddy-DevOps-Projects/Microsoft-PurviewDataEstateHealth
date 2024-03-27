@@ -4,12 +4,12 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading;
-using System.Threading.Tasks;
 using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
+using System.Threading;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Spark job manager interface.
@@ -58,4 +58,12 @@ public interface ISparkJobManager
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<SparkPoolModel> GetSparkPool(Guid accountId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Deletes the spark pool.
+    /// </summary>
+    /// <param name="accountServiceModel"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task DeleteSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
 }

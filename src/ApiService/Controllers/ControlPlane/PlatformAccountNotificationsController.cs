@@ -160,7 +160,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
                 .CreatePartnerNotificationComponent(
                 Guid.Parse(account.TenantId),
                 Guid.Parse(account.Id))
-                .DeprovisionSparkJobs(account);
+                .DeleteNotification(account, cancellationToken);
         }
 
         await this.processingStorageManager.Delete(account, cancellationToken);

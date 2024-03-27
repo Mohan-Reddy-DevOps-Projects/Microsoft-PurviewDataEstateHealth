@@ -21,9 +21,10 @@ public interface IPartnerNotificationComponent : IComponent<IPartnerNotification
     Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Deprovision spark jobs
+    /// Manage create or update notifications
     /// </summary>
     /// <param name="account"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task DeprovisionSparkJobs(AccountServiceModel account);
+    Task DeleteNotification(AccountServiceModel account, CancellationToken cancellationToken);
 }
