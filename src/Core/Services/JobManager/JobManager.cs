@@ -474,7 +474,7 @@ public class JobManager : IJobManager
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
                 MDQFailedJobProcessed = false,
             };
-            await this.CreateOneTimeJob(jobMetadata, nameof(MDQFailedJobCallback), jobPartition, jobId);
+            await this.CreateOneTimeJobDEH(jobMetadata, nameof(MDQFailedJobCallback), jobPartition, TimeSpan.FromHours(6), jobId);
         }
     }
 

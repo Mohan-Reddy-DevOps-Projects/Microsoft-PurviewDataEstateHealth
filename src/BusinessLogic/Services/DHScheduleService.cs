@@ -74,7 +74,6 @@ public class DHScheduleService(
                     continue;
                 }
 
-                // Step 2: submit DQ jobs
                 var assessment = assessments.Results.First(item => item.Id == control.AssessmentId);
                 if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
                 {
@@ -88,7 +87,15 @@ public class DHScheduleService(
                     continue;
                 }
 
+                // Step 2: save into monitoring table
                 var jobId = Guid.NewGuid().ToString();
+                var jobWrapper = new DHComputingJobWrapper();
+                jobWrapper.Id = jobId;
+                jobWrapper.ControlId = control.Id;
+                jobWrapper.ScheduleRunId = scheduleRunId;
+                jobWrapper = await monitoringService.CreateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
+
+                // Step 3: submit DQ jobs
                 var dqJobId = await dataQualityExecutionService.SubmitDQJob(
                     requestHeaderContext.TenantId.ToString(),
                     requestHeaderContext.AccountObjectId.ToString(),
@@ -96,17 +103,13 @@ public class DHScheduleService(
                     assessment,
                     jobId).ConfigureAwait(false);
 
-                // Step 3: save into monitoring table
-                var jobWrapper = new DHComputingJobWrapper();
-                jobWrapper.Id = jobId;
+                // Update DQ job id in monitoring table
                 jobWrapper.DQJobId = dqJobId;
-                jobWrapper.ControlId = control.Id;
-                jobWrapper.ScheduleRunId = scheduleRunId;
-                await monitoringService.CreateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
-                logger.LogInformation($"New MDQ job created. Job Id: {jobId}. DQ job Id: {dqJobId}. Control Id:{control.Id}. Schedule Run Id: {scheduleRunId}");
+                await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
                 logger.LogTipInformation($"The MDQ job was triggered", new JObject
                 {
-                    { "jobId" , dqJobId },
+                    { "jobId" , jobId },
+                    { "dqJobId" , dqJobId },
                     { "controlId", control.Id },
                     { "controlName", control.Name},
                     { "scheduleRunId", scheduleRunId }
@@ -127,29 +130,38 @@ public class DHScheduleService(
     {
         var jobStatus = payload.ParseJobStatus();
         var job = await monitoringService.GetComputingJobByDQJobId(payload.DQJobId).ConfigureAwait(false);
-        await monitoringService.UpdateComputingJobStatus(job.Id, jobStatus, MDQEventOperationName);
-        logger.LogInformation($"MDQ job status updated: {jobStatus}. Job Id: {job.Id}. DQ Job Id: {job.DQJobId}.");
+        var tipInfo = new JObject
+        {
+            { "jobId" , job.Id },
+            { "dqJobId", job.DQJobId },
+            { "jobStatus", jobStatus.ToString() },
+            { "controlId", job.ControlId },
+        };
+        logger.LogTipInformation("MDQ job status update", tipInfo);
+
+        job.Status = jobStatus;
 
         if (jobStatus == DHComputingJobStatus.Succeeded)
         {
-            logger.LogInformation($"New succeed MDQ job. Process score computing. Job Id: {job.Id}. DQ job Id: {job.DQJobId}. Control Id: {job.ControlId}");
-            logger.LogTipInformation($"The MDQ job was finished successfully", new JObject
-            {
-                { "jobId" , job.DQJobId },
-                { "controlId", job.ControlId },
-            });
             try
             {
-                await monitoringService.EndComputingJob(job.Id, MDQEventOperationName);
+                job.EndTime = DateTime.UtcNow;
+                await monitoringService.UpdateComputingJob(job, MDQEventOperationName).ConfigureAwait(false);
                 var scoreResult = await dataQualityExecutionService.ParseDQResult(job).ConfigureAwait(false);
                 await scoreService.ProcessControlComputingResultsAsync(job, scoreResult).ConfigureAwait(false);
                 await dataQualityExecutionService.PurgeObserver(job).ConfigureAwait(false);
+                logger.LogTipInformation("MDQ job score is processed successfully", tipInfo);
             }
             catch (Exception ex)
             {
                 logger.LogError("Exception happened when processing succeed MDQ job.", ex);
                 throw;
             }
+        }
+        else
+        {
+            await monitoringService.UpdateComputingJob(job, MDQEventOperationName).ConfigureAwait(false);
+            logger.LogTipInformation("MDQ job status update successfully", tipInfo);
         }
     }
     public async Task UpdateDQScoreAsync(string scheduleRunId, DHControlNodeWrapper control, DHAssessmentWrapper assessment)

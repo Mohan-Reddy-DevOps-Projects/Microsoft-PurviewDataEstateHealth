@@ -8,6 +8,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 
 internal class MDQFailedJobStage : IJobCallbackStage
@@ -42,7 +43,7 @@ internal class MDQFailedJobStage : IJobCallbackStage
     {
         this.logger.LogInformation("Start to execute MDQFailedJobStage.");
         var jobs = await this.mdqFailedJobRepsository.GetBulk(GetBulkSize, CancellationToken.None).ConfigureAwait(false);
-        this.logger.LogInformation($"Retrieved MDQ failed jobs: {jobs.Count}");
+        this.logger.LogTipInformation("Retrieved MDQ failed jobs", new JObject { { "jobCount", jobs.Count } });
         foreach (var job in jobs)
         {
             this.dataHealthApiService.TriggerMDQJobCallback(job, true);

@@ -32,6 +32,11 @@ public class MDQJobModel
     public string JobStatus { get; set; }
 
     /// <summary>
+    /// Gets or sets created time.
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>
     /// Gets or sets record time.
     /// </summary>
     public DateTimeOffset? Timestamp { get; set; }

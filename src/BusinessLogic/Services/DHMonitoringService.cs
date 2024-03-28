@@ -27,29 +27,19 @@
         public async Task<DHComputingJobWrapper> GetComputingJobByDQJobId(string jobId)
         {
             var job = await this.dhComputingJobRepository.GetByDQJobId(jobId).ConfigureAwait(false);
-            return job ?? throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.MonitoringJob.ToString(), jobId));
+            return job ?? throw new EntityNotFoundException(new ExceptionRefEntityInfo("Fail to get computing job by DQ job id", jobId));
         }
 
-        public async Task CreateComputingJob(DHComputingJobWrapper job, string user)
+        public async Task<DHComputingJobWrapper> CreateComputingJob(DHComputingJobWrapper job, string user)
         {
             job.CreateTime = DateTime.UtcNow;
             job.StartTime = DateTime.UtcNow;
             job.OnCreate(user, job.Id);
-            await this.dhComputingJobRepository.AddAsync(job).ConfigureAwait(false);
+            return await this.dhComputingJobRepository.AddAsync(job).ConfigureAwait(false);
         }
 
-        public async Task UpdateComputingJobStatus(string jobId, DHComputingJobStatus status, string user)
+        public async Task UpdateComputingJob(DHComputingJobWrapper job, string user)
         {
-            var job = await this.GetComputingJobById(jobId);
-            job.Status = status;
-            job.OnUpdate(job, user);
-            await this.dhComputingJobRepository.UpdateAsync(job).ConfigureAwait(false);
-        }
-
-        public async Task EndComputingJob(string jobId, string user)
-        {
-            var job = await this.GetComputingJobById(jobId);
-            job.EndTime = DateTime.UtcNow;
             job.OnUpdate(job, user);
             await this.dhComputingJobRepository.UpdateAsync(job).ConfigureAwait(false);
         }

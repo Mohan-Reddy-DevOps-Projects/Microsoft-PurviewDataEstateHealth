@@ -151,6 +151,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
                     JobStatus = sourceModel.JobStatus,
                     TenantId = tenantId,
                     AccountId = accountId,
+                    CreatedAt = DateTime.UtcNow,
                 };
                 this.dataHealthApiService.TriggerMDQJobCallback(model, false);
                 jobModels.Add(sourceModel);

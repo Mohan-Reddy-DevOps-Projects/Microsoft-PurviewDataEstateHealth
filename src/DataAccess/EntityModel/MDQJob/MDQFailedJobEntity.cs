@@ -16,5 +16,7 @@ internal class MDQFailedJobEntity : TableEntity
 
     public string JobStatus { get; set; }
 
+    public DateTimeOffset CreatedAt { get; set; }
+
     public override string ResourceId() => ResourceId(ResourceIds.MDQFailedJob, [this.RowKey.ToString()]);
 }

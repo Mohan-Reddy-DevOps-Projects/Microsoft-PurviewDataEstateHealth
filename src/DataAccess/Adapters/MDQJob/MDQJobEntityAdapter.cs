@@ -23,6 +23,7 @@ internal sealed class MDQJobEntityAdapter : TableEntityConverter<MDQJobModel, MD
             AccountId = model.AccountId.ToString(),
             JobStatus = model.JobStatus,
             DQJobId = model.DQJobId.ToString(),
+            CreatedAt = model.CreatedAt,
         };
     }
 
@@ -40,6 +41,7 @@ internal sealed class MDQJobEntityAdapter : TableEntityConverter<MDQJobModel, MD
             DQJobId = Guid.Parse(entity.DQJobId),
             JobStatus = entity.JobStatus,
             Timestamp = entity.Timestamp,
+            CreatedAt = entity.CreatedAt,
         };
     }
 }
