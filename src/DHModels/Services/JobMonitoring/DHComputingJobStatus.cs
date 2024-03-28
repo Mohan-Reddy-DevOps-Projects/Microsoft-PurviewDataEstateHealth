@@ -7,6 +7,7 @@ using Newtonsoft.Json.Converters;
 public enum DHComputingJobStatus
 {
     Unknown,
+    Created,
     Failed,
     Succeeded,
     InProgress,

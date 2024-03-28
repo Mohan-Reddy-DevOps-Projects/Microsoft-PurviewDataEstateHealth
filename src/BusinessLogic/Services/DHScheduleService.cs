@@ -93,6 +93,7 @@ public class DHScheduleService(
                 jobWrapper.Id = jobId;
                 jobWrapper.ControlId = control.Id;
                 jobWrapper.ScheduleRunId = scheduleRunId;
+                jobWrapper.Status = DHComputingJobStatus.Unknown;
                 jobWrapper = await monitoringService.CreateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
 
                 // Step 3: submit DQ jobs
@@ -105,6 +106,7 @@ public class DHScheduleService(
 
                 // Update DQ job id in monitoring table
                 jobWrapper.DQJobId = dqJobId;
+                jobWrapper.Status = DHComputingJobStatus.Created;
                 await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
                 logger.LogTipInformation($"The MDQ job was triggered", new JObject
                 {
