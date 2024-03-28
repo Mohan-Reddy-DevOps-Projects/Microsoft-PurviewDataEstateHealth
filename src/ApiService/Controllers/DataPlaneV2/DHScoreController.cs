@@ -17,6 +17,7 @@ using Newtonsoft.Json;
 /// </summary>
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
+[Route("/scores")]
 [Route("/controls/scores")]
 public class DHScoreController(DHScoreService dhScoreService) : DataPlaneController
 {
