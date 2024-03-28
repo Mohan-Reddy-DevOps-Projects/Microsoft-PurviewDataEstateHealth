@@ -18,7 +18,7 @@ using Newtonsoft.Json.Linq;
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
 [Route("/controls/assessments")]
-public class DHAssessmentController(DHAssessmentService assessmentService, DHProvisionService provisionService) : DataPlaneController
+public class DHAssessmentController(DHAssessmentService assessmentService, DHTemplateService templateService) : DataPlaneController
 {
     [HttpGet]
     [Route("")]
@@ -76,7 +76,7 @@ public class DHAssessmentController(DHAssessmentService assessmentService, DHPro
     [Route("{id}/reset")]
     public async Task<ActionResult> ResetAssessmentByIdAsync(string id)
     {
-        var entity = await provisionService.ResetAssessmentByIdAsync(id).ConfigureAwait(false);
+        var entity = await templateService.ResetAssessmentByIdAsync(id).ConfigureAwait(false);
 
         return this.Ok(entity.JObject);
     }
