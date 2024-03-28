@@ -76,13 +76,6 @@
       "actions": ["wait/skip"]
     },
     {
-      "name": "deployPythonFiles",
-      "dependsOn": ["deployInfrastructure"],
-      "targetType": "ServiceResourceDefinition",
-      "targetName": "pythonFilesResourceDefintion",
-      "actions": ["wait/skip"]
-    },
-    {
       "name": "setupCosmosStorage",
       "dependsOn": ["deployInfrastructure"],
       "targetType": "ServiceResourceDefinition",
