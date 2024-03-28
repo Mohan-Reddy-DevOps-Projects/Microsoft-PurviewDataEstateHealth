@@ -62,6 +62,7 @@ public class AssetWithClassificationCountJoinAdapter : JoinAdapter
             JoinSql = @"LEFT JOIN (
                 SELECT
                     DataProduct.DataProductID as DACDataProductId,
+                    DataProductAssetAssignmentForDAC.DataAssetId as DACDataAssetId,
                     COUNT(DataAssetColumnClassificationAssignment.ClassificationId) as DataProductRelatedDataAssetsWithClassificationCount
                 FROM DataProduct 
                 LEFT JOIN DataProductAssetAssignmentForDAC
@@ -69,7 +70,7 @@ public class AssetWithClassificationCountJoinAdapter : JoinAdapter
                     AND DataProductAssetAssignmentForDAC.ActiveFlag = 1
                 LEFT JOIN DataAssetColumnClassificationAssignment
                     ON DataProductAssetAssignmentForDAC.DataAssetId = DataAssetColumnClassificationAssignment.DataAssetId
-                GROUP BY DataProduct.DataProductID
+                GROUP BY DataProduct.DataProductID, DataProductAssetAssignmentForDAC.DataAssetId
             ) TDataAssetColumnClassificationAssignment ON DataProduct.DataProductID = TDataAssetColumnClassificationAssignment.DACDataProductId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema

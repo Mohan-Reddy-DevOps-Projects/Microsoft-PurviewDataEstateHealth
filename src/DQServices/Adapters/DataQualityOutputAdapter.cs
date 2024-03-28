@@ -7,6 +7,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Output;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 public class DataQualityOutputAdapter
 {
@@ -14,7 +15,10 @@ public class DataQualityOutputAdapter
         IEnumerable<DataQualityDataProductOutputEntity> outputResult,
         IDataEstateHealthRequestLogger logger)
     {
-        var result = new List<DHRawScore>();
+        var entityDict = new Dictionary<string, DHRawScore>();
+
+        // entity id -> rule id -> score list
+        var ruleScoreDict = new Dictionary<string, Dictionary<string, List<double>>>();
 
         foreach (var outputEntity in outputResult)
         {
@@ -30,25 +34,12 @@ public class DataQualityOutputAdapter
                 continue;
             }
 
-            var scores = new List<DHScoreUnitWrapper>();
-
-            foreach (var ruleKeyValue in outputEntity.Result)
+            if (!entityDict.ContainsKey(outputEntity.DataProductID))
             {
-                if (ruleKeyValue.Key != DataEstateHealthConstants.ALWAYS_FAIL_RULE_ID)
+                entityDict[outputEntity.DataProductID] = new DHRawScore()
                 {
-                    var unit = new DHScoreUnitWrapper(new JObject());
-                    unit.AssessmentRuleId = ruleKeyValue.Key; ;
-                    unit.Score = ruleKeyValue.Value == "PASS" ? 1 : 0;
-                    scores.Add(unit);
-                    // TODO perhaps will delete this log if it logs too much
-                    logger.LogInformation($"MDQ rule result, dataProductId:${outputEntity.DataProductID}, ruleId:{ruleKeyValue.Key}, result:${ruleKeyValue.Value}");
-                }
-            }
-
-            result.Add(new DHRawScore()
-            {
-                EntityType = RowScoreEntityType.DataProduct,
-                EntityPayload = new JObject()
+                    EntityType = RowScoreEntityType.DataProduct,
+                    EntityPayload = new JObject()
                 {
                     { DQOutputFields.DP_ID, outputEntity.DataProductID },
                     { DQOutputFields.DP_NAME, outputEntity.DataProductDisplayName },
@@ -56,10 +47,46 @@ public class DataQualityOutputAdapter
                     { DQOutputFields.BD_ID, outputEntity.BusinessDomainId },
                     { DQOutputFields.DP_OWNER_IDS, outputEntity.DataProductOwnerIds }
                 },
-                Scores = scores
-            });
+                    Scores = new List<DHScoreUnitWrapper>()
+                };
+            }
+
+
+            foreach (var ruleKeyValue in outputEntity.Result)
+            {
+                if (ruleKeyValue.Key != DataEstateHealthConstants.ALWAYS_FAIL_RULE_ID)
+                {
+                    if (!ruleScoreDict.ContainsKey(outputEntity.DataProductID))
+                    {
+                        ruleScoreDict[outputEntity.DataProductID] = new Dictionary<string, List<double>>();
+                    }
+
+                    if (!ruleScoreDict[outputEntity.DataProductID].ContainsKey(ruleKeyValue.Key))
+                    {
+                        ruleScoreDict[outputEntity.DataProductID][ruleKeyValue.Key] = new List<double>();
+                    }
+
+                    ruleScoreDict[outputEntity.DataProductID][ruleKeyValue.Key].Add(ruleKeyValue.Value == "PASS" ? 1 : 0);
+
+                    // TODO perhaps will delete this log if it logs too much
+                    logger.LogInformation($"MDQ rule result, dataProductId:${outputEntity.DataProductID}, ruleId:{ruleKeyValue.Key}, result:${ruleKeyValue.Value}");
+                }
+            }
         }
 
-        return result;
+        foreach (var entityKeyVal in entityDict)
+        {
+            var scores = new List<DHScoreUnitWrapper>();
+            foreach (var ruleKeyVal in ruleScoreDict[entityKeyVal.Key])
+            {
+                var unit = new DHScoreUnitWrapper(new JObject());
+                unit.AssessmentRuleId = ruleKeyVal.Key; ;
+                unit.Score = ruleKeyVal.Value.Average();
+                scores.Add(unit);
+            }
+            entityKeyVal.Value.Scores = scores;
+        }
+
+        return entityDict.Values;
     }
 }
