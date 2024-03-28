@@ -5,15 +5,13 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
-using Microsoft.Azure.Management.Storage.Models;
+using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,26 +21,33 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     private readonly ISparkJobManager sparkJobManager;
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly ServerlessPoolConfiguration serverlessPoolConfiguration;
+    private readonly IKeyVaultAccessorService keyVaultAccessorService;
+
 
     public CatalogSparkJobComponent(
         ISparkJobManager sparkJobManager,
         IProcessingStorageManager processingStorageManager,
-        IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration)
+        IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration,
+        IKeyVaultAccessorService keyVaultAccessorService)
     {
         this.sparkJobManager = sparkJobManager;
         this.processingStorageManager = processingStorageManager;
         this.serverlessPoolConfiguration = serverlessPoolConfiguration.Value;
+        this.keyVaultAccessorService = keyVaultAccessorService;
     }
 
     /// <inheritdoc/>
     public async Task<string> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
     {
+        KeyVaultSecret cosmosDBKey = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBReadonlykey", cancellationToken);
+        KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
+
         Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
         string containerName = accountServiceModel.DefaultCatalogId;
         Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
         //Update Main Method
         string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";
-        SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jarClassName);
+        SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, cosmosDBEndpoint.Value, cosmosDBKey.Value, jarClassName);
         return await this.sparkJobManager.SubmitJob(accountServiceModel, sparkJobRequest, cancellationToken);
     }
 
@@ -60,11 +65,11 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         return await this.processingStorageManager.GetProcessingStorageSasUri(processingStorageModel, storageSasRequest, containerName, cancellationToken);
     }
 
-    private SparkJobRequest GetSparkJobRequest(Uri sasUri, string accountId, string containerName, string sinkLocation, string jarClassName = "")
+    private SparkJobRequest GetSparkJobRequest(Uri sasUri, string accountId, string containerName, string sinkLocation, string cosmosDBEndpoint = "", string cosmosDBKey = "", string jarClassName = "")
     {
         return new()
         {
-            Configuration = this.GetSinkConfiguration(sasUri, containerName),
+            Configuration = this.GetSinkConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey),
             ExecutorCount = 2,
             File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-domainmodel-azure-purview-1.0-jar.jar",
             Name = "DomainModelSparkJob",
@@ -80,7 +85,8 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         };
     }
 
-    private Dictionary<string, string> GetSinkConfiguration(Uri sasUri, string containerName)
+
+    private Dictionary<string, string> GetSinkConfiguration(Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey)
     {
         return new Dictionary<string, string>()
         {
@@ -96,7 +102,10 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
             {$"spark.dynamicAllocation.maxExecutors","16" },
             {$"spark.dynamicAllocation.executorIdleTimeout","900s" },
             {$"spark.sql.adaptive.enabled", "true" },
-            {$"spark.sql.adaptive.skewJoin.enabled", "true" }
+            {$"spark.sql.adaptive.skewJoin.enabled", "true" },
+            {$"spark.cosmos.accountEndpoint", $"{cosmosDBEndpoint}" },
+            {$"spark.cosmos.database", "dgh-DataEstateHealth" },
+            {$"spark.cosmos.accountKey", cosmosDBKey }
         };
     }
 }
