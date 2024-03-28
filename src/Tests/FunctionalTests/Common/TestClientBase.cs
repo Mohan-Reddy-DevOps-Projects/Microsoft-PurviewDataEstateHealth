@@ -1,7 +1,10 @@
 ﻿namespace Microsoft.Azure.Purview.DataEstateHealth.FunctionalTests.Common;
+
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 using Microsoft.Azure.Purview.DataEstateHealth.FunctionalTests.Configuration;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using System;
 using System.Net.Http;
@@ -70,7 +73,11 @@ public class TestClientBase
     private HttpClient GetHttpClient()
     {
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        var webAppFactory = new WebApplicationFactory<Program>();
+        var webAppFactory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseEnvironment(Environments.Development);
+        });
+
 #pragma warning restore CA2000 // Dispose objects before losing scope
         var httpClient = webAppFactory.CreateDefaultClient();
 

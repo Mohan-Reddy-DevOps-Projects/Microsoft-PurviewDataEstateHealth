@@ -10,4 +10,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 /// An operation that needs to be audited.
 /// </summary>
 public enum AuditOperation
-{}
+{
+    startup
+}

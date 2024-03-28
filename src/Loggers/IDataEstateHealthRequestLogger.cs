@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
 using Microsoft.Extensions.Logging;
+using OpenTelemetry.Audit.Geneva;
 using System.Runtime.CompilerServices;
 
 /// <summary>
@@ -96,4 +97,13 @@ public interface IDataEstateHealthRequestLogger : ILogger
         [CallerMemberName] string operationName = "",
         [CallerFilePath] string sourceFilePath = "",
         [CallerLineNumber] int sourceLineNumber = 0);
+
+
+    public void LogAudit(
+        AuditOperation auditOperation,
+        OperationType operationType,
+        OperationResult operationResult,
+        string targetResourceType,
+        string targetResourceId,
+        OperationCategory operationCategory = OperationCategory.ResourceManagement);
 }

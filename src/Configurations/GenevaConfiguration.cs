@@ -32,6 +32,17 @@ public class GenevaConfiguration
     public int GenevaServicesPort { get; set; }
 
     /// <summary>
+    /// Geneva fluentD port used for audit logging
+    /// </summary>
+    public int GenevaFluentdPort { get; set; }
+
+
+    /// <summary>
+    /// Geneva container app name used for audit logging
+    /// </summary>
+    public string GenevaContainerAppName { get; set; }
+
+    /// <summary>
     /// Default dimensions to add to the metric being logged
     /// </summary>
     public Dictionary<string, string> DefaultDimensions { get; set; }

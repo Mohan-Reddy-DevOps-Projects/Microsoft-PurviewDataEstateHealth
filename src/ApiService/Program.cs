@@ -25,11 +25,13 @@ using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
 using Newtonsoft.Json;
+using OpenTelemetry.Audit.Geneva;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using OperationType = OpenTelemetry.Audit.Geneva.OperationType;
 
 /// <summary>
 /// The Data Estate Health API service.
@@ -180,6 +182,7 @@ public class Program
                 IDataEstateHealthRequestLogger logger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
                 EnvironmentConfiguration environmentConfiguration = serviceProvider.GetRequiredService<IOptions<EnvironmentConfiguration>>().Value;
                 logger.LogInformation($"ApiService started successfully for versions {string.Join(", ", environmentConfiguration.PermittedApiVersions)}");
+                logger.LogAudit(AuditOperation.startup, OperationType.Read, OperationResult.Success, "serviceStartup", "NA", OperationCategory.ResourceManagement);
             });
 
         await app.RunAsync();

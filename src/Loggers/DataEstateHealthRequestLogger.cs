@@ -28,8 +28,9 @@ internal class DataEstateHealthRequestLogger : DataEstateHealthLogger, IDataEsta
     public DataEstateHealthRequestLogger(
         ILoggerFactory loggerFactory,
         IRequestContextAccessor requestContextAccessor,
-        IOptions<EnvironmentConfiguration> environmentConfiguration)
-        : base(loggerFactory, environmentConfiguration)
+        IOptions<EnvironmentConfiguration> environmentConfiguration,
+        IOptions<GenevaConfiguration> genevaConfiguration)
+        : base(loggerFactory, environmentConfiguration, genevaConfiguration)
     {
         this.requestContextAccessor = requestContextAccessor;
     }
