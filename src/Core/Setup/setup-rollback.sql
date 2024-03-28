@@ -638,7 +638,7 @@ BEGIN
 END
 
 COMMIT TRAN
-
+/* --Uncomment WHEN ENTIRE DB CLEAN UP IS NEEDED
 PRINT 'External_data_sources DROPPED: @containerName';
 
 IF EXISTS(SELECT [name] FROM sys.external_data_sources WHERE [name] = '@containerName')
@@ -656,3 +656,4 @@ IF EXISTS(SELECT [name] FROM sys.external_file_formats WHERE [name] = 'ParquetFo
 BEGIN
     DROP EXTERNAL FILE FORMAT ParquetFormat;
 END
+*/
