@@ -43,4 +43,20 @@ public class DHComputingJobRepository(
         }
         return results.FirstOrDefault();
     }
+    public async Task<List<DHComputingJobWrapper>?> QueryJobsWithFilter(string controlId, DateTime startTime, DateTime endTime)
+    {
+        var query = this.CosmosContainer.GetItemLinqQueryable<DHComputingJobWrapper>(
+            requestOptions: new QueryRequestOptions { PartitionKey = this.TenantPartitionKey }
+        ).Where(job => job.ControlId == controlId && job.CreateTime >= startTime && job.CreateTime <= endTime);
+        var str = query.ToString();
+        var feedIterator = query.ToFeedIterator();
+        var results = new List<DHComputingJobWrapper>();
+        while (feedIterator.HasMoreResults)
+        {
+            var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+            results.AddRange([.. response]);
+        }
+        return results;
+    }
 }

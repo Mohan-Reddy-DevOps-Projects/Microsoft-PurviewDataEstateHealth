@@ -3,6 +3,7 @@
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
@@ -24,6 +25,15 @@
             this.logger = logger;
             this.dhComputingJobRepository = dhComputingJobRepository;
         }
+        public async Task<BatchResults<DHComputingJobWrapper>> QueryJobsWithFilter(string controlId, DateTime startTime, DateTime endTime)
+        {
+            using (this.logger.LogElapsed($"Start to enum jobs"))
+            {
+                var jobs = await this.dhComputingJobRepository.QueryJobsWithFilter(controlId, startTime, endTime).ConfigureAwait(false) ?? [];
+                return new BatchResults<DHComputingJobWrapper>(jobs, jobs.Count);
+            }
+        }
+
         public async Task<DHComputingJobWrapper> GetComputingJobByDQJobId(string jobId)
         {
             var job = await this.dhComputingJobRepository.GetByDQJobId(jobId).ConfigureAwait(false);
