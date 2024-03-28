@@ -59,7 +59,8 @@ public class JobManager : IJobManager
     /// </summary>
     protected readonly WorkerJobExecutionContext WorkerJobExecutionContext;
 
-    private const int SparkJobsStartTime = 7; //Minutes
+    private const int JobsMinStartTime = 7; //Minutes
+    private const int JobsMaxStartTime = 1441; //Minutes
     private const int SparkJobsRetryStrategyTime = 15; //Minutes
 
     static readonly string CatalogSparkJobPartitionAffix = "-CATALOG-SPARK-JOBS";
@@ -72,6 +73,7 @@ public class JobManager : IJobManager
     static readonly string ActionCleanUpJobIdAffix = "-ACTION-CLEAN-UP-JOB";
 
     private EnvironmentConfiguration environmentConfiguration;
+    private static readonly Random RandomGenerator = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="JobManager" /> class.
@@ -503,7 +505,9 @@ public class JobManager : IJobManager
             };
 
             var repeatInterval = TimeSpan.FromDays(1);
-            await this.CreateOneTimeJobDEH(jobMetadata, nameof(DHActionJobCallback), jobPartition, repeatInterval, jobId);
+            int randomMins = RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
+            var startTime = DateTime.UtcNow.AddMinutes(randomMins);
+            await this.CreateOneTimeJobDEH(jobMetadata, nameof(DHActionJobCallback), jobPartition, repeatInterval, jobId, startTime);
         }
     }
 
@@ -536,11 +540,10 @@ public class JobManager : IJobManager
         await this.CreateJobAsync(jobBuilder);
     }
 
-    private async Task CreateOneTimeJobDEH<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, TimeSpan repeatInterval, string jobId = null)
+    private async Task CreateOneTimeJobDEH<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, TimeSpan repeatInterval, string jobId = null, DateTime? startTime = null)
     where TMetadata : StagedWorkerJobMetadata
     {
         this.UpdateDerivedMetadataProperties(metadata);
-
 
         this.dataEstateHealthRequestLogger.LogInformation($"Create one time job. Interval {repeatInterval}");
 
@@ -549,11 +552,10 @@ public class JobManager : IJobManager
                     metadata,
                     jobPartition,
                     jobId)
-                .WithStartTime(DateTime.UtcNow.AddMinutes(1))
+                .WithStartTime(startTime ?? DateTime.UtcNow.AddMinutes(1))
                 .WithRepeatStrategy(repeatInterval)
                 .WithRetryStrategy(TimeSpan.FromMinutes(5))
                 .WithoutEndTime();
-
 
         await this.CreateJobAsync(jobBuilder);
     }
@@ -587,13 +589,13 @@ public class JobManager : IJobManager
                 IsCompleted = false
             };
             this.UpdateDerivedMetadataProperties(jobMetadata);
-
+            int randomMins = RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
             JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
                     nameof(CatalogSparkJobCallback),
                     jobMetadata,
                     jobPartition,
                     jobId)
-                .WithStartTime(DateTime.UtcNow.AddMinutes(SparkJobsStartTime))
+                .WithStartTime(DateTime.UtcNow.AddMinutes(randomMins))
                 .WithRepeatStrategy(catalogRepeatStrategy)
                 .WithRetryStrategy(TimeSpan.FromMinutes(SparkJobsRetryStrategyTime))
                 .WithoutEndTime();
@@ -639,13 +641,13 @@ public class JobManager : IJobManager
             };
 
             this.UpdateDerivedMetadataProperties(jobMetadata);
-
+            int randomMins = RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
             JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
                     nameof(DataQualitySparkJobCallback),
                     jobMetadata,
                     jobPartition,
                     jobId)
-                .WithStartTime(DateTime.UtcNow.AddMinutes(SparkJobsStartTime))
+                .WithStartTime(DateTime.UtcNow.AddMinutes(randomMins))
                 .WithRepeatStrategy(TimeSpan.FromHours(dqRepeatStrategyTime))
                 .WithRetryStrategy(TimeSpan.FromMinutes(SparkJobsRetryStrategyTime))
                 .WithoutEndTime();
