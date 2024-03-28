@@ -7,15 +7,29 @@ using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Polly;
+using Polly.Retry;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger logger, CosmosMetricsTracker cosmosMetricsTracker) : IRepository<TEntity>
     where TEntity : BaseEntityWrapper, IContainerEntityWrapper
 {
+    // Define the retry policy
+    private readonly AsyncRetryPolicy retryPolicy = Policy
+        .Handle<CosmosException>(ex => ex.StatusCode == HttpStatusCode.RequestTimeout) // Handle CosmosException with status code 408
+        .WaitAndRetryAsync(
+            3,
+            retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt) / 10), // Retry 3 times with an exponential backoff
+            onRetry: (exception, timespan, retryAttempt, context) =>
+            {
+                logger.LogWarning($"Retrying#{retryAttempt} due to CosmosException with status code 408, operation: {context.OperationKey}, timespan: {timespan}", exception);
+            });
+
     protected abstract Container CosmosContainer { get; }
 
     /// <inheritdoc />
@@ -29,7 +43,11 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             {
                 PopulateMetadataForEntity(entity, tenantId, accountId);
                 var tenantPartitionKey = new PartitionKey(tenantId);
-                var response = await this.CosmosContainer.CreateItemAsync(entity, tenantPartitionKey).ConfigureAwait(false);
+                // Execute the asynchronous operation with the defined retry policy
+                var response = await this.retryPolicy.ExecuteAsync(
+                    (context) => this.CosmosContainer.CreateItemAsync(entity, tenantPartitionKey),
+                    new Context($"{this.GetType().Name}#{methodName}_{entity.Id}_{tenantId}_{accountId}")
+                ).ConfigureAwait(false);
                 cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
                 return response.Resource;
             }
@@ -68,7 +86,11 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 await Task.WhenAll(entities.Select(entity =>
                 {
-                    return this.CosmosContainer.CreateItemAsync(entity, tenantPartitionKey).ContinueWith(responseTask =>
+                    // Execute the asynchronous operation with the defined retry policy
+                    return this.retryPolicy.ExecuteAsync(
+                        (context) => this.CosmosContainer.CreateItemAsync(entity, tenantPartitionKey),
+                        new Context($"{this.GetType().Name}#{methodName}(batch)_{entity.Id}_{tenantId}_{accountId}")
+                    ).ContinueWith(responseTask =>
                     {
                         if (responseTask.IsCompletedSuccessfully)
                         {
@@ -79,7 +101,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                         {
                             if (responseTask.Exception?.Flatten().InnerExceptions.FirstOrDefault(x => x is CosmosException) is CosmosException cosmosException)
                             {
-                                if (cosmosException.StatusCode == System.Net.HttpStatusCode.Conflict)
+                                if (cosmosException.StatusCode == HttpStatusCode.Conflict)
                                 {
                                     ignoredItems.Add(entity);
                                     return;
@@ -119,11 +141,15 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             {
                 var tenantPartitionKey = new PartitionKey(tenantId);
 
-                var response = await this.CosmosContainer.DeleteItemAsync<TEntity>(id, tenantPartitionKey).ConfigureAwait(false);
+                // Execute the asynchronous operation with the defined retry policy
+                var response = await this.retryPolicy.ExecuteAsync(
+                    (context) => this.CosmosContainer.DeleteItemAsync<TEntity>(id, tenantPartitionKey),
+                    new Context($"{this.GetType().Name}#{methodName}_{id}_{tenantId}")
+                ).ConfigureAwait(false);
 
                 cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
             }
-            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
                 return;
             }
@@ -153,7 +179,11 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                 var results = new List<TEntity>();
                 while (feedIterator.HasMoreResults)
                 {
-                    var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                    // Execute the asynchronous operation with the defined retry policy
+                    var response = await this.retryPolicy.ExecuteAsync(
+                        (context) => feedIterator.ReadNextAsync(),
+                        new Context($"{this.GetType().Name}#{methodName}_{tenantId}")
+                    ).ConfigureAwait(false);
                     cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
                     results.AddRange([.. response]);
                 }
@@ -179,11 +209,15 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             {
                 var tenantPartitionKey = new PartitionKey(tenantId);
 
-                var response = await this.CosmosContainer.ReadItemAsync<TEntity>(id, tenantPartitionKey).ConfigureAwait(false);
+                // Execute the asynchronous operation with the defined retry policy
+                var response = await this.retryPolicy.ExecuteAsync(
+                    (context) => this.CosmosContainer.ReadItemAsync<TEntity>(id, tenantPartitionKey),
+                    new Context($"{this.GetType().Name}#{methodName}_{id}_{tenantId}")
+                ).ConfigureAwait(false);
                 cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
                 return response.Resource;
             }
-            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
             }
@@ -207,7 +241,11 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                 PopulateMetadataForEntity(entity, tenantId, accountId);
                 var tenantPartitionKey = new PartitionKey(tenantId);
 
-                var response = await this.CosmosContainer.UpsertItemAsync(entity, tenantPartitionKey).ConfigureAwait(false);
+                // Execute the asynchronous operation with the defined retry policy
+                var response = await this.retryPolicy.ExecuteAsync(
+                    (context) => this.CosmosContainer.UpsertItemAsync(entity, tenantPartitionKey),
+                    new Context($"{this.GetType().Name}#{methodName}_{entity.Id}_{tenantId}_{accountId}")
+                ).ConfigureAwait(false);
                 cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
                 return response.Resource;
             }
@@ -245,7 +283,11 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 await Task.WhenAll(entities.Select(entity =>
                 {
-                    return this.CosmosContainer.UpsertItemAsync(entity, tenantPartitionKey).ContinueWith(responseTask =>
+                    // Execute the asynchronous operation with the defined retry policy
+                    return this.retryPolicy.ExecuteAsync(
+                        (context) => this.CosmosContainer.UpsertItemAsync(entity, tenantPartitionKey),
+                        new Context($"{this.GetType().Name}#{methodName}(batch)_{entity.Id}_{tenantId}_{accountId}")
+                    ).ContinueWith(responseTask =>
                     {
                         if (responseTask.IsCompletedSuccessfully)
                         {
@@ -295,7 +337,11 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 await Task.WhenAll(entities.Select(entity =>
                 {
-                    return this.CosmosContainer.DeleteItemAsync<TEntity>(entity.Id, tenantPartitionKey).ContinueWith(responseTask =>
+                    // Execute the asynchronous operation with the defined retry policy
+                    return this.retryPolicy.ExecuteAsync(
+                        (context) => this.CosmosContainer.DeleteItemAsync<TEntity>(entity.Id, tenantPartitionKey),
+                        new Context($"{this.GetType().Name}#{methodName}(batch)_{entity.Id}_{tenantId}_{accountId}")
+                    ).ContinueWith(responseTask =>
                     {
                         if (responseTask.IsCompletedSuccessfully)
                         {
