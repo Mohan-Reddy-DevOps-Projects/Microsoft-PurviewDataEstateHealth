@@ -51,9 +51,8 @@ internal static class RuleFieldAdapter
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.BusinessDomainData);
                 return "length(regexReplace(BusinessDomainDescription, '(<(.*?)>)', ''))";
             case DHCheckPoint.DataProductAllRelatedTermsMinimalDescriptionLength:
-                // TODO handle rich text
                 ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTerm);
-                return "DataProductAllRelatedTermsMinimalDescriptionLength";
+                return "length(regexReplace(DataProductAllRelatedTermsMinimalDescription, '(<(.*?)>)', ''))";
             default: throw new NotImplementedException("Checkpoint: " + checkpoint.ToString());
         }
     }
