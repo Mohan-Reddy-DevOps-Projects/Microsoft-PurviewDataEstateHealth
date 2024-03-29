@@ -1,6 +1,7 @@
 namespace UnitTests.CosmosDBCommonRepository;
 
 using Bogus;
+using Microsoft.Azure.Purview.DataEstateHealth.FunctionalTests.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using UnitTests.CosmosDBTestingMetadata;
@@ -15,6 +16,7 @@ public class CommonRepositoryTests
         .RuleFor(o => o.Description, f => f.Lorem.Sentence());
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task ICanAddEntityToContainerWithoutAccountId()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -41,6 +43,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task ICanAddEntityToContainerWithAccountId()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -68,6 +71,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task ICanAddMultipleEntitiesToContainer()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -107,6 +111,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task ICanAddManyEntitiesToContainer()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -146,6 +151,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task ICanUpdateEntityInContainerWithoutAccountId()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -178,6 +184,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task ICanUpdateMultipleEntitiesInContainer()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -229,6 +236,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task ICanDeleteEntityFromContainer()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -253,6 +261,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task ICanDeleteEntityByIdFromContainer()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -277,6 +286,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task GetByIdShouldReturnNullIfIdNotExist()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -289,6 +299,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task DeleteShouldNotThrowIfEntityNotExist()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -304,6 +315,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task DeleteShouldNotThrowIfEntityIdNotExist()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -315,6 +327,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task AddManyEntitiesIgnoresExistingEntitiesWithoutError()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -344,6 +357,7 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task GetAllAsyncShouldReturnAllEntities()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -382,6 +396,7 @@ public class CommonRepositoryTests
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
+    [Owner(Owners.CosmosDB)]
     public async Task AddEntityToContainerWithoutTenantIdWillThrowException()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -400,6 +415,7 @@ public class CommonRepositoryTests
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
+    [Owner(Owners.CosmosDB)]
     public async Task AddEntityToContainerWithInvalidTenantIdWillThrowException()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -416,6 +432,7 @@ public class CommonRepositoryTests
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
+    [Owner(Owners.CosmosDB)]
     public async Task AddEntityToContainerWithAllZeroTenantIdWillThrowException()
     {
         if (!CosmosDBClient.TestingDBAvailable)

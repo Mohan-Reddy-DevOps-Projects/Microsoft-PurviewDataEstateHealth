@@ -1,7 +1,8 @@
-namespace UnitTests.CosmosDBCommonRepository;
+namespace UnitTests.CosmosDBRawSQL;
 
 using Bogus;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Purview.DataEstateHealth.FunctionalTests.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UnitTests.CosmosDBTestingMetadata;
 
@@ -15,6 +16,7 @@ public class CosmosDBRawSQLTests
         .RuleFor(o => o.Description, f => f.Lorem.Sentence());
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public async Task RawSQL_SelectCount_ReturnsExpectedCount()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -34,14 +36,14 @@ public class CosmosDBRawSQLTests
         string sqlQueryText = "SELECT VALUE COUNT(1) FROM c";
 
         // Create a query definition
-        QueryDefinition queryDefinition = new QueryDefinition(sqlQueryText);
+        var queryDefinition = new QueryDefinition(sqlQueryText);
 
         // Running the query and getting the iterator
-        using (FeedIterator<int> queryResultSetIterator = CosmosDBClient.DBContainer!.GetItemQueryIterator<int>(queryDefinition))
+        using (var queryResultSetIterator = CosmosDBClient.DBContainer!.GetItemQueryIterator<int>(queryDefinition))
         {
             if (queryResultSetIterator.HasMoreResults)
             {
-                FeedResponse<int> currentResultSet = await queryResultSetIterator.ReadNextAsync();
+                var currentResultSet = await queryResultSetIterator.ReadNextAsync();
                 if (currentResultSet.Count > 0)
                 {
                     var n = currentResultSet.First();

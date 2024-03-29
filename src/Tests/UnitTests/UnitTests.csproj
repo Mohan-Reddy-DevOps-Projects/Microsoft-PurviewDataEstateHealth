@@ -23,6 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\BusinessLogic\BusinessLogic.csproj" />
 		<ProjectReference Include="..\..\DHModels\DHModels.csproj" />
 		<ProjectReference Include="..\..\DHDataAccess\DHDataAccess.csproj" />
 	</ItemGroup>

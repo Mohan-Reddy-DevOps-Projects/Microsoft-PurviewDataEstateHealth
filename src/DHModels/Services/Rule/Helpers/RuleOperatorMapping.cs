@@ -21,7 +21,7 @@ public enum DHRuleSourceType
     AssessmentDQDataProduct,
 }
 
-internal class RuleOperatorMapping
+public class RuleOperatorMapping
 {
     private static readonly Dictionary<DHRuleSourceType, IList<DHCheckPoint>> SourceAvailableCheckPointsMapping =
         new()

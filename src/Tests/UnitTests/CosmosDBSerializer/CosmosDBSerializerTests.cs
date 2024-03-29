@@ -1,6 +1,7 @@
 namespace UnitTests.CosmosDBSerializer;
 
 using Bogus;
+using Microsoft.Azure.Purview.DataEstateHealth.FunctionalTests.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Common;
@@ -44,6 +45,7 @@ public class CosmosDBSerializerTests
 
     [TestMethod]
     [ExpectedException(typeof(JsonReaderException))]
+    [Owner(Owners.CosmosDB)]
     public void FromStream_ThrowsJsonReaderException_WhenInvalidDataProvided()
     {
         // Arrange
@@ -56,6 +58,7 @@ public class CosmosDBSerializerTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public void FromStream_ReturnsCorrectType_WhenValidStreamIsGiven()
     {
         // Arrange
@@ -71,6 +74,7 @@ public class CosmosDBSerializerTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public void FromStream_ReturnsCorrectTenantId_WhenValidStreamIsGiven()
     {
         // Arrange
@@ -88,6 +92,7 @@ public class CosmosDBSerializerTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public void FromStream_ReturnsCorrectType_WhenValidArrayStreamIsGiven()
     {
         // Arrange
@@ -106,6 +111,7 @@ public class CosmosDBSerializerTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public void FromStream_ReturnsCorrectTenantId_WhenValidArrayStreamIsGiven()
     {
         // Arrange
@@ -127,6 +133,7 @@ public class CosmosDBSerializerTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public void FromStream_ReturnsCorrectType_WhenValidNonWrapperTypeStreamIsGiven()
     {
         // Arrange
@@ -144,6 +151,7 @@ public class CosmosDBSerializerTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public void FromStream_ReturnsCorrectType_WhenIntArrayTypeStreamIsGiven()
     {
         // Arrange
@@ -157,6 +165,7 @@ public class CosmosDBSerializerTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public void ToSteam_ReturnsCorrectSteam()
     {
         // Arrange
@@ -183,6 +192,7 @@ public class CosmosDBSerializerTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public void ToSteam_ReturnsCorrectSteamForNonWrapper()
     {
         // Arrange
@@ -209,6 +219,7 @@ public class CosmosDBSerializerTests
     }
 
     [TestMethod]
+    [Owner(Owners.CosmosDB)]
     public void Combo_NonWrapper()
     {
         var nonWrapper = new NonWrapper1
@@ -228,6 +239,7 @@ public class CosmosDBSerializerTests
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
+    [Owner(Owners.CosmosDB)]
     public void ToStream_TenantIdShouldBePresent()
     {
         var testEntity = this.testEntityFaker.Generate();
@@ -236,6 +248,7 @@ public class CosmosDBSerializerTests
 
     [TestMethod]
     [ExpectedException(typeof(FormatException))]
+    [Owner(Owners.CosmosDB)]
     public void ToStream_TenantIdShouldBeValidGUID()
     {
         var testEntity = this.testEntityFaker.Generate();
@@ -245,6 +258,7 @@ public class CosmosDBSerializerTests
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
+    [Owner(Owners.CosmosDB)]
     public void ToStream_TenantIdShouldNotBeEmptyGUID()
     {
         var testEntity = this.testEntityFaker.Generate();
