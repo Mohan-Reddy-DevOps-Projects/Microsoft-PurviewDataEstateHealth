@@ -105,10 +105,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
                 Guid.Parse(account.Id))
                 .CreateOrUpdateNotification(account, cancellationToken);
             tasks.Add(healthTask);
-        }
 
-        if (this.exposureControl.IsDGDataHealthEnabled(account.Id, account.SubscriptionId, account.TenantId))
-        {
             // Provision control template
             Task provisionControlTemplate = this.dhProvisionService.ProvisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
             tasks.Add(provisionControlTemplate);
@@ -161,14 +158,10 @@ public class PlatformAccountNotificationsController : ControlPlaneController
                 Guid.Parse(account.TenantId),
                 Guid.Parse(account.Id))
                 .DeleteNotification(account, cancellationToken);
+            await this.dhProvisionService.DeprovisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
         }
 
         await this.processingStorageManager.Delete(account, cancellationToken);
-
-        if (this.exposureControl.IsDGDataHealthEnabled(account.Id, account.SubscriptionId, account.TenantId))
-        {
-            await this.dhProvisionService.DeprovisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
-        }
 
         return this.Ok();
     }

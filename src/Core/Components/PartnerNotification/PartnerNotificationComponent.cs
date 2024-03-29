@@ -124,7 +124,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 
     private async Task ProvisionActionsCleanUpJob(AccountServiceModel account)
     {
-        if (this.exposureControl.IsDGDataHealthEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
             await this.backgroundJobManager.ProvisionActionsCleanupJob(account);
         }
@@ -144,7 +144,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 
     private async Task DeprovisionActionCleanUpJob(AccountServiceModel account)
     {
-        if (this.exposureControl.IsDGDataHealthEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
         {
             await this.backgroundJobManager.DeprovisionActionsCleanupJob(account);
         }
