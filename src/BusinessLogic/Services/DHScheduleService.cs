@@ -41,74 +41,76 @@ public class DHScheduleService(
 
     public async Task<string> TriggerScheduleJobCallbackAsync(DHScheduleCallbackPayload payload)
     {
-        // Step 1: query all controls
-        var controls = new List<DHControlNodeWrapper>();
-
-        if (string.IsNullOrEmpty(payload.ControlId))
+        try
         {
-            var result = await controlService.ListControlsAsync().ConfigureAwait(false);
-            var controlNodes = result.Results.Where(item => item is DHControlNodeWrapper).OfType<DHControlNodeWrapper>();
-            controls.AddRange(controlNodes);
-            logger.LogInformation($"Trigger batch controls jobs. Count {controls.Count}.");
-        }
-        else
-        {
-            var result = await controlService.GetControlByIdAsync(payload.ControlId).ConfigureAwait(false);
-            controls.Add((DHControlNodeWrapper)result);
-            logger.LogInformation($"Trigger control job. ControlId {payload.ControlId}.");
-        }
+            // Step 1: query all controls
+            var controls = new List<DHControlNodeWrapper>();
 
-        var scheduleRunId = Guid.NewGuid().ToString();
-        logger.LogInformation($"New scheduleRunId generated {scheduleRunId}");
-
-        var assessments = await assessmentService.ListAssessmentsAsync().ConfigureAwait(false);
-
-        foreach (var control in controls)
-        {
-            try
+            if (string.IsNullOrEmpty(payload.ControlId))
             {
-                logger.LogInformation($"start with control, Id: {control.Id}. AssessmentId: {control.AssessmentId}");
-                if (control.Status != DHControlStatus.Enabled)
+                var result = await controlService.ListControlsAsync().ConfigureAwait(false);
+                var controlNodes = result.Results.Where(item => item is DHControlNodeWrapper).OfType<DHControlNodeWrapper>();
+                controls.AddRange(controlNodes);
+                logger.LogInformation($"Trigger batch controls jobs. Count {controls.Count}.");
+            }
+            else
+            {
+                var result = await controlService.GetControlByIdAsync(payload.ControlId).ConfigureAwait(false);
+                controls.Add((DHControlNodeWrapper)result);
+                logger.LogInformation($"Trigger control job. ControlId {payload.ControlId}.");
+            }
+
+            var scheduleRunId = Guid.NewGuid().ToString();
+            logger.LogInformation($"New scheduleRunId generated {scheduleRunId}");
+
+            var assessments = await assessmentService.ListAssessmentsAsync().ConfigureAwait(false);
+            int failedJobsCount = 0;
+            foreach (var control in controls)
+            {
+                try
                 {
-                    logger.LogInformation($"control is not enabled, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
-                    continue;
-                }
+                    logger.LogInformation($"start with control, Id: {control.Id}. AssessmentId: {control.AssessmentId}");
+                    if (control.Status != DHControlStatus.Enabled)
+                    {
+                        logger.LogInformation($"control is not enabled, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                        continue;
+                    }
 
-                var assessment = assessments.Results.First(item => item.Id == control.AssessmentId);
-                if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
-                {
-                    _ = this.UpdateDQScoreAsync(scheduleRunId, control, assessment);
-                    continue;
-                }
+                    var assessment = assessments.Results.First(item => item.Id == control.AssessmentId);
+                    if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
+                    {
+                        _ = this.UpdateDQScoreAsync(scheduleRunId, control, assessment);
+                        continue;
+                    }
 
-                if (assessment.Rules == null || !assessment.Rules.Any())
-                {
-                    logger.LogInformation($"Control has no rules, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
-                    continue;
-                }
+                    if (assessment.Rules == null || !assessment.Rules.Any())
+                    {
+                        logger.LogInformation($"Control has no rules, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                        continue;
+                    }
 
-                // Step 2: save into monitoring table
-                var jobId = Guid.NewGuid().ToString();
-                var jobWrapper = new DHComputingJobWrapper();
-                jobWrapper.Id = jobId;
-                jobWrapper.ControlId = control.Id;
-                jobWrapper.ScheduleRunId = scheduleRunId;
-                jobWrapper.Status = DHComputingJobStatus.Unknown;
-                jobWrapper = await monitoringService.CreateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
+                    // Step 2: save into monitoring table
+                    var jobId = Guid.NewGuid().ToString();
+                    var jobWrapper = new DHComputingJobWrapper();
+                    jobWrapper.Id = jobId;
+                    jobWrapper.ControlId = control.Id;
+                    jobWrapper.ScheduleRunId = scheduleRunId;
+                    jobWrapper.Status = DHComputingJobStatus.Unknown;
+                    jobWrapper = await monitoringService.CreateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
 
-                // Step 3: submit DQ jobs
-                var dqJobId = await dataQualityExecutionService.SubmitDQJob(
-                    requestHeaderContext.TenantId.ToString(),
-                    requestHeaderContext.AccountObjectId.ToString(),
-                    control,
-                    assessment,
-                    jobId).ConfigureAwait(false);
+                    // Step 3: submit DQ jobs
+                    var dqJobId = await dataQualityExecutionService.SubmitDQJob(
+                        requestHeaderContext.TenantId.ToString(),
+                        requestHeaderContext.AccountObjectId.ToString(),
+                        control,
+                        assessment,
+                        jobId).ConfigureAwait(false);
 
-                // Update DQ job id in monitoring table
-                jobWrapper.DQJobId = dqJobId;
-                jobWrapper.Status = DHComputingJobStatus.Created;
-                await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
-                logger.LogTipInformation($"The MDQ job was triggered", new JObject
+                    // Update DQ job id in monitoring table
+                    jobWrapper.DQJobId = dqJobId;
+                    jobWrapper.Status = DHComputingJobStatus.Created;
+                    await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
+                    logger.LogTipInformation($"The MDQ job was triggered", new JObject
                 {
                     { "jobId" , jobId },
                     { "dqJobId" , dqJobId },
@@ -116,16 +118,29 @@ public class DHScheduleService(
                     { "controlName", control.Name},
                     { "scheduleRunId", scheduleRunId }
                 });
+                }
+                catch (Exception ex)
+                {
+                    logger.LogCritical($"control failed to start. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}", ex);
+                    failedJobsCount++;
+                }
             }
-            catch (Exception ex)
+
+            if (failedJobsCount > 0)
             {
-                logger.LogError($"control failed to start. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}", ex);
+                logger.LogTipInformation("Failed to trriger control job", new JObject { { "failedJobsCount", failedJobsCount } });
             }
+
+            logger.LogInformation($"All MDQ jobs in schedule run {scheduleRunId} are created.");
+
+            return scheduleRunId;
+        }
+        catch (Exception ex)
+        {
+            logger.LogCritical($"Failed to trigger schedule job", ex);
+            throw;
         }
 
-        logger.LogInformation($"All MDQ jobs in schedule run {scheduleRunId} are created.");
-
-        return scheduleRunId;
     }
 
     public async Task UpdateMDQJobStatusAsync(DHControlMDQJobCallbackPayload payload)
