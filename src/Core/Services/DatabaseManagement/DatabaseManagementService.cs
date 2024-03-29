@@ -4,13 +4,13 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 internal class DatabaseManagementService : IDatabaseManagementService
 {
@@ -75,6 +75,22 @@ internal class DatabaseManagementService : IDatabaseManagementService
         await this.databaseCommand.GrantUserToSchemaAsync(databaseRequest, cancellationToken);
         await this.databaseCommand.GrantCredentialToUserAsync(databaseRequest, cancellationToken);
 
-        await this.databaseCommand.ExecuteScriptAsync(databaseRequest, cancellationToken);
+        await this.databaseCommand.ExecuteSetupScriptAsync(databaseRequest, cancellationToken);
+    }
+
+    public async Task Deprovision(AccountServiceModel accountModel, CancellationToken cancellationToken)
+    {
+        var accountId = Guid.Parse(accountModel.Id);
+        var storageModel = await this.processingStorageManager.Get(accountModel, cancellationToken);
+
+        var databaseRequest = new DatabaseRequest
+        {
+            DatabaseName = DatabaseName,
+            DataSourceLocation = $"{storageModel.GetDfsEndpoint()}/{accountModel.DefaultCatalogId}/",
+            SchemaName = accountId.ToString(),
+            ScopedCredential = new ManagedIdentityScopedCredential("SynapseMICredential")
+        };
+
+        await this.databaseCommand.ExecuteSetupRollbackScriptAsync(databaseRequest, cancellationToken);
     }
 }

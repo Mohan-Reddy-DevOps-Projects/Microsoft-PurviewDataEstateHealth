@@ -71,6 +71,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         await this.DeprovisionSparkJobs(account);
         await this.DeprovisionActionCleanUpJob(account);
         await this.DeletePowerBIResources(account, cancellationToken);
+        await this.databaseManagementService.Deprovision(account, cancellationToken);
         await this.sparkJobManager.DeleteSparkPool(account, cancellationToken);
     }
 

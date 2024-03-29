@@ -4,8 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using System.Threading.Tasks;
 
 internal interface IDatabaseCommand
 {
@@ -25,5 +25,7 @@ internal interface IDatabaseCommand
 
     Task GrantCredentialToUserAsync(IDatabaseRequest request, CancellationToken cancellationToken);
 
-    Task ExecuteScriptAsync(IDatabaseRequest request, CancellationToken cancellationToken);
+    Task ExecuteSetupScriptAsync(IDatabaseRequest request, CancellationToken cancellationToken);
+
+    Task ExecuteSetupRollbackScriptAsync(IDatabaseRequest request, CancellationToken cancellationToken);
 }

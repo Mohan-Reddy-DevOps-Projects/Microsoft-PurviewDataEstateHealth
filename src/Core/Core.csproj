@@ -36,5 +36,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>setup.sql</TargetPath>
     </None>
+    <None Update="Setup\setup-rollback.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>setup-rollback.sql</TargetPath>
+    </None>
   </ItemGroup>
 </Project>

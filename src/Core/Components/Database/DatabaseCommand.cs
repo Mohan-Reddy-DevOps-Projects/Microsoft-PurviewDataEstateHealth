@@ -4,15 +4,15 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Data.SqlClient;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using System;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 internal class DatabaseCommand : IDatabaseCommand
 {
@@ -168,7 +168,7 @@ internal class DatabaseCommand : IDatabaseCommand
         await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
     }
 
-    public async  Task GrantUserToSchemaAsync(IDatabaseRequest request, CancellationToken cancellationToken)
+    public async Task GrantUserToSchemaAsync(IDatabaseRequest request, CancellationToken cancellationToken)
     {
         string query = $@"
         USE [{request.DatabaseName}]
@@ -177,10 +177,20 @@ internal class DatabaseCommand : IDatabaseCommand
         await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
     }
 
-    public async Task ExecuteScriptAsync(IDatabaseRequest request, CancellationToken cancellationToken)
+    public async Task ExecuteSetupScriptAsync(IDatabaseRequest request, CancellationToken cancellationToken)
+    {
+        await this.ExecuteScriptAsync(request, "setup.sql", cancellationToken);
+    }
+
+    public async Task ExecuteSetupRollbackScriptAsync(IDatabaseRequest request, CancellationToken cancellationToken)
+    {
+        await this.ExecuteScriptAsync(request, "setup-rollback.sql", cancellationToken);
+    }
+
+    private async Task ExecuteScriptAsync(IDatabaseRequest request, string scriptName, CancellationToken cancellationToken)
     {
         string currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-        string scriptText = await File.ReadAllTextAsync(Path.Combine(currentDirectory, "setup.sql"), cancellationToken);
+        string scriptText = await File.ReadAllTextAsync(Path.Combine(currentDirectory, scriptName), cancellationToken);
 
         var scriptVariables = new Dictionary<string, string>
         {
