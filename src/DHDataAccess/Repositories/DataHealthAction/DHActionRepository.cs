@@ -63,7 +63,7 @@ public class DHActionRepository(
                 new QueryRequestOptions
                 {
                     PartitionKey = this.TenantPartitionKey,
-                    MaxItemCount = query.PageSize ?? -1,
+                    MaxItemCount = query.PageSize ?? 200,
                 });
 
             var results = new List<DataHealthActionWrapper>();
@@ -300,7 +300,7 @@ public class DHActionRepository(
     {
         using (this.logger.LogElapsed("Start to query grouped actions in DB"))
         {
-            var actions = await this.GetActionsByFilterAsync(query).ConfigureAwait(false);
+            var actions = await this.GetActionsByFilterAsync(query, true).ConfigureAwait(false);
             return GroupedActions.ToGroupedActions(groupBy, actions.Results);
         }
     }
