@@ -4,10 +4,10 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System.Threading.Tasks;
 
 internal class TriggerDataQualitySparkJobStage : IJobCallbackStage
 {
@@ -32,8 +32,12 @@ internal class TriggerDataQualitySparkJobStage : IJobCallbackStage
 
     public string StageName => nameof(TriggerDataQualitySparkJobStage);
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
     public async Task<JobExecutionResult> Execute()
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     {
+        /*
+         * skip DQ spark job
         JobExecutionStatus jobStageStatus;
         string jobStatusMessage;
 
@@ -55,6 +59,10 @@ internal class TriggerDataQualitySparkJobStage : IJobCallbackStage
         }
 
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
+
+        */
+
+        return this.jobCallbackUtils.GetExecutionResult(JobExecutionStatus.Completed, "", DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
     }
 
     public bool IsStageComplete()

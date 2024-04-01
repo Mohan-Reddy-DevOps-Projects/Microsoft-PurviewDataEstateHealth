@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using Microsoft.PowerBI.Api.Models;
@@ -49,10 +50,13 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     [Inject]
     private readonly IAccountExposureControlConfigProvider exposureControl;
 
+    private IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
+
 #pragma warning restore 649
 
-    public PartnerNotificationComponent(IPartnerNotificationContext context, int version) : base(context, version)
+    public PartnerNotificationComponent(IPartnerNotificationContext context, int version, IDataEstateHealthRequestLogger dataEstateHealthRequestLogger) : base(context, version)
     {
+        this.dataEstateHealthRequestLogger = dataEstateHealthRequestLogger;
     }
 
     /// <inheritdoc/>
@@ -115,11 +119,6 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         {
             await this.backgroundJobManager.ProvisionCatalogSparkJob(account);
         }
-
-        if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
-        {
-            await this.backgroundJobManager.ProvisionDataQualitySparkJob(account);
-        }
     }
 
     private async Task ProvisionActionsCleanUpJob(AccountServiceModel account)
@@ -135,10 +134,16 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         {
             await this.backgroundJobManager.DeprovisionCatalogSparkJob(account);
         }
-
-        if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        try
         {
-            await this.backgroundJobManager.DeprovisionDataQualitySparkJob(account);
+            if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                await this.backgroundJobManager.DeprovisionDataQualitySparkJob(account);
+            }
+        }
+        catch (Exception ex)
+        {
+            this.dataEstateHealthRequestLogger.LogError($"deprovisioning DQ spark job with failure", ex);
         }
     }
 
