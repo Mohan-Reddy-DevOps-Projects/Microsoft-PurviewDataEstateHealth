@@ -6,7 +6,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities.ObligationHelper;
     using Microsoft.Azure.Purview.DataEstateHealth.Common.Utilities.ObligationHelper.Interfaces;
-    using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
@@ -19,7 +18,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
     using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
-    using Newtonsoft.Json;
     using System;
     using System.Collections.Generic;
     using System.Globalization;
@@ -30,8 +28,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         DHActionRepository dataHealthActionRepository,
         DHActionInternalService dHActionInternalService,
         IRequestHeaderContext requestHeaderContext,
-        IDataEstateHealthRequestLogger logger,
-        EnvironmentConfiguration environmentConfiguration
+        IDataEstateHealthRequestLogger logger
         )
     {
         public async Task<IBatchResults<DataHealthActionWrapper>> EnumerateActionsAsync(CosmosDBQuery<ActionsFilter> query)
@@ -230,7 +227,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
         internal List<Obligation> GetObligationQueryFilter(List<string> obligationContainerTypes, string permission)
         {
-            if (!this.EnableObligationCheck())
+            if (!EnableObligationCheck())
             {
                 // Permit all by default.
                 return new List<Obligation>()
@@ -242,9 +239,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                     };
             }
             var obligationDict = requestHeaderContext.Obligations;
-
-            // TODO: need to remove this log.
-            logger.LogInformation($"Obligation: {JsonConvert.SerializeObject(obligationDict)}");
 
             var obligations = ObligationHelper.GetObligations(obligationDict, obligationContainerTypes, permission);
 
@@ -260,7 +254,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         {
             using (logger.LogElapsed("Check obligation."))
             {
-                if (!this.EnableObligationCheck())
+                if (!EnableObligationCheck())
                 {
                     logger.LogInformation($"Obligation passed because it is not enabled.");
                     return true;
@@ -282,9 +276,9 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                 return isAccessAllowed;
             }
         }
-        private bool EnableObligationCheck()
+        private static bool EnableObligationCheck()
         {
-            return environmentConfiguration.IsDogfoodEnvironment();
+            return true;
         }
     }
 }
