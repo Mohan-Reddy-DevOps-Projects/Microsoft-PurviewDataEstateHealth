@@ -50,13 +50,12 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     [Inject]
     private readonly IAccountExposureControlConfigProvider exposureControl;
 
-    private IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
+    [Inject]
+    private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
 
 #pragma warning restore 649
-
-    public PartnerNotificationComponent(IPartnerNotificationContext context, int version, IDataEstateHealthRequestLogger dataEstateHealthRequestLogger) : base(context, version)
+    public PartnerNotificationComponent(IPartnerNotificationContext context, int version) : base(context, version)
     {
-        this.dataEstateHealthRequestLogger = dataEstateHealthRequestLogger;
     }
 
     /// <inheritdoc/>
