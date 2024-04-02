@@ -45,16 +45,18 @@ public class DHScheduleController(
             logger.LogInformation($"Not allowed to trigger schedule. Account id: {accountId}. Tenant id: {tenantId}.");
             return this.Unauthorized();
         }
-        logger.LogInformation("Manually trigger schedule start.");
-        var payload = new DHScheduleCallbackPayload
+        using (logger.LogElapsed("Manually trigger schedule"))
         {
-            Operator = requestHeaderContext.ClientObjectId,
-            TriggerType = DHScheduleCallbackTriggerType.Manually,
-            ControlId = requestPayload.ControlId,
-        };
-        var scheduleRunId = await scheduleService.TriggerScheduleJobCallbackAsync(payload).ConfigureAwait(false);
-        logger.LogInformation($"Manually trigger schedule successfully. ScheduleRunId: {scheduleRunId}. Operator: {requestHeaderContext.ClientObjectId}.");
-        return this.Ok(new Dictionary<string, string>() { { "scheduleRunId", scheduleRunId } });
+            var payload = new DHScheduleCallbackPayload
+            {
+                Operator = requestHeaderContext.ClientObjectId,
+                TriggerType = DHScheduleCallbackTriggerType.Manually,
+                ControlId = requestPayload.ControlId,
+            };
+            var scheduleRunId = await scheduleService.TriggerScheduleJobCallbackAsync(payload).ConfigureAwait(false);
+            logger.LogInformation($"Manually trigger schedule successfully. ScheduleRunId: {scheduleRunId}. Operator: {requestHeaderContext.ClientObjectId}.");
+            return this.Ok(new Dictionary<string, string>() { { "scheduleRunId", scheduleRunId } });
+        }
     }
 
     [HttpPut]

@@ -36,23 +36,27 @@ public class InternalDHControlController(
         }
         var tenantId = requestHeaderContext.TenantId;
         var accountId = requestHeaderContext.AccountObjectId;
-        logger.LogInformation($"Schedule job callback start. TenantId: {tenantId}. AccountId: {accountId}.");
         requestBody.Operator = DHScheduleCallbackPayload.DGScheduleServiceOperatorName;
-        await dhScheduleService.TriggerScheduleJobCallbackAsync(requestBody).ConfigureAwait(false);
-
-        logger.LogInformation($"Refresh powerBI after MDQ jobs triggered. TenantId: {tenantId}. AccountId: {accountId}.");
-        if (requestBody.ControlId == null)
+        using (logger.LogElapsed($"Schedule job callback start. TenantId: {tenantId}. AccountId: {accountId}."))
         {
-            var account = new AccountServiceModel(id: accountId.ToString(), tenantId: tenantId.ToString());
-            coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
-                .CreatePartnerNotificationComponent(tenantId, accountId);
-            await coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
-                .CreateDHControlTriggerComponent(tenantId, accountId)
-                .RefreshPowerBI(account, CancellationToken.None);
+            await dhScheduleService.TriggerScheduleJobCallbackAsync(requestBody).ConfigureAwait(false);
         }
-        else
+
+        using (logger.LogElapsed($"Refresh powerBI after MDQ jobs triggered. TenantId: {tenantId}. AccountId: {accountId}."))
         {
-            logger.LogInformation($"Ignore powerBI refresh since this request is triggered by specific control {requestBody.ControlId}");
+            if (requestBody.ControlId == null)
+            {
+                var account = new AccountServiceModel(id: accountId.ToString(), tenantId: tenantId.ToString());
+                coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                    .CreatePartnerNotificationComponent(tenantId, accountId);
+                await coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                    .CreateDHControlTriggerComponent(tenantId, accountId)
+                    .RefreshPowerBI(account, CancellationToken.None);
+            }
+            else
+            {
+                logger.LogInformation($"Ignore powerBI refresh since this request is triggered by specific control {requestBody.ControlId}");
+            }
         }
         return this.Ok();
     }
@@ -70,8 +74,10 @@ public class InternalDHControlController(
             logger.LogInformation($"Invalid job status. Job Id: {requestBody.DQJobId}");
             return this.BadRequest("Invalid job status");
         }
-        logger.LogInformation($"MDQ job callback start. TenantId: {requestHeaderContext.TenantId}. AccountId: {requestHeaderContext.AccountObjectId}. Job Id: {requestBody.DQJobId}. Job Status: {requestBody.JobStatus}.");
-        await dhScheduleService.UpdateMDQJobStatusAsync(requestBody).ConfigureAwait(false);
+        using (logger.LogElapsed($"MDQ job callback start. TenantId: {requestHeaderContext.TenantId}. AccountId: {requestHeaderContext.AccountObjectId}. Job Id: {requestBody.DQJobId}. Job Status: {requestBody.JobStatus}."))
+        {
+            await dhScheduleService.UpdateMDQJobStatusAsync(requestBody).ConfigureAwait(false);
+        }
         return this.Ok();
     }
 }
