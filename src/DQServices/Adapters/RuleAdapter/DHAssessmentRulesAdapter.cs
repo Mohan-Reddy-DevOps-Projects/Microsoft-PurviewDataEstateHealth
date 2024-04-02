@@ -5,12 +5,14 @@
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Rule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +40,7 @@ public class DHAssessmentRulesAdapter
 
         List<string> projectionSqlList = new List<string>(); ;
         List<SparkSchemaItemWrapper> schemaFromJoin = new List<SparkSchemaItemWrapper>();
-        List<InputDatasetWrapper> inputDatasetsFromJoin = new List<InputDatasetWrapper>();
+        Dictionary<string, InputDatasetWrapper> inputDatasetsFromJoin = new Dictionary<string, InputDatasetWrapper>();
 
         if (context.joinRequirements.Count > 0)
         {
@@ -46,41 +48,41 @@ public class DHAssessmentRulesAdapter
 
             foreach (var joinRequirement in context.joinRequirements)
             {
-                JoinAdapter joinAdapter = null;
+                DataQualityJoinAdapter joinAdapter = null;
 
                 switch (joinRequirement)
                 {
-                    case JoinRequirement.BusinessDomain:
+                    case DataQualityJoinRequirement.BusinessDomain:
                         joinAdapter = new DataProductBusinessDomainJoinAdapter(context);
                         break;
-                    case JoinRequirement.DataProductStatus:
+                    case DataQualityJoinRequirement.DataProductStatus:
                         joinAdapter = new DataProductStatusJoinAdapter(context);
                         break;
-                    case JoinRequirement.DataAssetCount:
+                    case DataQualityJoinRequirement.DataAssetCount:
                         joinAdapter = new DataAssetCountJoinAdapter(context);
                         break;
-                    case JoinRequirement.DataProductOwner:
+                    case DataQualityJoinRequirement.DataProductOwner:
                         joinAdapter = new DataProductOwnerJoinAdapter(context);
                         break;
-                    case JoinRequirement.DataProductTerm:
+                    case DataQualityJoinRequirement.DataProductTerm:
                         joinAdapter = new DataProductTermJoinAdapter(context);
                         break;
-                    case JoinRequirement.HasAccessPolicySet:
+                    case DataQualityJoinRequirement.HasAccessPolicySet:
                         joinAdapter = new HasAccessPolicySetJoinAdapter(context);
                         break;
-                    case JoinRequirement.DataProductAssetDQScore:
+                    case DataQualityJoinRequirement.DataProductAssetDQScore:
                         joinAdapter = new AssetDQScoreJoinAdapter(context);
                         break;
-                    case JoinRequirement.DataProductAssetsOwner:
+                    case DataQualityJoinRequirement.DataProductAssetsOwner:
                         joinAdapter = new DataProductAssetHasOwnerJoinAdapter(context);
                         break;
-                    case JoinRequirement.DataAssetClassification:
+                    case DataQualityJoinRequirement.DataAssetClassification:
                         joinAdapter = new AssetWithClassificationCountJoinAdapter(context);
                         break;
-                    case JoinRequirement.BusinessDomainData:
+                    case DataQualityJoinRequirement.BusinessDomainData:
                         joinAdapter = new DataProductBusinessDomainDataJoinAdapter(context);
                         break;
-                    case JoinRequirement.DataProductTermsOfUseCount:
+                    case DataQualityJoinRequirement.DataProductTermsOfUseCount:
                         joinAdapter = new DataProductTermsOfUseJoinAdapter(context);
                         break;
                     default:
@@ -90,7 +92,13 @@ public class DHAssessmentRulesAdapter
                 var joinResult = joinAdapter.Adapt();
                 projectionSqlList.Add(joinResult.JoinSql);
                 schemaFromJoin.AddRange(joinResult.SchemaFromJoin);
-                inputDatasetsFromJoin.AddRange(joinResult.inputDatasetsFromJoin);
+                foreach (var inputDataset in joinResult.inputDatasetsFromJoin)
+                {
+                    if (!inputDatasetsFromJoin.ContainsKey(inputDataset.Alias))
+                    {
+                        inputDatasetsFromJoin[inputDataset.Alias] = inputDataset;
+                    }
+                }
             }
         }
 
@@ -104,7 +112,7 @@ public class DHAssessmentRulesAdapter
         {
             ProjectionSql = string.Join(" ", projectionSqlList),
             SchemaFromJoin = schemaFromJoin,
-            inputDatasetsFromJoin = inputDatasetsFromJoin,
+            inputDatasetsFromJoin = inputDatasetsFromJoin.Values.ToList(),
             CustomRules = customRules
         };
     }

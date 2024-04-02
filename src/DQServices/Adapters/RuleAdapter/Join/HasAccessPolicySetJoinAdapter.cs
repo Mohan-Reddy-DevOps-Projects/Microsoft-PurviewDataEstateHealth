@@ -1,47 +1,30 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.DomainModels;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.Utils;
-using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-public class HasAccessPolicySetJoinAdapter : JoinAdapter
+public class HasAccessPolicySetJoinAdapter : DataQualityJoinAdapter
 {
-
-    private readonly string[][] accessPolicySetDef =
-    [
-        ["AccessPolicySetId", "String"],
-        ["PolicyAppliedOn", "String"],
-        ["PolicyAppliedOnId", "String"],
-        ["ActiveFlag", "Number", "true"]
-    ];
-
     private readonly string[][] outputSchemaDef =
     [
         ["DataProductHasAccessPolicySet", "boolean"]
     ];
 
-    private List<DatasetSchemaItemWrapper> accessPolicySetSchema;
     private List<SparkSchemaItemWrapper> outputSchema;
 
     public HasAccessPolicySetJoinAdapter(RuleAdapterContext context) : base(context)
     {
-        this.accessPolicySetSchema = SchemaUtils.GenerateSchemaFromDefinition(this.accessPolicySetDef);
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
 
     public override JoinAdapterResult Adapt()
     {
-        var inputDataset1 = new InputDatasetWrapper(new JObject()
-        {
-            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_ACCESS_POLICY_SET_PATH, this.accessPolicySetSchema).JObject }
-        });
-        inputDataset1.Alias = "AccessPolicySet";
-        inputDataset1.Primary = false;
+        var inputDataset1 = this.GetInputDataset(DomainModelType.AccessPolicySet);
 
         return new JoinAdapterResult
         {

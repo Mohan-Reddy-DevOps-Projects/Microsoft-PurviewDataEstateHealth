@@ -5,7 +5,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Repositories.DataQuali
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
-using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;

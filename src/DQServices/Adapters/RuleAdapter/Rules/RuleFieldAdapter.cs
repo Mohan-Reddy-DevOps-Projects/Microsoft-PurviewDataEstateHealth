@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
@@ -15,43 +15,43 @@ internal static class RuleFieldAdapter
             case DHCheckPoint.DataProductEndorsed: return "Endorsed";
             case DHCheckPoint.DataProductStatus: return "DataProductStatusDisplayName";
             case DHCheckPoint.DataProductOwnerCount:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductOwner);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductOwner);
                 return "DataProductOwnerCount";
             case DHCheckPoint.DataProductRelatedDataAssetsCount:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataAssetCount);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataAssetCount);
                 return "DataAssetCount";
             case DHCheckPoint.DataProductRelatedTermsCount:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTerm);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductTerm);
                 return "DataProductTermCount";
             case DHCheckPoint.DataProductHasDataAccessPolicy:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.HasAccessPolicySet);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.HasAccessPolicySet);
                 return "DataProductHasAccessPolicySet";
             case DHCheckPoint.DataProductHasDataUsagePurpose:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTermsOfUseCount);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductTermsOfUseCount);
                 return "DataProductHasDataUsagePurpose";
             case DHCheckPoint.DataProductTermsOfUseCount:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTermsOfUseCount);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductTermsOfUseCount);
                 return "DataProductTermsOfUseCount";
             case DHCheckPoint.DataProductHasDQScore:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductAssetDQScore);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetDQScore);
                 return "DataProductHasDQScore";
             case DHCheckPoint.DataProductAllRelatedAssetsHaveDQScore:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductAssetDQScore);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetDQScore);
                 return "DataProductAllRelatedAssetsHaveDQScore";
             case DHCheckPoint.DataProductAllRelatedAssetsHaveOwner:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductAssetsOwner);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetsOwner);
                 return "DataProductAllRelatedAssetsHaveOwner";
             case DHCheckPoint.DataProductRelatedDataAssetsWithClassificationCount:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataAssetClassification);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataAssetClassification);
                 return "DataProductRelatedDataAssetsWithClassificationCount";
             case DHCheckPoint.DataProductDomainHasOwner:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.BusinessDomainData);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.BusinessDomainData);
                 return "DataProductDomainHasOwner";
             case DHCheckPoint.DataProductDomainDescriptionLength:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.BusinessDomainData);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.BusinessDomainData);
                 return "length(regexReplace(BusinessDomainDescription, '(<(.*?)>)', ''))";
             case DHCheckPoint.DataProductAllRelatedTermsMinimalDescriptionLength:
-                ruleAdapterContext.joinRequirements.Add(JoinRequirement.DataProductTerm);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductTerm);
                 return "length(regexReplace(DataProductAllRelatedTermsMinimalDescription, '(<(.*?)>)', ''))";
             default: throw new NotImplementedException("Checkpoint: " + checkpoint.ToString());
         }

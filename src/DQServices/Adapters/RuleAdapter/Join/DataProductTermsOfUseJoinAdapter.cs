@@ -1,47 +1,31 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.DomainModels;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.Utils;
-using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-public class DataProductTermsOfUseJoinAdapter : JoinAdapter
+public class DataProductTermsOfUseJoinAdapter : DataQualityJoinAdapter
 {
-
-    private readonly string[][] dataProductTermsOfUseDef =
-    [
-        ["DataProductId", "String"],
-        ["TermsOfUseId", "String"]
-    ];
-
     private readonly string[][] outputSchemaDef =
     [
         ["DataProductHasDataUsagePurpose", "boolean"],
         ["DataProductTermsOfUseCount", "long"],
     ];
 
-    private List<DatasetSchemaItemWrapper> dataProductTermsOfUseSchema;
     private List<SparkSchemaItemWrapper> outputSchema;
 
     public DataProductTermsOfUseJoinAdapter(RuleAdapterContext context) : base(context)
     {
-        this.dataProductTermsOfUseSchema = SchemaUtils.GenerateSchemaFromDefinition(this.dataProductTermsOfUseDef);
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
 
     public override JoinAdapterResult Adapt()
     {
-        var inputDataset = new InputDatasetWrapper(new JObject()
-        {
-            // TODO why set not work
-            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_DP_TOU_PATH, this.dataProductTermsOfUseSchema).JObject }
-        });
-        inputDataset.Alias = "DataProductTermsOfUse";
-        inputDataset.Primary = false;
+        var inputDataset = this.GetInputDataset(DomainModelType.DataProductTermsOfUse);
 
         return new JoinAdapterResult
         {

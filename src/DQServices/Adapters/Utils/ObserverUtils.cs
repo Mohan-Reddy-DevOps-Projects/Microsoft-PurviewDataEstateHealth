@@ -1,7 +1,7 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
-
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.Utils;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.DomainModels;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
-using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetLocation;
@@ -12,31 +12,22 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 
-public abstract class JoinAdapter
+public static class ObserverUtils
 {
-    protected RuleAdapterContext context;
-
-    public JoinAdapter(RuleAdapterContext context)
-    {
-        this.context = context;
-    }
-
-    public abstract JoinAdapterResult Adapt();
-
     // Returns a partial location
-    protected DatasetGen2FileLocationWrapper GetBasicGen2FileLocation()
+    private static DatasetGen2FileLocationWrapper GetBasicGen2FileLocation(RuleAdapterContext context)
     {
         var datasetLocation = new DatasetGen2FileLocationWrapper(new JObject()
         {
             { DynamicEntityWrapper.keyType, DatasetGen2FileLocationWrapper.EntityType },
             { DynamicEntityWrapper.keyTypeProperties, new JObject() }
         });
-        datasetLocation.FileSystem = this.context.containerName;
+        datasetLocation.FileSystem = context.containerName;
         return datasetLocation;
     }
 
     // Returns a partial dataset
-    protected DeltaDatasetWrapper GetBasicDataset(string folderPath, List<DatasetSchemaItemWrapper> schema)
+    private static DeltaDatasetWrapper GetBasicDataset(RuleAdapterContext context, string folderPath, List<DatasetSchemaItemWrapper> schema)
     {
         var dataset = new DeltaDatasetWrapper(new JObject()
         {
@@ -44,10 +35,10 @@ public abstract class JoinAdapter
             { DynamicEntityWrapper.keyTypeProperties, new JObject() }
         });
         dataset.ProjectAs = Array.Empty<DatasetProjectAsItemWrapper>();
-        dataset.DatasourceFQN = this.context.endpoint + "/";
+        dataset.DatasourceFQN = context.endpoint + "/";
         dataset.CompressionCodec = "snappy";
 
-        var datasetLocation = this.GetBasicGen2FileLocation();
+        var datasetLocation = GetBasicGen2FileLocation(context);
         datasetLocation.FolderPath = folderPath;
         dataset.Location = new[] { datasetLocation };
         var datasetSchema = new DatasetSchemaWrapper(new JObject());
@@ -62,14 +53,35 @@ public abstract class JoinAdapter
 
         var dataProductRef = new ReferenceObjectWrapper(new JObject());
         dataProductRef.Type = ReferenceType.DataProductReference;
-        dataProductRef.ReferenceId = this.context.dataProductId;
+        dataProductRef.ReferenceId = context.dataProductId;
         dataset.DataProduct = dataProductRef;
 
         var dataAssetRef = new ReferenceObjectWrapper(new JObject());
         dataAssetRef.Type = ReferenceType.DataAssetReference;
-        dataAssetRef.ReferenceId = this.context.dataAssetId;
+        dataAssetRef.ReferenceId = context.dataAssetId;
         dataset.DataAsset = dataAssetRef;
 
         return dataset;
+    }
+
+    public static InputDatasetWrapper GetInputDataset(
+        RuleAdapterContext context,
+        DomainModelType domainModelType,
+        bool isPrimary = false,
+        string alias = null)
+    {
+        var domainModel = DomainModelUtils.GetDomainModel(domainModelType);
+
+        var dataset = GetBasicDataset(context, domainModel.FolderPath, domainModel.Schema);
+
+        // TODO Jar
+        var inputDataset = new InputDatasetWrapper(new JObject()
+        {
+            { "dataset", dataset.JObject }
+        });
+        inputDataset.Alias = alias ?? domainModelType.ToString();
+        inputDataset.Primary = isPrimary;
+
+        return inputDataset;
     }
 }

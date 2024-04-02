@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
+﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
@@ -27,10 +27,10 @@ public class RuleAdapterContext
         this.dataProductId = dataProductId;
         this.dataAssetId = dataAssetId;
         this.assessment = assessment;
-        this.joinRequirements = new SortedSet<JoinRequirement>(DataEstateHealthConstants.ALWAYS_REQUIRED_JOIN_REQUIREMENTS);
+        this.joinRequirements = new SortedSet<DataQualityJoinRequirement>(DataEstateHealthConstants.ALWAYS_REQUIRED_JOIN_REQUIREMENTS);
         this.fitlerDomainIds = fitlerDomainIds;
     }
 
 
-    public SortedSet<JoinRequirement> joinRequirements { get; }
+    public SortedSet<DataQualityJoinRequirement> joinRequirements { get; }
 }

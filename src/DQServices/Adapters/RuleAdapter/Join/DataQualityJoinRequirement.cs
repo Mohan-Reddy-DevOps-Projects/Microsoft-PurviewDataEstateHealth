@@ -1,5 +1,5 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
-public enum JoinRequirement
+public enum DataQualityJoinRequirement
 {
     BusinessDomain,
     DataProductStatus,

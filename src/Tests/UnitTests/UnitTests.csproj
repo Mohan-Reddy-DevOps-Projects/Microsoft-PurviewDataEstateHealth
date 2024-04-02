@@ -26,6 +26,8 @@
 		<ProjectReference Include="..\..\BusinessLogic\BusinessLogic.csproj" />
 		<ProjectReference Include="..\..\DHModels\DHModels.csproj" />
 		<ProjectReference Include="..\..\DHDataAccess\DHDataAccess.csproj" />
+		<ProjectReference Include="..\..\BusinessLogic\BusinessLogic.csproj" />
+		<ProjectReference Include="..\..\DQServices\DQServices.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

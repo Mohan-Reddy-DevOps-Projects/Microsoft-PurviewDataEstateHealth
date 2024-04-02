@@ -2,7 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
-namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
+namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;

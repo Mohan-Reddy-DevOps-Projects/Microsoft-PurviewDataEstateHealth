@@ -1,13 +1,12 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.DomainModels;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.Utils;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetLocation;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetProjectAsItem;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Rule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
@@ -40,9 +39,15 @@ public class ObserverAdapter
         var convertedResult = DHAssessmentRulesAdapter.ToDqRules(this.context, this.context.assessment.Rules);
 
         // Add more input datasets for join needs
-        var inputDatasets = this.GetDataProductInputDatasets().ToList();
-        inputDatasets.AddRange(convertedResult.inputDatasetsFromJoin);
-        observer.InputDatasets = inputDatasets;
+        var inputDatasets = this.GetDataProductInputDatasets();
+        foreach (var inputDataset in convertedResult.inputDatasetsFromJoin)
+        {
+            if (!inputDatasets.ContainsKey(inputDataset.Alias))
+            {
+                inputDatasets[inputDataset.Alias] = inputDataset;
+            }
+        }
+        observer.InputDatasets = inputDatasets.Values;
 
         // Add projection sql and view schema
         var projection = new ProjectionWrapper(new JObject());
@@ -89,74 +94,14 @@ public class ObserverAdapter
         return alwaysFailedRule;
     }
 
-    private IEnumerable<InputDatasetWrapper> GetDataProductInputDatasets()
+    private Dictionary<string, InputDatasetWrapper> GetDataProductInputDatasets()
     {
-        var inputDataset = new InputDatasetWrapper(new JObject()
-        {
-            // TODO why set not work
-            { "dataset", this.GetDataProductDataset().JObject }
-        });
-        inputDataset.Alias = "DataProduct";
-        inputDataset.Primary = true;
+        var dataProductDataset = ObserverUtils.GetInputDataset(this.context, DomainModelType.DataProduct, true);
 
-        return new InputDatasetWrapper[]
+        return new Dictionary<string, InputDatasetWrapper>()
         {
-            inputDataset
+            { dataProductDataset.Alias, dataProductDataset }
         };
-    }
-
-    private DatasetWrapper GetDataProductDataset()
-    {
-        var dataset = new DeltaDatasetWrapper(new JObject()
-        {
-            { DynamicEntityWrapper.keyType, DeltaDatasetWrapper.entityType },
-            { DynamicEntityWrapper.keyTypeProperties, new JObject() }
-        });
-        dataset.ProjectAs = Array.Empty<DatasetProjectAsItemWrapper>();
-        dataset.DatasourceFQN = this.context.endpoint + "/";
-        dataset.CompressionCodec = "snappy";
-
-        var datasetLocation = new DatasetGen2FileLocationWrapper(new JObject()
-        {
-            { DynamicEntityWrapper.keyType, DatasetGen2FileLocationWrapper.EntityType },
-            { DynamicEntityWrapper.keyTypeProperties, new JObject() }
-        });
-        datasetLocation.FileSystem = this.context.containerName;
-        datasetLocation.FolderPath = DataEstateHealthConstants.SOURCE_DP_FOLDER_PATH;
-        dataset.Location = new[] { datasetLocation };
-
-        var businessDomainRef = new ReferenceObjectWrapper(new JObject());
-        businessDomainRef.Type = ReferenceType.BusinessDomainReference;
-        businessDomainRef.ReferenceId = DataEstateHealthConstants.DEH_DOMAIN_ID;
-        dataset.BusinessDomain = businessDomainRef;
-
-        var datasetSchema = new DatasetSchemaWrapper(new JObject());
-        datasetSchema.Origin = "DEH";
-        datasetSchema.Items = this.GetDataProductSchema();
-        dataset.NativeSchema = datasetSchema;
-
-        var dataProductRef = new ReferenceObjectWrapper(new JObject());
-        dataProductRef.Type = ReferenceType.DataProductReference;
-        dataProductRef.ReferenceId = this.context.dataProductId;
-        dataset.DataProduct = dataProductRef;
-
-        var dataAssetRef = new ReferenceObjectWrapper(new JObject());
-        dataAssetRef.Type = ReferenceType.DataAssetReference;
-        dataAssetRef.ReferenceId = this.context.dataAssetId;
-        dataset.DataAsset = dataAssetRef;
-
-        return dataset;
-    }
-
-    private IEnumerable<DatasetSchemaItemWrapper> GetDataProductSchema()
-    {
-        return SchemaUtils.GenerateSchemaFromDefinition([
-            ["DataProductID", "String"],
-            ["DataProductDisplayName", "String"],
-            ["DataProductDescription", "String"],
-            ["UseCases", "String"],
-            ["Endorsed", "Boolean"],
-        ]);
     }
 
     private IEnumerable<SparkSchemaItemWrapper> GetSparkDataProductSchema()

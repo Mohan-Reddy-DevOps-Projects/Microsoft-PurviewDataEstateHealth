@@ -1,46 +1,30 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.DomainModels;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.Utils;
-using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-public class DataProductBusinessDomainJoinAdapter : JoinAdapter
+public class DataProductBusinessDomainJoinAdapter : DataQualityJoinAdapter
 {
     private readonly string[][] outputSchemaDef =
     [
         ["BusinessDomainId", "string"]
     ];
 
-    private readonly string[][] dataProductBusinessDomainDef =
-    [
-        ["DataProductID", "String"],
-        ["BusinessDomainId", "String"],
-        ["ActiveFlag", "Number", "true"]
-    ];
-
-    private List<DatasetSchemaItemWrapper> dataProductBusinessDomain;
     private List<SparkSchemaItemWrapper> outputSchema;
 
     public DataProductBusinessDomainJoinAdapter(RuleAdapterContext context) : base(context)
     {
-        this.dataProductBusinessDomain = SchemaUtils.GenerateSchemaFromDefinition(this.dataProductBusinessDomainDef);
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
 
     public override JoinAdapterResult Adapt()
     {
-        var inputDataset = new InputDatasetWrapper(new JObject()
-        {
-            // TODO why set not work
-            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_DP_BD_ASSIGNMENT_PATH, this.dataProductBusinessDomain).JObject }
-        });
-        inputDataset.Alias = "DataProductBusinessDomainAssignment";
-        inputDataset.Primary = false;
+        var inputDataset = this.GetInputDataset(DomainModelType.DataProductBusinessDomainAssignment);
 
         return new JoinAdapterResult
         {

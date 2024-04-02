@@ -34,10 +34,10 @@ public class DataEstateHealthConstants
     public const string SOURCE_GT_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/GlossaryTerm";
     public const string SOURCE_DP_TOU_PATH = SOURCE_DOMAIN_MODEL_FOLDER_PATH + "/DataProductTermsOfUse";
 
-    public static readonly JoinRequirement[] ALWAYS_REQUIRED_JOIN_REQUIREMENTS = [
-        JoinRequirement.BusinessDomain,
-        JoinRequirement.DataProductStatus,
-        JoinRequirement.DataProductOwner
+    public static readonly DataQualityJoinRequirement[] ALWAYS_REQUIRED_JOIN_REQUIREMENTS = [
+        DataQualityJoinRequirement.BusinessDomain,
+        DataQualityJoinRequirement.DataProductStatus,
+        DataQualityJoinRequirement.DataProductOwner
     ];
 
     public const string DP_PUBLISHED_STATUS_TEXT = "Published";

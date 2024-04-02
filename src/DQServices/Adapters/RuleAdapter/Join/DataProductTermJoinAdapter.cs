@@ -1,65 +1,32 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.DomainModels;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.Utils;
-using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-public class DataProductTermJoinAdapter : JoinAdapter
+public class DataProductTermJoinAdapter : DataQualityJoinAdapter
 {
-
-    private readonly string[][] dataProductTermDef =
-    [
-        ["GlossaryTermID", "String"],
-        ["DataProductId", "String"],
-        ["ActiveFlag", "Number", "true"]
-    ];
-
-    private readonly string[][] glossaryTermDef =
-    [
-        ["GlossaryTermId", "String"],
-        ["GlossaryDescription", "String"],
-        ["Status", "String"]
-    ];
-
     private readonly string[][] outputSchemaDef =
     [
         ["DataProductTermCount", "long"],
         ["DataProductAllRelatedTermsMinimalDescription", "string"]
     ];
 
-    private List<DatasetSchemaItemWrapper> dataProductTermSchema;
-    private List<DatasetSchemaItemWrapper> glossaryTermSchema;
     private List<SparkSchemaItemWrapper> outputSchema;
 
     public DataProductTermJoinAdapter(RuleAdapterContext context) : base(context)
     {
-        this.dataProductTermSchema = SchemaUtils.GenerateSchemaFromDefinition(this.dataProductTermDef);
-        this.glossaryTermSchema = SchemaUtils.GenerateSchemaFromDefinition(this.glossaryTermDef);
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
 
     public override JoinAdapterResult Adapt()
     {
-        var inputDataset1 = new InputDatasetWrapper(new JObject()
-        {
-            // TODO why set not work
-            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_DP_TERM_ASSIGNMENT_PATH, this.dataProductTermSchema).JObject }
-        });
-        inputDataset1.Alias = "GlossaryTermDataProductAssignment";
-        inputDataset1.Primary = false;
-
-        var inputDataset2 = new InputDatasetWrapper(new JObject()
-        {
-            // TODO why set not work
-            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_GT_PATH, this.glossaryTermSchema).JObject }
-        });
-        inputDataset2.Alias = "GlossaryTerm";
-        inputDataset2.Primary = false;
+        var inputDataset1 = this.GetInputDataset(DomainModelType.GlossaryTermDataProductAssignment);
+        var inputDataset2 = this.GetInputDataset(DomainModelType.GlossaryTerm);
 
         return new JoinAdapterResult
         {

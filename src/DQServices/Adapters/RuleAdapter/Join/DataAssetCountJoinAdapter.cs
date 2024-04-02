@@ -1,47 +1,30 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Join;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.DomainModels;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.Utils;
-using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-public class DataAssetCountJoinAdapter : JoinAdapter
+public class DataAssetCountJoinAdapter : DataQualityJoinAdapter
 {
-
-    private readonly string[][] dataProductAssetDef =
-    [
-        ["DataProductId", "String"],
-        ["DataAssetId", "String"],
-        ["ActiveFlag", "Number", "true"]
-    ];
-
     private readonly string[][] outputSchemaDef =
     [
         ["DataAssetCount", "long"],
     ];
 
-    private List<DatasetSchemaItemWrapper> dataProductAssetSchema;
     private List<SparkSchemaItemWrapper> outputSchema;
 
     public DataAssetCountJoinAdapter(RuleAdapterContext context) : base(context)
     {
-        this.dataProductAssetSchema = SchemaUtils.GenerateSchemaFromDefinition(this.dataProductAssetDef);
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
 
     public override JoinAdapterResult Adapt()
     {
-        var inputDataset = new InputDatasetWrapper(new JObject()
-        {
-            // TODO why set not work
-            { "dataset", this.GetBasicDataset(DataEstateHealthConstants.SOURCE_DP_DA_ASSIGNMENT_PATH, this.dataProductAssetSchema).JObject }
-        });
-        inputDataset.Alias = "DataProductAssetAssignment";
-        inputDataset.Primary = false;
+        var inputDataset = this.GetInputDataset(DomainModelType.DataProductAssetAssignment);
 
         return new JoinAdapterResult
         {
