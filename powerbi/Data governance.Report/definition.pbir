@@ -1,9 +1,14 @@
 {
-  "version": "1.0",
+  "version": "4.0",
   "datasetReference": {
-    "byPath": {
-      "path": "../Data governance.Dataset"
-    },
-    "byConnection": null
+    "byPath": null,
+    "byConnection": {
+      "connectionString": "Data Source=powerbi://df-msit-scus-redirect.analysis.windows.net/v1.0/myorg/InsightsWorkspace;Initial Catalog=Data_Governance_Dataset;Access Mode=readonly;Integrated Security=ClaimsToken",
+      "pbiServiceModelId": null,
+      "pbiModelVirtualServerName": "sobe_wowvirtualserver",
+      "pbiModelDatabaseName": "1765e51a-296b-48cc-9902-a0cc40bc1610",
+      "name": "EntityDataSource",
+      "connectionType": "pbiServiceXmlaStyleLive"
+    }
   }
 }

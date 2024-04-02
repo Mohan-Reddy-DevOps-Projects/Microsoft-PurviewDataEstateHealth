@@ -1,0 +1,39 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBIDesktopVersion = 2.128.352.0 (24.04)
+
+annotation PBI_QueryOrder = ["SERVER","DATABASE","DATABASE_SCHEMA","TENANT_ID","AccountInfo","Assets","BusinessDomain","DataHealthControl","DataProduct","Date","JobType","RuleType","DQ Fact","FactDataGovernanceScan","Measure Table"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table DateTableTemplate_160f5a89-abcf-4cdc-928d-cb1b11d6d861
+ref table BusinessDomain
+ref table LocalDateTable_b3153ccc-ade8-4cf8-b34d-da5b1bb61133
+ref table LocalDateTable_f2c07e67-f53a-4ecb-977a-d87c5745caa9
+ref table LocalDateTable_d061cd14-7808-4226-94d7-f01bdf1b4e23
+ref table LocalDateTable_ecaf91e8-328a-4d23-9a13-2996e0b48f87
+ref table DataHealthControl
+ref table LocalDateTable_a178e977-b0e6-4f8d-9cd5-9756033ce205
+ref table DataProduct
+ref table LocalDateTable_fccec4f6-6bee-4331-87b7-111da6af051c
+ref table LocalDateTable_5f62f5fb-6a2b-4bae-ac84-a9404d1a04db
+ref table Date
+ref table LocalDateTable_68313405-eb4e-453a-b0d9-882b6420c508
+ref table JobType
+ref table RuleType
+ref table Assets
+ref table 'DQ Fact'
+ref table LocalDateTable_73c715a1-940e-494b-b3b6-92da243d6880
+ref table FactDataGovernanceScan
+ref table 'Measure Table'
+ref table LocalDateTable_6d28c38f-e075-4166-aebc-1ba1285eaa64
+ref table AccountInfo
+

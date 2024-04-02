@@ -1,8 +1,8 @@
 {
-  "version": "1.0",
+  "version": "4.0",
   "datasetReference": {
     "byPath": {
-      "path": "../Data_Governance_Dataset.Dataset"
+      "path": "../Data_Governance_Dataset.SemanticModel"
     },
     "byConnection": null
   }

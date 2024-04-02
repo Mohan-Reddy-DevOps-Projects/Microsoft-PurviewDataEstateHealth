@@ -1,0 +1,88 @@
+table DataHealthControl
+	lineageTag: 6291915d-54b6-497a-8899-860905c96405
+
+	column HealthControlId
+		dataType: int64
+		formatString: 0
+		lineageTag: 999d97d3-d2c7-4afb-a9b4-4a6e1faff2ad
+		summarizeBy: none
+		sourceColumn: HealthControlId
+
+		annotation SummarizationSetBy = Automatic
+
+	column HealthControlDisplayName
+		dataType: string
+		lineageTag: dded03a5-1262-4f9b-a995-b4fb8bcece1c
+		summarizeBy: none
+		sourceColumn: HealthControlDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column HealthControlGroupDisplayName
+		dataType: string
+		lineageTag: 9b729329-e926-473d-bd6b-d510f0e20d0e
+		summarizeBy: none
+		sourceColumn: HealthControlGroupDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column HealthControlDefinition
+		dataType: string
+		lineageTag: 57531ff7-368a-4d4b-8f60-6f872c0df5b5
+		summarizeBy: none
+		sourceColumn: HealthControlDefinition
+
+		annotation SummarizationSetBy = Automatic
+
+	column HealthControlScope
+		dataType: string
+		lineageTag: 558dd886-0519-4136-b68b-b80da12def6c
+		summarizeBy: none
+		sourceColumn: HealthControlScope
+
+		annotation SummarizationSetBy = Automatic
+
+	column CDMCControlMapping
+		dataType: string
+		lineageTag: ab61dba8-9a07-4098-9d15-d4ba3fcc01f1
+		summarizeBy: none
+		sourceColumn: CDMCControlMapping
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpiredDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 2d7accce-230f-4ea2-8309-ab585f36658d
+		summarizeBy: none
+		sourceColumn: ExpiredDateTime
+
+		variation Variation
+			isDefault
+			relationship: a1023fd9-912f-4436-9f6e-8f7f9a3ce6ad
+			defaultHierarchy: LocalDateTable_a178e977-b0e6-4f8d-9cd5-9756033ce205.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column CurrentIndicator
+		dataType: int64
+		formatString: 0
+		lineageTag: 5f5cad92-1c1b-4994-b263-a7d656061f5a
+		summarizeBy: sum
+		sourceColumn: CurrentIndicator
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DataHealthControl = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE),
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDataHealthControl" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimDataHealthControl"]}[Data]
+				in
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDataHealthControl"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

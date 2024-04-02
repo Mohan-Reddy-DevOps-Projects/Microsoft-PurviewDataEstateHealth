@@ -1,0 +1,105 @@
+table BusinessDomain
+	lineageTag: 50ddabbe-646d-4f52-bd00-b99d7a4ab5f2
+
+	column BusinessDomainId
+		dataType: string
+		lineageTag: 90faa8bd-5c0e-4593-a778-2c4931d2a796
+		summarizeBy: none
+		sourceColumn: BusinessDomainId
+
+		annotation SummarizationSetBy = Automatic
+
+	column BusinessDomainSourceId
+		dataType: string
+		lineageTag: 41a31487-8d48-4229-9877-0878b987d76d
+		summarizeBy: none
+		sourceColumn: BusinessDomainSourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column BusinessDomainDisplayName
+		dataType: string
+		lineageTag: 6498f4c7-f412-402f-be3f-73cd3aaacd86
+		summarizeBy: none
+		sourceColumn: BusinessDomainDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CreatedDatetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 45aa76b1-2ef4-4c4f-b6d0-3b1141f28782
+		summarizeBy: none
+		sourceColumn: CreatedDatetime
+
+		variation Variation
+			isDefault
+			relationship: fb7f38c9-69f7-4e58-bcaf-addf106c0a01
+			defaultHierarchy: LocalDateTable_b3153ccc-ade8-4cf8-b34d-da5b1bb61133.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ModifiedDatetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ec05587f-64d4-4330-98e9-717dacd53b5e
+		summarizeBy: none
+		sourceColumn: ModifiedDatetime
+
+		variation Variation
+			isDefault
+			relationship: dbdac4e4-98ec-40e7-a7f9-88364a0c0b35
+			defaultHierarchy: LocalDateTable_f2c07e67-f53a-4ecb-977a-d87c5745caa9.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column EffectiveDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 55a354cb-7baa-413c-aed4-c16bb6cc623d
+		summarizeBy: none
+		sourceColumn: EffectiveDateTime
+
+		variation Variation
+			isDefault
+			relationship: 5662fd2b-9ba1-479e-b68b-9fc8d4da8ad7
+			defaultHierarchy: LocalDateTable_d061cd14-7808-4226-94d7-f01bdf1b4e23.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpiredDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 57178caa-b859-4afa-9a8a-8187956b3709
+		summarizeBy: none
+		sourceColumn: ExpiredDateTime
+
+		variation Variation
+			isDefault
+			relationship: 43966bbf-f110-4cea-990e-66ef09ba93d5
+			defaultHierarchy: LocalDateTable_ecaf91e8-328a-4d23-9a13-2996e0b48f87.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column CurrentIndicator
+		dataType: int64
+		formatString: 0
+		lineageTag: c46ae3d1-0d29-45f8-b5f2-0f889c469898
+		summarizeBy: sum
+		sourceColumn: CurrentIndicator
+
+		annotation SummarizationSetBy = Automatic
+
+	partition BusinessDomain = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE),
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimBusinessDomain" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimBusinessDomain"]}[Data]
+				in
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimBusinessDomain"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

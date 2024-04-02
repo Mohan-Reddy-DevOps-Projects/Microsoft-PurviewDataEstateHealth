@@ -1,0 +1,85 @@
+table DataProduct
+	lineageTag: 97026e22-bfd6-4eec-aaf2-4993b0a22699
+
+	column DataProductId
+		dataType: string
+		lineageTag: 80f44bff-8cfd-4613-ad4c-efe9eb2c76bf
+		summarizeBy: none
+		sourceColumn: DataProductId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataProductSourceId
+		dataType: string
+		lineageTag: 91065135-9960-4ba6-8550-372b9b7a9dd4
+		summarizeBy: none
+		sourceColumn: DataProductSourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataProductDisplayName
+		dataType: string
+		lineageTag: 22250ca3-d232-4457-bb83-d2746b4ffc1a
+		summarizeBy: none
+		sourceColumn: DataProductDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataProductStatus
+		dataType: string
+		lineageTag: da12c9ca-0981-4ac4-91c2-ce2e818e242f
+		summarizeBy: none
+		sourceColumn: DataProductStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column CreatedDatetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ebc37a53-ec48-451e-8fb5-1cdf87e0852d
+		summarizeBy: none
+		sourceColumn: CreatedDatetime
+
+		variation Variation
+			isDefault
+			relationship: 2f081039-3e91-4f64-a6bb-aec5239d72d1
+			defaultHierarchy: LocalDateTable_fccec4f6-6bee-4331-87b7-111da6af051c.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ModifiedDatetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: f8fe608e-743f-4754-8a25-3e9f4e165d37
+		summarizeBy: none
+		sourceColumn: ModifiedDatetime
+
+		variation Variation
+			isDefault
+			relationship: 61717a92-1406-4d3f-8ce9-c60313c94768
+			defaultHierarchy: LocalDateTable_5f62f5fb-6a2b-4bae-ac84-a9404d1a04db.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsActive
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: e6692fea-cdf9-4637-acf6-35d8d026a276
+		summarizeBy: none
+		sourceColumn: IsActive
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DataProduct = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE),
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDataProduct" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimDataProduct"]}[Data]
+				in
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDataProduct"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

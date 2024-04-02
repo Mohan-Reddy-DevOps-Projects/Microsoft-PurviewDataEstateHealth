@@ -1,0 +1,109 @@
+table Assets
+	lineageTag: 3c94d71d-7b42-4032-9d7d-6fe744d26825
+
+	column DataProductSourceId
+		dataType: string
+		lineageTag: e66dda0b-b015-4cc2-a54a-510100d56dae
+		summarizeBy: none
+		sourceColumn: DataProductSourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataProductID
+		dataType: string
+		lineageTag: b1ef2a23-2b14-4199-90e1-b44bd7f3bb23
+		summarizeBy: none
+		sourceColumn: DataProductID
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataProductDisplayName
+		dataType: string
+		lineageTag: 630ba56f-acee-4998-af13-ac3567a3f21b
+		summarizeBy: none
+		sourceColumn: DataProductDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataAssetSourceId
+		dataType: string
+		lineageTag: 6e8170fa-4e34-435f-b89a-e567a6abfc28
+		summarizeBy: none
+		sourceColumn: DataAssetSourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataAssetId
+		dataType: string
+		lineageTag: e9d1eb59-037d-49ff-a560-bc5b6982d666
+		summarizeBy: none
+		sourceColumn: DataAssetId
+
+		annotation SummarizationSetBy = Automatic
+
+	column AssetDisplayName
+		dataType: string
+		lineageTag: 1cf24ff3-710c-4287-a480-5d4bdbcf203d
+		summarizeBy: none
+		sourceColumn: AssetDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column AssetClassificationFlag
+		dataType: int64
+		formatString: 0
+		lineageTag: 27d9b509-627a-41ae-9926-dfaa353f8ffd
+		summarizeBy: sum
+		sourceColumn: AssetClassificationFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataAssetColumnSourceId
+		dataType: string
+		lineageTag: 4917ed75-c538-4fac-a84b-13fe2b879815
+		summarizeBy: none
+		sourceColumn: DataAssetColumnSourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataAssetColumnId
+		dataType: string
+		lineageTag: c57f1bdf-93ef-4da8-b684-d603334becd8
+		summarizeBy: none
+		sourceColumn: DataAssetColumnId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ColumnId
+		dataType: string
+		lineageTag: 4ca9495c-e65c-4990-97f1-293830f383b2
+		summarizeBy: none
+		sourceColumn: ColumnId
+
+		annotation SummarizationSetBy = Automatic
+
+	column link =
+			"https://purview.officeppe.com/datacatalog/governance/main/catalog/dataProducts/dataAssetDetail?tid="& LOWER(FIRSTNONBLANK(AccountInfo[TenantId], True())) &
+			"&dataAssetId="&LOWER(Assets[DataAssetSourceId])&
+			 "&sourceDataProductId="& LOWER(Assets[DataProductSourceId])
+		dataType: string
+		lineageTag: 9a90f6e2-bbab-4a63-b7ae-ccd14c49ee0a
+		dataCategory: WebUrl
+		summarizeBy: none
+		isDataTypeInferred
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Assets = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE),
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DomainModel_vwDataAssetClassification" = Source{[Schema=DATABASE_SCHEMA&".DomainModel",Item="vwDataAssetClassification"]}[Data]
+				in
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DomainModel_vwDataAssetClassification"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

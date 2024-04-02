@@ -1,0 +1,82 @@
+relationship fb7f38c9-69f7-4e58-bcaf-addf106c0a01
+	joinOnDateBehavior: datePartOnly
+	fromColumn: BusinessDomain.CreatedDatetime
+	toColumn: LocalDateTable_b3153ccc-ade8-4cf8-b34d-da5b1bb61133.Date
+
+relationship dbdac4e4-98ec-40e7-a7f9-88364a0c0b35
+	joinOnDateBehavior: datePartOnly
+	fromColumn: BusinessDomain.ModifiedDatetime
+	toColumn: LocalDateTable_f2c07e67-f53a-4ecb-977a-d87c5745caa9.Date
+
+relationship 5662fd2b-9ba1-479e-b68b-9fc8d4da8ad7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: BusinessDomain.EffectiveDateTime
+	toColumn: LocalDateTable_d061cd14-7808-4226-94d7-f01bdf1b4e23.Date
+
+relationship 43966bbf-f110-4cea-990e-66ef09ba93d5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: BusinessDomain.ExpiredDateTime
+	toColumn: LocalDateTable_ecaf91e8-328a-4d23-9a13-2996e0b48f87.Date
+
+relationship a1023fd9-912f-4436-9f6e-8f7f9a3ce6ad
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DataHealthControl.ExpiredDateTime
+	toColumn: LocalDateTable_a178e977-b0e6-4f8d-9cd5-9756033ce205.Date
+
+relationship 2f081039-3e91-4f64-a6bb-aec5239d72d1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DataProduct.CreatedDatetime
+	toColumn: LocalDateTable_fccec4f6-6bee-4331-87b7-111da6af051c.Date
+
+relationship 61717a92-1406-4d3f-8ce9-c60313c94768
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DataProduct.ModifiedDatetime
+	toColumn: LocalDateTable_5f62f5fb-6a2b-4bae-ac84-a9404d1a04db.Date
+
+relationship 3234f31f-aad9-4d32-8082-db1052a7ff26
+	joinOnDateBehavior: datePartOnly
+	fromColumn: Date.CalendarDayDate
+	toColumn: LocalDateTable_68313405-eb4e-453a-b0d9-882b6420c508.Date
+
+relationship 00278a09-a155-4538-ad36-9f46c6591bfd
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DQ Fact'.RuleScanCompletionDatetime
+	toColumn: LocalDateTable_73c715a1-940e-494b-b3b6-92da243d6880.Date
+
+relationship AutoDetected_7c30b22b-74de-4891-85d9-22e4f172212a
+	fromColumn: 'DQ Fact'.BusinessDomainId
+	toColumn: BusinessDomain.BusinessDomainId
+
+relationship AutoDetected_338d5be9-64e2-4955-9437-076576a4b422
+	fromColumn: FactDataGovernanceScan.BusinessDomainId
+	toColumn: BusinessDomain.BusinessDomainId
+
+relationship AutoDetected_99249c7c-4213-46fa-8bc9-bcce0e648965
+	fromColumn: FactDataGovernanceScan.HealthControlId
+	toColumn: DataHealthControl.HealthControlId
+
+relationship AutoDetected_066276fb-9a9c-47f5-8b83-0feaf86cbe9e
+	fromColumn: Assets.DataProductID
+	toColumn: DataProduct.DataProductId
+
+relationship AutoDetected_765c0d4d-ae2e-4ab7-83f9-70db167aa4ab
+	fromColumn: 'DQ Fact'.DataProductId
+	toColumn: DataProduct.DataProductId
+
+relationship AutoDetected_698afc14-25d9-47e0-bd7e-340c621a17d5
+	fromColumn: FactDataGovernanceScan.DataProductId
+	toColumn: DataProduct.DataProductId
+
+relationship AutoDetected_b9bfc9fe-cd5e-4c5c-bb41-44e64501dab7
+	fromColumn: 'DQ Fact'.JobTypeId
+	toColumn: JobType.JobTypeId
+
+relationship AutoDetected_21d76994-9f12-473a-b9eb-99eb6b56b105
+	fromColumn: 'DQ Fact'.DQRuleTypeId
+	toColumn: RuleType.DQRuleTypeId
+
+relationship a2b89c25-1394-403c-9d20-16046a38fadc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: FactDataGovernanceScan.Date
+	toColumn: LocalDateTable_6d28c38f-e075-4166-aebc-1ba1285eaa64.Date
+

@@ -1,0 +1,165 @@
+table Date
+	lineageTag: d16d1213-96a8-479b-a4e3-fe1550932006
+
+	column DateId
+		dataType: int64
+		formatString: 0
+		lineageTag: ea05885c-3be7-41b6-a135-b3feed1fc3a4
+		summarizeBy: count
+		sourceColumn: DateId
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearId
+		dataType: int64
+		formatString: 0
+		lineageTag: 691b0e46-7bb3-4198-9dc8-9819cdc8eef9
+		summarizeBy: count
+		sourceColumn: YearId
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearName
+		dataType: string
+		lineageTag: e52da784-d999-448f-a8a5-3fa2e5230880
+		summarizeBy: none
+		sourceColumn: YearName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CalendarSemesterId
+		dataType: int64
+		formatString: 0
+		lineageTag: 130efd3b-f352-4149-b233-e39ac21ad6da
+		summarizeBy: count
+		sourceColumn: CalendarSemesterId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CalendarSemesterDisplayName
+		dataType: string
+		lineageTag: 6ea1afa4-1d8a-45f2-a2c4-04bc444217b8
+		summarizeBy: none
+		sourceColumn: CalendarSemesterDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearSemester
+		dataType: string
+		lineageTag: 183415ab-9be2-4039-a1bc-c64761a70de1
+		summarizeBy: none
+		sourceColumn: YearSemester
+
+		annotation SummarizationSetBy = Automatic
+
+	column CalendarQuarterId
+		dataType: int64
+		formatString: 0
+		lineageTag: a8aa7973-193d-45f8-8e10-9343f9b578b2
+		summarizeBy: count
+		sourceColumn: CalendarQuarterId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CalendarQuarterDisplayName
+		dataType: string
+		lineageTag: 4f0f8fff-a84e-4405-b9d6-12608d6d05fd
+		summarizeBy: none
+		sourceColumn: CalendarQuarterDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearQuarter
+		dataType: string
+		lineageTag: b1b977ee-7294-4621-b7f4-170358951017
+		summarizeBy: none
+		sourceColumn: YearQuarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthId
+		dataType: int64
+		formatString: 0
+		lineageTag: e3c1b840-5eed-4fb3-be76-1389c6f91739
+		summarizeBy: count
+		sourceColumn: MonthId
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthDisplayName
+		dataType: string
+		lineageTag: fc128495-2b12-4f62-b5b0-2f0083478dac
+		summarizeBy: none
+		sourceColumn: MonthDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonth
+		dataType: string
+		lineageTag: 470946e4-5b57-4dfe-8231-a018679660f1
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column CalendarWeekId
+		dataType: int64
+		formatString: 0
+		lineageTag: 34edb021-d603-4598-94ae-1324b55810d5
+		summarizeBy: count
+		sourceColumn: CalendarWeekId
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearWeek
+		dataType: string
+		lineageTag: 60ae2a95-a005-47fb-8176-9992c949cdaa
+		summarizeBy: none
+		sourceColumn: YearWeek
+
+		annotation SummarizationSetBy = Automatic
+
+	column CalendarDateId
+		dataType: int64
+		formatString: 0
+		lineageTag: 81f5cbb6-6008-4407-a454-abffdfa234f5
+		summarizeBy: count
+		sourceColumn: CalendarDateId
+
+		annotation SummarizationSetBy = Automatic
+
+	column CalendarDayDisplayName
+		dataType: string
+		lineageTag: c1a31a41-6a3a-45a9-854f-484a7f069886
+		summarizeBy: none
+		sourceColumn: CalendarDayDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column CalendarDayDate
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: f47e8f2c-f638-4fd2-94f9-80057bc5c1a2
+		summarizeBy: none
+		sourceColumn: CalendarDayDate
+
+		variation Variation
+			isDefault
+			relationship: 3234f31f-aad9-4d32-8082-db1052a7ff26
+			defaultHierarchy: LocalDateTable_68313405-eb4e-453a-b0d9-882b6420c508.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Date = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE),
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDate" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimDate"]}[Data]
+				in
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDate"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

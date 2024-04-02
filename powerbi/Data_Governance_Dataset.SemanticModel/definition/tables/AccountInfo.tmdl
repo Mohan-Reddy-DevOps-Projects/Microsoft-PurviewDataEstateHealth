@@ -1,0 +1,31 @@
+table AccountInfo
+	lineageTag: 9887af52-3087-4da2-a612-3118197dceda
+
+	column TenantId
+		dataType: string
+		lineageTag: 4e9abdc2-3d04-4376-b18c-a92a844b4b45
+		summarizeBy: none
+		sourceColumn: TenantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column AccountId
+		dataType: string
+		lineageTag: c00b0505-a745-4745-b6f6-ab99ae7ca7a7
+		summarizeBy: none
+		sourceColumn: AccountId
+
+		annotation SummarizationSetBy = Automatic
+
+	partition AccountInfo = m
+		mode: import
+		source =
+				let
+				    Source = #table({"TenantId","AccountId"},{{#"TENANT_ID", #"DATABASE_SCHEMA"}})
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

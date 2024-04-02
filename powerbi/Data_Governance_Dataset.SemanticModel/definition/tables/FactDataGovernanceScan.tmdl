@@ -1,0 +1,151 @@
+table FactDataGovernanceScan
+	lineageTag: e7e68e7c-47ab-4ceb-8f1c-ae0f93959532
+
+	column HealthControlId
+		dataType: int64
+		formatString: 0
+		lineageTag: 7d77f6e7-e6f7-450f-9a45-3ade115b474d
+		summarizeBy: none
+		sourceColumn: HealthControlId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataProductId
+		dataType: string
+		lineageTag: c28d7918-cf1e-46b6-9124-f18468a23f36
+		summarizeBy: none
+		sourceColumn: DataProductId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DEHProcessingDateId
+		dataType: int64
+		formatString: 0
+		lineageTag: a19e656d-3fad-4bd3-a61b-1500021bb4b4
+		summarizeBy: count
+		sourceColumn: DEHProcessingDateId
+
+		annotation SummarizationSetBy = Automatic
+
+	column BusinessDomainId
+		dataType: string
+		lineageTag: 09c7c2b6-d7b8-41a2-9387-dd3535e70dc4
+		summarizeBy: none
+		sourceColumn: BusinessDomainId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TotalDataProductAssetCount
+		dataType: int64
+		formatString: 0
+		lineageTag: dde69913-5b80-419b-b742-f720dc8c075a
+		summarizeBy: sum
+		sourceColumn: TotalDataProductAssetCount
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataProductCounter
+		dataType: int64
+		formatString: 0
+		lineageTag: 7a59ba90-43ef-4a5c-8908-0a87300c1ac8
+		summarizeBy: sum
+		sourceColumn: DataProductCounter
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Control checks'
+		dataType: string
+		lineageTag: c2c7e7f8-01b1-4cb0-a5bf-f4eaee451e23
+		summarizeBy: none
+		sourceColumn: Control checks
+
+		annotation SummarizationSetBy = Automatic
+
+	column Value
+		dataType: double
+		lineageTag: 4c7af6a2-9514-46de-8b51-3c4e0f48c16b
+		summarizeBy: sum
+		sourceColumn: Value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a83de870-6d5d-497e-bdd0-982dd3c0ee3b
+		summarizeBy: none
+		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: a2b89c25-1394-403c-9d20-16046a38fadc
+			defaultHierarchy: LocalDateTable_6d28c38f-e075-4166-aebc-1ba1285eaa64.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Flag =
+			
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasOwner",'FactDataGovernanceScan'[Value]=1),1,
+			/*IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDataAssetHasOwnerCount",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDataAssetHasOwnerCount",'FactDataGovernanceScan'[TotalDataProductAssetCount]=0),0,*/
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDataAssetHasOwnerCount",'FactDataGovernanceScan'[Value]='FactDataGovernanceScan'[TotalDataProductAssetCount]),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDataAssetHasOwnerCount",'FactDataGovernanceScan'[Value]<> 'FactDataGovernanceScan'[TotalDataProductAssetCount]),divide('FactDataGovernanceScan'[Value],'FactDataGovernanceScan'[TotalDataProductAssetCount],0),
+			IF(and ('FactDataGovernanceScan'[Control checks]="ClassifiedAssetCount",'FactDataGovernanceScan'[TotalDataProductAssetCount]=0),0,
+			IF(and ('FactDataGovernanceScan'[Control checks]="ClassifiedAssetCount",'FactDataGovernanceScan'[Value]='FactDataGovernanceScan'[TotalDataProductAssetCount]),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="ClassifiedAssetCount",'FactDataGovernanceScan'[Value]<>'FactDataGovernanceScan'[TotalDataProductAssetCount]),divide('FactDataGovernanceScan'[Value],'FactDataGovernanceScan'[TotalDataProductAssetCount],0),
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductCertifiedCount",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductComplianceDataTermsOfUsePolicyCount",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasAsset",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasDescription",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasPublishedGlossaryTerm",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasuseCase",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductSelfServiceAccessPolicyCount",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductAssetDQEnabledCount",'FactDataGovernanceScan'[TotalDataProductAssetCount]=0),0,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductAssetDQEnabledCount",'FactDataGovernanceScan'[Value]='FactDataGovernanceScan'[TotalDataProductAssetCount]),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductAssetDQEnabledCount",'FactDataGovernanceScan'[Value]<> 'FactDataGovernanceScan'[TotalDataProductAssetCount]),divide('FactDataGovernanceScan'[Value],'FactDataGovernanceScan'[TotalDataProductAssetCount],0),
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductObservabilityScore",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasParentBusinessDomain",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasAtLeast1Asset",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasAssoPubTerm",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDescHasLenGr100Char",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductAssoBusinessDomainDescHasLenGr100Char",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductAssoAllTremDescHasLenGr25Char",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasParentBusinessDomain",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasAssoPubTerm",'FactDataGovernanceScan'[Value]=1),1,
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductAllAssoAssetsHasOwners",'FactDataGovernanceScan'[Value]=1),1,
+			0)
+			)))))))))))))))))))))))))
+		dataType: double
+		lineageTag: 890e5dfa-aa7f-4079-89fe-46be6a2b4bcc
+		summarizeBy: sum
+		isDataTypeInferred
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition FactDataGovernanceScan = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE),
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_vwFactDataGovernanceScan" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="vwFactDataGovernanceScan"]}[Data],
+				    #"Removed Other Columns" = Table.SelectColumns(#"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_vwFactDataGovernanceScan",{"HealthControlId", "DataProductId", "DEHProcessingDateId", "BusinessDomainId", "TotalDataProductAssetCount", "DataProductCounter", "ClassifiedAssetCount", "DataProductHasOwner", "DataProductDataAssetHasOwnerCount", "DataProductObservabilityScore", "DataProductAssetDQEnabledCount", "DataProductSelfServiceAccessPolicyCount", "DataProductComplianceDataTermsOfUsePolicyCount", "DataProductHasDescription", "DataProductHasAsset", "DataProductHasPublishedGlossaryTerm", "DataProductHasUseCase", "DataProductCertifiedCount", "DataProductDescHasLenGr100Char", "DataProductAssoBusinessDomainDescHasLenGr100Char", "DataProductAssoAllTremDescHasLenGr25Char", "DataProductHasParentBusinessDomain", "DataProductHasAtLeast1Asset", "DataProductHasAssoPubTerm", "DataProductAllAssoAssetsHasOwners"}),
+				    #"Unpivoted Columns" = Table.UnpivotOtherColumns(#"Removed Other Columns", {"HealthControlId", "DataProductId", "DEHProcessingDateId", "BusinessDomainId","TotalDataProductAssetCount","DataProductCounter"}, "Attribute", "Value"),
+				    #"Replaced Value" = Table.ReplaceValue(#"Unpivoted Columns",null,0,Replacer.ReplaceValue,{"Value"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Replaced Value",{{"Attribute", "Control checks"}}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Renamed Columns", "DEHProcessingDateId", "DEHProcessingDateId - Copy"),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Duplicated Column",{{"DEHProcessingDateId - Copy", type text}}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Changed Type",{{"DEHProcessingDateId - Copy", type date}}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Changed Type1",{{"DEHProcessingDateId - Copy", "Date"}})
+				in
+				    #"Renamed Columns1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

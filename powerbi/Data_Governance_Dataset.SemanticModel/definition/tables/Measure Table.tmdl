@@ -1,0 +1,143 @@
+table 'Measure Table'
+	lineageTag: 6df9c17d-2d84-4e67-88c9-0d0df5b7d82c
+
+	measure Test = " "
+		lineageTag: 6a110b57-2372-4e49-a55f-6d0733272559
+
+	measure _BGColor = "#3393DF"
+		lineageTag: 996b685f-b499-4737-afe5-3b5d03fccefc
+
+	measure _VisualBorder = "#808080"
+		lineageTag: 73054c43-a632-45c6-873d-8c26aefe6bef
+
+	measure 'All Control Checks' =
+			
+			DISTINCTCOUNT('FactDataGovernanceScan'[DataProductId])*DISTINCTCOUNT('FactDataGovernanceScan'[Control checks])+0
+		lineageTag: 01c60db2-736e-4dca-8d18-8b361a411437
+
+	measure flagcount = sum('FactDataGovernanceScan'[Flag])
+		lineageTag: 12667da6-8904-4f76-b4bb-854b1b2fabd5
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure controlchecks = DISTINCTCOUNT('FactDataGovernanceScan'[Control checks])
+		formatString: 0
+		lineageTag: 023e2597-b8c2-4ca0-940d-57bef275f45c
+
+	measure 'Data Product Count' = DISTINCTCOUNT('FactDataGovernanceScan'[DataProductId])+0
+		formatString: 0
+		lineageTag: 60fbd332-1a75-4703-aed2-9254d19da2e0
+
+	measure DataProductsByDomian = [Data Product Count]
+		formatString: 0
+		lineageTag: 092a3e76-8a9a-4a39-ac22-c95aace897e5
+
+	measure 'DEH observability score' =
+			
+			VAR _TotalCounts = 1
+			VAR _Checks = 1
+			VAR _NumDP = 1//DataProduct[Data Product Count]
+			
+			VAR _Score = DIVIDE(_TotalCounts/_Checks,_NumDP)
+			
+			RETURN _Score
+		lineageTag: 05156a3d-d402-49f4-805a-e8a6f0b0601f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'DQ Score' =
+			
+			VAR _PassCount = sum('DQ Fact'[DQPassedCount])
+			VAR _NumRules = COUNT('DQ Fact'[DQRuleId])
+			VAR _TotalPasses = DIVIDE(_PassCount,_NumRules)
+			VAR _TotalRows = sum('DQ Fact'[DQTotalCount])
+			VAR _Score = DIVIDE(_TotalPasses,_TotalRows)
+			
+			RETURN _Score
+		lineageTag: b627595a-c291-4c28-849b-60b1f0999e31
+
+	measure 'Max date' =
+			
+			VAR _MaxDate = TODAY()//MONTH(MAX('DQ Fact'[DEHLastProcessedDatetime].[Date]))
+			RETURN _MaxDate//CALCULATE([Partial Passing Score](),'Date'[CalendarDayDate]<=_MaxDate)
+			//RETURN FILTER(ALLSELECTED('Date'[CalendarDayDate]),'Date'[CalendarDayDate] <=_MaxDate)
+		formatString: General Date
+		lineageTag: 116143a8-9ce8-4d81-be67-76b0f2c3393f
+
+	measure 'Max_Thresh hold' = 0.8
+		lineageTag: ffe94589-830b-4c9c-8555-7afa919d2dbf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Min_Thresh hold' = 0.6
+		lineageTag: b686ceeb-be66-403a-9b65-dfdfe5f9933b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Overall Score' =
+			
+			
+			CALCULATE(DIVIDE([Passing Control Checks],[All Control Checks],0),FILTER('Date','Date'[DateId]=ALLSELECTED(FactDataGovernanceScan[DEHProcessingDateId])))
+		lineageTag: 07611b7d-958c-440c-8875-b790fbc318e5
+
+	measure 'Partial Passing Control Checks' = sum('FactDataGovernanceScan'[Flag])+0
+		lineageTag: 13d5ecf7-9cca-4197-935e-57448154acad
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Partial Passing Score' = CALCULATE(divide([Partial Passing Control Checks],[All Control Checks],0), isonorafter(FactDataGovernanceScan[Date],max(FactDataGovernanceScan[Date])))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 3ad432c9-20d5-479f-99bd-fe4dc3e2147a
+
+	measure 'Partial Passing Score Trend' = CALCULATE(divide([Partial Passing Control Checks],[All Control Checks],0))
+		lineageTag: 761052af-76e2-4c93-9c61-e4b24a4bca5b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Partial Score Color' = ```
+			sWITCH(TRUE(),                            
+			                            [Partial Passing Score]>=[Max_Thresh hold], "#00B294", 
+			                            [Partial Passing Score] >= [Min_Thresh hold] && [Partial Passing Score] < [Max_Thresh hold],"#FFB900",
+			                             "#AE0D1A")
+			```
+		lineageTag: bc1192df-fa34-4ffa-8e3e-7bb9f924eaf5
+
+	measure 'Partial Score Font Color' = ```
+			sWITCH(TRUE(),                            
+			                            [Partial Passing Score]>=[Max_Thresh hold], "#FFFFFF",
+			                            "#000000")
+			```
+		lineageTag: cf6097f8-5db6-4e69-8954-080ec165999c
+
+	measure 'Passing Control Checks' = if(distinctcount('FactDataGovernanceScan'[Control checks])*calculate(distinctcount('FactDataGovernanceScan'[DataProductId]),filter(allselected('FactDataGovernanceScan'[DataProductId]),[flagcount]=[controlchecks]))=blank(),0,distinctcount('FactDataGovernanceScan'[Control checks])*calculate(distinctcount('FactDataGovernanceScan'[DataProductId]),filter(allselected('FactDataGovernanceScan'[DataProductId]),[flagcount]=[controlchecks])))
+		formatString: 0
+		lineageTag: c77931f7-a388-488e-aecc-295c325502d8
+
+	measure 'Take Action Color' = if([Partial Passing Score]<[Min_Thresh hold],"#D83B01",if([Partial Passing Score]>=[Min_Thresh hold]&&[Partial Passing Score]<=[Max_Thresh hold],"#FFE399","#FFFFFF"))
+		lineageTag: 90f23328-7666-45fc-ab89-f121bc50bcbf
+
+	measure 'Trusted data score' =
+			
+			VAR _TotalCounts = 0
+			VAR _Checks = 1
+			VAR _NumDP = [Data Product Count]
+			
+			VAR _Score = DIVIDE(_TotalCounts/_Checks,_NumDP)
+			
+			RETURN _Score
+		lineageTag: d85019f7-004c-44d9-beec-8dc0bd11e366
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Measure Table' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Column1"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+

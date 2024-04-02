@@ -1,0 +1,16 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBIDesktopVersion = 2.128.352.0 (24.04)
+
+annotation PBI_QueryOrder = ["SERVER","DATABASE","DATABASE_SCHEMA","TENANT_ID"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
