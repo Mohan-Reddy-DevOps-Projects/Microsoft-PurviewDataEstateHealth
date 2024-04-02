@@ -19,6 +19,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
     {
         private const string HeaderAccountIdName = "x-ms-account-id";
         private const string HeaderTenantIdName = "x-ms-client-tenant-id";
+        private const string HeaderRequestIdName = "x-ms-client-request-id";
         private readonly Uri BaseUri;
 
         private readonly IDataEstateHealthRequestLogger Logger;
@@ -45,6 +46,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             });
             request.Headers.Add(HeaderAccountIdName, schedule.AccountId.ToString());
             request.Headers.Add(HeaderTenantIdName, schedule.TenantId.ToString());
+            request.Headers.Add(HeaderRequestIdName, schedule.RequestId.ToString());
             var response = await this.Client.SendAsync(request).ConfigureAwait(false);
             this.HandleResponseStatusCode(response);
         }

@@ -39,7 +39,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
 
         public void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry)
         {
-            this.logger.LogInformation($"Start to trigger MDQ Job callback. Job Id: {jobModel.DQJobId}. Job status: {jobModel.JobStatus}. Job retry: {isRetry}.");
+            var requestId = Guid.NewGuid();
+            this.logger.LogInformation($"Start to trigger MDQ Job callback. Job Id: {jobModel.DQJobId}. Job status: {jobModel.JobStatus}. Request ID: {requestId}. Job retry: {isRetry}.");
             Task.Run(async () =>
             {
                 try
@@ -50,7 +51,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                         JobStatus = jobModel.JobStatus,
                         TenantId = jobModel.TenantId,
                         AccountId = jobModel.AccountId,
-                        IsRetry = isRetry
+                        IsRetry = isRetry,
+                        RequestId = requestId,
                     };
                     var client = this.GetDEHServiceClient();
                     await client.TriggerMDQJobCallback(payload).ConfigureAwait(false);
