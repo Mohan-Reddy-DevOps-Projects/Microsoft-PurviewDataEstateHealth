@@ -19,6 +19,8 @@ internal class DatabaseCommand : IDatabaseCommand
     private readonly IServerlessPoolClient serverlessPoolClient;
 
     private readonly IDataEstateHealthRequestLogger logger;
+    private readonly string[] databaseSchemas = new string[] { "DomainModel", "DimensionalModel" };
+
 
     public DatabaseCommand(IServerlessPoolClient serverlessPoolClient, IDataEstateHealthRequestLogger logger)
     {
@@ -149,14 +151,17 @@ internal class DatabaseCommand : IDatabaseCommand
 
     public async Task CreateSchemaAsync(IDatabaseRequest request, CancellationToken cancellationToken)
     {
-        string query = $@"
-        USE [{request.DatabaseName}]
-        IF NOT EXISTS (SELECT schema_id FROM sys.schemas WHERE name = '{request.SchemaName}')
-        BEGIN
-            EXEC('CREATE SCHEMA [{request.SchemaName}];');
-        END";
+        foreach (var schema in this.databaseSchemas)
+        {
+            string query = $@"
+                USE [{request.DatabaseName}]
+                IF NOT EXISTS (SELECT schema_id FROM sys.schemas WHERE name = '{request.SchemaName}.{schema}')
+                BEGIN
+                    EXEC('CREATE SCHEMA [{request.SchemaName}.{schema}];');
+                END";
 
-        await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+            await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+        }
     }
 
     public async Task GrantCredentialToUserAsync(IDatabaseRequest request, CancellationToken cancellationToken)
@@ -170,11 +175,15 @@ internal class DatabaseCommand : IDatabaseCommand
 
     public async Task GrantUserToSchemaAsync(IDatabaseRequest request, CancellationToken cancellationToken)
     {
-        string query = $@"
-        USE [{request.DatabaseName}]
-        GRANT SELECT ON SCHEMA :: [{request.SchemaName}] TO {request.UserName} WITH GRANT OPTION;";
+        foreach (var schema in this.databaseSchemas)
+        {
+            string query = $@"
+                USE [{request.DatabaseName}]
+                GRANT SELECT ON SCHEMA :: [{request.SchemaName}.{schema}] TO {request.UserName} WITH GRANT OPTION";
 
-        await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+            await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+
+        }
     }
 
     public async Task ExecuteSetupScriptAsync(IDatabaseRequest request, CancellationToken cancellationToken)
