@@ -189,7 +189,7 @@
 
                                     var action = new DataHealthActionWrapper()
                                     {
-                                        Status = scoreUnit.Score == 0 ? DataHealthActionStatus.NotStarted : DataHealthActionStatus.Resolved,
+                                        Status = scoreUnit.Score < 1 ? DataHealthActionStatus.NotStarted : DataHealthActionStatus.Resolved,
                                         Category = DataHealthActionCategory.HealthControl,
                                         Severity = matchedAssessment.ActionProperties?.Severity ?? DataHealthActionSeverity.Medium,
                                         FindingId = assessmentRuleId,
