@@ -589,7 +589,7 @@ public class JobManager : IJobManager
                 IsCompleted = false
             };
             this.UpdateDerivedMetadataProperties(jobMetadata);
-            int randomMins = RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
+            int randomMins = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 3 : RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
             JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
                     nameof(CatalogSparkJobCallback),
                     jobMetadata,
