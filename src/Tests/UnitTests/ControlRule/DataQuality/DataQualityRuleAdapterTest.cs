@@ -20,11 +20,7 @@ public class DataQualityRuleAdapterTest
     [Owner(Owners.DQAdapter)]
     public void TestNoErrorInParse()
     {
-        var checkpointsInDevelopment = new HashSet<DHCheckPoint>() {
-            DHCheckPoint.DataProductRelatedAssetsOwnerCount,
-            DHCheckPoint.DataProductRelatedAssetsHaveDQScore,
-            DHCheckPoint.DataProductRelatedTermsDescriptionLength,
-        };
+        var checkpointsInDevelopment = new HashSet<DHCheckPoint>() { };
 
         var fileName = $"CDMC.json";
         var fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", fileName);

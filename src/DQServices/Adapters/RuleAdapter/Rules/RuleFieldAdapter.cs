@@ -38,9 +38,15 @@ internal static class RuleFieldAdapter
             case DHCheckPoint.DataProductAllRelatedAssetsHaveDQScore:
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetDQScore);
                 return "DataProductAllRelatedAssetsHaveDQScore";
+            case DHCheckPoint.DataProductRelatedAssetsHaveDQScore:
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetDQScore);
+                return "DataProductRelatedAssetsHaveDQScore";
             case DHCheckPoint.DataProductAllRelatedAssetsHaveOwner:
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetsOwner);
                 return "DataProductAllRelatedAssetsHaveOwner";
+            case DHCheckPoint.DataProductRelatedAssetsOwnerCount:
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetsOwner);
+                return "DataProductRelatedAssetsOwnerCount";
             case DHCheckPoint.DataProductRelatedDataAssetsWithClassificationCount:
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataAssetClassification);
                 return "DataProductRelatedDataAssetsWithClassificationCount";
@@ -50,9 +56,11 @@ internal static class RuleFieldAdapter
             case DHCheckPoint.DataProductDomainDescriptionLength:
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.BusinessDomainData);
                 return "length(regexReplace(BusinessDomainDescription, '(<(.*?)>)', ''))";
+            // TODO delete DataProductAllRelatedTermsMinimalDescriptionLength
             case DHCheckPoint.DataProductAllRelatedTermsMinimalDescriptionLength:
+            case DHCheckPoint.DataProductRelatedTermsDescriptionLength:
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductTerm);
-                return "length(regexReplace(DataProductAllRelatedTermsMinimalDescription, '(<(.*?)>)', ''))";
+                return "length(regexReplace(DataProductRelatedTermsDescription, '(<(.*?)>)', ''))";
             default: throw new NotImplementedException("Checkpoint: " + checkpoint.ToString());
         }
     }

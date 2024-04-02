@@ -13,7 +13,7 @@ public class DataProductTermJoinAdapter : DataQualityJoinAdapter
     private readonly string[][] outputSchemaDef =
     [
         ["DataProductTermCount", "long"],
-        ["DataProductAllRelatedTermsMinimalDescription", "string"]
+        ["DataProductRelatedTermsDescription", "string"]
     ];
 
     private List<SparkSchemaItemWrapper> outputSchema;
@@ -32,35 +32,20 @@ public class DataProductTermJoinAdapter : DataQualityJoinAdapter
         {
             JoinSql = @"LEFT JOIN (
                 SELECT
-                    DPTCountDataProductId,
-                    DataProductTermCount,
-                    CASE
-                        WHEN DataProductAllRelatedTermsMinimalDescription IS NULL THEN ''
-                        ELSE DataProductAllRelatedTermsMinimalDescription
-                    END as DataProductAllRelatedTermsMinimalDescription
-                FROM (
-                    SELECT
-                        DataProduct.DataProductID as DPTCountDataProductId,
-                        COUNT(GlossaryTerm.GlossaryTermId) as DataProductTermCount
-                    FROM DataProduct 
-                    LEFT JOIN GlossaryTermDataProductAssignment ON DataProduct.DataProductID = GlossaryTermDataProductAssignment.DataProductId
-                        AND GlossaryTermDataProductAssignment.ActiveFlag = 1
-                    LEFT JOIN GlossaryTerm ON GlossaryTermDataProductAssignment.GlossaryTermID = GlossaryTerm.GlossaryTermId
-                        AND GlossaryTerm.Status = 'Published'
-                    GROUP BY DataProduct.DataProductID
-                ) TDPTCount
-                LEFT JOIN (
-                    SELECT
-                        GlossaryTermDataProductAssignment.DataProductId as DPTDescriptionInOrderDPId,
-                        GlossaryTerm.GlossaryDescription as DataProductAllRelatedTermsMinimalDescription,
-                        ROW_NUMBER() OVER (PARTITION BY GlossaryTermDataProductAssignment.DataProductId ORDER BY LENGTH(GlossaryTerm.GlossaryDescription) ASC) as DESCRIPTION_LENGTH_ROW_NUM
-                    FROM GlossaryTermDataProductAssignment
-                    INNER JOIN GlossaryTerm ON GlossaryTermDataProductAssignment.GlossaryTermID = GlossaryTerm.GlossaryTermId
-                        AND GlossaryTerm.Status = 'Published'
-                    WHERE GlossaryTermDataProductAssignment.ActiveFlag = 1
-                ) DPTDescriptionInOrder ON TDPTCount.DPTCountDataProductId = DPTDescriptionInOrder.DPTDescriptionInOrderDPId
-                    AND DPTDescriptionInOrder.DESCRIPTION_LENGTH_ROW_NUM = 1
-            ) TDataProductTerm ON DataProduct.DataProductID = TDataProductTerm.DPTCountDataProductId",
+                    DataProduct.DataProductID as DPTDataProductId,
+                    COUNT(GlossaryTerm.GlossaryTermId) as GlossaryTermCount,
+                    GlossaryTerm.GlossaryTermId as DPTGlossaryTermId,
+                    CASE  
+                        WHEN MIN(GlossaryTerm.GlossaryDescription) IS NULL THEN ''  
+                        ELSE MIN(GlossaryTerm.GlossaryDescription)  
+                    END as DataProductRelatedTermsDescription
+                FROM DataProduct 
+                LEFT JOIN GlossaryTermDataProductAssignment ON DataProduct.DataProductID = GlossaryTermDataProductAssignment.DataProductId
+                    AND GlossaryTermDataProductAssignment.ActiveFlag = 1
+                LEFT JOIN GlossaryTerm ON GlossaryTermDataProductAssignment.GlossaryTermID = GlossaryTerm.GlossaryTermId
+                    AND GlossaryTerm.Status = 'Published'
+                GROUP BY DataProduct.DataProductID, GlossaryTerm.GlossaryTermId
+            ) TDataProductTerm ON DataProduct.DataProductID = TDataProductTerm.DPTDataProductId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema
         };

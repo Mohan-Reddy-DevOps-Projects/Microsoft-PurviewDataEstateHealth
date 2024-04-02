@@ -13,7 +13,8 @@ public class AssetDQScoreJoinAdapter : DataQualityJoinAdapter
     private readonly string[][] outputSchemaDef =
     [
         ["DataProductHasDQScore", "boolean"],
-        ["DataProductAllRelatedAssetsHaveDQScore", "boolean"]
+        ["DataProductAllRelatedAssetsHaveDQScore", "boolean"],
+        ["DataProductRelatedAssetsHaveDQScore", "boolean"]
     ];
 
     private List<SparkSchemaItemWrapper> outputSchema;
@@ -39,9 +40,14 @@ public class AssetDQScoreJoinAdapter : DataQualityJoinAdapter
                     END AS DataProductHasDQScore,
                     CASE  
                         WHEN COUNT(DataProductAssetAssignment.DataAssetId) > 0
-                            AND COUNT(DataProductAssetAssignment.DataAssetId) = COUNT(TDataQualityAssetRuleExecution.DataAssetId) THEN 'true' 
+                            AND COUNT(DISTINCT DataProductAssetAssignment.DataAssetId) = COUNT(DISTINCT TDataQualityAssetRuleExecution.DataAssetId) THEN 'true' 
                         ELSE 'false'
-                    END AS DataProductAllRelatedAssetsHaveDQScore
+                    END AS DataProductAllRelatedAssetsHaveDQScore,
+                    DataProductAssetAssignment.DataAssetId as DADQSDataAssetId,
+                    CASE
+                        WHEN COUNT(TDataQualityAssetRuleExecution.AssetResultScore) > 0 THEN 'true'
+                        ELSE 'false'
+                    END AS DataProductRelatedAssetsHaveDQScore
                 FROM DataProduct 
                 LEFT JOIN DataProductAssetAssignment ON DataProduct.DataProductID = DataProductAssetAssignment.DataProductId
                     AND DataProductAssetAssignment.ActiveFlag = 1
@@ -53,7 +59,7 @@ public class AssetDQScoreJoinAdapter : DataQualityJoinAdapter
                     WHERE AssetResultScore IS NOT NULL
                     GROUP BY DataAssetId
                 ) TDataQualityAssetRuleExecution ON DataProductAssetAssignment.DataAssetId = TDataQualityAssetRuleExecution.DataAssetId
-                GROUP BY DataProduct.DataProductID
+                GROUP BY DataProduct.DataProductID, DataProductAssetAssignment.DataAssetId
             ) DataProductAssetDQScore ON DataProduct.DataProductID = DataProductAssetDQScore.DADQSCountDataProductId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema

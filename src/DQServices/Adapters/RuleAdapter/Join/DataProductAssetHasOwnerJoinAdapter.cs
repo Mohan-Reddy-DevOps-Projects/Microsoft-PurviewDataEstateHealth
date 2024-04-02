@@ -13,6 +13,7 @@ public class DataProductAssetHasOwnerJoinAdapter : DataQualityJoinAdapter
     private readonly string[][] outputSchemaDef =
     [
         ["DataProductAllRelatedAssetsHaveOwner", "boolean"],
+        ["DataProductRelatedAssetsOwnerCount", "long"]
     ];
 
     private List<SparkSchemaItemWrapper> outputSchema;
@@ -33,9 +34,11 @@ public class DataProductAssetHasOwnerJoinAdapter : DataQualityJoinAdapter
                 SELECT
                     DataProduct.DataProductID as ADODataProductId,
                     CASE
-                        WHEN COUNT(DataProductAssetAssignment.DataAssetId) = COUNT(DataAssetOwnerAssignment.DataAssetOwnerId) THEN 'true'
+                        WHEN COUNT(DISTINCT DataProductAssetAssignment.DataAssetId) = COUNT(DISTINCT DataAssetOwnerAssignment.DataAssetId) THEN 'true'
                         ELSE 'false'
-                    END as DataProductAllRelatedAssetsHaveOwner
+                    END as DataProductAllRelatedAssetsHaveOwner,
+                    DataAssetOwnerAssignment.DataAssetId as ADODataAssetId,
+                    COUNT(DataAssetOwnerAssignment.DataAssetOwnerId) as DataProductRelatedAssetsOwnerCount
                 FROM DataProduct 
                 LEFT JOIN DataProductAssetAssignment
                     ON DataProduct.DataProductID = DataProductAssetAssignment.DataProductId
@@ -43,7 +46,7 @@ public class DataProductAssetHasOwnerJoinAdapter : DataQualityJoinAdapter
                 LEFT JOIN DataAssetOwnerAssignment
                     ON DataProductAssetAssignment.DataAssetId = DataAssetOwnerAssignment.DataAssetId
                     AND DataAssetOwnerAssignment.ActiveFlag = 1
-                GROUP BY DataProduct.DataProductID
+                GROUP BY DataProduct.DataProductID, DataAssetOwnerAssignment.DataAssetId
             ) TDataProductAssetAssignment ON DataProduct.DataProductID = TDataProductAssetAssignment.ADODataProductId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema
