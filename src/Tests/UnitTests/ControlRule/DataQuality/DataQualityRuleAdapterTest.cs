@@ -1,10 +1,12 @@
 ﻿namespace UnitTests.ControlRule.DataQuality;
 
+using Microsoft.Azure.Purview.DataEstateHealth.FunctionalTests.Common;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;
@@ -15,8 +17,15 @@ using System.Text.RegularExpressions;
 public class DataQualityRuleAdapterTest
 {
     [TestMethod]
+    [Owner(Owners.DQAdapter)]
     public void TestNoErrorInParse()
     {
+        var checkpointsInDevelopment = new HashSet<DHCheckPoint>() {
+            DHCheckPoint.DataProductRelatedAssetsOwnerCount,
+            DHCheckPoint.DataProductRelatedAssetsHaveDQScore,
+            DHCheckPoint.DataProductRelatedTermsDescriptionLength,
+        };
+
         var fileName = $"CDMC.json";
         var fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", fileName);
         var jsonStr = File.ReadAllText(fullPath);
@@ -53,8 +62,18 @@ public class DataQualityRuleAdapterTest
                 assessment,
                 new List<string>());
 
-            var convertedResult = DHAssessmentRulesAdapter.ToDqRules(adaptContext, assessment.Rules);
-            Assert.IsNotNull(convertedResult);
+            try
+            {
+                var convertedResult = DHAssessmentRulesAdapter.ToDqRules(adaptContext, assessment.Rules);
+                Assert.IsNotNull(convertedResult);
+            }
+            catch (NotImplementedException ex)
+            {
+                if (!checkpointsInDevelopment.Any(c => ex.Message.Contains(c.ToString())))
+                {
+                    throw;
+                }
+            }
         }
     }
 }

@@ -31,6 +31,10 @@ public enum DHCheckPoint
     DataProductDomainDescriptionLength, // Supported in MDQ
     DataProductDomainHasOwner, // Supported in MDQ
     DataProductAllRelatedTermsMinimalDescriptionLength, // Supported in MDQ
+
+    DataProductRelatedAssetsOwnerCount,
+    DataProductRelatedAssetsHaveDQScore,
+    DataProductRelatedTermsDescriptionLength,
     //DataProductAllRelatedTermsHaveOwner,
 
     // Assessment - MQ - CDE

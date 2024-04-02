@@ -960,8 +960,9 @@
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
-                                    "checkPoint": "DataProductAllRelatedAssetsHaveOwner",
-                                    "operator": "IsTrue"
+                                    "checkPoint": "DataProductRelatedAssetsOwnerCount",
+                                    "operator": "GreaterThan",
+                                    "operand": "0"
                                 }
                             },
                             "actionProperties": {
@@ -1015,7 +1016,7 @@
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
-                                    "checkPoint": "DataProductAllRelatedAssetsHaveDQScore",
+                                    "checkPoint": "DataProductRelatedAssetsHaveDQScore",
                                     "operator": "IsTrue"
                                 }
                             },
@@ -1201,7 +1202,7 @@
                             "rule": {
                                 "type": "SimpleRule",
                                 "typeProperties": {
-                                    "checkPoint": "DataProductAllRelatedTermsMinimalDescriptionLength",
+                                    "checkPoint": "DataProductRelatedTermsDescriptionLength",
                                     "operator": "GreaterThan",
                                     "operand": "25"
                                 }
@@ -1315,8 +1316,9 @@
             //                "rule": {
             //                    "type": "SimpleRule",
             //                    "typeProperties": {
-            //                        "checkPoint": "DataProductAllRelatedAssetsHaveOwner",
-            //                        "operator": "IsTrue"
+                                    //"checkPoint": "DataProductRelatedAssetsOwnerCount",
+                                    //"operator": "GreaterThan",
+                                    //"operand": "0"
             //                    }
             //                },
             //                "actionProperties": {
