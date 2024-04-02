@@ -14,6 +14,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 [ApiController]
@@ -35,7 +36,7 @@ public class DHScheduleController(
 
     [HttpPost]
     [Route("trigger")]
-    public async Task<ActionResult> TriggerScheduleAsync()
+    public async Task<ActionResult> TriggerScheduleAsync([FromBody] TriggerScheduleRequest requestPayload)
     {
         var accountId = requestHeaderContext.AccountObjectId.ToString();
         var tenantId = requestHeaderContext.TenantId.ToString();
@@ -48,7 +49,8 @@ public class DHScheduleController(
         var payload = new DHScheduleCallbackPayload
         {
             Operator = requestHeaderContext.ClientObjectId,
-            TriggerType = DHScheduleCallbackTriggerType.Manually
+            TriggerType = DHScheduleCallbackTriggerType.Manually,
+            ControlId = requestPayload.ControlId,
         };
         var scheduleRunId = await scheduleService.TriggerScheduleJobCallbackAsync(payload).ConfigureAwait(false);
         logger.LogInformation($"Manually trigger schedule successfully. ScheduleRunId: {scheduleRunId}. Operator: {requestHeaderContext.ClientObjectId}.");
@@ -69,4 +71,10 @@ public class DHScheduleController(
         var result = await scheduleService.CreateOrUpdateGlobalScheduleAsync(entity).ConfigureAwait(false);
         return this.Ok(result.JObject);
     }
+}
+
+public record TriggerScheduleRequest
+{
+    [JsonProperty("controlId")]
+    public required string ControlId { get; set; }
 }
