@@ -477,11 +477,11 @@ module secondaryEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bic
 
 
 module sharedEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHub in eventHubs: {
-  name: 'sharedEventHubConsumerGroupDeploy${eventHub.name}'
+  name: 'sharedEventHubConsumerGroupDeploy${eventHub}'
   scope: resourceGroup(coreResourceGroupName)
   params: {
     eventHubNamespaceName: sharedEventHubNamespaceName
-    eventHubName: eventHub.name
+    eventHubName: eventHub
     consumerGroupName: consumerGroupName
   }
 }]
@@ -512,11 +512,11 @@ module tempEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' =
 }
 
 module catalogEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHub in eventHubs: {
-  name: 'catalogEventHubConsumerGroupDeploy${eventHub.name}'
+  name: 'catalogEventHubConsumerGroupDeploy${eventHub}'
   scope: resourceGroup(catalogSubscriptionId, catalogResourceGroupName)
   params: {
     eventHubNamespaceName: catalogEventHubName
-    eventHubName: eventHub.name
+    eventHubName: eventHub
     consumerGroupName: consumerGroupName
   }
 }]

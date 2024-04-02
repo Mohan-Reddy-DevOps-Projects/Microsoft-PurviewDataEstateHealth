@@ -23,21 +23,9 @@
             "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
             "consumerGroupName": "dg-health",
             "eventHubs": [
-                {
-                    "name": "catalogevent",
-                    "messageRetentionDays": 7,
-                    "partitionCount": 4
-                },
-                {
-                    "name": "dataaccessevent",
-                    "messageRetentionDays": 7,
-                    "partitionCount": 4
-                },
-                {
-                    "name": "dataqualityevent",
-                    "messageRetentionDays": 1,
-                    "partitionCount": 4
-                }
+                "catalogevent",
+                "dataaccessevent",
+                "dataqualityevent"
             ]
         }
     }
