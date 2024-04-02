@@ -158,10 +158,55 @@ paths:
                   scheduleRunId:
                     type: string
 
-  /controls/alert:
+  /controls/alerts:
     get:
-      operationId: Get Alert
-      description: Get Alert.
+      operationId: List Alerts
+      description: List all alerts.
+      tags:
+        - Alert
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: number
+                    example: 100
+                  value:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Alert"
+    post:
+      operationId: Create Alert
+      description: Create an alert.
+      tags:
+        - Alert
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Alert"
+      responses:
+        "201":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+
+  /controls/alerts/{alertId}:
+    parameters:
+      - name: alertId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: Get Alert By ID
+      description: Get an alert by id.
       tags:
         - Alert
       responses:
@@ -172,8 +217,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Alert"
     put:
-      operationId: Create/Update Alert
-      description: Create or Update Alert.
+      operationId: Update Alert By ID
+      description: Update an alert.
       tags:
         - Alert
       requestBody:
@@ -188,6 +233,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Alert"
+    delete:
+      operationId: Delete Alert By ID
+      description: Delete an alert.
+      tags:
+        - Alert
+      responses:
+        "204":
+          description: OK
 
   /controls/statusPalette:
     get:
@@ -848,7 +901,6 @@ components:
 
     RuleBase:
       allOf:
-        - $ref: "#/components/schemas/BaseEntity"
         - type: object
           required:
             - type
@@ -1323,42 +1375,109 @@ components:
               $ref: "#/components/schemas/simpleAction"
             description: The actions of the group.
 
+    AlertNotifyTarget:
+      oneOf:
+        - $ref: "#/components/schemas/AlertNotifyTargetEmail"
+        - $ref: "#/components/schemas/AlertNotifyTargetRole"
+        - $ref: "#/components/schemas/AlertNotifyTargetEntraID"
+      discriminator:
+        propertyName: type
+        mapping:
+          Email: "#/components/schemas/AlertNotifyTargetEmail"
+          Role: "#/components/schemas/AlertNotifyTargetRole"
+          EntraID: "#/components/schemas/AlertNotifyTargetEntraID"
+
+    AlertNotifyTargetBase:
+      allOf:
+        - type: object
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              enum: [Email, Role, EntraID]
+              description: The type of the rule.
+              example: "EntraID"
+
+    AlertNotifyTargetEmail:
+      allOf:
+        - $ref: "#/components/schemas/AlertNotifyTargetBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [Email]
+              description: The type of the rule.
+              example: "Email"
+            typeProperties:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  description: The email of the alert notify target.
+                  example: "contoso@contoso.com"
+
+    AlertNotifyTargetRole:
+      allOf:
+        - $ref: "#/components/schemas/AlertNotifyTargetBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [Role]
+              description: The type of the rule.
+              example: "Role"
+            typeProperties:
+              type: object
+              required:
+                - role
+              properties:
+                role:
+                  type: string
+                  description: The role name of the alert notify target.
+                  enum: [ControlOwner]
+                  example: "ControlOwner"
+
+    AlertNotifyTargetEntraID:
+      allOf:
+        - $ref: "#/components/schemas/AlertNotifyTargetBase"
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [EntraID]
+              description: The type of the rule.
+              example: "EntraID"
+            typeProperties:
+              type: object
+              required:
+                - objectID
+              properties:
+                objectID:
+                  type: string
+                  description: The object id of the alert notify target.
+                  example: "7e255139-b654-4c8d-a4bd-fbb5a243e83f"
+
     Alert:
       allOf:
         - $ref: "#/components/schemas/BaseEntity"
         - type: object
           properties:
-            alerts:
+            controlIds:
               type: array
               items:
-                $ref: "#/components/schemas/AlertEntity"
-
-    AlertEntity:
-      type: object
-      properties:
-        targetControlIds:
-          type: array
-          items:
-            type: string
-          description: The control ids of the alert entity.
-          example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
-        rule:
-          $ref: "#/components/schemas/Rule"
-          description: The rules of the alert entity.
-        notify:
-          type: array
-          items:
-            type: object
-            properties:
-              type:
                 type: string
-                enum: [Email, Owner]
-                description: notify target type
-                example: "Email"
-              value:
-                type: string
-                description: notify target value
-                example: "robin@contoso.com"
+              description: The control ids of the alert entity.
+              example: ["7e255139-b654-4c8d-a4bd-fbb5a243e83f"]
+            rule:
+              $ref: "#/components/schemas/Rule"
+              description: The rules of the alert entity.
+            notifyTargets:
+              type: array
+              items:
+                $ref: "#/components/schemas/AlertNotifyTarget"
 
     Contacts:
       type: object

@@ -9,6 +9,9 @@ public enum DHCheckPoint
     // ControlNode
     Score,
 
+    // Alert
+    Severity,
+
     // Assessment - MQ - DataProduct
     DataProductDescriptionLength, // Supported in MDQ
     DataProductBusinessUseLength, // Supported in MDQ

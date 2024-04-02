@@ -29,6 +29,8 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes
         StatusPalette,
         Score,
         MonitoringJob,
+        NofityTarget,
+        Alert,
     }
 
     [AttributeUsage(AttributeTargets.Class)]

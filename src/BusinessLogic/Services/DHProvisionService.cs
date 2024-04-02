@@ -16,6 +16,7 @@ public class DHProvisionService(
     DHScoreService scoreService,
     DHScheduleInternalService scheduleInternalService,
     DHTemplateService templateService,
+    DHAlertService alertService,
     IRequestHeaderContext requestHeaderContext,
     IDataEstateHealthRequestLogger logger
     )
@@ -59,7 +60,8 @@ public class DHProvisionService(
                 statusPaletteService.DeprovisionForStatusPalettesAsync(),
                 scheduleInternalService.DeprovisionForSchedulesAsync(),
                 actionService.DeprovisionForActionsAsync(),
-                scoreService.DeprovisionForScoresAsync()
+                scoreService.DeprovisionForScoresAsync(),
+                alertService.DeprovisionForAlertsAsync(),
             ];
 
             await Task.WhenAll(tasks).ConfigureAwait(false);

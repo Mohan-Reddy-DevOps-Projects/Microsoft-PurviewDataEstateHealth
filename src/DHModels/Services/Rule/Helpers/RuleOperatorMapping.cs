@@ -10,11 +10,13 @@ public enum DHCheckPointType
     String,
     Boolean,
     Score,
+    Enum
 }
 
 public enum DHRuleSourceType
 {
     ControlNode,
+    Alert,
     AssessmentMQDataProduct,
     AssessmentMQCDE,
     AssessmentMQBusinessDomain,
@@ -28,6 +30,10 @@ public class RuleOperatorMapping
         {
             { DHRuleSourceType.ControlNode, [
                 DHCheckPoint.Score,
+            ] },
+            { DHRuleSourceType.Alert, [
+                DHCheckPoint.Score,
+                DHCheckPoint.Severity,
             ] },
             { DHRuleSourceType.AssessmentDQDataProduct, [
                 DHCheckPoint.DataQualityScore,
@@ -75,6 +81,7 @@ public class RuleOperatorMapping
         new()
         {
             { DHCheckPoint.Score, DHCheckPointType.Number },
+            { DHCheckPoint.Severity, DHCheckPointType.Enum },
 
             { DHCheckPoint.DataProductDescriptionLength, DHCheckPointType.Number },
             { DHCheckPoint.DataProductBusinessUseLength, DHCheckPointType.Number },
@@ -141,6 +148,10 @@ public class RuleOperatorMapping
             DHOperator.GreaterThanOrEqual,
             DHOperator.LessThan,
             DHOperator.LessThanOrEqual
+            ] },
+        { DHCheckPointType.Enum, [
+            DHOperator.Equal,
+            DHOperator.NotEqual,
             ] },
     };
 

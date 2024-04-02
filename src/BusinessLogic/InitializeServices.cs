@@ -25,6 +25,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic
             services.AddScoped<DHMonitoringService>();
             services.AddScoped<DHTemplateService>();
             services.AddScoped<DHProvisionService>();
+            services.AddScoped<DHAlertService>();
         }
     }
 }
