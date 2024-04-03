@@ -16,6 +16,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
 using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService.Configurations;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -76,44 +77,53 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         [FromBody] AccountServiceModel account,
         CancellationToken cancellationToken)
     {
-        if (!this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        try
         {
+            if (!this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                return this.Ok();
+            }
+            List<Task> tasks = new();
+
+            await this.processingStorageManager.Provision(account, cancellationToken);
+
+            if (!this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                Task partnerTask = PartnerNotifier.NotifyPartners(
+                        this.logger,
+                        this.partnerService,
+                        this.partnerConfig,
+                        account,
+                        ProvisioningService.OperationType.CreateOrUpdate,
+                        InitPartnerContext(this.partnerConfig.Partners));
+
+                tasks.Add(partnerTask);
+            }
+
+            if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                Task healthTask = this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                    .CreatePartnerNotificationComponent(
+                    Guid.Parse(account.TenantId),
+                    Guid.Parse(account.Id))
+                    .CreateOrUpdateNotification(account, cancellationToken);
+                tasks.Add(healthTask);
+
+                // Provision control template
+                Task provisionControlTemplate = this.dhProvisionService.ProvisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
+                tasks.Add(provisionControlTemplate);
+            }
+
+            await Task.WhenAll(tasks);
+
             return this.Ok();
         }
-        List<Task> tasks = new();
-
-        await this.processingStorageManager.Provision(account, cancellationToken);
-
-        if (!this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        catch (Exception ex)
         {
-            Task partnerTask = PartnerNotifier.NotifyPartners(
-                    this.logger,
-                    this.partnerService,
-                    this.partnerConfig,
-                    account,
-                    ProvisioningService.OperationType.CreateOrUpdate,
-                    InitPartnerContext(this.partnerConfig.Partners));
-
-            tasks.Add(partnerTask);
+            this.logger.LogCritical($"Provisioning failed, tenantId: {account.TenantId}", ex);
+            ProvisioningFailedResponse response = new ProvisioningFailedResponse { Code = "500", Message = ex.Message };
+            return this.StatusCode(500, response);
         }
-
-        if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
-        {
-            Task healthTask = this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
-                .CreatePartnerNotificationComponent(
-                Guid.Parse(account.TenantId),
-                Guid.Parse(account.Id))
-                .CreateOrUpdateNotification(account, cancellationToken);
-            tasks.Add(healthTask);
-
-            // Provision control template
-            Task provisionControlTemplate = this.dhProvisionService.ProvisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
-            tasks.Add(provisionControlTemplate);
-        }
-
-        await Task.WhenAll(tasks);
-
-        return this.Ok();
     }
 
     /// <summary>
@@ -135,35 +145,44 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         [FromBody] AccountServiceModel account,
         CancellationToken cancellationToken)
     {
-        if (!this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        try
         {
+            if (!this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                return this.Ok();
+            }
+
+            if (!this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                await PartnerNotifier.NotifyPartners(
+                    this.logger,
+                    this.partnerService,
+                    this.partnerConfig,
+                    account,
+                    ProvisioningService.OperationType.Delete,
+                    InitPartnerContext(this.partnerConfig.Partners)).ConfigureAwait(false);
+            }
+
+            if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                    .CreatePartnerNotificationComponent(
+                    Guid.Parse(account.TenantId),
+                    Guid.Parse(account.Id))
+                    .DeleteNotification(account, cancellationToken);
+                await this.dhProvisionService.DeprovisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
+            }
+
+            await this.processingStorageManager.Delete(account, cancellationToken);
+
             return this.Ok();
         }
-
-        if (!this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        catch (Exception ex)
         {
-            await PartnerNotifier.NotifyPartners(
-                this.logger,
-                this.partnerService,
-                this.partnerConfig,
-                account,
-                ProvisioningService.OperationType.Delete,
-                InitPartnerContext(this.partnerConfig.Partners)).ConfigureAwait(false);
+            this.logger.LogCritical($"Deprovisioning failed, tenantId: {account.TenantId}", ex);
+            ProvisioningFailedResponse response = new ProvisioningFailedResponse { Code = "500", Message = ex.Message };
+            return this.StatusCode(500, response);
         }
-
-        if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
-        {
-            await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
-                .CreatePartnerNotificationComponent(
-                Guid.Parse(account.TenantId),
-                Guid.Parse(account.Id))
-                .DeleteNotification(account, cancellationToken);
-            await this.dhProvisionService.DeprovisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
-        }
-
-        await this.processingStorageManager.Delete(account, cancellationToken);
-
-        return this.Ok();
     }
 
     /// <summary>
@@ -180,4 +199,13 @@ public class PlatformAccountNotificationsController : ControlPlaneController
 
         return partnerContext;
     }
+}
+
+public record ProvisioningFailedResponse
+{
+    [JsonProperty("code")]
+    public required string Code { get; set; }
+
+    [JsonProperty("message")]
+    public required string Message { get; set; }
 }

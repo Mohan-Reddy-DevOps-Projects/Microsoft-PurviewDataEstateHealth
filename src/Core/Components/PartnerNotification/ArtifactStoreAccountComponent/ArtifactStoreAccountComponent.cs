@@ -51,32 +51,38 @@ internal sealed class ArtifactStoreAccountComponent : IArtifactStoreAccountCompo
 
         foreach (var entity in existingEntityList)
         {
-            healthControlEntities.Add(entity.Properties.Name, entity.Properties);
+            if (!healthControlEntities.ContainsKey(entity.Properties.Name))
+            {
+                healthControlEntities.Add(entity.Properties.Name, entity.Properties);
+            }
         }
 
-        if (!healthControlEntities.ContainsKey(OOTBControlTypes.DataGovernanceScore.Name) && !healthControlEntities.ContainsKey("Data governance score"))
+        if (!healthControlEntities.ContainsKey(OOTBControlTypes.DataGovernanceScore.Name))
         {
-            var dataGovernanceEntity = await this.CreateHealthControlEntity(account, true, OOTBControlTypes.DataGovernanceScore.Name, Guid.Empty);
-            healthControlEntities.Add(OOTBControlTypes.DataGovernanceScore.Name, dataGovernanceEntity);
-        }
-        else if (healthControlEntities.ContainsKey("Data governance score"))
-        {
-            var entityToUpdate = healthControlEntities["Data governance score"];
+            if (!healthControlEntities.ContainsKey("Data governance score"))
+            {
+                var dataGovernanceEntity = await this.CreateHealthControlEntity(account, true, OOTBControlTypes.DataGovernanceScore.Name, Guid.Empty);
+                healthControlEntities.Add(OOTBControlTypes.DataGovernanceScore.Name, dataGovernanceEntity);
+            }
+            else
+            {
+                var entityToUpdate = healthControlEntities["Data governance score"];
 
-            entityToUpdate.Name = OOTBControlTypes.DataGovernanceScore.Name;
+                entityToUpdate.Name = OOTBControlTypes.DataGovernanceScore.Name;
 
-            var indexedProperties = entityToUpdate.GetIndexedProperties();
+                var indexedProperties = entityToUpdate.GetIndexedProperties();
 
-            await this.artifactStoreAccessorService.CreateOrUpdateResourceAsync(
-                        Guid.Parse(account.Id),
-                        entityToUpdate.ObjectId.ToString(),
-                        entityToUpdate.GetEntityType().ToString(),
-                        entityToUpdate,
-                        null,
-                        indexedProperties);
+                await this.artifactStoreAccessorService.CreateOrUpdateResourceAsync(
+                            Guid.Parse(account.Id),
+                            entityToUpdate.ObjectId.ToString(),
+                            entityToUpdate.GetEntityType().ToString(),
+                            entityToUpdate,
+                            null,
+                            indexedProperties);
 
-            healthControlEntities.Remove("Data governance score");
-            healthControlEntities.Add(OOTBControlTypes.DataGovernanceScore.Name, entityToUpdate);
+                healthControlEntities.Remove("Data governance score");
+                healthControlEntities.Add(OOTBControlTypes.DataGovernanceScore.Name, entityToUpdate);
+            }
         }
 
         if (!healthControlEntities.ContainsKey(OOTBControlTypes.MetadataCompleteness.Name))
