@@ -21,6 +21,7 @@ BEGIN TRAN
 DECLARE @DynamicSQL NVARCHAR(MAX);
 DECLARE @DomainSchema NVARCHAR(512) = '@schemaName.DomainModel';
 DECLARE @DimensionalSchema NVARCHAR(512) = '@schemaName.DimensionalModel';
+/* SCHEMA Creation a part of provisioning hence commented.
 
 IF NOT EXISTS (SELECT * FROM SYS.schemas WHERE name = @DomainSchema)
 BEGIN
@@ -35,6 +36,8 @@ BEGIN
     EXEC sp_executesql @DynamicSQL;
     PRINT 'Schema created: ' + @DimensionalSchema;
 END
+
+*/
 
 /*
 DOMAIN MODEL SECTION
@@ -1550,13 +1553,28 @@ END
 SET @DynamicSQL = '
 CREATE VIEW [' + @DimensionalSchema + '].[vwFactDataQuality]
 AS 
-SELECT [DQRuleId]       ,[RuleScanCompletionDatetime]       ,[BusinessDomainId]       ,[DataProductId]       ,[DataAssetId]       
-,[DataAssetColumnId]       ,[DQRuleTypeId]       ,[DQScanProfileId]       ,[ScanCompletionDateId]       
-,[DQOverallProfileQualityScore]       ,[DQPassedCount]       ,[DQFailedCount]       ,[DQIgnoredCount]       
-,[DQEmptyCount]       ,[DQMiscastCount] ,[JobTypeId]
-FROM ( SELECT *, ROW_NUMBER() OVER (PARTITION BY DQRuleId, DataAssetId,DataAssetColumnId ORDER BY RuleScanCompletionDatetime DESC) RID   
-FROM  ['+@DimensionalSchema+'].[FactDataQuality]) X  
-WHERE X.RID=1';
+SELECT  [DQRuleId] ,
+        [RuleScanCompletionDatetime] ,
+        [BusinessDomainId] ,
+        [DataProductId] ,
+        [DataAssetId] ,
+        [DataAssetColumnId] ,
+        [DQRuleTypeId] ,
+        [DQScanProfileId] ,
+        [ScanCompletionDateId] ,
+        [DQOverallProfileQualityScore] ,
+        [DQPassedCount] ,
+        [DQFailedCount] ,
+        [DQIgnoredCount] ,
+        [DQEmptyCount] ,
+        [DQMiscastCount] ,
+        [JobTypeId]
+FROM ( SELECT   F.*,
+                         Row_number() OVER (PARTITION BY dqruleid, dataassetid,dataassetcolumnid ORDER BY rulescancompletiondatetime DESC) RID
+                FROM     ['+@DimensionalSchema+'].[FactDataQuality] F INNER JOIN ['+@DimensionalSchema+'].[DimDQJobType] D ON
+                F.JobTypeId = D.JobTypeId
+                WHERE D.[JobTypeDisplayName] <> ''MDQ'') X
+WHERE  X.RID=1';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'VIEW created: vwFactDataQuality';
 
