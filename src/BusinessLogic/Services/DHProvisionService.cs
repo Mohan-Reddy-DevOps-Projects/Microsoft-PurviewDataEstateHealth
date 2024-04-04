@@ -10,13 +10,14 @@ using System.Threading.Tasks;
 
 public class DHProvisionService(
     DHControlService controlService,
+    DHDataEstateHealthService dHDataEstateHealthService,
     DHAssessmentService assessmentService,
     DHStatusPaletteService statusPaletteService,
     DHActionService actionService,
     DHScoreService scoreService,
     DHScheduleInternalService scheduleInternalService,
-    DHTemplateService templateService,
     DHAlertService alertService,
+    DHTemplateService templateService,
     IRequestHeaderContext requestHeaderContext,
     IDataEstateHealthRequestLogger logger
     )
@@ -61,12 +62,26 @@ public class DHProvisionService(
                 scheduleInternalService.DeprovisionForSchedulesAsync(),
                 actionService.DeprovisionForActionsAsync(),
                 scoreService.DeprovisionForScoresAsync(),
-                alertService.DeprovisionForAlertsAsync(),
+                alertService.DeprovisionForAlertsAsync()
             ];
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
     }
+
+
+    public async Task DeprovisionDEHAccount()
+    {
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionDEHAccount)}"))
+        {
+            List<Task> tasks = [
+             dHDataEstateHealthService.DeprovisionForDEHAsync()
+               ];
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
+    }
+
+
 
     public async Task DeprovisionAccount(Guid tenantId, Guid accountId)
     {
@@ -74,5 +89,7 @@ public class DHProvisionService(
         requestHeaderContext.AccountObjectId = accountId;
 
         await this.DeprovisionAccount().ConfigureAwait(false);
+        await this.DeprovisionDEHAccount().ConfigureAwait(false);
     }
+
 }

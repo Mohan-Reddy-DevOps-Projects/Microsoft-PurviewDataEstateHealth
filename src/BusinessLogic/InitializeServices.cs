@@ -18,6 +18,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic
 
             services.AddScoped<DHActionService>();
             services.AddScoped<DHControlService>();
+            services.AddScoped<DHDataEstateHealthService>();            
             services.AddScoped<DHScheduleService>();
             services.AddScoped<DHStatusPaletteService>();
             services.AddScoped<DHAssessmentService>();

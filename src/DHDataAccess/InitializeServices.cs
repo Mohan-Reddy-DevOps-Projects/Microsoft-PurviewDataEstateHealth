@@ -44,6 +44,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
             services.AddSingleton<CosmosMetricsTracker>();
 
             services.AddScoped<DHControlRepository>();
+            services.AddScoped<DHDataEstateHealthRepository>();
             services.AddScoped<DHControlStatusPaletteRepository>();
             services.AddScoped<DHScoreRepository>();
             services.AddScoped<DHAssessmentRepository>();

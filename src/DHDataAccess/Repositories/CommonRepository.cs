@@ -161,6 +161,39 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
         }
     }
 
+
+    /// <inheritdoc />
+    public async Task DeleteDEHAsync(string id, string accountId)
+    {
+        ValidateAccountId(accountId);
+        var methodName = nameof(DeleteDEHAsync);
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, accountId = {accountId}"))
+        {
+            try
+            {
+                var tenantPartitionKey = new PartitionKey(accountId);
+
+                // Execute the asynchronous operation with the defined retry policy
+                var response = await this.retryPolicy.ExecuteAsync(
+                    (context) => this.CosmosContainer.DeleteItemAsync<cosmosEntity>(id, tenantPartitionKey),
+                    new Context($"{this.GetType().Name}#{methodName}_{id}_{accountId}")
+                ).ConfigureAwait(false);
+
+                cosmosMetricsTracker.LogCosmosMetrics(accountId, response);
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {id}, accountId = {accountId}", ex);
+                throw;
+            }
+        }
+    }
+
+
     /// <inheritdoc />
     public async Task<IEnumerable<TEntity>> GetAllAsync(string tenantId)
     {
@@ -197,6 +230,52 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             }
         }
     }
+
+    public class cosmosEntity
+    {
+        public string Id { get; set; } = "";
+        public string accountId { get; set; } = "";
+
+    }
+
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<cosmosEntity>> GetAllDEHAsync(string accountId)
+    {
+        ValidateAccountId(accountId);
+        var methodName = nameof(GetAllDEHAsync);
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, accountId = {accountId}"))
+        {
+            try
+            {
+                var accountPartitionKey = new PartitionKey(accountId);
+
+                var feedIterator = this.CosmosContainer.GetItemLinqQueryable<cosmosEntity>(
+                    requestOptions: new QueryRequestOptions { PartitionKey = accountPartitionKey }
+                ).Where(x => true).ToFeedIterator();
+
+                var results = new List<cosmosEntity>();
+                while (feedIterator.HasMoreResults)
+                {
+                    // Execute the asynchronous operation with the defined retry policy
+                    var response = await this.retryPolicy.ExecuteAsync(
+                        (context) => feedIterator.ReadNextAsync(),
+                        new Context($"{this.GetType().Name}#{methodName}_{accountId}")
+                    ).ConfigureAwait(false);
+                    cosmosMetricsTracker.LogCosmosMetrics(accountId, response);
+                    results.AddRange([.. response]);
+                }
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {accountId}", ex);
+                throw;
+            }
+        }
+    }
+
 
     /// <inheritdoc />
     public async Task<TEntity?> GetByIdAsync(string id, string tenantId)
@@ -403,6 +482,48 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
         }
     }
 
+    /// <inheritdoc />
+    public async Task DeprovisionDEHAsync(string accountId)
+    {
+        //use this id to Test
+        //accountId = "ecf09339-34e0-464b-a8fb-661209048541";
+
+        ValidateAccountId(accountId);
+        var methodName = nameof(DeprovisionDEHAsync);
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, accountId = {accountId}"))
+        {
+            try
+            {
+                // TODO: Delete by partition key feature is in preview in Cosmos SDK.
+                // Will switch to that once it's GA. https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-delete-by-partition-key?tabs=dotnet-example
+
+                var allItems = await this.GetAllDEHAsync(accountId).ConfigureAwait(false);
+                var containerName = this.CosmosContainer.Id;
+
+                logger.LogInformation($"{this.GetType().Name}#{methodName}, deleting {allItems.Count()} entities from CosmosDB during deprovisioning, ContainerName = {containerName}, tenantId = {accountId}");
+
+                await Task.WhenAll(allItems.Select(async item =>
+                {
+                    try
+                    {
+                        await this.DeleteDEHAsync(item.Id, accountId).ConfigureAwait(false);
+
+                        logger.LogInformation($"{this.GetType().Name}#{methodName}, deleted entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id}, ContainerName = {containerName}, tenantId = {accountId}");
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogError($"{this.GetType().Name}#{methodName}, failed to delete entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id},  ContainerName = {containerName}, tenantId = {accountId}", ex);
+                    }
+                })).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {accountId}", ex);
+            }
+        }
+    }
+
+
     private static void ValidateTenantId(string tenantId)
     {
         // tenantId is a GUID string, it should not be null or all-zero id or invalid GUID string.
@@ -411,6 +532,16 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             throw new ArgumentException($@"Invalid tenantId: ""{tenantId}""", nameof(tenantId));
         }
     }
+
+    private static void ValidateAccountId(string accountId)
+    {
+        // tenantId is a GUID string, it should not be null or all-zero id or invalid GUID string.
+        if (string.IsNullOrEmpty(accountId) || accountId == Guid.Empty.ToString() || !Guid.TryParse(accountId, out _))
+        {
+            throw new ArgumentException($@"Invalid accountId: ""{accountId}""", nameof(accountId));
+        }
+    }
+
 
     private static void PopulateMetadataForEntity(TEntity entity, string tenantId, string? accountId = null)
     {

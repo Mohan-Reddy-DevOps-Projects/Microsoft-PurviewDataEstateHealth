@@ -60,6 +60,11 @@ public abstract class CommonHttpContextRepository<TEntity>(
         return this.DeprovisionAsync(this.TenantId);
     }
 
+    public Task DeprovisionDEHAsync()
+    {
+        return this.DeprovisionDEHAsync(this.AccountId);
+    }
+
     /// <inheritdoc />
     public Task<IEnumerable<TEntity>> GetAllAsync()
     {

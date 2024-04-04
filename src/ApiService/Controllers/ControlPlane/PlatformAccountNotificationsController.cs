@@ -151,7 +151,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
             {
                 return this.Ok();
             }
-
+            
             if (!this.exposureControl.IsDataGovProvisioningServiceEnabled(account.Id, account.SubscriptionId, account.TenantId))
             {
                 await PartnerNotifier.NotifyPartners(
