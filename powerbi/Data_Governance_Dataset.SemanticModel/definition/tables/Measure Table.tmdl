@@ -90,9 +90,8 @@ table 'Measure Table'
 		lineageTag: 3ad432c9-20d5-479f-99bd-fe4dc3e2147a
 
 	measure 'Partial Passing Score Trend' = CALCULATE(divide([Partial Passing Control Checks],[All Control Checks],0))
+		formatString: 0.0%;-0.0%;0.0%
 		lineageTag: 761052af-76e2-4c93-9c61-e4b24a4bca5b
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure 'Partial Score Color' = ```
 			sWITCH(TRUE(),                            
