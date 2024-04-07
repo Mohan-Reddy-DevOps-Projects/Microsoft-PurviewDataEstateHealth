@@ -32,14 +32,14 @@ public class DataProductTermCountJoinAdapter : DataQualityJoinAdapter
             JoinSql = @"LEFT JOIN (
                 SELECT
                     DataProduct.DataProductID as DPTCDataProductId,
-                    COUNT(GlossaryTerm.GlossaryTermId) as GlossaryTermCount
+                    COUNT(GlossaryTerm.GlossaryTermId) as DataProductTermCount
                 FROM DataProduct 
                 LEFT JOIN GlossaryTermDataProductAssignment ON DataProduct.DataProductID = GlossaryTermDataProductAssignment.DataProductId
                     AND GlossaryTermDataProductAssignment.ActiveFlag = 1
                 LEFT JOIN GlossaryTerm ON GlossaryTermDataProductAssignment.GlossaryTermID = GlossaryTerm.GlossaryTermId
                     AND GlossaryTerm.Status = 'Published'
                 GROUP BY DataProduct.DataProductID
-            ) DataProductTermCount ON DataProduct.DataProductID = DataProductTermCount.DPTCDataProductId",
+            ) DPTCDataProductTerm ON DataProduct.DataProductID = DPTCDataProductTerm.DPTCDataProductId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema
         };
