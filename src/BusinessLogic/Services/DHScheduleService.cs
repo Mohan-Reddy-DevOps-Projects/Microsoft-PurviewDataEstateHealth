@@ -209,11 +209,15 @@ public class DHScheduleService(
                 Id = Guid.NewGuid().ToString(),
                 ComputingJobId = jobId.ToString(),
                 Time = now,
-                Scores = group.Select(score => new DHScoreUnitWrapper()
+                Scores = new List<DHScoreUnitWrapper>()
                 {
-                    AssessmentRuleId = score.DataAssetId.ToString(),
-                    Score = score.Score
-                }),
+                    // compute average based on DP, not Asset
+                    new DHScoreUnitWrapper()
+                    {
+                        AssessmentRuleId = group.First().DataProductId.ToString(),
+                        Score = group.Average(x => x.Score),
+                    }
+                },
                 AggregatedScore = group.Average(score => score.Score),
                 DataProductDomainId = group.First().BusinessDomainId.ToString(),
                 DataProductId = group.First().DataProductId.ToString(),
