@@ -21,7 +21,7 @@ internal static class RuleFieldAdapter
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataAssetCount);
                 return "DataAssetCount";
             case DHCheckPoint.DataProductRelatedTermsCount:
-                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductTerm);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductTermCount);
                 return "DataProductTermCount";
             case DHCheckPoint.DataProductHasDataAccessPolicy:
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.HasAccessPolicySet);
@@ -33,16 +33,16 @@ internal static class RuleFieldAdapter
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductTermsOfUseCount);
                 return "DataProductTermsOfUseCount";
             case DHCheckPoint.DataProductHasDQScore:
-                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetDQScore);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductDQScore);
                 return "DataProductHasDQScore";
             case DHCheckPoint.DataProductAllRelatedAssetsHaveDQScore:
-                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetDQScore);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductDQScore);
                 return "DataProductAllRelatedAssetsHaveDQScore";
             case DHCheckPoint.DataProductRelatedAssetsHaveDQScore:
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetDQScore);
                 return "DataProductRelatedAssetsHaveDQScore";
             case DHCheckPoint.DataProductAllRelatedAssetsHaveOwner:
-                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetsOwner);
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAllAssetsOwner);
                 return "DataProductAllRelatedAssetsHaveOwner";
             case DHCheckPoint.DataProductRelatedAssetsOwnerCount:
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductAssetsOwner);

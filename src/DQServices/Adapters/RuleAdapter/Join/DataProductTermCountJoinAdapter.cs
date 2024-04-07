@@ -8,16 +8,16 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
 using System.Collections.Generic;
 
-public class DataProductTermJoinAdapter : DataQualityJoinAdapter
+public class DataProductTermCountJoinAdapter : DataQualityJoinAdapter
 {
     private readonly string[][] outputSchemaDef =
     [
-        ["DataProductRelatedTermsDescription", "string"]
+        ["DataProductTermCount", "long"]
     ];
 
     private List<SparkSchemaItemWrapper> outputSchema;
 
-    public DataProductTermJoinAdapter(RuleAdapterContext context) : base(context)
+    public DataProductTermCountJoinAdapter(RuleAdapterContext context) : base(context)
     {
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
@@ -31,18 +31,15 @@ public class DataProductTermJoinAdapter : DataQualityJoinAdapter
         {
             JoinSql = @"LEFT JOIN (
                 SELECT
-                    DataProduct.DataProductID as DPTDataProductId,
-                    GlossaryTerm.GlossaryTermId as DPTGlossaryTermId,
-                    CASE  
-                        WHEN GlossaryTerm.GlossaryDescription IS NULL THEN ''  
-                        ELSE GlossaryTerm.GlossaryDescription 
-                    END as DataProductRelatedTermsDescription
+                    DataProduct.DataProductID as DPTCDataProductId,
+                    COUNT(GlossaryTerm.GlossaryTermId) as GlossaryTermCount
                 FROM DataProduct 
                 LEFT JOIN GlossaryTermDataProductAssignment ON DataProduct.DataProductID = GlossaryTermDataProductAssignment.DataProductId
                     AND GlossaryTermDataProductAssignment.ActiveFlag = 1
                 LEFT JOIN GlossaryTerm ON GlossaryTermDataProductAssignment.GlossaryTermID = GlossaryTerm.GlossaryTermId
                     AND GlossaryTerm.Status = 'Published'
-            ) TDataProductTerm ON DataProduct.DataProductID = TDataProductTerm.DPTDataProductId",
+                GROUP BY DataProduct.DataProductID
+            ) DataProductTermCount ON DataProduct.DataProductID = DataProductTermCount.DPTCDataProductId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema
         };

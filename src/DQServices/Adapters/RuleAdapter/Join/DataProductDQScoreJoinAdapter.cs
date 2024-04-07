@@ -8,16 +8,17 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
 using System.Collections.Generic;
 
-public class AssetDQScoreJoinAdapter : DataQualityJoinAdapter
+public class DataProductDQScoreJoinAdapter : DataQualityJoinAdapter
 {
     private readonly string[][] outputSchemaDef =
     [
-        ["DataProductRelatedAssetsHaveDQScore", "boolean"]
+        ["DataProductHasDQScore", "boolean"],
+        ["DataProductAllRelatedAssetsHaveDQScore", "boolean"]
     ];
 
     private List<SparkSchemaItemWrapper> outputSchema;
 
-    public AssetDQScoreJoinAdapter(RuleAdapterContext context) : base(context)
+    public DataProductDQScoreJoinAdapter(RuleAdapterContext context) : base(context)
     {
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
@@ -31,12 +32,16 @@ public class AssetDQScoreJoinAdapter : DataQualityJoinAdapter
         {
             JoinSql = @"LEFT JOIN (
                 SELECT
-                    DataProduct.DataProductID as DADQSCountDataProductId,
-                    DataProductAssetAssignment.DataAssetId as DADQSDataAssetId,
-                    CASE
-                        WHEN COUNT(TDataQualityAssetRuleExecution.AssetResultScore) > 0 THEN 'true'
+                    DataProduct.DataProductID as DPDQSDataProductId,
+                    CASE  
+                        WHEN COUNT(TDataQualityAssetRuleExecution.AssetResultScore) > 0 THEN 'true'  
                         ELSE 'false'
-                    END AS DataProductRelatedAssetsHaveDQScore
+                    END AS DataProductHasDQScore,
+                    CASE  
+                        WHEN COUNT(DataProductAssetAssignment.DataAssetId) > 0
+                            AND COUNT(DISTINCT DataProductAssetAssignment.DataAssetId) = COUNT(DISTINCT TDataQualityAssetRuleExecution.DataAssetId) THEN 'true' 
+                        ELSE 'false'
+                    END AS DataProductAllRelatedAssetsHaveDQScore
                 FROM DataProduct 
                 LEFT JOIN DataProductAssetAssignment ON DataProduct.DataProductID = DataProductAssetAssignment.DataProductId
                     AND DataProductAssetAssignment.ActiveFlag = 1
@@ -48,8 +53,8 @@ public class AssetDQScoreJoinAdapter : DataQualityJoinAdapter
                     WHERE AssetResultScore IS NOT NULL
                     GROUP BY DataAssetId
                 ) TDataQualityAssetRuleExecution ON DataProductAssetAssignment.DataAssetId = TDataQualityAssetRuleExecution.DataAssetId
-                GROUP BY DataProduct.DataProductID, DataProductAssetAssignment.DataAssetId
-            ) DataProductAssetDQScore ON DataProduct.DataProductID = DataProductAssetDQScore.DADQSCountDataProductId",
+                GROUP BY DataProduct.DataProductID
+            ) DataProductDQScore ON DataProduct.DataProductID = DataProductDQScore.DPDQSDataProductId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema
         };

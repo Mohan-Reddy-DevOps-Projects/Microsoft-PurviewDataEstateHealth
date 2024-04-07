@@ -8,16 +8,16 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality;
 using Microsoft.Purview.DataQuality.Models.Service.Dataset.DatasetProjectAsItem;
 using System.Collections.Generic;
 
-public class DataProductAssetHasOwnerJoinAdapter : DataQualityJoinAdapter
+public class DataProductAllAssetHaveOwnerJoinAdapter : DataQualityJoinAdapter
 {
     private readonly string[][] outputSchemaDef =
     [
-        ["DataProductRelatedAssetsOwnerCount", "long"]
+        ["DataProductAllRelatedAssetsHaveOwner", "boolean"]
     ];
 
     private List<SparkSchemaItemWrapper> outputSchema;
 
-    public DataProductAssetHasOwnerJoinAdapter(RuleAdapterContext context) : base(context)
+    public DataProductAllAssetHaveOwnerJoinAdapter(RuleAdapterContext context) : base(context)
     {
         this.outputSchema = SchemaUtils.GenerateSparkSchemaFromDefinition(this.outputSchemaDef);
     }
@@ -31,9 +31,11 @@ public class DataProductAssetHasOwnerJoinAdapter : DataQualityJoinAdapter
         {
             JoinSql = @"LEFT JOIN (
                 SELECT
-                    DataProduct.DataProductID as DAODataProductId,
-                    DataAssetOwnerAssignment.DataAssetId as ADODataAssetId,
-                    COUNT(DataAssetOwnerAssignment.DataAssetOwnerId) as DataProductRelatedAssetsOwnerCount
+                    DataProduct.DataProductID as ADAODataProductId,
+                    CASE
+                        WHEN COUNT(DISTINCT DataProductAssetAssignment.DataAssetId) = COUNT(DISTINCT DataAssetOwnerAssignment.DataAssetId) THEN 'true'
+                        ELSE 'false'
+                    END as DataProductAllRelatedAssetsHaveOwner
                 FROM DataProduct 
                 LEFT JOIN DataProductAssetAssignment
                     ON DataProduct.DataProductID = DataProductAssetAssignment.DataProductId
@@ -41,8 +43,8 @@ public class DataProductAssetHasOwnerJoinAdapter : DataQualityJoinAdapter
                 LEFT JOIN DataAssetOwnerAssignment
                     ON DataProductAssetAssignment.DataAssetId = DataAssetOwnerAssignment.DataAssetId
                     AND DataAssetOwnerAssignment.ActiveFlag = 1
-                GROUP BY DataProduct.DataProductID, DataAssetOwnerAssignment.DataAssetId
-            ) DPAssetHaveOwner ON DataProduct.DataProductID = DPAssetHaveOwner.DAODataProductId",
+                GROUP BY DataProduct.DataProductID
+            ) DPAllAssetsHaveOwner ON DataProduct.DataProductID = DPAllAssetsHaveOwner.ADAODataProductId",
             inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
             SchemaFromJoin = this.outputSchema
         };

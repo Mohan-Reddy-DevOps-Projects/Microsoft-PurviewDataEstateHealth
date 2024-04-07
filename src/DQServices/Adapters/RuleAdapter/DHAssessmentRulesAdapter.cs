@@ -67,14 +67,23 @@ public class DHAssessmentRulesAdapter
                     case DataQualityJoinRequirement.DataProductTerm:
                         joinAdapter = new DataProductTermJoinAdapter(context);
                         break;
+                    case DataQualityJoinRequirement.DataProductTermCount:
+                        joinAdapter = new DataProductTermCountJoinAdapter(context);
+                        break;
                     case DataQualityJoinRequirement.HasAccessPolicySet:
                         joinAdapter = new HasAccessPolicySetJoinAdapter(context);
+                        break;
+                    case DataQualityJoinRequirement.DataProductDQScore:
+                        joinAdapter = new DataProductDQScoreJoinAdapter(context);
                         break;
                     case DataQualityJoinRequirement.DataProductAssetDQScore:
                         joinAdapter = new AssetDQScoreJoinAdapter(context);
                         break;
                     case DataQualityJoinRequirement.DataProductAssetsOwner:
                         joinAdapter = new DataProductAssetHasOwnerJoinAdapter(context);
+                        break;
+                    case DataQualityJoinRequirement.DataProductAllAssetsOwner:
+                        joinAdapter = new DataProductAllAssetHaveOwnerJoinAdapter(context);
                         break;
                     case DataQualityJoinRequirement.DataAssetClassification:
                         joinAdapter = new AssetWithClassificationCountJoinAdapter(context);
