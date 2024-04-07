@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
+using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Util;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -26,6 +27,16 @@ public class DHScheduleCreateRequestPayload
     public void SetRecurrence(DHControlScheduleWrapper schedule)
     {
         this.Recurrence = schedule.JObject.DeepClone() as JObject;
+        var startTime = schedule.StartTime;
+        var endTime = schedule.EndTime;
+        if (startTime.HasValue && this.Recurrence != null)
+        {
+            this.Recurrence["startTime"] = startTime.Value.GetDateTimeStr();
+        }
+        if (endTime.HasValue && this.Recurrence != null)
+        {
+            this.Recurrence["endTime"] = endTime.Value.GetDateTimeStr();
+        }
     }
 }
 

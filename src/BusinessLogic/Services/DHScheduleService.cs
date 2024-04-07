@@ -233,6 +233,28 @@ public class DHScheduleService(
         }
     }
 
+    public async Task CreateGlobalScheduleInProvision()
+    {
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(CreateGlobalScheduleInProvision)}"))
+        {
+            var payload = new DHControlGlobalSchedulePayloadWrapper(new JObject());
+            payload.Frequency = DHControlScheduleFrequency.Day;
+            payload.Interval = 1;
+            payload.Status = DHScheduleState.Enabled;
+
+            // Trigger first schedule in some hour within next 24hrs.
+            var random = new Random();
+            var hours = random.Next(23) + 1;
+            var time = DateTime.UtcNow.AddHours(hours);
+
+            // Set JObject directly, otherwise entity validation fails.
+            payload.JObject["startTime"] = new DateTime(time.Year, time.Month, time.Day, time.Hour, 0, 0, DateTimeKind.Utc);
+
+            var schedule = await this.CreateOrUpdateGlobalScheduleAsync(payload).ConfigureAwait(false);
+            logger.LogInformation($"Created a global schedule successfully with startTime {schedule.StartTime}.");
+        }
+    }
+
     public async Task<DHControlGlobalSchedulePayloadWrapper> CreateOrUpdateGlobalScheduleAsync(DHControlGlobalSchedulePayloadWrapper entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
@@ -256,6 +278,8 @@ public class DHScheduleService(
 
                 var result = await scheduleService.CreateScheduleAsync(scheduleStoragePayload).ConfigureAwait(false);
                 entity.SystemData = result.SystemData;
+
+                logger.LogInformation($"Global schedule created successfully. {result.Id}");
                 return entity;
             }
             else

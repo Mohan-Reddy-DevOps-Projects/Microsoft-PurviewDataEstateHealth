@@ -16,6 +16,7 @@ public class DHProvisionService(
     DHActionService actionService,
     DHScoreService scoreService,
     DHScheduleInternalService scheduleInternalService,
+    DHScheduleService scheduleService,
     DHAlertService alertService,
     DHTemplateService templateService,
     IRequestHeaderContext requestHeaderContext,
@@ -48,6 +49,9 @@ public class DHProvisionService(
                     logger.LogInformation($"Template {template} already provisioned, skip for provision.");
                 }
             }
+
+            logger.LogInformation($"Create global schedule in provision for account {accountId}");
+            await scheduleService.CreateGlobalScheduleInProvision().ConfigureAwait(false);
         }
     }
 
