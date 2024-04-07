@@ -338,6 +338,9 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
                     $"Executing {stage.StageName} with context: {string.Join(",", this.Metadata.WorkerJobExecutionContext.GetFlags())}");
 
                 jobResult = await stage.Execute();
+
+                this.DataEstateHealthRequestLogger.LogInformation(
+                    $"Executed {stage.StageName} with result: {jobResult.Status}|{jobResult.Message}");
             }
             catch (ServiceException serviceException)
             {
