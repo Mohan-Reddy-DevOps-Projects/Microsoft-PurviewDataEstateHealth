@@ -36,21 +36,23 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
     {
         JobExecutionStatus jobStageStatus;
         string jobStatusMessage;
+        var jobId = Guid.NewGuid().ToString();
+
 
         try
         {
             this.metadata.SparkJobBatchId = await this.catalogSparkJobComponent.SubmitJob(
                 this.metadata.AccountServiceModel,
-                new CancellationToken());
+                new CancellationToken(), jobId);
 
             jobStageStatus = JobExecutionStatus.Succeeded;
-            jobStatusMessage = $"Catalog SPARK job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}";
+            jobStatusMessage = $"DEH_Domain_Model job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId} ";
             this.dataEstateHealthRequestLogger.LogTrace(jobStatusMessage);
         }
         catch (Exception exception)
         {
             jobStageStatus = JobExecutionStatus.Completed;
-            jobStatusMessage = $"Failed to submit Catalog SPARK job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}";
+            jobStatusMessage = $"Failed to submit DEH_Domain_Model job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}, , JobID : {jobId}";
             this.dataEstateHealthRequestLogger.LogError(jobStatusMessage, exception);
         }
 

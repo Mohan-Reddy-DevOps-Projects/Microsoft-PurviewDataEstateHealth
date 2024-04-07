@@ -20,7 +20,7 @@ public interface IDimensionModelSparkJobComponent
     /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<string> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
+    Task<string> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId);
 
     /// <summary>
     /// Get details for a spark job.

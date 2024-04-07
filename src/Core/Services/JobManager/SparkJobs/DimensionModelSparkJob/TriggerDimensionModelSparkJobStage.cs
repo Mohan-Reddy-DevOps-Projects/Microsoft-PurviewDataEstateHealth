@@ -36,21 +36,23 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
     {
         JobExecutionStatus jobStageStatus;
         string jobStatusMessage;
+        var jobId = Guid.NewGuid().ToString();
 
         try
         {
             this.metadata.SparkJobBatchId = await this.dimensionModelSparkJobComponent.SubmitJob(
                 this.metadata.AccountServiceModel,
-                new CancellationToken());
+                new CancellationToken(), jobId);
+
 
             jobStageStatus = JobExecutionStatus.Succeeded;
-            jobStatusMessage = $"Dimension Model SPARK job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}";
+            jobStatusMessage = $"DEH_Dimentional_Model job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId} ";
             this.dataEstateHealthRequestLogger.LogTrace(jobStatusMessage);
         }
         catch (Exception exception)
         {
             jobStageStatus = JobExecutionStatus.Completed;
-            jobStatusMessage = $"Failed to submit Dimension Model SPARK job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}";
+            jobStatusMessage = $"Failed to submit DEH_Dimentional_Model job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}, JobID : {jobId} ";
             this.dataEstateHealthRequestLogger.LogError(jobStatusMessage, exception);
         }
 
