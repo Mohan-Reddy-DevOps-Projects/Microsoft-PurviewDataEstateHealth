@@ -11,7 +11,8 @@ table FactDataGovernanceScan
 		annotation SummarizationSetBy = Automatic
 
 	column DataProductId
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: c28d7918-cf1e-46b6-9124-f18468a23f36
 		summarizeBy: none
 		sourceColumn: DataProductId
@@ -28,7 +29,8 @@ table FactDataGovernanceScan
 		annotation SummarizationSetBy = Automatic
 
 	column BusinessDomainId
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 09c7c2b6-d7b8-41a2-9387-dd3535e70dc4
 		summarizeBy: none
 		sourceColumn: BusinessDomainId
@@ -144,8 +146,6 @@ table FactDataGovernanceScan
 				    #"Renamed Columns1" = Table.RenameColumns(#"Changed Type1",{{"DEHProcessingDateId - Copy", "Date"}})
 				in
 				    #"Renamed Columns1"
-
-	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Table
 

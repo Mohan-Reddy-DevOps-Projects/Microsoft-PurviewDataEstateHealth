@@ -5,7 +5,7 @@ table JobType
 		dataType: int64
 		formatString: 0
 		lineageTag: b7186580-3a37-40ee-a0f4-c285eca41320
-		summarizeBy: none
+		summarizeBy: count
 		sourceColumn: JobTypeId
 
 		annotation SummarizationSetBy = Automatic
@@ -26,8 +26,6 @@ table JobType
 				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDQJobType" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimDQJobType"]}[Data]
 				in
 				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDQJobType"
-
-	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Table
 

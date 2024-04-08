@@ -25,7 +25,8 @@ table 'DQ Fact'
 		annotation SummarizationSetBy = Automatic
 
 	column BusinessDomainId
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 7d8a790f-830f-4ff7-b941-b5ad03be1997
 		summarizeBy: none
 		sourceColumn: BusinessDomainId
@@ -33,7 +34,8 @@ table 'DQ Fact'
 		annotation SummarizationSetBy = Automatic
 
 	column DataProductId
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 6e143b42-7bea-451e-a9e0-b61a00729b29
 		summarizeBy: none
 		sourceColumn: DataProductId
@@ -41,17 +43,19 @@ table 'DQ Fact'
 		annotation SummarizationSetBy = Automatic
 
 	column DataAssetId
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 79740c7a-33b8-4621-bd45-6d3390360fa7
-		summarizeBy: none
+		summarizeBy: count
 		sourceColumn: DataAssetId
 
 		annotation SummarizationSetBy = Automatic
 
 	column DataAssetColumnId
-		dataType: string
+		dataType: int64
+		formatString: 0
 		lineageTag: 2f04dcd6-9ab4-4725-a5fc-66758bd5d441
-		summarizeBy: none
+		summarizeBy: count
 		sourceColumn: DataAssetColumnId
 
 		annotation SummarizationSetBy = Automatic
@@ -138,15 +142,6 @@ table 'DQ Fact'
 
 		annotation SummarizationSetBy = Automatic
 
-	column JobTypeId
-		dataType: int64
-		formatString: 0
-		lineageTag: c35c07c5-bb8c-46c4-b6f5-901eae862e61
-		summarizeBy: none
-		sourceColumn: JobTypeId
-
-		annotation SummarizationSetBy = Automatic
-
 	partition 'DQ Fact' = m
 		mode: import
 		source =
@@ -155,8 +150,6 @@ table 'DQ Fact'
 				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_vwFactDataQuality" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="vwFactDataQuality"]}[Data]
 				in
 				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_vwFactDataQuality"
-
-	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Table
 

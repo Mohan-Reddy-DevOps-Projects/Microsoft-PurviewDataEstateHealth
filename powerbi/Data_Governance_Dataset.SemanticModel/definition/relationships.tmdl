@@ -18,11 +18,6 @@ relationship 43966bbf-f110-4cea-990e-66ef09ba93d5
 	fromColumn: BusinessDomain.ExpiredDateTime
 	toColumn: LocalDateTable_ecaf91e8-328a-4d23-9a13-2996e0b48f87.Date
 
-relationship a1023fd9-912f-4436-9f6e-8f7f9a3ce6ad
-	joinOnDateBehavior: datePartOnly
-	fromColumn: DataHealthControl.ExpiredDateTime
-	toColumn: LocalDateTable_a178e977-b0e6-4f8d-9cd5-9756033ce205.Date
-
 relationship 2f081039-3e91-4f64-a6bb-aec5239d72d1
 	joinOnDateBehavior: datePartOnly
 	fromColumn: DataProduct.CreatedDatetime
@@ -66,10 +61,6 @@ relationship AutoDetected_765c0d4d-ae2e-4ab7-83f9-70db167aa4ab
 relationship AutoDetected_698afc14-25d9-47e0-bd7e-340c621a17d5
 	fromColumn: FactDataGovernanceScan.DataProductId
 	toColumn: DataProduct.DataProductId
-
-relationship AutoDetected_b9bfc9fe-cd5e-4c5c-bb41-44e64501dab7
-	fromColumn: 'DQ Fact'.JobTypeId
-	toColumn: JobType.JobTypeId
 
 relationship AutoDetected_21d76994-9f12-473a-b9eb-99eb6b56b105
 	fromColumn: 'DQ Fact'.DQRuleTypeId

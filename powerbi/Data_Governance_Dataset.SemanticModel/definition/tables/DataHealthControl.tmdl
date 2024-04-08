@@ -50,29 +50,6 @@ table DataHealthControl
 
 		annotation SummarizationSetBy = Automatic
 
-	column ExpiredDateTime
-		dataType: dateTime
-		formatString: General Date
-		lineageTag: 2d7accce-230f-4ea2-8309-ab585f36658d
-		summarizeBy: none
-		sourceColumn: ExpiredDateTime
-
-		variation Variation
-			isDefault
-			relationship: a1023fd9-912f-4436-9f6e-8f7f9a3ce6ad
-			defaultHierarchy: LocalDateTable_a178e977-b0e6-4f8d-9cd5-9756033ce205.'Date Hierarchy'
-
-		annotation SummarizationSetBy = Automatic
-
-	column CurrentIndicator
-		dataType: int64
-		formatString: 0
-		lineageTag: 5f5cad92-1c1b-4994-b263-a7d656061f5a
-		summarizeBy: sum
-		sourceColumn: CurrentIndicator
-
-		annotation SummarizationSetBy = Automatic
-
 	partition DataHealthControl = m
 		mode: import
 		source =
@@ -81,8 +58,6 @@ table DataHealthControl
 				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDataHealthControl" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimDataHealthControl"]}[Data]
 				in
 				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDataHealthControl"
-
-	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Table
 

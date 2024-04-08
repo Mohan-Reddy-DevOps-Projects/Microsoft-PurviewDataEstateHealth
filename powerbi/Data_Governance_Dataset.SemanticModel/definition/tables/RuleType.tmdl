@@ -51,7 +51,5 @@ table RuleType
 				in
 				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDQRuleType"
 
-	annotation PBI_NavigationStepName = Navigation
-
 	annotation PBI_ResultType = Table
 
