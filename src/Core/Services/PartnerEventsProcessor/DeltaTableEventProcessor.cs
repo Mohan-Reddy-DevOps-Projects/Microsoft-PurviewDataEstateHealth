@@ -75,7 +75,6 @@ internal class DeltaTableEventProcessor : IDeltaTableEventProcessor
             catch (Exception ex)
             {
                 this.logger.LogError($"{Tag}|Failed to write {events.Count} events to {tableRelativePath}. Details: {ex.Message}", ex);
-                throw;
             }
             finally
             {
