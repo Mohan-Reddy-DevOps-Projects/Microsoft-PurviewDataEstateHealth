@@ -68,8 +68,11 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
                     }
                     else
                     {
-                        action.OnCreate(DHModelConstants.SYSTEM_USER);
-                        createActionList.Add(action);
+                        if (action.Status != DataHealthActionStatus.Resolved)
+                        {
+                            action.OnCreate(DHModelConstants.SYSTEM_USER);
+                            createActionList.Add(action);
+                        }
                     }
                 }
                 if (createActionList.Count > 0)
