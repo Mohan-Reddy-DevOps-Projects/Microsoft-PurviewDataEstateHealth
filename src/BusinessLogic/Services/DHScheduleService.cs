@@ -17,6 +17,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -47,12 +48,14 @@ public class DHScheduleService(
             {
                 // Step 1: query all controls
                 var controls = new List<DHControlNodeWrapper>();
+                var controlGroups = new List<DHControlGroupWrapper>();
 
                 if (string.IsNullOrEmpty(payload.ControlId))
                 {
                     var result = await controlService.ListControlsAsync().ConfigureAwait(false);
                     var controlNodes = result.Results.Where(item => item is DHControlNodeWrapper).OfType<DHControlNodeWrapper>();
                     controls.AddRange(controlNodes);
+                    controlGroups.AddRange(result.Results.Where(item => item is DHControlGroupWrapper).OfType<DHControlGroupWrapper>());
                     logger.LogInformation($"Trigger batch controls jobs. Count {controls.Count}.");
                 }
                 else
@@ -67,6 +70,14 @@ public class DHScheduleService(
 
                 var assessments = await assessmentService.ListAssessmentsAsync().ConfigureAwait(false);
                 int failedJobsCount = 0;
+
+                // deal with DQ control group, 34115f73-b8d3-44e1-abc9-c5df18ee3eee is DQ template ID
+                var dqGroup = controlGroups.Find((group) => group.SystemTemplateEntityId == "34115f73-b8d3-44e1-abc9-c5df18ee3eee" && group.Status == DHControlStatus.Enabled);
+                if (dqGroup != null)
+                {
+                    _ = this.UpdateDQGroupScoreAsync(scheduleRunId, dqGroup);
+                }
+
                 foreach (var control in controls)
                 {
                     try
@@ -81,7 +92,8 @@ public class DHScheduleService(
                         var assessment = assessments.Results.First(item => item.Id == control.AssessmentId);
                         if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
                         {
-                            _ = this.UpdateDQScoreAsync(scheduleRunId, control, assessment);
+                            var dimension = DQDimentionConvert.ConvertCheckPointToDQDimension((assessment.Rules.First()?.Rule as DHSimpleRuleWrapper)?.CheckPoint);
+                            _ = this.UpdateDQScoreAsync(scheduleRunId, control.Id, control.GroupId, dimension);
                             continue;
                         }
 
@@ -187,24 +199,28 @@ public class DHScheduleService(
         }
     }
 
-    private async Task UpdateDQScoreAsync(string scheduleRunId, DHControlNodeWrapper control, DHAssessmentWrapper assessment)
+    private async Task UpdateDQGroupScoreAsync(string scheduleRunId, DHControlGroupWrapper controlGroup)
+    {
+        await this.UpdateDQScoreAsync(scheduleRunId, controlGroup.Id, controlGroup.Id);
+    }
+
+    private async Task UpdateDQScoreAsync(string scheduleRunId, string controlId, string controlGroupId, string? dimension = null)
     {
         var jobId = Guid.NewGuid();
         var now = DateTime.UtcNow;
-        var dimension = (assessment.Rules.First()?.Rule as DHSimpleRuleWrapper)?.CheckPoint;
-        logger.LogInformation($"Starting to process DQ score computing. ControlId: {control.Id}, Name: {control.Name}, Dimenstion: {dimension}");
+        logger.LogInformation($"Starting to process DQ score computing. ControlId: {controlId}, Dimenstion: {dimension ?? "ALL"}");
         try
         {
             // get all latest DQ score per BD/DP/Asset
             var scoreResult = await dataQualityScoreRepository.GetMultiple(
-                new DataQualityScoreKey(requestHeaderContext.AccountObjectId, DQDimentionConvert.ConvertCheckPointToDQDimension(dimension)),
+                new DataQualityScoreKey(requestHeaderContext.AccountObjectId, dimension),
                 new System.Threading.CancellationToken()).ConfigureAwait(false);
             logger.LogInformation($"successfully fetched all scores: {scoreResult.Results.Count()}");
             // group all scores by DP
             var scores = scoreResult.Results.GroupBy(score => score.DataProductId).Select(group => new DHDataProductScoreWrapper()
             {
-                ControlId = control.Id.ToString(),
-                ControlGroupId = control.GroupId.ToString(),
+                ControlId = controlId,
+                ControlGroupId = controlGroupId,
                 ScheduleRunId = scheduleRunId,
                 Id = Guid.NewGuid().ToString(),
                 ComputingJobId = jobId.ToString(),

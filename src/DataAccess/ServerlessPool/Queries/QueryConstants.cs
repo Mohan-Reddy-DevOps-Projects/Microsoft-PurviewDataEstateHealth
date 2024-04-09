@@ -45,7 +45,8 @@ internal class QueryConstants
         Greater,
         Less,
         GreaterOrEqual,
-        LessOrEqual
+        LessOrEqual,
+        Is
     }
 
     public class DataEstateHealthSummaryColumnNamesForKey

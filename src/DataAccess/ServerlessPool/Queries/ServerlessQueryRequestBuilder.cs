@@ -29,7 +29,7 @@ internal class ServerlessQueryRequestBuilder : IServerlessQueryRequestBuilder
             throw new InvalidOperationException("Container path must be set before building the query request.");
         }
 
-      
+
         ClauseBuilder clauseBuilder = new();
         buildFilter?.Invoke(clauseBuilder);
         IServerlessQueryRequest<BaseRecord, BaseEntity> serverlessQueryRequest = ServerlessQueryRegistry.Instance.CreateQueryFor(typeof(TRecord));
@@ -114,6 +114,9 @@ internal sealed class ClauseBuilder
                     break;
                 case SQLOperator.LessOrEqual:
                     this.filterClause.Append($"{prefix}{left} <= '{right}' ");
+                    break;
+                case SQLOperator.Is:
+                    this.filterClause.Append($"{prefix}{left} IS {right} ");
                     break;
             }
         }

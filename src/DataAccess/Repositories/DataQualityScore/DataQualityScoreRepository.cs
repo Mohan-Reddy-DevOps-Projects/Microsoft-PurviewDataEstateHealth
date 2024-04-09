@@ -47,6 +47,10 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
                 {
                     x.WhereClause("QualityDimension", dataQualityScoreKey.Dimension);
                 }
+                else
+                {
+                    x.WhereClause("QualityDimension", "NULL", QueryConstants.SQLOperator.Is);
+                }
             }) as DataQualityScoreQuery;
         query.Timeout = DefaultTimeout;
 
