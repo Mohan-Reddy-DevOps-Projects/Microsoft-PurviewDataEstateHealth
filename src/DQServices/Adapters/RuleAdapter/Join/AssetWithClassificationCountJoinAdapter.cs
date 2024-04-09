@@ -12,6 +12,7 @@ public class AssetWithClassificationCountJoinAdapter : DataQualityJoinAdapter
 {
     private readonly string[][] outputSchemaDef =
     [
+        ["DACDataAssetId", "string"],
         ["DataProductRelatedDataAssetsWithClassificationCount", "long"],
     ];
 

@@ -12,6 +12,7 @@ public class AssetDQScoreJoinAdapter : DataQualityJoinAdapter
 {
     private readonly string[][] outputSchemaDef =
     [
+        ["DADQSDataAssetId", "string"],
         ["DataProductRelatedAssetsHaveDQScore", "boolean"]
     ];
 

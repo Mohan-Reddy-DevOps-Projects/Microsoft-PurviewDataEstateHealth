@@ -12,6 +12,7 @@ public class DataProductAssetHasOwnerJoinAdapter : DataQualityJoinAdapter
 {
     private readonly string[][] outputSchemaDef =
     [
+        ["ADODataAssetId", "string"],
         ["DataProductRelatedAssetsOwnerCount", "long"]
     ];
 

@@ -12,6 +12,7 @@ public class DataProductTermJoinAdapter : DataQualityJoinAdapter
 {
     private readonly string[][] outputSchemaDef =
     [
+        ["DPTGlossaryTermId", "string"],
         ["DataProductRelatedTermsDescription", "string"]
     ];
 
