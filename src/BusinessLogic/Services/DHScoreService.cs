@@ -4,6 +4,8 @@
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl.Models;
+    using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
@@ -77,9 +79,13 @@
             return dhScoreRepository.QueryScoreGroupByControl(controlIds, domainIds, recordLatestCounts, start, end, status);
         }
 
-        public Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
+        public async Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
         {
-            return dhScoreRepository.QueryScoreGroupByControlGroup(controlGroupIds, domainIds, recordLatestCounts, start, end, status);
+            var dqGroups = await dhControlRepository.QueryControlGroupsAsync(new TemplateFilters
+            {
+                TemplateEntityIds = [DHModelConstants.CONTROL_TEMPLATE_ID_DQGROUP]
+            }).ConfigureAwait(false);
+            return await dhScoreRepository.QueryScoreGroupByControlGroup(dqGroups.Select(x => x.Id), controlGroupIds, domainIds, recordLatestCounts, start, end, status);
         }
 
         public async Task DeprovisionForScoresAsync()

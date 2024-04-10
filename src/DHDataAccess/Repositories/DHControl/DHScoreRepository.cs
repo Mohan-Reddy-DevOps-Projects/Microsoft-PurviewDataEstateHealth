@@ -107,7 +107,99 @@ FROM c WHERE 1=1 ");
         }
     }
 
-    public async Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
+    public async Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryScoreGroupByControlGroup(IEnumerable<string> dqControlGroupIds, IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
+    {
+        var dqControlGroupIdsToQuery = dqControlGroupIds.Intersect(controlGroupIds);
+        var nonDqControlGroupIdsToQuery = controlGroupIds.Except(dqControlGroupIds);
+
+        var tasks = new List<Task<IEnumerable<DHScoreAggregatedByControlGroup>>>();
+        if (dqControlGroupIdsToQuery.Any())
+        {
+            tasks.Add(this.QueryDQScoreGroupByControlGroup(dqControlGroupIdsToQuery, domainIds, recordLatestCounts, start, end, status));
+        }
+        if (nonDqControlGroupIdsToQuery.Any())
+        {
+            tasks.Add(this.QueryNonDQScoreGroupByControlGroup(nonDqControlGroupIdsToQuery, domainIds, recordLatestCounts, start, end, status));
+        }
+
+        var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        return results.SelectMany(x => x);
+    }
+
+    private async Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryDQScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
+    {
+        // Construct the SQL query
+        var sqlQuery = new StringBuilder(@$"
+SELECT 
+    c.ControlGroupId,
+    c.ScheduleRunId,
+    MAX(c.Time) AS Time,
+    SUM(c.ScoreSum) as ScoreSum,
+    SUM(c.ScoreCount) AS ScoreCount
+FROM c WHERE c.ControlGroupId = c.ControlId ");
+
+        // Add filtering conditions based on provided parameters
+        if (domainIds != null && domainIds.Any())
+        {
+            // Assuming domainIds is a validated and sanitized list of IDs
+            var domainIdFilter = string.Join(",", domainIds.Select(id => $"'{id}'"));
+            // TODO: When added more supported artifact types, modify the SQL here.
+            sqlQuery.Append($"AND ARRAY_CONTAINS([{domainIdFilter}], c.DataProductDomainId) ");
+        }
+
+        // Assuming controlIds is a validated and sanitized list of IDs
+        var controlGroupIdFilter = string.Join(",", controlGroupIds.Select(id => $"'{id}'"));
+        sqlQuery.Append($"AND ARRAY_CONTAINS([{controlGroupIdFilter}], c.ControlGroupId) ");
+
+        if (start != null)
+        {
+            sqlQuery.Append($"AND c.Time >= '{start.Value.ToString("o")}' ");
+        }
+
+        if (end != null)
+        {
+            sqlQuery.Append($"AND c.Time <= '{end.Value.ToString("o")}' ");
+        }
+
+        if (status != null)
+        {
+            sqlQuery.Append($"AND c.DataProductStatus = '{status}' ");
+        }
+
+        sqlQuery.Append("GROUP BY c.ControlGroupId, c.ScheduleRunId");
+
+        var queryDefinition = new QueryDefinition(sqlQuery.ToString());
+
+        // Execute the query
+        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreSQLQueryResponse3>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+        var intermediateResults = new List<DHScoreSQLQueryResponse3>();
+
+        while (queryResultSetIterator.HasMoreResults)
+        {
+            var response = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response, queryDefinition.QueryText);
+            intermediateResults.AddRange(response.Resource);
+        }
+
+        return intermediateResults
+            .GroupBy(x => new { x.ControlGroupId, x.ScheduleRunId })
+            .Where(g => g.Sum(x => x.ScoreCount) > 0)
+            .Select(g => new DHScoreAggregatedByControlGroup
+            {
+                ControlGroupId = g.Key.ControlGroupId,
+                ScheduleRunId = g.Key.ScheduleRunId,
+                Time = g.Max(x => x.Time),
+                Score = g.Sum(x => x.ScoreSum) / g.Sum(x => x.ScoreCount)
+            })
+            .GroupBy(x => new { x.ControlGroupId }).SelectMany(g =>
+            {
+                var orderedSeq = g.OrderByDescending(x => x.Time);
+                return recordLatestCounts.HasValue ? orderedSeq.Take(recordLatestCounts.Value) : orderedSeq;
+            });
+    }
+
+    private async Task<IEnumerable<DHScoreAggregatedByControlGroup>> QueryNonDQScoreGroupByControlGroup(IEnumerable<string> controlGroupIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
     {
         // Construct the SQL query
         var sqlQuery = new StringBuilder(@$"
@@ -195,6 +287,15 @@ FROM c WHERE 1=1 ");
     {
         public required string ControlGroupId { get; set; }
         public required string ControlId { get; set; }
+        public required string ScheduleRunId { get; set; }
+        public required DateTime Time { get; set; }
+        public required double ScoreSum { get; set; }
+        public required int ScoreCount { get; set; }
+    }
+
+    internal record DHScoreSQLQueryResponse3
+    {
+        public required string ControlGroupId { get; set; }
         public required string ScheduleRunId { get; set; }
         public required DateTime Time { get; set; }
         public required double ScoreSum { get; set; }
