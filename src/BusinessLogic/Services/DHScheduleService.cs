@@ -9,6 +9,7 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
+using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
@@ -72,7 +73,7 @@ public class DHScheduleService(
                 int failedJobsCount = 0;
 
                 // deal with DQ control group, 34115f73-b8d3-44e1-abc9-c5df18ee3eee is DQ template ID
-                var dqGroup = controlGroups.Find((group) => group.SystemTemplateEntityId == "34115f73-b8d3-44e1-abc9-c5df18ee3eee" && group.Status == DHControlStatus.Enabled);
+                var dqGroup = controlGroups.Find((group) => group.SystemTemplateEntityId == DHModelConstants.CONTROL_TEMPLATE_ID_DQGROUP && group.Status == DHControlStatus.Enabled);
                 if (dqGroup != null)
                 {
                     _ = this.UpdateDQGroupScoreAsync(scheduleRunId, dqGroup);
