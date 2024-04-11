@@ -51,7 +51,7 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
                 int.Parse(this.metadata.SparkJobBatchId),
                 new CancellationToken());
 
-            jobStageStatus = SparkJobUtils.DetermineJobStageStatus(jobDetails);
+            jobStageStatus = this.DetermineJobStatus(jobDetails);
             jobStatusMessage = SparkJobUtils.GenerateStatusMessage(this.metadata.AccountServiceModel.Id, jobDetails, jobStageStatus, this.StageName);
             this.logger.LogTrace(jobStatusMessage);
 
@@ -83,6 +83,20 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
     private async Task ProvisionFabricRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel account)
     {
         await this.backgroundJobManager.StartFabricelRefreshJob(metadata, account);
+    }
+
+    private JobExecutionStatus DetermineJobStatus(SparkBatchJob jobDetails)
+    {
+        if (SparkJobUtils.IsSuccess(jobDetails))
+        {
+            return JobExecutionStatus.Completed;
+        }
+        if (SparkJobUtils.IsFailure(jobDetails))
+        {
+            return JobExecutionStatus.Completed;
+        }
+
+        return JobExecutionStatus.Postponed;
     }
 
 

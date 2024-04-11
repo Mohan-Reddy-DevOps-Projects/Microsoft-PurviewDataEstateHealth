@@ -11,6 +11,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.ArtifactStoreClient.Models;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
@@ -366,8 +367,6 @@ public class JobManager : IJobManager
             job = null;
         }
 
-        var repeatInterval = TimeSpan.FromDays(1); // this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 5 : 15);
-
         if (job == null)
         {
             var jobMetadata = new SparkJobMetadata
@@ -380,8 +379,7 @@ public class JobManager : IJobManager
 
             };
             this.UpdateDerivedMetadataProperties(jobMetadata);
-            await this.CreateOneTimeJobDEH(jobMetadata, nameof(DimensionModelSparkJobCallback), jobPartition, repeatInterval, jobId);
-
+            await this.CreateRunOnceJob(jobMetadata, nameof(DimensionModelSparkJobCallback), jobPartition, jobId);
         }
     }
 
@@ -554,6 +552,34 @@ public class JobManager : IJobManager
                     jobId)
                 .WithStartTime(startTime ?? DateTime.UtcNow.AddMinutes(1))
                 .WithRepeatStrategy(repeatInterval)
+                .WithRetryStrategy(TimeSpan.FromMinutes(5))
+                .WithoutEndTime();
+
+        await this.CreateJobAsync(jobBuilder);
+    }
+
+
+    private async Task CreateRunOnceJob<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, string jobId = null, DateTime? startTime = null)
+    where TMetadata : StagedWorkerJobMetadata
+    {
+        this.UpdateDerivedMetadataProperties(metadata);
+
+        this.dataEstateHealthRequestLogger.LogInformation($"Create job only run once: {jobCallbackName}");
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+        if (job != null)
+        {
+            this.dataEstateHealthRequestLogger.LogInformation($"run once job existed, just delete. job status: {job.LastExecutionStatus}");
+            await this.DeleteJobAsync(jobPartition, jobId);
+        }
+
+
+        JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
+                    jobCallbackName,
+                    metadata,
+                    jobPartition,
+                    jobId)
+                .WithStartTime(startTime ?? DateTime.UtcNow.AddMinutes(1))
+                .WithoutRepeatStrategy()
                 .WithRetryStrategy(TimeSpan.FromMinutes(5))
                 .WithoutEndTime();
 
