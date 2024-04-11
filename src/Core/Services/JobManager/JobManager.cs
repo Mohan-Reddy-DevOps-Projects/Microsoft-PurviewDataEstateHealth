@@ -11,7 +11,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.Options;
-using Microsoft.Purview.ArtifactStoreClient.Models;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
@@ -314,22 +313,6 @@ public class JobManager : IJobManager
     }
 
     /// <inheritdoc />
-    public async Task StartPBIRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountModel)
-    {
-        string jobPartition = "PBI-REFRESH-CALLBACK";
-
-        StartPBIRefreshMetadata jobMetadata = new()
-        {
-            RequestContext = metadata.RequestContext,
-            WorkerJobExecutionContext = WorkerJobExecutionContext.None,
-            Account = accountModel,
-            RefreshLookups = new List<RefreshLookup>()
-        };
-
-        await this.CreateOneTimeJob(jobMetadata, nameof(PBIRefreshCallback), jobPartition);
-    }
-
-    /// <inheritdoc />
     public async Task RunPBIRefreshJob(AccountServiceModel accountModel)
     {
         string jobPartition = $"PBI-REFRESH-CALLBACK-IMMEDIEATE-{accountModel.Id}";
@@ -378,8 +361,13 @@ public class JobManager : IJobManager
                 IsCompleted = false
 
             };
-            this.UpdateDerivedMetadataProperties(jobMetadata);
-            await this.CreateRunOnceJob(jobMetadata, nameof(DimensionModelSparkJobCallback), jobPartition, jobId);
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(DimensionModelSparkJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
 
@@ -415,10 +403,13 @@ public class JobManager : IJobManager
                 IsCompleted = false
             };
 
-            this.UpdateDerivedMetadataProperties(jobMetadata);
-
-            await this.CreateOneTimeJobDEH(jobMetadata, nameof(FabricSparkJobCallback), jobPartition, repeatInterval, jobId);
-
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(FabricSparkJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
 
@@ -449,8 +440,14 @@ public class JobManager : IJobManager
                 DataQualityEventsProcessed = false,
                 ProcessingStoresCache = new Dictionary<Guid, string>(),
             };
-
-            await this.CreateOneTimeJob(jobMetadata, nameof(PartnerEventsConsumerJobCallback), jobPartition, jobId);
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(PartnerEventsConsumerJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = TimeSpan.FromMinutes(5),
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
 
@@ -474,7 +471,14 @@ public class JobManager : IJobManager
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
                 MDQFailedJobProcessed = false,
             };
-            await this.CreateOneTimeJobDEH(jobMetadata, nameof(MDQFailedJobCallback), jobPartition, TimeSpan.FromHours(6), jobId);
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(MDQFailedJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = TimeSpan.FromHours(6),
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
 
@@ -505,7 +509,15 @@ public class JobManager : IJobManager
             var repeatInterval = TimeSpan.FromDays(1);
             int randomMins = RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
             var startTime = DateTime.UtcNow.AddMinutes(randomMins);
-            await this.CreateOneTimeJobDEH(jobMetadata, nameof(DHActionJobCallback), jobPartition, repeatInterval, jobId, startTime);
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(DHActionJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = repeatInterval,
+                StartTime = startTime
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
 
@@ -517,74 +529,6 @@ public class JobManager : IJobManager
         await this.DeleteJobAsync(jobPartition, jobId);
     }
 
-    private async Task CreateOneTimeJob<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, string jobId = null)
-        where TMetadata : StagedWorkerJobMetadata
-    {
-        this.UpdateDerivedMetadataProperties(metadata);
-
-        var repeatInterval = TimeSpan.FromMinutes(5);
-
-        JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
-                    jobCallbackName,
-                    metadata,
-                    jobPartition,
-                    jobId)
-                .WithStartTime(DateTime.UtcNow.AddMinutes(1))
-                .WithRepeatStrategy(repeatInterval)
-                .WithRetryStrategy(TimeSpan.FromMinutes(5))
-                .WithoutEndTime();
-
-
-        await this.CreateJobAsync(jobBuilder);
-    }
-
-    private async Task CreateOneTimeJobDEH<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, TimeSpan repeatInterval, string jobId = null, DateTime? startTime = null)
-    where TMetadata : StagedWorkerJobMetadata
-    {
-        this.UpdateDerivedMetadataProperties(metadata);
-
-        this.dataEstateHealthRequestLogger.LogInformation($"Create one time job. Interval {repeatInterval}");
-
-        JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
-                    jobCallbackName,
-                    metadata,
-                    jobPartition,
-                    jobId)
-                .WithStartTime(startTime ?? DateTime.UtcNow.AddMinutes(1))
-                .WithRepeatStrategy(repeatInterval)
-                .WithRetryStrategy(TimeSpan.FromMinutes(5))
-                .WithoutEndTime();
-
-        await this.CreateJobAsync(jobBuilder);
-    }
-
-
-    private async Task CreateRunOnceJob<TMetadata>(TMetadata metadata, string jobCallbackName, string jobPartition, string jobId = null, DateTime? startTime = null)
-    where TMetadata : StagedWorkerJobMetadata
-    {
-        this.UpdateDerivedMetadataProperties(metadata);
-
-        this.dataEstateHealthRequestLogger.LogInformation($"Create job only run once: {jobCallbackName}");
-        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
-        if (job != null)
-        {
-            this.dataEstateHealthRequestLogger.LogInformation($"run once job existed, just delete. job status: {job.LastExecutionStatus}");
-            await this.DeleteJobAsync(jobPartition, jobId);
-        }
-
-
-        JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
-                    jobCallbackName,
-                    metadata,
-                    jobPartition,
-                    jobId)
-                .WithStartTime(startTime ?? DateTime.UtcNow.AddMinutes(1))
-                .WithoutRepeatStrategy()
-                .WithRetryStrategy(TimeSpan.FromMinutes(5))
-                .WithoutEndTime();
-
-        await this.CreateJobAsync(jobBuilder);
-    }
 
     /// <inheritdoc />
     public async Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel)
@@ -614,19 +558,18 @@ public class JobManager : IJobManager
                 SparkJobBatchId = string.Empty,
                 IsCompleted = false
             };
-            this.UpdateDerivedMetadataProperties(jobMetadata);
             int randomMins = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 3 : RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
-            JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
-                    nameof(CatalogSparkJobCallback),
-                    jobMetadata,
-                    jobPartition,
-                    jobId)
-                .WithStartTime(DateTime.UtcNow.AddMinutes(randomMins))
-                .WithRepeatStrategy(catalogRepeatStrategy)
-                .WithRetryStrategy(TimeSpan.FromMinutes(SparkJobsRetryStrategyTime))
-                .WithoutEndTime();
 
-            await this.CreateJobAsync(jobBuilder);
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(CatalogSparkJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = catalogRepeatStrategy,
+                StartTime = DateTime.UtcNow.AddMinutes(randomMins),
+                RetryStrategy = TimeSpan.FromMinutes(SparkJobsRetryStrategyTime)
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
 
@@ -666,19 +609,17 @@ public class JobManager : IJobManager
                 IsCompleted = false
             };
 
-            this.UpdateDerivedMetadataProperties(jobMetadata);
             int randomMins = RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
-            JobBuilder jobBuilder = GetJobBuilderWithDefaultOptions(
-                    nameof(DataQualitySparkJobCallback),
-                    jobMetadata,
-                    jobPartition,
-                    jobId)
-                .WithStartTime(DateTime.UtcNow.AddMinutes(randomMins))
-                .WithRepeatStrategy(TimeSpan.FromHours(dqRepeatStrategyTime))
-                .WithRetryStrategy(TimeSpan.FromMinutes(SparkJobsRetryStrategyTime))
-                .WithoutEndTime();
-
-            await this.CreateJobAsync(jobBuilder);
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(DataQualitySparkJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = TimeSpan.FromHours(dqRepeatStrategyTime),
+                StartTime = DateTime.UtcNow.AddMinutes(randomMins),
+                RetryStrategy = TimeSpan.FromMinutes(SparkJobsRetryStrategyTime)
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
     public async Task DeprovisionDataQualitySparkJob(AccountServiceModel accountServiceModel)
@@ -744,174 +685,67 @@ public class JobManager : IJobManager
         }
     }
 
-    /// <summary>
-    /// Gets a job builder with default options.
-    /// </summary>
-    /// <param name="jobCallbackName"></param>
-    /// <param name="jobMetadata"></param>
-    /// <param name="partitionId"></param>
-    /// <param name="jobId"></param>
-    /// <returns>A job builder</returns>
-    protected static JobBuilder GetJobBuilderWithDefaultOptions(
-        string jobCallbackName,
-        StagedWorkerJobMetadata jobMetadata,
-        Guid partitionId,
-        string jobId = null)
+    private async Task CreateBackgroundJobAsync<TMetadata>(TMetadata metadata, BackgroundJobOptions options)
+        where TMetadata : StagedWorkerJobMetadata
     {
-        return JobManager.GetJobBuilderWithOptions(jobCallbackName, jobMetadata, partitionId.ToString(), jobId);
-    }
+        this.dataEstateHealthRequestLogger.LogInformation($"Create background job. {options}");
 
-    /// <summary>
-    /// Gets a job builder with default options.
-    /// </summary>
-    /// <param name="jobCallbackName"></param>
-    /// <param name="jobMetadata"></param>
-    /// <param name="partitionId"></param>
-    /// <param name="jobId"></param>
-    /// <returns>A job builder</returns>
-    protected static JobBuilder GetJobBuilderWithDefaultOptions(
-        string jobCallbackName,
-        StagedWorkerJobMetadata jobMetadata,
-        string partitionId,
-        string jobId = null)
-    {
-        return JobManager.GetJobBuilderWithOptions(jobCallbackName, jobMetadata, partitionId.ToString(), jobId);
-    }
+        this.UpdateDerivedMetadataProperties(metadata);
 
-    /// <summary>
-    /// Gets a job builder with default options.
-    /// </summary>
-    /// <param name="jobCallbackName"></param>
-    /// <param name="jobMetadata"></param>
-    /// <param name="partitionId"></param>
-    /// <param name="jobId"></param>
-    /// <param name="startTime"></param>
-    /// <returns>A job builder</returns>
-    protected static JobBuilder GetJobBuilderWithOptions(
-        string jobCallbackName,
-        StagedWorkerJobMetadata jobMetadata,
-        Guid partitionId,
-        string jobId = null,
-        DateTime? startTime = null)
-    {
-        return JobManager.GetJobBuilderWithOptions(
-            jobCallbackName,
-            jobMetadata,
-            partitionId.ToString(),
-            jobId,
-            startTime);
-    }
+        metadata.TraceId = Activity.Current?.TraceId.ToString() ?? string.Empty;
+        metadata.SpanId = Activity.Current?.SpanId.ToString() ?? string.Empty;
+        metadata.RootTraceId = Activity.Current?.GetRootId() ?? string.Empty;
 
-    /// <summary>
-    /// Gets a job builder with default options.
-    /// </summary>
-    /// <param name="jobCallbackName">The name of the JobCallback.</param>
-    /// <param name="jobMetadata">The job metadata.</param>
-    /// <param name="partitionId">The partition id of the job.</param>
-    /// <param name="jobId">The id of the job.</param>
-    /// <param name="startTime">The job start time.</param>
-    /// <returns>A job builder</returns>
-    protected static JobBuilder GetJobBuilderWithOptions(
-        string jobCallbackName,
-        StagedWorkerJobMetadata jobMetadata,
-        string partitionId,
-        string jobId = null,
-        DateTime? startTime = null)
-    {
-        jobMetadata.TraceId = Activity.Current?.TraceId.ToString() ?? string.Empty;
-        jobMetadata.SpanId = Activity.Current?.SpanId.ToString() ?? string.Empty;
-        jobMetadata.RootTraceId = Activity.Current?.GetRootId() ?? string.Empty;
+        var jobPartition = options.JobPartition;
+        var jobId = options.JobId;
 
-        // TODO: get subscription Id from the jobMetadata
-        JobBuilder jobBuilder = JobBuilder.Create(partitionId, jobId ?? Guid.NewGuid().ToString())
-            .WithCallback(jobCallbackName)
-            .WithoutRepeatStrategy()
-            .WithRetryStrategy(JobManager.DefaultRetryInterval, JobRecurrenceUnit.Second)
-            .WithStartTime(startTime ?? DateTime.UtcNow)
-            .WithMetadata(jobMetadata);
-
-        return jobBuilder;
-    }
-
-    /// <summary>
-    /// Queues a job if the job doesn't exist or if the existing job is faulted.
-    /// </summary>
-    /// <param name="operationType"></param>
-    /// <param name="resourceType"></param>
-    /// <param name="partitionId"></param>
-    /// <param name="resourceId"></param>
-    /// <param name="jobCallback"></param>
-    /// <param name="jobMetadata"></param>
-    /// <param name="startTime"></param>
-    /// <param name="requeueIfSucceeded"></param>
-    /// <returns>The job ID of the new/existing job</returns>
-    protected async Task<string> CheckJobStatusAndQueueJobCallback(
-        string operationType,
-        string resourceType,
-        string partitionId,
-        Guid resourceId,
-        string jobCallback,
-        StagedWorkerJobMetadata jobMetadata,
-        DateTime? startTime = null,
-        bool requeueIfSucceeded = false)
-    {
-        string jobId = this.BuildJobId(operationType, resourceType, resourceId);
-
-        return await this.CheckJobStatusAndQueueJobCallback(
-            jobId,
-            partitionId,
-            jobCallback,
-            jobMetadata,
-            startTime,
-            requeueIfSucceeded);
-    }
-
-    /// <summary>
-    /// Queues a job if the job doesn't exist or if the existing job is faulted.
-    /// </summary>
-    /// <param name="jobId"></param>
-    /// <param name="partitionId"></param>
-    /// <param name="jobCallback"></param>
-    /// <param name="jobMetadata"></param>
-    /// <param name="startTime"></param>
-    /// <param name="requeueIfSucceeded"></param>
-    /// <returns>The job ID of the new/existing job</returns>
-    protected async Task<string> CheckJobStatusAndQueueJobCallback(
-        string jobId,
-        string partitionId,
-        string jobCallback,
-        StagedWorkerJobMetadata jobMetadata,
-        DateTime? startTime = null,
-        bool requeueIfSucceeded = false)
-    {
-        BackgroundJob existingJob = await this.GetJobAsync(partitionId, jobId);
-
-        bool isJobInFaultedState = existingJob is { LastExecutionStatus: JobExecutionStatus.Faulted };
-        bool isJobInSucceededState = requeueIfSucceeded ? existingJob is { LastExecutionStatus: JobExecutionStatus.Succeeded or JobExecutionStatus.Completed } : false;
-
-        if (isJobInFaultedState || isJobInSucceededState)
+        if (jobId != null)
         {
-            this.dataEstateHealthRequestLogger.LogInformation($"Deleting job {jobId} in status {existingJob?.LastExecutionStatus}");
-
-            await this.DeleteJobAsync(partitionId, jobId);
-            existingJob = null;
+            BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+            if (job != null)
+            {
+                this.dataEstateHealthRequestLogger.LogInformation($"Background job existed. Job status: {job.LastExecutionStatus}");
+                await this.DeleteJobAsync(jobPartition, jobId).ConfigureAwait(false);
+                this.dataEstateHealthRequestLogger.LogInformation($"Existed background job successfully deleted. {jobId}");
+            }
         }
 
-        if (existingJob == null)
+        JobBuilder jobBuilder = JobBuilder.Create(jobPartition, jobId ?? Guid.NewGuid().ToString())
+            .WithCallback(options.CallbackName)
+            .WithMetadata(metadata)
+            .WithStartTime(options.StartTime ?? DateTime.UtcNow.AddMinutes(1))
+            .WithRetryStrategy(options.RetryStrategy ?? TimeSpan.FromSeconds(JobManager.DefaultRetryInterval))
+            .WithoutEndTime();
+
+        if (options.RepeatInterval.HasValue)
         {
-            JobBuilder jobBuilder = JobManager.GetJobBuilderWithDefaultOptions(
-                jobCallback,
-                jobMetadata,
-                partitionId,
-                jobId);
-
-            jobBuilder.WithStartTime(startTime ?? DateTime.UtcNow);
-
-            await this.CreateJobAsync(jobBuilder);
-
-            return jobBuilder.JobId;
+            jobBuilder = jobBuilder.WithRepeatStrategy(options.RepeatInterval.Value);
+        }
+        else
+        {
+            jobBuilder = jobBuilder.WithoutRepeatStrategy();
         }
 
-        return existingJob.JobId;
+        await this.CreateJobAsync(jobBuilder);
+    }
+}
+
+class BackgroundJobOptions
+{
+    public string CallbackName { get; set; }
+
+    public string JobPartition { get; set; }
+
+    public string JobId { get; set; }
+
+    public TimeSpan? RetryStrategy { get; set; }
+
+    public TimeSpan? RepeatInterval { get; set; }
+
+    public DateTime? StartTime { get; set; }
+
+    public override string ToString()
+    {
+        return $"{this.JobPartition}, {this.JobId}, {this.CallbackName}, {this.RepeatInterval?.ToString()}, {this.StartTime?.ToString()}";
     }
 }

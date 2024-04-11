@@ -124,12 +124,6 @@ public interface IJobManager
     Task DeprovisionActionsCleanupJob(AccountServiceModel accountServiceModel);
 
     /// <summary>
-    /// Start PBI refresh job
-    /// </summary>
-    /// <returns></returns>
-    Task StartPBIRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountModel);
-
-    /// <summary>
     /// Run PBI refresh job immediately
     /// </summary>
     /// <returns></returns>

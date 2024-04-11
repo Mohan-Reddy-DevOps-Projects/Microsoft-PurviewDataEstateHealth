@@ -4,14 +4,13 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using global::Azure.Analytics.Synapse.Spark.Models;
-using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 internal class TrackFabricSparkJobStage : IJobCallbackStage
 {
@@ -55,11 +54,6 @@ internal class TrackFabricSparkJobStage : IJobCallbackStage
             jobStatusMessage = SparkJobUtils.GenerateStatusMessage(this.metadata.AccountServiceModel.Id, jobDetails, jobStageStatus, this.StageName);
             this.logger.LogTrace(jobStatusMessage);
 
-            if (SparkJobUtils.IsSuccess(jobDetails))
-            {
-                await this.ProvisionPBIRefreshJob(this.metadata, this.metadata.AccountServiceModel);
-            }
-
             this.metadata.IsCompleted = SparkJobUtils.IsJobCompleted(jobDetails);
         }
         catch (Exception exception)
@@ -71,13 +65,6 @@ internal class TrackFabricSparkJobStage : IJobCallbackStage
 
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(30)));
     }
-
-    private async Task ProvisionPBIRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel account)
-    {
-        await this.backgroundJobManager.StartPBIRefreshJob(metadata, account);
-    }
-
- 
 
     public bool IsStageComplete()
     {

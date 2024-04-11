@@ -4,14 +4,14 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 internal class TrackCatalogSparkJobStage : IJobCallbackStage
 {
@@ -58,7 +58,6 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
             if (SparkJobUtils.IsSuccess(jobDetails))
             {
                 await this.ProvisionDimensionModelRefreshJob(this.metadata, this.metadata.AccountServiceModel);
-                await this.ProvisionPBIRefreshJob(this.metadata, this.metadata.AccountServiceModel);
             }
 
             this.metadata.IsCompleted = SparkJobUtils.IsJobCompleted(jobDetails);
@@ -71,11 +70,6 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
         }
 
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(30)));
-    }
-
-    private async Task ProvisionPBIRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel account)
-    {
-        await this.backgroundJobManager.StartPBIRefreshJob(metadata, account);
     }
 
     private async Task ProvisionDimensionModelRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel account)
