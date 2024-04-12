@@ -482,6 +482,36 @@ public class JobManager : IJobManager
         }
     }
 
+    /// <inheritdoc />
+    public async Task ProvisionBackgroundJobCleanupJob()
+    {
+        string jobPartition = "BACKGROUND-JOB-CLEANUP";
+        string jobId = "BACKGROUND-JOB-CLEANUP-WORKER";
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new StagedWorkerJobMetadata()
+            {
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+            };
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(BackgroundJobCleanupCallbackJob),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = TimeSpan.FromHours(1),
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+        }
+    }
+
     public async Task ProvisionActionsCleanupJob(AccountServiceModel accountServiceModel)
     {
         string accountId = accountServiceModel.Id;
@@ -715,7 +745,9 @@ public class JobManager : IJobManager
             .WithMetadata(metadata)
             .WithStartTime(options.StartTime ?? DateTime.UtcNow.AddMinutes(1))
             .WithRetryStrategy(options.RetryStrategy ?? TimeSpan.FromSeconds(JobManager.DefaultRetryInterval))
-            .WithoutEndTime();
+            .WithoutEndTime()
+            .WithRetention(TimeSpan.FromDays(7))
+            .WithFlags(JobFlags.DeleteJobIfCompleted);
 
         if (options.RepeatInterval.HasValue)
         {

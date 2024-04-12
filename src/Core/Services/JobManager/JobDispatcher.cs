@@ -92,6 +92,7 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
             // All jobs to be provisioned when service comes up...
             await jobManager.ProvisionEventProcessorJob();
             await jobManager.ProvisionMDQFailedJob();
+            await jobManager.ProvisionBackgroundJobCleanupJob();
 
             this.logger.LogInformation("Job dispatcher started successfully.");
         }

@@ -111,6 +111,12 @@ public interface IJobManager
     Task ProvisionMDQFailedJob();
 
     /// <summary>
+    /// Provisions background job cleanup.
+    /// </summary>
+    /// <returns></returns>
+    Task ProvisionBackgroundJobCleanupJob();
+
+    /// <summary>
     /// Clean resolved actions.
     /// </summary>
     /// <returns></returns>
