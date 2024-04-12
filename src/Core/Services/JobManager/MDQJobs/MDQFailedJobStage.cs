@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 internal class MDQFailedJobStage : IJobCallbackStage
 {
-    private const int GetBulkSize = 100;
+    private const int GetBulkSize = 1000;
 
     private readonly JobCallbackUtils<MDQFailedJobMetadata> jobCallbackUtils;
 
@@ -44,7 +44,7 @@ internal class MDQFailedJobStage : IJobCallbackStage
         this.logger.LogInformation("Start to execute MDQFailedJobStage.");
         var jobs = await this.mdqFailedJobRepsository.GetBulk(GetBulkSize, CancellationToken.None).ConfigureAwait(false);
         this.logger.LogTipInformation("Retrieved MDQ failed jobs", new JObject { { "jobCount", jobs.Count } });
-        foreach (var job in jobs)
+        foreach (var job in jobs.OrderByDescending(item => item.CreatedAt).Take(100))
         {
             this.dataHealthApiService.TriggerMDQJobCallback(job, true);
         }

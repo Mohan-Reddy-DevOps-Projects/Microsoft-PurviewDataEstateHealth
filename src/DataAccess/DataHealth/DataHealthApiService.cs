@@ -67,6 +67,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 {
                     this.logger.LogError($"Fail to trigger MDQ Job callback. Job Id: {jobModel.DQJobId}.", ex);
                     await this.CreateMDQFailedJob(jobModel).ConfigureAwait(false);
+
+                    if (isRetry && ex.Message.Contains("Fail to get computing job by DQ job id"))
+                    {
+                        await this.CleanMDQFailedJob(jobModel.DQJobId).ConfigureAwait(false);
+                        this.logger.LogError($"Monitoring job not found failed job removed. DQ job id: {jobModel.DQJobId}.");
+                    }
                 }
             });
         }

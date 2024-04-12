@@ -48,7 +48,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             request.Headers.Add(HeaderTenantIdName, schedule.TenantId.ToString());
             request.Headers.Add(HeaderRequestIdName, schedule.RequestId.ToString());
             var response = await this.Client.SendAsync(request).ConfigureAwait(false);
-            this.HandleResponseStatusCode(response);
+            await this.HandleResponseStatusCode(response);
         }
 
         public async Task CleanUpActionJobCallback(AccountServiceModel account)
@@ -59,7 +59,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             request.Headers.Add(HeaderAccountIdName, account.Id.ToString());
             request.Headers.Add(HeaderTenantIdName, account.TenantId.ToString());
             var response = await this.Client.SendAsync(request).ConfigureAwait(false);
-            this.HandleResponseStatusCode(response);
+            await this.HandleResponseStatusCode(response);
         }
 
         private Uri CreateRequestUri(string pathname)
@@ -78,7 +78,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             return new StringContent(content, Encoding.UTF8, "application/json");
         }
 
-        private void HandleResponseStatusCode(HttpResponseMessage response)
+        private async Task HandleResponseStatusCode(HttpResponseMessage response)
         {
             try
             {
@@ -86,8 +86,10 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             }
             catch (HttpRequestException ex)
             {
-                this.Logger.LogError("Data health api service request failed", ex);
-                throw;
+                var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                var errorMessage = $"Data health api service request failed. {response.StatusCode} {responseContent}";
+                this.Logger.LogError(errorMessage, ex);
+                throw new Exception(errorMessage, ex);
             }
         }
     }
