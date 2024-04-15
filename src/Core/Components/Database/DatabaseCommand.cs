@@ -207,7 +207,7 @@ internal class DatabaseCommand : IDatabaseCommand
             { "@schemaName", request.SchemaName },
             { "@databaseScopedCredential", request.ScopedCredential.Name },
             { "@containerName", request.SchemaName },
-            { "@containerUri", $"'{request.DataSourceLocation}'" },
+            { "@containerUri", $"'{request.DataSourceLocation ?? ""}'" },
         };
 
         if (scriptVariables != null)

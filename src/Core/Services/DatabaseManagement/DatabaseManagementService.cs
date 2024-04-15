@@ -81,12 +81,10 @@ internal class DatabaseManagementService : IDatabaseManagementService
     public async Task Deprovision(AccountServiceModel accountModel, CancellationToken cancellationToken)
     {
         var accountId = Guid.Parse(accountModel.Id);
-        var storageModel = await this.processingStorageManager.Get(accountModel, cancellationToken);
 
         var databaseRequest = new DatabaseRequest
         {
             DatabaseName = DatabaseName,
-            DataSourceLocation = $"{storageModel.GetDfsEndpoint()}/{accountModel.DefaultCatalogId}/",
             SchemaName = accountId.ToString(),
             ScopedCredential = new ManagedIdentityScopedCredential("SynapseMICredential")
         };

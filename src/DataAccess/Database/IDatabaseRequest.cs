@@ -4,8 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using System.Security;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using System.Security;
 
 /// <summary>
 /// Context for database related requests.
