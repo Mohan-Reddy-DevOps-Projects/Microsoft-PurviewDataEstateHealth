@@ -16,7 +16,16 @@ internal class DataQualityOutputQuery : BaseQuery, IServerlessQueryRequest<DataQ
 
     public string Query
     {
-        get => $"SELECT * {QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.ParquetFormat)} AS [result]";
+        get => $@"
+            SELECT
+                DataProductID,
+                DataProductDisplayName,
+                DataProductStatusDisplayName,
+                BusinessDomainId,
+                DataProductOwnerIds,
+                Result
+            {QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.ParquetFormat)}
+            AS [result]";
     }
 
     public DataQualityDataProductOutputRecord ParseRow(IDataRecord row)
