@@ -44,20 +44,26 @@ internal sealed class SparkJobManager : ISparkJobManager
     /// <inheritdoc/>
     public async Task<string> SubmitJob(AccountServiceModel accountServiceModel, SparkJobRequest sparkJobRequest, CancellationToken cancellationToken)
     {
-        SparkPoolModel sparkPool = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
-        ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(sparkPool);
+        using (this.logger.LogElapsed("submit job"))
+        {
+            SparkPoolModel sparkPool = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
+            ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(sparkPool);
 
-        this.logger.LogInformation($"Submitting spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}");
-        return await this.synapseSparkExecutor.SubmitJob(sparkPoolId.Name, sparkJobRequest, cancellationToken);
+            this.logger.LogInformation($"Submitting spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}");
+            return await this.synapseSparkExecutor.SubmitJob(sparkPoolId.Name, sparkJobRequest, cancellationToken);
+        }
     }
 
     /// <inheritdoc/>
     public async Task CancelJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken)
     {
-        SparkPoolModel sparkPool = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
-        ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(sparkPool);
-        this.logger.LogInformation($"Cancelling spark job {batchId} in pool={sparkPoolId.Name}");
-        await this.synapseSparkExecutor.CancelJob(sparkPoolId.Name, batchId, cancellationToken);
+        using (this.logger.LogElapsed("cancel job"))
+        {
+            SparkPoolModel sparkPool = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
+            ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(sparkPool);
+            this.logger.LogInformation($"Cancelling spark job {batchId} in pool={sparkPoolId.Name}");
+            await this.synapseSparkExecutor.CancelJob(sparkPoolId.Name, batchId, cancellationToken);
+        }
     }
 
     /// <inheritdoc/>
@@ -76,57 +82,61 @@ internal sealed class SparkJobManager : ISparkJobManager
     /// <inheritdoc/>
     public async Task<SparkPoolModel> CreateOrUpdateSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
     {
-        this.logger.LogInformation($"Creating or updating spark pool");
-
-        SparkPoolModel existingModel = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
-        SynapseBigDataPoolInfoData synapseSparkPool;
-        SparkPoolModel newModel;
-        if (existingModel == null)
+        using (this.logger.LogElapsed("Creating or updating spark pool"))
         {
-            string sparkPoolName = await this.GenerateSparkPoolName(OwnerNames.Health, cancellationToken);
-            synapseSparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolName, cancellationToken);
-            newModel = ToModel(synapseSparkPool, null, accountServiceModel);
+            SparkPoolModel existingModel = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
+            SynapseBigDataPoolInfoData synapseSparkPool;
+            SparkPoolModel newModel;
+            if (existingModel == null)
+            {
+                string sparkPoolName = await this.GenerateSparkPoolName(OwnerNames.Health, cancellationToken);
+                synapseSparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolName, cancellationToken);
+                newModel = ToModel(synapseSparkPool, null, accountServiceModel);
 
-            return await this.sparkPoolRepository.Create(newModel, accountServiceModel.Id, cancellationToken);
+                return await this.sparkPoolRepository.Create(newModel, accountServiceModel.Id, cancellationToken);
+            }
+
+            ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(existingModel);
+            synapseSparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolId.Name, cancellationToken);
+            newModel = ToModel(synapseSparkPool, existingModel, accountServiceModel);
+
+            await this.sparkPoolRepository.Update(newModel, accountServiceModel.Id, cancellationToken);
+
+            return existingModel;
         }
-
-        ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(existingModel);
-        synapseSparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolId.Name, cancellationToken);
-        newModel = ToModel(synapseSparkPool, existingModel, accountServiceModel);
-
-        await this.sparkPoolRepository.Update(newModel, accountServiceModel.Id, cancellationToken);
-
-        return existingModel;
     }
 
     /// <inheritdoc/>
     public async Task<SparkPoolModel> GetSparkPool(Guid accountId, CancellationToken cancellationToken)
     {
-        this.logger.LogInformation($"Getting spark pool");
-        SparkPoolLocator storageAccountKey = new(accountId.ToString(), OwnerNames.Health);
+        using (this.logger.LogElapsed("Getting spark pool"))
+        {
+            SparkPoolLocator storageAccountKey = new(accountId.ToString(), OwnerNames.Health);
 
-        return await this.sparkPoolRepository.GetSingle(storageAccountKey, cancellationToken);
+            return await this.sparkPoolRepository.GetSingle(storageAccountKey, cancellationToken);
+        }
     }
 
     /// <inheritdoc/>
     public async Task DeleteSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
     {
-        this.logger.LogInformation($"Deleting spark pool");
-
-        SparkPoolLocator storageAccountKey = new(accountServiceModel.Id, OwnerNames.Health);
-
-        var existingModel = await this.sparkPoolRepository.GetSingle(storageAccountKey, cancellationToken);
-
-        if (existingModel == null)
+        using (this.logger.LogElapsed("Deleting spark pool"))
         {
-            return;
+            SparkPoolLocator storageAccountKey = new(accountServiceModel.Id, OwnerNames.Health);
+
+            var existingModel = await this.sparkPoolRepository.GetSingle(storageAccountKey, cancellationToken);
+
+            if (existingModel == null)
+            {
+                return;
+            }
+
+            ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(existingModel);
+
+            await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
+
+            await this.sparkPoolRepository.Delete(storageAccountKey, cancellationToken);
         }
-
-        ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(existingModel);
-
-        await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
-
-        await this.sparkPoolRepository.Delete(storageAccountKey, cancellationToken);
     }
 
     /// <summary>
@@ -137,23 +147,26 @@ internal sealed class SparkJobManager : ISparkJobManager
     /// <returns></returns>
     private async Task<string> GenerateSparkPoolName(string prefix, CancellationToken cancellationToken)
     {
-        const int maxAttempts = 3;
-
-        for (int attempt = 1; attempt <= maxAttempts; attempt++)
+        using (this.logger.LogElapsed("generate spark pool name"))
         {
-            string sparkPoolName = SparkUtilities.ConstructSparkPoolName(prefix);
-            this.logger.LogInformation($"Checking name availability for spark pool {sparkPoolName} attempt {attempt}");
-            bool sparkPool = await this.synapseSparkExecutor.SparkPoolExists(sparkPoolName, cancellationToken);
-            if (!sparkPool)
-            {
-                return sparkPoolName;
-            }
-        }
+            const int maxAttempts = 3;
 
-        throw new ServiceError(
-            ErrorCategory.ServiceError,
-            ErrorCode.Unknown.Code,
-            $"The spark pool name is not available.").ToException();
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                string sparkPoolName = SparkUtilities.ConstructSparkPoolName(prefix);
+                this.logger.LogInformation($"Checking name availability for spark pool {sparkPoolName} attempt {attempt}");
+                bool sparkPool = await this.synapseSparkExecutor.SparkPoolExists(sparkPoolName, cancellationToken);
+                if (!sparkPool)
+                {
+                    return sparkPoolName;
+                }
+            }
+
+            throw new ServiceError(
+                ErrorCategory.ServiceError,
+                ErrorCode.Unknown.Code,
+                $"The spark pool name is not available.").ToException();
+        }
     }
 
     private static ResourceIdentifier GetSparkPoolResourceId(SparkPoolModel sparkPoolModel)

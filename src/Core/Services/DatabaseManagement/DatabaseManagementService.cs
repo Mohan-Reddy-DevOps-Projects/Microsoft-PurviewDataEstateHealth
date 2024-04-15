@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using System;
@@ -20,75 +21,83 @@ internal class DatabaseManagementService : IDatabaseManagementService
 
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
     private readonly IProcessingStorageManager processingStorageManager;
+    private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
 
-    public DatabaseManagementService(IDatabaseCommand databaseCommand, IPowerBICredentialComponent powerBICredentialComponent, IProcessingStorageManager processingStorageManager)
+    public DatabaseManagementService(IDatabaseCommand databaseCommand, IPowerBICredentialComponent powerBICredentialComponent, IProcessingStorageManager processingStorageManager, IDataEstateHealthRequestLogger logger)
     {
         this.databaseCommand = databaseCommand;
         this.powerBICredentialComponent = powerBICredentialComponent;
         this.processingStorageManager = processingStorageManager;
+        this.dataEstateHealthRequestLogger = logger;
     }
 
     public async Task Initialize(AccountServiceModel accountModel, CancellationToken cancellationToken)
     {
-        IDatabaseRequest databaseRequest = new DatabaseRequest
+        using (this.dataEstateHealthRequestLogger.LogElapsed("start to initialize database related resources"))
         {
-            DatabaseName = DatabaseName,
-        };
-        await this.databaseCommand.AddDatabaseAsync(databaseRequest, cancellationToken);
+            IDatabaseRequest databaseRequest = new DatabaseRequest
+            {
+                DatabaseName = DatabaseName,
+            };
+            await this.databaseCommand.AddDatabaseAsync(databaseRequest, cancellationToken);
 
-        Guid accountId = Guid.Parse(accountModel.Id);
-        PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(accountId, OwnerNames.Health, cancellationToken);
-        if (powerBICredential == null)
-        {
-            // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
-            powerBICredential = this.powerBICredentialComponent.CreateCredential(accountId, OwnerNames.Health);
-            await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
+            Guid accountId = Guid.Parse(accountModel.Id);
+            PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(accountId, OwnerNames.Health, cancellationToken);
+            if (powerBICredential == null)
+            {
+                // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
+                powerBICredential = this.powerBICredentialComponent.CreateCredential(accountId, OwnerNames.Health);
+                await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
+            }
+
+            DatabaseMasterKey databaseMasterKey = await this.powerBICredentialComponent.GetSynapseDatabaseMasterKey(DatabaseName, cancellationToken);
+            if (databaseMasterKey == null)
+            {
+                databaseMasterKey = this.powerBICredentialComponent.CreateMasterKey(DatabaseName);
+                await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseMasterKey(databaseMasterKey, cancellationToken);
+            }
+
+            Models.ProcessingStorageModel storageModel = await this.processingStorageManager.Get(accountModel, cancellationToken);
+            ArgumentNullException.ThrowIfNull(storageModel, nameof(storageModel));
+
+            databaseRequest = new DatabaseRequest
+            {
+                DatabaseName = DatabaseName,
+                DataSourceLocation = $"{storageModel.GetDfsEndpoint()}/{accountModel.DefaultCatalogId}/",
+                SchemaName = accountId.ToString(),
+                LoginName = powerBICredential.LoginName,
+                LoginPassword = powerBICredential.Password,
+                UserName = powerBICredential.UserName,
+                MasterKey = databaseMasterKey.MasterKey,
+                ScopedCredential = new ManagedIdentityScopedCredential("SynapseMICredential")
+            };
+
+            await this.databaseCommand.AddMasterKeyAsync(databaseRequest, cancellationToken);
+            await this.databaseCommand.AddScopedCredentialAsync(databaseRequest, cancellationToken);
+            await this.databaseCommand.AddLoginAsync(databaseRequest, cancellationToken);
+            await this.databaseCommand.AddUserAsync(databaseRequest, cancellationToken);
+            await this.databaseCommand.CreateSchemaAsync(databaseRequest, cancellationToken);
+            await this.databaseCommand.GrantUserToSchemaAsync(databaseRequest, cancellationToken);
+            await this.databaseCommand.GrantCredentialToUserAsync(databaseRequest, cancellationToken);
+
+            await this.databaseCommand.ExecuteSetupScriptAsync(databaseRequest, cancellationToken);
         }
-
-        DatabaseMasterKey databaseMasterKey = await this.powerBICredentialComponent.GetSynapseDatabaseMasterKey(DatabaseName, cancellationToken);
-        if (databaseMasterKey == null)
-        {
-            databaseMasterKey = this.powerBICredentialComponent.CreateMasterKey(DatabaseName);
-            await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseMasterKey(databaseMasterKey, cancellationToken);
-        }
-
-        Models.ProcessingStorageModel storageModel = await this.processingStorageManager.Get(accountModel, cancellationToken);
-        ArgumentNullException.ThrowIfNull(storageModel, nameof(storageModel));
-
-        databaseRequest = new DatabaseRequest
-        {
-            DatabaseName = DatabaseName,
-            DataSourceLocation = $"{storageModel.GetDfsEndpoint()}/{accountModel.DefaultCatalogId}/",
-            SchemaName = accountId.ToString(),
-            LoginName = powerBICredential.LoginName,
-            LoginPassword = powerBICredential.Password,
-            UserName = powerBICredential.UserName,
-            MasterKey = databaseMasterKey.MasterKey,
-            ScopedCredential = new ManagedIdentityScopedCredential("SynapseMICredential")
-        };
-
-        await this.databaseCommand.AddMasterKeyAsync(databaseRequest, cancellationToken);
-        await this.databaseCommand.AddScopedCredentialAsync(databaseRequest, cancellationToken);
-        await this.databaseCommand.AddLoginAsync(databaseRequest, cancellationToken);
-        await this.databaseCommand.AddUserAsync(databaseRequest, cancellationToken);
-        await this.databaseCommand.CreateSchemaAsync(databaseRequest, cancellationToken);
-        await this.databaseCommand.GrantUserToSchemaAsync(databaseRequest, cancellationToken);
-        await this.databaseCommand.GrantCredentialToUserAsync(databaseRequest, cancellationToken);
-
-        await this.databaseCommand.ExecuteSetupScriptAsync(databaseRequest, cancellationToken);
     }
 
     public async Task Deprovision(AccountServiceModel accountModel, CancellationToken cancellationToken)
     {
-        var accountId = Guid.Parse(accountModel.Id);
-
-        var databaseRequest = new DatabaseRequest
+        using (this.dataEstateHealthRequestLogger.LogElapsed("start to delete database related resources"))
         {
-            DatabaseName = DatabaseName,
-            SchemaName = accountId.ToString(),
-            ScopedCredential = new ManagedIdentityScopedCredential("SynapseMICredential")
-        };
+            var accountId = Guid.Parse(accountModel.Id);
 
-        await this.databaseCommand.ExecuteSetupRollbackScriptAsync(databaseRequest, cancellationToken);
+            var databaseRequest = new DatabaseRequest
+            {
+                DatabaseName = DatabaseName,
+                SchemaName = accountId.ToString(),
+                ScopedCredential = new ManagedIdentityScopedCredential("SynapseMICredential")
+            };
+
+            await this.databaseCommand.ExecuteSetupRollbackScriptAsync(databaseRequest, cancellationToken);
+        }
     }
 }

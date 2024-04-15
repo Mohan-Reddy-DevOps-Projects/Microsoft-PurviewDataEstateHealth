@@ -61,96 +61,120 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     /// <inheritdoc/>
     public async Task CreateOrUpdateNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
-        await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
-        await this.databaseManagementService.Initialize(account, cancellationToken);
-        await this.CreatePowerBIResources(account, cancellationToken);
-        await this.ProvisionSparkJobs(account);
-        await this.ProvisionActionsCleanUpJob(account);
-        await this.artifactStoreAccountComponent.CreateArtifactStoreResources(account, cancellationToken);
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"start to create/update DEH resources, account name: {account.Name}"))
+        {
+            await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
+            await this.databaseManagementService.Initialize(account, cancellationToken);
+            await this.CreatePowerBIResources(account, cancellationToken);
+            await this.ProvisionSparkJobs(account);
+            await this.ProvisionActionsCleanUpJob(account);
+            await this.artifactStoreAccountComponent.CreateArtifactStoreResources(account, cancellationToken);
+        }
     }
 
     public async Task DeleteNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
-        await this.DeprovisionSparkJobs(account);
-        await this.DeprovisionActionCleanUpJob(account);
-        await this.DeletePowerBIResources(account, cancellationToken);
-        await this.databaseManagementService.Deprovision(account, cancellationToken);
-        await this.sparkJobManager.DeleteSparkPool(account, cancellationToken);
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"start to delete DEH resources, account name: {account.Name}"))
+        {
+            await this.DeprovisionSparkJobs(account);
+            await this.DeprovisionActionCleanUpJob(account);
+            await this.DeletePowerBIResources(account, cancellationToken);
+            await this.databaseManagementService.Deprovision(account, cancellationToken);
+            await this.sparkJobManager.DeleteSparkPool(account, cancellationToken);
+        }
     }
 
     private async Task CreatePowerBIResources(AccountServiceModel account, CancellationToken cancellationToken)
     {
-        ProfileKey profileKey = new(this.Context.AccountId);
-        IProfileModel profile = await this.profileCommand.Create(profileKey, cancellationToken);
-        IWorkspaceContext context = new WorkspaceContext(this.Context)
+        using (this.dataEstateHealthRequestLogger.LogElapsed("start to create/update PowerBI resources"))
         {
-            ProfileId = profile.Id
-        };
-        Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
+            ProfileKey profileKey = new(this.Context.AccountId);
+            IProfileModel profile = await this.profileCommand.Create(profileKey, cancellationToken);
+            IWorkspaceContext context = new WorkspaceContext(this.Context)
+            {
+                ProfileId = profile.Id
+            };
+            Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
 
-        await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
-        PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(context.AccountId, OwnerNames.Health, cancellationToken);
-        if (powerBICredential == null)
-        {
-            // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
-            powerBICredential = this.powerBICredentialComponent.CreateCredential(context.AccountId, OwnerNames.Health);
-            await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
+            await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
+            PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(context.AccountId, OwnerNames.Health, cancellationToken);
+            if (powerBICredential == null)
+            {
+                // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
+                powerBICredential = this.powerBICredentialComponent.CreateCredential(context.AccountId, OwnerNames.Health);
+                await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
+            }
+
+            await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken);
         }
-
-        await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken);
     }
 
     private async Task DeletePowerBIResources(AccountServiceModel account, CancellationToken cancellationToken)
     {
-        ProfileKey profileKey = new(this.Context.AccountId);
-        IProfileModel profile = await this.profileCommand.Get(profileKey, cancellationToken);
-        IWorkspaceContext context = new WorkspaceContext(this.Context)
+        using (this.dataEstateHealthRequestLogger.LogElapsed("start to delete PowerBI resources"))
         {
-            ProfileId = profile.Id
-        };
-        await this.workspaceCommand.Delete(context, cancellationToken);
-        await this.profileCommand.Delete(profileKey, cancellationToken);
+            ProfileKey profileKey = new(this.Context.AccountId);
+            IProfileModel profile = await this.profileCommand.Get(profileKey, cancellationToken);
+            IWorkspaceContext context = new WorkspaceContext(this.Context)
+            {
+                ProfileId = profile.Id
+            };
+            await this.workspaceCommand.Delete(context, cancellationToken);
+            await this.profileCommand.Delete(profileKey, cancellationToken);
+        }
     }
 
     private async Task ProvisionSparkJobs(AccountServiceModel account)
     {
-        if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"start to provision spark jobs, account name: {account.Name}"))
         {
-            await this.backgroundJobManager.ProvisionCatalogSparkJob(account);
+            if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                await this.backgroundJobManager.ProvisionCatalogSparkJob(account);
+            }
         }
     }
 
     private async Task ProvisionActionsCleanUpJob(AccountServiceModel account)
     {
-        if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"start to provision action clean up job, account name: {account.Name}"))
         {
-            await this.backgroundJobManager.ProvisionActionsCleanupJob(account);
+            if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                await this.backgroundJobManager.ProvisionActionsCleanupJob(account);
+            }
         }
     }
     private async Task DeprovisionSparkJobs(AccountServiceModel account)
     {
-        if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        using (this.dataEstateHealthRequestLogger.LogElapsed("start to delete spark jobs"))
         {
-            await this.backgroundJobManager.DeprovisionCatalogSparkJob(account);
-        }
-        try
-        {
-            if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
             {
-                await this.backgroundJobManager.DeprovisionDataQualitySparkJob(account);
+                await this.backgroundJobManager.DeprovisionCatalogSparkJob(account);
             }
-        }
-        catch (Exception ex)
-        {
-            this.dataEstateHealthRequestLogger.LogError($"deprovisioning DQ spark job with failure", ex);
+            try
+            {
+                if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+                {
+                    await this.backgroundJobManager.DeprovisionDataQualitySparkJob(account);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.dataEstateHealthRequestLogger.LogError($"deprovisioning DQ spark job with failure", ex);
+            }
         }
     }
 
     private async Task DeprovisionActionCleanUpJob(AccountServiceModel account)
     {
-        if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+        using (this.dataEstateHealthRequestLogger.LogElapsed("start to delete actions cleanup jobs"))
         {
-            await this.backgroundJobManager.DeprovisionActionsCleanupJob(account);
+            if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                await this.backgroundJobManager.DeprovisionActionsCleanupJob(account);
+            }
         }
     }
 }
