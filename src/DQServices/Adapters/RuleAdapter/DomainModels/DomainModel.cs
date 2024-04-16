@@ -3,7 +3,7 @@
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataQuality.Dataset.DatasetSchemaItem;
 using System.Collections.Generic;
 
-internal abstract class DomainModel
+public abstract class DomainModel
 {
     public abstract string FolderPath { get; }
 

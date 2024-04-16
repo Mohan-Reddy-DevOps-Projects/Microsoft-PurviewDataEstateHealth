@@ -10,6 +10,7 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
+using Microsoft.Purview.DataEstateHealth.DHModels.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
@@ -113,26 +114,40 @@ public class DHScheduleService(
                         jobWrapper.Status = DHComputingJobStatus.Unknown;
                         jobWrapper = await monitoringService.CreateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
 
+
+                        var dqJobId = string.Empty;
                         // Step 3: submit DQ jobs
-                        var dqJobId = await dataQualityExecutionService.SubmitDQJob(
-                            requestHeaderContext.TenantId.ToString(),
-                            requestHeaderContext.AccountObjectId.ToString(),
-                            control,
-                            assessment,
-                            jobId).ConfigureAwait(false);
+                        try
+                        {
+                            dqJobId = await dataQualityExecutionService.SubmitDQJob(
+                                requestHeaderContext.TenantId.ToString(),
+                                requestHeaderContext.AccountObjectId.ToString(),
+                                control,
+                                assessment,
+                                jobId).ConfigureAwait(false);
+                        }
+                        catch (DomainModelNotExistsException)
+                        {
+                            logger.LogInformation($"Domain model does not exist, caught exception. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                            // Update DQ status to failed in monitoring table
+                            jobWrapper.Status = DHComputingJobStatus.Failed;
+                            await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
+                            logger.LogInformation($"Domain model does not exist, updated job status to failed. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                            continue;
+                        }
 
                         // Update DQ job id in monitoring table
                         jobWrapper.DQJobId = dqJobId;
                         jobWrapper.Status = DHComputingJobStatus.Created;
                         await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
                         logger.LogTipInformation($"The MDQ job was triggered", new JObject
-                {
-                    { "jobId" , jobId },
-                    { "dqJobId" , dqJobId },
-                    { "controlId", control.Id },
-                    { "controlName", control.Name},
-                    { "scheduleRunId", scheduleRunId }
-                });
+                        {
+                            { "jobId" , jobId },
+                            { "dqJobId" , dqJobId },
+                            { "controlId", control.Id },
+                            { "controlName", control.Name},
+                            { "scheduleRunId", scheduleRunId }
+                        });
                     }
                     catch (Exception ex)
                     {

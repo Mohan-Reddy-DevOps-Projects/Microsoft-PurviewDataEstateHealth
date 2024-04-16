@@ -5,8 +5,10 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Repositories.DataQuali
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
+using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.DomainModels;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
+using Microsoft.Purview.DataEstateHealth.DHModels.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Models;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
@@ -71,6 +73,18 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
         // Query storage account
         var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
+
+        // Check if domain model exists
+        var isDomainModelExisted = await this.processingStorageManager.CheckFolderExists(
+            accountStorageModel,
+            // Use DataProduct folder as representative to check
+            DomainModelUtils.GetDomainModel(DomainModelType.DataProduct).FolderPath).ConfigureAwait(false);
+        if (!isDomainModelExisted)
+        {
+            this.logger.LogInformation($"Interrupt SubmitDQJOb, domain model does not exist, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
+            throw new DomainModelNotExistsException();
+        }
+
         var dfsEndpoint = accountStorageModel.GetDfsEndpoint();
         var catalogId = accountStorageModel.CatalogId.ToString();
 

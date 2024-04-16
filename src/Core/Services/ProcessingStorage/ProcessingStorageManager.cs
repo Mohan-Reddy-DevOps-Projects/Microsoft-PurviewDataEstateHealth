@@ -188,48 +188,21 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         return $"{storageModel.GetDfsEndpoint()}/{containerName}";
     }
 
-    public async Task<List<string>> GetDataQualityOutputFileNames(ProcessingStorageModel processingStorageModel, string folderPath)
-    {
-        this.logger.LogInformation($"Start GetDataQualityOutputFileNames, folderPath:{folderPath}");
-
-        string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
-        var serviceClient = new DataLakeServiceClient(new Uri(serviceEndpoint), this.tokenCredential);
-        var fileSystemClient = serviceClient.GetFileSystemClient(processingStorageModel.CatalogId.ToString()); ;
-        var directoryClient = fileSystemClient.GetDirectoryClient(folderPath);
-
-        var fileNames = new List<string>();
-        await foreach (var pathItem in directoryClient.GetPathsAsync())
-        {
-            if (pathItem.Name.EndsWith(".parquet"))
-            {
-                var fileName = pathItem.Name.Split("/").Last();
-                fileNames.Add(fileName);
-            }
-        }
-
-        this.logger.LogInformation($"End GetDataQualityOutputFileNames, found files:{fileNames.Count}");
-
-        return fileNames;
-    }
-
-    public async Task<Stream> GetDataQualityOutput(
+    public async Task<bool> CheckFolderExists(
         ProcessingStorageModel processingStorageModel,
-        string folderPath,
-        string fileName)
+        string folderPath)
     {
-        this.logger.LogInformation($"Start GetDataQualityOutput, folderPath:{folderPath}, fileName:{fileName}");
+        this.logger.LogInformation($"Start CheckFolderExists, folderPath:{folderPath}");
 
         string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
         var serviceClient = new DataLakeServiceClient(new Uri(serviceEndpoint), this.tokenCredential);
         var fileSystemClient = serviceClient.GetFileSystemClient(processingStorageModel.CatalogId.ToString()); ;
         var directoryClient = fileSystemClient.GetDirectoryClient(folderPath);
-        var fileClient = directoryClient.GetFileClient(fileName);
+        var result = await directoryClient.ExistsAsync().ConfigureAwait(false);
 
-        var fileResponse = await fileClient.ReadAsync().ConfigureAwait(false);
+        this.logger.LogInformation($"End CheckFolderExists, result:{result.Value}, folderPath:{folderPath}");
 
-        this.logger.LogInformation($"End GetDataQualityOutput, folderPath:{folderPath}, fileName:{fileName}");
-
-        return fileResponse.Value.Content;
+        return result.Value;
     }
 
     /// <summary>
