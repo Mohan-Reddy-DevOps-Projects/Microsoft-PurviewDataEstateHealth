@@ -46,15 +46,17 @@ table 'Measure Table'
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure 'DQ Score' =
-			
-			VAR _PassCount = sum('DQ Fact'[DQPassedCount])
+			0.0
+			/*VAR _PassCount = sum('DQ Fact'[DQPassedCount])
 			VAR _NumRules = COUNT('DQ Fact'[DQRuleId])
 			VAR _TotalPasses = DIVIDE(_PassCount,_NumRules)
 			VAR _TotalRows = sum('DQ Fact'[DQTotalCount])
 			VAR _Score = DIVIDE(_TotalPasses,_TotalRows)
 			
-			RETURN _Score
+			RETURN _Score*/
 		lineageTag: b627595a-c291-4c28-849b-60b1f0999e31
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure 'Max date' =
 			

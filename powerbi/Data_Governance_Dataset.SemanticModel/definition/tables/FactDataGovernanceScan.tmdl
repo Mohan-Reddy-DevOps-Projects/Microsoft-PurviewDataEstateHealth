@@ -92,8 +92,8 @@ table FactDataGovernanceScan
 	column Flag =
 			
 			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasOwner",'FactDataGovernanceScan'[Value]=1),1,
-			/*IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDataAssetHasOwnerCount",'FactDataGovernanceScan'[Value]=1),1,
-			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDataAssetHasOwnerCount",'FactDataGovernanceScan'[TotalDataProductAssetCount]=0),0,*/
+			/*IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDataAssetHasOwnerCount",'FactDataGovernanceScan'[Value]=1),1,*/
+			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDataAssetHasOwnerCount",'FactDataGovernanceScan'[TotalDataProductAssetCount]=0),0,
 			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDataAssetHasOwnerCount",'FactDataGovernanceScan'[Value]='FactDataGovernanceScan'[TotalDataProductAssetCount]),1,
 			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductDataAssetHasOwnerCount",'FactDataGovernanceScan'[Value]<> 'FactDataGovernanceScan'[TotalDataProductAssetCount]),divide('FactDataGovernanceScan'[Value],'FactDataGovernanceScan'[TotalDataProductAssetCount],0),
 			IF(and ('FactDataGovernanceScan'[Control checks]="ClassifiedAssetCount",'FactDataGovernanceScan'[TotalDataProductAssetCount]=0),0,
@@ -120,7 +120,7 @@ table FactDataGovernanceScan
 			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductHasAssoPubTerm",'FactDataGovernanceScan'[Value]=1),1,
 			IF(and ('FactDataGovernanceScan'[Control checks]="DataProductAllAssoAssetsHasOwners",'FactDataGovernanceScan'[Value]=1),1,
 			0)
-			)))))))))))))))))))))))))
+			))))))))))))))))))))))))))
 		dataType: double
 		lineageTag: 890e5dfa-aa7f-4079-89fe-46be6a2b4bcc
 		summarizeBy: sum
