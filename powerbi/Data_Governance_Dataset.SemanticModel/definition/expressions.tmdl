@@ -13,14 +13,10 @@ expression DATABASE = "SQL_ON_DEMAND" meta [IsParameterQuery=true, Type="Text", 
 expression DATABASE_SCHEMA = "ecf09339-34e0-464b-a8fb-661209048543" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: efcf10af-af61-483b-8012-80aeeaf79e71
 
-	annotation PBI_NavigationStepName = Navigation
-
 	annotation PBI_ResultType = Text
 
 expression TENANT_ID = "12d98746-0b5a-4778-8bd0-449994469062" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: d9972425-d692-404b-9145-001b2436d0af
-
-	annotation PBI_NavigationStepName = Navigation
 
 	annotation PBI_ResultType = Text
 
