@@ -323,15 +323,17 @@ public class JobManager : IJobManager
             Account = accountModel,
             RefreshLookups = new List<RefreshLookup>()
         };
-        JobBuilder jobBuilder = JobBuilder.Create(jobPartition, Guid.NewGuid().ToString())
-            .WithCallback(nameof(PBIRefreshCallback))
-            .WithoutRepeatStrategy()
-            .WithRetryStrategy(JobManager.DefaultRetryInterval, JobRecurrenceUnit.Second)
-            .WithStartTime(DateTime.UtcNow)
-            .WithMetadata(jobMetadata);
 
-        var jobClient = await this.JobManagementClient.Value;
-        await jobClient.CreateJob(jobBuilder);
+        var jobOptions = new BackgroundJobOptions()
+        {
+            CallbackName = nameof(PBIRefreshCallback),
+            JobPartition = jobPartition,
+            JobId = Guid.NewGuid().ToString(),
+            StartTime = DateTime.UtcNow,
+            RepeatInterval = TimeSpan.FromMinutes(5),
+        };
+        await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+
         this.dataEstateHealthRequestLogger.LogInformation($"PBIRefresh job created. Partition key: {jobPartition}.");
     }
 
