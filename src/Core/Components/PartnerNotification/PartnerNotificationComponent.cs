@@ -114,7 +114,16 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         using (this.dataEstateHealthRequestLogger.LogElapsed("start to delete PowerBI resources"))
         {
             ProfileKey profileKey = new(this.Context.AccountId);
-            IProfileModel profile = await this.profileCommand.Get(profileKey, cancellationToken);
+            IProfileModel profile;
+            try
+            {
+                profile = await this.profileCommand.Get(profileKey, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                this.dataEstateHealthRequestLogger.LogError("Failed to get profile", e);
+                return;
+            }
             IWorkspaceContext context = new WorkspaceContext(this.Context)
             {
                 ProfileId = profile.Id
