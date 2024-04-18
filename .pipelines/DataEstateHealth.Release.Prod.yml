@@ -11,7 +11,7 @@ parameters:
 - name: productionRegions
   type: string
   displayName: Production Regions Override
-  default: '*'
+  default: 'centraluseuap,centralus,eastasia,uksouth,northeurope,southcentralus,francecentral,canadacentral,westeurope,eastus,eastus2,australiaeast,southeastasia'
 
 - name: regionExceptions
   type: string
