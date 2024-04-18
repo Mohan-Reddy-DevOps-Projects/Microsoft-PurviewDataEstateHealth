@@ -130,12 +130,13 @@ public class PlatformAccountNotificationsController : ControlPlaneController
         {
             if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
             {
+                await this.dhProvisionService.DeprovisionDEHResources(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
                 await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
                     .CreatePartnerNotificationComponent(
                     Guid.Parse(account.TenantId),
                     Guid.Parse(account.Id))
                     .DeleteNotification(account, cancellationToken);
-                await this.dhProvisionService.DeprovisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
+                await this.dhProvisionService.DeprovisionDataPlaneResources(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
             }
 
             return this.Ok();

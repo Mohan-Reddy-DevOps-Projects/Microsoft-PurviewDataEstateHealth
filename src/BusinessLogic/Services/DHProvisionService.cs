@@ -55,15 +55,15 @@ public class DHProvisionService(
         }
     }
 
-    public async Task DeprovisionAccount()
+    public async Task DeprovisionDEHResources()
     {
-        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionAccount)}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionDEHResources)}"))
         {
             List<Task> tasks = [
+                scheduleInternalService.DeprovisionForSchedulesAsync(),
                 controlService.DeprovisionForControlsAsync(),
                 assessmentService.DeprovisionForAssessmentsAsync(),
                 statusPaletteService.DeprovisionForStatusPalettesAsync(),
-                scheduleInternalService.DeprovisionForSchedulesAsync(),
                 actionService.DeprovisionForActionsAsync(),
                 scoreService.DeprovisionForScoresAsync(),
                 alertService.DeprovisionForAlertsAsync()
@@ -74,9 +74,9 @@ public class DHProvisionService(
     }
 
 
-    public async Task DeprovisionDEHAccount()
+    public async Task DeprovisionDataPlaneResources()
     {
-        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionDEHAccount)}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionDataPlaneResources)}"))
         {
             List<Task> tasks = [
              dHDataEstateHealthService.DeprovisionForDEHAsync()
@@ -85,15 +85,20 @@ public class DHProvisionService(
         }
     }
 
-
-
-    public async Task DeprovisionAccount(Guid tenantId, Guid accountId)
+    public async Task DeprovisionDEHResources(Guid tenantId, Guid accountId)
     {
         requestHeaderContext.TenantId = tenantId;
         requestHeaderContext.AccountObjectId = accountId;
 
-        await this.DeprovisionAccount().ConfigureAwait(false);
-        await this.DeprovisionDEHAccount().ConfigureAwait(false);
+        await this.DeprovisionDEHResources().ConfigureAwait(false);
+    }
+
+    public async Task DeprovisionDataPlaneResources(Guid tenantId, Guid accountId)
+    {
+        requestHeaderContext.TenantId = tenantId;
+        requestHeaderContext.AccountObjectId = accountId;
+
+        await this.DeprovisionDataPlaneResources().ConfigureAwait(false);
     }
 
 }
