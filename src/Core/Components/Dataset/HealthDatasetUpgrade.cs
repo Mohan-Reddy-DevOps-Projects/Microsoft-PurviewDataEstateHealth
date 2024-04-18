@@ -145,6 +145,7 @@ internal sealed class HealthDatasetUpgrade
                 DatasetFileName = $"{dataset.Name}.pbix",
             };
             var properties = await this.datasetCommand.GetDatasetFileProperties(datasetRequest, cancellationToken);
+            this.logger.LogInformation($"Upgrade check, name: {dataset.Name}, createdtime: {dataset.CreatedDate}, newversion time: {properties.LastModified}");
             if (properties != null && ShouldUpgradeDataset(dataset, properties.LastModified))
             {
                 upgradedDatasets.Add(dataset);
@@ -153,7 +154,7 @@ internal sealed class HealthDatasetUpgrade
 
         return upgradedDatasets
             .GroupBy(x => x.Name)
-            .Select(g => g.OrderBy(dataset => dataset.CreatedDate).First())
+            .Select(g => g.OrderByDescending(dataset => dataset.CreatedDate).First())
             .ToList();
     }
 

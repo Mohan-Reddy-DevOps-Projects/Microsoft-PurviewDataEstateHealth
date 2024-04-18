@@ -14,6 +14,7 @@ using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using Newtonsoft.Json;
 
 internal class EndPBIRefreshStage : IJobCallbackStage
 {
@@ -57,7 +58,10 @@ internal class EndPBIRefreshStage : IJobCallbackStage
         try
         {
             IList<RefreshDetailsModel> refreshDetails = await this.refreshComponent.GetRefreshStatus(this.metadata.RefreshLookups, CancellationToken.None);
+            this.logger.LogInformation($"Check refreshing status: {JsonConvert.SerializeObject(refreshDetails)}");
             HashSet<Guid> datasetsPendingRefresh = this.ProcessRefreshDetails(refreshDetails);
+
+            this.logger.LogInformation($"Pending refresh count: {datasetsPendingRefresh.Count}");
 
             if (datasetsPendingRefresh.Count == 0)
             {
@@ -193,12 +197,15 @@ internal class EndPBIRefreshStage : IJobCallbackStage
     private async Task CreateNewReport(RefreshDetailsModel refreshDetail, PowerBICredential powerBICredential, CancellationToken cancellationToken)
     {
         IDatasetRequest reportRequest = this.healthPBIReportComponent.GetReportRequest(refreshDetail.ProfileId, refreshDetail.WorkspaceId, powerBICredential, HealthReportNames.DataGovernance);
+        this.logger.LogTipInformation($"CreateNewReport: {reportRequest}");
         if (this.metadata.DatasetUpgrades.TryGetValue(refreshDetail.DatasetId, out List<PowerBI.Api.Models.Dataset> existingDatasets))
         {
             var sharedDataset = await this.datasetProvider.Get(refreshDetail.ProfileId, refreshDetail.WorkspaceId, refreshDetail.DatasetId, cancellationToken);
             var report = await this.healthPBIReportComponent.CreateReport(sharedDataset, reportRequest, CancellationToken.None, true);
+            this.logger.LogInformation($"Dataset to be deleted: {String.Join(",", existingDatasets.Select(d => d.Id))}");
             IEnumerable<Task<DeletionResult>> tasks = existingDatasets.Select(async x => await this.datasetProvider.Delete(refreshDetail.ProfileId, refreshDetail.WorkspaceId, Guid.Parse(x.Id), cancellationToken));
             DeletionResult[] deletedDatasets = await Task.WhenAll(tasks);
+            this.logger.LogInformation($"Deletion succeeded.");
         }
     }
 }

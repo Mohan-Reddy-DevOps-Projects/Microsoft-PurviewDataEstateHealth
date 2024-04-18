@@ -67,7 +67,8 @@ internal class StartPBIRefreshStage : IJobCallbackStage
             this.metadata.RefreshLookups = refreshLookups;
             this.metadata.ReportRefreshCompleted = true;
             jobStageStatus = JobExecutionStatus.Succeeded;
-            jobStatusMessage = $"{this.StageName}|Succeeded with {refreshLookups.Count} refresh requests";
+            jobStatusMessage = $"{this.StageName}|Succeeded with {refreshLookups.Count} refresh requests.";
+            this.logger.LogInformation(jobStatusMessage + $"{String.Join(",", refreshLookups)}");
         }
         catch (Exception exception)
         {
