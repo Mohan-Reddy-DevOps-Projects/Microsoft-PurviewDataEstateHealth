@@ -69,74 +69,81 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
     public async Task<string> SubmitDQJob(string tenantId, string accountId, DHControlNodeWrapper control, DHAssessmentWrapper assessment, string healthJobId)
     {
-        this.logger.LogInformation($"Start SubmitDQJOb, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
-
-        // Query storage account
-        var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
-
-        // Check if domain model exists
-        var isDomainModelExisted = await this.processingStorageManager.CheckFolderExists(
-            accountStorageModel,
-            // Use DataProduct folder as representative to check
-            DomainModelUtils.GetDomainModel(DomainModelType.DataProduct).FolderPath).ConfigureAwait(false);
-        if (!isDomainModelExisted)
+        try
         {
-            this.logger.LogInformation($"Interrupt SubmitDQJOb, domain model does not exist, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
-            throw new DomainModelNotExistsException();
-        }
+            this.logger.LogInformation($"Start SubmitDQJOb, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
 
-        var dfsEndpoint = accountStorageModel.GetDfsEndpoint();
-        var catalogId = accountStorageModel.CatalogId.ToString();
+            // Query storage account
+            var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
 
-        this.logger.LogInformation($"Found storage account, dfsEndpoint:{dfsEndpoint}, catalogId:{catalogId}");
+            // Check if domain model exists
+            var isDomainModelExisted = await this.processingStorageManager.CheckFolderExists(
+                accountStorageModel,
+                // Use DataProduct folder as representative to check
+                DomainModelUtils.GetDomainModel(DomainModelType.DataProduct).FolderPath).ConfigureAwait(false);
+            if (!isDomainModelExisted)
+            {
+                this.logger.LogInformation($"Interrupt SubmitDQJOb, domain model does not exist, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
+                throw new DomainModelNotExistsException();
+            }
 
-        var dataProductId = control.Id;
-        var dataAssetId = healthJobId;
+            var dfsEndpoint = accountStorageModel.GetDfsEndpoint();
+            var catalogId = accountStorageModel.CatalogId.ToString();
 
-        // Convert to an observer
-        var adaptContext = new RuleAdapterContext(
-            dfsEndpoint,
-            catalogId,
-            dataProductId,
-            dataAssetId,
-            assessment,
-            control.Domains);
-        var observerAdapter = new ObserverAdapter(adaptContext);
-        var observer = observerAdapter.FromControlAssessment();
+            this.logger.LogInformation($"Found storage account, dfsEndpoint:{dfsEndpoint}, catalogId:{catalogId}");
 
-        observer.ExecutionData = new JObject()
-        {
-            { DataEstateHealthConstants.DEH_KEY_DATA_SOURCE_ENDPOINT, dfsEndpoint }
-        };
+            var dataProductId = control.Id;
+            var dataAssetId = healthJobId;
 
-        var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
-
-        // For debug
-        var observerPayload = JsonConvert.SerializeObject(observer.JObject);
-        // TODO will delete this log after everything is stable
-        this.logger.LogInformation($"Observer payload: {observerPayload}, healthJobId:{healthJobId}");
-
-        // Create a temporary observer
-        await dataQualityServiceClient.CreateObserver(observer, tenantId, accountId).ConfigureAwait(false);
-
-        // Trigger run
-        var aliasList = observer.InputDatasets.Select(inputDataset => inputDataset.Alias).ToList();
-
-        var dqJobId = await dataQualityServiceClient.TriggerJobRun(
-            tenantId,
-            accountId,
-            dataProductId,
-            dataAssetId,
-            new JobSubmitPayload(
+            // Convert to an observer
+            var adaptContext = new RuleAdapterContext(
                 dfsEndpoint,
                 catalogId,
                 dataProductId,
                 dataAssetId,
-                aliasList)).ConfigureAwait(false);
+                assessment,
+                control.Domains);
+            var observerAdapter = new ObserverAdapter(adaptContext);
+            var observer = observerAdapter.FromControlAssessment();
 
-        this.logger.LogInformation($"End SubmitDQJOb, controlId: {control.Id}, healthJobId: {healthJobId}, dqJobId:{dqJobId}");
+            observer.ExecutionData = new JObject()
+        {
+            { DataEstateHealthConstants.DEH_KEY_DATA_SOURCE_ENDPOINT, dfsEndpoint }
+        };
 
-        return dqJobId;
+            var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
+
+            // For debug
+            var observerPayload = JsonConvert.SerializeObject(observer.JObject);
+            // TODO will delete this log after everything is stable
+            this.logger.LogInformation($"Observer payload: {observerPayload}, healthJobId:{healthJobId}");
+
+            // Create a temporary observer
+            await dataQualityServiceClient.CreateObserver(observer, tenantId, accountId).ConfigureAwait(false);
+
+            // Trigger run
+            var aliasList = observer.InputDatasets.Select(inputDataset => inputDataset.Alias).ToList();
+
+            var dqJobId = await dataQualityServiceClient.TriggerJobRun(
+                tenantId,
+                accountId,
+                dataProductId,
+                dataAssetId,
+                new JobSubmitPayload(
+                    dfsEndpoint,
+                    catalogId,
+                    dataProductId,
+                    dataAssetId,
+                    aliasList)).ConfigureAwait(false);
+
+            this.logger.LogInformation($"End SubmitDQJOb, controlId: {control.Id}, healthJobId: {healthJobId}, dqJobId:{dqJobId}");
+
+            return dqJobId;
+        }
+        catch (Exception ex)
+        {
+            throw new MDQJobDQSubmissionException(ex.Message, ex);
+        }
     }
 
     public async Task PurgeObserver(DHComputingJobWrapper job)
