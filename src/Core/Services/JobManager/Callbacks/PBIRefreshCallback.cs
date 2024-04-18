@@ -4,11 +4,11 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System;
+using System.Threading.Tasks;
 
 [JobCallback(Name = nameof(PBIRefreshCallback))]
 internal class PBIRefreshCallback : StagedWorkerJobCallback<StartPBIRefreshMetadata>
@@ -28,6 +28,15 @@ internal class PBIRefreshCallback : StagedWorkerJobCallback<StartPBIRefreshMetad
     protected override async Task FinalizeJob(JobExecutionResult result, Exception exception)
     {
         await Task.CompletedTask;
+        foreach (var stage in this.JobStages)
+        {
+            if (!stage.IsStageComplete())
+            {
+                return;
+            }
+        }
+        result.Status = JobExecutionStatus.Completed;
+        this.dataEstateHealthRequestLogger.LogInformation($"All stages are completed. Change job status to completed. {this.JobPartition} {this.JobId}");
     }
 
     /// <inheritdoc />

@@ -315,7 +315,16 @@ public class JobManager : IJobManager
     /// <inheritdoc />
     public async Task RunPBIRefreshJob(AccountServiceModel accountModel)
     {
-        string jobPartition = $"PBI-REFRESH-CALLBACK-IMMEDIEATE-{accountModel.Id}";
+        string jobPartition = $"PBI-REFRESH-CALLBACK-IMMEDIEATE";
+        string jobId = $"{accountModel.Id}-PBI-REFRESH-CALLBACK-IMMEDIEATE";
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
         StartPBIRefreshMetadata jobMetadata = new()
         {
             RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
@@ -328,7 +337,7 @@ public class JobManager : IJobManager
         {
             CallbackName = nameof(PBIRefreshCallback),
             JobPartition = jobPartition,
-            JobId = Guid.NewGuid().ToString(),
+            JobId = jobId,
             StartTime = DateTime.UtcNow,
             RepeatInterval = TimeSpan.FromMinutes(5),
         };
