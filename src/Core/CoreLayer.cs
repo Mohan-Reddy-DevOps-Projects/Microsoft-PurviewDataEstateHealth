@@ -12,13 +12,12 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.Purview.DataGovernance.Reporting.Common;
-using Microsoft.Purview.DataGovernance.Reporting;
-using Microsoft.Purview.DataGovernance.Reporting.Services;
+using Microsoft.Purview.DataEstateHealth.Core;
 using Microsoft.Purview.DataGovernance.Common;
 using Microsoft.Purview.DataGovernance.DeltaWriter;
-using Microsoft.Purview.DataEstateHealth.Core;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Purview.DataGovernance.Reporting;
+using Microsoft.Purview.DataGovernance.Reporting.Common;
+using Microsoft.Purview.DataGovernance.Reporting.Services;
 
 /// <summary>
 /// Provides behavior on the core layer level.
@@ -61,7 +60,6 @@ public static class CoreLayer
 
         services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
         services.AddScoped<ICoreLayerFactory, CoreLayerFactory>();
-        services.AddScoped<IArtifactStoreAccountComponent, ArtifactStoreAccountComponent>();
 
         services.AddScoped<IJobManager, JobManager>();
         services.AddSingleton<IJobManagementStorageAccountBuilder, JobManagementStorageAccountBuilder>();

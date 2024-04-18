@@ -42,9 +42,6 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     private readonly ISparkJobManager sparkJobManager;
 
     [Inject]
-    private readonly IArtifactStoreAccountComponent artifactStoreAccountComponent;
-
-    [Inject]
     private readonly IJobManager backgroundJobManager;
 
     [Inject]
@@ -63,24 +60,64 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed($"start to create/update DEH resources, account name: {account.Name}"))
         {
-            await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
-            await this.databaseManagementService.Initialize(account, cancellationToken);
-            await this.CreatePowerBIResources(account, cancellationToken);
-            await this.ProvisionSparkJobs(account);
-            await this.ProvisionActionsCleanUpJob(account);
-            await this.artifactStoreAccountComponent.CreateArtifactStoreResources(account, cancellationToken);
+            List<Task> tasks =
+            [
+                this.ProvisioningSparkRelatedTask(account, cancellationToken),
+                this.ProvisioningPowerBIRelatedTask(account, cancellationToken),
+                this.ProvisionActionsCleanUpJob(account),
+            ];
+            await Task.WhenAll(tasks);
         }
     }
+
+    private async Task ProvisioningSparkRelatedTask(AccountServiceModel account, CancellationToken cancellationToken)
+    {
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"start to create/update spark related resources, account name: {account.Name}"))
+        {
+            await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
+            await this.ProvisionSparkJobs(account);
+        }
+    }
+
+    private async Task ProvisioningPowerBIRelatedTask(AccountServiceModel account, CancellationToken cancellationToken)
+    {
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"start to create/update powerBI related resources, account name: {account.Name}"))
+        {
+            await this.databaseManagementService.Initialize(account, cancellationToken);
+            await this.CreatePowerBIResources(account, cancellationToken);
+        }
+    }
+
 
     public async Task DeleteNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed($"start to delete DEH resources, account name: {account.Name}"))
         {
+            List<Task> tasks =
+            [
+                this.DeprovisioningSparkRelatedTask(account, cancellationToken),
+                this.DeprovisioningPowerBIRelatedTask(account, cancellationToken),
+                this.DeprovisionActionCleanUpJob(account),
+            ];
+            await Task.WhenAll(tasks);
+        }
+    }
+
+    private async Task DeprovisioningSparkRelatedTask(AccountServiceModel account, CancellationToken cancellationToken)
+    {
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"start to delete spark related resources, account name: {account.Name}"))
+        {
             await this.DeprovisionSparkJobs(account);
-            await this.DeprovisionActionCleanUpJob(account);
+            await this.sparkJobManager.DeleteSparkPool(account, cancellationToken);
+        }
+    }
+
+    private async Task DeprovisioningPowerBIRelatedTask(AccountServiceModel account, CancellationToken cancellationToken)
+    {
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"start to delete powerBI related resources, account name: {account.Name}"))
+        {
             await this.DeletePowerBIResources(account, cancellationToken);
             await this.databaseManagementService.Deprovision(account, cancellationToken);
-            await this.sparkJobManager.DeleteSparkPool(account, cancellationToken);
         }
     }
 
