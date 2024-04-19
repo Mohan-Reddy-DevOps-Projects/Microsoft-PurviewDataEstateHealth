@@ -474,14 +474,24 @@ module secondaryEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bic
   }
 }
 
-
-
-module sharedEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHub in eventHubs: {
-  name: 'sharedEventHubConsumerGroupDeploy${eventHub}'
+// TODO: Need to move shared event hub creation code to shared infrastructure repo.
+module sharedEventHubModule 'eventHub.bicep' = [for eventHub in eventHubs: {
+  name: 'sharedEventHubDeploy${eventHub.name}'
   scope: resourceGroup(coreResourceGroupName)
   params: {
     eventHubNamespaceName: sharedEventHubNamespaceName
-    eventHubName: eventHub
+    eventHubName: eventHub.name
+    partitionCount: eventHub.partitionCount
+    messageRetentionDays: eventHub.messageRetentionDays
+  }
+}]
+
+module sharedEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHub in eventHubs: {
+  name: 'sharedEventHubConsumerGroupDeploy${eventHub.name}'
+  scope: resourceGroup(coreResourceGroupName)
+  params: {
+    eventHubNamespaceName: sharedEventHubNamespaceName
+    eventHubName: eventHub.name
     consumerGroupName: consumerGroupName
   }
 }]
@@ -512,11 +522,11 @@ module tempEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bicep' =
 }
 
 module catalogEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHub in eventHubs: {
-  name: 'catalogEventHubConsumerGroupDeploy${eventHub}'
+  name: 'catalogEventHubConsumerGroupDeploy${eventHub.name}'
   scope: resourceGroup(catalogSubscriptionId, catalogResourceGroupName)
   params: {
     eventHubNamespaceName: catalogEventHubName
-    eventHubName: eventHub
+    eventHubName: eventHub.name
     consumerGroupName: consumerGroupName
   }
 }]

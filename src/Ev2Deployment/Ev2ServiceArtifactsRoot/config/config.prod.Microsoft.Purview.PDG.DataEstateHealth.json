@@ -23,9 +23,21 @@
       "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
       "consumerGroupName": "dg-health",
       "eventHubs": [
-        "catalogevent",
-        "dataaccessevent",
-        "dataqualityevent"
+        {
+          "name": "catalogevent",
+          "messageRetentionDays": 90,
+          "partitionCount": 2
+        },
+        {
+          "name": "dataaccessevent",
+          "messageRetentionDays": 90,
+          "partitionCount": 2
+        },
+        {
+          "name": "dataqualityevent",
+          "messageRetentionDays": 90,
+          "partitionCount": 2
+        }
       ]
     }
   },
@@ -40,7 +52,24 @@
               "synapseRegion": "eastus2euap",
               "subdomainName": "prod-eastus2euap-health",
               "resourceGroupName": "dgh-canary-centraluseuap-rg",
-              "synapseWorkspaceName": "$(dgh.serviceShortName)cnrycdmworkspace"
+              "synapseWorkspaceName": "$(dgh.serviceShortName)cnrycdmworkspace",
+              "eventHubs": [
+                {
+                  "name": "catalogevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 2
+                },
+                {
+                  "name": "dataaccessevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 1
+                },
+                {
+                  "name": "dataqualityevent",
+                  "messageRetentionDays": 7,
+                  "partitionCount": 2
+                }
+              ]
             }
           }
         }
