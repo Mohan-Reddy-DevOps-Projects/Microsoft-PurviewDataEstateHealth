@@ -197,9 +197,14 @@ internal class EndPBIRefreshStage : IJobCallbackStage
     private async Task CreateNewReport(RefreshDetailsModel refreshDetail, PowerBICredential powerBICredential, CancellationToken cancellationToken)
     {
         IDatasetRequest reportRequest = this.healthPBIReportComponent.GetReportRequest(refreshDetail.ProfileId, refreshDetail.WorkspaceId, powerBICredential, HealthReportNames.DataGovernance);
-        this.logger.LogTipInformation($"CreateNewReport: {reportRequest}");
+        this.logger.LogInformation($"CreateNewReport: {reportRequest}");
         if (this.metadata.DatasetUpgrades.TryGetValue(refreshDetail.DatasetId, out List<PowerBI.Api.Models.Dataset> existingDatasets))
         {
+            if (existingDatasets.Count == 0)
+            {
+                this.logger.LogInformation($"No new dataset is created, so keep using existing reports.");
+                return;
+            }
             var sharedDataset = await this.datasetProvider.Get(refreshDetail.ProfileId, refreshDetail.WorkspaceId, refreshDetail.DatasetId, cancellationToken);
             var report = await this.healthPBIReportComponent.CreateReport(sharedDataset, reportRequest, CancellationToken.None, true);
             this.logger.LogInformation($"Dataset to be deleted: {String.Join(",", existingDatasets.Select(d => d.Id))}");

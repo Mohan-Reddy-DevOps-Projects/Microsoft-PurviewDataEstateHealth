@@ -14,6 +14,7 @@ using Microsoft.PowerBI.Api.Models;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using Newtonsoft.Json;
 
 internal class StartPBIReportUpgradeStage : IJobCallbackStage
 {
@@ -86,6 +87,7 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
             this.logger.LogError(jobStatusMessage, exception);
         }
 
+        this.logger.LogInformation(JsonConvert.SerializeObject(this.metadata));
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
     }
 
