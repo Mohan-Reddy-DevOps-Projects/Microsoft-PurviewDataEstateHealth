@@ -9,6 +9,20 @@ internal class DHSimpleRuleAdapter
         var fieldExp = RuleFieldAdapter.ToDqExpression(ruleAdapterContext, simpleRule.CheckPoint.Value);
         var valueExp = RuleValueAdapter.ToDqExpression(simpleRule.CheckPoint.Value, simpleRule.Operand);
 
-        return SimpleRuleOperatorAdapter.ToDqExpression(simpleRule.Operator.Value, fieldExp, valueExp);
+        var basicExp = SimpleRuleOperatorAdapter.ToDqExpression(simpleRule.Operator.Value, fieldExp, valueExp);
+        switch (simpleRule.CheckPoint)
+        {
+            case DHCheckPoint.DataProductRelatedAssetsHaveDQScore:
+                return $"notNull(DADQSDataAssetId) && ({basicExp})";
+            case DHCheckPoint.DataProductRelatedAssetsOwnerCount:
+                return $"notNull(ADODataAssetId) && ({basicExp})";
+            case DHCheckPoint.DataProductRelatedDataAssetsWithClassificationCount:
+                return $"notNull(DACDataAssetId) && ({basicExp})";
+            case DHCheckPoint.DataProductAllRelatedTermsMinimalDescriptionLength:
+            case DHCheckPoint.DataProductRelatedTermsDescriptionLength:
+                return $"notNull(DPTGlossaryTermId) && ({basicExp})";
+            default:
+                return basicExp;
+        };
     }
 }
