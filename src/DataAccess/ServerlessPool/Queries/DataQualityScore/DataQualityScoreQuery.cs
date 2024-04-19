@@ -60,13 +60,17 @@ JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOw
 
     public DataQualityScoreRecord ParseRow(IDataRecord row)
     {
-
+        var DataProductId = row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataProductId).Name]?.ToString();
+        if (!Guid.TryParse(DataProductId, out var result))
+        {
+            return null;
+        }
         return new DataQualityScoreRecord()
         {
             Score = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.Score).Name]?.ToString()).AsFloat(),
             BusinessDomainId =
                 (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.BusinessDomainId).Name]?.ToString()).AsGuid(),
-            DataProductId = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataProductId).Name]?.ToString()).AsGuid(),
+            DataProductId = DataProductId.AsGuid(),
             DataAssetId = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataAssetId).Name]?.ToString()).AsGuid(),
             DQJobId = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DQJobId).Name]?.ToString()).AsGuid(),
             ExecutionTime = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.ExecutionTime).Name]?.ToString()).AsDateTime(),

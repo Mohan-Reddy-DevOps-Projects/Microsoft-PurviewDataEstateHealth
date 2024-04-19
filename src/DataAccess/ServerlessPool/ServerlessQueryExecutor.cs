@@ -70,7 +70,10 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
                                    .WithCancellation(cancellationToken))
                 {
                     TIntermediate data = request.ParseRow(item);
-                    recordList.Add(data);
+                    if (data != null)
+                    {
+                        recordList.Add(data);
+                    }
                 }
                 return recordList;
             }
