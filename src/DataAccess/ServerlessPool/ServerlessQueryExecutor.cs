@@ -4,16 +4,16 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Data.SqlClient;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Data.SqlClient;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
 
 /// <summary>
 /// Serverless query executor
@@ -65,7 +65,8 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
                                        request.Query,
                                        request.Database,
                                        cancellationToken,
-                                       commandTimeout: request.Timeout ?? 15)
+                                       request.Timeout ?? 15,
+                                       request.Timeout ?? 15)
                                    .WithCancellation(cancellationToken))
                 {
                     TIntermediate data = request.ParseRow(item);
