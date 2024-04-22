@@ -18,7 +18,8 @@ internal class DataQualityOutputRepository : IDataQualityOutputRepository
 
     private readonly IServerlessQueryRequestBuilder queryRequestBuilder;
 
-    private const int DefaultTimeout = 60 * 5; // In seconds
+    private const int DefaultTimeout = 60 * 60 * 1000;
+    private const int DefaultConnectTimeout = 60 * 5; // in second
 
     public DataQualityOutputRepository(
          IProcessingStorageManager processingStorageManager,
@@ -40,6 +41,7 @@ internal class DataQualityOutputRepository : IDataQualityOutputRepository
         DataQualityOutputQuery query = this.queryRequestBuilder.Build<DataQualityDataProductOutputRecord>(containerPath) as DataQualityOutputQuery;
         query.QueryPath = $"{containerPath}/{criteria.FolderPath}/*.parquet";
         query.Timeout = DefaultTimeout;
+        query.ConnectTimeout = DefaultConnectTimeout;
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 

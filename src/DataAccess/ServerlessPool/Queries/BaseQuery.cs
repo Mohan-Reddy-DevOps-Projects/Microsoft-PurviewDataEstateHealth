@@ -33,4 +33,9 @@ public class BaseQuery
     /// Timeout value in millisecond
     /// </summary>
     public int? Timeout { get; set; }
+
+    /// <summary>
+    /// Connect timeout value in second
+    /// </summary>
+    public int? ConnectTimeout { get; set; }
 }

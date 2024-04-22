@@ -65,7 +65,7 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
                                        request.Query,
                                        request.Database,
                                        cancellationToken,
-                                       request.Timeout ?? 15,
+                                       request.ConnectTimeout ?? 15,
                                        request.Timeout ?? 15)
                                    .WithCancellation(cancellationToken))
                 {

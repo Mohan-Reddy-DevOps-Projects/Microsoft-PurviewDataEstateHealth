@@ -56,4 +56,9 @@ public interface IServerlessQueryRequest<out TIntermediate, out TEntity>
     /// Finalize
     /// </summary>
     public IEnumerable<TEntity> Finalize(dynamic items);
+
+    /// <summary>
+    /// Connect timeout value in seconds
+    /// </summary>
+    int? ConnectTimeout { get; }
 }
