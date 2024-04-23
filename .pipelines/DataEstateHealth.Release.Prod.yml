@@ -11,12 +11,12 @@ parameters:
 - name: productionRegions
   type: string
   displayName: Production Regions Override
-  default: 'centralus,uksouth,northeurope,southcentralus,francecentral,canadacentral,westeurope,eastus,eastus2,australiaeast,southeastasia'
+  default: 'centralus,uksouth,northeurope,southcentralus,francecentral,canadacentral,westeurope,eastus,eastus2,australiaeast,southeastasia,uaenorth,japaneast,centralindia,brazilsouth'
 
 - name: regionExceptions
   type: string
   displayName: Comma-delimited list of regions to exclude from deployment - enter "none" if there are none
-  default: 'westus2,uaenorth' #Some regions are excluded because Data Catalog needs to be built out there first.
+  default: 'none' #Some regions are excluded because Data Catalog needs to be built out there first.
 
 - name: expediteRollout
   displayName: Expedite Rollout -  use when you need to rapidly deploy a hotfix. This sets the rollout type to "emergency" and miminizes the validation waiting time between tiers.  
