@@ -12,8 +12,8 @@ using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using System.Threading;
 using System.Threading.Tasks;
 
-[Component(typeof(IDHControlTriggerComponent), ServiceVersion.V1)]
-internal sealed class DHControlTriggerComponent : BaseComponent<IDHControlTriggerContext>, IDHControlTriggerComponent
+[Component(typeof(IDHWorkerServiceTriggerComponent), ServiceVersion.V1)]
+internal sealed class DHWorkerServiceTriggerComponent : BaseComponent<IDHWorkerServiceTriggerContext>, IDHWorkerServiceTriggerComponent
 {
 #pragma warning disable 649
     [Inject]
@@ -23,7 +23,7 @@ internal sealed class DHControlTriggerComponent : BaseComponent<IDHControlTrigge
     private readonly IAccountExposureControlConfigProvider exposureControl;
 #pragma warning restore 649
 
-    public DHControlTriggerComponent(IDHControlTriggerContext context, int version) : base(context, version)
+    public DHWorkerServiceTriggerComponent(IDHWorkerServiceTriggerContext context, int version) : base(context, version)
     {
     }
 
@@ -34,5 +34,11 @@ internal sealed class DHControlTriggerComponent : BaseComponent<IDHControlTrigge
         {
             await this.backgroundJobManager.RunPBIRefreshJob(account);
         }
+    }
+
+    /// <inheritdoc/>
+    public async Task TriggerBackgroundJob(string jobPartition, string jobId, CancellationToken cancellationToken)
+    {
+        await this.backgroundJobManager.TriggerBackgroundJobAsync(jobPartition, jobId, cancellationToken);
     }
 }

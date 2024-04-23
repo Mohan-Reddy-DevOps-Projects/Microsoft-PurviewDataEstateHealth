@@ -32,7 +32,7 @@ public class JobManager : IJobManager
     /// <summary>
     /// Default retry interval
     /// </summary>
-    protected const long DefaultRetryInterval = 60;
+    private const long DefaultRetryInterval = 60;
 
     /// <summary>
     /// Job ID format
@@ -42,22 +42,22 @@ public class JobManager : IJobManager
     /// <summary>
     /// Job management client for managing jobs
     /// </summary>
-    protected Lazy<Task<JobManagementClient>> JobManagementClient;
+    private Lazy<Task<JobManagementClient>> JobManagementClient;
 
     /// <summary>
     /// Request header context accessor
     /// </summary>
-    protected IRequestContextAccessor requestContextAccessor;
+    private IRequestContextAccessor requestContextAccessor;
 
     /// <summary>
     /// Logger
     /// </summary>
-    protected readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
+    private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
 
     /// <summary>
     /// The Execution Context for the Job Manager.
     /// </summary>
-    protected readonly WorkerJobExecutionContext WorkerJobExecutionContext;
+    private readonly WorkerJobExecutionContext WorkerJobExecutionContext;
 
     private const int JobsMinStartTime = 7; //Minutes
     private const int JobsMaxStartTime = 1441; //Minutes
@@ -669,6 +669,28 @@ public class JobManager : IJobManager
         await this.DeleteJobAsync(jobPartition, jobId);
     }
 
+    public async Task TriggerBackgroundJobAsync(string jobPartition, string jobId, CancellationToken cancellationToken)
+    {
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"Trigger background job. Job partition: {jobPartition}. Job ID: {jobId}."))
+        {
+            try
+            {
+                JobManagementClient jobClient = await this.JobManagementClient.Value;
+
+                await PollyRetryPolicies
+                    .GetNonHttpClientTransientRetryPolicy(
+                        LoggerRetryActionFactory.CreateWorkerRetryAction(this.dataEstateHealthRequestLogger, nameof(JobManager)))
+                    .ExecuteAsync(() => jobClient.RunJob(jobPartition, jobId, DateTime.UtcNow));
+                this.dataEstateHealthRequestLogger.LogInformation($"Succeeded to trigger background job. {jobPartition} {jobId}");
+            }
+            catch (Exception exception)
+            {
+                this.dataEstateHealthRequestLogger.LogError($"Fail to trigger background job. {jobPartition} {jobId}", exception);
+                throw;
+            }
+        }
+    }
+
     private void UpdateDerivedMetadataProperties<TMetadata>(TMetadata metadata) where TMetadata : JobMetadataBase
     {
         metadata.TenantId = metadata.RequestContext.TenantId.ToString();
@@ -700,7 +722,7 @@ public class JobManager : IJobManager
     /// <param name="jobBuilder"></param>
     /// <param name="operationName"></param>
     /// <returns>A Task.</returns>
-    protected async Task CreateJobAsync(JobBuilder jobBuilder, [CallerMemberName] string operationName = "")
+    private async Task CreateJobAsync(JobBuilder jobBuilder, [CallerMemberName] string operationName = "")
     {
         try
         {

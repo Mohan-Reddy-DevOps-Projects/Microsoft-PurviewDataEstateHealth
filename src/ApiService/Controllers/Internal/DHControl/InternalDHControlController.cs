@@ -47,10 +47,8 @@ public class InternalDHControlController(
             if (requestBody.ControlId == null)
             {
                 var account = new AccountServiceModel(id: accountId.ToString(), tenantId: tenantId.ToString());
-                coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
-                    .CreatePartnerNotificationComponent(tenantId, accountId);
                 await coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
-                    .CreateDHControlTriggerComponent(tenantId, accountId)
+                    .CreateDHWorkerServiceTriggerComponent(tenantId, accountId)
                     .RefreshPowerBI(account, CancellationToken.None);
             }
             else

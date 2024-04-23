@@ -241,13 +241,13 @@ internal class ComponentContextFactory : IComponentContextFactory
 
 
     /// <inheritdoc />
-    public IDHControlTriggerContext CreateDHControlTriggerContext(
+    public IDHWorkerServiceTriggerContext CreateDHWorkerServiceTriggerContext(
         ServiceVersion version,
         string location,
         Guid tenantId,
         Guid accountId)
     {
-        return new DHControlTriggerContext
+        return new DHWorkerServiceTriggerContext
         {
             Version = version,
             Location = this.LocationOf(location),

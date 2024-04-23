@@ -10,7 +10,7 @@ using Microsoft.DGP.ServiceBasics.Components;
 /// <summary>
 /// Account notification contract.
 /// </summary>
-public interface IDHControlTriggerComponent : IComponent<IDHControlTriggerContext>
+public interface IDHWorkerServiceTriggerComponent : IComponent<IDHWorkerServiceTriggerContext>
 {
     /// <summary>
     /// Manage create or update notifications
@@ -19,4 +19,13 @@ public interface IDHControlTriggerComponent : IComponent<IDHControlTriggerContex
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task RefreshPowerBI(AccountServiceModel account, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Trigger a background job.
+    /// </summary>
+    /// <param name="jobPartition"></param>
+    /// <param name="jobId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task TriggerBackgroundJob(string jobPartition, string jobId, CancellationToken cancellationToken);
 }

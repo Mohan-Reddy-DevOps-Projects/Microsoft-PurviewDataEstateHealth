@@ -123,6 +123,6 @@ public interface ICoreLayerFactoryOperations
     /// <summary>
     /// Creates an instance of DHControlTriggerComponent. 
     /// </summary>
-    /// <returns>An <see cref="IDataQualityScoreComponent"/>.</returns>
-    public IDHControlTriggerComponent CreateDHControlTriggerComponent(Guid tenantId, Guid accountId);
+    /// <returns>An <see cref="IDHWorkerServiceTriggerComponent"/>.</returns>
+    public IDHWorkerServiceTriggerComponent CreateDHWorkerServiceTriggerComponent(Guid tenantId, Guid accountId);
 }

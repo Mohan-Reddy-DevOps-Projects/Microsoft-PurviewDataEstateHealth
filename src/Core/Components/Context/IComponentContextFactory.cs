@@ -205,14 +205,14 @@ internal interface IComponentContextFactory
         Guid dataAssetId);
 
     /// <summary>
-    /// Creates an <see cref="IDHControlTriggerContext"/>
+    /// Creates an <see cref="IDHWorkerServiceTriggerContext"/>
     /// </summary>
     /// <param name="version"></param>
     /// <param name="location"></param>
     /// <param name="accountId"></param>
     /// <param name="tenantId"></param>
     /// <returns></returns>
-    public IDHControlTriggerContext CreateDHControlTriggerContext(
+    public IDHWorkerServiceTriggerContext CreateDHWorkerServiceTriggerContext(
         ServiceVersion version,
         string location,
         Guid tenantId,

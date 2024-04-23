@@ -4,13 +4,13 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-internal class DHControlTriggerContext : ComponentContext, IDHControlTriggerContext
+internal class DHWorkerServiceTriggerContext : ComponentContext, IDHWorkerServiceTriggerContext
 {
-    public DHControlTriggerContext()
+    public DHWorkerServiceTriggerContext()
     {
     }
 
-    public DHControlTriggerContext(IDHControlTriggerContext context) : base(context)
+    public DHWorkerServiceTriggerContext(IDHWorkerServiceTriggerContext context) : base(context)
     {
     }
 }

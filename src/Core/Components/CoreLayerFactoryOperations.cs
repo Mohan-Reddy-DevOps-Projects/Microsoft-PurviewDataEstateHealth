@@ -217,10 +217,10 @@ internal class CoreLayerFactoryOperations : ICoreLayerFactoryOperations
                 dataAssetId));
     }
 
-    public IDHControlTriggerComponent CreateDHControlTriggerComponent(Guid tenantId, Guid accountId)
+    public IDHWorkerServiceTriggerComponent CreateDHWorkerServiceTriggerComponent(Guid tenantId, Guid accountId)
     {
-        return this.componentRuntime.Resolve<IDHControlTriggerComponent, IDHControlTriggerContext>(
-            this.contextFactory.CreateDHControlTriggerContext(
+        return this.componentRuntime.Resolve<IDHWorkerServiceTriggerComponent, IDHWorkerServiceTriggerContext>(
+            this.contextFactory.CreateDHWorkerServiceTriggerContext(
                 this.version,
                 null,
                 tenantId,

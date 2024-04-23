@@ -5,8 +5,8 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 /// <summary>
-/// Defines properties used for <see cref="IDHControlTriggerComponent"/> operations.
+/// Defines properties used for <see cref="IDHWorkerServiceTriggerComponent"/> operations.
 /// </summary>
-public interface IDHControlTriggerContext : IRootComponentContext
+public interface IDHWorkerServiceTriggerContext : IRootComponentContext
 {
 }

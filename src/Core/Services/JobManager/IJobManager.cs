@@ -174,4 +174,13 @@ public interface IJobManager
     /// <param name="accountServiceModel"></param>
     /// <returns></returns>
     Task DeprovisionDataQualitySparkJob(AccountServiceModel accountServiceModel);
+
+    /// <summary>
+    /// Trigger background job.
+    /// </summary>
+    /// <param name="jobPartition"></param>
+    /// <param name="jobId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task TriggerBackgroundJobAsync(string jobPartition, string jobId, CancellationToken cancellationToken);
 }

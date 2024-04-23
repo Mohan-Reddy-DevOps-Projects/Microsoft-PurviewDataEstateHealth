@@ -2,7 +2,7 @@
     "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
     "settings": {
         "dgh": {
-            "acrName":"$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
+            "acrName": "$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
             "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)wus2common",
             "sparkPoolTableName": "SparkPool",
             "mdqFailedJobTableName": "MDQFailedJob",
@@ -23,10 +23,23 @@
             "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
             "consumerGroupName": "dg-health",
             "eventHubs": [
-                "catalogevent",
-                "dataaccessevent",
-                "dataqualityevent"
-            ]
+              {
+                "name": "catalogevent",
+                "messageRetentionDays": 90,
+                "partitionCount": 2
+              },
+              {
+                "name": "dataaccessevent",
+                "messageRetentionDays": 90,
+                "partitionCount": 2
+              },
+              {
+                "name": "dataqualityevent",
+                "messageRetentionDays": 90,
+                "partitionCount": 2
+              }
+            ],
+            "genevaActionSubjectName": "Microsoft.genevaActions.$(pdg.tenant.dnsZoneName)"
         }
     }
 }

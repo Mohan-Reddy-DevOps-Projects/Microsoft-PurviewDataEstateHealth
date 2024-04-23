@@ -38,7 +38,8 @@
           "messageRetentionDays": 90,
           "partitionCount": 2
         }
-      ]
+      ],
+      "genevaActionSubjectName": "Microsoft.genevaActions.$(pdg.tenant.dnsZoneName)"
     }
   },
   "geographies": [
