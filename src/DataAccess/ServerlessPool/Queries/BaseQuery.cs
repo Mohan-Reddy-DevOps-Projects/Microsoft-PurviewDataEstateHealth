@@ -30,7 +30,7 @@ public class BaseQuery
     public string FilterClause { get; set; }
 
     /// <summary>
-    /// Timeout value in millisecond
+    /// Timeout value in second
     /// </summary>
     public int? Timeout { get; set; }
 

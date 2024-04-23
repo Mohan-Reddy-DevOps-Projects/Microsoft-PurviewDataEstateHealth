@@ -18,8 +18,8 @@ internal class DataQualityOutputRepository : IDataQualityOutputRepository
 
     private readonly IServerlessQueryRequestBuilder queryRequestBuilder;
 
-    private const int DefaultTimeout = 60 * 60 * 1000;
-    private const int DefaultConnectTimeout = 60 * 5; // in second
+    private const int DefaultTimeout = 60 * 10;
+    private const int DefaultConnectTimeout = 60 * 10;
 
     public DataQualityOutputRepository(
          IProcessingStorageManager processingStorageManager,

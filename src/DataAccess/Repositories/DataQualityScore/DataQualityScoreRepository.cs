@@ -19,7 +19,7 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
 
     private readonly IServerlessQueryRequestBuilder queryRequestBuilder;
 
-    private const int DefaultTimeout = 60 * 60 * 1000;
+    private const int DefaultTimeout = 60 * 60;
 
     public DataQualityScoreRepository(
          ModelAdapterRegistry modelAdapterRegistry,

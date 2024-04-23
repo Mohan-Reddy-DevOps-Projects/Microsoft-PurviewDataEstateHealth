@@ -43,7 +43,7 @@ public interface IServerlessQueryRequest<out TIntermediate, out TEntity>
     string QueryPath { get; }
 
     /// <summary>
-    /// Timeout value in millisecond
+    /// Timeout value in second
     /// </summary>
     int? Timeout { get; }
 
@@ -58,7 +58,7 @@ public interface IServerlessQueryRequest<out TIntermediate, out TEntity>
     public IEnumerable<TEntity> Finalize(dynamic items);
 
     /// <summary>
-    /// Connect timeout value in seconds
+    /// Connect timeout value in second
     /// </summary>
     int? ConnectTimeout { get; }
 }

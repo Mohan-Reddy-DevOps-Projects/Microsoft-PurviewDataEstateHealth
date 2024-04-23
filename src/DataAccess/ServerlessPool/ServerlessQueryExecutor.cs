@@ -93,7 +93,7 @@ public class ServerlessQueryExecutor : IServerlessQueryExecutor
                 this.logger.LogError("Error in executing synapse query", ex);
                 throw;
             }
-        }, this.ExceptionPredicate, maxRetries: MaxRetries, retryIntervalInMs: request.Timeout ?? TimeoutDelayInMs);
+        }, this.ExceptionPredicate, maxRetries: MaxRetries, retryIntervalInMs: request.Timeout.HasValue ? request.Timeout.Value * 1000 : TimeoutDelayInMs);
 
         IList<TEntity> outList = request.Finalize(recordList).ToList();
         return outList;
