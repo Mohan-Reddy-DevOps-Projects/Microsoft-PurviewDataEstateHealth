@@ -43,28 +43,35 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
     public async Task<IEnumerable<DHRawScore>> ParseDQResult(DHComputingJobWrapper job)
     {
-        this.logger.LogInformation($"Start ParseDQResult, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
-
-        var dataProductId = job.ControlId;
-        var dataAssetId = job.Id;
-
-        var outputResult = await this.dataQualityOutputRepository.GetMultiple(new DataQualityOutputQueryCriteria()
+        try
         {
-            AccountId = job.AccountId,
-            FolderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={job.DQJobId}"
-        }, CancellationToken.None).ConfigureAwait(false);
+            this.logger.LogInformation($"Start ParseDQResult, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
 
-        this.logger.LogInformation($"Read output is done, row count:{outputResult.Results.Count()}, healthJobId:{job.Id}");
+            var dataProductId = job.ControlId;
+            var dataAssetId = job.Id;
 
-        var result = DataQualityOutputAdapter.ToScorePayload(outputResult.Results, this.logger);
+            var outputResult = await this.dataQualityOutputRepository.GetMultiple(new DataQualityOutputQueryCriteria()
+            {
+                AccountId = job.AccountId,
+                FolderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={job.DQJobId}"
+            }, CancellationToken.None).ConfigureAwait(false);
 
-        this.logger.LogInformation($"End ParseDQResult, resultCount:{result.Count()}, healthJobId:{job.Id}");
-        if (result.Count() > 0)
-        {
-            this.logger.LogInformation($"End ParseDQResult, parsedRuleCount:{result.First().Scores.Count()}, healthJobId:{job.Id}");
+            this.logger.LogInformation($"Read output is done, row count:{outputResult.Results.Count()}, healthJobId:{job.Id}");
+
+            var result = DataQualityOutputAdapter.ToScorePayload(outputResult.Results, this.logger);
+
+            this.logger.LogInformation($"End ParseDQResult, resultCount:{result.Count()}, healthJobId:{job.Id}");
+            if (result.Count() > 0)
+            {
+                this.logger.LogInformation($"End ParseDQResult, parsedRuleCount:{result.First().Scores.Count()}, healthJobId:{job.Id}");
+            }
+
+            return result;
         }
-
-        return result;
+        catch (Exception ex)
+        {
+            throw new ParseMDQResultException(ex.Message, ex);
+        }
     }
 
     public async Task<string> SubmitDQJob(string tenantId, string accountId, DHControlNodeWrapper control, DHAssessmentWrapper assessment, string healthJobId)
@@ -148,9 +155,16 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
     public async Task PurgeObserver(DHComputingJobWrapper job)
     {
-        this.logger.LogInformation($"Start PurgeObserver, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
-        var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
-        await dataQualityServiceClient.DeleteObserver(job.TenantId, job.AccountId, job.ControlId, job.Id).ConfigureAwait(false);
-        this.logger.LogInformation($"End PurgeObserver, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
+        try
+        {
+            this.logger.LogInformation($"Start PurgeObserver, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
+            var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
+            await dataQualityServiceClient.DeleteObserver(job.TenantId, job.AccountId, job.ControlId, job.Id).ConfigureAwait(false);
+            this.logger.LogInformation($"End PurgeObserver, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
+        }
+        catch (Exception ex)
+        {
+            throw new PurgeObserverException(ex.Message, ex);
+        }
     }
 }

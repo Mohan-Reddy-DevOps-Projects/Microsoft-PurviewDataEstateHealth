@@ -38,6 +38,7 @@ public class DataQualityServiceClientFactory : ClientFactory<DataQualityHttpClie
 
     protected override DataQualityHttpClient ConfigureClient(HttpClient httpClient)
     {
+        httpClient.Timeout = TimeSpan.FromSeconds(60 * 10);
         return new DataQualityHttpClient(httpClient, new Uri(this.config.Endpoint), this.logger);
     }
 }
