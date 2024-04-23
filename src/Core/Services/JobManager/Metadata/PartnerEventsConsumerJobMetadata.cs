@@ -9,18 +9,6 @@ using Newtonsoft.Json;
 internal class PartnerEventsConsumerJobMetadata : StagedWorkerJobMetadata
 {
     /// <summary>
-    /// Flag indicating if data catalog events processed.
-    /// </summary>
-    [JsonProperty]
-    public bool DataCatalogEventsProcessed { get; set; }
-
-    /// <summary>
-    /// Flag indicating if data access events processed.
-    /// </summary>
-    [JsonProperty]
-    public bool DataAccessEventsProcessed { get; set; }
-
-    /// <summary>
     /// Flag indicating if data quality events processed.
     /// </summary>
     [JsonProperty]

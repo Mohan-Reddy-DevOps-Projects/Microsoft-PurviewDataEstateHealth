@@ -446,8 +446,6 @@ public class JobManager : IJobManager
             {
                 WorkerJobExecutionContext = WorkerJobExecutionContext.None,
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
-                DataAccessEventsProcessed = false,
-                DataCatalogEventsProcessed = false,
                 DataQualityEventsProcessed = false,
                 ProcessingStoresCache = new Dictionary<Guid, string>(),
             };

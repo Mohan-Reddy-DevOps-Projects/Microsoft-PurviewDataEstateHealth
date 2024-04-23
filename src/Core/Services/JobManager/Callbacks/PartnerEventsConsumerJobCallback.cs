@@ -4,11 +4,11 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System;
+using System.Threading.Tasks;
 
 [JobCallback(Name = nameof(PartnerEventsConsumerJobCallback))]
 internal class PartnerEventsConsumerJobCallback : StagedWorkerJobCallback<PartnerEventsConsumerJobMetadata>
@@ -41,8 +41,6 @@ internal class PartnerEventsConsumerJobCallback : StagedWorkerJobCallback<Partne
     {
         this.JobStages = new List<IJobCallbackStage>
         {
-            new DataCatalogEventsProcessingStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new DataAccessEventsProcessingStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new DataQualityEventsProcessingStage(this.Scope, this.Metadata, this.JobCallbackUtils),
         };
     }
@@ -67,8 +65,6 @@ internal class PartnerEventsConsumerJobCallback : StagedWorkerJobCallback<Partne
 
     private void ResetJobWorkingState()
     {
-        this.Metadata.DataAccessEventsProcessed = false;
-        this.Metadata.DataCatalogEventsProcessed = false;
         this.Metadata.DataQualityEventsProcessed = false;
     }
 }
