@@ -28,4 +28,12 @@ public interface IDHWorkerServiceTriggerComponent : IComponent<IDHWorkerServiceT
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task TriggerBackgroundJob(string jobPartition, string jobId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Trigger a background job.
+    /// </summary>
+    /// <param name="jobPartition"></param>
+    /// <param name="jobId"></param>
+    /// <returns></returns>
+    Task<Dictionary<string, string>> GetBackgroundJob(string jobPartition, string jobId);
 }

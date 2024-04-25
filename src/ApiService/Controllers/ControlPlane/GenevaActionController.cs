@@ -58,7 +58,37 @@ public class GenevaActionController : ControlPlaneController
             catch (Exception ex)
             {
                 this.logger.LogCritical($"Fail to trigger background job. {payload.JobPartition} {payload.JobId}", ex);
-                var response = new GenevaActionTriggerBackgroundJobResponse { Code = "500", Message = ex.Message };
+                var response = new GenevaActionResponse { Code = "500", Message = ex.Message };
+                return this.StatusCode(500, response);
+            }
+        }
+    }
+
+
+    /// <summary>
+    /// Get detail of a background job registered in Azure stack.
+    /// </summary>
+    /// <param name="payload"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    [Route("getBackgroundJobDetail")]
+    public async Task<IActionResult> GetBackgroundJobAsync(
+        [FromBody] GenevaActionGetBackgroundJobDetailRequestPayload payload)
+    {
+        using (this.logger.LogElapsed($"Geneva action: Get background job detail. {payload.JobPartition} {payload.JobId}"))
+        {
+            try
+            {
+                var job = await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                    .CreateDHWorkerServiceTriggerComponent(Guid.Empty, Guid.Empty)
+                    .GetBackgroundJob(payload.JobPartition, payload.JobId);
+                return this.Ok(job);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogCritical($"Fail to get background job detail. {payload.JobPartition} {payload.JobId}", ex);
+                var response = new GenevaActionResponse { Code = "500", Message = ex.Message };
                 return this.StatusCode(500, response);
             }
         }

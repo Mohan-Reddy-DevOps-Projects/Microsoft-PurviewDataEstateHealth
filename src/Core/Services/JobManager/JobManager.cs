@@ -15,6 +15,7 @@ using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
 using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
+using Newtonsoft.Json;
 using Polly;
 using System;
 using System.Collections.Concurrent;
@@ -686,6 +687,26 @@ public class JobManager : IJobManager
             catch (Exception exception)
             {
                 this.dataEstateHealthRequestLogger.LogError($"Fail to trigger background job. {jobPartition} {jobId}", exception);
+                throw;
+            }
+        }
+    }
+
+    public async Task<Dictionary<string, string>> GetBackgroundJobDetailAsync(string jobPartition, string jobId)
+    {
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"Get background job detail. Job partition: {jobPartition}. Job ID: {jobId}."))
+        {
+            try
+            {
+                JobManagementClient jobClient = await this.JobManagementClient.Value;
+                var job = await jobClient.GetJob(jobPartition, jobId);
+                var shimJob = JobManagerUtils.ShimBackgroundJob(job);
+                this.dataEstateHealthRequestLogger.LogInformation($"Succeeded to get background job detail. {JsonConvert.SerializeObject(shimJob)}");
+                return shimJob;
+            }
+            catch (Exception exception)
+            {
+                this.dataEstateHealthRequestLogger.LogError($"Fail to get background job detail. {jobPartition} {jobId}", exception);
                 throw;
             }
         }

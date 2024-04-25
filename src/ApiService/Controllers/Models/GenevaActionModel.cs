@@ -6,21 +6,30 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
 {
     using Newtonsoft.Json;
 
-    public class GenevaActionTriggerBackgroundJobRequestPayload
-    {
-        [JsonProperty(PropertyName = "jobPartition")]
-        public string JobPartition { get; set; }
-
-        [JsonProperty(PropertyName = "jobId")]
-        public string JobId { get; set; }
-    }
-
-    public class GenevaActionTriggerBackgroundJobResponse
+    public class GenevaActionResponse
     {
         [JsonProperty("code")]
         public required string Code { get; set; }
 
         [JsonProperty("message")]
         public required string Message { get; set; }
+    }
+
+    public class GenevaActionTriggerBackgroundJobRequestPayload
+    {
+        [JsonProperty("jobPartition")]
+        public string JobPartition { get; set; }
+
+        [JsonProperty("jobId")]
+        public string JobId { get; set; }
+    }
+
+    public class GenevaActionGetBackgroundJobDetailRequestPayload
+    {
+        [JsonProperty("jobPartition")]
+        public string JobPartition { get; set; }
+
+        [JsonProperty("jobId")]
+        public string JobId { get; set; }
     }
 }

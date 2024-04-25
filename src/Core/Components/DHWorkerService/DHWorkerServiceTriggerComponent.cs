@@ -41,4 +41,10 @@ internal sealed class DHWorkerServiceTriggerComponent : BaseComponent<IDHWorkerS
     {
         await this.backgroundJobManager.TriggerBackgroundJobAsync(jobPartition, jobId, cancellationToken);
     }
+
+    /// <inheritdoc/>
+    public async Task<Dictionary<string, string>> GetBackgroundJob(string jobPartition, string jobId)
+    {
+        return await this.backgroundJobManager.GetBackgroundJobDetailAsync(jobPartition, jobId);
+    }
 }

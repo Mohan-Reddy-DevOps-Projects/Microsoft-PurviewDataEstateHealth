@@ -183,4 +183,12 @@ public interface IJobManager
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task TriggerBackgroundJobAsync(string jobPartition, string jobId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get background job detail.
+    /// </summary>
+    /// <param name="jobPartition"></param>
+    /// <param name="jobId"></param>
+    /// <returns></returns>
+    Task<Dictionary<string, string>> GetBackgroundJobDetailAsync(string jobPartition, string jobId);
 }
