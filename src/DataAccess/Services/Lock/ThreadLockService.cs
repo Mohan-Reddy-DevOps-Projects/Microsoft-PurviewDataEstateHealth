@@ -4,7 +4,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 public class ThreadLockService : IThreadLockService
 {
     private IDataEstateHealthRequestLogger logger;
-    private Dictionary<LockName, Semaphore> lockObjs;
+    private Dictionary<LockName, SemaphoreSlim> lockObjs;
 
     public ThreadLockService(IDataEstateHealthRequestLogger logger)
     {
@@ -14,27 +14,37 @@ public class ThreadLockService : IThreadLockService
 
     public void Release(LockName lockName)
     {
-        this.logger.LogInformation($"Start release thread lock: {lockName}");
-        this.getLockObj(lockName).Release();
-        this.logger.LogInformation($"End release thread lock: {lockName}");
+        var lockObj = this.getLockObj(lockName);
+        this.logger.LogInformation($"Start release thread lock: {lockName}, availableCount: {lockObj.CurrentCount}");
+        lockObj.Release();
+        this.logger.LogInformation($"End release thread lock: {lockName}, availableCount: {lockObj.CurrentCount}");
     }
 
-    public void WaitOne(LockName lockName)
+    public async Task WaitAsync(LockName lockName)
     {
-        this.logger.LogInformation($"Start WaitOne thread lock: {lockName}");
-        this.getLockObj(lockName).WaitOne();
-        this.logger.LogInformation($"End WaitOne thread lock: {lockName}");
+        var lockObj = this.getLockObj(lockName);
+        this.logger.LogInformation($"Start WaitAsync thread lock: {lockName}, availableCount: {lockObj.CurrentCount}");
+        await lockObj.WaitAsync();
+        this.logger.LogInformation($"End WaitAsync thread lock: {lockName}, availableCount: {lockObj.CurrentCount}");
+    }
+
+    public void Wait(LockName lockName)
+    {
+        var lockObj = this.getLockObj(lockName);
+        this.logger.LogInformation($"Start Wait thread lock: {lockName}, availableCount: {lockObj.CurrentCount}");
+        lockObj.Wait();
+        this.logger.LogInformation($"End Wait thread lock: {lockName}, availableCount: {lockObj.CurrentCount}");
     }
 
     private void initializeLockObjs()
     {
-        this.lockObjs = new Dictionary<LockName, Semaphore>()
+        this.lockObjs = new Dictionary<LockName, SemaphoreSlim>()
         {
-            { LockName.DEHServerlessQueryLock, new Semaphore(1, 1) }
+            { LockName.DEHServerlessQueryLock, new SemaphoreSlim(5, 5) }
         };
     }
 
-    private Semaphore getLockObj(LockName lockName)
+    private SemaphoreSlim getLockObj(LockName lockName)
     {
         var lockObj = this.lockObjs.GetValueOrDefault(lockName, null);
         if (lockObj == null)

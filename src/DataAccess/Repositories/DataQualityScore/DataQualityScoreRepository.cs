@@ -61,7 +61,7 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-        this.threadLockService.WaitOne(LockName.DEHServerlessQueryLock);
+        await this.threadLockService.WaitAsync(LockName.DEHServerlessQueryLock);
         try
         {
             var list = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
