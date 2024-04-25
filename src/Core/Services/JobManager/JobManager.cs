@@ -371,7 +371,6 @@ public class JobManager : IJobManager
                 AccountServiceModel = accountServiceModel,
                 SparkJobBatchId = string.Empty,
                 IsCompleted = false
-
             };
             var jobOptions = new BackgroundJobOptions()
             {

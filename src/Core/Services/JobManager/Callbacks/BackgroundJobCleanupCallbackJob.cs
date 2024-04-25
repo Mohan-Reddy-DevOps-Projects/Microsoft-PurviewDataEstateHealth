@@ -31,6 +31,12 @@ internal class BackgroundJobCleanupCallbackJob : StagedWorkerJobCallback<StagedW
     }
 
     /// <inheritdoc />
+    protected override bool IsJobReachMaxExecutionTime()
+    {
+        return false;
+    }
+
+    /// <inheritdoc />
     protected override async Task<bool> IsJobPreconditionMet()
     {
         return await Task.FromResult(true);

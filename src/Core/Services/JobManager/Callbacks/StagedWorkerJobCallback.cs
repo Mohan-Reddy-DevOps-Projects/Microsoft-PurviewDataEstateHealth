@@ -4,17 +4,16 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.ServiceModel.Channels;
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Staged Job Callback for background jobs
@@ -79,15 +78,6 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     protected virtual int MaxRetryCount => 5;
 
     /// <summary>
-    /// Gets the job's maximum postpone count.
-    /// Jobs may choose to postpone (writing a checkpoint if needed) for various reasons, such as when a condition is not yet
-    /// met. Postpone differs from Retry in that it does not count against the job's max retry count. This includes both retry
-    /// limits enforced by the job itself, as well as retry limits enforced by the job system. The the maximum number of
-    /// postponement is exceeded, job status will transition to faulted by OnJobExecutionResult method.
-    /// </summary>
-    protected virtual int MaxPostponeCount => 5;
-
-    /// <summary>
     /// Specifies whether the job is recurring or not.
     ///
     /// A recurring job runs every day at the same time. The logic for postpone count checks is different for
@@ -96,6 +86,12 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     /// </summary>
     /// <returns></returns>
     protected virtual bool IsRecurringJob => false;
+
+    /// <summary>
+    /// Gets the current schedule start time.
+    /// For example, If the job is set to be executed every 2 hours, this value is the start time of each schedule execution.
+    /// </summary>
+    protected virtual DateTime CurrentJobScheduleStartTime { get; }
 
     /// <summary>
     /// The job name
@@ -193,6 +189,15 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     protected abstract Task FinalizeJob(JobExecutionResult result, Exception exception);
 
     /// <summary>
+    /// Check if job reach max excution time
+    /// </summary>
+    /// <returns></returns>
+    protected virtual bool IsJobReachMaxExecutionTime()
+    {
+        return false;
+    }
+
+    /// <summary>
     /// On Job Execution Result
     /// </summary>
     /// <param name="result"></param>
@@ -224,35 +229,35 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
                         "Exhausted retry count.");
                 }
             }
-            else if (result.Status == JobExecutionStatus.Postponed)
+
+            if (result.Status == JobExecutionStatus.Postponed && this.IsJobReachMaxExecutionTime())
             {
-                if (this.IsRecurringJob && this.HasReachedMaxPostponeCount())
+                await this.TransitionToJobFailed();
+
+                if (this.IsRecurringJob)
                 {
                     this.DataEstateHealthRequestLogger.LogError(
-                        FormattableString.Invariant(
-                            $"Recurring job has exhausted the maximum job postponement of {this.MaxPostponeCount}"),
+                        "Reach max execution time.",
                         exception,
                         operationName: this.GetType().Name);
 
                     return new JobExecutionResult
                     {
-                        Status = JobExecutionStatus.Succeeded,
-                        Message = "Exhausted postpone count.",
+                        Status = JobExecutionStatus.Succeeded,  //need to return as succeeded to wait for next schedule
+                        Message = "Reach max execution time.",
                         NextMetadata = this.Metadata.ToString()
                     };
-
                 }
-                else if (this.HasReachedMaxPostponeCount())
+                else
                 {
                     this.DataEstateHealthRequestLogger.LogError(
-                        FormattableString.Invariant(
-                            $"job has exhausted the maximum job postponement of {this.MaxPostponeCount}"),
+                        "Reach max execution time.",
                         exception,
                         operationName: this.GetType().Name);
 
                     result = this.JobCallbackUtils.FaultJob(
                         ErrorCode.Job_MaximumPostponeCount,
-                        "Exhausted postpone count.");
+                        "Reach max execution time.");
                 }
             }
 
@@ -394,29 +399,7 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     private bool HasExceededExecutionConstraints()
     {
         return this.BackgroundJob.TotalFailedCount > this.MaxRetryCount
-            || this.HasExceededMaxPostponeCount();
-    }
-
-    /// <summary>
-    /// Returns true if the job is not recurring and has exceeded its max postpone count.
-    /// </summary>
-    private bool HasExceededMaxPostponeCount()
-    {
-        // Recurring jobs aggregate their postpone count over several days since they
-        // reuse the same job definition on each execution. We don't apply the postpone
-        // limit for them because it leads to faulting the job even when it's running normally.
-        return !this.IsRecurringJob && this.BackgroundJob.TotalPostponedCount > this.MaxPostponeCount;
-    }
-
-    /// <summary>
-    /// Returns true if the job is not recurring and has reached its max postpone count.
-    ///
-    /// See <see cref="HasExceededMaxPostponeCount"/> for details on why isRecurring is included
-    /// in the check.
-    /// </summary>
-    private bool HasReachedMaxPostponeCount()
-    {
-        return this.BackgroundJob.TotalPostponedCount >= this.MaxPostponeCount;
+            || this.IsJobReachMaxExecutionTime();
     }
 
     private void SetRequestContext()

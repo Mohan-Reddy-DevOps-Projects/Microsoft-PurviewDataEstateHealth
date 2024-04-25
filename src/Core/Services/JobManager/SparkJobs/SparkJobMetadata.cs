@@ -26,4 +26,10 @@ internal class SparkJobMetadata : StagedWorkerJobMetadata
     /// </summary>
     [JsonProperty]
     public bool IsCompleted { get; set; }
+
+    /// <summary>
+    /// Current schedule start time. 
+    /// </summary>
+    [JsonProperty]
+    public DateTime? CurrentScheduleStartTime { get; set; }
 }

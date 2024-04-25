@@ -4,10 +4,10 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System.Threading.Tasks;
 
 internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
 {
@@ -44,6 +44,7 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
                 this.metadata.AccountServiceModel,
                 new CancellationToken(), jobId);
 
+            this.metadata.CurrentScheduleStartTime = DateTime.UtcNow;
 
             jobStageStatus = JobExecutionStatus.Succeeded;
             jobStatusMessage = $"DEH_Dimentional_Model job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId} ";

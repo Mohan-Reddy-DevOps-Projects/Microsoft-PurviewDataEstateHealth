@@ -4,11 +4,11 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System;
+using System.Threading.Tasks;
 
 [JobCallback(Name = nameof(FabricSparkJobCallback))]
 internal class FabricSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadata>
@@ -23,14 +23,17 @@ internal class FabricSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadata
 
     protected override string JobName => nameof(FabricSparkJobCallback);
 
-    // Postpone for 30 seconds in tracking stage giving max of 45 minutes for job to complete before retrying.
-    protected override int MaxPostponeCount => 90;
-
     protected override bool IsRecurringJob => true;
 
     protected override async Task FinalizeJob(JobExecutionResult result, Exception exception)
     {
         await Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    protected override bool IsJobReachMaxExecutionTime()
+    {
+        return false;
     }
 
     protected override async Task<bool> IsJobPreconditionMet()
