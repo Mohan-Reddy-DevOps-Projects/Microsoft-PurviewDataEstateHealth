@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Services.Lock;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Shared;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
@@ -43,6 +44,8 @@ public static class DataAccessLayer
     /// <param name="services">Gives the data access layer a chance to configure its dependency injection.</param>
     public static IServiceCollection AddDataAccessLayer(this IServiceCollection services)
     {
+        services.AddSingleton<IThreadLockService, ThreadLockService>();
+
         services.AddSingleton<AzureCredentialFactory>(provider =>
         {
             IOptions<EnvironmentConfiguration> environmentConfiguration = provider.GetService<IOptions<EnvironmentConfiguration>>();

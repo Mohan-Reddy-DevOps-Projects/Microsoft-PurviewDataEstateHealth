@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Services.Lock;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 using Microsoft.DGP.ServiceBasics.BaseModels;
@@ -19,18 +20,22 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
 
     private readonly IServerlessQueryRequestBuilder queryRequestBuilder;
 
-    private const int DefaultTimeout = 60 * 60;
+    private const int DefaultTimeout = 60 * 15;
+
+    private IThreadLockService threadLockService;
 
     public DataQualityScoreRepository(
          ModelAdapterRegistry modelAdapterRegistry,
          IProcessingStorageManager processingStorageManager,
          IServerlessQueryExecutor queryExecutor,
-         IServerlessQueryRequestBuilder queryRequestBuilder)
+         IServerlessQueryRequestBuilder queryRequestBuilder,
+         IThreadLockService threadLockService)
     {
         this.modelAdapterRegistry = modelAdapterRegistry;
         this.processingStorageManager = processingStorageManager;
         this.queryExecutor = queryExecutor;
         this.queryRequestBuilder = queryRequestBuilder;
+        this.threadLockService = threadLockService;
     }
 
     public async Task<IBatchResults<DataQualityScoreEntity>> GetMultiple(
@@ -56,13 +61,20 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-        IList<DataQualityScoreEntity> list = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
-
-        return new BaseBatchResults<DataQualityScoreEntity>
+        this.threadLockService.WaitOne(LockName.DEHServerlessQueryLock);
+        try
         {
-            Results = list,
-            ContinuationToken = continuationToken
-        };
+            var list = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+            return new BaseBatchResults<DataQualityScoreEntity>
+            {
+                Results = list,
+                ContinuationToken = continuationToken
+            };
+        }
+        finally
+        {
+            this.threadLockService.Release(LockName.DEHServerlessQueryLock);
+        }
     }
 
     private async Task<string> ConstructContainerPath(Guid accountId, CancellationToken cancellationToken)
