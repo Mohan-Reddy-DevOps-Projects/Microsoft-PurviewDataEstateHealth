@@ -4,9 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +12,9 @@ using Microsoft.Purview.DataGovernance.Reporting.Common;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Newtonsoft.Json;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 internal class EndPBIRefreshStage : IJobCallbackStage
 {
@@ -70,11 +70,11 @@ internal class EndPBIRefreshStage : IJobCallbackStage
                 JobExecutionStatus jobExecutionStatus = refreshDetails.All(ReachedSuccessfulStatus) ? JobExecutionStatus.Succeeded : JobExecutionStatus.Failed;
                 this.metadata.RefreshLookups = Array.Empty<RefreshLookup>();
 
-                return this.UpdateJobStatus(jobExecutionStatus);
+                return this.UpdateJobStatus(jobExecutionStatus, JsonConvert.SerializeObject(refreshDetails));
             }
             this.metadata.RefreshLookups = this.metadata.RefreshLookups.Where(x => datasetsPendingRefresh.Contains(x.DatasetId)).ToArray();
 
-            return this.UpdateJobStatus(JobExecutionStatus.Postponed, DateTime.UtcNow.Add(postPoneTime));
+            return this.UpdateJobStatus(JobExecutionStatus.Postponed, null, DateTime.UtcNow.Add(postPoneTime));
         }
         catch (Exception exception)
         {
@@ -124,9 +124,13 @@ internal class EndPBIRefreshStage : IJobCallbackStage
     /// <param name="jobStageStatus"></param>
     /// <param name="nextExecutionTime"></param>
     /// <returns></returns>
-    private JobExecutionResult UpdateJobStatus(JobExecutionStatus jobStageStatus, DateTime? nextExecutionTime = null)
+    private JobExecutionResult UpdateJobStatus(JobExecutionStatus jobStageStatus, string message = null, DateTime? nextExecutionTime = null)
     {
         string jobStatusMessage = $"{jobStageStatus} stage {this.StageName}";
+        if (!String.IsNullOrEmpty(message))
+        {
+            jobStatusMessage += message;
+        }
         this.logger.LogTrace(jobStatusMessage);
 
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, nextExecutionTime.HasValue ? nextExecutionTime : null);
