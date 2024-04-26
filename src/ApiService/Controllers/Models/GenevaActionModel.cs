@@ -18,18 +18,30 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
     public class GenevaActionTriggerBackgroundJobRequestPayload
     {
         [JsonProperty("jobPartition")]
-        public string JobPartition { get; set; }
+        public required string JobPartition { get; set; }
 
         [JsonProperty("jobId")]
-        public string JobId { get; set; }
+        public required string JobId { get; set; }
     }
 
     public class GenevaActionGetBackgroundJobDetailRequestPayload
     {
         [JsonProperty("jobPartition")]
-        public string JobPartition { get; set; }
+        public required string JobPartition { get; set; }
 
         [JsonProperty("jobId")]
-        public string JobId { get; set; }
+        public required string JobId { get; set; }
+    }
+
+    public class GenevaActionTriggerScheduleRequestPayload
+    {
+        [JsonProperty("controlId")]
+        public string ControlId { get; set; }
+    }
+
+    public class GenevaActionListMonitoringJobsRequestPayload
+    {
+        [JsonProperty("scheduleRunId")]
+        public required string ScheduleRunId { get; set; }
     }
 }

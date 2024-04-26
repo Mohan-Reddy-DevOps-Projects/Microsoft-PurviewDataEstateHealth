@@ -25,11 +25,20 @@
             this.logger = logger;
             this.dhComputingJobRepository = dhComputingJobRepository;
         }
-        public async Task<BatchResults<DHComputingJobWrapper>> QueryJobsWithFilter(string controlId, DateTime startTime, DateTime endTime)
+        public async Task<BatchResults<DHComputingJobWrapper>> QueryJobsWithControlId(string controlId, DateTime startTime, DateTime endTime)
         {
             using (this.logger.LogElapsed($"Start to enum jobs"))
             {
-                var jobs = await this.dhComputingJobRepository.QueryJobsWithFilter(controlId, startTime, endTime).ConfigureAwait(false) ?? [];
+                var jobs = await this.dhComputingJobRepository.QueryJobsWithFilter(job => job.ControlId == controlId && job.CreateTime >= startTime && job.CreateTime <= endTime).ConfigureAwait(false) ?? [];
+                return new BatchResults<DHComputingJobWrapper>(jobs, jobs.Count);
+            }
+        }
+
+        public async Task<BatchResults<DHComputingJobWrapper>> QueryJobsWithScheduleRunId(string scheduleRunId)
+        {
+            using (this.logger.LogElapsed($"Query monitoring job with schedule run Id {scheduleRunId}"))
+            {
+                var jobs = await this.dhComputingJobRepository.QueryJobsWithFilter(job => job.ScheduleRunId == scheduleRunId).ConfigureAwait(false) ?? [];
                 return new BatchResults<DHComputingJobWrapper>(jobs, jobs.Count);
             }
         }

@@ -8,6 +8,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Exceptions;
@@ -284,6 +285,16 @@ public class DHScheduleService(
 
             var schedule = await this.CreateOrUpdateGlobalScheduleAsync(payload).ConfigureAwait(false);
             logger.LogInformation($"Created a global schedule successfully with startTime {schedule.StartTime}.");
+        }
+    }
+
+    public async Task<BatchResults<DHComputingJobWrapper>> ListMonitoringJobsByScheduleRunId(string scheduleRunId)
+    {
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(ListMonitoringJobsByScheduleRunId)}"))
+        {
+            logger.LogInformation($"List monitoring jobs by schedule run id {scheduleRunId}");
+            var jobs = await monitoringService.QueryJobsWithScheduleRunId(scheduleRunId).ConfigureAwait(false);
+            return jobs;
         }
     }
 

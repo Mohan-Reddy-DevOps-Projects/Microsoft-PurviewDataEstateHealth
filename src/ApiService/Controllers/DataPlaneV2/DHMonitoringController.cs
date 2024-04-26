@@ -38,7 +38,7 @@ public class DHMonitoringController(
             return this.Unauthorized();
         }
         logger.LogInformation($"start to query jobs for control with Id: {queryMonitoringRequest.ControlId}, startTime:{queryMonitoringRequest.StartTime}, endTime: {queryMonitoringRequest.EndTime}");
-        var batchResults = await monitoringService.QueryJobsWithFilter(queryMonitoringRequest.ControlId, queryMonitoringRequest.StartTime, queryMonitoringRequest.EndTime).ConfigureAwait(false);
+        var batchResults = await monitoringService.QueryJobsWithControlId(queryMonitoringRequest.ControlId, queryMonitoringRequest.StartTime, queryMonitoringRequest.EndTime).ConfigureAwait(false);
         return this.Ok(PagedResults.FromBatchResults(batchResults));
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 public class DHComputingJobRepository(
@@ -43,11 +44,12 @@ public class DHComputingJobRepository(
         }
         return results.FirstOrDefault();
     }
-    public async Task<List<DHComputingJobWrapper>?> QueryJobsWithFilter(string controlId, DateTime startTime, DateTime endTime)
+
+    public async Task<List<DHComputingJobWrapper>?> QueryJobsWithFilter(Expression<Func<DHComputingJobWrapper, bool>> predicate)
     {
         var query = this.CosmosContainer.GetItemLinqQueryable<DHComputingJobWrapper>(
             requestOptions: new QueryRequestOptions { PartitionKey = this.TenantPartitionKey }
-        ).Where(job => job.ControlId == controlId && job.CreateTime >= startTime && job.CreateTime <= endTime);
+        ).Where(predicate);
         var str = query.ToString();
         var feedIterator = query.ToFeedIterator();
         var results = new List<DHComputingJobWrapper>();
