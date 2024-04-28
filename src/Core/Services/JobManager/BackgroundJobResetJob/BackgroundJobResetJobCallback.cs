@@ -10,21 +10,21 @@ using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using System;
 using System.Threading.Tasks;
 
-[JobCallback(Name = nameof(DimensionModelSparkJobCallback))]
-internal class DimensionModelSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadata>
+[JobCallback(Name = nameof(BackgroundJobResetJobCallback))]
+internal class BackgroundJobResetJobCallback : StagedWorkerJobCallback<BackgroundJobResetMetadata>
 {
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
 
-    public DimensionModelSparkJobCallback(IServiceScope scope)
+    /// <inheritdoc />
+    protected override string JobName => nameof(BackgroundJobResetJobCallback);
+
+    public BackgroundJobResetJobCallback(IServiceScope scope)
         : base(scope)
     {
         this.dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
     }
 
-    protected override string JobName => nameof(DimensionModelSparkJobCallback);
-
-    protected override bool IsRecurringJob => true;
-
+    /// <inheritdoc />
     protected override async Task FinalizeJob(JobExecutionResult result, Exception exception)
     {
         await Task.CompletedTask;
@@ -33,44 +33,44 @@ internal class DimensionModelSparkJobCallback : StagedWorkerJobCallback<SparkJob
     /// <inheritdoc />
     protected override bool IsJobReachMaxExecutionTime()
     {
-        if (this.Metadata.CurrentScheduleStartTime != null)
-        {
-            return DateTime.UtcNow > this.Metadata.CurrentScheduleStartTime?.AddHours(1);
-        }
         return false;
     }
 
+    /// <inheritdoc />
     protected override async Task<bool> IsJobPreconditionMet()
     {
         return await Task.FromResult(true);
     }
 
+    /// <inheritdoc />
     protected override void OnJobConfigure()
     {
         this.JobStages = new List<IJobCallbackStage>
         {
-            new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            new DataplaneJobResetStage(this.Scope, this.Metadata, this.JobManagement, this.JobCallbackUtils)
         };
     }
 
+    /// <inheritdoc />
     protected override async Task TransitionToJobFailed()
     {
         await Task.CompletedTask;
+
         this.ResetJobWorkingState();
         this.dataEstateHealthRequestLogger.LogInformation($"{this.JobName} failed.");
     }
 
+    /// <inheritdoc />
     protected override async Task TransitionToJobSucceeded()
     {
         await Task.CompletedTask;
+
         this.ResetJobWorkingState();
         this.dataEstateHealthRequestLogger.LogInformation($"{this.JobName} succeeded.");
     }
 
     private void ResetJobWorkingState()
     {
-        this.Metadata.SparkJobBatchId = string.Empty;
         this.Metadata.IsCompleted = false;
     }
 }

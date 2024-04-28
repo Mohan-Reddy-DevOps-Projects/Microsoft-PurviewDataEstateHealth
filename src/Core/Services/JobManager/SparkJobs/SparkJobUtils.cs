@@ -4,10 +4,10 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 internal static class SparkJobUtils
 {
@@ -36,7 +36,7 @@ internal static class SparkJobUtils
         string detail = status switch
         {
             JobExecutionStatus.Succeeded => $"{stageName}|{status} for account: {accountId}.",
-            JobExecutionStatus.Completed => $"{stageName}|failed for account: {accountId} with details: {JsonSerializer.Serialize(jobDetails, jsonOptions)}",
+            JobExecutionStatus.Completed => $"{stageName}|{status} for account: {accountId} with details: {JsonSerializer.Serialize(jobDetails, jsonOptions)}",
             JobExecutionStatus.Postponed => $"{stageName}|{status} for account: {accountId}.",
             _ => $"Unknown status for {stageName} for account: {accountId}."
         };

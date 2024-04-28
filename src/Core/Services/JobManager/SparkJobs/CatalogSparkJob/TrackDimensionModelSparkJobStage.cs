@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
@@ -12,19 +13,19 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-internal class TrackCatalogSparkJobStage : IJobCallbackStage
+internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
 {
     private readonly JobCallbackUtils<DataPlaneSparkJobMetadata> jobCallbackUtils;
     private readonly DataPlaneSparkJobMetadata metadata;
     private readonly IDataEstateHealthRequestLogger logger;
-    private readonly ICatalogSparkJobComponent catalogSparkJobComponent;
+    private readonly IDimensionModelSparkJobComponent dimensionModelSparkJobComponent;
     private readonly IJobManager backgroundJobManager;
     private static readonly JsonSerializerOptions jsonOptions = new()
     {
         Converters = { new JsonStringEnumConverter() }
     };
 
-    public TrackCatalogSparkJobStage(
+    public TrackDimensionModelSparkJobStage(
     IServiceScope scope,
     DataPlaneSparkJobMetadata metadata,
     JobCallbackUtils<DataPlaneSparkJobMetadata> jobCallbackUtils)
@@ -32,57 +33,72 @@ internal class TrackCatalogSparkJobStage : IJobCallbackStage
         this.metadata = metadata;
         this.jobCallbackUtils = jobCallbackUtils;
         this.logger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
-        this.catalogSparkJobComponent = scope.ServiceProvider.GetService<ICatalogSparkJobComponent>();
+        this.dimensionModelSparkJobComponent = scope.ServiceProvider.GetService<IDimensionModelSparkJobComponent>();
         this.backgroundJobManager = scope.ServiceProvider.GetService<IJobManager>();
     }
 
-    public string StageName => nameof(TrackCatalogSparkJobStage);
+    public string StageName => nameof(TrackDimensionModelSparkJobStage);
 
     public async Task<JobExecutionResult> Execute()
     {
         JobExecutionStatus jobStageStatus = JobExecutionStatus.Postponed;
         string jobStatusMessage;
-        using (this.logger.LogElapsed($"Track catalog spark job"))
+        using (this.logger.LogElapsed($"Start to track dimension spark job"))
         {
             try
             {
-                SparkBatchJob jobDetails = await this.catalogSparkJobComponent.GetJob(
+                SparkBatchJob jobDetails = await this.dimensionModelSparkJobComponent.GetJob(
                     this.metadata.AccountServiceModel,
-                    int.Parse(this.metadata.CatalogSparkJobBatchId),
+                    int.Parse(this.metadata.DimensionSparkJobBatchId),
                     new CancellationToken());
-                this.logger.LogTrace($"Spark job status: state, {jobDetails.State}, result, {jobDetails.Result}");
+
                 if (SparkJobUtils.IsSuccess(jobDetails))
                 {
-                    this.metadata.CatalogSparkJobStatus = DataPlaneSparkJobStatus.Succeeded;
+                    //Not enabled yet
+                    //await this.ProvisionFabricRefreshJob(this.metadata, this.metadata.AccountServiceModel);
+                    this.metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Succeeded;
                     jobStageStatus = JobExecutionStatus.Completed;
+                    await this.ProvisionResetDataPlaneScheduleJob(this.metadata.AccountServiceModel).ConfigureAwait(false);
                 }
                 else if (SparkJobUtils.IsFailure(jobDetails))
                 {
-                    this.metadata.CatalogSparkJobStatus = DataPlaneSparkJobStatus.Failed;
+                    this.metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Failed;
                     jobStageStatus = JobExecutionStatus.Failed;
                 }
 
                 jobStatusMessage = SparkJobUtils.GenerateStatusMessage(this.metadata.AccountServiceModel.Id, jobDetails, jobStageStatus, this.StageName);
-                this.logger.LogTrace($"Track catalog spark job stage status: {jobStatusMessage}");
+                this.logger.LogTrace($"track dimension spark job stage status: {jobStatusMessage}");
             }
             catch (Exception exception)
             {
                 jobStageStatus = JobExecutionStatus.Failed;
-                jobStatusMessage = $"{this.StageName}|Failed to track Catalog SPARK job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}";
+                jobStatusMessage = $"{this.StageName}|Failed to track Dimension Model SPARK job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}";
                 this.logger.LogError(jobStatusMessage, exception);
             }
 
             return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(30)));
         }
+
+
+    }
+
+    private async Task ProvisionResetDataPlaneScheduleJob(AccountServiceModel account)
+    {
+        await this.backgroundJobManager.ProvisionBackgroundJobResetJob(account);
+    }
+
+    private async Task ProvisionFabricRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel account)
+    {
+        await this.backgroundJobManager.StartFabricelRefreshJob(metadata, account);
     }
 
     public bool IsStageComplete()
     {
-        return this.metadata.CatalogSparkJobStatus == DataPlaneSparkJobStatus.Succeeded || this.metadata.CatalogSparkJobStatus == DataPlaneSparkJobStatus.Failed;
+        return this.metadata.DimensionSparkJobStatus == DataPlaneSparkJobStatus.Succeeded || this.metadata.DimensionSparkJobStatus == DataPlaneSparkJobStatus.Failed;
     }
 
     public bool IsStagePreconditionMet()
     {
-        return int.TryParse(this.metadata.CatalogSparkJobBatchId, out int _);
+        return int.TryParse(this.metadata.DimensionSparkJobBatchId, out int _);
     }
 }

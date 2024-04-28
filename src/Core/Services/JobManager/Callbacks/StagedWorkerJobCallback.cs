@@ -10,6 +10,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -209,14 +210,33 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     {
         try
         {
+            this.SetRequestContext();
+
             if (exception != null)
             {
                 this.DataEstateHealthRequestLogger.LogError("Job failed", exception, operationName: this.GetType().Name);
             }
 
-            if (result.Status == JobExecutionStatus.Failed)
+            if (result.Status == JobExecutionStatus.Failed && this.BackgroundJob.TotalFailedCount >= this.MaxRetryCount)
             {
-                if (this.BackgroundJob.TotalFailedCount >= this.MaxRetryCount)
+                await this.TransitionToJobFailed();
+
+                if (this.IsRecurringJob)
+                {
+                    var errorMessage = $"Recurring job {this.JobName} has exhausted the maximum job retries of {this.MaxRetryCount}";
+                    this.DataEstateHealthRequestLogger.LogError(
+                        errorMessage,
+                        exception,
+                        operationName: this.GetType().Name);
+
+                    return new JobExecutionResult
+                    {
+                        Status = JobExecutionStatus.Succeeded,  //need to return as succeeded to wait for next schedule
+                        Message = errorMessage,
+                        NextMetadata = this.Metadata.ToString()
+                    };
+                }
+                else
                 {
                     this.DataEstateHealthRequestLogger.LogError(
                         FormattableString.Invariant(
@@ -234,30 +254,32 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
             {
                 await this.TransitionToJobFailed();
 
+                var errorMessage = $"Job {this.JobName} has reached max execution time";
+
                 if (this.IsRecurringJob)
                 {
                     this.DataEstateHealthRequestLogger.LogError(
-                        "Reach max execution time.",
+                        errorMessage,
                         exception,
                         operationName: this.GetType().Name);
 
                     return new JobExecutionResult
                     {
                         Status = JobExecutionStatus.Succeeded,  //need to return as succeeded to wait for next schedule
-                        Message = "Reach max execution time.",
+                        Message = errorMessage,
                         NextMetadata = this.Metadata.ToString()
                     };
                 }
                 else
                 {
                     this.DataEstateHealthRequestLogger.LogError(
-                        "Reach max execution time.",
+                        errorMessage,
                         exception,
                         operationName: this.GetType().Name);
 
                     result = this.JobCallbackUtils.FaultJob(
                         ErrorCode.Job_MaximumPostponeCount,
-                        "Reach max execution time.");
+                        errorMessage);
                 }
             }
 
@@ -281,16 +303,11 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
                 }
             }
 
-            if (this.HasExceededExecutionConstraints())
-            {
-                return this.JobCallbackUtils.FaultJob(
-                    ErrorCode.Job_ExecutionConstraintsExceeded,
-                    "Job execution constraints exceeded. Terminating job to prevent unconstrained execution.");
-            }
-
             if (result.Status == JobExecutionStatus.Faulted && this.IsJobPreconditionValid)
             {
                 await this.TransitionToJobFailed();
+                //Need to update NextMetadata after reset.
+                result.NextMetadata = this.Metadata.ToJson();
             }
 
             await this.FinalizeJob(result, exception);
@@ -310,77 +327,85 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
     private async Task<JobExecutionResult> OnJobExecute()
     {
         this.SetRequestContext();
-        this.IsJobPreconditionValid = await this.IsJobPreconditionMet();
 
-        if (!this.IsJobPreconditionValid)
+        using (this.DataEstateHealthRequestLogger.LogElapsed($"Run job, name: {this.JobName}"))
         {
-            return this.JobCallbackUtils.GetExecutionResult(
-                JobExecutionStatus.Failed,
-                $"{this.JobName} pre-condition is not met");
-        }
-
-        foreach (IJobCallbackStage stage in this.JobStages)
-        {
-            if (stage.IsStageComplete())
+            this.IsJobPreconditionValid = await this.IsJobPreconditionMet();
+            if (!this.IsJobPreconditionValid)
             {
-                continue;
+                this.DataEstateHealthRequestLogger.LogInformation($"{this.JobName} | Current job pre-condition is not met");
+
+                return this.JobCallbackUtils.GetExecutionResult(
+                    JobExecutionStatus.Failed,
+                    $"{this.JobName}  | Current job pre-condition is not met");
             }
-
-            JobExecutionResult jobResult = null;
-
-            try
+            foreach (IJobCallbackStage stage in this.JobStages)
             {
-                await stage.InitializeStage();
-
-                if (!stage.IsStagePreconditionMet())
+                this.DataEstateHealthRequestLogger.LogInformation($"Start to run {stage.StageName}");
+                if (stage.IsStageComplete())
                 {
-                    return this.JobCallbackUtils.GetExecutionResult(
-                        JobExecutionStatus.Failed,
-                        $"{stage.StageName} pre-condition is not met");
+                    this.DataEstateHealthRequestLogger.LogInformation($"{stage.StageName} already completed, skiped");
+                    continue;
                 }
 
-                this.DataEstateHealthRequestLogger.LogInformation(
-                    $"Executing {stage.StageName} with context: {string.Join(",", this.Metadata.WorkerJobExecutionContext.GetFlags())}");
+                JobExecutionResult jobResult = null;
 
-                jobResult = await stage.Execute();
-
-                this.DataEstateHealthRequestLogger.LogInformation(
-                    $"Executed {stage.StageName} with result: {jobResult.Status}|{jobResult.Message}");
-            }
-            catch (ServiceException serviceException)
-            {
-                this.JobCallbackUtils.AugmentServiceException(serviceException);
-
-                return this.LogAndConvert(serviceException, stage.StageName);
-            }
-            catch (AggregateException aggregateException)
-            {
-                foreach (Exception innerException in aggregateException.InnerExceptions)
+                try
                 {
-                    if (innerException is ServiceException serviceException)
+                    await stage.InitializeStage();
+
+                    if (!stage.IsStagePreconditionMet())
                     {
-                        this.JobCallbackUtils.AugmentServiceException(serviceException);
+                        this.DataEstateHealthRequestLogger.LogInformation($"{stage.StageName} | Current stage pre-condition is not met");
+                        return this.JobCallbackUtils.GetExecutionResult(
+                            JobExecutionStatus.Failed,
+                            $"{stage.StageName} | Current stage pre-condition is not met");
                     }
+
+                    this.DataEstateHealthRequestLogger.LogInformation(
+                        $"Executing {stage.StageName} with context: {string.Join(",", this.Metadata.WorkerJobExecutionContext.GetFlags())}");
+
+                    jobResult = await stage.Execute();
+
+                    this.DataEstateHealthRequestLogger.LogInformation(
+                        $"Executed {stage.StageName} with result: {jobResult.Status}|{jobResult.Message}");
+                }
+                catch (ServiceException serviceException)
+                {
+                    this.JobCallbackUtils.AugmentServiceException(serviceException);
+
+                    return this.LogAndConvert(serviceException, stage.StageName);
+                }
+                catch (AggregateException aggregateException)
+                {
+                    foreach (Exception innerException in aggregateException.InnerExceptions)
+                    {
+                        if (innerException is ServiceException serviceException)
+                        {
+                            this.JobCallbackUtils.AugmentServiceException(serviceException);
+                        }
+                    }
+
+                    return this.LogAndConvert(aggregateException, stage.StageName);
+                }
+                catch (Exception exception)
+                {
+                    return this.LogAndConvert(exception, stage.StageName);
                 }
 
-                return this.LogAndConvert(aggregateException, stage.StageName);
+                if (jobResult?.Status != JobExecutionStatus.Completed)
+                {
+                    return jobResult;
+                }
             }
-            catch (Exception exception)
-            {
-                return this.LogAndConvert(exception, stage.StageName);
-            }
+            this.DataEstateHealthRequestLogger.LogInformation($"All stage complete, job name: {this.JobName}");
 
-            if (jobResult?.Status != JobExecutionStatus.Completed)
-            {
-                return jobResult;
-            }
+            await this.TransitionToJobSucceeded();
+
+            return this.JobCallbackUtils.GetExecutionResult(
+                JobExecutionStatus.Succeeded,
+                $"{this.JobName} executed successfully");
         }
-
-        await this.TransitionToJobSucceeded();
-
-        return this.JobCallbackUtils.GetExecutionResult(
-            JobExecutionStatus.Succeeded,
-            $"{this.JobName} executed successfully");
     }
 
     private JobExecutionResult LogAndConvert(Exception exception, string stageName)

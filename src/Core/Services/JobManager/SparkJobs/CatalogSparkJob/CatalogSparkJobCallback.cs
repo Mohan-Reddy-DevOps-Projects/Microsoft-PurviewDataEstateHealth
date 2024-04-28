@@ -11,7 +11,7 @@ using System;
 using System.Threading.Tasks;
 
 [JobCallback(Name = nameof(CatalogSparkJobCallback))]
-internal class CatalogSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadata>
+internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJobMetadata>
 {
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
 
@@ -33,7 +33,7 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadat
     {
         if (this.Metadata.CurrentScheduleStartTime != null)
         {
-            return DateTime.UtcNow > this.Metadata.CurrentScheduleStartTime?.AddHours(1);
+            return DateTime.UtcNow > this.Metadata.CurrentScheduleStartTime?.AddHours(1.5);
         }
         return false;
     }
@@ -49,6 +49,8 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadat
         {
             new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
         };
     }
 
@@ -69,6 +71,10 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadat
     private void ResetJobWorkingState()
     {
         this.Metadata.SparkJobBatchId = string.Empty;
-        this.Metadata.IsCompleted = false;
+        this.Metadata.CatalogSparkJobBatchId = string.Empty;
+        this.Metadata.DimensionSparkJobBatchId = string.Empty;
+        this.Metadata.CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others;
+        this.Metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others;
+        this.Metadata.CurrentScheduleStartTime = null;
     }
 }

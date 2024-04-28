@@ -348,42 +348,6 @@ public class JobManager : IJobManager
     }
 
     /// <inheritdoc />
-    public async Task StartDimensionModelRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountServiceModel)
-    {
-        string accountId = accountServiceModel.Id;
-        string jobPartition = $"DIMENSION-SPARK-JOBS";
-        string jobId = $"{accountId}-DIMENSION-SPARK-JOBS";
-
-        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
-
-        if (job != null)
-        {
-            await this.DeleteJobAsync(jobPartition, jobId);
-            job = null;
-        }
-
-        if (job == null)
-        {
-            var jobMetadata = new SparkJobMetadata
-            {
-                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
-                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
-                AccountServiceModel = accountServiceModel,
-                SparkJobBatchId = string.Empty,
-                IsCompleted = false
-            };
-            var jobOptions = new BackgroundJobOptions()
-            {
-                CallbackName = nameof(DimensionModelSparkJobCallback),
-                JobPartition = jobPartition,
-                JobId = jobId,
-            };
-            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
-        }
-    }
-
-
-    /// <inheritdoc />
     public async Task StartFabricelRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountServiceModel)
     {
 
@@ -423,8 +387,6 @@ public class JobManager : IJobManager
             await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
-
-
 
 
     /// <inheritdoc />
@@ -573,7 +535,7 @@ public class JobManager : IJobManager
     public async Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel)
     {
         var catalogRepeatStrategy = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ?
-        TimeSpan.FromHours(1) : TimeSpan.FromHours(12);
+        TimeSpan.FromHours(1) : TimeSpan.FromHours(24);
 
         string accountId = accountServiceModel.Id;
         string jobPartition = $"{accountId}{CatalogSparkJobPartitionAffix}";
@@ -589,13 +551,15 @@ public class JobManager : IJobManager
 
         if (job == null)
         {
-            var jobMetadata = new SparkJobMetadata
+            var jobMetadata = new DataPlaneSparkJobMetadata
             {
                 WorkerJobExecutionContext = WorkerJobExecutionContext.None,
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
                 AccountServiceModel = accountServiceModel,
-                SparkJobBatchId = string.Empty,
-                IsCompleted = false
+                CatalogSparkJobBatchId = string.Empty,
+                DimensionSparkJobBatchId = string.Empty,
+                CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others,
+                DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others
             };
             int randomMins = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 3 : RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
 
@@ -661,6 +625,43 @@ public class JobManager : IJobManager
             await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
+
+    /// <inheritdoc />
+    public async Task ProvisionBackgroundJobResetJob(AccountServiceModel accountServiceModel)
+    {
+        string accountId = accountServiceModel.Id;
+        string jobPartition = $"BACKGROUND-JOB-RESET-JOBS";
+        string jobId = $"{accountId}-BACKGROUND-JOB-RESET-JOB";
+
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new BackgroundJobResetMetadata
+            {
+                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+                AccountServiceModel = accountServiceModel,
+                IsCompleted = false
+            };
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(BackgroundJobResetJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                StartTime = DateTime.UtcNow.AddMinutes(3),
+                RetryStrategy = TimeSpan.FromMinutes(10)
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+        }
+    }
+
     public async Task DeprovisionDataQualitySparkJob(AccountServiceModel accountServiceModel)
     {
         string accountId = accountServiceModel.Id;

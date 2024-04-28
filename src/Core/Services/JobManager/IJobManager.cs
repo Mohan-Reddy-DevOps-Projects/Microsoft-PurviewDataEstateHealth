@@ -123,6 +123,12 @@ public interface IJobManager
     Task ProvisionActionsCleanupJob(AccountServiceModel accountModel);
 
     /// <summary>
+    /// Reset job schedule.
+    /// </summary>
+    /// <returns></returns>
+    Task ProvisionBackgroundJobResetJob(AccountServiceModel accountModel);
+
+    /// <summary>
     /// Delete Clean up actions job
     /// </summary>
     /// <param name="accountServiceModel"></param>
@@ -134,12 +140,6 @@ public interface IJobManager
     /// </summary>
     /// <returns></returns>
     Task RunPBIRefreshJob(AccountServiceModel accountModel);
-
-    /// <summary>
-    /// Start Dimension Model PBI refresh job
-    /// </summary>
-    /// <returns></returns>
-    Task StartDimensionModelRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel accountModel);
 
     /// <summary>
     /// Start Fabrick Models update refresh job

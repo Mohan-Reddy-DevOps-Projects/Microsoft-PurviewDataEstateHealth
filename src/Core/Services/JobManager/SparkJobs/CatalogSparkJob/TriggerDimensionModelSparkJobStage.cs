@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using System.Threading.Tasks;
 
-internal class TriggerCatalogSparkJobStage : IJobCallbackStage
+internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
 {
     private readonly JobCallbackUtils<DataPlaneSparkJobMetadata> jobCallbackUtils;
 
@@ -17,9 +17,9 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
 
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
 
-    private readonly ICatalogSparkJobComponent catalogSparkJobComponent;
+    private readonly IDimensionModelSparkJobComponent dimensionModelSparkJobComponent;
 
-    public TriggerCatalogSparkJobStage(
+    public TriggerDimensionModelSparkJobStage(
     IServiceScope scope,
     DataPlaneSparkJobMetadata metadata,
     JobCallbackUtils<DataPlaneSparkJobMetadata> jobCallbackUtils)
@@ -27,34 +27,32 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
         this.metadata = metadata;
         this.jobCallbackUtils = jobCallbackUtils;
         this.dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
-        this.catalogSparkJobComponent = scope.ServiceProvider.GetService<ICatalogSparkJobComponent>();
+        this.dimensionModelSparkJobComponent = scope.ServiceProvider.GetService<IDimensionModelSparkJobComponent>();
     }
 
-    public string StageName => nameof(TriggerCatalogSparkJobStage);
+    public string StageName => nameof(TriggerDimensionModelSparkJobStage);
 
     public async Task<JobExecutionResult> Execute()
     {
         JobExecutionStatus jobStageStatus;
         string jobStatusMessage;
         var jobId = Guid.NewGuid().ToString();
-
-        using (this.dataEstateHealthRequestLogger.LogElapsed($"Start to trigger catalog spark job"))
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"Start to trigger dimension spark job"))
         {
             try
             {
-                this.dataEstateHealthRequestLogger.LogInformation($"Running spark jobId, {this.metadata.SparkJobBatchId}");
-                this.metadata.CatalogSparkJobBatchId = string.IsNullOrEmpty(this.metadata.CatalogSparkJobBatchId) ? await this.catalogSparkJobComponent.SubmitJob(
+                this.metadata.DimensionSparkJobBatchId = await this.dimensionModelSparkJobComponent.SubmitJob(
                     this.metadata.AccountServiceModel,
-                    new CancellationToken(), jobId) : this.metadata.SparkJobBatchId;
-                this.metadata.CurrentScheduleStartTime = DateTime.UtcNow;
+                    new CancellationToken(), jobId);
+
                 jobStageStatus = JobExecutionStatus.Completed;
-                jobStatusMessage = $"DEH_Domain_Model job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId} ";
+                jobStatusMessage = $"DEH_Dimentional_Model job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId} ";
                 this.dataEstateHealthRequestLogger.LogTrace(jobStatusMessage);
             }
             catch (Exception exception)
             {
                 jobStageStatus = JobExecutionStatus.Failed;
-                jobStatusMessage = $"Failed to submit DEH_Domain_Model job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}, JobID : {jobId}";
+                jobStatusMessage = $"Failed to submit DEH_Dimentional_Model job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}, JobID : {jobId} ";
                 this.dataEstateHealthRequestLogger.LogError(jobStatusMessage, exception);
             }
 
@@ -64,11 +62,11 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
 
     public bool IsStageComplete()
     {
-        return int.TryParse(this.metadata.CatalogSparkJobBatchId, out int _);
+        return int.TryParse(this.metadata.DimensionSparkJobBatchId, out int _);
     }
 
     public bool IsStagePreconditionMet()
     {
-        return string.IsNullOrEmpty(this.metadata.CatalogSparkJobBatchId);
+        return string.IsNullOrEmpty(this.metadata.DimensionSparkJobBatchId) && this.metadata.CatalogSparkJobStatus == DataPlaneSparkJobStatus.Succeeded;
     }
 }
