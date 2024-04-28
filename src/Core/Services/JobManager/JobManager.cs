@@ -341,6 +341,7 @@ public class JobManager : IJobManager
             JobId = jobId,
             StartTime = DateTime.UtcNow,
             RepeatInterval = TimeSpan.FromMinutes(5),
+            JobFlags = JobFlags.DeleteJobIfCompleted
         };
         await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
 
@@ -798,8 +799,24 @@ public class JobManager : IJobManager
             .WithStartTime(options.StartTime ?? DateTime.UtcNow.AddMinutes(1))
             .WithRetryStrategy(options.RetryStrategy ?? TimeSpan.FromSeconds(JobManager.DefaultRetryInterval))
             .WithoutEndTime()
-            .WithRetention(TimeSpan.FromDays(7))
-            .WithFlags(JobFlags.DeleteJobIfCompleted);
+            .WithRetention(TimeSpan.FromDays(7));
+
+        // For recurring job, if the JobFlags is not specified, set the default flags.
+        if (!options.JobFlags.HasValue)
+        {
+            if (options.RepeatInterval.HasValue)
+            {
+                jobBuilder = jobBuilder.WithFlags(JobFlags.ResumeJobIfFaulted);
+            }
+            else
+            {
+                jobBuilder = jobBuilder.WithFlags(JobFlags.DeleteJobIfCompleted);
+            }
+        }
+        else
+        {
+            jobBuilder = jobBuilder.WithFlags(options.JobFlags.Value);
+        }
 
         if (options.RepeatInterval.HasValue)
         {
@@ -827,6 +844,8 @@ class BackgroundJobOptions
     public TimeSpan? RepeatInterval { get; set; }
 
     public DateTime? StartTime { get; set; }
+
+    public JobFlags? JobFlags { get; set; }
 
     public override string ToString()
     {
