@@ -4,7 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.DGP.ServiceBasics.Components;
 
 /// <summary>
@@ -12,14 +11,6 @@ using Microsoft.DGP.ServiceBasics.Components;
 /// </summary>
 public interface IDHWorkerServiceTriggerComponent : IComponent<IDHWorkerServiceTriggerContext>
 {
-    /// <summary>
-    /// Manage create or update notifications
-    /// </summary>
-    /// <param name="account"></param>
-    /// <param name="cancellationToken"></param>
-    /// <returns></returns>
-    Task RefreshPowerBI(AccountServiceModel account, CancellationToken cancellationToken);
-
     /// <summary>
     /// Trigger a background job.
     /// </summary>

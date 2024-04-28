@@ -4,16 +4,13 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Intern
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
-using System.Threading;
 
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
@@ -23,8 +20,7 @@ using System.Threading;
 public class InternalDHControlController(
     DHScheduleService dhScheduleService,
     IDataEstateHealthRequestLogger logger,
-    IRequestHeaderContext requestHeaderContext,
-    ICoreLayerFactory coreLayerFactory) : Controller
+    IRequestHeaderContext requestHeaderContext) : Controller
 {
     [HttpPost]
     [Route("triggerScheduleJobCallback")]
@@ -42,20 +38,6 @@ public class InternalDHControlController(
             await dhScheduleService.TriggerScheduleJobCallbackAsync(requestBody).ConfigureAwait(false);
         }
 
-        using (logger.LogElapsed($"Refresh powerBI after MDQ jobs triggered. TenantId: {tenantId}. AccountId: {accountId}."))
-        {
-            if (requestBody.ControlId == null)
-            {
-                var account = new AccountServiceModel(id: accountId.ToString(), tenantId: tenantId.ToString());
-                await coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
-                    .CreateDHWorkerServiceTriggerComponent(tenantId, accountId)
-                    .RefreshPowerBI(account, CancellationToken.None);
-            }
-            else
-            {
-                logger.LogInformation($"Ignore powerBI refresh since this request is triggered by specific control {requestBody.ControlId}");
-            }
-        }
         return this.Ok();
     }
 

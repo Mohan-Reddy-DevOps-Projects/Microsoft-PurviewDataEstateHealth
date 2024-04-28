@@ -4,9 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.DGP.ServiceBasics.Components;
 using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using System.Threading;
@@ -19,21 +17,10 @@ internal sealed class DHWorkerServiceTriggerComponent : BaseComponent<IDHWorkerS
     [Inject]
     private readonly IJobManager backgroundJobManager;
 
-    [Inject]
-    private readonly IAccountExposureControlConfigProvider exposureControl;
 #pragma warning restore 649
 
     public DHWorkerServiceTriggerComponent(IDHWorkerServiceTriggerContext context, int version) : base(context, version)
     {
-    }
-
-    /// <inheritdoc/>
-    public async Task RefreshPowerBI(AccountServiceModel account, CancellationToken cancellationToken)
-    {
-        if (this.exposureControl.IsDGDataHealthEnabled(account.Id, account.SubscriptionId, account.TenantId))
-        {
-            await this.backgroundJobManager.RunPBIRefreshJob(account);
-        }
     }
 
     /// <inheritdoc/>

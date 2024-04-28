@@ -59,6 +59,9 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
                     this.metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Succeeded;
                     jobStageStatus = JobExecutionStatus.Completed;
                     await this.ProvisionResetDataPlaneScheduleJob(this.metadata.AccountServiceModel).ConfigureAwait(false);
+
+                    // trigger PBI refresh job
+                    await this.TriggerPBIRefreshJob(this.metadata.AccountServiceModel).ConfigureAwait(false);
                 }
                 else if (SparkJobUtils.IsFailure(jobDetails))
                 {
@@ -85,6 +88,11 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
     private async Task ProvisionResetDataPlaneScheduleJob(AccountServiceModel account)
     {
         await this.backgroundJobManager.ProvisionBackgroundJobResetJob(account);
+    }
+
+    private async Task TriggerPBIRefreshJob(AccountServiceModel account)
+    {
+        await this.backgroundJobManager.RunPBIRefreshJob(account);
     }
 
     private async Task ProvisionFabricRefreshJob(StagedWorkerJobMetadata metadata, AccountServiceModel account)
