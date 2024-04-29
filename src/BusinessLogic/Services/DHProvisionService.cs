@@ -79,8 +79,8 @@ public class DHProvisionService(
         using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionDataPlaneResources)}"))
         {
             List<Task> tasks = [
-             dHDataEstateHealthService.DeprovisionForDEHAsync()
-               ];
+                dHDataEstateHealthService.DeprovisionForDEHAsync()
+            ];
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
     }

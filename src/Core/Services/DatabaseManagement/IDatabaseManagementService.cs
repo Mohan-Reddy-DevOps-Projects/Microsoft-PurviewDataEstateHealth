@@ -11,5 +11,7 @@ internal interface IDatabaseManagementService
 {
     Task Initialize(AccountServiceModel accountModel, CancellationToken cancellationToken);
 
+    Task RunSetupSQL(CancellationToken cancellationToken);
+
     Task Deprovision(AccountServiceModel accountModel, CancellationToken cancellationToken);
 }

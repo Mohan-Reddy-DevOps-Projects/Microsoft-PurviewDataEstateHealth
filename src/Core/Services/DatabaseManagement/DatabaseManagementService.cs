@@ -22,6 +22,7 @@ internal class DatabaseManagementService : IDatabaseManagementService
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
+    private IDatabaseRequest setupSQLRequest;
 
     public DatabaseManagementService(IDatabaseCommand databaseCommand, IPowerBICredentialComponent powerBICredentialComponent, IProcessingStorageManager processingStorageManager, IDataEstateHealthRequestLogger logger)
     {
@@ -72,6 +73,8 @@ internal class DatabaseManagementService : IDatabaseManagementService
                 ScopedCredential = new ManagedIdentityScopedCredential("SynapseMICredential")
             };
 
+            this.setupSQLRequest = databaseRequest;
+
             await this.databaseCommand.AddMasterKeyAsync(databaseRequest, cancellationToken);
             await this.databaseCommand.AddScopedCredentialAsync(databaseRequest, cancellationToken);
             await this.databaseCommand.AddLoginAsync(databaseRequest, cancellationToken);
@@ -79,8 +82,19 @@ internal class DatabaseManagementService : IDatabaseManagementService
             await this.databaseCommand.CreateSchemaAsync(databaseRequest, cancellationToken);
             await this.databaseCommand.GrantUserToSchemaAsync(databaseRequest, cancellationToken);
             await this.databaseCommand.GrantCredentialToUserAsync(databaseRequest, cancellationToken);
+        }
+    }
 
-            await this.databaseCommand.ExecuteSetupScriptAsync(databaseRequest, cancellationToken);
+    public async Task RunSetupSQL(CancellationToken cancellationToken)
+    {
+        using (this.dataEstateHealthRequestLogger.LogElapsed("start to run setup SQL"))
+        {
+            if (this.setupSQLRequest == null)
+            {
+                this.dataEstateHealthRequestLogger.LogCritical("SQL should be runed after initialize");
+                throw new Exception("Failed to run setup SQL as request context is empty");
+            }
+            await this.databaseCommand.ExecuteSetupScriptAsync(this.setupSQLRequest, cancellationToken);
         }
     }
 

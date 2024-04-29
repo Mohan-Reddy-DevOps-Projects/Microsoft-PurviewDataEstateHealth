@@ -84,10 +84,14 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         using (this.dataEstateHealthRequestLogger.LogElapsed($"start to create/update powerBI related resources, account name: {account.Name}"))
         {
             await this.databaseManagementService.Initialize(account, cancellationToken);
-            await this.CreatePowerBIResources(account, cancellationToken);
+            List<Task> tasks =
+            [
+                this.CreatePowerBIResources(account, cancellationToken),
+                this.databaseManagementService.RunSetupSQL(cancellationToken)
+            ];
+            await Task.WhenAll(tasks);
         }
     }
-
 
     public async Task DeleteNotification(AccountServiceModel account, CancellationToken cancellationToken)
     {

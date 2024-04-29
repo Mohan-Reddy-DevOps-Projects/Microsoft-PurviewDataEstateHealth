@@ -250,7 +250,7 @@ internal class DatabaseCommand : IDatabaseCommand
                 }
             }
 
-            await this.serverlessPoolClient.ExecuteCommandAsync(scriptText, cancellationToken, 60, 60);
+            await this.serverlessPoolClient.ExecuteCommandAsync(scriptText, cancellationToken, 120, 120);
         }
     }
 }
