@@ -18,7 +18,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using OperationType = DataTransferObjects.OperationType;
@@ -79,21 +78,14 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     {
         try
         {
-            List<Task> tasks = new();
-
-            if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
-            {
-                Task healthTask = this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+            List<Task> tasks = [
+                 this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
                     .CreatePartnerNotificationComponent(
                     Guid.Parse(account.TenantId),
                     Guid.Parse(account.Id))
-                    .CreateOrUpdateNotification(account, cancellationToken);
-                tasks.Add(healthTask);
-
-                // Provision control template
-                Task provisionControlTemplate = this.dhProvisionService.ProvisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id));
-                tasks.Add(provisionControlTemplate);
-            }
+                    .CreateOrUpdateNotification(account, cancellationToken),
+                this.dhProvisionService.ProvisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id)) // Provision control template
+             ];
 
             await Task.WhenAll(tasks);
 
@@ -128,19 +120,17 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     {
         try
         {
-            if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
-            {
-                List<Task> tasks = [
-                     this.dhProvisionService.DeprovisionDEHResources(Guid.Parse(account.TenantId), Guid.Parse(account.Id)),
-                     this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
-                        .CreatePartnerNotificationComponent(
-                        Guid.Parse(account.TenantId),
-                        Guid.Parse(account.Id))
-                        .DeleteNotification(account, cancellationToken),
-                     this.dhProvisionService.DeprovisionDataPlaneResources(Guid.Parse(account.TenantId), Guid.Parse(account.Id))
-                ];
-                await Task.WhenAll(tasks);
-            }
+            List<Task> tasks = [
+                this.dhProvisionService.DeprovisionDEHResources(Guid.Parse(account.TenantId), Guid.Parse(account.Id)),
+                this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                    .CreatePartnerNotificationComponent(
+                    Guid.Parse(account.TenantId),
+                    Guid.Parse(account.Id))
+                    .DeleteNotification(account, cancellationToken),
+                this.dhProvisionService.DeprovisionDataPlaneResources(Guid.Parse(account.TenantId), Guid.Parse(account.Id))
+            ];
+
+            await Task.WhenAll(tasks);
 
             return this.Ok();
         }
@@ -150,21 +140,6 @@ public class PlatformAccountNotificationsController : ControlPlaneController
             ProvisioningFailedResponse response = new ProvisioningFailedResponse { Code = "500", Message = ex.Message };
             return this.StatusCode(500, response);
         }
-    }
-
-    /// <summary>
-    /// Initializes the Partner Context for Callbacks.
-    /// </summary>
-    /// <returns>The PartnerContext.</returns>
-    private static ConcurrentDictionary<string, PartnerOptions> InitPartnerContext(IPartnerDetails[] partners)
-    {
-        ConcurrentDictionary<string, PartnerOptions> partnerContext = new();
-        foreach (IPartnerDetails partner in partners)
-        {
-            partnerContext.TryAdd(partner.Name.ToLowerInvariant(), new PartnerOptions() { HasSucceeded = false });
-        }
-
-        return partnerContext;
     }
 }
 

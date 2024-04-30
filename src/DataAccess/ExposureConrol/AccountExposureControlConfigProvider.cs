@@ -106,31 +106,6 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     }
 
     /// <inheritdoc/>
-    public bool IsDataGovProvisioningEnabled(string accountId, string subscriptionId, string tenantId)
-    {
-        ExposureControlOptions options = new(Features.DataGovProvisioning.ToString(), false)
-        {
-            AccountId = accountId,
-            SubscriptionId = subscriptionId,
-            TenantId = tenantId
-        };
-
-        return this.IsFeatureEnabled(options);
-    }
-
-    /// <inheritdoc/>
-    public bool IsDataGovHealthProvisioningEnabled(string accountId, string subscriptionId, string tenantId)
-    {
-        ExposureControlOptions options = new(Features.DataGovHealthProvisioning.ToString(), false)
-        {
-            AccountId = accountId,
-            SubscriptionId = subscriptionId,
-            TenantId = tenantId
-        };
-        return this.IsFeatureEnabled(options);
-    }
-
-    /// <inheritdoc/>
     public bool IsDataGovHealthPBIUpgradeEnabled(string accountId, string subscriptionId, string tenantId)
     {
         ExposureControlOptions options = new(Features.DataGovHealthPBIUpgrade.ToString(), false)
@@ -146,18 +121,6 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     public bool IsDataQualityProvisioningEnabled(string accountId, string subscriptionId, string tenantId)
     {
         ExposureControlOptions options = new(Features.DataGovDataQualityProvisioning.ToString(), false)
-        {
-            AccountId = accountId,
-            SubscriptionId = subscriptionId,
-            TenantId = tenantId
-        };
-        return this.IsFeatureEnabled(options);
-    }
-
-    /// <inheritdoc/>
-    public bool IsDataGovProvisioningServiceEnabled(string accountId, string subscriptionId, string tenantId)
-    {
-        ExposureControlOptions options = new(Features.DataGovProvisioningService.ToString(), false)
         {
             AccountId = accountId,
             SubscriptionId = subscriptionId,

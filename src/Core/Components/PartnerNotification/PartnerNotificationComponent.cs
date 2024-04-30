@@ -178,10 +178,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed($"start to provision spark jobs, account name: {account.Name}"))
         {
-            if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
-            {
-                await this.backgroundJobManager.ProvisionCatalogSparkJob(account);
-            }
+            await this.backgroundJobManager.ProvisionCatalogSparkJob(account);
         }
     }
 
@@ -189,20 +186,14 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed($"start to provision action clean up job, account name: {account.Name}"))
         {
-            if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
-            {
-                await this.backgroundJobManager.ProvisionActionsCleanupJob(account);
-            }
+            await this.backgroundJobManager.ProvisionActionsCleanupJob(account);
         }
     }
     private async Task DeprovisionSparkJobs(AccountServiceModel account)
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed("start to delete spark jobs"))
         {
-            if (this.exposureControl.IsDataGovProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
-            {
-                await this.backgroundJobManager.DeprovisionCatalogSparkJob(account);
-            }
+            await this.backgroundJobManager.DeprovisionCatalogSparkJob(account);
             try
             {
                 if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
@@ -221,10 +212,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed("start to delete actions cleanup jobs"))
         {
-            if (this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
-            {
-                await this.backgroundJobManager.DeprovisionActionsCleanupJob(account);
-            }
+            await this.backgroundJobManager.DeprovisionActionsCleanupJob(account);
         }
     }
 }
