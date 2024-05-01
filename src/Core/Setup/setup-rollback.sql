@@ -35,6 +35,18 @@ END
 IF EXISTS (
     SELECT *
     FROM sys.views 
+    WHERE [name] = 'rptDataQuality'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DimensionalSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP VIEW [' + @DimensionalSchema + '].[rptDataQuality]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'VIEW dropped: rptDataQuality';
+END
+
+IF EXISTS (
+    SELECT *
+    FROM sys.views 
     WHERE [name] = 'vwDataAssetClassification'
     AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
 )

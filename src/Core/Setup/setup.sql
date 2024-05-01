@@ -1553,30 +1553,172 @@ END
 SET @DynamicSQL = '
 CREATE VIEW [' + @DimensionalSchema + '].[vwFactDataQuality]
 AS 
-SELECT  [DQRuleId] ,
-        [RuleScanCompletionDatetime] ,
-        [BusinessDomainId] ,
-        [DataProductId] ,
-        [DataAssetId] ,
-        [DataAssetColumnId] ,
-        [DQRuleTypeId] ,
-        [DQScanProfileId] ,
-        [ScanCompletionDateId] ,
-        [DQOverallProfileQualityScore] ,
-        [DQPassedCount] ,
-        [DQFailedCount] ,
-        [DQIgnoredCount] ,
-        [DQEmptyCount] ,
-        [DQMiscastCount] ,
-        [JobTypeId]
-FROM ( SELECT   F.*,
-                         Row_number() OVER (PARTITION BY dqruleid, dataassetid,dataassetcolumnid ORDER BY rulescancompletiondatetime DESC) RID
-                FROM     ['+@DimensionalSchema+'].[FactDataQuality] F INNER JOIN ['+@DimensionalSchema+'].[DimDQJobType] D ON
-                F.JobTypeId = D.JobTypeId
-                WHERE D.[JobTypeDisplayName] <> ''MDQ'') X
-WHERE  X.RID=1';
+SELECT
+F.DQJobSourceId
+,F.DQRuleId
+,F.RuleScanCompletionDatetime
+,F.DEHLastProcessedDatetime
+,F.BusinessDomainId
+,F.DataProductId
+,F.DataAssetId
+,F.JobTypeId
+,F.DQRuleTypeId
+,F.DQScanProfileId
+,F.ScanCompletionDateId
+,F.DQOverallProfileQualityScore
+,F.DQPassedCount
+,F.DQFailedCount
+,F.DQIgnoredCount
+,F.DQEmptyCount
+,F.DQMiscastCount
+FROM [' + @DimensionalSchema + '].[FactDataQuality] F 
+INNER JOIN [' + @DimensionalSchema + '].[DimDQScanProfile] D
+ON F.DQScanProfileId = D.DQScanProfileId
+WHERE D.RuleOriginDisplayName = ''Asset'' AND D.RuleAppliedOn = ''Asset''
+UNION ALL
+ 
+SELECT DISTINCT
+F.DQJobSourceId
+,F.DQRuleId
+,F.RuleScanCompletionDatetime
+,F.DEHLastProcessedDatetime
+,F.BusinessDomainId
+,F.DataProductId
+,F.DataAssetId
+,F.JobTypeId
+,F.DQRuleTypeId
+,F.DQScanProfileId
+,F.ScanCompletionDateId
+,F.DQOverallProfileQualityScore
+,F.DQPassedCount
+,F.DQFailedCount
+,F.DQIgnoredCount
+,F.DQEmptyCount
+,F.DQMiscastCount
+FROM [' + @DimensionalSchema + '].[FactDataQuality] F 
+INNER JOIN [' + @DimensionalSchema + '].[DimDQScanProfile] D
+ON F.DQScanProfileId = D.DQScanProfileId
+WHERE D.RuleOriginDisplayName = ''Asset'' AND D.RuleAppliedOn = ''Column''
+ 
+UNION ALL 
+SELECT DISTINCT
+F.DQJobSourceId
+,F.DQRuleId
+,F.RuleScanCompletionDatetime
+,F.DEHLastProcessedDatetime
+,F.BusinessDomainId
+,F.DataProductId
+,F.DataAssetId
+,F.JobTypeId
+,F.DQRuleTypeId
+,F.DQScanProfileId
+,F.ScanCompletionDateId
+,F.DQOverallProfileQualityScore
+,F.DQPassedCount
+,F.DQFailedCount
+,F.DQIgnoredCount
+,F.DQEmptyCount
+,F.DQMiscastCount
+FROM [' + @DimensionalSchema + '].[FactDataQuality] F 
+INNER JOIN [' + @DimensionalSchema + '].[DimDQScanProfile] D
+ON F.DQScanProfileId = D.DQScanProfileId
+WHERE D.RuleOriginDisplayName = ''CDE'' AND D.RuleAppliedOn = ''Column''
+UNION ALL
+SELECT F.DQJobSourceId
+,F.DQRuleId
+,F.RuleScanCompletionDatetime
+,F.DEHLastProcessedDatetime
+,F.BusinessDomainId
+,F.DataProductId
+,F.DataAssetId
+,F.JobTypeId
+,F.DQRuleTypeId
+,F.DQScanProfileId
+,F.ScanCompletionDateId
+,F.DQOverallProfileQualityScore
+,F.DQPassedCount
+,F.DQFailedCount
+,F.DQIgnoredCount
+,F.DQEmptyCount
+,F.DQMiscastCount
+FROM [' + @DimensionalSchema + '].[FactDataQuality] F 
+INNER JOIN [' + @DimensionalSchema + '].[DimDQScanProfile] D
+ON F.DQScanProfileId = D.DQScanProfileId
+WHERE D.RuleOriginDisplayName = ''CDE'' AND D.RuleAppliedOn = ''Asset''';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'VIEW created: vwFactDataQuality';
+
+IF EXISTS (
+    SELECT *
+    FROM sys.views 
+    WHERE [name] = 'rptDataQuality'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DimensionalSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP VIEW [' + @DimensionalSchema + '].[rptDataQuality]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'VIEW dropped: rptDataQuality';
+END
+
+SET @DynamicSQL = '
+CREATE VIEW [' + @DimensionalSchema + '].[rptDataQuality]
+AS 
+WITH CTE as
+(
+SELECT     a.BusinessDomainId,a.DataProductId,a.dataassetid,
+           max(a.rulescancompletiondatetime) AS scantime 
+from [' + @DimensionalSchema + '].[vwFactDataQuality] a
+INNER JOIN (SELECT * FROM [' + @DimensionalSchema + '].[DimDQJobType] 
+WHERE [JobTypeDisplayName] <> ''MDQ'')  b
+on a.jobtypeid = b.jobtypeid
+WHERE      b.[JobTypeDisplayName] <> ''MDQ''
+GROUP BY   BusinessDomainId,DataProductId,dataassetid), 
+CTE2 as
+(
+	 select a.* from
+	 (
+	 SELECT [DQJobSourceId]
+		  ,[DQRuleId]
+		  ,[RuleScanCompletionDatetime]
+		  ,[DEHLastProcessedDatetime]
+		  ,[BusinessDomainId]
+		  ,[DataProductId]
+		  ,[DataAssetId]
+		  ,[JobTypeId]
+		  ,[DQRuleTypeId]
+		  ,[DQScanProfileId]
+		  ,[ScanCompletionDateId]
+		  ,max([DQOverallProfileQualityScore]) as [DQOverallProfileQualityScore]
+		  ,max([DQPassedCount]) as [DQPassedCount]
+		  ,max([DQFailedCount]) as [DQFailedCount]
+		  ,max([DQIgnoredCount]) as [DQIgnoredCount]
+		  ,max([DQEmptyCount]) as [DQEmptyCount]
+		  ,max([DQMiscastCount]) as [DQMiscastCount]
+	  FROM [' + @DimensionalSchema + '].[vwFactDataQuality]
+	  GROUP BY
+		   [DQJobSourceId]
+		  ,[DQRuleId]
+		  ,[RuleScanCompletionDatetime]
+		  ,[DEHLastProcessedDatetime]
+		  ,[BusinessDomainId]
+		  ,[DataProductId]
+		  ,[DataAssetId]
+		  ,[JobTypeId]
+		  ,[DQRuleTypeId]
+		  ,[DQScanProfileId]
+		  ,[ScanCompletionDateId]
+		  ) a
+	INNER JOIN [' + @DimensionalSchema + '].[DimDQJobType] b 
+	on a.jobtypeid = b.jobtypeid
+	INNER JOIN cte c on a.dataassetid = c.dataassetid 
+	and a.BusinessDomainId = c.BusinessDomainId
+	and a.DataProductId = c.DataProductId
+	and c.scantime = a.rulescancompletiondatetime
+	WHERE      b.[JobTypeDisplayName] <> ''MDQ'')
+SELECT * FROM   CTE2';
+
+EXEC sp_executesql @DynamicSQL;
+PRINT 'VIEW created: rptDataQuality';
 
 IF EXISTS (
     SELECT *
