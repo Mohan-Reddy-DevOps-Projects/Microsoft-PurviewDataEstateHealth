@@ -447,7 +447,7 @@ public class JobManager : IJobManager
                 CallbackName = nameof(MDQFailedJobCallback),
                 JobPartition = jobPartition,
                 JobId = jobId,
-                RepeatInterval = TimeSpan.FromHours(6),
+                RepeatInterval = TimeSpan.FromHours(3),
             };
             await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }

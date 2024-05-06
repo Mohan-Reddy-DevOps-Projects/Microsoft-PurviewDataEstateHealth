@@ -105,6 +105,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 }
                 else
                 {
+                    model.RetryCount += 1;
                     await this.mdqFailedJobRepsository.Update(model, CancellationToken.None);
                 }
             }

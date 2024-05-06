@@ -46,6 +46,12 @@ internal class MDQFailedJobStage : IJobCallbackStage
         this.logger.LogTipInformation("Retrieved MDQ failed jobs", new JObject { { "jobCount", jobs.Count } });
         foreach (var job in jobs.OrderByDescending(item => item.CreatedAt).Take(100))
         {
+            this.logger.LogTipInformation("Retry MDQ failed job", new JObject {
+                { "jobId", job.DQJobId },
+                { "retryCount", job.RetryCount },
+                { "createdAt", job.CreatedAt },
+                { "accountId", job.AccountId }
+            });
             this.dataHealthApiService.TriggerMDQJobCallback(job, true);
         }
         this.metadata.MDQFailedJobProcessed = true;

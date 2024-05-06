@@ -32,6 +32,11 @@ public class MDQJobModel
     public string JobStatus { get; set; }
 
     /// <summary>
+    /// Gets or sets job retry count.
+    /// </summary>
+    public int RetryCount { get; set; } = 0;
+
+    /// <summary>
     /// Gets or sets created time.
     /// </summary>
     public DateTimeOffset CreatedAt { get; set; }

@@ -23,6 +23,7 @@ internal sealed class MDQJobEntityAdapter : TableEntityConverter<MDQJobModel, MD
             AccountId = model.AccountId.ToString(),
             JobStatus = model.JobStatus,
             DQJobId = model.DQJobId.ToString(),
+            RetryCount = model.RetryCount,
             CreatedAt = model.CreatedAt,
         };
     }
@@ -42,6 +43,7 @@ internal sealed class MDQJobEntityAdapter : TableEntityConverter<MDQJobModel, MD
             JobStatus = entity.JobStatus,
             Timestamp = entity.Timestamp,
             CreatedAt = entity.CreatedAt,
+            RetryCount = entity.RetryCount,
         };
     }
 }
