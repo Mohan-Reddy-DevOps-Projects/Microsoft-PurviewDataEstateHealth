@@ -127,14 +127,21 @@ public class DHScheduleService(
                                 assessment,
                                 jobId).ConfigureAwait(false);
                         }
-                        catch (DomainModelNotExistsException)
+                        catch (MDQJobDQSubmissionException ex)
                         {
-                            logger.LogInformation($"Domain model does not exist, caught exception. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
-                            // Update DQ status to failed in monitoring table
-                            jobWrapper.Status = DHComputingJobStatus.Failed;
-                            await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
-                            logger.LogInformation($"Domain model does not exist, updated job status to failed. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
-                            continue;
+                            if (ex.InnerException is DomainModelNotExistsException)
+                            {
+                                logger.LogInformation($"Domain model does not exist, caught exception. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                                // Update DQ status to failed in monitoring table
+                                jobWrapper.Status = DHComputingJobStatus.Failed;
+                                await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
+                                logger.LogInformation($"Domain model does not exist, updated job status to failed. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                                continue;
+                            }
+                            else
+                            {
+                                throw;
+                            }
                         }
 
                         // Update DQ job id in monitoring table
