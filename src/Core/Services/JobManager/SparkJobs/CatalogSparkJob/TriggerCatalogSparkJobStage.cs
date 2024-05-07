@@ -43,7 +43,7 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
             try
             {
                 this.dataEstateHealthRequestLogger.LogInformation($"Running spark jobId, {this.metadata.SparkJobBatchId}");
-                this.metadata.CatalogSparkJobBatchId = string.IsNullOrEmpty(this.metadata.CatalogSparkJobBatchId) ? await this.catalogSparkJobComponent.SubmitJob(
+                this.metadata.CatalogSparkJobBatchId = string.IsNullOrEmpty(this.metadata.SparkJobBatchId) ? await this.catalogSparkJobComponent.SubmitJob(
                     this.metadata.AccountServiceModel,
                     new CancellationToken(), jobId) : this.metadata.SparkJobBatchId;
                 this.metadata.CurrentScheduleStartTime = DateTime.UtcNow;

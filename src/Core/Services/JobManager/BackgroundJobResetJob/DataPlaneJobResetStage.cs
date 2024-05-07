@@ -54,7 +54,7 @@ internal class DataplaneJobResetStage : IJobCallbackStage
                         TimeSpan.FromHours(1) : TimeSpan.FromHours(24);
                     this.logger.LogInformation($"Current env, {this.environmentConfiguration.Environment}");
                     this.logger.LogInformation($"Current schedule interval is {catalogRepeatStrategy.Ticks}, flag is {jobDefinition.Flags}, account name: {accountName}");
-                    if (jobDefinition.RepeatInterval != catalogRepeatStrategy.Ticks || jobDefinition.Flags != JobFlags.ResumeJobIfFaulted)
+                    if (jobDefinition.RepeatInterval != catalogRepeatStrategy.Ticks)
                     {
                         this.logger.LogInformation($"Start to reset schedule interval for account, name: {accountName}");
                         JobBuilder jobBuilder = JobBuilder.Create(jobPartition, jobId ?? Guid.NewGuid().ToString())
@@ -64,7 +64,7 @@ internal class DataplaneJobResetStage : IJobCallbackStage
                             .WithRetryStrategy(TimeSpan.FromTicks(jobDefinition.RetryInterval))
                             .WithoutEndTime()
                             .WithRetention(jobDefinition.Retention ?? TimeSpan.FromDays(7))
-                            .WithFlags(JobFlags.ResumeJobIfFaulted)
+                            .WithFlags(JobFlags.DeleteJobIfCompleted)
                             .WithRepeatStrategy(catalogRepeatStrategy);
                         await this.jobManagementClient.CreateOrUpdateJob(jobBuilder).ConfigureAwait(false);
                         this.logger.LogInformation($"The schedule interval for the account has been reset, account name: {accountName}");
