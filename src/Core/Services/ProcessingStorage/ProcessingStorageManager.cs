@@ -167,9 +167,9 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
 
         sasBuilder.SetPermissions(parameters.Permissions);
 
-        // Get a user delegation key that's valid for seven days.
+        // Get a user delegation key that's valid for 5 days.
         // Use the key to generate any number of shared access signatures over the lifetime of the key.
-        UserDelegationKey userDelegationKey = await serviceClient.GetUserDelegationKeyAsync(DateTimeOffset.UtcNow.Subtract(TimeSpan.FromMinutes(5)), DateTimeOffset.UtcNow.AddDays(7));
+        UserDelegationKey userDelegationKey = await serviceClient.GetUserDelegationKeyAsync(DateTimeOffset.UtcNow.Subtract(TimeSpan.FromMinutes(5)), DateTimeOffset.UtcNow.AddDays(5));
 
         var sas = sasBuilder.ToSasQueryParameters(userDelegationKey, processingStorageModel.GetStorageAccountName());
 
