@@ -188,13 +188,19 @@ public class DHScheduleService(
             var jobStatus = payload.ParseJobStatus();
             var job = await monitoringService.GetComputingJobByDQJobId(payload.DQJobId).ConfigureAwait(false);
             var tipInfo = new JObject
-        {
-            { "jobId" , job.Id },
-            { "dqJobId", job.DQJobId },
-            { "jobStatus", jobStatus.ToString() },
-            { "controlId", job.ControlId },
-        };
+            {
+                { "jobId" , job.Id },
+                { "dqJobId", job.DQJobId },
+                { "jobStatus", jobStatus.ToString() },
+                { "controlId", job.ControlId },
+            };
             logger.LogTipInformation("MDQ job status update", tipInfo);
+
+            if (job.Status == DHComputingJobStatus.Failed)
+            {
+                logger.LogInformation($"Ignore failed job status update. Job ID: {job.Id}. Job status {jobStatus}.");
+                return;
+            }
 
             job.Status = jobStatus;
 
