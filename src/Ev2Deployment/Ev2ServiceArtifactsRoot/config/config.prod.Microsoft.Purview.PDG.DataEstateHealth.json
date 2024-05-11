@@ -39,8 +39,7 @@
           "partitionCount": 2
         }
       ],
-      "genevaActionSubjectName": "Microsoft.genevaActions.$(pdg.tenant.dnsZoneName)",
-      "allowDataQualitySubjectName": "$(pdg.firstParty.dataQuality.subjectName)"
+      "genevaActionSubjectName": "Microsoft.genevaActions.$(pdg.tenant.dnsZoneName)"
     }
   },
   "geographies": [
@@ -72,19 +71,6 @@
                   "partitionCount": 2
                 }
               ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "Name": "India",
-      "regions": [
-        {
-          "name": "centralindia",
-          "settings": {
-            "dgh": {
-              "allowDataQualitySubjectName": "cid.dataquality-service.purview.azure.com"
             }
           }
         }
