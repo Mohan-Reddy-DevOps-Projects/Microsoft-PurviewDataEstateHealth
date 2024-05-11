@@ -193,8 +193,8 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         string folderPath)
     {
         this.logger.LogInformation($"Start CheckFolderExists, folderPath:{folderPath}");
-
         string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
+        this.logger.LogInformation($"Check params, serviceEndpoint:{serviceEndpoint}, container:{processingStorageModel.CatalogId}");
         var serviceClient = new DataLakeServiceClient(new Uri(serviceEndpoint), this.tokenCredential);
         var fileSystemClient = serviceClient.GetFileSystemClient(processingStorageModel.CatalogId.ToString()); ;
         var directoryClient = fileSystemClient.GetDirectoryClient(folderPath);
