@@ -35,12 +35,14 @@ extends:
     buildSolution: dirs.proj
     majorVersion: 1
     minorVersion: 0
-    customTestArgs: -e AZURE_CLIENT_ID=$(spId) -e AZURE_CLIENT_SECRET=$(spKey) -e AZURE_TENANT_ID=$(tenantId)
+    customTestArgs: -e AZURE_TENANT_ID=72f988bf-86f1-41af-91ab-2d7cd011db47 -e AZURE_CLIENT_ID=5a352a7c-80b5-4e91-b89e-7c2c86f37bd6 -e AZURE_CLIENT_CERTIFICATE_PATH=$(Build.SourcesDirectory)/e2eclient-certificate.pfx
     debug: ${{ parameters.debug }}
     regions: '*'
     rolloutSpecPath: Ev2Deployment/Ev2ServiceArtifactsRoot/rolloutSpec.${{parameters.deployType}}.json
     serviceRootPath: Ev2Deployment/Ev2ServiceArtifactsRoot
     alias: "DataEstateHealth"
+    preBuildSteps:
+    - template: templates/DataEstateHealth.DownloadE2EClientCertificate.yml
     postBuildSteps:
     - template: templates/DataEstateHealth.PostBuildSteps.yml
     otherReleaseStages: 

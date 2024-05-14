@@ -1,0 +1,23 @@
+steps:
+  - task: AzureCLI@2
+    displayName: Download E2E client certificate
+    inputs:
+      azureSubscription: 'PDG_Dogfood_Catalog (5b48cdcd-b5c7-4730-8477-726ec15a0ff9)'  # Specify your Azure subscription
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        # Retrieve the certificate from Azure Key Vault
+        az keyvault secret download --vault-name 'dgcatalog-df-kv-wus2' --name 'dgcatalog-client-e2e-cert' --file '$(Build.SourcesDirectory)/e2eclient-certificate'
+
+  - task: PowerShell@2
+    displayName: Generate certificate PFX
+    inputs:
+      targetType: 'inline'
+      script: |
+        if (Get-Command -Name "certutil" -ErrorAction SilentlyContinue) {
+          # Windows
+          certutil -decode $(Build.SourcesDirectory)/e2eclient-certificate $(Build.SourcesDirectory)/e2eclient-certificate.pfx
+        } else {
+          # Linux
+          base64 --decode $(Build.SourcesDirectory)/e2eclient-certificate > $(Build.SourcesDirectory)/e2eclient-certificate.pfx
+        }
