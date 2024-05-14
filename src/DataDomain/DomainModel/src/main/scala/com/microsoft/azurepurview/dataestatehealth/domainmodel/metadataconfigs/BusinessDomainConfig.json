@@ -1,0 +1,35 @@
+{ "entity": "BusinessDomain",
+  "reader": {
+      "type": "cosmosdb",
+      "path": "",
+      "header": false,
+      "infer_schema": false,
+      "connection": "analyticalCosmosDbLinkedService",
+      "payloadkind":"BusinessDomain",
+      "filter": ["eventSource = 'DataCatalog'"]
+    },
+  "validation": {
+    "filter": "BusinessDomainId is null or BusinessDomainName is null or AccountId is null"
+  },
+  "transformation": {
+    "column": [{
+      "sourcecolumn": null,
+      "targetcolumn": null
+    },
+      {
+        "sourcecolumn": "",
+        "targetcolumn": ""
+      }
+    ],
+    "parititonby": "",
+    "orderby": "",
+    "watermarkcolumn": "EventProcessingTime",
+    "mergecondition": "target.BusinessDomainId = source.BusinessDomainId AND source.ModifiedDateTime > target.ModifiedDateTime"
+  },
+  "writer": {
+      "type": "delta",
+      "path": "BusinessDomain",
+      "mode": "append",
+      "partitioncolumn": ["year", "month"]
+  }
+}
