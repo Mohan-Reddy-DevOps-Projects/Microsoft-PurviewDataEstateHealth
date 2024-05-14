@@ -21,13 +21,14 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 {
     // Define the retry policy
     private readonly AsyncRetryPolicy retryPolicy = Policy
-        .Handle<CosmosException>(ex => ex.StatusCode == HttpStatusCode.RequestTimeout) // Handle CosmosException with status code 408
+        // @see: https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/conceptual-resilient-sdk-applications#timeouts-and-connectivity-related-failures-http-408503
+        .Handle<CosmosException>(ex => ex.StatusCode == HttpStatusCode.RequestTimeout || ex.StatusCode == HttpStatusCode.ServiceUnavailable)
         .WaitAndRetryAsync(
             3,
-            retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt) / 10), // Retry 3 times with an exponential backoff
+            retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), // Retry 3 times with an exponential backoff
             onRetry: (exception, timespan, retryAttempt, context) =>
             {
-                logger.LogWarning($"Retrying#{retryAttempt} due to CosmosException with status code 408, operation: {context.OperationKey}, timespan: {timespan}", exception);
+                logger.LogWarning($"Retrying#{retryAttempt} due to CosmosException with status code {(exception is CosmosException cosmosException ? cosmosException.StatusCode : "-")}, operation: {context.OperationKey}, timespan: {timespan}", exception);
             });
 
     protected abstract Container CosmosContainer { get; }
