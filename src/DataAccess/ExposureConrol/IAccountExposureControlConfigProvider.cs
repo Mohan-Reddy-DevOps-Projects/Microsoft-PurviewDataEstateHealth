@@ -27,6 +27,15 @@ public interface IAccountExposureControlConfigProvider
     public bool IsDataGovHealthPBIUpgradeEnabled(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
+    /// Determines if schedule queue for Data Governance Health is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDataGovHealthScheduleQueueEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
     /// Determines if new DG health is enabled. By default this is false.
     /// </summary>
     /// <param name="accountId"></param>
@@ -37,11 +46,11 @@ public interface IAccountExposureControlConfigProvider
 
 
     /// <summary>
-    /// Determines if DG health schedule trigger API is enabled. By default this is false.
+    /// Determines if DG health tips is enabled. By default this is false.
     /// </summary>
     /// <param name="accountId"></param>
     /// <param name="subscriptionId"></param>
     /// <param name="tenantId"></param>
     /// <returns></returns>
-    public bool IsDataGovHealthScheduleTriggerEnabled(string accountId, string subscriptionId, string tenantId);
+    public bool IsDataGovHealthTipsEnabled(string accountId, string subscriptionId, string tenantId);
 }

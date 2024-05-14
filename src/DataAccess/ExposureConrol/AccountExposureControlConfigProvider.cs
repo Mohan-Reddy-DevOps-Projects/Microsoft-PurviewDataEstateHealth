@@ -118,6 +118,18 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     }
 
     /// <inheritdoc/>
+    public bool IsDataGovHealthScheduleQueueEnabled(string accountId, string subscriptionId, string tenantId)
+    {
+        ExposureControlOptions options = new(Features.DataGovHealthScheduleQueue.ToString(), false)
+        {
+            AccountId = accountId,
+            SubscriptionId = subscriptionId,
+            TenantId = tenantId
+        };
+        return this.IsFeatureEnabled(options);
+    }
+
+    /// <inheritdoc/>
     public bool IsDataQualityProvisioningEnabled(string accountId, string subscriptionId, string tenantId)
     {
         ExposureControlOptions options = new(Features.DataGovDataQualityProvisioning.ToString(), false)
@@ -141,9 +153,10 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
         return this.IsFeatureEnabled(options);
     }
 
-    public bool IsDataGovHealthScheduleTriggerEnabled(string accountId, string subscriptionId, string tenantId)
+    /// <inheritdoc/>
+    public bool IsDataGovHealthTipsEnabled(string accountId, string subscriptionId, string tenantId)
     {
-        ExposureControlOptions options = new(Features.DataGovHealthScheduleTrigger.ToString(), false)
+        ExposureControlOptions options = new(Features.DataGovHealthTips.ToString(), false)
         {
             AccountId = accountId,
             SubscriptionId = subscriptionId,

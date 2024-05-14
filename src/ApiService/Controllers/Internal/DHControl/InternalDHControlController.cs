@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
@@ -20,7 +21,8 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 public class InternalDHControlController(
     DHScheduleService dhScheduleService,
     IDataEstateHealthRequestLogger logger,
-    IRequestHeaderContext requestHeaderContext) : Controller
+    IRequestHeaderContext requestHeaderContext,
+    IAccountExposureControlConfigProvider exposureControl) : Controller
 {
     [HttpPost]
     [Route("triggerScheduleJobCallback")]
@@ -30,14 +32,39 @@ public class InternalDHControlController(
         {
             return this.BadRequest();
         }
+
         var tenantId = requestHeaderContext.TenantId;
         var accountId = requestHeaderContext.AccountObjectId;
         requestBody.Operator = DHScheduleCallbackPayload.DGScheduleServiceOperatorName;
-        using (logger.LogElapsed($"Schedule job callback start. TenantId: {tenantId}. AccountId: {accountId}."))
+
+        if (exposureControl.IsDataGovHealthScheduleQueueEnabled(accountId.ToString(), null, tenantId.ToString()))
+        {
+            await dhScheduleService.EnqueueScheduleAsync(requestBody, tenantId, accountId).ConfigureAwait(false);
+        }
+        else
+        {
+            using (logger.LogElapsed($"Schedule job callback start. TenantId: {tenantId}. AccountId: {accountId}."))
+            {
+                await dhScheduleService.TriggerScheduleJobCallbackAsync(requestBody).ConfigureAwait(false);
+            }
+        }
+        return this.Ok();
+    }
+
+    [HttpPost]
+    [Route("triggerScheduleJob")]
+    public async Task<ActionResult> TriggerScheduleJobRun([FromBody] DHScheduleCallbackPayload requestBody)
+    {
+        if (requestBody == null)
+        {
+            return this.BadRequest();
+        }
+        var tenantId = requestHeaderContext.TenantId;
+        var accountId = requestHeaderContext.AccountObjectId;
+        using (logger.LogElapsed($"Trigger schedule job. TenantId: {tenantId}. AccountId: {accountId}."))
         {
             await dhScheduleService.TriggerScheduleJobCallbackAsync(requestBody).ConfigureAwait(false);
         }
-
         return this.Ok();
     }
 

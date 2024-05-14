@@ -483,6 +483,36 @@ public class JobManager : IJobManager
         }
     }
 
+    /// <inheritdoc />
+    public async Task ProvisionDEHTriggeredScheduleJob()
+    {
+        string jobPartition = "DEH-TRIGGERED-SCHEDULE";
+        string jobId = "DEH-TRIGGERED-SCHEDULE-WORKER";
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new DEHTriggeredScheduleJobMetadata()
+            {
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+            };
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(DEHTriggeredScheduleCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = TimeSpan.FromMinutes(15),
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+        }
+    }
+
     public async Task ProvisionActionsCleanupJob(AccountServiceModel accountServiceModel)
     {
         string accountId = accountServiceModel.Id;

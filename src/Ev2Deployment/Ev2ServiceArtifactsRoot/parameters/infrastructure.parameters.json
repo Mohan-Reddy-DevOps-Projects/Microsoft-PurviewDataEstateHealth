@@ -53,6 +53,9 @@
         "mdqFailedJobTableName": {
             "value": "__INFRA_MDQ_FAILED_JOB_TABLE_NAME__"
         },
+        "triggeredScheduleQueueName": {
+            "value": "__INFRA_TRIGGERED_SCHEDULE_QUEUE_NAME__"
+        },
         "synapseLocation": {
             "value": "__INFRA_SYNAPSE_LOCATION__"
         },

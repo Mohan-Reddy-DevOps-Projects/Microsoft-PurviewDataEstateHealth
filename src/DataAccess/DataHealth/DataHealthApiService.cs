@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
     using Microsoft.Azure.ProjectBabylon.Metadata.Models;
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
+    using Newtonsoft.Json;
     using System;
     using System.Threading.Tasks;
 
@@ -76,6 +77,27 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 }
             });
         }
+
+        public async Task<bool> TriggerDEHSchedule(TriggeredSchedulePayload payload)
+        {
+            var payloadString = JsonConvert.SerializeObject(payload);
+            using (this.logger.LogElapsed($"Trigger DEH schedule. {payloadString}"))
+            {
+                try
+                {
+                    var client = this.GetDEHServiceClient();
+                    await client.TriggerSchedule(payload).ConfigureAwait(false);
+                    this.logger.LogInformation($"Succeed to trigger DEH schedule. {payloadString}");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    this.logger.LogError($"Fail to trigger DEH schedule. {payloadString}", ex);
+                    return false;
+                }
+            }
+        }
+
 
         public async Task<bool> CleanUpActionsJobCallback(AccountServiceModel account)
         {

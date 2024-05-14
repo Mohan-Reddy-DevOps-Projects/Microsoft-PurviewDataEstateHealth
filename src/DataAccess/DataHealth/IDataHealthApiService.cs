@@ -25,6 +25,14 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// <returns></returns>
         void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry);
 
+
+        /// <summary>
+        /// Trigger DEH schedule
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <returns></returns>
+        Task<bool> TriggerDEHSchedule(TriggeredSchedulePayload payload);
+
         /// <summary>
         /// Clean up actions.
         /// </summary>

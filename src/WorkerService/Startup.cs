@@ -4,16 +4,17 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Core;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using System;
 using System.IO;
 using System.Text;
-using Microsoft.Azure.Purview.DataEstateHealth.Core;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
 
 /// <summary>
 /// Worker service startup.
@@ -27,7 +28,7 @@ public static class Startup
     public static void Configure(WebApplicationBuilder builder)
     {
         builder.Services.AddWorkerServiceConfigurations(builder.Configuration);
-        
+
         if (!builder.Environment.IsDevelopment())
         {
             ConfigureKestrelServerForProduction(builder);
@@ -42,13 +43,14 @@ public static class Startup
         builder.Services
             .AddLogger(genevaConfiguration, serviceConfiguration, environmentConfiguration, builder.Environment.IsDevelopment())
             .AddDataAccessLayer()
+            .SetupDHDataAccessServices()
             .AddServiceBasicsForWorkerService()
             .AddCoreLayer()
             .AddPartnerEventsProcessor();
 
         builder.Services.AddHostedService<WorkerService>();
     }
-    
+
     private static void ConfigureKestrelServerForProduction(WebApplicationBuilder builder)
     {
         string appSettingsJson = System.Environment.GetEnvironmentVariable("APP_SETTINGS_JSON") ?? throw new Exception("environment variable 'APP_SETTINGS_JSON' is missing");

@@ -12,13 +12,14 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
     using Microsoft.Purview.DataEstateHealth.DHConfigurations;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.HttpClient;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess.Queue;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule;
 
     public static class InitializeServices
     {
-        public static void SetupDHDataAccessServices(this IServiceCollection services)
+        public static IServiceCollection SetupDHDataAccessServices(this IServiceCollection services)
         {
             services.AddSingleton<DHCosmosDBContextAzureCredentialManager>();
 
@@ -52,6 +53,9 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
             services.AddScoped<DHActionRepository>();
             services.AddScoped<DHComputingJobRepository>();
             services.AddScoped<DHAlertRepository>();
+            services.AddSingleton<TriggeredScheduleQueue>();
+
+            return services;
         }
 
         /// <summary>

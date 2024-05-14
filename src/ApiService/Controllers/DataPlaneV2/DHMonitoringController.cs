@@ -32,7 +32,7 @@ public class DHMonitoringController(
         var accountId = requestHeaderContext.AccountObjectId.ToString();
         var tenantId = requestHeaderContext.TenantId.ToString();
         // currently this is a public api, only used by tips.
-        if (!exposureControl.IsDataGovHealthScheduleTriggerEnabled(accountId, string.Empty, tenantId))
+        if (!exposureControl.IsDataGovHealthTipsEnabled(accountId, string.Empty, tenantId))
         {
             logger.LogInformation($"Not allowed to get monitoring. Account id: {accountId}. Tenant id: {tenantId}.");
             return this.Unauthorized();

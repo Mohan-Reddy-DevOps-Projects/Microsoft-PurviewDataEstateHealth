@@ -247,6 +247,10 @@
         {
           "find": "__INFRA_MDQ_FAILED_JOB_TABLE_NAME__",
           "replaceWith": "$config(dgh.mdqFailedJobTableName)"
+        },
+        {
+          "find": "__INFRA_TRIGGERED_SCHEDULE_QUEUE_NAME__",
+          "replaceWith": "$config(dgh.triggeredScheduleQueueName)"
         }
       ]
     },

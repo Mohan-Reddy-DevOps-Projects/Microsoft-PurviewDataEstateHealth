@@ -18,6 +18,7 @@
       "apiServiceReadinessProbePort": 8081,
       "workerServiceReadinessProbePort": 8082,
       "mdqFailedJobTableName": "MDQFailedJob",
+      "triggeredScheduleQueueName": "triggeredschedule",
       "sqlAdminUserSecretName": "synapseSqlAdminUsername",
       "sqlAdminPassSecretName": "synapseSqlAdminPassword",
       "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",

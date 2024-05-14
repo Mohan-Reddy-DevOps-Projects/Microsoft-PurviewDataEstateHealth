@@ -40,7 +40,7 @@ public class DHScheduleController(
     {
         var accountId = requestHeaderContext.AccountObjectId.ToString();
         var tenantId = requestHeaderContext.TenantId.ToString();
-        if (!exposureControl.IsDataGovHealthScheduleTriggerEnabled(accountId, string.Empty, tenantId))
+        if (!exposureControl.IsDataGovHealthTipsEnabled(accountId, string.Empty, tenantId))
         {
             logger.LogInformation($"Not allowed to trigger schedule. Account id: {accountId}. Tenant id: {tenantId}.");
             return this.Unauthorized();

@@ -9,6 +9,7 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.Queue;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Microsoft.Purview.DataEstateHealth.DHModels.Exceptions;
@@ -21,6 +22,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -38,10 +40,29 @@ public class DHScheduleService(
     IDataEstateHealthRequestLogger logger,
     IRequestHeaderContext requestHeaderContext,
     IDataQualityScoreRepository dataQualityScoreRepository,
-    DHScoreRepository dhScoreRepository
+    DHScoreRepository dhScoreRepository,
+    TriggeredScheduleQueue triggeredScheduleQueue
     )
 {
     private const string MDQEventOperationName = "MDQ event";
+
+    public async Task EnqueueScheduleAsync(DHScheduleCallbackPayload payload, Guid tenantId, Guid accountId)
+    {
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(EnqueueScheduleAsync)}"))
+        {
+            var entity = new DHScheduleQueueEntity
+            {
+                TenantId = tenantId.ToString(),
+                AccountId = accountId.ToString(),
+                ControlId = payload.ControlId,
+                Operator = payload.Operator,
+                TriggerType = payload.TriggerType.ToString(),
+            };
+            logger.LogInformation($"Enqueue schedule entity. {JsonConvert.SerializeObject(entity)}");
+            await triggeredScheduleQueue.SendMessageAsync(JsonConvert.SerializeObject(entity)).ConfigureAwait(false);
+            logger.LogInformation("Global schedule is enqueued successfully.");
+        }
+    }
 
     public async Task<string> TriggerScheduleJobCallbackAsync(DHScheduleCallbackPayload payload)
     {

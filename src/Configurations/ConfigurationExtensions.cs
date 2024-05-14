@@ -68,7 +68,8 @@ public static class ConfigurationExtensions
             .Configure<KeyVaultConfiguration>(configuration.GetSection("keyVault"))
             .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
             .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"))
-            .Configure<MDQFailedJobTableConfiguration>(configuration.GetSection("mdqFailedJobTable"));
+            .Configure<MDQFailedJobTableConfiguration>(configuration.GetSection("mdqFailedJobTable"))
+            .Configure<TriggeredScheduleQueueConfiguration>(configuration.GetSection("triggeredScheduleQueue"));
 
         return services;
     }

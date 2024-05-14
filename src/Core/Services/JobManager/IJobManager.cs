@@ -117,6 +117,12 @@ public interface IJobManager
     Task ProvisionBackgroundJobCleanupJob();
 
     /// <summary>
+    /// Provisions DEH triggered schedule job.
+    /// </summary>
+    /// <returns></returns>
+    Task ProvisionDEHTriggeredScheduleJob();
+
+    /// <summary>
     /// Clean resolved actions.
     /// </summary>
     /// <returns></returns>
