@@ -40,7 +40,7 @@
           "partitionCount": 2
         }
       ],
-      "genevaActionSubjectName": "Microsoft.genevaActions.$(pdg.tenant.dnsZoneName)"
+      "genevaActionSubjectName": "AME.genevaActions.$(pdg.tenant.dnsZoneName)"
     }
   },
   "geographies": [
