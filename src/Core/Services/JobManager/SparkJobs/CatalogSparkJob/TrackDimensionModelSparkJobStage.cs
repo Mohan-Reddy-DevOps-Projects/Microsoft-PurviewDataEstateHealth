@@ -20,6 +20,7 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly IDimensionModelSparkJobComponent dimensionModelSparkJobComponent;
     private readonly IJobManager backgroundJobManager;
+    private readonly IDatabaseManagementService databaseManagementService;
     private static readonly JsonSerializerOptions jsonOptions = new()
     {
         Converters = { new JsonStringEnumConverter() }
@@ -35,6 +36,7 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
         this.logger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
         this.dimensionModelSparkJobComponent = scope.ServiceProvider.GetService<IDimensionModelSparkJobComponent>();
         this.backgroundJobManager = scope.ServiceProvider.GetService<IJobManager>();
+        this.databaseManagementService = scope.ServiceProvider.GetService<IDatabaseManagementService>();
     }
 
     public string StageName => nameof(TrackDimensionModelSparkJobStage);
@@ -59,6 +61,10 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
                     this.metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Succeeded;
                     jobStageStatus = JobExecutionStatus.Completed;
                     await this.ProvisionResetDataPlaneScheduleJob(this.metadata.AccountServiceModel).ConfigureAwait(false);
+
+                    // update SQL external table
+                    await this.databaseManagementService.Initialize(this.metadata.AccountServiceModel, CancellationToken.None).ConfigureAwait(false);
+                    await this.databaseManagementService.RunSetupSQL(CancellationToken.None).ConfigureAwait(false);
 
                     // trigger PBI refresh job
                     await this.TriggerPBIRefreshJob(this.metadata.AccountServiceModel).ConfigureAwait(false);
