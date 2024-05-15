@@ -52,7 +52,7 @@ internal class MDQFailedJobStage : IJobCallbackStage
                 { "createdAt", job.CreatedAt },
                 { "accountId", job.AccountId }
             });
-            this.dataHealthApiService.TriggerMDQJobCallback(job, true);
+            this.dataHealthApiService.TriggerMDQJobCallback(job, true, CancellationToken.None);
         }
         this.metadata.MDQFailedJobProcessed = true;
         return this.jobCallbackUtils.GetExecutionResult(JobExecutionStatus.Succeeded, "", DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));

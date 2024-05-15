@@ -9,6 +9,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Newtonsoft.Json;
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
 
     internal class DataHealthApiService : IDataHealthApiService
@@ -38,7 +39,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             return this.apiServiceClientFactory.GetClient();
         }
 
-        public void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry)
+        public void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry, CancellationToken cancellationToken)
         {
             var requestId = Guid.NewGuid();
             this.logger.LogInformation($"Start to trigger MDQ Job callback. Job Id: {jobModel.DQJobId}. Job status: {jobModel.JobStatus}. Request ID: {requestId}. Job retry: {isRetry}.");
@@ -56,7 +57,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                         RequestId = requestId,
                     };
                     var client = this.GetDEHServiceClient();
-                    await client.TriggerMDQJobCallback(payload).ConfigureAwait(false);
+                    await client.TriggerMDQJobCallback(payload, cancellationToken).ConfigureAwait(false);
                     this.logger.LogInformation($"Succeed to trigger MDQ Job callback. Job Id: {jobModel.DQJobId}.");
 
                     if (isRetry)
@@ -78,7 +79,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             });
         }
 
-        public async Task<bool> TriggerDEHSchedule(TriggeredSchedulePayload payload)
+        public async Task<bool> TriggerDEHSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken)
         {
             var payloadString = JsonConvert.SerializeObject(payload);
             using (this.logger.LogElapsed($"Trigger DEH schedule. {payloadString}"))
@@ -86,7 +87,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 try
                 {
                     var client = this.GetDEHServiceClient();
-                    await client.TriggerSchedule(payload).ConfigureAwait(false);
+                    await client.TriggerSchedule(payload, cancellationToken).ConfigureAwait(false);
                     this.logger.LogInformation($"Succeed to trigger DEH schedule. {payloadString}");
                     return true;
                 }
@@ -99,13 +100,13 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         }
 
 
-        public async Task<bool> CleanUpActionsJobCallback(AccountServiceModel account)
+        public async Task<bool> CleanUpActionsJobCallback(AccountServiceModel account, CancellationToken cancellationToken)
         {
             this.logger.LogInformation($"Start to clean up actions callback.");
             try
             {
                 var client = this.GetDEHServiceClient();
-                await client.CleanUpActionJobCallback(account).ConfigureAwait(false);
+                await client.CleanUpActionJobCallback(account, cancellationToken).ConfigureAwait(false);
                 this.logger.LogInformation($"Succeed to clean up actions. Tenant Id: {account.TenantId}.");
                 return true;
             }

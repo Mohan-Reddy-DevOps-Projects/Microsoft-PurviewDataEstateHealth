@@ -508,6 +508,7 @@ public class JobManager : IJobManager
                 JobPartition = jobPartition,
                 JobId = jobId,
                 RepeatInterval = TimeSpan.FromMinutes(15),
+                Timeout = TimeSpan.FromMinutes(30),
             };
             await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
@@ -831,6 +832,11 @@ public class JobManager : IJobManager
             .WithRetention(TimeSpan.FromDays(7))
             .WithFlags(JobFlags.DeleteJobIfCompleted);
 
+        if (options.Timeout.HasValue)
+        {
+            jobBuilder = jobBuilder.WithTimeout(options.Timeout.Value);
+        }
+
         if (options.RepeatInterval.HasValue)
         {
             jobBuilder = jobBuilder.WithRepeatStrategy(options.RepeatInterval.Value);
@@ -855,6 +861,8 @@ class BackgroundJobOptions
     public TimeSpan? RetryStrategy { get; set; }
 
     public TimeSpan? RepeatInterval { get; set; }
+
+    public TimeSpan? Timeout { get; set; }
 
     public DateTime? StartTime { get; set; }
 

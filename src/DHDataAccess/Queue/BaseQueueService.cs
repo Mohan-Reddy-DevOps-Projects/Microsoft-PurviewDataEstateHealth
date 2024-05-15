@@ -35,7 +35,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Queue
 
         public async Task SendMessageAsync(string message)
         {
-            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(SendMessageAsync)}"))
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(SendMessageAsync)}. Message: {message}."))
             {
                 var client = this.CreateQueueClient();
                 await client.SendMessageAsync(message).ConfigureAwait(false);
@@ -44,7 +44,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Queue
 
         public async Task<QueueMessage[]> ReceiveMessagesAsync(int? maxMessages = null, TimeSpan? visibilityTimeout = null)
         {
-            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(ReceiveMessagesAsync)}"))
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(ReceiveMessagesAsync)}. Max messages: {maxMessages}. Visibility timeout: {visibilityTimeout}."))
             {
                 var client = this.CreateQueueClient();
                 return await client.ReceiveMessagesAsync(maxMessages, visibilityTimeout).ConfigureAwait(false);
@@ -53,7 +53,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Queue
 
         public async Task DeleteMessage(string messageId, string popReceipt)
         {
-            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(DeleteMessage)}"))
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(DeleteMessage)}. Message Id: {messageId}. Pop receipt: {popReceipt}."))
             {
                 await this.CreateQueueClient().DeleteMessageAsync(messageId, popReceipt).ConfigureAwait(false);
             }
@@ -61,7 +61,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Queue
 
         public async Task UpdateMessage(string messageId, string popReceipt, string messageContent)
         {
-            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(UpdateMessage)}"))
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(UpdateMessage)}. Message Id: {messageId}. Pop receipt: {popReceipt}. Message content: {messageContent}."))
             {
                 await this.CreateQueueClient().UpdateMessageAsync(messageId, popReceipt, messageContent).ConfigureAwait(false);
             }
@@ -71,7 +71,9 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess.Queue
         {
             using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(GetApproximateMessagesCount)}"))
             {
-                return this.CreateQueueClient().GetProperties().Value.ApproximateMessagesCount;
+                var count = this.CreateQueueClient().GetProperties().Value.ApproximateMessagesCount;
+                this.logger.LogInformation($"Approximate message count in queue: {count}");
+                return count;
             }
         }
 

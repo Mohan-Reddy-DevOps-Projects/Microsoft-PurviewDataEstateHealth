@@ -46,7 +46,7 @@ public class DHScheduleService(
 {
     private const string MDQEventOperationName = "MDQ event";
 
-    public async Task EnqueueScheduleAsync(DHScheduleCallbackPayload payload, Guid tenantId, Guid accountId)
+    public async Task EnqueueScheduleAsync(DHScheduleCallbackPayload payload, string tenantId, string accountId)
     {
         using (logger.LogElapsed($"{this.GetType().Name}#{nameof(EnqueueScheduleAsync)}"))
         {

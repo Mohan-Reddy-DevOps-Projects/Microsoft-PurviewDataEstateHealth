@@ -33,11 +33,11 @@ public class InternalDHControlController(
             return this.BadRequest();
         }
 
-        var tenantId = requestHeaderContext.TenantId;
-        var accountId = requestHeaderContext.AccountObjectId;
+        var tenantId = requestHeaderContext.TenantId.ToString();
+        var accountId = requestHeaderContext.AccountObjectId.ToString();
         requestBody.Operator = DHScheduleCallbackPayload.DGScheduleServiceOperatorName;
 
-        if (exposureControl.IsDataGovHealthScheduleQueueEnabled(accountId.ToString(), null, tenantId.ToString()))
+        if (exposureControl.IsDataGovHealthScheduleQueueEnabled(accountId, null, tenantId))
         {
             await dhScheduleService.EnqueueScheduleAsync(requestBody, tenantId, accountId).ConfigureAwait(false);
         }

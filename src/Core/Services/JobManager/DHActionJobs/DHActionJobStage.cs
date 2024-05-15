@@ -36,7 +36,7 @@ internal class DHActionJobStage : IJobCallbackStage
     public async Task<JobExecutionResult> Execute()
     {
         this.logger.LogInformation("Start to execute DHActionJobStage.");
-        var isSuccess = await this.dataHealthApiService.CleanUpActionsJobCallback(this.metadata.AccountServiceModel);
+        var isSuccess = await this.dataHealthApiService.CleanUpActionsJobCallback(this.metadata.AccountServiceModel, CancellationToken.None);
         this.metadata.ActionCleanUpCompleted = isSuccess;
         var jobStageStatus = isSuccess ? JobExecutionStatus.Succeeded : JobExecutionStatus.Failed;
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, "", DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));

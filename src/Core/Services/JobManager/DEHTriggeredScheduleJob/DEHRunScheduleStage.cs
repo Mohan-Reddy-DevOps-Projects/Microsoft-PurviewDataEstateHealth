@@ -31,16 +31,20 @@ internal class DEHRunScheduleStage : IJobCallbackStage
 
     private readonly IDataHealthApiService dataHealthApiService;
 
+    private readonly CancellationToken cancellationToken;
+
     public DEHRunScheduleStage(
         IServiceScope scope,
         DEHTriggeredScheduleJobMetadata metadata,
-        JobCallbackUtils<DEHTriggeredScheduleJobMetadata> jobCallbackUtils)
+        JobCallbackUtils<DEHTriggeredScheduleJobMetadata> jobCallbackUtils,
+        CancellationToken cancellationToken)
     {
         this.metadata = metadata;
         this.jobCallbackUtils = jobCallbackUtils;
         this.logger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
         this.triggeredScheduleQueue = scope.ServiceProvider.GetService<TriggeredScheduleQueue>();
         this.dataHealthApiService = scope.ServiceProvider.GetService<IDataHealthApiService>();
+        this.cancellationToken = cancellationToken;
     }
 
     public string StageName => nameof(DEHRunScheduleStage);
@@ -49,15 +53,18 @@ internal class DEHRunScheduleStage : IJobCallbackStage
     {
         var count = this.triggeredScheduleQueue.GetApproximateMessagesCount();
         this.logger.LogTipInformation("Start to execute DEHRunScheduleStage.", new JObject { { "scheduleCountInQueue", count } });
-        if (this.metadata.RunningStatus == DEHTriggeredScheduleStageRunningStatus.Ready)
-        {
-            this.metadata.RunningStatus = DEHTriggeredScheduleStageRunningStatus.Running;
-            return this.jobCallbackUtils.GetExecutionResult(JobExecutionStatus.Postponed, "Mark DEHTriggeredScheduleStageRunningStatus to Running.", DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
-        }
         var messages = await this.triggeredScheduleQueue.ReceiveMessagesAsync(GetMessageSize, TimeSpan.FromHours(1)).ConfigureAwait(false);
         this.logger.LogTipInformation("Retrieved triggered schedules", new JObject { { "retrievedScheduleCount", messages.Length } });
-        await this.ParallelTriggerDEHSchedule(messages, MessageConcurrencyCount).ConfigureAwait(false);
-        this.metadata.RunningStatus = DEHTriggeredScheduleStageRunningStatus.Ready;
+        try
+        {
+            await this.ParallelTriggerDEHSchedule(messages, MessageConcurrencyCount).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError("Error occurred while processing triggered schedules", ex);
+            return this.jobCallbackUtils.GetExecutionResult(JobExecutionStatus.Completed, $"Exception happens in schedule trigger. {ex.Message}");
+        }
+
         return this.jobCallbackUtils.GetExecutionResult(JobExecutionStatus.Completed, "All retrieved schedules are successfully triggered.");
     }
 
@@ -67,10 +74,11 @@ internal class DEHRunScheduleStage : IJobCallbackStage
         var count = messages.Length;
         for (var i = 0; i < count || tasks.Count > 0; ++i)
         {
+            this.cancellationToken.ThrowIfCancellationRequested();
             if (i < count)
             {
                 tasks.Add(this.TriggerDEHSchedule(messages[i]));
-                this.logger.LogInformation($"New DEH schedule added in parallel tasks. Message Id: {messages[i].MessageId}. {messages[i].Body}.");
+                this.logger.LogInformation($"New DEH schedule added in parallel tasks. Index: {i}. Message Id: {messages[i].MessageId}. {messages[i].Body}.");
             }
             // Wait in 2 cases.
             // Case 1: The number of tasks reaches the concurrency count.
@@ -85,13 +93,11 @@ internal class DEHRunScheduleStage : IJobCallbackStage
                 {
                     this.logger.LogError("Error occurred while processing triggered schedules", ex);
                 }
-                foreach (var task in tasks)
+                var waitingToDeleteTasks = tasks.Where(t => t.IsCompleted || t.IsCanceled || t.IsFaulted);
+                foreach (var task in waitingToDeleteTasks)
                 {
-                    if (task.IsCompleted || task.IsCanceled || task.IsFaulted)
-                    {
-                        tasks.Remove(task);
-                        this.logger.LogInformation($"DEH schedule done and removed from tasks list. Task status: {task.Status}. Message Id: {messages[i].MessageId}. {messages[i].Body}.");
-                    }
+                    tasks.Remove(task);
+                    this.logger.LogInformation($"DEH schedule done and removed from tasks list. Task status: {task.Status}. Task id: {task.Id}.");
                 }
             }
         }
@@ -99,6 +105,7 @@ internal class DEHRunScheduleStage : IJobCallbackStage
 
     private async Task TriggerDEHSchedule(QueueMessage message)
     {
+        this.logger.LogInformation($"Trigger DEH schedule. Schedule enqueue time: {message.InsertedOn}. Message Id: {message.MessageId}.");
         DHScheduleQueueEntity entity;
         try
         {
@@ -123,7 +130,7 @@ internal class DEHRunScheduleStage : IJobCallbackStage
             TriggerType = entity.TriggerType.ToString(),
             RequestId = Guid.NewGuid().ToString(),
         };
-        var result = await this.dataHealthApiService.TriggerDEHSchedule(payload).ConfigureAwait(false);
+        var result = await this.dataHealthApiService.TriggerDEHSchedule(payload, this.cancellationToken).ConfigureAwait(false);
         if (result)
         {
             await this.triggeredScheduleQueue.DeleteMessage(message.MessageId, message.PopReceipt).ConfigureAwait(false);
@@ -140,7 +147,7 @@ internal class DEHRunScheduleStage : IJobCallbackStage
 
     public bool IsStageComplete()
     {
-        return this.metadata.RunningStatus == DEHTriggeredScheduleStageRunningStatus.Running;
+        return false;
     }
 
     public bool IsStagePreconditionMet()

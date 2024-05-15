@@ -22,22 +22,25 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// </summary>
         /// <param name="jobModel"></param>
         /// <param name="isRetry"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry);
+        void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry, CancellationToken cancellationToken);
 
 
         /// <summary>
         /// Trigger DEH schedule
         /// </summary>
         /// <param name="payload"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> TriggerDEHSchedule(TriggeredSchedulePayload payload);
+        Task<bool> TriggerDEHSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken);
 
         /// <summary>
         /// Clean up actions.
         /// </summary>
         /// <param name="account"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> CleanUpActionsJobCallback(AccountServiceModel account);
+        Task<bool> CleanUpActionsJobCallback(AccountServiceModel account, CancellationToken cancellationToken);
     }
 }

@@ -13,6 +13,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
     using System;
     using System.Net.Http;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public class DataHealthApiServiceClient : ServiceClient<DataHealthApiServiceClient>
@@ -35,7 +36,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             this.Logger = logger;
         }
 
-        public async Task TriggerMDQJobCallback(MDQJobCallbackPayload schedule)
+        public async Task TriggerMDQJobCallback(MDQJobCallbackPayload schedule, CancellationToken cancellationToken)
         {
             var requestUri = this.CreateRequestUri("/internal/control/triggerMDQJobCallback");
             var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
@@ -47,11 +48,11 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             request.Headers.Add(HeaderAccountIdName, schedule.AccountId.ToString());
             request.Headers.Add(HeaderTenantIdName, schedule.TenantId.ToString());
             request.Headers.Add(HeaderRequestIdName, schedule.RequestId.ToString());
-            var response = await this.Client.SendAsync(request).ConfigureAwait(false);
+            var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
             await this.HandleResponseStatusCode(response);
         }
 
-        public async Task TriggerSchedule(TriggeredSchedulePayload payload)
+        public async Task TriggerSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken)
         {
             var requestUri = this.CreateRequestUri("/internal/control/triggerScheduleJob");
             var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
@@ -65,18 +66,18 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             request.Headers.Add(HeaderAccountIdName, payload.AccountId.ToString());
             request.Headers.Add(HeaderTenantIdName, payload.TenantId.ToString());
             request.Headers.Add(HeaderRequestIdName, payload.RequestId.ToString());
-            var response = await this.Client.SendAsync(request).ConfigureAwait(false);
+            var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
             await this.HandleResponseStatusCode(response);
         }
 
-        public async Task CleanUpActionJobCallback(AccountServiceModel account)
+        public async Task CleanUpActionJobCallback(AccountServiceModel account, CancellationToken cancellationToken)
         {
             var requestUri = this.CreateRequestUri("/internal/actions/cleanup");
             var request = new HttpRequestMessage(HttpMethod.Delete, requestUri);
 
             request.Headers.Add(HeaderAccountIdName, account.Id.ToString());
             request.Headers.Add(HeaderTenantIdName, account.TenantId.ToString());
-            var response = await this.Client.SendAsync(request).ConfigureAwait(false);
+            var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
             await this.HandleResponseStatusCode(response);
         }
 

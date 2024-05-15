@@ -153,7 +153,7 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
                     AccountId = accountId,
                     CreatedAt = DateTime.UtcNow,
                 };
-                this.dataHealthApiService.TriggerMDQJobCallback(model, false);
+                this.dataHealthApiService.TriggerMDQJobCallback(model, false, CancellationToken.None);
                 jobModels.Add(sourceModel);
             }
         }

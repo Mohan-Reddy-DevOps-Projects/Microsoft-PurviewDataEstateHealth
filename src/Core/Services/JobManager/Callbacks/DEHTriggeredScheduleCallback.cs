@@ -47,7 +47,7 @@ internal class DEHTriggeredScheduleCallback : StagedWorkerJobCallback<DEHTrigger
     {
         this.JobStages = new List<IJobCallbackStage>
         {
-            new DEHRunScheduleStage(this.Scope, this.Metadata, this.JobCallbackUtils)
+            new DEHRunScheduleStage(this.Scope, this.Metadata, this.JobCallbackUtils, this.CancellationToken)
         };
     }
 
