@@ -76,6 +76,11 @@ public static class DataAccessLayer
                 serviceProvider.GetRequiredService<IOptions<MDQFailedJobTableConfiguration>>(),
                 serviceProvider.GetRequiredService<AzureCredentialFactory>()));
 
+        services.AddSingleton<ITableStorageClient<JobDefinitionTableConfiguration>>(
+            serviceProvider => new TableStorageClient<JobDefinitionTableConfiguration>(
+                serviceProvider.GetRequiredService<IOptions<JobDefinitionTableConfiguration>>(),
+                serviceProvider.GetRequiredService<AzureCredentialFactory>()));
+
         services.AddSingleton<IStorageAccountRepository<ProcessingStorageModel>, ProcessingStorageRepository>();
         services.AddSingleton<IServerlessPoolClient, ServerlessPoolClient>(provider =>
         {
@@ -96,6 +101,7 @@ public static class DataAccessLayer
         services.AddSingleton<IODataModelProvider, ODataModelProvider>();
         services.AddSingleton<ISparkPoolRepository<SparkPoolModel>, SynapseSparkPoolRepository>();
         services.AddSingleton<IMDQFailedJobRepository, MDQFailedJobRepository>();
+        services.AddSingleton<IJobDefinitionRepository, JobDefinitionRepository>();
 
         services.AddScoped<IDataEstateHealthSummaryRepository, DataEstateHealthSummaryRepository>();
         services.AddScoped<IDataQualityScoreRepository, DataQualityScoreRepository>();

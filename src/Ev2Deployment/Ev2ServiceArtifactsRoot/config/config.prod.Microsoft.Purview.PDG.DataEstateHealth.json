@@ -18,6 +18,7 @@
       "apiServiceReadinessProbePort": 8081,
       "workerServiceReadinessProbePort": 8082,
       "mdqFailedJobTableName": "MDQFailedJob",
+      "jobDefinitionTableName": "jobdefinitions",
       "triggeredScheduleQueueName": "triggeredschedule",
       "sqlAdminUserSecretName": "synapseSqlAdminUsername",
       "sqlAdminPassSecretName": "synapseSqlAdminPassword",

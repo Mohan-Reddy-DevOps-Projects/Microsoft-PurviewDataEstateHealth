@@ -6,6 +6,7 @@
             "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)wus2common",
             "sparkPoolTableName": "SparkPool",
             "mdqFailedJobTableName": "MDQFailedJob",
+            "jobDefinitionTableName": "jobdefinitions",
             "triggeredScheduleQueueName": "triggeredschedule",
             "synapseWorkspaceName": "$(dgh.serviceShortName)dogfoodsynapse",
             "apiServiceReadinessProbePort": 8081,

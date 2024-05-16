@@ -26,6 +26,11 @@ public static class ResourceIds
     public const string MDQFailedJob = $"mdqfailedjob/{{0}}";
 
     /// <summary>
+    /// The background job definition
+    /// </summary>
+    public const string JobDefinition = $"jobDefinition/{{0}}";
+
+    /// <summary>
     /// Create a formatted resource id.
     /// </summary>
     /// <param name="resourceType"></param>

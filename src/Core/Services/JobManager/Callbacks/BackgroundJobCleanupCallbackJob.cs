@@ -47,7 +47,7 @@ internal class BackgroundJobCleanupCallbackJob : StagedWorkerJobCallback<StagedW
     {
         this.JobStages = new List<IJobCallbackStage>
         {
-            new PBIRefreshCleanupStage(this.Scope, this.JobManagement)
+            new ResetFaultedJobStage(this.Scope, this.JobManagement),
         };
     }
 

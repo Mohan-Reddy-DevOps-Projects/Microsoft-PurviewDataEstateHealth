@@ -69,6 +69,7 @@ public static class ConfigurationExtensions
             .Configure<SynapseSparkConfiguration>(configuration.GetSection("synapseSpark"))
             .Configure<SparkPoolTableConfiguration>(configuration.GetSection("sparkPoolTable"))
             .Configure<MDQFailedJobTableConfiguration>(configuration.GetSection("mdqFailedJobTable"))
+            .Configure<JobDefinitionTableConfiguration>(configuration.GetSection("jobDefinitionTable"))
             .Configure<TriggeredScheduleQueueConfiguration>(configuration.GetSection("triggeredScheduleQueue"));
 
         return services;
