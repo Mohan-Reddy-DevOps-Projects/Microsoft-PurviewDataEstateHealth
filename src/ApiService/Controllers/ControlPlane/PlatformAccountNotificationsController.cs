@@ -78,14 +78,20 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     {
         try
         {
+            if (!this.exposureControl.IsDataGovHealthProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+            {
+                this.logger.LogInformation($"Data Governance Health provisioning is disabled for account: {account.Id}");
+                return this.Ok();
+            }
+
             List<Task> tasks = [
-                 this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
                     .CreatePartnerNotificationComponent(
                     Guid.Parse(account.TenantId),
                     Guid.Parse(account.Id))
                     .CreateOrUpdateNotification(account, cancellationToken),
                 this.dhProvisionService.ProvisionAccount(Guid.Parse(account.TenantId), Guid.Parse(account.Id)) // Provision control template
-             ];
+            ];
 
             await Task.WhenAll(tasks);
 
