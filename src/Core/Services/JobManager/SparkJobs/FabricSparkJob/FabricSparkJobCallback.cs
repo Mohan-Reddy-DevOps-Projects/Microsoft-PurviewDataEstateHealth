@@ -14,11 +14,13 @@ using System.Threading.Tasks;
 internal class FabricSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadata>
 {
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
+    private readonly ISparkJobManager sparkJobManager;
 
     public FabricSparkJobCallback(IServiceScope scope)
         : base(scope)
     {
         this.dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
+        this.sparkJobManager = scope.ServiceProvider.GetService<ISparkJobManager>();
     }
 
     protected override string JobName => nameof(FabricSparkJobCallback);
@@ -52,14 +54,14 @@ internal class FabricSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadata
 
     protected override async Task TransitionToJobFailed()
     {
-        await Task.CompletedTask;
+        await this.DeleteSparkPools();
         this.ResetJobWorkingState();
         this.dataEstateHealthRequestLogger.LogInformation($"{this.JobName} failed.");
     }
 
     protected override async Task TransitionToJobSucceeded()
     {
-        await Task.CompletedTask;
+        await this.DeleteSparkPools();
         this.ResetJobWorkingState();
         this.dataEstateHealthRequestLogger.LogInformation($"{this.JobName} succeeded.");
     }
@@ -67,6 +69,13 @@ internal class FabricSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadata
     private void ResetJobWorkingState()
     {
         this.Metadata.SparkJobBatchId = string.Empty;
+        this.Metadata.SparkPoolId = string.Empty;
         this.Metadata.IsCompleted = false;
+    }
+
+    private async Task DeleteSparkPools()
+    {
+        // Delete spark pools
+        await this.sparkJobManager.DeleteSparkPool(this.Metadata.SparkPoolId, new CancellationToken());
     }
 }

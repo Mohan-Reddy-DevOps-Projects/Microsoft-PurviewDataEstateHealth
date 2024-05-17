@@ -22,7 +22,13 @@ internal class DataPlaneSparkJobMetadata : StagedWorkerJobMetadata
     public string SparkJobBatchId { get; set; }
 
     /// <summary>
-    /// Spark job id.
+    /// Spark pool id.
+    /// </summary>
+    [JsonProperty]
+    public string SparkPoolId { get; set; }
+
+    /// <summary>
+    /// Catalog Spark job id.
     /// </summary>
     [JsonProperty]
     public string CatalogSparkJobBatchId { get; set; }
@@ -34,7 +40,7 @@ internal class DataPlaneSparkJobMetadata : StagedWorkerJobMetadata
     public DataPlaneSparkJobStatus CatalogSparkJobStatus { get; set; }
 
     /// <summary>
-    /// Spark job id.
+    /// Dimension Spark job id.
     /// </summary>
     [JsonProperty]
     public string DimensionSparkJobBatchId { get; set; }

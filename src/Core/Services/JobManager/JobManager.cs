@@ -379,6 +379,7 @@ public class JobManager : IJobManager
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
                 AccountServiceModel = accountServiceModel,
                 SparkJobBatchId = string.Empty,
+                SparkPoolId = string.Empty,
                 IsCompleted = false
             };
 
@@ -591,6 +592,7 @@ public class JobManager : IJobManager
                 WorkerJobExecutionContext = WorkerJobExecutionContext.None,
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
                 AccountServiceModel = accountServiceModel,
+                SparkPoolId = string.Empty,
                 CatalogSparkJobBatchId = string.Empty,
                 DimensionSparkJobBatchId = string.Empty,
                 CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others,
@@ -644,6 +646,7 @@ public class JobManager : IJobManager
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
                 AccountServiceModel = accountServiceModel,
                 SparkJobBatchId = string.Empty,
+                SparkPoolId = string.Empty,
                 IsCompleted = false
             };
 

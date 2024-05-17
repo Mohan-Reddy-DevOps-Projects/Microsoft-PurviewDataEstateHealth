@@ -14,11 +14,13 @@ using System.Threading.Tasks;
 internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJobMetadata>
 {
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
+    private readonly ISparkJobManager sparkJobManager;
 
     public CatalogSparkJobCallback(IServiceScope scope)
         : base(scope)
     {
         this.dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
+        this.sparkJobManager = scope.ServiceProvider.GetService<ISparkJobManager>();
     }
 
     protected override string JobName => nameof(CatalogSparkJobCallback);
@@ -56,14 +58,14 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJ
 
     protected override async Task TransitionToJobFailed()
     {
-        await Task.CompletedTask;
+        await this.DeleteSparkPools();
         this.ResetJobWorkingState();
         this.dataEstateHealthRequestLogger.LogInformation($"{this.JobName} failed.");
     }
 
     protected override async Task TransitionToJobSucceeded()
     {
-        await Task.CompletedTask;
+        await this.DeleteSparkPools();
         this.ResetJobWorkingState();
         this.dataEstateHealthRequestLogger.LogInformation($"{this.JobName} succeeded.");
     }
@@ -73,8 +75,15 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJ
         this.Metadata.SparkJobBatchId = string.Empty;
         this.Metadata.CatalogSparkJobBatchId = string.Empty;
         this.Metadata.DimensionSparkJobBatchId = string.Empty;
+        this.Metadata.SparkPoolId = string.Empty;
         this.Metadata.CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.CurrentScheduleStartTime = null;
+    }
+
+    private async Task DeleteSparkPools()
+    {
+        // Delete spark pools
+        await this.sparkJobManager.DeleteSparkPool(this.Metadata.SparkPoolId, new CancellationToken());
     }
 }

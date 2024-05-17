@@ -43,9 +43,12 @@ internal class TriggerDataQualitySparkJobStage : IJobCallbackStage
 
         try
         {
-            this.metadata.SparkJobBatchId = await this.dataQualitySparkJobComponent.SubmitJob(
+            var jobInfo = await this.dataQualitySparkJobComponent.SubmitJob(
                 this.metadata.AccountServiceModel,
                 new CancellationToken());
+
+            this.metadata.SparkPoolId = jobInfo.PoolResourceId;
+            this.metadata.SparkJobBatchId = jobInfo.JobId;
 
             jobStageStatus = JobExecutionStatus.Succeeded;
             jobStatusMessage = $"{this.StageName} | Catalog SPARK job submitted for account: {this.metadata.AccountServiceModel.Id}";

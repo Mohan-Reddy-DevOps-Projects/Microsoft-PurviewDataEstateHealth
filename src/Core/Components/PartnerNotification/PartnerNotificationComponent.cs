@@ -74,7 +74,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed($"start to create/update spark related resources, account name: {account.Name}"))
         {
-            await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
+            //await this.sparkJobManager.CreateOrUpdateSparkPool(account, cancellationToken);
             await this.ProvisionSparkJobs(account);
         }
     }

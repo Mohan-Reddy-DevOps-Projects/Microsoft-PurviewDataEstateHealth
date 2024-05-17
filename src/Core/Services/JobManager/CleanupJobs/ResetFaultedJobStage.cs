@@ -40,26 +40,33 @@ internal class ResetFaultedJobStage : IJobCallbackStage
     {
         using (this.logger.LogElapsed($"Reset faulted background job"))
         {
-            var faultedJobs = await this.jobDefinitionRepository.GetBulk(GetBulkSize, nameof(CatalogSparkJobCallback), JobExecutionStatus.Faulted, CancellationToken.None).ConfigureAwait(false);
-
-            this.logger.LogInformation($"Faulted job count: {faultedJobs.Count}");
-
-            foreach (var jobDefinition in faultedJobs)
+            try
             {
-                this.logger.LogInformation($"Reset faulted job: {jobDefinition.JobId} started");
-                BackgroundJob faultedJob = await this.jobManagementClient.GetJob(jobDefinition.JobPartition, jobDefinition.JobId).ConfigureAwait(false);
-                if (faultedJob != null)
+                var faultedJobs = await this.jobDefinitionRepository.GetBulk(GetBulkSize, nameof(CatalogSparkJobCallback), JobExecutionStatus.Faulted, CancellationToken.None).ConfigureAwait(false);
+
+                this.logger.LogInformation($"Faulted job count: {faultedJobs.Count}");
+
+                foreach (var jobDefinition in faultedJobs)
                 {
-                    var jobMetadata = JsonConvert.DeserializeObject<DataPlaneSparkJobMetadata>(faultedJob.Metadata);
-                    var accountModel = jobMetadata.AccountServiceModel;
-                    this.logger.LogInformation($"Faulted job detail, jobId: {jobDefinition.JobId}, account: {accountModel.Name}, accountId: {accountModel.Id}");
-                    await this.backgroundJobManager.ProvisionCatalogSparkJob(accountModel).ConfigureAwait(false);
-                    this.logger.LogInformation($"Reset faulted job: {jobDefinition.JobId} completed.");
+                    this.logger.LogInformation($"Reset faulted job: {jobDefinition.JobId} started");
+                    BackgroundJob faultedJob = await this.jobManagementClient.GetJob(jobDefinition.JobPartition, jobDefinition.JobId).ConfigureAwait(false);
+                    if (faultedJob != null)
+                    {
+                        var jobMetadata = JsonConvert.DeserializeObject<DataPlaneSparkJobMetadata>(faultedJob.Metadata);
+                        var accountModel = jobMetadata.AccountServiceModel;
+                        this.logger.LogInformation($"Faulted job detail, jobId: {jobDefinition.JobId}, account: {accountModel.Name}, accountId: {accountModel.Id}");
+                        await this.backgroundJobManager.ProvisionCatalogSparkJob(accountModel).ConfigureAwait(false);
+                        this.logger.LogInformation($"Reset faulted job: {jobDefinition.JobId} completed.");
+                    }
+                    else
+                    {
+                        this.logger.LogCritical($"Try to reset faulted job, but job with id {jobDefinition.JobId} not found.");
+                    }
                 }
-                else
-                {
-                    this.logger.LogCritical($"Try to reset faulted job, but job with id {jobDefinition.JobId} not found.");
-                }
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogCritical($"Failed to reset faulted job: {ex.Message}", ex);
             }
             return new JobExecutionResult { Status = JobExecutionStatus.Completed };
         }

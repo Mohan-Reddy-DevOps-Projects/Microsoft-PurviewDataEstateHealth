@@ -4,10 +4,10 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System.Threading.Tasks;
 
 internal class TriggerFabricSparkJobStage : IJobCallbackStage
 {
@@ -39,9 +39,12 @@ internal class TriggerFabricSparkJobStage : IJobCallbackStage
 
         try
         {
-            this.metadata.SparkJobBatchId = await this.fabricSparkJobComponent.SubmitJob(
+            var jobInfo = await this.fabricSparkJobComponent.SubmitJob(
                 this.metadata.AccountServiceModel,
                 new CancellationToken());
+
+            this.metadata.SparkPoolId = jobInfo.PoolResourceId;
+            this.metadata.SparkJobBatchId = jobInfo.JobId;
 
             jobStageStatus = JobExecutionStatus.Succeeded;
             jobStatusMessage = $"Fabric SPARK job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}";

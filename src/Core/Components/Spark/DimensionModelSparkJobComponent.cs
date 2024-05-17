@@ -4,17 +4,19 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using global::Azure.Analytics.Synapse.Spark.Models;
+using global::Azure.Core;
+using global::Azure.Security.KeyVault.Secrets;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
+using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.ProjectBabylon.Metadata.Models;
-using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Extensions.Options;
-using global::Azure.Analytics.Synapse.Spark.Models;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
-using global::Azure.Security.KeyVault.Secrets;
 
 internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobComponent
 {
@@ -37,11 +39,10 @@ internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobC
     }
 
     /// <inheritdoc/>
-    public async Task<string> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId)
+    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId)
     {
         KeyVaultSecret cosmosDBKey = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBWritekey", cancellationToken);
         KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
-
 
         Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
         string containerName = accountServiceModel.DefaultCatalogId;
@@ -50,10 +51,14 @@ internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobC
         string jarClassName = "com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.main.DimensionalModelMain";
         SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, jarClassName, cosmosDBEndpoint.Value, cosmosDBKey.Value);
 
-        return await this.sparkJobManager.SubmitJob(accountServiceModel, sparkJobRequest, cancellationToken);
+        var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
+
+        return await this.sparkJobManager.SubmitJob(sparkJobRequest, cancellationToken, poolResourceId);
     }
 
     public async Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken) => await this.sparkJobManager.GetJob(accountServiceModel, batchId, cancellationToken);
+
+    public async Task<SparkBatchJob> GetJob(SparkPoolJobModel jobInfo, CancellationToken cancellationToken) => await this.sparkJobManager.GetJob(jobInfo, cancellationToken);
 
     private async Task<Uri> GetSinkSasUri(Models.ProcessingStorageModel processingStorageModel, string containerName, CancellationToken cancellationToken)
     {

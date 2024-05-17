@@ -46,6 +46,12 @@ internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
     }
 
     /// <inheritdoc/>
+    public async Task<List<SynapseBigDataPoolInfoData>> ListSparkPools(CancellationToken cancellationToken)
+    {
+        return await this.azureResourceManager.ListSparkPools(this.synapseSparkConfiguration.SubscriptionId, this.synapseSparkConfiguration.ResourceGroup, this.synapseSparkConfiguration.Workspace, cancellationToken);
+    }
+
+    /// <inheritdoc/>
     public async Task DeleteSparkPool(string sparkPoolName, CancellationToken cancellationToken)
     {
         await this.azureResourceManager.DeleteSparkPool(this.synapseSparkConfiguration.SubscriptionId, this.synapseSparkConfiguration.ResourceGroup, this.synapseSparkConfiguration.Workspace, sparkPoolName, cancellationToken);
@@ -79,6 +85,13 @@ internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
     {
         SparkBatchClient client = this.GetSparkBatchClient(sparkPoolName);
         return (await client.GetSparkBatchJobAsync(batchId)).Value;
+    }
+
+    public async Task<List<SparkBatchJob>> ListJobs(string sparkPoolName, CancellationToken cancellationToken)
+    {
+        SparkBatchClient client = this.GetSparkBatchClient(sparkPoolName);
+        var resp = await client.GetSparkBatchJobsAsync(cancellationToken: cancellationToken);
+        return resp.Value.Sessions?.ToList();
     }
 
     private SparkBatchClient GetSparkBatchClient(string sparkPoolName)

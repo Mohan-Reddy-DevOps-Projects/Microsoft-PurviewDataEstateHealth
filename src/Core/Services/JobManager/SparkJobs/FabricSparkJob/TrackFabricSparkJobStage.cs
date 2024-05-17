@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using System.Text.Json;
@@ -45,10 +46,27 @@ internal class TrackFabricSparkJobStage : IJobCallbackStage
 
         try
         {
-            SparkBatchJob jobDetails = await this.fabricSparkJobComponent.GetJob(
-                this.metadata.AccountServiceModel,
-                int.Parse(this.metadata.SparkJobBatchId),
-                new CancellationToken());
+            SparkBatchJob jobDetails;
+
+            if (string.IsNullOrEmpty(this.metadata.SparkPoolId))
+            {
+                // per-account pre-provisioned pool
+                jobDetails = await this.fabricSparkJobComponent.GetJob(
+                    this.metadata.AccountServiceModel,
+                    int.Parse(this.metadata.SparkJobBatchId),
+                    new CancellationToken());
+            }
+            else
+            {
+                // per-job pool
+                var jobInfo = new SparkPoolJobModel()
+                {
+                    JobId = this.metadata.SparkJobBatchId,
+                    PoolResourceId = this.metadata.SparkPoolId
+                };
+                jobDetails = await this.fabricSparkJobComponent.GetJob(
+                    jobInfo, new CancellationToken());
+            }
 
             jobStageStatus = SparkJobUtils.DetermineJobStageStatus(jobDetails);
             jobStatusMessage = SparkJobUtils.GenerateStatusMessage(this.metadata.AccountServiceModel.Id, jobDetails, jobStageStatus, this.StageName);

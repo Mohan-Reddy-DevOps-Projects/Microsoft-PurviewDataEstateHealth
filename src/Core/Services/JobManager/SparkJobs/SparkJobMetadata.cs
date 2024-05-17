@@ -22,6 +22,12 @@ internal class SparkJobMetadata : StagedWorkerJobMetadata
     public string SparkJobBatchId { get; set; }
 
     /// <summary>
+    /// Spark pool id.
+    /// </summary>
+    [JsonProperty]
+    public string SparkPoolId { get; set; }
+
+    /// <summary>
     /// Spark job result. 
     /// </summary>
     [JsonProperty]

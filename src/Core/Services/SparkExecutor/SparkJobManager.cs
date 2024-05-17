@@ -14,6 +14,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.DGP.ServiceBasics.Errors;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -42,15 +43,30 @@ internal sealed class SparkJobManager : ISparkJobManager
     }
 
     /// <inheritdoc/>
-    public async Task<string> SubmitJob(AccountServiceModel accountServiceModel, SparkJobRequest sparkJobRequest, CancellationToken cancellationToken)
+    public async Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null)
     {
         using (this.logger.LogElapsed("submit job"))
         {
-            SparkPoolModel sparkPool = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
-            ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(sparkPool);
+            var sparkPoolId = existingPoolResourceId ?? await this.CreateSparkPool(cancellationToken);
 
             this.logger.LogInformation($"Submitting spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}");
-            return await this.synapseSparkExecutor.SubmitJob(sparkPoolId.Name, sparkJobRequest, cancellationToken);
+
+            try
+            {
+                var jobId = await this.synapseSparkExecutor.SubmitJob(sparkPoolId.Name, sparkJobRequest, cancellationToken);
+
+                return new SparkPoolJobModel
+                {
+                    JobId = jobId,
+                    PoolResourceId = sparkPoolId
+                };
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Start to delete the pool.", ex);
+                await this.DeleteSparkPool(sparkPoolId, cancellationToken);
+                throw;
+            }
         }
     }
 
@@ -67,6 +83,18 @@ internal sealed class SparkJobManager : ISparkJobManager
     }
 
     /// <inheritdoc/>
+    public async Task CancelJob(SparkPoolJobModel jobModel, CancellationToken cancellationToken)
+    {
+        using (this.logger.LogElapsed("cancel job"))
+        {
+            ResourceIdentifier sparkPoolId = new ResourceIdentifier(jobModel.PoolResourceId);
+            var batchId = int.Parse(jobModel.JobId);
+            this.logger.LogInformation($"Cancelling spark job {batchId} in pool={sparkPoolId.Name}");
+            await this.synapseSparkExecutor.CancelJob(sparkPoolId.Name, batchId, cancellationToken);
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken)
     {
         SparkPoolModel sparkPool = await this.GetSparkPool(Guid.Parse(accountServiceModel.Id), cancellationToken);
@@ -75,6 +103,20 @@ internal sealed class SparkJobManager : ISparkJobManager
         SparkBatchJob response = await this.synapseSparkExecutor.GetJob(sparkPoolId.Name, batchId, cancellationToken);
         this.logger.LogInformation($"Retrieved spark job {JsonSerializer.Serialize(response, this.jsonOptions)} in pool={sparkPoolId.Name}");
         this.logger.LogInformation($"spark job status, tenant: {accountServiceModel.TenantId}, status: {response.Result}, livy: {response.LivyInfo}");
+
+        return response;
+    }
+
+    /// <inheritdoc/>
+    public async Task<SparkBatchJob> GetJob(SparkPoolJobModel jobModel, CancellationToken cancellationToken)
+    {
+        ResourceIdentifier sparkPoolId = new ResourceIdentifier(jobModel.PoolResourceId);
+        var batchId = int.Parse(jobModel.JobId);
+
+        this.logger.LogInformation($"Get spark job {batchId} in pool={sparkPoolId.Name}");
+        SparkBatchJob response = await this.synapseSparkExecutor.GetJob(sparkPoolId.Name, batchId, cancellationToken);
+        this.logger.LogInformation($"Retrieved spark job {JsonSerializer.Serialize(response, this.jsonOptions)} in pool={sparkPoolId.Name}");
+        this.logger.LogInformation($"spark job status, status: {response.Result}, livy: {response.LivyInfo}");
 
         return response;
     }
@@ -136,6 +178,32 @@ internal sealed class SparkJobManager : ISparkJobManager
             await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
 
             await this.sparkPoolRepository.Delete(storageAccountKey, cancellationToken);
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task DeleteSparkPool(string poolResourceId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(poolResourceId))
+        {
+            return;
+        }
+
+        ResourceIdentifier sparkPoolId = new(poolResourceId);
+
+        await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
+    }
+
+    private async Task<ResourceIdentifier> CreateSparkPool(CancellationToken cancellationToken)
+    {
+        using (this.logger.LogElapsed("Creating spark pool"))
+        {
+            string sparkPoolName = await this.GenerateSparkPoolName("v2" + OwnerNames.Health, cancellationToken);
+            var sparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolName, cancellationToken);
+
+            this.logger.LogInformation($"Created pool id = {sparkPool.Id}");
+
+            return sparkPool.Id;
         }
     }
 

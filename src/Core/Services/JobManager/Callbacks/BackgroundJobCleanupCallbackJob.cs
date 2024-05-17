@@ -48,6 +48,7 @@ internal class BackgroundJobCleanupCallbackJob : StagedWorkerJobCallback<StagedW
         this.JobStages = new List<IJobCallbackStage>
         {
             new ResetFaultedJobStage(this.Scope, this.JobManagement),
+            new CleanupSparkPoolsJobStage(this.Scope, this.JobManagement),
         };
     }
 

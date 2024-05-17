@@ -43,9 +43,21 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
             try
             {
                 this.dataEstateHealthRequestLogger.LogInformation($"Running spark jobId, {this.metadata.SparkJobBatchId}");
-                this.metadata.CatalogSparkJobBatchId = string.IsNullOrEmpty(this.metadata.SparkJobBatchId) ? await this.catalogSparkJobComponent.SubmitJob(
-                    this.metadata.AccountServiceModel,
-                    new CancellationToken(), jobId) : this.metadata.SparkJobBatchId;
+
+                if (string.IsNullOrEmpty(this.metadata.SparkJobBatchId))
+                {
+                    var jobInfo = await this.catalogSparkJobComponent.SubmitJob(
+                        this.metadata.AccountServiceModel,
+                        new CancellationToken(), jobId);
+
+                    this.metadata.SparkPoolId = jobInfo.PoolResourceId;
+                    this.metadata.CatalogSparkJobBatchId = jobInfo.JobId;
+                }
+                else
+                {
+                    this.metadata.CatalogSparkJobBatchId = this.metadata.SparkJobBatchId;
+                }
+
                 this.metadata.CurrentScheduleStartTime = DateTime.UtcNow;
                 jobStageStatus = JobExecutionStatus.Completed;
                 jobStatusMessage = $"DEH_Domain_Model job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId} ";
@@ -69,6 +81,7 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
 
     public bool IsStagePreconditionMet()
     {
-        return string.IsNullOrEmpty(this.metadata.CatalogSparkJobBatchId);
+        return string.IsNullOrEmpty(this.metadata.CatalogSparkJobBatchId) &&
+            string.IsNullOrEmpty(this.metadata.SparkPoolId);
     }
 }

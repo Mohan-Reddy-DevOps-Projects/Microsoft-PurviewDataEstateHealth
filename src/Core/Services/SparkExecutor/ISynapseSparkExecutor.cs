@@ -32,6 +32,13 @@ public interface ISynapseSparkExecutor
     Task<SynapseBigDataPoolInfoData> GetSparkPool(string sparkPoolName, CancellationToken cancellationToken);
 
     /// <summary>
+    /// List the spark pools.
+    /// </summary>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<List<SynapseBigDataPoolInfoData>> ListSparkPools(CancellationToken cancellationToken);
+
+    /// <summary>
     /// Deletes the spark pool.
     /// </summary>
     /// <param name="sparkPoolName"></param>
@@ -73,4 +80,12 @@ public interface ISynapseSparkExecutor
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
     Task<SparkBatchJob> GetJob(string sparkPoolName, int batchId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Lists the jobs.
+    /// </summary>
+    /// <param name="sparkPoolName"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    Task<List<SparkBatchJob>> ListJobs(string sparkPoolName, CancellationToken cancellationToken);
 }

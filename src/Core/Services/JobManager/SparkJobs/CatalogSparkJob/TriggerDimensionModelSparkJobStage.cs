@@ -41,12 +41,17 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
         {
             try
             {
-                this.metadata.DimensionSparkJobBatchId = await this.dimensionModelSparkJobComponent.SubmitJob(
+                var jobInfo = await this.dimensionModelSparkJobComponent.SubmitJob(
                     this.metadata.AccountServiceModel,
-                    new CancellationToken(), jobId);
+                    new CancellationToken(),
+                    jobId,
+                    this.metadata.SparkPoolId);
+
+                this.metadata.SparkPoolId = jobInfo.PoolResourceId;
+                this.metadata.DimensionSparkJobBatchId = jobInfo.JobId;
 
                 jobStageStatus = JobExecutionStatus.Completed;
-                jobStatusMessage = $"DEH_Dimentional_Model job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId} ";
+                jobStatusMessage = $"DEH_Dimentional_Model job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId}, poolId : {jobInfo.PoolResourceId}, SparkJobBatchId : {jobInfo.JobId} ";
                 this.dataEstateHealthRequestLogger.LogTrace(jobStatusMessage);
             }
             catch (Exception exception)
@@ -67,6 +72,7 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
 
     public bool IsStagePreconditionMet()
     {
-        return string.IsNullOrEmpty(this.metadata.DimensionSparkJobBatchId) && this.metadata.CatalogSparkJobStatus == DataPlaneSparkJobStatus.Succeeded;
+        return string.IsNullOrEmpty(this.metadata.DimensionSparkJobBatchId) &&
+            this.metadata.CatalogSparkJobStatus == DataPlaneSparkJobStatus.Succeeded;
     }
 }

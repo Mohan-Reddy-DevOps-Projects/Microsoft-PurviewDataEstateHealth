@@ -9,6 +9,7 @@ using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using System;
@@ -37,7 +38,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     }
 
     /// <inheritdoc/>
-    public async Task<string> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId)
+    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId)
     {
         KeyVaultSecret cosmosDBKey = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBWritekey", cancellationToken);
         KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
@@ -48,10 +49,12 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         //Update Main Method
         string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";
         SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, cosmosDBEndpoint.Value, cosmosDBKey.Value, jarClassName);
-        return await this.sparkJobManager.SubmitJob(accountServiceModel, sparkJobRequest, cancellationToken);
+        return await this.sparkJobManager.SubmitJob(sparkJobRequest, cancellationToken);
     }
 
     public async Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken) => await this.sparkJobManager.GetJob(accountServiceModel, batchId, cancellationToken);
+
+    public async Task<SparkBatchJob> GetJob(SparkPoolJobModel jobInfo, CancellationToken cancellationToken) => await this.sparkJobManager.GetJob(jobInfo, cancellationToken);
 
     private async Task<Uri> GetSinkSasUri(Models.ProcessingStorageModel processingStorageModel, string containerName, CancellationToken cancellationToken)
     {

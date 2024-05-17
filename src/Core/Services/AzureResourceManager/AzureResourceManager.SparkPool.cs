@@ -31,6 +31,20 @@ internal sealed partial class AzureResourceManager<TAuthConfig>
         return lro.Value.Data;
     }
 
+    public async Task<List<SynapseBigDataPoolInfoData>> ListSparkPools(Guid subscriptionId, string resourceGroupName, string workspaceName, CancellationToken cancellationToken)
+    {
+        SynapseBigDataPoolInfoCollection collection = this.GetSynapseWorkspace(subscriptionId, resourceGroupName, workspaceName);
+        AsyncPageable<SynapseBigDataPoolInfoResource> resp = collection.GetAllAsync(cancellationToken);
+
+        List<SynapseBigDataPoolInfoData> result = new List<SynapseBigDataPoolInfoData>();
+        await foreach (var page in resp.AsPages())
+        {
+            result.AddRange(page.Values.Select(v => v.Data));
+        }
+
+        return result;
+    }
+
     public async Task DeleteSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, CancellationToken cancellationToken)
     {
         SynapseBigDataPoolInfoCollection collection = this.GetSynapseWorkspace(subscriptionId, resourceGroupName, workspaceName);
