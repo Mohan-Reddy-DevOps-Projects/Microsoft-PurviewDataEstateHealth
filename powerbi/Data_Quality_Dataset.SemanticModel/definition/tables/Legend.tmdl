@@ -1,0 +1,38 @@
+table Legend
+	lineageTag: 4e44c45a-80ff-4c27-9da9-480e1c9942d5
+
+	column Legend
+		dataType: string
+		lineageTag: f745e315-cc21-4311-a667-386d78118e91
+		summarizeBy: none
+		sourceColumn: Legend
+
+		annotation SummarizationSetBy = Automatic
+
+	column Color
+		dataType: string
+		lineageTag: d4db6f59-5baf-41ea-b485-4caef5bd5504
+		summarizeBy: none
+		sourceColumn: Color
+
+		annotation SummarizationSetBy = Automatic
+
+	column ZOrder
+		dataType: string
+		lineageTag: 5f94285d-ddc0-44c8-b3db-37a34dd7d8c0
+		summarizeBy: none
+		sourceColumn: ZOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Legend = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45W8skvVwjKLM5W0lFSdjNzNHA0B7IMlWJ1opV8U1MyS3MRsm6uxpaWQJYRWNYjMz0DLmdp6WrgYgJkGSvFxgIA", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Legend = _t, Color = _t, ZOrder = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Legend", type text}, {"Color", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

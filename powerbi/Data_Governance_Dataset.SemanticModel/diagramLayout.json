@@ -5,7 +5,7 @@
       "ordinal": 0,
       "scrollPosition": {
         "x": 0,
-        "y": 218.80588386262184
+        "y": 60.090073436093689
       },
       "nodes": [
         {
@@ -58,46 +58,10 @@
         },
         {
           "location": {
-            "x": 10,
-            "y": 386.73094719838991
-          },
-          "nodeIndex": "JobType",
-          "size": {
-            "height": 128,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 10.022404407157524,
-            "y": 748.81036943594268
-          },
-          "nodeIndex": "RuleType",
-          "size": {
-            "height": 200,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
             "x": 708.97603134391477,
             "y": -10
           },
           "nodeIndex": "Assets",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 299.92851614736816,
-            "y": 484.7794699855782
-          },
-          "nodeIndex": "DQ Fact",
           "size": {
             "height": 300,
             "width": 234

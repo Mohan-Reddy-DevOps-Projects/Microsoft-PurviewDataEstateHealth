@@ -1,0 +1,85 @@
+table DimDataProduct
+	lineageTag: f010b5a6-738a-4332-955a-0221a9e241ca
+
+	column DataProductId
+		dataType: string
+		lineageTag: dd53a32c-d811-49c7-8f5c-1dbaea92e362
+		summarizeBy: none
+		sourceColumn: DataProductId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataProductSourceId
+		dataType: string
+		lineageTag: 2e491aea-de43-4112-abc6-f4a385e06461
+		summarizeBy: none
+		sourceColumn: DataProductSourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataProduct
+		dataType: string
+		lineageTag: 7d0fb36e-e333-4a15-b86b-786e32bb8edd
+		summarizeBy: none
+		sourceColumn: DataProduct
+
+		annotation SummarizationSetBy = Automatic
+
+	column CreatedDatetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 18bd5c7f-ba9d-459d-a895-caeae2ee7fc5
+		summarizeBy: none
+		sourceColumn: CreatedDatetime
+
+		variation Variation
+			isDefault
+			relationship: 9b006c67-59a6-4de1-a97c-82c451dadec3
+			defaultHierarchy: LocalDateTable_f26ed20b-9a46-425e-b6ae-15318bbbf830.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ModifiedDatetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 8b0500c0-4ac7-4691-a909-6fe43f1f087f
+		summarizeBy: none
+		sourceColumn: ModifiedDatetime
+
+		variation Variation
+			isDefault
+			relationship: c6411f1a-e9ab-4a35-b1b6-2248e09a5d51
+			defaultHierarchy: LocalDateTable_045e7fe5-7175-4194-8740-e4e882ec0155.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataProductStatus
+		dataType: string
+		lineageTag: 219e73ed-6626-4fed-9265-f88fa1f905be
+		summarizeBy: none
+		sourceColumn: DataProductStatus
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsActive
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 72962dde-84f5-43da-a0f8-c0fa0520876b
+		summarizeBy: none
+		sourceColumn: IsActive
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDataProduct = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE),
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDataProduct" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimDataProduct"]}[Data],
+				    #"Renamed Columns" = Table.RenameColumns(#"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDataProduct",{{"DataProductDisplayName", "DataProduct"}}),
+				  #"Merged queries" = Table.NestedJoin(#"Renamed Columns", {"DataProductId"}, FactDataQuality, {"DataProductId"}, "FactDataQuality", JoinKind.Inner)
+				in
+				    #"Merged queries"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,57 @@
+table DimDQRuleType
+	lineageTag: 2b0e44c2-1403-4604-9d63-7c31f3e326bd
+
+	column DQRuleTypeId
+		dataType: int64
+		formatString: 0
+		lineageTag: e505d324-a27e-48a6-bb0c-150ffe9fef62
+		summarizeBy: none
+		sourceColumn: DQRuleTypeId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DQRuleTypeSourceId
+		dataType: string
+		lineageTag: bc039f87-10c6-4dda-8ce9-4e72c7d1fa6a
+		summarizeBy: none
+		sourceColumn: DQRuleTypeSourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column RuleTypeName
+		dataType: string
+		lineageTag: 8b13b9ae-4bd4-4855-9793-e15c6b6e8bcc
+		summarizeBy: none
+		sourceColumn: RuleTypeName
+
+		annotation SummarizationSetBy = Automatic
+
+	column QualityDimension
+		dataType: string
+		lineageTag: eb64b795-1839-4c36-b0ac-e36d2178e393
+		summarizeBy: none
+		sourceColumn: QualityDimension
+
+		annotation SummarizationSetBy = Automatic
+
+	column QualityDimensionCustomIndicator
+		dataType: string
+		lineageTag: 14517e4a-368e-4653-a785-8452ccc2dcbc
+		summarizeBy: none
+		sourceColumn: QualityDimensionCustomIndicator
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDQRuleType = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE),
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDQRuleType" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimDQRuleType"]}[Data],
+				    #"Renamed Columns" = Table.RenameColumns(#"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDQRuleType",{{"DQRuleTypeDisplayName", "RuleTypeName"}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Renamed Columns", {"DQRuleTypeId"}, FactDataQuality, {"DQRuleTypeId"}, "FactDataQuality", JoinKind.Inner)
+				in
+				    #"Merged Queries"
+
+	annotation PBI_ResultType = Table
+

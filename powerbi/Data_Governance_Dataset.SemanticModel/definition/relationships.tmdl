@@ -33,15 +33,6 @@ relationship 3234f31f-aad9-4d32-8082-db1052a7ff26
 	fromColumn: Date.CalendarDayDate
 	toColumn: LocalDateTable_68313405-eb4e-453a-b0d9-882b6420c508.Date
 
-relationship 00278a09-a155-4538-ad36-9f46c6591bfd
-	joinOnDateBehavior: datePartOnly
-	fromColumn: 'DQ Fact'.RuleScanCompletionDatetime
-	toColumn: LocalDateTable_73c715a1-940e-494b-b3b6-92da243d6880.Date
-
-relationship AutoDetected_7c30b22b-74de-4891-85d9-22e4f172212a
-	fromColumn: 'DQ Fact'.BusinessDomainId
-	toColumn: BusinessDomain.BusinessDomainId
-
 relationship AutoDetected_338d5be9-64e2-4955-9437-076576a4b422
 	fromColumn: FactDataGovernanceScan.BusinessDomainId
 	toColumn: BusinessDomain.BusinessDomainId
@@ -54,17 +45,9 @@ relationship AutoDetected_066276fb-9a9c-47f5-8b83-0feaf86cbe9e
 	fromColumn: Assets.DataProductID
 	toColumn: DataProduct.DataProductId
 
-relationship AutoDetected_765c0d4d-ae2e-4ab7-83f9-70db167aa4ab
-	fromColumn: 'DQ Fact'.DataProductId
-	toColumn: DataProduct.DataProductId
-
 relationship AutoDetected_698afc14-25d9-47e0-bd7e-340c621a17d5
 	fromColumn: FactDataGovernanceScan.DataProductId
 	toColumn: DataProduct.DataProductId
-
-relationship AutoDetected_21d76994-9f12-473a-b9eb-99eb6b56b105
-	fromColumn: 'DQ Fact'.DQRuleTypeId
-	toColumn: RuleType.DQRuleTypeId
 
 relationship a2b89c25-1394-403c-9d20-16046a38fadc
 	joinOnDateBehavior: datePartOnly

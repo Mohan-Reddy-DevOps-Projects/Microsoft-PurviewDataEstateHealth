@@ -1,0 +1,24 @@
+EVALUATE
+SUMMARIZECOLUMNS (
+	'FactDataQuality'[DataAssetId],
+	'FactDataQuality'[DataAssetColumnId],
+    'FactDataQuality'[DQRuleId],
+    'FactDataQuality'[DQRuleTypeId],
+	'DimDQRuleType'[QualityDimension],
+    "TotalCompleteRules", [TotalCompleteRows],
+	"TotalDimensions", [TotalDistinctDimensions],
+	"TotalNumberOfRules",[NumberOfRules]
+    "TotalPassedRows", 
+        SUMX (
+            WINDOW (
+                1, ABS,
+                1, ABS,
+                ORDERBY (
+                    'Date'[Year Month Number], ASC,
+                    'Date'[Year Month], ASC 
+                )
+            ),
+            [Sales Amount]
+        )
+)
+ORDER BY 'Date'[Year Month Number]

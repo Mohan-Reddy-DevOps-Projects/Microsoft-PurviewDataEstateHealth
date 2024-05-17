@@ -1,0 +1,414 @@
+table _Measures
+	lineageTag: c60fab0b-a8e1-466d-9ae2-ef2c9f53017a
+
+	measure M_DQPassScore =
+			
+			
+			var _PassCount = CALCULATE(SUM(FactDataQuality[DQPassedCount]))
+			var _TotalCount = CALCULATE(SUM(FactDataQuality[TotalRowCount]))
+			//return _PassCount
+			return DIVIDE(_PassCount,_TotalCount,0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 4df44691-84c1-4583-86d6-c717baeab91d
+
+	measure M_PassScoreAccuracy = ```
+			
+			 Var ConNum = CALCULATE(SUM(FactDataQuality[DQPassedCount]), DimDQRuleType[QualityDimension]="Accuracy")
+			 Var ConDen = CALCULATE(SUM(FactDataQuality[TotalRowCount]), DimDQRuleType[QualityDimension]="Accuracy")
+			RETURN 
+			    //IF(DIVIDE(ConNum, ConDen) <> BLANK(), DIVIDE(ConNum, ConDen), "N/A")
+			    DIVIDE(ConNum, ConDen)+0
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 04849020-4e29-4f9c-93b3-dd54ade318d3
+
+	measure _DPMissingRules = ```
+			
+			var _AllDataProducts = 
+			    CALCULATE(DISTINCTCOUNT('DimDataProduct'[DataProductId]))
+			var _DQDataProducts = 
+			    CALCULATE(DISTINCTCOUNT('DimDataProduct'[DataProductId]), FactDataQuality)
+			var _DPMissing = _AllDataProducts - _DQDataProducts
+			
+			Return _DPMissing+0
+			```
+		formatString: 0
+		lineageTag: 81f24c8b-7d66-4cba-b09b-5e2109e03d8f
+
+	measure M_PassScoreCompleteness = ```
+			
+			 Var ComNum = CALCULATE(SUM(FactDataQuality[DQPassedCount]), DimDQRuleType[QualityDimension]="Completeness")
+			 Var ComDen = CALCULATE(SUM(FactDataQuality[TotalRowCount]), DimDQRuleType[QualityDimension]="Completeness")
+			RETURN 
+			    DIVIDE(ComNum, ComDen)+0
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 367b7065-2d89-4063-8c35-90b9de1bf827
+
+	measure _DAMissingRules = 1 - DIVIDE((DISTINCTCOUNT('DimDataAsset'[DataAssetId])-DISTINCTCOUNT(FactDataQuality[DataAssetId])),DISTINCTCOUNT('DimDataAsset'[DataAssetId]))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: a3dc3d0c-f306-49ab-aaef-048ca1bed31b
+
+	measure _DAMissingDims = ```
+			
+			var _AssetList = CALCULATE(DISTINCTCOUNT(DimDataAsset[DataAssetId]))
+			var _F_AssetList = CALCULATE(DISTINCTCOUNT(FactDataQuality[DataAssetId]))
+			var _MissingAssetList = _AssetList - _F_AssetList
+			return _MissingAssetList
+			
+			
+			```
+		formatString: 0
+		lineageTag: 495bec24-58d2-4d69-b21f-06f6c76da0e5
+
+	measure M_PassScoreConformity = ```
+			
+			 Var ConNum = CALCULATE(SUM(FactDataQuality[DQPassedCount]), DimDQRuleType[QualityDimension] = "Conformity")
+			 Var ConDen = CALCULATE(SUM(FactDataQuality[TotalRowCount]), DimDQRuleType[QualityDimension] = "Conformity")
+			RETURN 
+			    DIVIDE(ConNum, ConDen)+0
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 5ef30c7c-870d-45ec-9e28-6799eb63dadc
+
+	measure M_PassScoreConsistency = ```
+			
+			 Var ConNum = CALCULATE(SUM(FactDataQuality[DQPassedCount]), DimDQRuleType[QualityDimension]="Consistency")
+			 Var ConDen = CALCULATE(SUM(FactDataQuality[TotalRowCount]), DimDQRuleType[QualityDimension]="Consistency")
+			RETURN 
+			    DIVIDE(ConNum, ConDen)+0
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: bcf8f73e-297e-456f-b1f5-3406dfc92924
+
+	measure M_PassScoreTimeliness = ```
+			
+			 Var TimNum = CALCULATE(SUM(FactDataQuality[DQPassedCount]), DimDQRuleType[QualityDimension]="Timeliness")
+			 Var TimDen = CALCULATE(SUM(FactDataQuality[TotalRowCount]), DimDQRuleType[QualityDimension]="Timeliness")
+			RETURN 
+			    DIVIDE(TimNum, TimDen)+0
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: dd644561-af96-44e0-a960-9eb9df008872
+
+	measure M_PassScoreUniqueness = ```
+			
+			 Var ConNum = CALCULATE(SUM(FactDataQuality[DQPassedCount]), DimDQRuleType[QualityDimension]="Uniqueness")
+			 Var ConDen = CALCULATE(SUM(FactDataQuality[TotalRowCount]), DimDQRuleType[QualityDimension]="Uniqueness")
+			RETURN 
+			    DIVIDE(ConNum, ConDen)+0
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 10c6b980-1f94-4a73-8e6c-9ef32753d8d3
+
+	measure _ActionItems =
+			
+			//Var _failedCounts = CALCULATE(COUNTROWS(DataQualityFact), DataQualityFact[DQFailedCount]<>0)
+			Var _Totalfaild = CALCULATE(COUNTROWS(FactDataQuality), FactDataQuality[TotalUnHealthyRowCount]<>0)
+			
+			Return _Totalfaild + 0
+		formatString: 0
+		lineageTag: f89443f2-1c87-4afa-b674-9d0a5e064692
+
+	measure OverallQualityScore =
+			
+			
+			var _PassCount = SUM(FactDataQuality[DQPassedCount])
+			var _TotalCount = SUM(FactDataQuality[TotalRowCount])
+			var _TotalRows = [_TotalRows]
+			return IF(DIVIDE(_PassCount,_TotalCount)<>BLANK(),DIVIDE(_PassCount,_TotalCount), 0.0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 2c44af04-59c4-4fd0-bb5a-247088303e91
+
+	measure _DAssetsMissingDims = ```
+			
+			var _Accu = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Accuracy")) 
+			var _Comp = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Completeness")) 
+			var _Conf = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Conformity")) 
+			var _Cons = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Consistency")) 
+			var _Time = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Timeliness")) 
+			var _Uniq = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Uniqueness")) 
+			var _tot = _Accu+_Comp+_Conf+_Cons+_Time+_Uniq
+			var _FAsset = if(_tot = 6, 0,1)
+			var _DAMD = [_TotalDAssetsMissingRules]
+			var _TotalDACount = [TotalDataAssets]
+			//return _Comp
+			return (1 - divide((_DAMD+_FAsset),_TotalDACount))
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 2947e4ab-3c94-4be6-9a8a-7eba2c414ea1
+
+	measure TotalDataAssets = CALCULATE(DISTINCTCOUNTNOBLANK(DimDataAsset[DataAssetId]))
+		formatString: 0
+		lineageTag: 42e67e00-e9ad-4db1-a87d-bd8d4408e548
+
+	measure _TotalDAssetsMissingRules = (DISTINCTCOUNT('DimDataAsset'[DataAssetId])-DISTINCTCOUNT(FactDataQuality[DataAssetId]))
+		formatString: 0
+		lineageTag: 00ae07b9-219a-4c05-8482-c8188440b8ac
+
+	measure _ActionItemsPercent =
+			
+			Var _Totalfailed = CALCULATE(COUNTROWS(FactDataQuality), FactDataQuality[TotalUnHealthyRowCount]<>0)
+			Var _TotalRowsCount = [_TotalRows]
+			
+			Return IF((_Totalfailed= 0 || _Totalfailed= BLANK()) || (_TotalRowsCount = 0 || _TotalRowsCount = BLANK()), 0.0, DIVIDE(_Totalfailed,_TotalRowsCount))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 9eb2cc1f-143b-417d-a4f6-de8383ace9a5
+
+	measure _TotalRows = CALCULATE(COUNTROWS(FactDataQuality))
+		formatString: 0
+		lineageTag: db9cc924-93a4-425e-9308-1712c1b24797
+
+	measure _DPCount = CALCULATE(DISTINCTCOUNTNOBLANK(FactDataQuality[DataProductId]))
+		formatString: 0
+		lineageTag: dc116bcf-0cdf-4c32-80ad-e715303d6739
+
+	measure TotalDataAssetsDistinctCountByFact = CALCULATE(DISTINCTCOUNTNOBLANK(FactDataQuality[DataAssetId]))
+		formatString: 0
+		lineageTag: 7af0aab9-4ca0-4d43-b04d-1d42de8cefca
+
+	measure _Accu = ```
+			CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Accuracy")) 
+			```
+		formatString: 0
+		lineageTag: 00636514-b3e1-444c-944e-af98ed308860
+
+	measure _Comp = CALCULATE(COUNT(FactDataQuality[DataAssetId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Completeness"))
+		formatString: 0
+		lineageTag: 2122b9fd-553f-4ffc-8923-83f8ba6046ca
+
+	measure _Conf = CALCULATE(COUNT(FactDataQuality[DataAssetId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Conformity"))
+		formatString: 0
+		lineageTag: c9201e44-46ac-44c0-9a22-b1c6cafca666
+
+	measure _Cons = CALCULATE(COUNT(FactDataQuality[DataAssetId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Consistency"))
+		formatString: 0
+		lineageTag: 77fa6430-6627-4362-95f9-0b91fc834b5c
+
+	measure _Time = ```
+			CALCULATE(COUNT(FactDataQuality[DataAssetId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Timeliness"))
+			
+			```
+		formatString: 0
+		lineageTag: 3adf11be-86c8-4815-ba74-4c256344a750
+
+	measure _Uniq = CALCULATE(COUNT(FactDataQuality[DataAssetID]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Uniqueness"))
+		formatString: 0
+		lineageTag: 4d4565e1-0940-433c-a973-552ba53940bc
+
+	measure _Comp1 = ```
+			CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Completeness")) 
+			```
+		formatString: 0
+		isHidden
+		lineageTag: 392a8ba6-e4ac-4434-87d1-122de59dd7c2
+
+		changedProperty = IsHidden
+
+	measure _Test1 = ```
+			
+			var _Accu = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Accuracy")) 
+			var _Comp = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Completeness")) 
+			var _Conf = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Conformity")) 
+			var _Cons = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Consistency")) 
+			var _Time = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Timeliness")) 
+			var _Uniq = CALCULATE(DISTINCTCOUNT(FactDataQuality[DQRuleTypeId]),FILTER(ALL(DimDQRuleType), DimDQRuleType[QualityDimension] = "Uniqueness")) 
+			var _tot = _Accu+_Comp+_Conf+_Cons+_Time+_Uniq
+			var _FAsset = if(_tot = 6, 0,1)
+			return _FAsset
+			```
+		formatString: 0
+		isHidden
+		lineageTag: a3e9f417-7384-4366-b672-b5e22ad03486
+
+		changedProperty = IsHidden
+
+	measure Passing = CALCULATE(DISTINCTCOUNTNOBLANK(FactDataQuality[DataProductId]),FactDataQuality[Pass/Fail] = "Pass")
+		formatString: 0
+		lineageTag: bc254edc-dba0-43d1-8cae-35f79dbb04f5
+
+	measure Failing = CALCULATE(DISTINCTCOUNTNOBLANK(FactDataQuality[DataProductId]),FactDataQuality[Pass/Fail] = "Fail")
+		formatString: 0
+		lineageTag: 219318c8-a0c7-43aa-93e6-6700f547399b
+
+	measure DPCount_All = CALCULATE(DISTINCTCOUNTNOBLANK(FactDataQuality[DataProductId]), ALLEXCEPT(FactDataQuality,FactDataQuality[Pass/Fail]))
+		formatString: 0
+		lineageTag: 8d0b955b-410f-4785-baa4-55befab57539
+
+	measure _BGColor = "#3393DF"
+		lineageTag: 201d880c-081c-46ee-9af0-f599ccf18617
+
+	measure TotalCDERulesCount = CALCULATE(DISTINCTCOUNTNOBLANK(FactDataQuality[DQRuleId]) + 0,DimDQScanProfile[RuleOriginDisplayName] = "CDE")
+		formatString: 0
+		lineageTag: fd7b05d4-9e2e-4910-b56e-2b2d7f4d0209
+
+	measure TotalRulesByRuleOriginAsset = CALCULATE(DISTINCTCOUNTNOBLANK(FactDataQuality[DQRuleId]),DimDQScanProfile[RuleOriginDisplayName] = "Asset")
+		formatString: 0
+		lineageTag: 405fb00b-682e-41f1-a3e9-ff7c9f7d92b0
+
+	measure Denom = SUMX(FactDataQuality,[TotalRulesByRuleOriginAsset] * [TotalCDERulesCount])
+		formatString: 0
+		lineageTag: 04385884-fc51-4a3b-95b2-492a1c3484c2
+
+	measure C_NoOfDataAssets = DISTINCTCOUNTNOBLANK(FactDataQuality[DataAssetId])
+		formatString: 0
+		lineageTag: 2939f020-4d95-44bf-92c0-23de6efb1805
+
+	measure OverallQualityScore_ToolTip = "Overall Quality Score: This measure is to know the overall success of all rules designated to run at Asset Column level and Asset level of all DataAssets.This measure will roll up to higher grains - Data Products and Business Domains"
+		lineageTag: a0c48983-658f-4da6-8747-ea3693b9c59b
+
+	measure _VisualBorder = "#808080"
+		lineageTag: 9e2a0695-607b-432e-b3a1-928546bcc4b6
+
+	measure Accuracy_ToolTip = "Accuracy: This measure is to know the overall success of all rules designated to run at Asset Column level and Asset level of all DataAssets for Accuracy Quality Dimension.This measure will roll up to higher grains - Data Products and Business Domains"
+		lineageTag: 330867dd-2b21-4a51-a47d-875f484bc469
+
+	measure Completeness_ToolTip = "Completeness: This measure is to know the overall success of all rules designated to run at Asset Column level and Asset level of all DataAssets for Completeness Quality Dimension.This measure will roll up to higher grains - Data Products and Business Domains"
+		lineageTag: 0f07c1f2-a6b3-41db-a481-71e3f5ae86a7
+
+	measure Conformity_ToolTip = "Conformity: This measure is to know the overall success of all rules designated to run at Asset Column level and Asset level of all DataAssets for Conformity Quality Dimension.This measure will roll up to higher grains - Data Products and Business Domains"
+		lineageTag: ee1155d8-5a00-42ad-9c60-0b412597cc45
+
+	measure Uniqueness_ToolTip = "Uniqueness: This measure is to know the overall success of all rules designated to run at Asset Column level and Asset level of all DataAssets for Uniqueness Quality Dimension.This measure will roll up to higher grains - Data Products and Business Domains"
+		lineageTag: 360c6edf-3204-4446-b918-02ca2c2c7bca
+
+	measure Consistency_ToolTip = "Consistency: This measure is to know the overall success of all rules designated to run at Asset Column level and Asset level of all DataAssets for Consistency Quality Dimension.This measure will roll up to higher grains - Data Products and Business Domains"
+		lineageTag: b2d33211-3ff3-47d1-825a-a97e4cab54a4
+
+	measure Timeliness_ToolTip = "Timeliness: This measure is to know the overall success of all rules designated to run at Asset Column level and Asset level of all DataAssets for Timeliness Quality Dimension.This measure will roll up to higher grains - Data Products and Business Domains"
+		lineageTag: 1ca4f2d9-b36a-4925-b394-7e4fad2a0b7b
+
+	measure TotalNoOfRules_Old = CALCULATE(DISTINCTCOUNTNOBLANK(FactDataQuality[DQRuleId]))
+		formatString: 0
+		lineageTag: 563d8e8f-d58c-4568-bfe1-585505f4c794
+
+	measure DACount_All = CALCULATE(DISTINCTCOUNTNOBLANK(FactDataQuality[DataAssetId]), ALLEXCEPT(FactDataQuality,FactDataQuality[Pass/Fail]))
+		formatString: 0
+		lineageTag: 3689aef6-5935-4373-9ea6-a3989726f6e5
+
+	measure _DACount = CALCULATE(DISTINCTCOUNTNOBLANK(FactDataQuality[DataAssetId]))
+		formatString: 0
+		lineageTag: 3b01acfe-7fb8-460b-a810-acbff84ec7de
+
+	measure OverallDQQualityScore_Old =
+			DIVIDE([TotalPassesByDimension_Old],[TotalRowsAtAssetLevel],0.0)
+			//IF(ISBLANK(AVERAGE(FactDataQuality[DQOverallProfileQualityScore])),0.0,AVERAGE(FactDataQuality[DQOverallProfileQualityScore])*0.01)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: f10a667f-08a7-4ca8-9f2c-19bb4135dc76
+
+	measure FactDataQualityRows = COUNTROWS(FactDataQuality)
+		formatString: 0
+		lineageTag: 679aed4b-a5ef-49c5-9b8d-73b37f78bb12
+
+	measure NumberOfRules = CALCULATE(COUNT(FactDataQuality[DQRuleId]))
+		formatString: 0
+		lineageTag: 954ae5d0-3453-4264-9637-3a4dcbf3f016
+
+	measure TotalPassedRows_Old = CALCULATE(SUM(FactDataQuality[DQPassedCount]))
+		formatString: 0
+		lineageTag: 092d7ca3-3979-4865-867e-9e6d3ad4a924
+
+	measure TotalCompleteRows = CALCULATE(SUM(FactDataQuality[TotalRowCount]))
+		formatString: 0
+		lineageTag: ad9a3835-c3c5-4242-bc63-6a0cc7fd7174
+
+	measure TotalPassesByDimension_Old = DIVIDE([TotalPassedRows_Old],[NumberOfRules],0.0)
+		lineageTag: 6e76b8f8-3fcb-4f34-8191-d74e0ff869ec
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure TotalDistinctDimensions = CALCULATE(DISTINCTCOUNTNOBLANK(DimDQRuleType[QualityDimension]))
+		formatString: 0
+		lineageTag: 9a3b6ce5-a293-4062-b214-e39500c00ab8
+
+	measure TotalRowsAtAssetLevel = ```
+			
+			 var a = CALCULATE(SUM(FactDataQuality[TotalRowCount]))
+			 var b = CALCULATE(COUNT(FactDataQuality[DQRuleId]))
+			 RETURN DIVIDE(a,b,0)
+			```
+		formatString: 0
+		lineageTag: f60f3fd7-7814-4b7e-b0cf-8a0f96294f1c
+
+	measure DQScore_WeightAvg_Old = DIVIDE([TotalPassesByDimension_Old],([TotalRowsAtAssetLevel] ),0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 7c8145fe-a7ed-4190-be84-e215242d71dc
+
+	measure TotalPassedRowsByRuleType =
+			
+			VAR a = CALCULATE(SUM(FactDataQuality[DQPassedCount]),ALLSELECTED(FactDataQuality[DQRuleId]))
+			VAR b = CALCULATE(COUNT(FactDataQuality[DQRuleId]),ALLSELECTED(FactDataQuality[DQRuleId]))
+			return DIVIDE(a,b,0.0)
+		lineageTag: 618babc3-bf3e-4638-a505-e7f7242cf8fb
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure TotalCompleteRows_1 = CALCULATE(MAX(FactDataQuality[TotalRowCount]),ALLSELECTED(FactDataQuality[DataAssetId]))
+		formatString: 0
+		lineageTag: cde30d78-d419-4975-86c7-f9348077b905
+
+	measure OverallDQScore_UX =
+			
+			var a = CALCULATE(MAX(FactDataQuality[TotalRowCount__UX]),FactDataQuality[DQRuleId])
+			return a
+		formatString: 0
+		lineageTag: b4695dfb-7311-4c48-86c8-5ad8b5a77691
+
+	measure DataAssetColumns = countx(keepfilters(FactDataQuality),distinctcount(FactDataQuality[DQRuleId]))
+		formatString: 0
+		lineageTag: 57b78563-cd98-4a2c-8e11-8d607a31f37b
+
+	measure DQScore_WeightAvg = divide([TotalPassedRows_Old],[TotalPassesByDimension_Old],0)
+		lineageTag: 8d70edbe-50b9-4682-a29a-1dd794d523e7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure OverallDQQualityScore = IF(ISBLANK(AVERAGE(FactDataQuality[DQOverallProfileQualityScore])),0.0,AVERAGE(FactDataQuality[DQOverallProfileQualityScore])*0.01)
+		lineageTag: d6d0275e-2212-45ac-99e2-edadec4ced13
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure TotalNoOfRules = countx(keepfilters(FactDataQuality),distinctcount(FactDataQuality[DQRuleId]))
+		formatString: 0
+		lineageTag: 3a84fdf6-bcac-4e25-beef-17581aa3f4a9
+
+	measure TotalPassedRows = sumx(keepfilters('FactDataQuality'),FactDataQuality[DQPassedCount])
+		formatString: 0
+		lineageTag: f2986056-f018-4662-8580-c0a4ccdf5fea
+
+	measure TotalPassesByDimension = sumx(keepfilters(FactDataQuality),[TotalPassedRows]*[TotalNoOfRules])
+		formatString: 0
+		lineageTag: e8b83447-a4d1-4ee5-819f-35d3ac6b81c6
+
+	measure Score = divide([Passed Count],[TotalRows],0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 8501e92f-33eb-4a9b-88e1-63147864dcd8
+
+	measure Score_UX = divide([Passed Count],[TotalRows_UX],0)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: a671ff06-0f32-4da9-9a0a-3c2f5920d7af
+
+	measure _AVGStaticDenDQSC = AVERAGEA(FactDataQuality[RuleLevelScore_StaticDen])
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 6f12d0db-ecc6-4201-b2b2-632a93de68cb
+
+	measure DQScore_DynDen_AvgOfAverages = AVERAGEX(VALUES(FactDataQuality[HierarchyId]),CALCULATE(AVERAGE(FactDataQuality[RuleLevelScore_DynDen])))
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 47b4076c-7957-469e-bb72-ad6aa259ebba
+
+	measure DQScore_StaticDen_AvgOfAverages = AVERAGEX(VALUES(FactDataQuality[DataAssetId]),CALCULATE(AVERAGE(FactDataQuality[RuleLevelScore_StaticDen])))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: e0d83227-e596-4a73-96c5-246110c17183
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Measures = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Measures", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Measures"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+

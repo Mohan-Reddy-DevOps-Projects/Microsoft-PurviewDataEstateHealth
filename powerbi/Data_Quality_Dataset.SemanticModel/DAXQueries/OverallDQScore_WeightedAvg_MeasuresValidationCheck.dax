@@ -1,0 +1,42 @@
+DEFINE MEASURE _Measures[TotalCompleteRows] = SUM(FactDataQuality[TotalRowCount])
+EVALUATE
+	SUMMARIZECOLUMNS('FactDataQuality'[DQRuleId], TREATAS({1657,2507,2121},'FactDataQuality'[DQRuleId]),"TotalCompleteRows",_Measures[TotalCompleteRows],"TotalPassedRows",_Measures[TotalPassedRows],"NumberofRules",_Measures[NumberOfRules],"TotalPassesByDimension",_Measures[TotalPassesByDimension],"TotalDistinctDimensions",_Measures[TotalDistinctDimensions])
+
+DEFINE MEASURE _Measures[TotalCompleteRows] = SUM(FactDataQuality[TotalRowCount])
+EVALUATE
+	SUMMARIZECOLUMNS('FactDataQuality'[DQRuleId],'DimDQRuleType'[QualityDimension], TREATAS({1451,1431,992,1853},'FactDataQuality'[DQRuleId]),"TotalCompleteRows",_Measures[TotalCompleteRows],"TotalPassedRows",_Measures[TotalPassedRows],"NumberofRules",_Measures[NumberOfRules],"TotalPassesByDimension",_Measures[TotalPassesByDimension],"TotalDistinctDimensions",_Measures[TotalDistinctDimensions])
+ORDER BY 'FactDataQuality'[DQRuleId]
+
+DEFINE MEASURE _Measures[TotalCompleteRows] = SUM(FactDataQuality[TotalRowCount])
+EVALUATE
+	SUMMARIZECOLUMNS('FactDataQuality'[DQRuleId],'DimDQRuleType'[QualityDimension], TREATAS({148,3037,418,3196,3075},'FactDataQuality'[DQRuleId]),"TotalCompleteRows",_Measures[TotalCompleteRows],"TotalPassedRows",_Measures[TotalPassedRows],"NumberofRules",_Measures[NumberOfRules],"TotalPassesByDimension",_Measures[TotalPassesByDimension],"TotalDistinctDimensions",_Measures[TotalDistinctDimensions])
+ORDER BY 'FactDataQuality'[DQRuleId]
+
+EVALUATE
+	SUMMARIZECOLUMNS('FactDataQuality'[DQRuleId],'DimDQRuleType'[QualityDimension], TREATAS({148,3037,418,3196,3075},'FactDataQuality'[DQRuleId]),"TotalCompleteRows",_Measures[TotalCompleteRows],"TotalPassedRows",_Measures[TotalPassedRows],"NumberofRules",_Measures[NumberOfRules],"TotalPassesByDimension",_Measures[TotalPassesByDimension],"TotalRowsAtAssetLevel",_Measures[TotalRowsAtAssetLevel])
+ORDER BY 'FactDataQuality'[DQRuleId]
+
+EVALUATE
+	SUMMARIZECOLUMNS('FactDataQuality'[DQRuleId],'DimDQRuleType'[QualityDimension], TREATAS({148,3037,418,3196,3075},'FactDataQuality'[DQRuleId]),"TotalCompleteRows",_Measures[TotalCompleteRows],"TotalPassedRows",_Measures[TotalPassedRows],"NumberofRules",_Measures[NumberOfRules],"TotalPassesByDimension",_Measures[TotalPassesByDimension],"TotalRowsAtAssetLevel",_Measures[TotalRowsAtAssetLevel], "TotalPassedRowsByRuleType" ,_Measures[TotalPassedRowsByRuleType])
+ORDER BY 'FactDataQuality'[DQRuleId]
+
+DEFINE MEASURE _Measures[TotalCompleteRows] = SUM(FactDataQuality[TotalRowCount])
+EVALUATE
+	SUMMARIZECOLUMNS('FactDataQuality'[DQRuleId], "TotalCompleteRows",_Measures[TotalCompleteRows],"TotalPassedRows",_Measures[TotalPassedRows],"NumberofRules",_Measures[NumberOfRules],"TotalPassesByDimension",_Measures[TotalPassesByDimension],"TotalDistinctDimensions",_Measures[TotalDistinctDimensions])
+	
+DEFINE MEASURE _Measures[NumberOfRules] = SUM(FactDataQuality[DQRuleId])
+EVALUATE
+	SUMMARIZECOLUMNS('FactDataQuality'[DQRuleId], TREATAS({1657},'FactDataQuality'[DQRuleId]),"NumberofRules",_Measures[NumberOfRules])
+	
+	
+
+
+
+	
+
+
+
+
+
+
+

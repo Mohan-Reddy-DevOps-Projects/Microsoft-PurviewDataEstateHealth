@@ -1,0 +1,32 @@
+table DimDQJobType
+	lineageTag: 3f2d6a6d-fad7-4070-bea4-160fa85f6f2c
+
+	column JobTypeId
+		dataType: int64
+		formatString: 0
+		lineageTag: a9201b87-8190-4fba-a285-b97bf64b9270
+		summarizeBy: none
+		sourceColumn: JobTypeId
+
+		annotation SummarizationSetBy = Automatic
+
+	column JobTypeDisplayName
+		dataType: string
+		lineageTag: 0aa04fda-8b73-4013-be01-3abffb75ac19
+		summarizeBy: none
+		sourceColumn: JobTypeDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDQJobType = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE),
+				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDQJobType" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimDQJobType"]}[Data],
+				  #"Merged queries" = Table.NestedJoin(#"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDQJobType", {"JobTypeId"}, FactDataQuality, {"JobTypeId"}, "FactDataQuality", JoinKind.Inner)
+				in
+				    #"Merged queries"
+
+	annotation PBI_ResultType = Table
+

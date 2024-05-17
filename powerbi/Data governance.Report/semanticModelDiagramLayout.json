@@ -10,8 +10,8 @@
       "nodes": [
         {
           "location": {
-            "x": 1534.0500556408683,
-            "y": 464.95558726516606
+            "x": 1015.2186394236387,
+            "y": 306.06294562013466
           },
           "nodeIndex": "Measure Table",
           "nodeLineageTag": "6df9c17d-2d84-4e67-88c9-0d0df5b7d82c",
@@ -23,8 +23,8 @@
         },
         {
           "location": {
-            "x": 1818.0500556408683,
-            "y": 550.95558726516606
+            "x": 1299.2186394236387,
+            "y": 392.06294562013466
           },
           "nodeIndex": "AccountInfo",
           "nodeLineageTag": "9887af52-3087-4da2-a612-3118197dceda",
@@ -36,8 +36,8 @@
         },
         {
           "location": {
-            "x": 847.61691994798707,
-            "y": 919.91117453033189
+            "x": 741.21863942363859,
+            "y": 471.15892167045575
           },
           "nodeIndex": "Assets",
           "nodeLineageTag": "3c94d71d-7b42-4032-9d7d-6fe744d26825",
@@ -49,7 +49,7 @@
         },
         {
           "location": {
-            "x": 297.03821302609413,
+            "x": 140.7345952493082,
             "y": -10
           },
           "nodeIndex": "BusinessDomain",
@@ -62,8 +62,8 @@
         },
         {
           "location": {
-            "x": 1132.0590984252226,
-            "y": 664.72532354665611
+            "x": 10,
+            "y": 678.12589124026942
           },
           "nodeIndex": "DataHealthControl",
           "nodeLineageTag": "6291915d-54b6-497a-8899-860905c96405",
@@ -75,8 +75,8 @@
         },
         {
           "location": {
-            "x": 297.03154690740075,
-            "y": 459.58615612074436
+            "x": 454.17391302376757,
+            "y": 560.55348557012826
           },
           "nodeIndex": "DataProduct",
           "nodeLineageTag": "97026e22-bfd6-4eec-aaf2-4993b0a22699",
@@ -88,8 +88,8 @@
         },
         {
           "location": {
-            "x": 2102.0500556408683,
-            "y": 464.95558726516606
+            "x": 1583.2186394236387,
+            "y": 306.06294562013466
           },
           "nodeIndex": "Date",
           "nodeLineageTag": "d16d1213-96a8-479b-a4e3-fe1550932006",
@@ -101,52 +101,13 @@
         },
         {
           "location": {
-            "x": 10,
-            "y": 149.94892672121296
-          },
-          "nodeIndex": "DQ Fact",
-          "nodeLineageTag": "393e543f-61b5-4bdd-a77e-ff8f63a76ca1",
-          "size": {
-            "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 1260.0500556408683,
-            "y": 311.67700971206193
+            "x": 160.12521688460561,
+            "y": 315.249465845399
           },
           "nodeIndex": "FactDataGovernanceScan",
           "nodeLineageTag": "e7e68e7c-47ab-4ceb-8f1c-ae0f93959532",
           "size": {
             "height": 300,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 2386.0500556408683,
-            "y": 550.95558726516606
-          },
-          "nodeIndex": "JobType",
-          "nodeLineageTag": "702eafb8-ace7-4cc3-8785-f2687d3f2f4c",
-          "size": {
-            "height": 128,
-            "width": 234
-          },
-          "zIndex": 0
-        },
-        {
-          "location": {
-            "x": 581.7725457320646,
-            "y": 669.43614404306823
-          },
-          "nodeIndex": "RuleType",
-          "nodeLineageTag": "92ae3b67-93ba-4bb4-83b9-84cc1ba59944",
-          "size": {
-            "height": 200,
             "width": 234
           },
           "zIndex": 0

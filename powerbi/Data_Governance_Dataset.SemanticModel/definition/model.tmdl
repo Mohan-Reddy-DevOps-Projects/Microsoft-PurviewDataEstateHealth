@@ -8,9 +8,9 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBIDesktopVersion = 2.128.1002.0 (24.04)
+annotation PBIDesktopVersion = 2.129.702.0 (24.05)
 
-annotation PBI_QueryOrder = ["SERVER","DATABASE","DATABASE_SCHEMA","TENANT_ID","AccountInfo","Assets","BusinessDomain","DataHealthControl","DataProduct","Date","JobType","RuleType","DQ Fact","FactDataGovernanceScan","Measure Table"]
+annotation PBI_QueryOrder = ["SERVER","DATABASE","DATABASE_SCHEMA","TENANT_ID","AccountInfo","Assets","BusinessDomain","DataHealthControl","DataProduct","Date","FactDataGovernanceScan","Measure Table"]
 
 annotation PBI_ProTooling = ["DevMode"]
 
@@ -26,13 +26,11 @@ ref table LocalDateTable_fccec4f6-6bee-4331-87b7-111da6af051c
 ref table LocalDateTable_5f62f5fb-6a2b-4bae-ac84-a9404d1a04db
 ref table Date
 ref table LocalDateTable_68313405-eb4e-453a-b0d9-882b6420c508
-ref table JobType
-ref table RuleType
 ref table Assets
-ref table 'DQ Fact'
-ref table LocalDateTable_73c715a1-940e-494b-b3b6-92da243d6880
 ref table FactDataGovernanceScan
 ref table 'Measure Table'
 ref table LocalDateTable_6d28c38f-e075-4166-aebc-1ba1285eaa64
 ref table AccountInfo
+
+ref cultureInfo en-US
 

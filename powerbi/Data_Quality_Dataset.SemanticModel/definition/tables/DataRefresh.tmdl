@@ -1,0 +1,56 @@
+table DataRefresh
+	lineageTag: d828e9c5-7b5c-44c2-bbe3-2a140115747f
+
+	column DateTime
+		dataType: string
+		lineageTag: cf769d8c-0382-4b4b-84e4-5827b6c025e9
+		summarizeBy: none
+		sourceColumn: DateTime
+
+		annotation SummarizationSetBy = Automatic
+
+	column Date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: e3ac1c0f-0f94-4ea8-b4ce-10b2e45b9206
+		summarizeBy: none
+		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: 3393b481-0370-4124-9985-f7ce6ef7c737
+			defaultHierarchy: LocalDateTable_93a7d6f3-3b62-476d-bf39-329c36811b82.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Time
+		dataType: dateTime
+		formatString: Long Time
+		lineageTag: f12b1616-40d1-47e1-b7af-06824e533f13
+		summarizeBy: none
+		sourceColumn: Time
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Time
+
+	partition DataRefresh = m
+		mode: import
+		source =
+				let
+				    Source = DateTime.LocalNow(),
+				    #"Converted to Table" = #table(1, {{Source}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Converted to Table",{{"Column1", "DateTime"}}),
+				    #"Duplicated Column" = Table.DuplicateColumn(#"Renamed Columns", "DateTime", "DateTime - Copy"),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Duplicated Column",{{"DateTime - Copy", "Date"}}),
+				    #"Extracted Date" = Table.TransformColumns(#"Renamed Columns1",{{"Date", DateTime.Date, type date}}),
+				    #"Duplicated Column1" = Table.DuplicateColumn(#"Extracted Date", "DateTime", "DateTime - Copy"),
+				    #"Renamed Columns2" = Table.RenameColumns(#"Duplicated Column1",{{"DateTime - Copy", "Time"}}),
+				    #"Extracted Time" = Table.TransformColumns(#"Renamed Columns2",{{"Time", DateTime.Time, type time}})
+				in
+				    #"Extracted Time"
+
+	annotation PBI_ResultType = Table
+

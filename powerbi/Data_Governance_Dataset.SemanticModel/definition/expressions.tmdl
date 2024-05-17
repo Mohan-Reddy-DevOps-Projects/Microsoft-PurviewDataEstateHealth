@@ -1,8 +1,6 @@
 expression SERVER = "dghdogfoodsynapse-ondemand.sql.azuresynapse.net" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: a39b1562-6d54-4c3d-85ad-9ea7f75f93f9
 
-	annotation PBI_NavigationStepName = Navigation
-
 	annotation PBI_ResultType = Text
 
 expression DATABASE = "SQL_ON_DEMAND" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
