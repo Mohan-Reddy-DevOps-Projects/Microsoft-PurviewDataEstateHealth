@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.DGP.ServiceBasics.Components;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
 /// <summary>
 /// Account notification contract.
@@ -27,4 +28,17 @@ public interface IDHWorkerServiceTriggerComponent : IComponent<IDHWorkerServiceT
     /// <param name="jobId"></param>
     /// <returns></returns>
     Task<Dictionary<string, string>> GetBackgroundJob(string jobPartition, string jobId);
+
+    /// <summary>
+    /// Create or update DEH schedule job.
+    /// </summary>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    Task UpsertDEHScheduleJob(DHControlScheduleWrapper schedule);
+
+    /// <summary>
+    /// Delete DEH schedule job.
+    /// </summary>
+    /// <returns></returns>
+    Task DeleteDEHScheduleJob();
 }

@@ -52,6 +52,23 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             await this.HandleResponseStatusCode(response);
         }
 
+        public async Task TriggerScheduleCallback(TriggeredSchedulePayload payload, CancellationToken cancellationToken)
+        {
+            var requestUri = this.CreateRequestUri("/internal/control/triggerScheduleJobCallback");
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
+            request.Content = this.CreateRequestContent(new Dictionary<string, string>()
+            {
+                ["controlId"] = payload.ControlId,
+                ["operator"] = payload.Operator,
+                ["triggerType"] = payload.TriggerType,
+            });
+            request.Headers.Add(HeaderAccountIdName, payload.AccountId.ToString());
+            request.Headers.Add(HeaderTenantIdName, payload.TenantId.ToString());
+            request.Headers.Add(HeaderRequestIdName, payload.RequestId.ToString());
+            var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            await this.HandleResponseStatusCode(response);
+        }
+
         public async Task TriggerSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken)
         {
             var requestUri = this.CreateRequestUri("/internal/control/triggerScheduleJob");
@@ -61,7 +78,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 ["controlId"] = payload.ControlId,
                 ["operator"] = payload.Operator,
                 ["triggerType"] = payload.TriggerType,
-
             });
             request.Headers.Add(HeaderAccountIdName, payload.AccountId.ToString());
             request.Headers.Add(HeaderTenantIdName, payload.TenantId.ToString());

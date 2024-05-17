@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using System;
 using System.Collections.Generic;
@@ -180,6 +181,23 @@ public interface IJobManager
     /// <param name="accountServiceModel"></param>
     /// <returns></returns>
     Task DeprovisionDataQualitySparkJob(AccountServiceModel accountServiceModel);
+
+    /// <summary>
+    /// Provisions DEH schedule job.
+    /// </summary>
+    /// <param name="tenantId"></param>
+    /// <param name="accountId"></param>
+    /// <param name="schedulePayload"></param>
+    /// <returns></returns>
+    Task ProvisionDEHScheduleJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload);
+
+    /// <summary>
+    /// Deprovisions DEH schedule job.
+    /// </summary>
+    /// <param name="tenantId"></param>
+    /// <param name="accountId"></param>
+    /// <returns></returns>
+    Task DeprovisionDEHScheduleJob(string tenantId, string accountId);
 
     /// <summary>
     /// Trigger background job.

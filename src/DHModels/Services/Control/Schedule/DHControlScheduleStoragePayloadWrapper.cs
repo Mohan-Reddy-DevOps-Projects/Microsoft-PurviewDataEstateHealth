@@ -16,6 +16,7 @@ public class DHControlScheduleStoragePayloadWrapper(JObject jObject) : Container
     }
 
     private const string keyType = "type";
+    private const string keyHost = "host";
     private const string keyProperties = "properties";
 
     [EntityProperty(keyType)]
@@ -28,6 +29,18 @@ public class DHControlScheduleStoragePayloadWrapper(JObject jObject) : Container
             return Enum.TryParse<DHControlScheduleType>(enumStr, true, out var result) ? result : null;
         }
         set => this.SetPropertyValue(keyType, value.ToString());
+    }
+
+    [EntityProperty(keyHost)]
+    [EntityRequiredValidator]
+    public DHControlScheduleHost Host
+    {
+        get
+        {
+            var enumStr = this.GetPropertyValue<string>(keyHost);
+            return Enum.TryParse<DHControlScheduleHost>(enumStr, true, out var result) ? result : DHControlScheduleHost.DGScheduleService;
+        }
+        set => this.SetPropertyValue(keyHost, value.ToString());
     }
 
     private DHControlScheduleWrapper? properties;
@@ -54,4 +67,11 @@ public enum DHControlScheduleType
 {
     ControlGlobal,
     ControlNode,
+}
+
+[JsonConverter(typeof(StringEnumConverter))]
+public enum DHControlScheduleHost
+{
+    DGScheduleService,
+    AzureStack,
 }

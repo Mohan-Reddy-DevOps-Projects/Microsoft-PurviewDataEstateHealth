@@ -79,6 +79,26 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             });
         }
 
+        public async Task<bool> TriggerDEHScheduleCallback(TriggeredSchedulePayload payload, CancellationToken cancellationToken)
+        {
+            var payloadString = JsonConvert.SerializeObject(payload);
+            using (this.logger.LogElapsed($"Trigger DEH schedule callback. {payloadString}"))
+            {
+                try
+                {
+                    var client = this.GetDEHServiceClient();
+                    await client.TriggerScheduleCallback(payload, cancellationToken).ConfigureAwait(false);
+                    this.logger.LogInformation($"Succeed to trigger DEH schedule callback. {payloadString}");
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    this.logger.LogError($"Fail to trigger DEH schedule callback. {payloadString}", ex);
+                    return false;
+                }
+            }
+        }
+
         public async Task<bool> TriggerDEHSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken)
         {
             var payloadString = JsonConvert.SerializeObject(payload);
@@ -98,7 +118,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 }
             }
         }
-
 
         public async Task<bool> CleanUpActionsJobCallback(AccountServiceModel account, CancellationToken cancellationToken)
         {

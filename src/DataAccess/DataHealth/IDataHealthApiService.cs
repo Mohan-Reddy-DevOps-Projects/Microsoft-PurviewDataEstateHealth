@@ -33,6 +33,14 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// <param name="payload"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
+        Task<bool> TriggerDEHScheduleCallback(TriggeredSchedulePayload payload, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Trigger DEH schedule
+        /// </summary>
+        /// <param name="payload"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         Task<bool> TriggerDEHSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken);
 
         /// <summary>

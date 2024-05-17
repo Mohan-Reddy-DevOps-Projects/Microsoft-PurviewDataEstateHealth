@@ -3,6 +3,7 @@
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Common;
+    using Microsoft.Azure.Purview.DataEstateHealth.Core;
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
     using Microsoft.Extensions.Options;
@@ -25,19 +26,22 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
         private readonly DHScheduleConfiguration scheduleConfiguration;
         private readonly IRequestHeaderContext requestHeaderContext;
         private readonly IDataEstateHealthRequestLogger logger;
+        private readonly ICoreLayerFactory coreLayerFactory;
 
         public DHScheduleInternalService(
             IRequestHeaderContext requestHeaderContext,
             DHControlScheduleRepository dhControlScheduleRepository,
             ScheduleServiceClientFactory scheduleServiceClientFactory,
             IOptions<DHScheduleConfiguration> scheduleConfiguration,
-            IDataEstateHealthRequestLogger logger)
+            IDataEstateHealthRequestLogger logger,
+            ICoreLayerFactory coreLayerFactory)
         {
             this.dhControlScheduleRepository = dhControlScheduleRepository;
             this.scheduleServiceClient = scheduleServiceClientFactory.GetClient();
             this.scheduleConfiguration = scheduleConfiguration.Value;
             this.requestHeaderContext = requestHeaderContext;
             this.logger = logger;
+            this.coreLayerFactory = coreLayerFactory;
         }
 
         public async Task<DHControlScheduleStoragePayloadWrapper> GetScheduleByIdAsync(string scheduleId)
@@ -57,14 +61,17 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
 
         public async Task<DHControlScheduleStoragePayloadWrapper> CreateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string? controlId = null)
         {
-            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(CreateScheduleAsync)}"))
+            schedule.Host = DHControlScheduleHost.AzureStack;
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(CreateScheduleAsync)}. Tenant Id: {this.requestHeaderContext.TenantId}. Account Id: {this.requestHeaderContext.AccountObjectId}."))
             {
-                var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
-                var response = await this.scheduleServiceClient.CreateSchedule(schedulePayload).ConfigureAwait(false);
+                await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                    .CreateDHWorkerServiceTriggerComponent(this.requestHeaderContext.TenantId, this.requestHeaderContext.AccountObjectId)
+                    .UpsertDEHScheduleJob(schedule.Properties).ConfigureAwait(false);
 
-                this.logger.LogInformation($"Schedule with ID {response.ScheduleId} created in schedule service.");
+                var scheduleId = GenerateScheduleId(Guid.NewGuid());
+                this.logger.LogInformation($"DEH Schedule job is created in worker service. Schedule id: {scheduleId}");
 
-                schedule.OnCreate(this.requestHeaderContext.ClientObjectId, response.ScheduleId);
+                schedule.OnCreate(this.requestHeaderContext.AccountObjectId.ToString(), scheduleId);
 
                 await this.dhControlScheduleRepository.AddAsync(schedule).ConfigureAwait(false);
 
@@ -74,7 +81,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
 
         public async Task<DHControlScheduleStoragePayloadWrapper> UpdateScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string? controlId = null)
         {
-            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(UpdateScheduleAsync)}: Update for schedule with ID {schedule.Id}"))
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(UpdateScheduleAsync)}: Update for schedule with ID {schedule.Id}.  Tenant Id: {this.requestHeaderContext.TenantId}. Account Id: {this.requestHeaderContext.AccountObjectId}."))
             {
                 var existEntity = await this.dhControlScheduleRepository.GetByIdAsync(schedule.Id).ConfigureAwait(false);
 
@@ -83,12 +90,27 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                     throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), schedule.Id));
                 }
 
-                var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
-                await this.scheduleServiceClient.UpdateSchedule(schedulePayload).ConfigureAwait(false);
+                schedule.Host = existEntity.Host;
 
-                this.logger.LogInformation($"Schedule with ID {schedule.Id} updated in schedule service.");
+                if (schedule.Host == DHControlScheduleHost.DGScheduleService)
+                {
+                    var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
+                    await this.scheduleServiceClient.UpdateSchedule(schedulePayload).ConfigureAwait(false);
+                    this.logger.LogInformation($"DEH Schedule job is updated in schedule service. Schedule id: {schedule.Id}");
+                }
+                else if (schedule.Host == DHControlScheduleHost.AzureStack)
+                {
+                    await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                        .CreateDHWorkerServiceTriggerComponent(this.requestHeaderContext.TenantId, this.requestHeaderContext.AccountObjectId)
+                        .UpsertDEHScheduleJob(schedule.Properties).ConfigureAwait(false);
+                    this.logger.LogInformation($"DEH Schedule job is updated in worker service. Schedule id: {schedule.Id}");
+                }
+                else
+                {
+                    throw new Exception($"Invalid schedule host: {schedule.Host}.");
+                }
 
-                schedule.OnUpdate(existEntity, this.requestHeaderContext.ClientObjectId);
+                schedule.OnUpdate(existEntity, this.requestHeaderContext.AccountObjectId.ToString());
 
                 await this.dhControlScheduleRepository.UpdateAsync(schedule).ConfigureAwait(false);
 
@@ -98,19 +120,29 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
 
         public async Task DeleteScheduleAsync(string scheduleId)
         {
-            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(DeleteScheduleAsync)}: Delete for schedule with ID {scheduleId}"))
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(DeleteScheduleAsync)}: Delete for schedule with ID {scheduleId}.  Tenant Id: {this.requestHeaderContext.TenantId}. Account Id: {this.requestHeaderContext.AccountObjectId}."))
             {
-                await this.scheduleServiceClient.DeleteSchedule(scheduleId).ConfigureAwait(false);
-                await this.dhControlScheduleRepository.DeleteAsync(scheduleId).ConfigureAwait(false);
-            }
-        }
+                var schedule = await this.dhControlScheduleRepository.GetByIdAsync(scheduleId).ConfigureAwait(false);
+                if (schedule == null)
+                {
+                    throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), scheduleId));
+                }
+                if (schedule.Host == DHControlScheduleHost.DGScheduleService)
+                {
+                    await this.scheduleServiceClient.DeleteSchedule(scheduleId).ConfigureAwait(false);
+                }
+                else if (schedule.Host == DHControlScheduleHost.AzureStack)
+                {
+                    await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                    .CreateDHWorkerServiceTriggerComponent(this.requestHeaderContext.TenantId, this.requestHeaderContext.AccountObjectId)
+                    .DeleteDEHScheduleJob().ConfigureAwait(false);
+                }
+                else
+                {
+                    throw new Exception($"Invalid schedule host: {schedule.Host}.");
+                }
 
-        public async Task TriggerScheduleAsync(string scheduleId)
-        {
-            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(TriggerScheduleAsync)}: Trigger for schedule with ID {scheduleId}"))
-            {
-                var payload = new DHScheduleTriggerRequestPayload { ScheduleId = scheduleId };
-                await this.scheduleServiceClient.TriggerSchedule(payload).ConfigureAwait(false);
+                await this.dhControlScheduleRepository.DeleteAsync(scheduleId).ConfigureAwait(false);
             }
         }
 
@@ -142,7 +174,6 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
             payload.SetRecurrence(schedule.Properties);
             return payload;
         }
-
         public async Task DeprovisionForSchedulesAsync()
         {
             using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForSchedulesAsync)}: Deprovision all schedules"))
@@ -165,6 +196,16 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                     }
                 })).ConfigureAwait(false);
             }
+        }
+
+        // Schedule id generate logic is copied from DG schedule service.
+        private static string GenerateScheduleId(Guid scheduleId)
+        {
+            var id = Convert.ToBase64String(scheduleId.ToByteArray())
+                .Replace("=", string.Empty, StringComparison.CurrentCultureIgnoreCase)
+                .Replace("+", "-", StringComparison.CurrentCultureIgnoreCase)
+                .Replace("/", "_", StringComparison.CurrentCultureIgnoreCase);
+            return $"DGS{DateTime.Now:yyMMddHHmmss}{id}";
         }
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using Microsoft.WindowsAzure.ResourceStack.Common.Instrumentation;
@@ -69,6 +70,9 @@ public class JobManager : IJobManager
 
     static readonly string DataQualitySparkJobPartitionAffix = "-SPARK-JOBS";
     static readonly string DataQualitySparkJobIdAffix = "-DATAQUALITY-SPARK-JOB";
+
+    static readonly string DEHScheduleJobPartitionAffix = "-DEH-SCHEDULE-JOBS";
+    static readonly string DEHScheduleJobIdAffix = "-DEH-SCHEDULE-JOB";
 
     static readonly string ActionCleanUpJobPartitionAffix = "-ACTION-CLEAN-UP-JOBS";
     static readonly string ActionCleanUpJobIdAffix = "-ACTION-CLEAN-UP-JOB";
@@ -701,6 +705,72 @@ public class JobManager : IJobManager
         await this.DeleteJobAsync(jobPartition, jobId);
     }
 
+    /// <inheritdoc />
+    public async Task ProvisionDEHScheduleJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload)
+    {
+        string jobPartition = $"{accountId}{DEHScheduleJobPartitionAffix}";
+        string jobId = $"{accountId}{DEHScheduleJobIdAffix}";
+
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        var jobMetadata = new DEHScheduleJobMetadata
+        {
+            RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+            ScheduleTenantId = tenantId,
+            ScheduleAccountId = accountId,
+        };
+
+        var repeat = TimeSpan.FromDays(1);
+        var interval = schedulePayload.Interval;
+        switch (schedulePayload.Frequency)
+        {
+            case DHControlScheduleFrequency.Day:
+                repeat = TimeSpan.FromDays(1 * interval);
+                break;
+            case DHControlScheduleFrequency.Week:
+                repeat = TimeSpan.FromDays(7 * interval);
+                break;
+            case DHControlScheduleFrequency.Month:
+                repeat = TimeSpan.FromDays(30 * interval);
+                break;
+        }
+
+        // For disabled job, set repeat to 100 years instead of deleting the job
+        if (schedulePayload.Status == DHScheduleState.Disabled)
+        {
+            repeat = TimeSpan.FromDays(365 * 100);
+        }
+
+        var jobOptions = new BackgroundJobOptions()
+        {
+            CallbackName = nameof(DEHScheduleCallback),
+            JobPartition = jobPartition,
+            JobId = jobId,
+            RepeatInterval = repeat,
+            StartTime = schedulePayload.StartTime,
+        };
+
+        if (!String.IsNullOrEmpty(schedulePayload.TimeZone))
+        {
+            try
+            {
+                jobOptions.TimeZone = TimeZoneInfo.FindSystemTimeZoneById(schedulePayload.TimeZone);
+            }
+            catch (Exception ex)
+            {
+                this.dataEstateHealthRequestLogger.LogError($"Failed to find timezone {schedulePayload.TimeZone}", ex);
+            }
+        }
+        await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+    }
+
+    public async Task DeprovisionDEHScheduleJob(string tenantId, string accountId)
+    {
+        string jobPartition = $"{accountId}{DEHScheduleJobPartitionAffix}";
+        string jobId = $"{accountId}{DEHScheduleJobIdAffix}";
+        await this.DeleteJobAsync(jobPartition, jobId);
+    }
+
     public async Task TriggerBackgroundJobAsync(string jobPartition, string jobId, CancellationToken cancellationToken)
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed($"Trigger background job. Job partition: {jobPartition}. Job ID: {jobId}."))
@@ -783,7 +853,7 @@ public class JobManager : IJobManager
             await PollyRetryPolicies
                 .GetNonHttpClientTransientRetryPolicy(
                     LoggerRetryActionFactory.CreateWorkerRetryAction(this.dataEstateHealthRequestLogger, nameof(JobManager)))
-                .ExecuteAsync(() => jobClient.CreateJob(jobBuilder));
+                .ExecuteAsync(() => jobClient.CreateOrUpdateJob(jobBuilder));
 
             this.dataEstateHealthRequestLogger.LogInformation(
                 FormattableString.Invariant($"Created job for {operationName} with jobId {jobBuilder.JobId}."));
@@ -812,17 +882,6 @@ public class JobManager : IJobManager
         var jobPartition = options.JobPartition;
         var jobId = options.JobId;
 
-        if (jobId != null)
-        {
-            BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
-            if (job != null)
-            {
-                this.dataEstateHealthRequestLogger.LogInformation($"Background job existed. Job status: {job.LastExecutionStatus}");
-                await this.DeleteJobAsync(jobPartition, jobId).ConfigureAwait(false);
-                this.dataEstateHealthRequestLogger.LogInformation($"Existed background job successfully deleted. {jobId}");
-            }
-        }
-
         JobBuilder jobBuilder = JobBuilder.Create(jobPartition, jobId ?? Guid.NewGuid().ToString())
             .WithCallback(options.CallbackName)
             .WithMetadata(metadata)
@@ -831,6 +890,11 @@ public class JobManager : IJobManager
             .WithoutEndTime()
             .WithRetention(TimeSpan.FromDays(7))
             .WithFlags(JobFlags.DeleteJobIfCompleted);
+
+        if (options.TimeZone != null)
+        {
+            jobBuilder = jobBuilder.WithTimeZone(options.TimeZone);
+        }
 
         if (options.Timeout.HasValue)
         {
@@ -865,6 +929,8 @@ class BackgroundJobOptions
     public TimeSpan? Timeout { get; set; }
 
     public DateTime? StartTime { get; set; }
+
+    public TimeZoneInfo TimeZone { get; set; }
 
     public override string ToString()
     {
