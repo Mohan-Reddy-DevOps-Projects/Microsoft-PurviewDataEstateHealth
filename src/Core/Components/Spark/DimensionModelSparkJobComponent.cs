@@ -8,6 +8,7 @@ using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.Core;
 using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
@@ -24,18 +25,22 @@ internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobC
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly ServerlessPoolConfiguration serverlessPoolConfiguration;
     private readonly IKeyVaultAccessorService keyVaultAccessorService;
+    private readonly string keyVaultBaseURL;
+
 
     public DimensionModelSparkJobComponent(
         ISparkJobManager sparkJobManager,
         IProcessingStorageManager processingStorageManager,
         IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration,
-        IKeyVaultAccessorService keyVaultAccessorService)
+        IKeyVaultAccessorService keyVaultAccessorService,
+        IOptions<KeyVaultConfiguration> keyVaultConfig)
+
     {
         this.sparkJobManager = sparkJobManager;
         this.processingStorageManager = processingStorageManager;
         this.serverlessPoolConfiguration = serverlessPoolConfiguration.Value;
         this.keyVaultAccessorService = keyVaultAccessorService;
-
+        this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
     }
 
     /// <inheritdoc/>
@@ -111,6 +116,8 @@ internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobC
             {$"spark.cosmos.accountEndpoint", $"{cosmosDBEndpoint}" },
             {$"spark.cosmos.database", "dgh-DataEstateHealth" },
             {$"spark.cosmos.accountKey", cosmosDBKey },
+            {$"spark.keyvault.name", this.keyVaultBaseURL},
+            {$"spark.cosmos.accountSecretKey", "cosmosDBWritekey"}
         };
     }
 }

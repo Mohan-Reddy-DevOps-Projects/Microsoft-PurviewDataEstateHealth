@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
@@ -23,18 +24,21 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly ServerlessPoolConfiguration serverlessPoolConfiguration;
     private readonly IKeyVaultAccessorService keyVaultAccessorService;
+    private readonly string keyVaultBaseURL;
 
 
     public CatalogSparkJobComponent(
         ISparkJobManager sparkJobManager,
         IProcessingStorageManager processingStorageManager,
         IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration,
-        IKeyVaultAccessorService keyVaultAccessorService)
+        IKeyVaultAccessorService keyVaultAccessorService,
+        IOptions<KeyVaultConfiguration> keyVaultConfig)
     {
         this.sparkJobManager = sparkJobManager;
         this.processingStorageManager = processingStorageManager;
         this.serverlessPoolConfiguration = serverlessPoolConfiguration.Value;
         this.keyVaultAccessorService = keyVaultAccessorService;
+        this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
     }
 
     /// <inheritdoc/>
@@ -43,7 +47,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         KeyVaultSecret cosmosDBKey = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBWritekey", cancellationToken);
         KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
 
-        Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
+          Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
         string containerName = accountServiceModel.DefaultCatalogId;
         Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
         //Update Main Method
@@ -109,7 +113,9 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
             {$"spark.sql.adaptive.skewJoin.enabled", "true" },
             {$"spark.cosmos.accountEndpoint", $"{cosmosDBEndpoint}" },
             {$"spark.cosmos.database", "dgh-DataEstateHealth" },
-            {$"spark.cosmos.accountKey", cosmosDBKey }
+            {$"spark.cosmos.accountKey", cosmosDBKey },
+            {$"spark.keyvault.name", this.keyVaultBaseURL},
+            {$"spark.cosmos.accountSecretKey", "cosmosDBWritekey"}
         };
     }
 }
