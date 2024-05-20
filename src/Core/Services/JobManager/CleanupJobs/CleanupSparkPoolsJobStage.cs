@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 internal class CleanupSparkPoolsJobStage : IJobCallbackStage
@@ -41,6 +42,8 @@ internal class CleanupSparkPoolsJobStage : IJobCallbackStage
                 this.logger.LogInformation($"Cleanup spark pools - All spark pool count: {allSparkPools.Count}. Old spark pool count: {oldSparkPools.Count}");
                 this.logger.LogInformation($"Cleanup spark pools - Old spark pools: {string.Join(",", oldSparkPools.Select(p => p.Name))}");
 
+                this.logger.LogTipInformation($"All spark pool count: {allSparkPools.Count}");
+
                 foreach (var pool in oldSparkPools)
                 {
                     var allJobs = await this.synapseSparkExecutor.ListJobs(pool.Name, CancellationToken.None).ConfigureAwait(false);
@@ -62,6 +65,7 @@ internal class CleanupSparkPoolsJobStage : IJobCallbackStage
                     else
                     {
                         this.logger.LogInformation($"Cleanup spark pools - Spark pool {pool.Id} has running jobs, skip deletion. Job count: {runningJobs?.Count ?? 0}.");
+                        this.logger.LogInformation($"Cleanup spark pools - Running jobs status: \n{JsonSerializer.Serialize(runningJobs)}");
                     }
                 }
             }
