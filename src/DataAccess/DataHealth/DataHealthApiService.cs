@@ -36,7 +36,9 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
 
         private DataHealthApiServiceClient GetDEHServiceClient()
         {
-            return this.apiServiceClientFactory.GetClient();
+            var client = this.apiServiceClientFactory.GetClient();
+            client.HttpClient.Timeout = TimeSpan.FromMinutes(5);
+            return client;
         }
 
         public void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry, CancellationToken cancellationToken)
