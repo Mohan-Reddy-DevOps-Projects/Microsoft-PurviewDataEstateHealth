@@ -93,12 +93,11 @@ internal class DEHRunScheduleStage : IJobCallbackStage
                 {
                     this.logger.LogError("Error occurred while processing triggered schedules", ex);
                 }
-                var waitingToDeleteTasks = tasks.Where(t => t.IsCompleted || t.IsCanceled || t.IsFaulted);
-                foreach (var task in waitingToDeleteTasks)
+                foreach (var task in tasks.Where(t => t.IsCompleted || t.IsCanceled || t.IsFaulted))
                 {
-                    tasks.Remove(task);
                     this.logger.LogInformation($"DEH schedule done and removed from tasks list. Task status: {task.Status}. Task id: {task.Id}.");
                 }
+                tasks = tasks.Where(t => !t.IsCompleted && !t.IsCanceled && !t.IsFaulted).ToList();
             }
         }
     }
