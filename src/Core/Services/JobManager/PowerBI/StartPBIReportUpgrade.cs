@@ -4,9 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +11,9 @@ using Microsoft.PowerBI.Api.Models;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
-using Newtonsoft.Json;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 internal class StartPBIReportUpgradeStage : IJobCallbackStage
 {
@@ -87,7 +86,8 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
             this.logger.LogError(jobStatusMessage, exception);
         }
 
-        this.logger.LogInformation(JsonConvert.SerializeObject(this.metadata));
+        var jobStatusSuccessMessage = $"{this.StageName}|Succeed to upgrade PBI reports account: {this.metadata.Account.Id}";
+        this.logger.LogInformation(jobStatusSuccessMessage);
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
     }
 
