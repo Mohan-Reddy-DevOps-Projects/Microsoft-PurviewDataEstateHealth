@@ -484,6 +484,8 @@ module secondaryEventHubNamespaceRoleModule 'eventHubNamespaceRoleAssignment.bic
 }
 
 // TODO: Need to move shared event hub creation code to shared infrastructure repo.
+// TODO: Uncomment event hub code
+/*
 module sharedEventHubModule 'eventHub.bicep' = [for eventHub in eventHubs: {
   name: 'sharedEventHubDeploy${eventHub.name}'
   scope: resourceGroup(coreResourceGroupName)
@@ -494,6 +496,7 @@ module sharedEventHubModule 'eventHub.bicep' = [for eventHub in eventHubs: {
     messageRetentionDays: eventHub.messageRetentionDays
   }
 }]
+*/
 
 module sharedEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHub in eventHubs: {
   name: 'sharedEventHubConsumerGroupDeploy${eventHub.name}'
