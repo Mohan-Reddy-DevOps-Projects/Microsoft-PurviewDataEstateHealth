@@ -38,12 +38,14 @@ internal class CleanupSparkPoolsJobStage : IJobCallbackStage
                     p.Name.StartsWith("v", StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
-                this.logger.LogInformation($"Cleanup spark pools - All spark pool count: {allSparkPools.Count}. Old spark pool count: {oldSparkPools}");
+                this.logger.LogInformation($"Cleanup spark pools - All spark pool count: {allSparkPools.Count}. Old spark pool count: {oldSparkPools.Count}");
                 this.logger.LogInformation($"Cleanup spark pools - Old spark pools: {string.Join(",", oldSparkPools.Select(p => p.Name))}");
 
                 foreach (var pool in oldSparkPools)
                 {
-                    var runningJobs = await this.synapseSparkExecutor.ListJobs(pool.Name, CancellationToken.None).ConfigureAwait(false);
+                    var allJobs = await this.synapseSparkExecutor.ListJobs(pool.Name, CancellationToken.None).ConfigureAwait(false);
+                    var runningJobs = allJobs?.Where(j => !SparkJobUtils.IsJobCompleted(j)).ToList();
+                    this.logger.LogInformation($"Cleanup spark pools - Start to delete spark pool: {pool.Id}. All jobs count: {allJobs?.Count ?? 0}. Running jobs count: {runningJobs?.Count ?? 0}.");
                     if (runningJobs == null || runningJobs.Count == 0)
                     {
                         this.logger.LogInformation($"Cleanup spark pools - Deleting spark pool: {pool.Id}");
@@ -59,7 +61,7 @@ internal class CleanupSparkPoolsJobStage : IJobCallbackStage
                     }
                     else
                     {
-                        this.logger.LogInformation($"Cleanup spark pools - Spark pool {pool.Id} has running jobs, skip deletion. Job count: {runningJobs.Count}.");
+                        this.logger.LogInformation($"Cleanup spark pools - Spark pool {pool.Id} has running jobs, skip deletion. Job count: {runningJobs?.Count ?? 0}.");
                     }
                 }
             }
