@@ -45,19 +45,9 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
     {
         string containerPath = await this.ConstructContainerPath(dataQualityScoreKey.AccountId, cancellationToken);
 
-        var query = this.queryRequestBuilder.Build<DataQualityScoreRecord>(containerPath,
-            (x) =>
-            {
-                if (!string.IsNullOrEmpty(dataQualityScoreKey.Dimension))
-                {
-                    x.WhereClause("QualityDimension", dataQualityScoreKey.Dimension);
-                }
-                else
-                {
-                    x.WhereClause("QualityDimension", "None", QueryConstants.SQLOperator.NotEqual);
-                }
-            }) as DataQualityScoreQuery;
+        var query = this.queryRequestBuilder.Build<DataQualityScoreRecord>(containerPath) as DataQualityScoreQuery;
         query.Timeout = DefaultTimeout;
+        query.QueryByDimension = dataQualityScoreKey.QueryByDimension;
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 

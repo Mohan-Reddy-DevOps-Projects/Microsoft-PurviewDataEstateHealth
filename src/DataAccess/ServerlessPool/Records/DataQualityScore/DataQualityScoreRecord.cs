@@ -32,4 +32,7 @@ public class DataQualityScoreRecord : BaseRecord
 
     [DataColumn("DataProductStatus")]
     public string DataProductStatus { get; set; }
+
+    [DataColumn("QualityDimension")]
+    public string QualityDimension { get; set; }
 }

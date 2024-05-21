@@ -44,4 +44,7 @@ public class DataQualityScoreEntity : BaseEntity
 
     [JsonProperty("dataProductStatus")]
     public string DataProductStatus { get; set; }
+
+    [JsonProperty("qualityDimension")]
+    public string QualityDimension { get; set; }
 }

@@ -2,6 +2,7 @@
 
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
+using Microsoft.Azure.Management.Storage.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
@@ -102,6 +103,8 @@ public class DHScheduleService(
                     _ = this.UpdateDQGroupScoreAsync(scheduleRunId, dqGroup);
                 }
 
+                var DQControlList = new Dictionary<string, DHControlNodeWrapper>();
+
                 foreach (var control in controls)
                 {
                     try
@@ -117,7 +120,7 @@ public class DHScheduleService(
                         if (assessment.TargetQualityType == DHAssessmentQualityType.DataQuality)
                         {
                             var dimension = DQDimentionConvert.ConvertCheckPointToDQDimension((assessment.Rules.First()?.Rule as DHSimpleRuleWrapper)?.CheckPoint);
-                            _ = this.UpdateDQScoreAsync(scheduleRunId, control.Id, control.GroupId, dimension);
+                            DQControlList.Add(dimension, control);
                             continue;
                         }
 
@@ -183,6 +186,12 @@ public class DHScheduleService(
                         logger.LogCritical($"control failed to start. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}", ex);
                         failedJobsCount++;
                     }
+                }
+
+                // trigger DQ control score batchly
+                if (DQControlList.Count > 0)
+                {
+                    _ = this.UpdateDQScoreAsync(scheduleRunId, DQControlList);
                 }
 
                 if (failedJobsCount > 0)
@@ -252,26 +261,21 @@ public class DHScheduleService(
 
     private async Task UpdateDQGroupScoreAsync(string scheduleRunId, DHControlGroupWrapper controlGroup)
     {
-        await this.UpdateDQScoreAsync(scheduleRunId, controlGroup.Id, controlGroup.Id);
-    }
-
-    private async Task UpdateDQScoreAsync(string scheduleRunId, string controlId, string controlGroupId, string? dimension = null)
-    {
         var jobId = Guid.NewGuid();
         var now = DateTime.UtcNow;
-        logger.LogInformation($"Starting to process DQ score computing. ControlId: {controlId}, Dimenstion: {dimension ?? "ALL"}");
+        logger.LogInformation($"Starting to process DQ group score computing. ControlId: {controlGroup.Id}");
         try
         {
             // get all latest DQ score per BD/DP/Asset
             var scoreResult = await dataQualityScoreRepository.GetMultiple(
-                new DataQualityScoreKey(requestHeaderContext.AccountObjectId, dimension),
+                new DataQualityScoreKey(requestHeaderContext.AccountObjectId),
                 new System.Threading.CancellationToken()).ConfigureAwait(false);
             logger.LogInformation($"successfully fetched all scores: {scoreResult.Results.Count()}");
             // group all scores by DP
             var scores = scoreResult.Results.GroupBy(score => score.DataProductId).Select(group => new DHDataProductScoreWrapper()
             {
-                ControlId = controlId,
-                ControlGroupId = controlGroupId,
+                ControlId = controlGroup.Id,
+                ControlGroupId = controlGroup.Id,
                 ScheduleRunId = scheduleRunId,
                 Id = Guid.NewGuid().ToString(),
                 ComputingJobId = jobId.ToString(),
@@ -289,6 +293,52 @@ public class DHScheduleService(
             }).ToList();
             await dhScoreRepository.AddAsync(scores).ConfigureAwait(false);
             logger.LogInformation($"successfully ingested all scores: {scores.Count()}");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("Exception happened when processing DQ score job.", ex);
+        }
+    }
+
+    private async Task UpdateDQScoreAsync(string scheduleRunId, Dictionary<string, DHControlNodeWrapper> controlList)
+    {
+        var jobId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
+        logger.LogInformation($"Starting to process DQ score computing in batch.");
+        try
+        {
+            // get all latest DQ score per BD/DP/Asset
+            var scoreResult = await dataQualityScoreRepository.GetMultiple(
+                new DataQualityScoreKey(requestHeaderContext.AccountObjectId, true),
+                new System.Threading.CancellationToken()).ConfigureAwait(false);
+            logger.LogInformation($"successfully fetched all scores: {scoreResult.Results.Count()}");
+
+            foreach (var control in controlList)
+            {
+                logger.LogInformation($"start for dimension: {control.Key}");
+                // group all scores by DP
+                var scores = scoreResult.Results.Where(score => score.QualityDimension == control.Key).GroupBy(score => score.DataProductId).Select(group => new DHDataProductScoreWrapper()
+                {
+                    ControlId = control.Value.Id,
+                    ControlGroupId = control.Value.GroupId,
+                    ScheduleRunId = scheduleRunId,
+                    Id = Guid.NewGuid().ToString(),
+                    ComputingJobId = jobId.ToString(),
+                    Time = now,
+                    Scores = group.Select(score => new DHScoreUnitWrapper()
+                    {
+                        AssessmentRuleId = score.DataAssetId.ToString(),
+                        Score = score.Score
+                    }),
+                    AggregatedScore = group.Average(score => score.Score),
+                    DataProductDomainId = group.First().BusinessDomainId.ToString(),
+                    DataProductId = group.First().DataProductId.ToString(),
+                    DataProductOwners = group.First().DataProductOwners,
+                    DataProductStatus = group.First().DataProductStatus
+                }).ToList();
+                await dhScoreRepository.AddAsync(scores).ConfigureAwait(false);
+                logger.LogInformation($"successfully ingested all scores: {scores.Count()}. {control.Key}");
+            }
         }
         catch (Exception ex)
         {

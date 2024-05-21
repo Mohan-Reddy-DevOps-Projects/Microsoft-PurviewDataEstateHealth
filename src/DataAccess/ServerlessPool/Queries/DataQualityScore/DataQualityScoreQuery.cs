@@ -16,7 +16,37 @@ internal class DataQualityScoreQuery : BaseQuery, IServerlessQueryRequest<DataQu
 
     public string Query
     {
-        get => @"
+        get => this.QueryByDimension ? @"
+SELECT
+    Score, BusinessDomainSourceId AS BusinessDomainId, DataProductSourceId AS DataProductId, DataAssetSourceId AS DataAssetId, DQJobSourceId AS DQJobId, ExecutionTime, DataProductStatusDisplayName AS DataProductStatus, DataProductOwnerIds, QualityDimension
+FROM
+    (SELECT
+        *
+    FROM (
+        SELECT
+            Score,
+            ROW_NUMBER() OVER(PARTITION BY BusinessDomainId, DataProductId, DataAssetId, QualityDimension ORDER BY ExecutionTime DESC) as row_num,
+            BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId, ExecutionTime, QualityDimension
+        FROM
+            (
+                    SELECT
+                        AVG(DQOverallProfileQualityScore) as Score,
+                        BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId, MAX(RuleScanCompletionDatetime) AS ExecutionTime, QualityDimension
+                    " + QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]
+                        JOIN (SELECT DQRuleTypeId, QualityDimension " + QueryConstants.ServerlessQuery.OpenRowSet(this.RuleTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]) RuleType ON [result].DQRuleTypeId = RuleType.DQRuleTypeId
+                        JOIN (SELECT JobTypeId, JobTypeDisplayName " + QueryConstants.ServerlessQuery.OpenRowSet(this.JobTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]) JobType ON [result].JobTypeId = JobType.JobTypeId
+                    WHERE JobTypeDisplayName = 'DQ'
+                    GROUP BY BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId, QualityDimension
+            ) TMP1
+        ) TMP2 WHERE row_num = 1
+    ) DQFact
+JOIN (SELECT BusinessDomainId, BusinessDomainSourceId " + QueryConstants.ServerlessQuery.OpenRowSet(this.BusinessDomainQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) BD ON DQFact.BusinessDomainId = BD.BusinessDomainId
+JOIN (SELECT DataProductId, DataProductSourceId " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DP ON DQFact.DataProductId = DP.DataProductId
+JOIN (SELECT DataAssetId, DataAssetSourceId " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataAssetQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DA ON DQFact.DataAssetId = DA.DataAssetId
+JOIN (SELECT DataProductId, DataProductStatusID " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductDetailQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DPDetail ON DP.DataProductSourceId = DPDetail.DataProductId
+JOIN (SELECT DataProductStatusID, DataProductStatusDisplayName " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductStatusQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DPStatus ON DPDetail.DataProductStatusID = DPStatus.DataProductStatusID
+JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOwnerIds " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductOwnersQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result] GROUP BY DataProductId) DPOwner ON DP.DataProductSourceId = DPOwner.DataProductId
+" : @"
 SELECT
     Score, BusinessDomainSourceId AS BusinessDomainId, DataProductSourceId AS DataProductId, DataAssetSourceId AS DataAssetId, DQJobSourceId AS DQJobId, ExecutionTime, DataProductStatusDisplayName AS DataProductStatus, DataProductOwnerIds
 FROM
@@ -35,7 +65,7 @@ FROM
                     " + QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]
                         JOIN (SELECT DQRuleTypeId, QualityDimension " + QueryConstants.ServerlessQuery.OpenRowSet(this.RuleTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]) RuleType ON [result].DQRuleTypeId = RuleType.DQRuleTypeId
                         JOIN (SELECT JobTypeId, JobTypeDisplayName " + QueryConstants.ServerlessQuery.OpenRowSet(this.JobTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]) JobType ON [result].JobTypeId = JobType.JobTypeId
-                    " + this.FilterClause + @" AND JobTypeDisplayName = 'DQ'
+                    WHERE JobTypeDisplayName = 'DQ'
                     GROUP BY BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId
             ) TMP1
         ) TMP2 WHERE row_num = 1
@@ -49,6 +79,8 @@ JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOw
 ";
     }
 
+    public bool QueryByDimension = false;
+
     private string BusinessDomainQueryPath => $"{this.ContainerPath}/DimensionalModel/DimBusinessDomain/";
     private string DataProductQueryPath => $"{this.ContainerPath}/DimensionalModel/DimDataProduct/";
     private string DataAssetQueryPath => $"{this.ContainerPath}/DimensionalModel/DimDataAsset/";
@@ -61,7 +93,12 @@ JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOw
     public DataQualityScoreRecord ParseRow(IDataRecord row)
     {
         var DataProductId = row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataProductId).Name]?.ToString();
-        if (!Guid.TryParse(DataProductId, out var result))
+        var BusinessDomainId = row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.BusinessDomainId).Name]?.ToString();
+        var DataAssetId = row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataAssetId).Name]?.ToString();
+        if (!Guid.TryParse(DataProductId, out var g1) ||
+            !Guid.TryParse(BusinessDomainId, out var g2) ||
+            !Guid.TryParse(DataAssetId, out var g3)
+            )
         {
             return null;
         }
@@ -69,13 +106,14 @@ JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOw
         {
             Score = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.Score).Name]?.ToString()).AsFloat(),
             BusinessDomainId =
-                (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.BusinessDomainId).Name]?.ToString()).AsGuid(),
+                BusinessDomainId.AsGuid(),
             DataProductId = DataProductId.AsGuid(),
-            DataAssetId = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataAssetId).Name]?.ToString()).AsGuid(),
+            DataAssetId = DataAssetId.AsGuid(),
             DQJobId = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DQJobId).Name]?.ToString()).AsGuid(),
             ExecutionTime = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.ExecutionTime).Name]?.ToString()).AsDateTime(),
             DataProductStatus = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataProductStatus).Name]?.ToString()),
-            DataProductOwnerIds = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataProductOwnerIds).Name]?.ToString())
+            DataProductOwnerIds = (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.DataProductOwnerIds).Name]?.ToString()),
+            QualityDimension = this.QueryByDimension ? (row[GetCustomAttribute<DataColumnAttribute, DataQualityScoreRecord>(x => x.QualityDimension).Name]?.ToString()) : null
         };
     }
 
@@ -97,7 +135,8 @@ JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOw
                 ExecutionTime = item.ExecutionTime,
                 Score = item.Score / 100,
                 DataProductStatus = item.DataProductStatus,
-                DataProductOwners = item.DataProductOwnerIds.Split(',')
+                DataProductOwners = item.DataProductOwnerIds.Split(','),
+                QualityDimension = item.QualityDimension
             }).ToList();
         return entityList;
     }
