@@ -36,6 +36,15 @@ public interface IAccountExposureControlConfigProvider
     public bool IsDataGovHealthScheduleQueueEnabled(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
+    /// Determines if SQL setup running enabled before PBI refresh. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDataGovHealthRunSetupSQLEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
     /// Determines if new DG health is enabled. By default this is false.
     /// </summary>
     /// <param name="accountId"></param>

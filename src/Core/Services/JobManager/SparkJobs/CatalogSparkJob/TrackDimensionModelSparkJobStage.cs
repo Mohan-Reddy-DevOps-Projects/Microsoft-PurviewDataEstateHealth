@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,8 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
     private readonly IDimensionModelSparkJobComponent dimensionModelSparkJobComponent;
     private readonly IJobManager backgroundJobManager;
     private readonly IDatabaseManagementService databaseManagementService;
+    private readonly IAccountExposureControlConfigProvider exposureControl;
+
     private static readonly JsonSerializerOptions jsonOptions = new()
     {
         Converters = { new JsonStringEnumConverter() }
@@ -38,6 +41,7 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
         this.dimensionModelSparkJobComponent = scope.ServiceProvider.GetService<IDimensionModelSparkJobComponent>();
         this.backgroundJobManager = scope.ServiceProvider.GetService<IJobManager>();
         this.databaseManagementService = scope.ServiceProvider.GetService<IDatabaseManagementService>();
+        this.exposureControl = scope.ServiceProvider.GetService<IAccountExposureControlConfigProvider>();
     }
 
     public string StageName => nameof(TrackDimensionModelSparkJobStage);
@@ -80,9 +84,12 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
                     jobStageStatus = JobExecutionStatus.Completed;
                     await this.ProvisionResetDataPlaneScheduleJob(this.metadata.AccountServiceModel).ConfigureAwait(false);
 
-                    // update SQL external table
-                    await this.databaseManagementService.Initialize(this.metadata.AccountServiceModel, CancellationToken.None).ConfigureAwait(false);
-                    await this.databaseManagementService.RunSetupSQL(CancellationToken.None).ConfigureAwait(false);
+                    if (this.exposureControl.IsDataGovHealthRunSetupSQLEnabled(this.metadata.AccountServiceModel.Id, this.metadata.AccountServiceModel.SubscriptionId, this.metadata.AccountServiceModel.TenantId))
+                    {
+                        // update SQL external table
+                        await this.databaseManagementService.Initialize(this.metadata.AccountServiceModel, CancellationToken.None).ConfigureAwait(false);
+                        await this.databaseManagementService.RunSetupSQL(CancellationToken.None).ConfigureAwait(false);
+                    }
 
                     // trigger PBI refresh job
                     await this.TriggerPBIRefreshJob(this.metadata.AccountServiceModel).ConfigureAwait(false);

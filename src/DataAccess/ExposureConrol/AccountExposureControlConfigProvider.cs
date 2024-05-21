@@ -130,6 +130,18 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     }
 
     /// <inheritdoc/>
+    public bool IsDataGovHealthRunSetupSQLEnabled(string accountId, string subscriptionId, string tenantId)
+    {
+        ExposureControlOptions options = new(Features.DataGovHealthRunSetupSQL.ToString(), false)
+        {
+            AccountId = accountId,
+            SubscriptionId = subscriptionId,
+            TenantId = tenantId
+        };
+        return this.IsFeatureEnabled(options);
+    }
+
+    /// <inheritdoc/>
     public bool IsDataQualityProvisioningEnabled(string accountId, string subscriptionId, string tenantId)
     {
         ExposureControlOptions options = new(Features.DataGovDataQualityProvisioning.ToString(), false)
