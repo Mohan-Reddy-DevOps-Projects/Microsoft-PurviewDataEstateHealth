@@ -27,31 +27,39 @@ public class DHProvisionService(
     {
         using (logger.LogElapsed($"{this.GetType().Name}#{nameof(ProvisionAccount)}"))
         {
-            requestHeaderContext.TenantId = tenantId;
-            requestHeaderContext.AccountObjectId = accountId;
-
-            var allControls = await controlService.ListControlsAsync().ConfigureAwait(false);
-
-            var controlTemplates = new List<string>() { SystemTemplateNames.CDMC.ToString() };
-
-            foreach (var template in controlTemplates)
+            try
             {
-                var templateProvisioned = allControls.Results.Any(x => x.SystemTemplate == template);
+                requestHeaderContext.TenantId = tenantId;
+                requestHeaderContext.AccountObjectId = accountId;
 
-                if (!templateProvisioned)
-                {
-                    await templateService.ProvisionControlTemplate(template).ConfigureAwait(false);
+                var allControls = await controlService.ListControlsAsync().ConfigureAwait(false);
 
-                    logger.LogInformation($"Template {template} provisioned");
-                }
-                else
+                var controlTemplates = new List<string>() { SystemTemplateNames.CDMC.ToString() };
+
+                foreach (var template in controlTemplates)
                 {
-                    logger.LogInformation($"Template {template} already provisioned, skip for provision.");
+                    var templateProvisioned = allControls.Results.Any(x => x.SystemTemplate == template);
+
+                    if (!templateProvisioned)
+                    {
+                        await templateService.ProvisionControlTemplate(template).ConfigureAwait(false);
+
+                        logger.LogInformation($"Template {template} provisioned");
+                    }
+                    else
+                    {
+                        logger.LogInformation($"Template {template} already provisioned, skip for provision.");
+                    }
                 }
+
+                logger.LogInformation($"Create global schedule in provision for account {accountId}");
+                await scheduleService.CreateGlobalScheduleInProvision().ConfigureAwait(false);
             }
-
-            logger.LogInformation($"Create global schedule in provision for account {accountId}");
-            await scheduleService.CreateGlobalScheduleInProvision().ConfigureAwait(false);
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in {this.GetType().Name}#{nameof(ProvisionAccount)}", ex);
+                throw;
+            }
         }
     }
 
@@ -78,10 +86,18 @@ public class DHProvisionService(
     {
         using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionDataPlaneResources)}"))
         {
-            List<Task> tasks = [
-                dHDataEstateHealthService.DeprovisionForDEHAsync()
-            ];
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+            try
+            {
+                List<Task> tasks = [
+                    dHDataEstateHealthService.DeprovisionForDEHAsync()
+                ];
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in {this.GetType().Name}#{nameof(DeprovisionDataPlaneResources)}", ex);
+                throw;
+            }
         }
     }
 

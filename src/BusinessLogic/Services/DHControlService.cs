@@ -295,7 +295,15 @@
         {
             using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForControlsAsync)}: Deprovision for assessments"))
             {
-                await dHControlRepository.DeprovisionAsync().ConfigureAwait(false);
+                try
+                {
+                    await dHControlRepository.DeprovisionAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Failed to deprovision controls", ex);
+                    throw;
+                }
             }
         }
 

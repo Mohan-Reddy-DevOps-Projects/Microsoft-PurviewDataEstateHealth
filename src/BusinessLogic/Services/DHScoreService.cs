@@ -92,7 +92,15 @@
         {
             using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForScoresAsync)}: Deprovision scores"))
             {
-                await dhScoreRepository.DeprovisionAsync().ConfigureAwait(false);
+                try
+                {
+                    await dhScoreRepository.DeprovisionAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error in {this.GetType().Name}#{nameof(DeprovisionForScoresAsync)} while deprovisioning for scores", ex);
+                    throw;
+                }
             }
         }
 

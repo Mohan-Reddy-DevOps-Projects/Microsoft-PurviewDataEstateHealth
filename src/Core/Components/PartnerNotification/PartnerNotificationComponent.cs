@@ -84,6 +84,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         using (this.dataEstateHealthRequestLogger.LogElapsed($"start to create/update powerBI related resources, account name: {account.Name}"))
         {
             await this.databaseManagementService.Initialize(account, cancellationToken);
+
             List<Task> tasks =
             [
                 this.CreatePowerBIResources(account, cancellationToken),
@@ -129,24 +130,38 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed("start to create/update PowerBI resources"))
         {
-            ProfileKey profileKey = new(this.Context.AccountId);
-            IProfileModel profile = await this.profileCommand.Create(profileKey, cancellationToken);
-            IWorkspaceContext context = new WorkspaceContext(this.Context)
+            try
             {
-                ProfileId = profile.Id
-            };
-            Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
+                ProfileKey profileKey = new(this.Context.AccountId);
+                IProfileModel profile = await this.profileCommand.Create(profileKey, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Profile created successfully");
+                IWorkspaceContext context = new WorkspaceContext(this.Context)
+                {
+                    ProfileId = profile.Id
+                };
+                Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Workspace created successfully");
 
-            await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
-            PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(context.AccountId, OwnerNames.Health, cancellationToken);
-            if (powerBICredential == null)
-            {
-                // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
-                powerBICredential = this.powerBICredentialComponent.CreateCredential(context.AccountId, OwnerNames.Health);
-                await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
+                await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Workspace assigned successfully");
+                PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(context.AccountId, OwnerNames.Health, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("PowerBI credential retrieved successfully");
+                if (powerBICredential == null)
+                {
+                    // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
+                    powerBICredential = this.powerBICredentialComponent.CreateCredential(context.AccountId, OwnerNames.Health);
+                    await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
+                    this.dataEstateHealthRequestLogger.LogInformation("PowerBI credential created successfully");
+                }
+
+                await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("PowerBI report created successfully");
             }
-
-            await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken);
+            catch (Exception e)
+            {
+                this.dataEstateHealthRequestLogger.LogError("Failed to create PowerBI resources", e);
+                throw;
+            }
         }
     }
 
@@ -169,8 +184,16 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             {
                 ProfileId = profile.Id
             };
-            await this.workspaceCommand.Delete(context, cancellationToken);
-            await this.profileCommand.Delete(profileKey, cancellationToken);
+            try
+            {
+                await this.workspaceCommand.Delete(context, cancellationToken);
+                await this.profileCommand.Delete(profileKey, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                this.dataEstateHealthRequestLogger.LogError("Failed to delete PowerBI resources", e);
+                throw;
+            }
         }
     }
 
@@ -178,7 +201,15 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed($"start to provision spark jobs, account name: {account.Name}"))
         {
-            await this.backgroundJobManager.ProvisionCatalogSparkJob(account);
+            try
+            {
+                await this.backgroundJobManager.ProvisionCatalogSparkJob(account);
+            }
+            catch (Exception e)
+            {
+                this.dataEstateHealthRequestLogger.LogError($"provisioning catalog spark job with failure", e);
+                throw;
+            }
         }
     }
 
@@ -186,25 +217,42 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed($"start to provision action clean up job, account name: {account.Name}"))
         {
-            await this.backgroundJobManager.ProvisionActionsCleanupJob(account);
+            try
+            {
+                await this.backgroundJobManager.ProvisionActionsCleanupJob(account);
+            }
+            catch (Exception e)
+            {
+                this.dataEstateHealthRequestLogger.LogError($"provisioning action clean up job with failure", e);
+                throw;
+            }
         }
     }
     private async Task DeprovisionSparkJobs(AccountServiceModel account)
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed("start to delete spark jobs"))
         {
-            await this.backgroundJobManager.DeprovisionCatalogSparkJob(account);
             try
             {
-                if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+                await this.backgroundJobManager.DeprovisionCatalogSparkJob(account);
+                try
                 {
-                    await this.backgroundJobManager.DeprovisionDataQualitySparkJob(account);
+                    if (this.exposureControl.IsDataQualityProvisioningEnabled(account.Id, account.SubscriptionId, account.TenantId))
+                    {
+                        await this.backgroundJobManager.DeprovisionDataQualitySparkJob(account);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.dataEstateHealthRequestLogger.LogError($"deprovisioning DQ spark job with failure", ex);
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                this.dataEstateHealthRequestLogger.LogError($"deprovisioning DQ spark job with failure", ex);
+                this.dataEstateHealthRequestLogger.LogError($"deprovisioning spark job with failure", e);
+                throw;
             }
+
         }
     }
 
@@ -212,7 +260,15 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed("start to delete actions cleanup jobs"))
         {
-            await this.backgroundJobManager.DeprovisionActionsCleanupJob(account);
+            try
+            {
+                await this.backgroundJobManager.DeprovisionActionsCleanupJob(account);
+            }
+            catch (Exception e)
+            {
+                this.dataEstateHealthRequestLogger.LogError($"deprovisioning action clean up job with failure", e);
+                throw;
+            }
         }
     }
 }

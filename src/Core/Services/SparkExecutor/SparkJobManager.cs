@@ -164,20 +164,28 @@ internal sealed class SparkJobManager : ISparkJobManager
     {
         using (this.logger.LogElapsed("Deleting spark pool"))
         {
-            SparkPoolLocator storageAccountKey = new(accountServiceModel.Id, OwnerNames.Health);
-
-            var existingModel = await this.sparkPoolRepository.GetSingle(storageAccountKey, cancellationToken);
-
-            if (existingModel == null)
+            try
             {
-                return;
+                SparkPoolLocator storageAccountKey = new(accountServiceModel.Id, OwnerNames.Health);
+
+                var existingModel = await this.sparkPoolRepository.GetSingle(storageAccountKey, cancellationToken);
+
+                if (existingModel == null)
+                {
+                    return;
+                }
+
+                ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(existingModel);
+
+                await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
+
+                await this.sparkPoolRepository.Delete(storageAccountKey, cancellationToken);
             }
-
-            ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(existingModel);
-
-            await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
-
-            await this.sparkPoolRepository.Delete(storageAccountKey, cancellationToken);
+            catch (Exception ex)
+            {
+                this.logger.LogError("Failed to delete spark pool", ex);
+                throw;
+            }
         }
     }
 

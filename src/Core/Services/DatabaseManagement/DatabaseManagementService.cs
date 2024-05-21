@@ -36,52 +36,79 @@ internal class DatabaseManagementService : IDatabaseManagementService
     {
         using (this.dataEstateHealthRequestLogger.LogElapsed("start to initialize database related resources"))
         {
-            IDatabaseRequest databaseRequest = new DatabaseRequest
+            try
             {
-                DatabaseName = DatabaseName,
-            };
-            await this.databaseCommand.AddDatabaseAsync(databaseRequest, cancellationToken);
+                IDatabaseRequest databaseRequest = new DatabaseRequest
+                {
+                    DatabaseName = DatabaseName,
+                };
+                await this.databaseCommand.AddDatabaseAsync(databaseRequest, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Database created successfully");
 
-            Guid accountId = Guid.Parse(accountModel.Id);
-            PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(accountId, OwnerNames.Health, cancellationToken);
-            if (powerBICredential == null)
-            {
-                // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
-                powerBICredential = this.powerBICredentialComponent.CreateCredential(accountId, OwnerNames.Health);
-                await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
+                Guid accountId = Guid.Parse(accountModel.Id);
+                PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(accountId, OwnerNames.Health, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("PowerBI credential retrieved successfully");
+                if (powerBICredential == null)
+                {
+                    // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
+                    powerBICredential = this.powerBICredentialComponent.CreateCredential(accountId, OwnerNames.Health);
+                    await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
+                    this.dataEstateHealthRequestLogger.LogInformation("PowerBI credential created successfully");
+                }
+
+                DatabaseMasterKey databaseMasterKey = await this.powerBICredentialComponent.GetSynapseDatabaseMasterKey(DatabaseName, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Master key retrieved successfully");
+                if (databaseMasterKey == null)
+                {
+                    databaseMasterKey = this.powerBICredentialComponent.CreateMasterKey(DatabaseName);
+                    await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseMasterKey(databaseMasterKey, cancellationToken);
+                    this.dataEstateHealthRequestLogger.LogInformation("Master key created successfully");
+                }
+
+                Models.ProcessingStorageModel storageModel = await this.processingStorageManager.Get(accountModel, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Storage model retrieved successfully");
+                ArgumentNullException.ThrowIfNull(storageModel, nameof(storageModel));
+
+                databaseRequest = new DatabaseRequest
+                {
+                    DatabaseName = DatabaseName,
+                    DataSourceLocation = $"{storageModel.GetDfsEndpoint()}/{accountModel.DefaultCatalogId}/",
+                    SchemaName = accountId.ToString(),
+                    LoginName = powerBICredential.LoginName,
+                    LoginPassword = powerBICredential.Password,
+                    UserName = powerBICredential.UserName,
+                    MasterKey = databaseMasterKey.MasterKey,
+                    ScopedCredential = new ManagedIdentityScopedCredential("SynapseMICredential")
+                };
+
+                this.setupSQLRequest = databaseRequest;
+
+                await this.databaseCommand.AddMasterKeyAsync(databaseRequest, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Master key added successfully");
+
+                await this.databaseCommand.AddScopedCredentialAsync(databaseRequest, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Scoped credential added successfully");
+
+                await this.databaseCommand.AddLoginAsync(databaseRequest, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Login added successfully");
+
+                await this.databaseCommand.AddUserAsync(databaseRequest, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("User added successfully");
+
+                await this.databaseCommand.CreateSchemaAsync(databaseRequest, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Schema created successfully");
+
+                await this.databaseCommand.GrantUserToSchemaAsync(databaseRequest, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("User granted to schema successfully");
+
+                await this.databaseCommand.GrantCredentialToUserAsync(databaseRequest, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogInformation("Credential granted to user successfully");
             }
-
-            DatabaseMasterKey databaseMasterKey = await this.powerBICredentialComponent.GetSynapseDatabaseMasterKey(DatabaseName, cancellationToken);
-            if (databaseMasterKey == null)
+            catch (Exception e)
             {
-                databaseMasterKey = this.powerBICredentialComponent.CreateMasterKey(DatabaseName);
-                await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseMasterKey(databaseMasterKey, cancellationToken);
+                this.dataEstateHealthRequestLogger.LogError("Failed to initialize database related resources", e);
+                throw;
             }
-
-            Models.ProcessingStorageModel storageModel = await this.processingStorageManager.Get(accountModel, cancellationToken);
-            ArgumentNullException.ThrowIfNull(storageModel, nameof(storageModel));
-
-            databaseRequest = new DatabaseRequest
-            {
-                DatabaseName = DatabaseName,
-                DataSourceLocation = $"{storageModel.GetDfsEndpoint()}/{accountModel.DefaultCatalogId}/",
-                SchemaName = accountId.ToString(),
-                LoginName = powerBICredential.LoginName,
-                LoginPassword = powerBICredential.Password,
-                UserName = powerBICredential.UserName,
-                MasterKey = databaseMasterKey.MasterKey,
-                ScopedCredential = new ManagedIdentityScopedCredential("SynapseMICredential")
-            };
-
-            this.setupSQLRequest = databaseRequest;
-
-            await this.databaseCommand.AddMasterKeyAsync(databaseRequest, cancellationToken);
-            await this.databaseCommand.AddScopedCredentialAsync(databaseRequest, cancellationToken);
-            await this.databaseCommand.AddLoginAsync(databaseRequest, cancellationToken);
-            await this.databaseCommand.AddUserAsync(databaseRequest, cancellationToken);
-            await this.databaseCommand.CreateSchemaAsync(databaseRequest, cancellationToken);
-            await this.databaseCommand.GrantUserToSchemaAsync(databaseRequest, cancellationToken);
-            await this.databaseCommand.GrantCredentialToUserAsync(databaseRequest, cancellationToken);
         }
     }
 
@@ -94,7 +121,15 @@ internal class DatabaseManagementService : IDatabaseManagementService
                 this.dataEstateHealthRequestLogger.LogCritical("SQL should be runed after initialize");
                 throw new Exception("Failed to run setup SQL as request context is empty");
             }
-            await this.databaseCommand.ExecuteSetupScriptAsync(this.setupSQLRequest, cancellationToken);
+            try
+            {
+                await this.databaseCommand.ExecuteSetupScriptAsync(this.setupSQLRequest, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                this.dataEstateHealthRequestLogger.LogError("Failed to run setup SQL", e);
+                throw;
+            }
         }
     }
 
@@ -110,8 +145,15 @@ internal class DatabaseManagementService : IDatabaseManagementService
                 SchemaName = accountId.ToString(),
                 ScopedCredential = new ManagedIdentityScopedCredential("SynapseMICredential")
             };
-
-            await this.databaseCommand.ExecuteSetupRollbackScriptAsync(databaseRequest, cancellationToken);
+            try
+            {
+                await this.databaseCommand.ExecuteSetupRollbackScriptAsync(databaseRequest, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                this.dataEstateHealthRequestLogger.LogError("Failed to rollback database related resources", e);
+                throw;
+            }
         }
     }
 }

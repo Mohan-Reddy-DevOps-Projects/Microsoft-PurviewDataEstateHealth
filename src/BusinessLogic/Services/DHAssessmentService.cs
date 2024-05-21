@@ -163,7 +163,15 @@ public class DHAssessmentService(
     {
         using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForAssessmentsAsync)}: Deprovision for assessments"))
         {
-            await assessmentRepository.DeprovisionAsync().ConfigureAwait(false);
+            try
+            {
+                await assessmentRepository.DeprovisionAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in {this.GetType().Name}#{nameof(DeprovisionForAssessmentsAsync)} while deprovisioning for assessments", ex);
+                throw;
+            }
         }
     }
 }

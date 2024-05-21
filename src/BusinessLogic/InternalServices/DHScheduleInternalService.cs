@@ -178,23 +178,32 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
         {
             using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForSchedulesAsync)}: Deprovision all schedules"))
             {
-                var allSchedules = await this.dhControlScheduleRepository.GetAllAsync().ConfigureAwait(false);
-
-                this.logger.LogInformation($"Found {allSchedules.Count()} schedules to deprovision. Schedule IDs: {String.Join(", ", allSchedules.Select(s => s.Id) ?? [])}");
-
-                await Task.WhenAll(allSchedules.Select(async schedule =>
+                try
                 {
-                    try
-                    {
-                        await this.DeleteScheduleAsync(schedule.Id).ConfigureAwait(false);
+                    var allSchedules = await this.dhControlScheduleRepository.GetAllAsync().ConfigureAwait(false);
 
-                        this.logger.LogInformation($"Successfully deprovision schedule with ID {schedule.Id}.");
-                    }
-                    catch (Exception ex)
+                    this.logger.LogInformation($"Found {allSchedules.Count()} schedules to deprovision. Schedule IDs: {String.Join(", ", allSchedules.Select(s => s.Id) ?? [])}");
+
+                    await Task.WhenAll(allSchedules.Select(async schedule =>
                     {
-                        this.logger.LogError($"Failed to deprovision schedule with ID {schedule.Id}.", ex);
-                    }
-                })).ConfigureAwait(false);
+                        try
+                        {
+                            await this.DeleteScheduleAsync(schedule.Id).ConfigureAwait(false);
+
+                            this.logger.LogInformation($"Successfully deprovision schedule with ID {schedule.Id}.");
+                        }
+                        catch (Exception ex)
+                        {
+                            this.logger.LogError($"Failed to deprovision schedule with ID {schedule.Id}.", ex);
+                        }
+                    })).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    this.logger.LogError("Failed to deprovision all schedules", e);
+                    throw;
+                }
+
             }
         }
 

@@ -111,7 +111,15 @@ public class DHAlertService(
     {
         using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForAlertsAsync)}"))
         {
-            await alertRepository.DeprovisionAsync().ConfigureAwait(false);
+            try
+            {
+                await alertRepository.DeprovisionAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"Error in {this.GetType().Name}#{nameof(DeprovisionForAlertsAsync)}", ex);
+                throw;
+            }
         }
     }
 }

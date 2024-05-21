@@ -147,7 +147,15 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         {
             using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForStatusPalettesAsync)}: Deprovision status palettes"))
             {
-                await dhControlStatusPaletteRepository.DeprovisionAsync().ConfigureAwait(false);
+                try
+                {
+                    await dhControlStatusPaletteRepository.DeprovisionAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error in {this.GetType().Name}#{nameof(DeprovisionForStatusPalettesAsync)} while deprovisioning for Status Palettes", ex);
+                    throw;
+                }
             }
         }
     }

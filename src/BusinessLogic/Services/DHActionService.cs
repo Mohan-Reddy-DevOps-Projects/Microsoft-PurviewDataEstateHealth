@@ -170,7 +170,15 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
         {
             using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForActionsAsync)}: Deprovision for actions"))
             {
-                await dataHealthActionRepository.DeprovisionAsync().ConfigureAwait(false);
+                try
+                {
+                    await dataHealthActionRepository.DeprovisionAsync().ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError($"Error in {this.GetType().Name}#{nameof(DeprovisionForActionsAsync)} while deprovisioning for actions", ex);
+                    throw;
+                }
             }
         }
 
