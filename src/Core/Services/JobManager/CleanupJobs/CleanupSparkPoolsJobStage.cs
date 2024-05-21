@@ -35,8 +35,7 @@ internal class CleanupSparkPoolsJobStage : IJobCallbackStage
                 var allSparkPools = await this.synapseSparkExecutor.ListSparkPools(CancellationToken.None).ConfigureAwait(false);
 
                 var oldSparkPools = allSparkPools.Where(
-                    p => p.CreatedOn < DateTime.UtcNow.AddDays(-1) &&
-                    p.Name.StartsWith("v", StringComparison.OrdinalIgnoreCase))
+                    p => p.CreatedOn < DateTime.UtcNow.AddDays(-1))
                     .ToList();
 
                 this.logger.LogInformation($"Cleanup spark pools - All spark pool count: {allSparkPools.Count}. Old spark pool count: {oldSparkPools.Count}");
