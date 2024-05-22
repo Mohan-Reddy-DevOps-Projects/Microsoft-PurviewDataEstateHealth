@@ -113,7 +113,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
         using (this.dataEstateHealthRequestLogger.LogElapsed($"start to delete spark related resources, account name: {account.Name}"))
         {
             await this.DeprovisionSparkJobs(account);
-            await this.sparkJobManager.DeleteSparkPool(account, cancellationToken);
+            await this.sparkJobManager.DeleteSparkPoolRecord(account, cancellationToken);
         }
     }
 

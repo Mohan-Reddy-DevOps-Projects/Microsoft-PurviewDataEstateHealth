@@ -82,7 +82,7 @@ public interface ISparkJobManager
     /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task DeleteSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
+    Task DeleteSparkPoolRecord(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
 
     /// <summary>
     /// Deletes the spark pool.

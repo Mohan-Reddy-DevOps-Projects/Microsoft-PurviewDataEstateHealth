@@ -160,9 +160,9 @@ internal sealed class SparkJobManager : ISparkJobManager
     }
 
     /// <inheritdoc/>
-    public async Task DeleteSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
+    public async Task DeleteSparkPoolRecord(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
     {
-        using (this.logger.LogElapsed("Deleting spark pool"))
+        using (this.logger.LogElapsed("Delete spark pool record"))
         {
             try
             {
@@ -175,15 +175,11 @@ internal sealed class SparkJobManager : ISparkJobManager
                     return;
                 }
 
-                ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(existingModel);
-
-                await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
-
                 await this.sparkPoolRepository.Delete(storageAccountKey, cancellationToken);
             }
             catch (Exception ex)
             {
-                this.logger.LogError("Failed to delete spark pool", ex);
+                this.logger.LogError("Failed to delete spark pool record", ex);
                 throw;
             }
         }
