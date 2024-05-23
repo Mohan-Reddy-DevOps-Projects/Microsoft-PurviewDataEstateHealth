@@ -61,9 +61,23 @@ internal class CleanupSparkPoolsJobStage : IJobCallbackStage
                             this.logger.LogError($"Cleanup spark pools - Failed to delete spark pool: {pool.Id}. Error: {ex.Message}", ex);
                         }
                     }
+                    else if (pool.CreatedOn < DateTime.UtcNow.AddDays(-7))
+                    {
+                        this.logger.LogInformation($"Cleanup spark pools - Spark pool {pool.Id} is 7+ days old but has running jobs. Job count: {runningJobs?.Count ?? 0}.");
+                        this.logger.LogInformation($"Cleanup spark pools - Running jobs status: \n{JsonSerializer.Serialize(runningJobs)}");
+                        try
+                        {
+                            await this.synapseSparkExecutor.DeleteSparkPool(pool.Name, CancellationToken.None).ConfigureAwait(false);
+                            this.logger.LogInformation($"Cleanup spark pools - Deleted spark pool: {pool.Id}");
+                        }
+                        catch (Exception ex)
+                        {
+                            this.logger.LogError($"Cleanup spark pools - Failed to delete spark pool: {pool.Id}. Error: {ex.Message}", ex);
+                        }
+                    }
                     else
                     {
-                        this.logger.LogInformation($"Cleanup spark pools - Spark pool {pool.Id} has running jobs, skip deletion. Job count: {runningJobs?.Count ?? 0}.");
+                        this.logger.LogInformation($"Cleanup spark pools - Skip deletion for Spark pool {pool.Id} which has running jobs. Job count: {runningJobs?.Count ?? 0}.");
                         this.logger.LogInformation($"Cleanup spark pools - Running jobs status: \n{JsonSerializer.Serialize(runningJobs)}");
                     }
                 }
