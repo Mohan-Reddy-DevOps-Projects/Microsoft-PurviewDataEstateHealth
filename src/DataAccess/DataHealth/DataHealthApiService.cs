@@ -121,6 +121,16 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             }
         }
 
+        public async Task MigrateSchedule(MigrateSchedulePayload payload, CancellationToken cancellationToken)
+        {
+            var payloadString = JsonConvert.SerializeObject(payload);
+            using (this.logger.LogElapsed($"Migrate schedule. {payloadString}"))
+            {
+                var client = this.GetDEHServiceClient();
+                await client.MigrateSchedule(payload, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
         public async Task<bool> CleanUpActionsJobCallback(AccountServiceModel account, CancellationToken cancellationToken)
         {
             this.logger.LogInformation($"Start to clean up actions callback.");

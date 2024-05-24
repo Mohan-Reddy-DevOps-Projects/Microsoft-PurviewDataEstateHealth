@@ -87,4 +87,26 @@ public class InternalDHControlController(
         }
         return this.Ok();
     }
+
+    [HttpPost]
+    [Route("migrateSchedule")]
+    public async Task<ActionResult> MigrateSchedule()
+    {
+
+        var tenantId = requestHeaderContext.TenantId;
+        var accountId = requestHeaderContext.AccountObjectId;
+        using (logger.LogElapsed($"Migrate schedule. TenantId: {tenantId}. AccountId: {accountId}."))
+        {
+            try
+            {
+                await dhScheduleService.MigrateScheduleAsync().ConfigureAwait(false);
+                return this.Ok();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Exception occurs when batch migrating schedule.", ex);
+                return this.StatusCode(500, "Internal server error occurred while migrating schedule.");
+            }
+        }
+    }
 }

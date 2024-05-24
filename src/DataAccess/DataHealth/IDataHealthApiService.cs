@@ -44,6 +44,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         Task<bool> TriggerDEHSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Migrate schedule
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        Task MigrateSchedule(MigrateSchedulePayload payload, CancellationToken cancellationToken);
+
+        /// <summary>
         /// Clean up actions.
         /// </summary>
         /// <param name="account"></param>

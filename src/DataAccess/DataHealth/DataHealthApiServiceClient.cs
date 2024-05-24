@@ -86,6 +86,17 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             await this.HandleResponseStatusCode(response);
         }
 
+        public async Task MigrateSchedule(MigrateSchedulePayload payload, CancellationToken cancellationToken)
+        {
+            var requestUri = this.CreateRequestUri("/internal/control/migrateSchedule");
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
+            request.Headers.Add(HeaderAccountIdName, payload.AccountId.ToString());
+            request.Headers.Add(HeaderTenantIdName, payload.TenantId.ToString());
+            request.Headers.Add(HeaderRequestIdName, payload.RequestId.ToString());
+            var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            await this.HandleResponseStatusCode(response);
+        }
+
         public async Task CleanUpActionJobCallback(AccountServiceModel account, CancellationToken cancellationToken)
         {
             var requestUri = this.CreateRequestUri("/internal/actions/cleanup");

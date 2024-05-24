@@ -146,6 +146,22 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
             }
         }
 
+        public async Task MigrateSchedule(DHControlScheduleStoragePayloadWrapper schedule)
+        {
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(MigrateSchedule)}: Try to mitigate schedule from DG schedule service to azure stack. Schedule ID: {schedule.Id}."))
+            {
+                if (schedule.Host == DHControlScheduleHost.DGScheduleService)
+                {
+                    await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                .CreateDHWorkerServiceTriggerComponent(this.requestHeaderContext.TenantId, this.requestHeaderContext.AccountObjectId)
+                .UpsertDEHScheduleJob(schedule.Properties).ConfigureAwait(false);
+                    await this.scheduleServiceClient.DeleteSchedule(schedule.Id).ConfigureAwait(false);
+                    schedule.Host = DHControlScheduleHost.AzureStack;
+                    await this.dhControlScheduleRepository.UpdateAsync(schedule).ConfigureAwait(false);
+                }
+            }
+        }
+
         private DHScheduleCreateRequestPayload CreateScheduleRequestPayload(DHControlScheduleStoragePayloadWrapper schedule, string? controlId)
         {
             var tenantId = this.requestHeaderContext.TenantId.ToString();

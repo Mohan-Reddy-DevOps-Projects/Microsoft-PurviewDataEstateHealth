@@ -2,7 +2,6 @@
 
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
-using Microsoft.Azure.Management.Storage.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
@@ -343,6 +342,27 @@ public class DHScheduleService(
         catch (Exception ex)
         {
             logger.LogError("Exception happened when processing DQ score job.", ex);
+        }
+    }
+
+    public async Task MigrateScheduleAsync()
+    {
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(MigrateScheduleAsync)}"))
+        {
+            var schedule = await this.GetGlobalScheduleInternalAsync();
+            if (schedule == null)
+            {
+                throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), "Global"));
+            }
+            if (schedule.Host == DHControlScheduleHost.DGScheduleService)
+            {
+                await scheduleService.MigrateSchedule(schedule).ConfigureAwait(false);
+                logger.LogInformation($"Migrate schedule successfully. Schedule id: {schedule.Id}");
+            }
+            else if (schedule.Host == DHControlScheduleHost.AzureStack)
+            {
+                logger.LogInformation($"Ignore schedule migrate. DEH Schedule job is already azure stack based. Schedule id: {schedule.Id}");
+            }
         }
     }
 
