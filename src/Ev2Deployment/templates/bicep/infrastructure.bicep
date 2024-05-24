@@ -510,6 +510,7 @@ module sharedEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for e
 
 output containerAppIdentityClientId string = containerAppIdentity.properties.clientId
 output containerAppIdentityObjectId string = containerAppIdentity.properties.principalId
+output synapseWorkspacePrincipalId string = synapseWorkspace.identity.principalId
 
 
 //Remove after EH migration

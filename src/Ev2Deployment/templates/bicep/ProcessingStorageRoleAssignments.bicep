@@ -1,6 +1,7 @@
 targetScope = 'subscription'
 param containerAppIdentityPrincipalId string
 param subscriptionId string
+param synapseWorkspacePrincipalId string
 
 var contributorRoleDefName = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 var storageBlobDataContributorRoleDefName = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
@@ -28,6 +29,15 @@ module processingStorageSubBlobDataContributorRoleModule 'subscriptionRoleAssign
   name: 'processingStorageSubBlobDataContributorRoleModuleDeploy'
   params: {
     principalId: containerAppIdentityPrincipalId
+    roleDefinitionName: storageBlobDataContributorRoleDefName
+    subscriptionId: subscriptionId
+  }
+}
+
+module processingStorageSubBlobDataContributorRoleSynapseModule 'subscriptionRoleAssignment.bicep' =  {
+  name: 'processingStorageSubBlobDataContributorRoleSynapseModuleDeploy'
+  params: {
+    principalId: synapseWorkspacePrincipalId
     roleDefinitionName: storageBlobDataContributorRoleDefName
     subscriptionId: subscriptionId
   }

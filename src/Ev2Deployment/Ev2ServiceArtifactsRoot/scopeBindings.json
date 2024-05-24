@@ -217,6 +217,10 @@
           "replaceWith": "$serviceResourceDefinition(infrastructureResourceDefinition).action(deploy).outputs(containerAppIdentityClientId.value)"
         },
         {
+          "find": "__SYNAPSE_WORKSPACE_OBJECT_ID__",
+          "replaceWith": "$serviceResourceDefinition(infrastructureResourceDefinition).action(deploy).outputs(synapseWorkspacePrincipalId.value)"
+        },
+        {
           "find": "__INFRA_GENEVA_ERROR_LOG_TABLE_ID__",
           "replaceWith": "$config(pdg.genevaAccountProvisioning.genevaLogTableIds.dgHealth-errorLog)"
         },

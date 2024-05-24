@@ -7,6 +7,9 @@
     },
     "subscriptionId": {
       "value": "__PROCESSING_STORAGE_SUBSCRIPTIONID__"
+    },
+    "synapseWorkspacePrincipalId": {
+      "value": "__SYNAPSE_WORKSPACE_OBJECT_ID__"
     }
   }
 }
