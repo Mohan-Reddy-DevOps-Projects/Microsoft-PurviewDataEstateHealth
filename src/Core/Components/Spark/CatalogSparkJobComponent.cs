@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
@@ -23,18 +24,21 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly ServerlessPoolConfiguration serverlessPoolConfiguration;
     private readonly IKeyVaultAccessorService keyVaultAccessorService;
+    private readonly string keyVaultBaseURL;
 
 
     public CatalogSparkJobComponent(
         ISparkJobManager sparkJobManager,
         IProcessingStorageManager processingStorageManager,
         IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration,
-        IKeyVaultAccessorService keyVaultAccessorService)
+        IKeyVaultAccessorService keyVaultAccessorService,
+        IOptions<KeyVaultConfiguration> keyVaultConfig)
     {
         this.sparkJobManager = sparkJobManager;
         this.processingStorageManager = processingStorageManager;
         this.serverlessPoolConfiguration = serverlessPoolConfiguration.Value;
         this.keyVaultAccessorService = keyVaultAccessorService;
+        this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
     }
 
     /// <inheritdoc/>
@@ -94,10 +98,10 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     {
         return new Dictionary<string, string>()
         {
-            {$"fs.azure.account.auth.type.{sasUri.Host}", "SAS"},
-            {$"fs.azure.sas.token.provider.type.{sasUri.Host}", "com.microsoft.azure.synapse.tokenlibrary.ConfBasedSASProvider" },
-            {$"spark.storage.synapse.{containerName}.{sasUri.Host}.sas", sasUri.Query[1..] },
-            {$"fs.azure.sas.fixed.token.{sasUri.Host}.dfs.core.windows.net", sasUri.Query[1..]},
+            //{$"fs.azure.account.auth.type.{sasUri.Host}", "SAS"},
+            //{$"fs.azure.sas.token.provider.type.{sasUri.Host}", "com.microsoft.azure.synapse.tokenlibrary.ConfBasedSASProvider" },
+            //{$"spark.storage.synapse.{containerName}.{sasUri.Host}.sas", sasUri.Query[1..] },
+            //{$"fs.azure.sas.fixed.token.{sasUri.Host}.dfs.core.windows.net", sasUri.Query[1..]},
             {$"spark.microsoft.delta.optimizeWrite.enabled" ,"true" },
             {$"spark.serializer","org.apache.spark.serializer.KryoSerializer" },
             {$"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" },
@@ -109,7 +113,12 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
             {$"spark.sql.adaptive.skewJoin.enabled", "true" },
             {$"spark.cosmos.accountEndpoint", $"{cosmosDBEndpoint}" },
             {$"spark.cosmos.database", "dgh-DataEstateHealth" },
-            {$"spark.cosmos.accountKey", cosmosDBKey }
+            //{$"spark.cosmos.accountKey", cosmosDBKey },
+            {$"spark.keyvault.name", this.keyVaultBaseURL},
+            {$"spark.analyticalcosmos.keyname", "cosmosDBWritekey"},
+            //Don't deploy till log analytics is automated
+            {$"spark.loganalytics.workspaceid","logAnalyticsWorkspaceId"},
+            {$"spark.loganalytics.workspacekeyname", "logAnalyticsKey" }
         };
     }
 }
