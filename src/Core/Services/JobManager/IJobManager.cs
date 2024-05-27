@@ -124,6 +124,12 @@ public interface IJobManager
     Task ProvisionDEHTriggeredScheduleJob();
 
     /// <summary>
+    /// Provisions background job for monitoring.
+    /// </summary>
+    /// <returns></returns>
+    Task ProvisionBackgroundJobMonitoringJob();
+
+    /// <summary>
     /// Clean resolved actions.
     /// </summary>
     /// <returns></returns>

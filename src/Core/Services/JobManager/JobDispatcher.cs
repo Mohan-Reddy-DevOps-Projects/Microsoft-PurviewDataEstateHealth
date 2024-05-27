@@ -93,6 +93,7 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
             await jobManager.ProvisionEventProcessorJob();
             await jobManager.ProvisionMDQFailedJob();
             await jobManager.ProvisionBackgroundJobCleanupJob();
+            await jobManager.ProvisionBackgroundJobMonitoringJob();
             await jobManager.ProvisionDEHTriggeredScheduleJob();
 
             this.logger.LogInformation("Job dispatcher started successfully.");

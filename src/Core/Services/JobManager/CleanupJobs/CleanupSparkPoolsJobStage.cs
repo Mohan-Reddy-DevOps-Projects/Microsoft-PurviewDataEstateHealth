@@ -41,8 +41,6 @@ internal class CleanupSparkPoolsJobStage : IJobCallbackStage
                 this.logger.LogInformation($"Cleanup spark pools - All spark pool count: {allSparkPools.Count}. Old spark pool count: {oldSparkPools.Count}");
                 this.logger.LogInformation($"Cleanup spark pools - Old spark pools: {string.Join(",", oldSparkPools.Select(p => p.Name))}");
 
-                this.logger.LogTipInformation($"All spark pool count: {allSparkPools.Count}");
-
                 foreach (var pool in oldSparkPools)
                 {
                     var allJobs = await this.synapseSparkExecutor.ListJobs(pool.Name, CancellationToken.None).ConfigureAwait(false);

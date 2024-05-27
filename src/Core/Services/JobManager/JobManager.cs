@@ -489,6 +489,36 @@ public class JobManager : IJobManager
     }
 
     /// <inheritdoc />
+    public async Task ProvisionBackgroundJobMonitoringJob()
+    {
+        string jobPartition = "BACKGROUND-JOB-Monitoring";
+        string jobId = "BACKGROUND-JOB-Monitoring-WORKER";
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new StagedWorkerJobMetadata()
+            {
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+            };
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(BackgroundJobCleanupCallbackJob),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = TimeSpan.FromMinutes(2),
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+        }
+    }
+
+    /// <inheritdoc />
     public async Task ProvisionDEHTriggeredScheduleJob()
     {
         string jobPartition = "DEH-TRIGGERED-SCHEDULE";
