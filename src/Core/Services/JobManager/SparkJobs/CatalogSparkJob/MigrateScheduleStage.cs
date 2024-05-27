@@ -50,7 +50,7 @@ internal class MigrateScheduleStage : IJobCallbackStage
             {
                 var payload = new MigrateSchedulePayload()
                 {
-                    TenantId = this.metadata.TenantId,
+                    TenantId = this.metadata.AccountServiceModel.TenantId,
                     AccountId = this.metadata.AccountServiceModel.Id,
                     RequestId = Guid.NewGuid().ToString(),
                 };
