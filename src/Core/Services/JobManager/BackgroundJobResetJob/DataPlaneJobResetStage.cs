@@ -6,9 +6,11 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 internal class DataplaneJobResetStage : IJobCallbackStage
@@ -53,13 +55,28 @@ internal class DataplaneJobResetStage : IJobCallbackStage
                     var catalogRepeatStrategy = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ?
                         TimeSpan.FromHours(1) : TimeSpan.FromHours(24);
                     this.logger.LogInformation($"Current env, {this.environmentConfiguration.Environment}");
-                    this.logger.LogInformation($"Current schedule interval is {catalogRepeatStrategy.Ticks}, flag is {jobDefinition.Flags}, account name: {accountName}");
-                    if (jobDefinition.RepeatInterval != catalogRepeatStrategy.Ticks)
+                    this.logger.LogInformation($"Current schedule interval is {catalogRepeatStrategy.Ticks}, flag is {jobDefinition.Flags}, account name: {accountName}, account Id: {accountId}");
+                    var jobMetadata = JsonConvert.DeserializeObject<DataPlaneSparkJobMetadata>(jobDefinition.Metadata);
+                    this.logger.LogInformation($"AccountId in job metadata, {jobMetadata.RequestContext.AccountId}");
+                    var needReset = jobMetadata.RequestContext.AccountId == Guid.Empty || jobDefinition.RepeatInterval != catalogRepeatStrategy.Ticks;
+                    if (jobMetadata.RequestContext.AccountId == Guid.Empty)
+                    {
+                        var requestContext = new CallbackRequestContext
+                        {
+                            AccountObjectId = new Guid(accountId),
+                            TenantId = new Guid(this.metadata.AccountServiceModel?.TenantId),
+                            CatalogId = this.metadata.AccountServiceModel.DefaultCatalogId,
+                            AccountName = accountName
+                        };
+                        jobMetadata.RequestContext = requestContext;
+                        jobMetadata.TenantId = this.metadata.AccountServiceModel?.TenantId;
+                    }
+                    if (needReset)
                     {
                         this.logger.LogInformation($"Start to reset schedule interval for account, name: {accountName}");
                         JobBuilder jobBuilder = JobBuilder.Create(jobPartition, jobId ?? Guid.NewGuid().ToString())
                             .WithCallback(jobDefinition.Callback)
-                            .WithMetadata(jobDefinition.Metadata)
+                            .WithMetadata(JsonConvert.SerializeObject(jobMetadata))
                             .WithStartTime(jobDefinition.StartTime ?? DateTime.UtcNow.AddMinutes(1))
                             .WithRetryStrategy(TimeSpan.FromTicks(jobDefinition.RetryInterval))
                             .WithoutEndTime()
