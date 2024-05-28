@@ -154,33 +154,9 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     }
 
     /// <inheritdoc/>
-    public bool IsDGDataHealthEnabled(string accountId, string subscriptionId, string tenantId)
-    {
-        ExposureControlOptions options = new(Features.DGDataHealth.ToString(), false)
-        {
-            AccountId = accountId,
-            SubscriptionId = subscriptionId,
-            TenantId = tenantId
-        };
-        return this.IsFeatureEnabled(options);
-    }
-
-    /// <inheritdoc/>
     public bool IsDataGovHealthTipsEnabled(string accountId, string subscriptionId, string tenantId)
     {
         ExposureControlOptions options = new(Features.DataGovHealthTips.ToString(), false)
-        {
-            AccountId = accountId,
-            SubscriptionId = subscriptionId,
-            TenantId = tenantId
-        };
-        return this.IsFeatureEnabled(options);
-    }
-
-    /// <inheritdoc/>
-    public bool IsDataGovHealthProvisioningEnabled(string accountId, string subscriptionId, string tenantId)
-    {
-        ExposureControlOptions options = new(Features.DataGovHealthProvisioning.ToString(), false)
         {
             AccountId = accountId,
             SubscriptionId = subscriptionId,
