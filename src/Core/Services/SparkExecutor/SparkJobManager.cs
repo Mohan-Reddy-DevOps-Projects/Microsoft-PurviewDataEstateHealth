@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using global::Azure;
 using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.Core;
 using global::Azure.ResourceManager.Synapse;
@@ -61,10 +62,20 @@ internal sealed class SparkJobManager : ISparkJobManager
                     PoolResourceId = sparkPoolId
                 };
             }
+            catch (RequestFailedException ex) when (ex.Status == 404 && existingPoolResourceId != null)
+            {
+                this.logger.LogWarning($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Existing pool not exist. Re-submit the job.", ex);
+                return await this.SubmitJob(sparkJobRequest, cancellationToken);
+            }
             catch (Exception ex)
             {
-                this.logger.LogError($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Start to delete the pool.", ex);
-                await this.DeleteSparkPool(sparkPoolId, cancellationToken);
+                this.logger.LogError($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}.", ex);
+
+                if (existingPoolResourceId == null)
+                {
+                    // If we created the pool, we should delete it if the job submission fails
+                    await this.DeleteSparkPool(sparkPoolId, cancellationToken);
+                }
                 throw;
             }
         }
@@ -190,10 +201,13 @@ internal sealed class SparkJobManager : ISparkJobManager
     {
         if (string.IsNullOrEmpty(poolResourceId))
         {
+            this.logger.LogInformation($"Spark pool {poolResourceId} not exist.");
             return;
         }
 
         ResourceIdentifier sparkPoolId = new(poolResourceId);
+
+        this.logger.LogInformation($"Start to delete spark pool {poolResourceId}.");
 
         await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
     }
