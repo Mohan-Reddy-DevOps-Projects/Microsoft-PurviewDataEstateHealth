@@ -85,6 +85,13 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJ
     private async Task DeleteSparkPools()
     {
         // Delete spark pools
-        await this.sparkJobManager.DeleteSparkPool(this.Metadata.SparkPoolId, new CancellationToken());
+        try
+        {
+            await this.sparkJobManager.DeleteSparkPool(this.Metadata.SparkPoolId, new CancellationToken());
+        }
+        catch (Exception e)
+        {
+            this.Logger.LogError($"Failed to delete spark pool. SparkPoolId: {this.Metadata.SparkPoolId}", e);
+        }
     }
 }
