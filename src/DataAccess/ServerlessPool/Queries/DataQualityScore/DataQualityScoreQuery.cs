@@ -12,7 +12,9 @@ using static Microsoft.Azure.Purview.DataEstateHealth.Common.QueryUtils;
 [ServerlessQuery(typeof(DataQualityScoreRecord))]
 internal class DataQualityScoreQuery : BaseQuery, IServerlessQueryRequest<DataQualityScoreRecord, DataQualityScoreEntity>
 {
-    public string QueryPath => $"{this.ContainerPath}/DimensionalModel/FactDataQuality/";
+    public Guid AccountId { get; set; }
+
+    public string QueryPath => string.Empty;
 
     public string Query
     {
@@ -32,20 +34,20 @@ FROM
                     SELECT
                         AVG(DQOverallProfileQualityScore) as Score,
                         BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId, MAX(RuleScanCompletionDatetime) AS ExecutionTime, QualityDimension
-                    " + QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]
-                        JOIN (SELECT DQRuleTypeId, QualityDimension " + QueryConstants.ServerlessQuery.OpenRowSet(this.RuleTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]) RuleType ON [result].DQRuleTypeId = RuleType.DQRuleTypeId
-                        JOIN (SELECT JobTypeId, JobTypeDisplayName " + QueryConstants.ServerlessQuery.OpenRowSet(this.JobTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]) JobType ON [result].JobTypeId = JobType.JobTypeId
+                    " + this.OpenFactDataQuality + @"AS [result]
+                        JOIN (SELECT DQRuleTypeId, QualityDimension " + this.OpenRuleType + @"AS [result]) RuleType ON [result].DQRuleTypeId = RuleType.DQRuleTypeId
+                        JOIN (SELECT JobTypeId, JobTypeDisplayName " + this.OpenJobType + @"AS [result]) JobType ON [result].JobTypeId = JobType.JobTypeId
                     WHERE JobTypeDisplayName = 'DQ'
                     GROUP BY BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId, QualityDimension
             ) TMP1
         ) TMP2 WHERE row_num = 1
     ) DQFact
-JOIN (SELECT BusinessDomainId, BusinessDomainSourceId " + QueryConstants.ServerlessQuery.OpenRowSet(this.BusinessDomainQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) BD ON DQFact.BusinessDomainId = BD.BusinessDomainId
-JOIN (SELECT DataProductId, DataProductSourceId " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DP ON DQFact.DataProductId = DP.DataProductId
-JOIN (SELECT DataAssetId, DataAssetSourceId " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataAssetQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DA ON DQFact.DataAssetId = DA.DataAssetId
-JOIN (SELECT DataProductId, DataProductStatusID " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductDetailQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DPDetail ON DP.DataProductSourceId = DPDetail.DataProductId
-JOIN (SELECT DataProductStatusID, DataProductStatusDisplayName " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductStatusQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DPStatus ON DPDetail.DataProductStatusID = DPStatus.DataProductStatusID
-JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOwnerIds " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductOwnersQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result] GROUP BY DataProductId) DPOwner ON DP.DataProductSourceId = DPOwner.DataProductId
+JOIN (SELECT BusinessDomainId, BusinessDomainSourceId " + this.OpenBusinessDomain + @" AS [result]) BD ON DQFact.BusinessDomainId = BD.BusinessDomainId
+JOIN (SELECT DataProductId, DataProductSourceId " + this.OpenDataProduct + @" AS [result]) DP ON DQFact.DataProductId = DP.DataProductId
+JOIN (SELECT DataAssetId, DataAssetSourceId " + this.OpenDataAsset + @" AS [result]) DA ON DQFact.DataAssetId = DA.DataAssetId
+JOIN (SELECT DataProductId, DataProductStatusID " + this.OpenDataProductDetail + @" AS [result]) DPDetail ON DP.DataProductSourceId = DPDetail.DataProductId
+JOIN (SELECT DataProductStatusID, DataProductStatusDisplayName " + this.OpenDataProductStatus + @" AS [result]) DPStatus ON DPDetail.DataProductStatusID = DPStatus.DataProductStatusID
+JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOwnerIds " + this.OpenDataProductOwners + @" AS [result] GROUP BY DataProductId) DPOwner ON DP.DataProductSourceId = DPOwner.DataProductId
 " : @"
 SELECT
     Score, BusinessDomainSourceId AS BusinessDomainId, DataProductSourceId AS DataProductId, DataAssetSourceId AS DataAssetId, DQJobSourceId AS DQJobId, ExecutionTime, DataProductStatusDisplayName AS DataProductStatus, DataProductOwnerIds
@@ -62,33 +64,37 @@ FROM
                     SELECT
                         AVG(DQOverallProfileQualityScore) as Score,
                         BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId, MAX(RuleScanCompletionDatetime) AS ExecutionTime
-                    " + QueryConstants.ServerlessQuery.OpenRowSet(this.QueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]
-                        JOIN (SELECT DQRuleTypeId, QualityDimension " + QueryConstants.ServerlessQuery.OpenRowSet(this.RuleTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]) RuleType ON [result].DQRuleTypeId = RuleType.DQRuleTypeId
-                        JOIN (SELECT JobTypeId, JobTypeDisplayName " + QueryConstants.ServerlessQuery.OpenRowSet(this.JobTypeQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @"AS [result]) JobType ON [result].JobTypeId = JobType.JobTypeId
+                    " + this.OpenFactDataQuality + @"AS [result]
+                        JOIN (SELECT DQRuleTypeId, QualityDimension " + this.OpenRuleType + @"AS [result]) RuleType ON [result].DQRuleTypeId = RuleType.DQRuleTypeId
+                        JOIN (SELECT JobTypeId, JobTypeDisplayName " + this.OpenJobType + @"AS [result]) JobType ON [result].JobTypeId = JobType.JobTypeId
                     WHERE JobTypeDisplayName = 'DQ'
                     GROUP BY BusinessDomainId, DataProductId, DataAssetId, DQJobSourceId
             ) TMP1
         ) TMP2 WHERE row_num = 1
     ) DQFact
-JOIN (SELECT BusinessDomainId, BusinessDomainSourceId " + QueryConstants.ServerlessQuery.OpenRowSet(this.BusinessDomainQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) BD ON DQFact.BusinessDomainId = BD.BusinessDomainId
-JOIN (SELECT DataProductId, DataProductSourceId " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DP ON DQFact.DataProductId = DP.DataProductId
-JOIN (SELECT DataAssetId, DataAssetSourceId " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataAssetQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DA ON DQFact.DataAssetId = DA.DataAssetId
-JOIN (SELECT DataProductId, DataProductStatusID " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductDetailQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DPDetail ON DP.DataProductSourceId = DPDetail.DataProductId
-JOIN (SELECT DataProductStatusID, DataProductStatusDisplayName " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductStatusQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result]) DPStatus ON DPDetail.DataProductStatusID = DPStatus.DataProductStatusID
-JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOwnerIds " + QueryConstants.ServerlessQuery.OpenRowSet(this.DataProductOwnersQueryPath, QueryConstants.ServerlessQuery.DeltaFormat) + @" AS [result] GROUP BY DataProductId) DPOwner ON DP.DataProductSourceId = DPOwner.DataProductId
+JOIN (SELECT BusinessDomainId, BusinessDomainSourceId " + this.OpenBusinessDomain + @" AS [result]) BD ON DQFact.BusinessDomainId = BD.BusinessDomainId
+JOIN (SELECT DataProductId, DataProductSourceId " + this.OpenDataProduct + @" AS [result]) DP ON DQFact.DataProductId = DP.DataProductId
+JOIN (SELECT DataAssetId, DataAssetSourceId " + this.OpenDataAsset + @" AS [result]) DA ON DQFact.DataAssetId = DA.DataAssetId
+JOIN (SELECT DataProductId, DataProductStatusID " + this.OpenDataProductDetail + @" AS [result]) DPDetail ON DP.DataProductSourceId = DPDetail.DataProductId
+JOIN (SELECT DataProductStatusID, DataProductStatusDisplayName " + this.OpenDataProductStatus + @" AS [result]) DPStatus ON DPDetail.DataProductStatusID = DPStatus.DataProductStatusID
+JOIN (SELECT DataProductId, STRING_AGG(DataProductOwnerId, ',') AS DataProductOwnerIds " + this.OpenDataProductOwners + @" AS [result] GROUP BY DataProductId) DPOwner ON DP.DataProductSourceId = DPOwner.DataProductId
 ";
     }
 
     public bool QueryByDimension = false;
 
-    private string BusinessDomainQueryPath => $"{this.ContainerPath}/DimensionalModel/DimBusinessDomain/";
-    private string DataProductQueryPath => $"{this.ContainerPath}/DimensionalModel/DimDataProduct/";
-    private string DataAssetQueryPath => $"{this.ContainerPath}/DimensionalModel/DimDataAsset/";
-    private string DataProductDetailQueryPath => $"{this.ContainerPath}/DomainModel/DataProduct/";
-    private string DataProductOwnersQueryPath => $"{this.ContainerPath}/DomainModel/DataProductOwner/";
-    private string DataProductStatusQueryPath => $"{this.ContainerPath}/DomainModel/DataProductStatus/";
-    private string RuleTypeQueryPath => $"{this.ContainerPath}/DimensionalModel/DimDQRuleType/";
-    private string JobTypeQueryPath => $"{this.ContainerPath}/DimensionalModel/DimDQJobType/";
+    private string DomainModelDbName => $"{this.AccountId}.DomainModel";
+    private string DimensionalModelModelDbName => $"{this.AccountId}.DimensionalModel";
+
+    private string OpenFactDataQuality => QueryConstants.ServerlessQuery.FromTable(this.DimensionalModelModelDbName, "FactDataQuality");
+    private string OpenBusinessDomain => QueryConstants.ServerlessQuery.FromTable(this.DimensionalModelModelDbName, "DimBusinessDomain");
+    private string OpenDataProduct => QueryConstants.ServerlessQuery.FromTable(this.DimensionalModelModelDbName, "DimDataProduct");
+    private string OpenDataAsset => QueryConstants.ServerlessQuery.FromTable(this.DimensionalModelModelDbName, "DimDataAsset");
+    private string OpenDataProductDetail => QueryConstants.ServerlessQuery.FromTable(this.DomainModelDbName, "DataProduct");
+    private string OpenDataProductOwners => QueryConstants.ServerlessQuery.FromTable(this.DomainModelDbName, "DataProductOwner");
+    private string OpenDataProductStatus => QueryConstants.ServerlessQuery.FromTable(this.DomainModelDbName, "DataProductStatus");
+    private string OpenRuleType => QueryConstants.ServerlessQuery.FromTable(this.DimensionalModelModelDbName, "DimDQRuleType");
+    private string OpenJobType => QueryConstants.ServerlessQuery.FromTable(this.DimensionalModelModelDbName, "DimDQJobType");
 
     public DataQualityScoreRecord ParseRow(IDataRecord row)
     {

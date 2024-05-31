@@ -4,10 +4,10 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using System;
-using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using System;
+using System.Text;
 using static Microsoft.Azure.Purview.DataEstateHealth.DataAccess.QueryConstants;
 
 internal class ServerlessQueryRequestBuilder : IServerlessQueryRequestBuilder
@@ -35,6 +35,19 @@ internal class ServerlessQueryRequestBuilder : IServerlessQueryRequestBuilder
         IServerlessQueryRequest<BaseRecord, BaseEntity> serverlessQueryRequest = ServerlessQueryRegistry.Instance.CreateQueryFor(typeof(TRecord));
         serverlessQueryRequest.Database = this.serverlessPoolConfig.Database;
         serverlessQueryRequest.ContainerPath = containerPath;
+        serverlessQueryRequest.SelectClause = selectClause;
+        serverlessQueryRequest.FilterClause = clauseBuilder.ToString();
+
+        return serverlessQueryRequest;
+    }
+
+    public IServerlessQueryRequest<BaseRecord, BaseEntity> BuildExternalTableQuery<TRecord>(Action<ClauseBuilder> buildFilter = null, string selectClause = "")
+        where TRecord : BaseRecord, new()
+    {
+        ClauseBuilder clauseBuilder = new();
+        buildFilter?.Invoke(clauseBuilder);
+        IServerlessQueryRequest<BaseRecord, BaseEntity> serverlessQueryRequest = ServerlessQueryRegistry.Instance.CreateQueryFor(typeof(TRecord));
+        serverlessQueryRequest.Database = this.serverlessPoolConfig.Database;
         serverlessQueryRequest.SelectClause = selectClause;
         serverlessQueryRequest.FilterClause = clauseBuilder.ToString();
 

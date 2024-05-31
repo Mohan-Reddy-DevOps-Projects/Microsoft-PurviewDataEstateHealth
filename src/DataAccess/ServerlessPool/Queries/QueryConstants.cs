@@ -33,6 +33,11 @@ internal class QueryConstants
         {
             return $" FROM OPENROWSET(BULK '{path}', FORMAT = '{format}') ";
         }
+
+        public static string FromTable(string databaseName, string tableName)
+        {
+            return $" FROM [{databaseName}].[{tableName}] ";
+        }
     }
 
     public enum SQLOperator

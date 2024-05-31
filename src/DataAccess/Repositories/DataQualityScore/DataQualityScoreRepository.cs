@@ -43,9 +43,8 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
           CancellationToken cancellationToken,
           string continuationToken = null)
     {
-        string containerPath = await this.ConstructContainerPath(dataQualityScoreKey.AccountId, cancellationToken);
-
-        var query = this.queryRequestBuilder.Build<DataQualityScoreRecord>(containerPath) as DataQualityScoreQuery;
+        var query = this.queryRequestBuilder.BuildExternalTableQuery<DataQualityScoreRecord>() as DataQualityScoreQuery;
+        query.AccountId = dataQualityScoreKey.AccountId;
         query.Timeout = DefaultTimeout;
         query.QueryByDimension = dataQualityScoreKey.QueryByDimension;
 
