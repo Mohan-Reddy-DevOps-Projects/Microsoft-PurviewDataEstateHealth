@@ -155,7 +155,14 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                     await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
                 .CreateDHWorkerServiceTriggerComponent(this.requestHeaderContext.TenantId, this.requestHeaderContext.AccountObjectId)
                 .UpsertDEHScheduleJob(schedule.Properties).ConfigureAwait(false);
-                    await this.scheduleServiceClient.DeleteSchedule(schedule.Id).ConfigureAwait(false);
+                    try
+                    {
+                        await this.scheduleServiceClient.DeleteSchedule(schedule.Id).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.logger.LogError($"Failed to delete schedule from DG schedule service. Schedule ID: {schedule.Id}.", ex);
+                    }
                     schedule.Host = DHControlScheduleHost.AzureStack;
                     await this.dhControlScheduleRepository.UpdateAsync(schedule).ConfigureAwait(false);
                 }
