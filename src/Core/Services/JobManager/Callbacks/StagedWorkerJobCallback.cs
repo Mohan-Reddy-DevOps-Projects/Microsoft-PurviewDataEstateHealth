@@ -208,116 +208,124 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
         JobExecutionResult result,
         Exception exception)
     {
-        try
+        using (this.DataEstateHealthRequestLogger.LogElapsed($"Execute job result, name: {this.JobName}"))
         {
-            this.SetRequestContext();
-
-            if (exception != null)
+            try
             {
-                this.DataEstateHealthRequestLogger.LogError("Job failed", exception, operationName: this.GetType().Name);
-            }
+                this.SetRequestContext();
 
-            if (result.Status == JobExecutionStatus.Failed && this.BackgroundJob.TotalFailedCount >= this.MaxRetryCount)
-            {
-                await this.TransitionToJobFailed();
+                this.DataEstateHealthRequestLogger.LogInformation($"Job execution result: {result.Status}|{result.Message}");
 
-                if (this.IsRecurringJob)
+                if (exception != null)
                 {
-                    var errorMessage = $"Recurring job {this.JobName} has exhausted the maximum job retries of {this.MaxRetryCount}";
-                    this.DataEstateHealthRequestLogger.LogError(
-                        errorMessage,
-                        exception,
-                        operationName: this.GetType().Name);
+                    this.DataEstateHealthRequestLogger.LogError("Job failed", exception, operationName: this.GetType().Name);
+                }
 
-                    return new JobExecutionResult
+                this.DataEstateHealthRequestLogger.LogInformation($"Current TotalFailedCount: {this.BackgroundJob.TotalFailedCount}, MaxRetryCount: {this.MaxRetryCount}");
+
+                if (result.Status == JobExecutionStatus.Failed && this.BackgroundJob.TotalFailedCount >= this.MaxRetryCount)
+                {
+                    this.DataEstateHealthRequestLogger.LogInformation($"Job failed with {this.BackgroundJob.TotalFailedCount} retries");
+                    await this.TransitionToJobFailed();
+
+                    if (this.IsRecurringJob)
                     {
-                        Status = JobExecutionStatus.Succeeded,  //need to return as succeeded to wait for next schedule
-                        Message = errorMessage,
-                        NextMetadata = this.Metadata.ToString()
-                    };
-                }
-                else
-                {
-                    this.DataEstateHealthRequestLogger.LogError(
-                        FormattableString.Invariant(
-                            $"job has exhausted the maximum job retries of {this.MaxRetryCount}"),
-                        exception,
-                        operationName: this.GetType().Name);
+                        var errorMessage = $"Recurring job {this.JobName} has exhausted the maximum job retries of {this.MaxRetryCount}";
+                        this.DataEstateHealthRequestLogger.LogError(
+                            errorMessage,
+                            exception,
+                            operationName: this.GetType().Name);
 
-                    result = this.JobCallbackUtils.FaultJob(
-                        ErrorCode.Job_MaximumRetryCount,
-                        "Exhausted retry count.");
-                }
-            }
-
-            if (result.Status == JobExecutionStatus.Postponed && this.IsJobReachMaxExecutionTime())
-            {
-                await this.TransitionToJobFailed();
-
-                var errorMessage = $"Job {this.JobName} has reached max execution time";
-
-                if (this.IsRecurringJob)
-                {
-                    this.DataEstateHealthRequestLogger.LogError(
-                        errorMessage,
-                        exception,
-                        operationName: this.GetType().Name);
-
-                    return new JobExecutionResult
-                    {
-                        Status = JobExecutionStatus.Succeeded,  //need to return as succeeded to wait for next schedule
-                        Message = errorMessage,
-                        NextMetadata = this.Metadata.ToString()
-                    };
-                }
-                else
-                {
-                    this.DataEstateHealthRequestLogger.LogError(
-                        errorMessage,
-                        exception,
-                        operationName: this.GetType().Name);
-
-                    result = this.JobCallbackUtils.FaultJob(
-                        ErrorCode.Job_MaximumPostponeCount,
-                        errorMessage);
-                }
-            }
-
-            if (this.Metadata?.ServiceExceptions != null)
-            {
-                foreach (ServiceException serviceException in this.Metadata.ServiceExceptions)
-                {
-                    string errorMessage = $"Error encountered in job with ID '{this.JobId}'";
-
-                    // Only log a critical when the error isn't a client error and the job is faulted. Otherwise, we
-                    // can get an IcM for a job that ended up succeeding.
-                    if (!this.IsJobPreconditionValid ||
-                        result.Status != JobExecutionStatus.Faulted)
-                    {
-                        this.DataEstateHealthRequestLogger.LogError(errorMessage, serviceException, operationName: this.GetType().Name);
+                        return new JobExecutionResult
+                        {
+                            Status = JobExecutionStatus.Succeeded,  //need to return as succeeded to wait for next schedule
+                            Message = errorMessage,
+                            NextMetadata = this.Metadata.ToString()
+                        };
                     }
                     else
                     {
-                        this.DataEstateHealthRequestLogger.LogCritical(errorMessage, serviceException, operationName: this.GetType().Name);
+                        this.DataEstateHealthRequestLogger.LogError(
+                            FormattableString.Invariant(
+                                $"job has exhausted the maximum job retries of {this.MaxRetryCount}"),
+                            exception,
+                            operationName: this.GetType().Name);
+
+                        result = this.JobCallbackUtils.FaultJob(
+                            ErrorCode.Job_MaximumRetryCount,
+                            "Exhausted retry count.");
                     }
                 }
-            }
 
-            if (result.Status == JobExecutionStatus.Faulted && this.IsJobPreconditionValid)
+                if (result.Status == JobExecutionStatus.Postponed && this.IsJobReachMaxExecutionTime())
+                {
+                    await this.TransitionToJobFailed();
+
+                    var errorMessage = $"Job {this.JobName} has reached max execution time";
+
+                    if (this.IsRecurringJob)
+                    {
+                        this.DataEstateHealthRequestLogger.LogError(
+                            errorMessage,
+                            exception,
+                            operationName: this.GetType().Name);
+
+                        return new JobExecutionResult
+                        {
+                            Status = JobExecutionStatus.Succeeded,  //need to return as succeeded to wait for next schedule
+                            Message = errorMessage,
+                            NextMetadata = this.Metadata.ToString()
+                        };
+                    }
+                    else
+                    {
+                        this.DataEstateHealthRequestLogger.LogError(
+                            errorMessage,
+                            exception,
+                            operationName: this.GetType().Name);
+
+                        result = this.JobCallbackUtils.FaultJob(
+                            ErrorCode.Job_MaximumPostponeCount,
+                            errorMessage);
+                    }
+                }
+
+                if (this.Metadata?.ServiceExceptions != null)
+                {
+                    foreach (ServiceException serviceException in this.Metadata.ServiceExceptions)
+                    {
+                        string errorMessage = $"Error encountered in job with ID '{this.JobId}'";
+
+                        // Only log a critical when the error isn't a client error and the job is faulted. Otherwise, we
+                        // can get an IcM for a job that ended up succeeding.
+                        if (!this.IsJobPreconditionValid ||
+                            result.Status != JobExecutionStatus.Faulted)
+                        {
+                            this.DataEstateHealthRequestLogger.LogError(errorMessage, serviceException, operationName: this.GetType().Name);
+                        }
+                        else
+                        {
+                            this.DataEstateHealthRequestLogger.LogCritical(errorMessage, serviceException, operationName: this.GetType().Name);
+                        }
+                    }
+                }
+
+                if (result.Status == JobExecutionStatus.Faulted && this.IsJobPreconditionValid)
+                {
+                    await this.TransitionToJobFailed();
+                    //Need to update NextMetadata after reset.
+                    result.NextMetadata = this.Metadata.ToJson();
+                }
+
+                await this.FinalizeJob(result, exception);
+            }
+            finally
             {
-                await this.TransitionToJobFailed();
-                //Need to update NextMetadata after reset.
-                result.NextMetadata = this.Metadata.ToJson();
+                this.TraceActivity?.Dispose();
             }
 
-            await this.FinalizeJob(result, exception);
+            return result;
         }
-        finally
-        {
-            this.TraceActivity?.Dispose();
-        }
-
-        return result;
     }
 
     /// <summary>

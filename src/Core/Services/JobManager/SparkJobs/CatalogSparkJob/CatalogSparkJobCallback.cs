@@ -59,16 +59,20 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJ
 
     protected override async Task TransitionToJobFailed()
     {
-        await this.DeleteSparkPools();
-        this.ResetJobWorkingState();
-        this.dataEstateHealthRequestLogger.LogInformation($"{this.JobName} failed.");
+        using (this.DataEstateHealthRequestLogger.LogElapsed($"Transition to job failed, name: {this.JobName}"))
+        {
+            await this.DeleteSparkPools();
+            this.ResetJobWorkingState();
+        }
     }
 
     protected override async Task TransitionToJobSucceeded()
     {
-        await this.DeleteSparkPools();
-        this.ResetJobWorkingState();
-        this.dataEstateHealthRequestLogger.LogInformation($"{this.JobName} succeeded.");
+        using (this.DataEstateHealthRequestLogger.LogElapsed($"Transition to job succeeded, name: {this.JobName}"))
+        {
+            await this.DeleteSparkPools();
+            this.ResetJobWorkingState();
+        }
     }
 
     private void ResetJobWorkingState()
@@ -91,7 +95,7 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJ
         }
         catch (Exception e)
         {
-            this.Logger.LogError($"Failed to delete spark pool. SparkPoolId: {this.Metadata.SparkPoolId}", e);
+            this.dataEstateHealthRequestLogger.LogError($"Failed to delete spark pool. SparkPoolId: {this.Metadata.SparkPoolId}", e);
         }
     }
 }
