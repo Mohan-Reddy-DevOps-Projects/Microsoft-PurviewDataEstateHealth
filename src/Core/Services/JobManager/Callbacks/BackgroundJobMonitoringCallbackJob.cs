@@ -11,7 +11,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using System;
 using System.Threading.Tasks;
 
-[JobCallback(Name = nameof(BackgroundJobCleanupCallbackJob))]
+[JobCallback(Name = nameof(BackgroundJobMonitoringCallbackJob))]
 internal class BackgroundJobMonitoringCallbackJob : StagedWorkerJobCallback<StagedWorkerJobMetadata>
 {
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;

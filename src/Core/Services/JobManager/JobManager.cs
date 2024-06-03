@@ -509,7 +509,7 @@ public class JobManager : IJobManager
             };
             var jobOptions = new BackgroundJobOptions()
             {
-                CallbackName = nameof(BackgroundJobCleanupCallbackJob),
+                CallbackName = nameof(BackgroundJobMonitoringCallbackJob),
                 JobPartition = jobPartition,
                 JobId = jobId,
                 RepeatInterval = TimeSpan.FromMinutes(2),
