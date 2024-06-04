@@ -16,6 +16,10 @@ internal class JobManagerUtils
     static internal Dictionary<string, string> ShimBackgroundJob(BackgroundJob job)
     {
         Dictionary<string, string> entities = [];
+        if (job == null)
+        {
+            return entities;
+        }
         entities.Add("JobPartition", job.JobPartition);
         entities.Add("JobId", job.JobId);
         entities.Add("Callback", job.Callback);
