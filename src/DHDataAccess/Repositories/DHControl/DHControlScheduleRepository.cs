@@ -7,6 +7,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,7 +47,10 @@ public class DHControlScheduleRepository(
                 var results = new List<DHControlScheduleStoragePayloadWrapper>();
                 while (query.HasMoreResults)
                 {
-                    var response = await query.ReadNextAsync().ConfigureAwait(false);
+                    var response = await this.retryPolicy.ExecuteAsync(
+                        (context) => query.ReadNextAsync(),
+                        new Context($"{this.GetType().Name}#{methodName}_{scheduleType}_{this.TenantId}")
+                    ).ConfigureAwait(false);
                     this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
                     results.AddRange([.. response]);
                 }

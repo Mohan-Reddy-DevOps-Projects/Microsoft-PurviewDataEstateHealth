@@ -7,6 +7,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.CosmosDBContext;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,7 @@ public class DHComputingJobRepository(
 
     public async Task<DHComputingJobWrapper?> GetByDQJobId(string dqJobId)
     {
+        var methodName = nameof(GetByDQJobId);
         var query = this.CosmosContainer.GetItemLinqQueryable<DHComputingJobWrapper>(
             requestOptions: new QueryRequestOptions { PartitionKey = this.TenantPartitionKey }
         ).Where(job => job.DQJobId == dqJobId);
@@ -38,7 +40,10 @@ public class DHComputingJobRepository(
         var results = new List<DHComputingJobWrapper>();
         while (feedIterator.HasMoreResults)
         {
-            var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+            var response = await this.retryPolicy.ExecuteAsync(
+                (context) => feedIterator.ReadNextAsync(),
+                new Context($"{this.GetType().Name}#{methodName}_{dqJobId}_{this.TenantId}")
+            ).ConfigureAwait(false);
             this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
             results.AddRange([.. response]);
         }
@@ -55,7 +60,10 @@ public class DHComputingJobRepository(
         var results = new List<DHComputingJobWrapper>();
         while (feedIterator.HasMoreResults)
         {
-            var response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+            var response = await this.retryPolicy.ExecuteAsync(
+                (context) => feedIterator.ReadNextAsync(),
+                new Context($"{this.GetType().Name}#{nameof(QueryJobsWithFilter)}_{this.TenantId}")
+            ).ConfigureAwait(false);
             this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
             results.AddRange([.. response]);
         }

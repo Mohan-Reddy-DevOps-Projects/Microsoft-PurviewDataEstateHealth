@@ -20,7 +20,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     where TEntity : BaseEntityWrapper, IContainerEntityWrapper
 {
     // Define the retry policy
-    private readonly AsyncRetryPolicy retryPolicy = Policy
+    protected readonly AsyncRetryPolicy retryPolicy = Policy
         // @see: https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/conceptual-resilient-sdk-applications#timeouts-and-connectivity-related-failures-http-408503
         .Handle<CosmosException>(ex => ex.StatusCode == HttpStatusCode.RequestTimeout || ex.StatusCode == HttpStatusCode.ServiceUnavailable)
         .WaitAndRetryAsync(

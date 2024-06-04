@@ -11,6 +11,7 @@ using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAct
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.Shared;
 using Microsoft.Purview.DataEstateHealth.DHModels.Queries;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.DataHealthAction;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -72,13 +73,19 @@ public class DHActionRepository(
 
             if (query.PageSize != 0)
             {
-                response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                response = await this.retryPolicy.ExecuteAsync(
+                    (context) => feedIterator.ReadNextAsync(),
+                    new Context($"{this.GetType().Name}#{nameof(GetActionsByFilterAsync)}_{this.TenantId}")
+                ).ConfigureAwait(false);
                 this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
                 results.AddRange(response);
 
                 while (feedIterator.HasMoreResults && fetchAll)
                 {
-                    response = await feedIterator.ReadNextAsync().ConfigureAwait(false);
+                    response = await this.retryPolicy.ExecuteAsync(
+                        (context) => feedIterator.ReadNextAsync(),
+                        new Context($"{this.GetType().Name}#{nameof(GetActionsByFilterAsync)}_{this.TenantId}")
+                    ).ConfigureAwait(false);
                     this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
                     results.AddRange(response);
                 }
