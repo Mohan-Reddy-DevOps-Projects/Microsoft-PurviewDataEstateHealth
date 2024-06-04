@@ -22,6 +22,8 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
 
     private const int DefaultTimeout = 60 * 15;
 
+    private const string DatabaseName = "health_1";
+
     private IThreadLockService threadLockService;
 
     public DataQualityScoreRepository(
@@ -44,6 +46,7 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
           string continuationToken = null)
     {
         var query = this.queryRequestBuilder.BuildExternalTableQuery<DataQualityScoreRecord>() as DataQualityScoreQuery;
+        query.Database = DatabaseName;
         query.AccountId = dataQualityScoreKey.AccountId;
         query.Timeout = DefaultTimeout;
         query.QueryByDimension = dataQualityScoreKey.QueryByDimension;
