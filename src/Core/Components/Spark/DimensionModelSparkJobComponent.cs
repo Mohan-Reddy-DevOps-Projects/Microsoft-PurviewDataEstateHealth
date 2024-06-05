@@ -48,13 +48,14 @@ internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobC
     {
         KeyVaultSecret cosmosDBKey = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBWritekey", cancellationToken);
         KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
+        KeyVaultSecret workSpaceID = await this.keyVaultAccessorService.GetSecretAsync("logAnalyticsWorkspaceId", cancellationToken);
 
         Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
         string containerName = accountServiceModel.DefaultCatalogId;
         Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
         //TODO: Updated main method
         string jarClassName = "com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.main.DimensionalModelMain";
-        SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, jarClassName, cosmosDBEndpoint.Value, cosmosDBKey.Value);
+        SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, jarClassName, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value);
 
         var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
 
@@ -77,11 +78,11 @@ internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobC
         return await this.processingStorageManager.GetProcessingStorageSasUri(processingStorageModel, storageSasRequest, containerName, cancellationToken);
     }
 
-    private SparkJobRequest GetSparkJobRequest(Uri sasUri, string accountId, string containerName, string sinkLocation, string jobId, string jarClassName, string cosmosDBEndpoint = "", string cosmosDBKey = "")
+    private SparkJobRequest GetSparkJobRequest(Uri sasUri, string accountId, string containerName, string sinkLocation, string jobId, string jarClassName, string cosmosDBEndpoint = "", string cosmosDBKey = "", string workSpaceID = "")
     {
         return new()
         {
-            Configuration = this.GetSinkConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey),
+            Configuration = this.GetSinkConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID),
             ExecutorCount = 2,
             File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-dimensionalmodel-azure-purview-1.1-jar.jar",
             Name = "DimensionModelSparkJob",
@@ -96,7 +97,7 @@ internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobC
         };
     }
 
-    private Dictionary<string, string> GetSinkConfiguration(Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey)
+    private Dictionary<string, string> GetSinkConfiguration(Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey, string workSpaceID)
     {
         return new Dictionary<string, string>()
         {
@@ -120,7 +121,12 @@ internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobC
             {$"spark.analyticalcosmos.keyname", "cosmosDBWritekey"},
             //Don't deploy till log analytics is automated
             {$"spark.loganalytics.workspaceid","logAnalyticsWorkspaceId"},
-            {$"spark.loganalytics.workspacekeyname", "logAnalyticsKey" }
+            {$"spark.loganalytics.workspacekeyname", "logAnalyticsKey" },
+            {$"spark.synapse.logAnalytics.enabled", "true" },
+            {$"spark.synapse.logAnalytics.workspaceId",workSpaceID },
+            {$"spark.synapse.logAnalytics.keyVault.name", this.keyVaultBaseURL},
+            {$"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" }
+
         };
     }
 }
