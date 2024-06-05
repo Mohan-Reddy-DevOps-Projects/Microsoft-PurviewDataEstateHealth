@@ -98,10 +98,11 @@ table Assets
 		mode: import
 		source =
 				let
-				    Source = Sql.Database(SERVER, DATABASE),
-				    #"ecf09339-34e0-464b-a8fb-661209048543.DomainModel_vwDataAssetClassification" = Source{[Schema=DATABASE_SCHEMA&".DomainModel",Item="vwDataAssetClassification"]}[Data]
+				    Source = Sql.Database(SERVER, DATABASE, [Query="select * from [" &DATABASE_SCHEMA& ".DomainModel].[vwDataAssetClassification]"])
 				in
-				    #"ecf09339-34e0-464b-a8fb-661209048543.DomainModel_vwDataAssetClassification"
+				    Source
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 

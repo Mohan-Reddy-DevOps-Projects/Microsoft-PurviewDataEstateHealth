@@ -94,10 +94,11 @@ table BusinessDomain
 		mode: import
 		source =
 				let
-				    Source = Sql.Database(SERVER, DATABASE),
-				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimBusinessDomain" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimBusinessDomain"]}[Data]
+				    Source = Sql.Database(SERVER, DATABASE, [Query="select * from [" &DATABASE_SCHEMA& ".DimensionalModel].[DimBusinessDomain]"])
 				in
-				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimBusinessDomain"
+				    Source
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 

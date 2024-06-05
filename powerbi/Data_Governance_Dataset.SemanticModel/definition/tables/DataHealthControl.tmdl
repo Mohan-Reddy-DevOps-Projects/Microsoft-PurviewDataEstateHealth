@@ -54,10 +54,11 @@ table DataHealthControl
 		mode: import
 		source =
 				let
-				    Source = Sql.Database(SERVER, DATABASE),
-				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDataHealthControl" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimDataHealthControl"]}[Data]
+				    Source = Sql.Database(SERVER, DATABASE, [Query="select * from [" &DATABASE_SCHEMA& ".DimensionalModel].[DimDataHealthControl]"])
 				in
-				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDataHealthControl"
+				    Source
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 

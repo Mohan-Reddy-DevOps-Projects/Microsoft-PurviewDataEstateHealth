@@ -132,9 +132,8 @@ table FactDataGovernanceScan
 		mode: import
 		source =
 				let
-				    Source = Sql.Database(SERVER, DATABASE),
-				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_vwFactDataGovernanceScan" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="vwFactDataGovernanceScan"]}[Data],
-				    #"Removed Other Columns" = Table.SelectColumns(#"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_vwFactDataGovernanceScan",{"HealthControlId", "DataProductId", "DEHProcessingDateId", "BusinessDomainId", "TotalDataProductAssetCount", "DataProductCounter", "ClassifiedAssetCount", "DataProductHasOwner", "DataProductDataAssetHasOwnerCount", "DataProductObservabilityScore", "DataProductAssetDQEnabledCount", "DataProductSelfServiceAccessPolicyCount", "DataProductComplianceDataTermsOfUsePolicyCount", "DataProductHasDescription", "DataProductHasAsset", "DataProductHasPublishedGlossaryTerm", "DataProductHasUseCase", "DataProductCertifiedCount", "DataProductDescHasLenGr100Char", "DataProductAssoBusinessDomainDescHasLenGr100Char", "DataProductAssoAllTremDescHasLenGr25Char", "DataProductHasParentBusinessDomain", "DataProductHasAtLeast1Asset", "DataProductHasAssoPubTerm", "DataProductAllAssoAssetsHasOwners"}),
+				    Source = Sql.Database(SERVER, DATABASE, [Query="select * from [" &DATABASE_SCHEMA& ".DimensionalModel].[vwFactDataGovernanceScan]"]),
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"HealthControlId", "DataProductId", "DEHProcessingDateId", "BusinessDomainId", "TotalDataProductAssetCount", "DataProductCounter", "ClassifiedAssetCount", "DataProductHasOwner", "DataProductDataAssetHasOwnerCount", "DataProductObservabilityScore", "DataProductAssetDQEnabledCount", "DataProductSelfServiceAccessPolicyCount", "DataProductComplianceDataTermsOfUsePolicyCount", "DataProductHasDescription", "DataProductHasAsset", "DataProductHasPublishedGlossaryTerm", "DataProductHasUseCase", "DataProductCertifiedCount", "DataProductDescHasLenGr100Char", "DataProductAssoBusinessDomainDescHasLenGr100Char", "DataProductAssoAllTremDescHasLenGr25Char", "DataProductHasParentBusinessDomain", "DataProductHasAtLeast1Asset", "DataProductHasAssoPubTerm", "DataProductAllAssoAssetsHasOwners"}),
 				    #"Unpivoted Columns" = Table.UnpivotOtherColumns(#"Removed Other Columns", {"HealthControlId", "DataProductId", "DEHProcessingDateId", "BusinessDomainId","TotalDataProductAssetCount","DataProductCounter"}, "Attribute", "Value"),
 				    #"Replaced Value" = Table.ReplaceValue(#"Unpivoted Columns",null,0,Replacer.ReplaceValue,{"Value"}),
 				    #"Renamed Columns" = Table.RenameColumns(#"Replaced Value",{{"Attribute", "Control checks"}}),
@@ -146,4 +145,6 @@ table FactDataGovernanceScan
 				    #"Renamed Columns1"
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 

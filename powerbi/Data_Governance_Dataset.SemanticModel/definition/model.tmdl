@@ -8,7 +8,7 @@ model Model
 
 annotation __PBI_TimeIntelligenceEnabled = 1
 
-annotation PBIDesktopVersion = 2.129.702.0 (24.05)
+annotation PBIDesktopVersion = 2.130.326.0 (24.06)
 
 annotation PBI_QueryOrder = ["SERVER","DATABASE","DATABASE_SCHEMA","TENANT_ID","AccountInfo","Assets","BusinessDomain","DataHealthControl","DataProduct","Date","FactDataGovernanceScan","Measure Table"]
 

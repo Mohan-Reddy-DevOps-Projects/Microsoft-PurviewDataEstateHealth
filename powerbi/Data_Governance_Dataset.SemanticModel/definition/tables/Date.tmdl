@@ -154,10 +154,11 @@ table Date
 		mode: import
 		source =
 				let
-				    Source = Sql.Database(SERVER, DATABASE),
-				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDate" = Source{[Schema=DATABASE_SCHEMA&".DimensionalModel",Item="DimDate"]}[Data]
+				    Source = Sql.Database(SERVER, DATABASE, [Query="select * from [" &DATABASE_SCHEMA& ".DimensionalModel].[DimDate]"])
 				in
-				    #"ecf09339-34e0-464b-a8fb-661209048543.DimensionalModel_DimDate"
+				    Source
 
 	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
 

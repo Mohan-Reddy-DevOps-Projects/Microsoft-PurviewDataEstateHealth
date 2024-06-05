@@ -3,6 +3,8 @@ expression SERVER = "dghdogfoodsynapse-ondemand.sql.azuresynapse.net" meta [IsPa
 
 	annotation PBI_ResultType = Text
 
+	annotation PBI_NavigationStepName = Navigation
+
 expression DATABASE = "SQL_ON_DEMAND" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: ee39f698-b841-4858-b0d0-fe70a02ef367
 
@@ -12,6 +14,8 @@ expression DATABASE_SCHEMA = "ecf09339-34e0-464b-a8fb-661209048543" meta [IsPara
 	lineageTag: efcf10af-af61-483b-8012-80aeeaf79e71
 
 	annotation PBI_ResultType = Text
+
+	annotation PBI_NavigationStepName = Navigation
 
 expression TENANT_ID = "12d98746-0b5a-4778-8bd0-449994469062" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: d9972425-d692-404b-9145-001b2436d0af
