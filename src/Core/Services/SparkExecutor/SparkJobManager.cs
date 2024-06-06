@@ -48,7 +48,7 @@ internal sealed class SparkJobManager : ISparkJobManager
     {
         using (this.logger.LogElapsed("submit job"))
         {
-            var sparkPoolId = existingPoolResourceId ?? await this.CreateSparkPool(cancellationToken);
+            var sparkPoolId = existingPoolResourceId ?? await this.CreateSparkPoolWithRetry(cancellationToken);
 
             this.logger.LogInformation($"Submitting spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}");
 
@@ -210,6 +210,31 @@ internal sealed class SparkJobManager : ISparkJobManager
         this.logger.LogInformation($"Start to delete spark pool {poolResourceId}.");
 
         await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
+    }
+
+    private async Task<ResourceIdentifier> CreateSparkPoolWithRetry(CancellationToken cancellationToken, int maxAttempts = 3)
+    {
+        using (this.logger.LogElapsed("Creating spark pool with retry"))
+        {
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    this.logger.LogInformation($"Creating spark pool attempt {attempt}. Max attempt {maxAttempts}.");
+                    return await this.CreateSparkPool(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    this.logger.LogError($"Failed to create spark pool in attempt {attempt}. Max attempt {maxAttempts}.", ex);
+                    await Task.Delay(3000, cancellationToken);
+                }
+            }
+
+            throw new ServiceError(
+                ErrorCategory.ServiceError,
+                ErrorCode.Job_UnhandledError.Code,
+                $"Failed to create spark pool after {maxAttempts} attempts.").ToException();
+        }
     }
 
     private async Task<ResourceIdentifier> CreateSparkPool(CancellationToken cancellationToken)
