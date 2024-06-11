@@ -12,36 +12,29 @@ using global::Azure.ResourceManager.Synapse.Models;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Common;
 using System.Threading;
 
-internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
+internal sealed class SynapseSparkExecutor(
+    AzureCredentialFactory azureCredentialFactory,
+    IAzureResourceManagerFactory azureResourceManagerFactory,
+    IOptions<SynapseSparkConfiguration> synapseAuthConfiguration,
+    IAccountExposureControlConfigProvider accountExposureControlConfigProvider,
+    IDataEstateHealthRequestLogger logger) : ISynapseSparkExecutor
 {
-    private readonly TokenCredential tokenCredential;
-    private readonly IAzureResourceManager azureResourceManager;
-    private readonly SynapseSparkConfiguration synapseSparkConfiguration;
-
-    public SynapseSparkExecutor(
-        ISparkPoolRepository<SparkPoolModel> sparkPoolRepository,
-        AzureCredentialFactory azureCredentialFactory,
-        IAzureResourceManagerFactory azureResourceManagerFactory,
-        IOptions<SynapseSparkConfiguration> synapseAuthConfiguration)
-    {
-        this.azureResourceManager = azureResourceManagerFactory.Create<ProcessingStorageAuthConfiguration>();
-        this.synapseSparkConfiguration = synapseAuthConfiguration.Value;
-        this.tokenCredential = azureCredentialFactory.CreateDefaultAzureCredential();
-    }
+    private readonly TokenCredential tokenCredential = azureCredentialFactory.CreateDefaultAzureCredential();
+    private readonly IAzureResourceManager azureResourceManager = azureResourceManagerFactory.Create<ProcessingStorageAuthConfiguration>();
+    private readonly SynapseSparkConfiguration synapseSparkConfiguration = synapseAuthConfiguration.Value;
 
     /// <inheritdoc/>
     public async Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(string sparkPoolName, AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
     {
         var info = DefaultSparkConfig(this.synapseSparkConfiguration.AzureRegion);
 
-        /* Hard code */
-        TweakSparkConfig(info, accountServiceModel);
+        this.TweakDefaultSparkConfig(info, accountServiceModel);
 
         return await this.azureResourceManager.CreateOrUpdateSparkPool(this.synapseSparkConfiguration.SubscriptionId, this.synapseSparkConfiguration.ResourceGroup, this.synapseSparkConfiguration.Workspace, sparkPoolName, info, cancellationToken);
     }
@@ -165,19 +158,58 @@ internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
         };
     }
 
-    private static void TweakSparkConfig(SynapseBigDataPoolInfoData info, AccountServiceModel accountServiceModel)
+    private void TweakDefaultSparkConfig(SynapseBigDataPoolInfoData info, AccountServiceModel accountServiceModel)
     {
-        switch (accountServiceModel.TenantId)
+        var methodName = nameof(TweakDefaultSparkConfig);
+        var tenantId = accountServiceModel.TenantId;
+        logger.LogInformation($"[{methodName}] TenantID: {tenantId}");
+
+        switch (tenantId)
         {
             case "28941ec8-aeac-4904-8053-1cb7b15f51e5": // PDG Test 14
+                logger.LogInformation($"[{methodName}] Special tenant id '28941ec8-aeac-4904-8053-1cb7b15f51e5' hit, change NodeSize to Medium.");
                 info.NodeSize = BigDataPoolNodeSize.Medium;
                 break;
             case "8792d440-eee8-44d3-bbc5-fc6199aff555": // PDG Test 15
+                logger.LogInformation($"[{methodName}] Special tenant id '8792d440-eee8-44d3-bbc5-fc6199aff555' hit, change NodeSize to Large.");
                 info.NodeSize = BigDataPoolNodeSize.Large;
                 break;
             case "d58faaaf-7b1e-4b20-8973-bed2e7a0548f": // PDG Test 08
+                logger.LogInformation($"[{methodName}] Special tenant id 'd58faaaf-7b1e-4b20-8973-bed2e7a0548f' hit, change NodeSize to XLarge.");
                 info.NodeSize = BigDataPoolNodeSize.XLarge;
                 break;
+        }
+
+        // above hard code config can be overridden by the following account exposure control config
+
+        var configs = accountExposureControlConfigProvider.GetDGSparkJobConfig();
+        var config = configs.TryGetValue(tenantId, out var value) ? value : null;
+
+        if (config == null)
+        {
+            logger.LogInformation($@"[{methodName}] EC dictionary ""DGSparkJobConfig"" has no value, skip tweaking.");
+            return;
+        }
+
+        if (config.MaxCapacityUnits.HasValue)
+        {
+            logger.LogInformation($@"[{methodName}] MaxCapacityUnits sets to {config.MaxCapacityUnits.Value}");
+            info.AutoScale.MaxNodeCount = config.MaxCapacityUnits.Value;
+        }
+        else
+        {
+            logger.LogInformation($@"[{methodName}] No MaxCapacityUnits");
+        }
+
+        if (config.NodeSize != null)
+        {
+            logger.LogInformation($@"[{methodName}] NodeSize sets to {config.NodeSize}");
+            // string will be implicitly converted to BigDataPoolNodeSize
+            info.NodeSize = config.NodeSize;
+        }
+        else
+        {
+            logger.LogInformation($@"[{methodName}] No NodeSize");
         }
     }
 }

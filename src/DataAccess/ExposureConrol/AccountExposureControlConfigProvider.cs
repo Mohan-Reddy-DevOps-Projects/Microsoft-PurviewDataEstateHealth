@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Azure.Purview.ExposureControlLibrary;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -163,6 +164,19 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
             TenantId = tenantId
         };
         return this.IsFeatureEnabled(options);
+    }
+
+    public Dictionary<string, SparkPoolECConfig> GetDGSparkJobConfig()
+    {
+        ExposureControlOptions dictionaryOptions = new(Dictionaries.DGSparkJobConfig.ToString());
+        var value = this.GetDictionnary(dictionaryOptions);
+        Dictionary<string, SparkPoolECConfig> configs = [];
+        foreach (var item in value)
+        {
+            configs.Add(item.Key, JsonSerializer.Deserialize<SparkPoolECConfig>(item.Value, this.options));
+        }
+
+        return configs;
     }
 
     private bool IsFeatureEnabled(ExposureControlOptions options)

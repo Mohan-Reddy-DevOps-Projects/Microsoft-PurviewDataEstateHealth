@@ -6,7 +6,7 @@
     <RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.Models</RootNamespace>
     <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Models</AssemblyName>
   </PropertyGroup>
-  <ItemGroup>
+	<ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" PrivateAssets="All" />
   </ItemGroup>
 </Project>

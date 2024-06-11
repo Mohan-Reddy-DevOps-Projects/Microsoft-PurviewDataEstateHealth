@@ -3,6 +3,9 @@
 // -----------------------------------------------------------
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
+
 /// <summary>
 /// Expose Exposure Control APIs
 /// </summary>
@@ -52,4 +55,10 @@ public interface IAccountExposureControlConfigProvider
     /// <param name="tenantId"></param>
     /// <returns></returns>
     public bool IsDataGovHealthTipsEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
+    /// Retrieve the Spark Job configurations.
+    /// </summary>
+    /// <returns></returns>
+    public Dictionary<string, SparkPoolECConfig> GetDGSparkJobConfig();
 }
