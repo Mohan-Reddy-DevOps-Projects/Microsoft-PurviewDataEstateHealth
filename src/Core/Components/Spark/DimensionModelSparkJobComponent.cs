@@ -59,7 +59,7 @@ internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobC
 
         var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
 
-        return await this.sparkJobManager.SubmitJob(sparkJobRequest, cancellationToken, poolResourceId);
+        return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, poolResourceId);
     }
 
     public async Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken) => await this.sparkJobManager.GetJob(accountServiceModel, batchId, cancellationToken);

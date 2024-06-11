@@ -8,6 +8,8 @@ using global::Azure.Analytics.Synapse.Spark;
 using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.Core;
 using global::Azure.ResourceManager.Synapse;
+using global::Azure.ResourceManager.Synapse.Models;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
@@ -34,9 +36,14 @@ internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
     }
 
     /// <inheritdoc/>
-    public async Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(string sparkPoolName, CancellationToken cancellationToken)
+    public async Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(string sparkPoolName, AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
     {
-        return await this.azureResourceManager.CreateOrUpdateSparkPool(this.synapseSparkConfiguration.SubscriptionId, this.synapseSparkConfiguration.ResourceGroup, this.synapseSparkConfiguration.Workspace, sparkPoolName, this.synapseSparkConfiguration.AzureRegion, cancellationToken);
+        var info = DefaultSparkConfig(this.synapseSparkConfiguration.AzureRegion);
+
+        /* Hard code */
+        TweakSparkConfig(info, accountServiceModel);
+
+        return await this.azureResourceManager.CreateOrUpdateSparkPool(this.synapseSparkConfiguration.SubscriptionId, this.synapseSparkConfiguration.ResourceGroup, this.synapseSparkConfiguration.Workspace, sparkPoolName, info, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -124,5 +131,53 @@ internal sealed class SynapseSparkExecutor : ISynapseSparkExecutor
         }
 
         return request;
+    }
+
+    private static SynapseBigDataPoolInfoData DefaultSparkConfig(string location)
+    {
+        return new(new AzureLocation(location))
+        {
+            AutoScale = new BigDataPoolAutoScaleProperties()
+            {
+                MinNodeCount = 3,
+                IsEnabled = true,
+                MaxNodeCount = 50,
+            },
+            AutoPause = new BigDataPoolAutoPauseProperties()
+            {
+                DelayInMinutes = 15,
+                IsEnabled = true,
+            },
+            IsAutotuneEnabled = false,
+            IsSessionLevelPackagesEnabled = true,
+            DynamicExecutorAllocation = new SynapseDynamicExecutorAllocation()
+            {
+                IsEnabled = true,
+                MinExecutors = 1,
+                MaxExecutors = 4,
+            },
+            SparkEventsFolder = "/events",
+            NodeCount = 4,
+            SparkVersion = "3.3",
+            DefaultSparkLogFolder = "/logs",
+            NodeSize = BigDataPoolNodeSize.Medium,
+            NodeSizeFamily = BigDataPoolNodeSizeFamily.MemoryOptimized
+        };
+    }
+
+    private static void TweakSparkConfig(SynapseBigDataPoolInfoData info, AccountServiceModel accountServiceModel)
+    {
+        switch (accountServiceModel.TenantId)
+        {
+            case "28941ec8-aeac-4904-8053-1cb7b15f51e5": // PDG Test 14
+                info.NodeSize = BigDataPoolNodeSize.Medium;
+                break;
+            case "8792d440-eee8-44d3-bbc5-fc6199aff555": // PDG Test 15
+                info.NodeSize = BigDataPoolNodeSize.Large;
+                break;
+            case "d58faaaf-7b1e-4b20-8973-bed2e7a0548f": // PDG Test 08
+                info.NodeSize = BigDataPoolNodeSize.XLarge;
+                break;
+        }
     }
 }

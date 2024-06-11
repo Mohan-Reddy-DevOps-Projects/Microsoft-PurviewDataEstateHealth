@@ -40,7 +40,7 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
         Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
         //string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";
         SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host);
-        return await this.sparkJobManager.SubmitJob(sparkJobRequest, cancellationToken);
+        return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken);
     }
 
     public async Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken) => await this.sparkJobManager.GetJob(accountServiceModel, batchId, cancellationToken);

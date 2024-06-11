@@ -54,7 +54,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         //Update Main Method
         string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";
         SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value, jarClassName);
-        return await this.sparkJobManager.SubmitJob(sparkJobRequest, cancellationToken);
+        return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken);
     }
 
     public async Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken) => await this.sparkJobManager.GetJob(accountServiceModel, batchId, cancellationToken);

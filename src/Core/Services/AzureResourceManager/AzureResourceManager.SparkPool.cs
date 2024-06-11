@@ -8,17 +8,15 @@ using global::Azure;
 using global::Azure.Core;
 using global::Azure.ResourceManager;
 using global::Azure.ResourceManager.Synapse;
-using global::Azure.ResourceManager.Synapse.Models;
 using System;
 using System.Threading.Tasks;
 
 internal sealed partial class AzureResourceManager<TAuthConfig>
 {
-    public async Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, string location, CancellationToken cancellationToken)
+    public async Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, SynapseBigDataPoolInfoData sparkConfig, CancellationToken cancellationToken)
     {
         SynapseBigDataPoolInfoCollection collection = this.GetSynapseWorkspace(subscriptionId, resourceGroupName, workspaceName);
-        SynapseBigDataPoolInfoData info = DefaultSparkConfig(location);
-        ArmOperation<SynapseBigDataPoolInfoResource> lro = await collection.CreateOrUpdateAsync(WaitUntil.Completed, bigDataPoolName, info, cancellationToken: cancellationToken);
+        ArmOperation<SynapseBigDataPoolInfoResource> lro = await collection.CreateOrUpdateAsync(WaitUntil.Completed, bigDataPoolName, sparkConfig, cancellationToken: cancellationToken);
 
         return lro.Value.Data;
     }
@@ -67,37 +65,5 @@ internal sealed partial class AzureResourceManager<TAuthConfig>
         SynapseWorkspaceResource synapseWorkspace = this.armClient.GetSynapseWorkspaceResource(synapseWorkspaceResourceId);
 
         return synapseWorkspace.GetSynapseBigDataPoolInfos();
-    }
-
-    private static SynapseBigDataPoolInfoData DefaultSparkConfig(string location)
-    {
-        return new(new AzureLocation(location))
-        {
-            AutoScale = new BigDataPoolAutoScaleProperties()
-            {
-                MinNodeCount = 3,
-                IsEnabled = true,
-                MaxNodeCount = 50,
-            },
-            AutoPause = new BigDataPoolAutoPauseProperties()
-            {
-                DelayInMinutes = 15,
-                IsEnabled = true,
-            },
-            IsAutotuneEnabled = false,
-            IsSessionLevelPackagesEnabled = true,
-            DynamicExecutorAllocation = new SynapseDynamicExecutorAllocation()
-            {
-                IsEnabled = true,
-                MinExecutors = 1,
-                MaxExecutors = 4,
-            },
-            SparkEventsFolder = "/events",
-            NodeCount = 4,
-            SparkVersion = "3.3",
-            DefaultSparkLogFolder = "/logs",
-            NodeSize = BigDataPoolNodeSize.Medium,
-            NodeSizeFamily = BigDataPoolNodeSizeFamily.MemoryOptimized
-        };
     }
 }

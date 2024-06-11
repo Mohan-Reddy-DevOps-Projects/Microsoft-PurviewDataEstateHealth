@@ -71,10 +71,10 @@ public interface IAzureResourceManager
     /// <param name="resourceGroupName"></param>
     /// <param name="workspaceName"></param>
     /// <param name="bigDataPoolName"></param>
-    /// <param name="location"></param>
+    /// <param name="sparkConfig"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, string location, CancellationToken cancellationToken);
+    Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(Guid subscriptionId, string resourceGroupName, string workspaceName, string bigDataPoolName, SynapseBigDataPoolInfoData sparkConfig, CancellationToken cancellationToken);
 
     /// <summary>
     /// List all Synapse spark pools within a workspace.

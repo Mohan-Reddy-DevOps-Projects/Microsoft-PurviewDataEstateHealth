@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.ResourceManager.Synapse;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,9 +20,10 @@ public interface ISynapseSparkExecutor
     /// Creates the spark pool.
     /// </summary>
     /// <param name="sparkPoolName"></param>
+    /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(string sparkPoolName, CancellationToken cancellationToken);
+    Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(string sparkPoolName, AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets the spark pool.

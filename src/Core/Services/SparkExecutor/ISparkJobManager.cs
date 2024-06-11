@@ -22,9 +22,10 @@ public interface ISparkJobManager
     /// Submits the job.
     /// </summary>
     /// <param name="sparkJobRequest"></param>
+    /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null);
+    Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null);
 
     /// <summary>
     /// Cancels the job.
