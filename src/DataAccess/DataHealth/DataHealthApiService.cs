@@ -49,6 +49,14 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             {
                 try
                 {
+
+                    if (isRetry && jobModel.CreatedAt < DateTimeOffset.Now.AddDays(-3))
+                    {
+                        this.logger.LogInformation($"Clean outdated failed MDQ job. Job Id: {jobModel.DQJobId}. Job status: {jobModel.JobStatus}. Request ID: {requestId}.");
+                        await this.CleanMDQFailedJob(jobModel.DQJobId).ConfigureAwait(false);
+                        return;
+                    }
+
                     var payload = new MDQJobCallbackPayload
                     {
                         DQJobId = jobModel.DQJobId,
