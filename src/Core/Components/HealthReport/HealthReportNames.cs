@@ -7,11 +7,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 internal static class HealthReportNames
 {
     public const string DataGovernance = "Data governance";
-
+    public const string DataQuality = "DQ health report";
 
     public static readonly HashSet<string> System = new()
     {
-        DataGovernance
+        DataGovernance,
+        DataQuality
     };
 }
 

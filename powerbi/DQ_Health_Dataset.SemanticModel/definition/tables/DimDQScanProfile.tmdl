@@ -1,0 +1,39 @@
+table DimDQScanProfile
+	lineageTag: 98e121dc-6db9-41a6-952f-d771f564ee7a
+
+	column DQScanProfileId
+		dataType: int64
+		formatString: 0
+		lineageTag: 9212cdaa-7360-4964-9d72-e39dc6e962d7
+		summarizeBy: none
+		sourceColumn: DQScanProfileId
+
+		annotation SummarizationSetBy = Automatic
+
+	column RuleOriginDisplayName
+		dataType: string
+		lineageTag: 2eff1109-7308-44ab-8f9f-a9d44a3fa422
+		summarizeBy: none
+		sourceColumn: RuleOriginDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column RuleAppliedOn
+		dataType: string
+		lineageTag: 9421f7af-e387-4fe1-8cfd-792782c28895
+		summarizeBy: none
+		sourceColumn: RuleAppliedOn
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDQScanProfile = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE, [Query="select * from [" &DATABASE_SCHEMA& ".DimensionalModel].[DimDQScanProfile]"]),
+				    #"Merged Queries" = Table.NestedJoin(Source, {"DQScanProfileId"}, FactDataQuality, {"DQScanProfileId"}, "FactDataQuality", JoinKind.Inner)
+				in
+				    #"Merged Queries"
+
+	annotation PBI_ResultType = Table
+

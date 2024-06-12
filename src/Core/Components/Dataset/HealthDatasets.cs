@@ -10,7 +10,8 @@ internal static class SystemDatasets
 {
     private static readonly IReadOnlyDictionary<string, IDataset> allowedDatasets = new Dictionary<string, IDataset>()
     {
-        { HealthDataset.Dataset.DataGovernance.ToString(), new HealthDataset(HealthDataset.Dataset.DataGovernance, "Data_Governance_Dataset") }
+        { HealthDataset.Dataset.DataGovernance.ToString(), new HealthDataset(HealthDataset.Dataset.DataGovernance, "Data_Governance_Dataset") },
+        { HealthDataset.Dataset.DataQuality.ToString(), new HealthDataset(HealthDataset.Dataset.DataQuality, "DQ_Health_Dataset") }
     };
 
     public static IReadOnlyDictionary<string, IDataset> Get() => allowedDatasets;
@@ -20,7 +21,8 @@ internal sealed class HealthDataset : IDataset
 {
     public enum Dataset
     {
-        DataGovernance
+        DataGovernance,
+        DataQuality
     }
 
     public HealthDataset(Dataset dataset, string name)

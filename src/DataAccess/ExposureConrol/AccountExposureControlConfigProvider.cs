@@ -107,9 +107,9 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     }
 
     /// <inheritdoc/>
-    public bool IsDataGovHealthPBIUpgradeEnabled(string accountId, string subscriptionId, string tenantId)
+    public bool IsDQPBIUpgradeEnabled(string accountId, string subscriptionId, string tenantId)
     {
-        ExposureControlOptions options = new(Features.DataGovHealthPBIUpgrade.ToString(), false)
+        ExposureControlOptions options = new(Features.DataGovDataQualityProvisioning.ToString(), false)
         {
             AccountId = accountId,
             SubscriptionId = subscriptionId,

@@ -1,0 +1,45 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		fastCombine
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["DimBusinessDomain","DimDataAsset","DimDataProduct","DimDQRuleName","DimDQRuleType","DimDQScanProfile","_Measures","DimDQJobType","FactDataQuality","Legend","DataRefresh","SERVER","DATABASE","DATABASE_SCHEMA","TENANT_ID"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBIDesktopVersion = 2.130.577.0 (24.06)
+
+annotation PBI_ProTooling = ["DaxQueryView_Desktop","DevMode"]
+
+ref table DimBusinessDomain
+ref table DateTableTemplate_b7dabc1e-7c22-48d7-91ac-28a31691f98a
+ref table LocalDateTable_3a7bc8d0-445b-47b5-a665-443a5dc55aeb
+ref table LocalDateTable_b0d21fe9-8623-48a1-8d91-4045c82bf688
+ref table LocalDateTable_1da78420-d65e-4c9b-83fe-35feed98b428
+ref table LocalDateTable_4dabbb02-85c0-4c23-bad2-572095f26c50
+ref table DimDataAsset
+ref table LocalDateTable_c90c5857-0c4b-46e2-864e-0ea538c9ef67
+ref table LocalDateTable_dd28c169-1ac7-48ff-b501-8f0cae5a7b80
+ref table LocalDateTable_4948e53a-5f64-4614-bca9-98312e0b1369
+ref table LocalDateTable_a5de0586-4a64-4dd9-ae96-ea02c9438b23
+ref table DimDataProduct
+ref table LocalDateTable_f26ed20b-9a46-425e-b6ae-15318bbbf830
+ref table LocalDateTable_045e7fe5-7175-4194-8740-e4e882ec0155
+ref table DimDQRuleName
+ref table DimDQRuleType
+ref table DimDQScanProfile
+ref table _Measures
+ref table DimDQJobType
+ref table FactDataQuality
+ref table LocalDateTable_134159d7-f3be-40dc-8595-664439143ca3
+ref table Legend
+ref table DataRefresh
+ref table LocalDateTable_93a7d6f3-3b62-476d-bf39-329c36811b82
+ref table LocalDateTable_1f4cc31a-aa9c-440a-95a5-a47ac85bdec1
+
+ref cultureInfo en-US
+

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "DQ health report"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "aa91cec1-50a6-42d8-9af9-42ab34e2c1c9"
+  }
+}

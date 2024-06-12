@@ -27,7 +27,7 @@ public interface IAccountExposureControlConfigProvider
     /// <param name="subscriptionId"></param>
     /// <param name="tenantId"></param>
     /// <returns></returns>
-    public bool IsDataGovHealthPBIUpgradeEnabled(string accountId, string subscriptionId, string tenantId);
+    public bool IsDQPBIUpgradeEnabled(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
     /// Determines if schedule queue for Data Governance Health is enabled. By default this is false.

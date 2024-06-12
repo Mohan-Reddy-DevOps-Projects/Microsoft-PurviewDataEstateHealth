@@ -155,6 +155,7 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
                 }
 
                 await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken);
+                await this.healthPBIReportComponent.CreateDataQualityReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken);
                 this.dataEstateHealthRequestLogger.LogInformation("PowerBI report created successfully");
             }
             catch (Exception e)

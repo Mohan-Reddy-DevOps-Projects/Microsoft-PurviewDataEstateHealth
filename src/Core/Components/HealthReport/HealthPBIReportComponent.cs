@@ -38,6 +38,14 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
         Dataset sharedDataset = await this.CreateDataset(profileId, workspaceId, sharedDatasetRequest, cancellationToken);
         await this.CreateReport(sharedDataset, reportRequest, cancellationToken);
     }
+    
+    public async Task CreateDataQualityReport(AccountServiceModel account, Guid profileId, Guid workspaceId, PowerBICredential powerBICredential, CancellationToken cancellationToken, bool update = false)
+    {
+        IDatasetRequest reportRequest = this.GetDataQualityReportRequest(profileId, workspaceId, powerBICredential);
+        IDatasetRequest sharedDatasetRequest = this.GetDataQualityDatasetRequest(account, profileId, workspaceId, powerBICredential);
+        Dataset sharedDataset = await this.CreateDataset(profileId, workspaceId, sharedDatasetRequest, cancellationToken);
+        await this.CreateReport(sharedDataset, reportRequest, cancellationToken);
+    }
 
     public async Task<Dataset> CreateDataset(Guid profileId, Guid workspaceId, IDatasetRequest sharedDatasetRequest, CancellationToken cancellationToken, bool update = false)
     {
@@ -126,6 +134,18 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
     private IDatasetRequest GetDataGovernanceDatasetRequest(AccountServiceModel account, Guid profileId, Guid workspaceId, PowerBICredential powerBICredential)
     {
         IDataset sharedDataset = SystemDatasets.Get()[HealthDataset.Dataset.DataGovernance.ToString()];
+        return this.GetSQLSharedDatasetRequest(account, profileId, workspaceId, powerBICredential, sharedDataset.Name);
+    }
+
+    private IDatasetRequest GetDataQualityReportRequest(Guid profileId, Guid workspaceId, PowerBICredential powerBICredential)
+    {
+        string reportName = HealthReportNames.DataQuality;
+        return this.GetReportRequest(profileId, workspaceId, powerBICredential, reportName);
+    }
+
+    private IDatasetRequest GetDataQualityDatasetRequest(AccountServiceModel account, Guid profileId, Guid workspaceId, PowerBICredential powerBICredential)
+    {
+        IDataset sharedDataset = SystemDatasets.Get()[HealthDataset.Dataset.DataQuality.ToString()];
         return this.GetSQLSharedDatasetRequest(account, profileId, workspaceId, powerBICredential, sharedDataset.Name);
     }
 }

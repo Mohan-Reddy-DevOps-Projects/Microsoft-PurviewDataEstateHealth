@@ -1,0 +1,104 @@
+table DimDataAsset
+	lineageTag: e5cb6078-8a0e-49e5-82e5-7258380917e9
+
+	column DataAssetId
+		dataType: string
+		lineageTag: 9e90a7f4-f4f7-40d1-9849-cd17f4586147
+		summarizeBy: none
+		sourceColumn: DataAssetId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataAssetSourceId
+		dataType: string
+		lineageTag: f2a66186-dae0-46e8-aba7-0cdcb5558786
+		summarizeBy: none
+		sourceColumn: DataAssetSourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataAsset
+		dataType: string
+		lineageTag: 34d2577d-0b2f-40fb-93dd-947cc46c12b0
+		summarizeBy: none
+		sourceColumn: DataAsset
+
+		annotation SummarizationSetBy = Automatic
+
+	column CreatedDatetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 46e3681f-1e29-4979-946b-8916c5f94a7d
+		summarizeBy: none
+		sourceColumn: CreatedDatetime
+
+		variation Variation
+			isDefault
+			relationship: 5d1588a9-c704-45fe-bdc6-5d50731a838c
+			defaultHierarchy: LocalDateTable_c90c5857-0c4b-46e2-864e-0ea538c9ef67.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ModifiedDatetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 6614da8a-499e-4b81-81a3-2afb639e4653
+		summarizeBy: none
+		sourceColumn: ModifiedDatetime
+
+		variation Variation
+			isDefault
+			relationship: f363867b-c553-4a77-a7df-b75dec818f0f
+			defaultHierarchy: LocalDateTable_dd28c169-1ac7-48ff-b501-8f0cae5a7b80.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column EffectiveDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 25c05d40-a03f-4366-86a0-0a7be8d9f36b
+		summarizeBy: none
+		sourceColumn: EffectiveDateTime
+
+		variation Variation
+			isDefault
+			relationship: 76882e29-62ac-4c53-a83d-602bcc00f2a8
+			defaultHierarchy: LocalDateTable_4948e53a-5f64-4614-bca9-98312e0b1369.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpiredDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 8d0b700d-50f5-49bc-a782-60155bcfade2
+		summarizeBy: none
+		sourceColumn: ExpiredDateTime
+
+		variation Variation
+			isDefault
+			relationship: 1e04af4a-5210-454d-9368-1378e41f4ad8
+			defaultHierarchy: LocalDateTable_a5de0586-4a64-4dd9-ae96-ea02c9438b23.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column CurrentIndicator
+		dataType: int64
+		formatString: 0
+		lineageTag: d3f5dd36-0c36-4f13-ad3f-2bf7b132e038
+		summarizeBy: sum
+		sourceColumn: CurrentIndicator
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDataAsset = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE, [Query="select * from [" &DATABASE_SCHEMA& ".DimensionalModel].[DimDataAsset]"]),
+				    #"Renamed Columns" = Table.RenameColumns(Source,{{"DataAssetDisplayName", "DataAsset"}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Renamed Columns", {"DataAssetId"}, FactDataQuality, {"DataAssetId"}, "FactDataQuality", JoinKind.Inner)
+				in
+				    #"Merged Queries"
+
+	annotation PBI_ResultType = Table
+

@@ -45,24 +45,16 @@ internal class StartPBIRefreshStage : IJobCallbackStage
         string jobStatusMessage;
         try
         {
-            IList<RefreshLookup> refreshLookups;
-            if (this.exposureControl.IsDataGovHealthPBIUpgradeEnabled(this.metadata.Account.Id, this.metadata.Account.SubscriptionId, this.metadata.Account.TenantId))
+            IDatasetRequest[] datasetRequests = this.metadata.DatasetUpgrades.Keys.Select(datasetId =>
             {
-                IDatasetRequest[] datasetRequests = this.metadata.DatasetUpgrades.Keys.Select(datasetId =>
+                return new DatasetRequest()
                 {
-                    return new DatasetRequest()
-                    {
-                        DatasetId = datasetId,
-                        ProfileId = this.metadata.ProfileId,
-                        WorkspaceId = this.metadata.WorkspaceId,
-                    };
-                }).ToArray();
-                refreshLookups = await this.refreshComponent.RefreshDatasets(datasetRequests, CancellationToken.None);
-            }
-            else
-            {
-                refreshLookups = await this.refreshComponent.RefreshDatasets(Guid.Parse(this.metadata.Account.Id), CancellationToken.None);
-            }
+                    DatasetId = datasetId,
+                    ProfileId = this.metadata.ProfileId,
+                    WorkspaceId = this.metadata.WorkspaceId,
+                };
+            }).ToArray();
+            IList<RefreshLookup> refreshLookups = await this.refreshComponent.RefreshDatasets(datasetRequests, CancellationToken.None);
 
             this.metadata.RefreshLookups = refreshLookups;
             this.metadata.ReportRefreshCompleted = true;

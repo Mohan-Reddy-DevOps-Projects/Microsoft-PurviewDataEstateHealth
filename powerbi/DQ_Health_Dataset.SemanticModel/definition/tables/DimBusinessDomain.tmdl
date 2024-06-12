@@ -1,0 +1,106 @@
+table DimBusinessDomain
+	lineageTag: 1e42b4a6-ae6f-4dc6-b428-f9626875a8af
+
+	column BusinessDomainId
+		dataType: string
+		lineageTag: 9dbec40b-7c79-4dff-97b9-e8bf20fd83ea
+		summarizeBy: none
+		sourceColumn: BusinessDomainId
+
+		annotation SummarizationSetBy = Automatic
+
+	column BusinessDomainSourceId
+		dataType: string
+		lineageTag: 391f9bb9-9510-41f4-ac32-c20f1c617056
+		summarizeBy: none
+		sourceColumn: BusinessDomainSourceId
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Business Domain'
+		dataType: string
+		lineageTag: 68c71baf-49e2-4a13-a3fd-0065926f5871
+		summarizeBy: none
+		sourceColumn: Business Domain
+
+		annotation SummarizationSetBy = Automatic
+
+	column CreatedDatetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: cfa9d137-295f-4c04-b9d2-cd6a76e508a1
+		summarizeBy: none
+		sourceColumn: CreatedDatetime
+
+		variation Variation
+			isDefault
+			relationship: 2a6baa02-8293-4d4b-a94a-56c58d0b770e
+			defaultHierarchy: LocalDateTable_3a7bc8d0-445b-47b5-a665-443a5dc55aeb.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ModifiedDatetime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b44d8cc8-4b94-4d6a-9ebd-1365033ceea6
+		summarizeBy: none
+		sourceColumn: ModifiedDatetime
+
+		variation Variation
+			isDefault
+			relationship: 29930a60-6eaf-4fc2-9650-9dfa4e8f1619
+			defaultHierarchy: LocalDateTable_b0d21fe9-8623-48a1-8d91-4045c82bf688.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column EffectiveDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 98c58a1a-12ca-419d-af92-2e1de5f4c563
+		summarizeBy: none
+		sourceColumn: EffectiveDateTime
+
+		variation Variation
+			isDefault
+			relationship: 4b829b2d-9d1d-4bdd-a8ef-af42d6207d43
+			defaultHierarchy: LocalDateTable_1da78420-d65e-4c9b-83fe-35feed98b428.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpiredDateTime
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: d5ffaf18-fce3-4a56-91c0-2f87a36a5c6f
+		summarizeBy: none
+		sourceColumn: ExpiredDateTime
+
+		variation Variation
+			isDefault
+			relationship: 204b83d2-4a28-4fc3-b1d2-6b2ebb08575e
+			defaultHierarchy: LocalDateTable_4dabbb02-85c0-4c23-bad2-572095f26c50.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column CurrentIndicator
+		dataType: int64
+		formatString: 0
+		lineageTag: 0ff42a4d-a0c7-47a0-879b-55a3c2324df9
+		summarizeBy: sum
+		sourceColumn: CurrentIndicator
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimBusinessDomain = m
+		mode: import
+		source =
+				let
+				    Source = Sql.Database(SERVER, DATABASE, [Query="select * from [" &DATABASE_SCHEMA& ".DimensionalModel].[DimBusinessDomain]"]),
+				    #"Renamed Columns" = Table.RenameColumns(Source,{{"BusinessDomainDisplayName", "Business Domain"}}),
+				  #"Merged queries" = Table.NestedJoin(#"Renamed Columns", {"BusinessDomainId"}, FactDataQuality, {"BusinessDomainId"}, "FactDataQuality", JoinKind.Inner)
+				in
+				    #"Merged queries"
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navigation
+
