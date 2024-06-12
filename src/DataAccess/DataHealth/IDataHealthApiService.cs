@@ -26,15 +26,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// <returns></returns>
         void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry, CancellationToken cancellationToken);
 
-
-        /// <summary>
-        /// Trigger DEH schedule
-        /// </summary>
-        /// <param name="payload"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task<bool> TriggerDEHScheduleCallback(TriggeredSchedulePayload payload, CancellationToken cancellationToken);
-
         /// <summary>
         /// Trigger DEH schedule
         /// </summary>
@@ -42,12 +33,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<bool> TriggerDEHSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Migrate schedule
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        Task MigrateSchedule(MigrateSchedulePayload payload, CancellationToken cancellationToken);
 
         /// <summary>
         /// Clean up actions.

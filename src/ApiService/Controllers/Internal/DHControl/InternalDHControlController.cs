@@ -5,6 +5,7 @@ using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
@@ -22,12 +23,14 @@ public class InternalDHControlController(
     DHScheduleService dhScheduleService,
     IDataEstateHealthRequestLogger logger,
     IRequestHeaderContext requestHeaderContext,
+    IHttpContextAccessor httpContextAccessor,
     IAccountExposureControlConfigProvider exposureControl) : Controller
 {
     [HttpPost]
     [Route("triggerScheduleJobCallback")]
     public async Task<ActionResult> TriggerScheduleJobRunCallback([FromBody] DHScheduleCallbackPayload requestBody)
     {
+
         if (requestBody == null)
         {
             return this.BadRequest();
@@ -35,6 +38,14 @@ public class InternalDHControlController(
 
         var tenantId = requestHeaderContext.TenantId.ToString();
         var accountId = requestHeaderContext.AccountObjectId.ToString();
+
+        logger.LogInformation("API triggerScheduleJobCallback should not be used.");
+        var headers = httpContextAccessor?.HttpContext?.Request?.Headers;
+        var scheduleId = headers.GetFirstOrDefault("x-dgschedule-schedule-id");
+        var workflowId = headers.GetFirstOrDefault("x-dgschedule-workflow-id");
+        var workflowLocation = headers.GetFirstOrDefault("x-dgschedule-workflow-location");
+        logger.LogInformation($"Logic app callback information. TenantId: {tenantId}. AccountId: {accountId}. ScheduleId: {scheduleId}. WorkflowId: {workflowId}. WorkflowLocation: {workflowLocation}.");
+
         requestBody.Operator = DHScheduleCallbackPayload.DGScheduleServiceOperatorName;
 
         if (exposureControl.IsDataGovHealthScheduleQueueEnabled(accountId, null, tenantId))

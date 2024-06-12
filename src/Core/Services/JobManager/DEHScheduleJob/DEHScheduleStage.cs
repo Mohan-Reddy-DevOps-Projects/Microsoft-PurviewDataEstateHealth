@@ -6,10 +6,11 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Queue;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
 
 internal class DEHScheduleStage : IJobCallbackStage
@@ -46,15 +47,18 @@ internal class DEHScheduleStage : IJobCallbackStage
     {
         using (this.logger.LogElapsed($"Start DEHScheduleStage. Account ID: {this.metadata.ScheduleAccountId}. Tenant ID: {this.metadata.ScheduleTenantId}."))
         {
-            var payload = new TriggeredSchedulePayload()
+            var entity = new DHScheduleQueueEntity
             {
                 TenantId = this.metadata.ScheduleTenantId,
                 AccountId = this.metadata.ScheduleAccountId,
-                RequestId = Guid.NewGuid().ToString(),
+                Operator = DHScheduleCallbackPayload.DGScheduleServiceOperatorName,
+                TriggerType = DHScheduleCallbackTriggerType.Schedule.ToString(),
             };
             try
             {
-                await this.dataHealthApiService.TriggerDEHScheduleCallback(payload, this.cancellationToken).ConfigureAwait(false);
+                this.logger.LogInformation($"New schedule entity. {JsonConvert.SerializeObject(entity)}");
+                await this.triggeredScheduleQueue.SendMessageAsync(JsonConvert.SerializeObject(entity)).ConfigureAwait(false);
+                this.logger.LogInformation("Successfully enqueue schedule.");
             }
             catch (Exception ex)
             {

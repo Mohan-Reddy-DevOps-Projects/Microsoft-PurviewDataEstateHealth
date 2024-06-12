@@ -49,7 +49,6 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJ
     {
         this.JobStages = new List<IJobCallbackStage>
         {
-            new MigrateScheduleStage(this.Scope, this.Metadata, this.JobCallbackUtils, this.CancellationToken),
             new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
