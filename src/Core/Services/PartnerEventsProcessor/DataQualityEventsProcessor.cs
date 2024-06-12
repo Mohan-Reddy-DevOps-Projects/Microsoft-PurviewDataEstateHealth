@@ -74,14 +74,6 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
 
         Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> mdqJobModels = this.UpdateMDQJobStatus(mdqSourceModels);
         this.DataEstateHealthRequestLogger.LogTrace($"Updated {mdqJobModels.Values.Sum(i => i.Count)} {this.EventProcessorType} MDQ events for account Id: {accountId}.");
-
-        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualitySourceModels = this.FitlerDataQualitySourceEvents(sourceModels, true);
-
-        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels = await this.PrepareAndUploadSourcePayloads(dataQualitySourceModels, deltaTableWriter);
-        this.DataEstateHealthRequestLogger.LogTrace($"Persisted {dataQualityResultModels.Values.Sum(i => i.Count)} {this.EventProcessorType} source events for account Id: {accountId}.");
-
-        Dictionary<EventOperationType, List<DataQualitySinkEventHubEntityModel>> dataQualityScoreModels = await this.PrepareAndUploadSinkPayloads(dataQualityResultModels, deltaTableWriter);
-        this.DataEstateHealthRequestLogger.LogTrace($"Persisted {dataQualityScoreModels.Values.Sum(i => i.Count)} {this.EventProcessorType} sink events for account Id: {accountId}.");
     }
 
     private Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> FitlerDataQualitySourceEvents(Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> sourceModels, bool pickMDQ)
@@ -120,12 +112,6 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         return dataQualityResultModels;
     }
 
-    private async Task<Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>>> PrepareAndUploadSourcePayloads(Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels, IDeltaLakeOperator deltaTableWriter)
-    {
-        await this.PersistToStorage(dataQualityResultModels, deltaTableWriter, nameof(EventSourceType.DataQuality));
-        return dataQualityResultModels;
-    }
-
     private Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> UpdateMDQJobStatus(
         Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels)
     {
@@ -160,46 +146,6 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
         return mdqJobModels;
     }
 
-    private async Task<Dictionary<EventOperationType, List<DataQualitySinkEventHubEntityModel>>> PrepareAndUploadSinkPayloads(
-        Dictionary<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModels,
-        IDeltaLakeOperator deltaTableWriter)
-    {
-        Dictionary<EventOperationType, List<DataQualitySinkEventHubEntityModel>> dataQualityScoreModels = new();
-        foreach (KeyValuePair<EventOperationType, List<DataQualitySourceEventHubEntityModel>> dataQualityResultModel in dataQualityResultModels)
-        {
-            List<DataQualitySourceEventHubEntityModel> sourceModels = dataQualityResultModel.Value;
-            var scoreModels = new List<DataQualitySinkEventHubEntityModel>();
-            dataQualityScoreModels.Add(dataQualityResultModel.Key, scoreModels);
-
-            foreach (DataQualitySourceEventHubEntityModel sourceModel in sourceModels)
-            {
-                ResultIdEventHubEntityModel jobRunId = this.ParseResultId(sourceModel.ResultId ?? string.Empty);
-                if (jobRunId == null || jobRunId.BusinessDomainId == null || jobRunId.DataProductId == null || jobRunId.DataAssetId == null)
-                {
-                    this.DataEstateHealthRequestLogger.LogWarning($"Encountered invalid data quality job run result: {JsonConvert.SerializeObject(sourceModel.ResultId)}");
-                    continue;
-                }
-
-                var sinkModel = new DataQualitySinkEventHubEntityModel()
-                {
-                    AccountId = sourceModel.AccountId,
-                    BusinessDomainId = jobRunId.BusinessDomainId,
-                    DataProductId = jobRunId.DataProductId,
-                    DataAssetId = jobRunId.DataAssetId,
-                    JobId = jobRunId.JobId,
-                    RowId = sourceModel.EventId.ToString(),
-                    ResultedAt = sourceModel.ResultedAt,
-                    QualityScore = this.CalculateDataQualityScore(sourceModel),
-                };
-
-                scoreModels.Add(sinkModel);
-            }
-        }
-
-        await this.PersistToStorage(dataQualityScoreModels, deltaTableWriter, nameof(EventSourceType.DataQuality), false);
-        return dataQualityScoreModels;
-    }
-
     private ResultIdEventHubEntityModel ParseResultId(string resultId)
     {
         try
@@ -226,34 +172,5 @@ internal class DataQualityEventsProcessor : PartnerEventsProcessor
             this.DataEstateHealthRequestLogger.LogError($"Failed to parse domain model payload: {domainmodel}.", exception);
             return null;
         }
-    }
-
-    private double CalculateDataQualityScore(DataQualitySourceEventHubEntityModel sourceModel)
-    {
-        double qualityScore = 0.0;
-
-        if (sourceModel.JobStatus == nameof(JobRunState.Succeeded))
-        {
-            var ruleResults = JsonConvert.DeserializeObject<Dictionary<string, JobResultValuesEventHubEntityModel>>(sourceModel.Results);
-            if (ruleResults != null)
-            {
-                int maxPassCount = 0;
-                int totalPassCount = 0;
-                foreach (JobResultValuesEventHubEntityModel ruleResult in ruleResults.Values)
-                {
-                    totalPassCount += ruleResult.PassedCount;
-                    maxPassCount += ruleResult.PassedCount;
-                    maxPassCount += ruleResult.FailedCount;
-                    maxPassCount += ruleResult.MiscastCount;
-                    maxPassCount += ruleResult.IgnoredCount;
-                    maxPassCount += ruleResult.EmptyCount;
-                    maxPassCount += ruleResult.UnevaluableCount;
-                }
-
-                qualityScore = 1.0 * totalPassCount / maxPassCount;
-            }
-        }
-
-        return qualityScore;
     }
 }
