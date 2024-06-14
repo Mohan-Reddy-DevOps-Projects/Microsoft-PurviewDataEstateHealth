@@ -166,6 +166,18 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
         return this.IsFeatureEnabled(options);
     }
 
+    /// <inheritdoc/>
+    public bool IsDataGovHealthDQReportEnabled(string accountId, string subscriptionId, string tenantId)
+    {
+        ExposureControlOptions options = new(Features.DataGovHealthDQReport.ToString(), false)
+        {
+            AccountId = accountId,
+            SubscriptionId = subscriptionId,
+            TenantId = tenantId
+        };
+        return this.IsFeatureEnabled(options);
+    }
+
     public Dictionary<string, SparkPoolECConfig> GetDGSparkJobConfig()
     {
         ExposureControlOptions dictionaryOptions = new(Dictionaries.DGSparkJobConfig.ToString());

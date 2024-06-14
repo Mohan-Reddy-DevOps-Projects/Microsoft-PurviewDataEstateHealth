@@ -57,6 +57,15 @@ public interface IAccountExposureControlConfigProvider
     public bool IsDataGovHealthTipsEnabled(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
+    /// Determines if DG health DQ report is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDataGovHealthDQReportEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
     /// Retrieve the Spark Job configurations.
     /// </summary>
     /// <returns></returns>
