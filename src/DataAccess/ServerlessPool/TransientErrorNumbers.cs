@@ -43,10 +43,14 @@ internal static class TransientErrorNumbers
         // If the problem persists, contact customer support, and provide them the session tracing ID of '%.*ls'.
         40613,
 
+        // Cannot open server '{0}' requested by the login. Client with IP address '{1}' is not allowed to access the server
+        // Occasionally encountered this error on a certain worker node.
+        40615,
+
         // Can not connect to the SQL pool since it is paused. Please resume the SQL pool and try again.
         42108,
 
         // The SQL pool is warming up. Please try again.
-        42109
+        42109,
     };
 }
