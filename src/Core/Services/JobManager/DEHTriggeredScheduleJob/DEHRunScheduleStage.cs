@@ -20,6 +20,7 @@ internal class DEHRunScheduleStage : IJobCallbackStage
 {
     private const int GetMessageSize = 32;
     private const int MessageConcurrencyCount = 5;
+    private const int MaxRetryCount = 24 * 3; // 3 days
 
     private readonly JobCallbackUtils<DEHTriggeredScheduleJobMetadata> jobCallbackUtils;
 
@@ -117,6 +118,14 @@ internal class DEHRunScheduleStage : IJobCallbackStage
         }
         if (entity == null)
         {
+            return;
+        }
+
+        if (entity.TryCount >= MaxRetryCount)
+        {
+            this.logger.LogInformation($"Schedule is outdated. Delete it from queue. AccountId: {entity.AccountId}. ControlId: {entity.ControlId}. TryCount: {entity.TryCount}.");
+            await this.triggeredScheduleQueue.DeleteMessage(message.MessageId, message.PopReceipt).ConfigureAwait(false);
+            this.logger.LogInformation($"Outdated scheduled is successfully delete from queue. AccountId: {entity.AccountId}. ControlId: {entity.ControlId}. TryCount: {entity.TryCount}.");
             return;
         }
 
