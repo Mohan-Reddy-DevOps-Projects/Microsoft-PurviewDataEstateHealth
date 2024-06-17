@@ -44,9 +44,26 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             {
                 PopulateMetadataForEntity(entity, tenantId, accountId);
                 var tenantPartitionKey = new PartitionKey(tenantId);
+                var isRetry = false;
+                async Task<ItemResponse<TEntity>> Run()
+                {
+                    if (isRetry)
+                    {
+                        try
+                        {
+                            return await this.CosmosContainer.ReadItemAsync<TEntity>(entity.Id, tenantPartitionKey).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError(ex.Message, ex);
+                        }
+                    }
+                    isRetry = true;
+                    return await this.CosmosContainer.CreateItemAsync(entity, tenantPartitionKey).ConfigureAwait(false);
+                }
                 // Execute the asynchronous operation with the defined retry policy
                 var response = await this.retryPolicy.ExecuteAsync(
-                    (context) => this.CosmosContainer.CreateItemAsync(entity, tenantPartitionKey),
+                    (context) => Run(),
                     new Context($"{this.GetType().Name}#{methodName}_{entity.Id}_{tenantId}_{accountId}")
                 ).ConfigureAwait(false);
                 cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
