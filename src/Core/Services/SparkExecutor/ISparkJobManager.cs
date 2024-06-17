@@ -25,7 +25,7 @@ public interface ISparkJobManager
     /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null);
+    Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null, int retryCount = 5);
 
     /// <summary>
     /// Cancels the job.

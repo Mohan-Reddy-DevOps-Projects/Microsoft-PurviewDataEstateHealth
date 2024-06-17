@@ -44,7 +44,7 @@ internal sealed class SparkJobManager : ISparkJobManager
     }
 
     /// <inheritdoc/>
-    public async Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null)
+    public async Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null, int retryCount = 5)
     {
         using (this.logger.LogElapsed("submit job"))
         {
@@ -64,8 +64,24 @@ internal sealed class SparkJobManager : ISparkJobManager
             }
             catch (RequestFailedException ex) when (ex.Status == 404 && existingPoolResourceId != null)
             {
-                this.logger.LogWarning($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Existing pool not exist. Re-submit the job.", ex);
-                return await this.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken);
+                this.logger.LogWarning($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Existing pool not exist. Re-submit the job. Remaining retry times: {retryCount}.", ex);
+                if (retryCount <= 0)
+                {
+                    this.logger.LogError($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Existing pool not exist.", ex);
+                    throw;
+                }
+                return await this.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, retryCount: retryCount - 1);
+            }
+            catch (RequestFailedException ex) when (ex.Status == 429)
+            {
+                this.logger.LogWarning($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Too many requests. Re-submit the job. Remaining retry times: {retryCount}.", ex);
+                if (retryCount <= 0)
+                {
+                    this.logger.LogError($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Too many requests.", ex);
+                    throw;
+                }
+                await Task.Delay(Random.Shared.Next(1000, 5000), cancellationToken);
+                return await this.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, sparkPoolId, retryCount - 1);
             }
             catch (Exception ex)
             {
@@ -226,7 +242,7 @@ internal sealed class SparkJobManager : ISparkJobManager
                 catch (Exception ex)
                 {
                     this.logger.LogError($"Failed to create spark pool in attempt {attempt}. Max attempt {maxAttempts}.", ex);
-                    await Task.Delay(3000, cancellationToken);
+                    await Task.Delay(Random.Shared.Next(3000, 10000), cancellationToken);
                 }
             }
 
