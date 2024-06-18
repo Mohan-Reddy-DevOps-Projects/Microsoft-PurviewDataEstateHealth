@@ -47,12 +47,20 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         {
             this.logger.LogInformation($"Start ParseDQResult, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
 
+            // Query storage account
+            var accountStorageModel = await this.processingStorageManager.Get(new Guid(job.AccountId), CancellationToken.None).ConfigureAwait(false);
+            if (accountStorageModel == null)
+            {
+                this.logger.LogInformation($"Interrupt ParseDQResult, processing storage account mapping does not exist, tenantId:{job.TenantId}, accountId:{job.AccountId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
+                throw new ProcessingStorageAccountMappingNotExistsException();
+            }
+
             var dataProductId = job.ControlId;
             var dataAssetId = job.Id;
 
             var outputResult = await this.dataQualityOutputRepository.GetMultiple(new DataQualityOutputQueryCriteria()
             {
-                AccountId = job.AccountId,
+                AccountStorageModel = accountStorageModel,
                 FolderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={job.DQJobId}"
             }, CancellationToken.None).ConfigureAwait(false);
 
@@ -82,6 +90,12 @@ public class DataQualityExecutionService : IDataQualityExecutionService
 
             // Query storage account
             var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
+
+            if (accountStorageModel == null)
+            {
+                this.logger.LogInformation($"Interrupt SubmitDQJOb, processing storage account mapping does not exist, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
+                throw new ProcessingStorageAccountMappingNotExistsException();
+            }
 
             // Check if domain model exists
             var isDomainModelExisted = await this.processingStorageManager.CheckFolderExists(

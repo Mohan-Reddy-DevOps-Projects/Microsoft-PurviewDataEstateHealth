@@ -5,9 +5,12 @@
 
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Repositories.DataQualityOutput;
+
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
+
 public class DataQualityOutputQueryCriteria
 {
-    public string AccountId;
+    public ProcessingStorageModel AccountStorageModel;
 
     public string FolderPath;
 }

@@ -50,6 +50,11 @@ public class InternalDataQualityController : Controller
 
         var accountModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
 
+        if (accountModel == null)
+        {
+            return this.BadRequest($"Cannot find processing storage account mapping for this account id {accountId}");
+        }
+
         StorageSasRequest storageSasRequest = new()
         {
             Resource = "c",

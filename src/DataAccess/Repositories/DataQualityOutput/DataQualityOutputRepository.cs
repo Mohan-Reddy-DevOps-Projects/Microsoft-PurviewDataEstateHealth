@@ -35,7 +35,7 @@ internal class DataQualityOutputRepository : IDataQualityOutputRepository
           CancellationToken cancellationToken,
           string continuationToken = null)
     {
-        string containerPath = await this.ConstructContainerPath(new Guid(criteria.AccountId), cancellationToken);
+        string containerPath = this.ConstructContainerPath(criteria.AccountStorageModel);
 
         DataQualityOutputQuery query = this.queryRequestBuilder.Build<DataQualityDataProductOutputRecord>(containerPath) as DataQualityOutputQuery;
         query.QueryPath = $"{containerPath}/{criteria.FolderPath}/*.parquet";
@@ -52,11 +52,9 @@ internal class DataQualityOutputRepository : IDataQualityOutputRepository
         };
     }
 
-    private async Task<string> ConstructContainerPath(Guid accountId, CancellationToken cancellationToken)
+    private string ConstructContainerPath(ProcessingStorageModel accountStorageModel)
     {
-        Models.ProcessingStorageModel storageModel = await this.processingStorageManager.Get(accountId, cancellationToken);
-        ArgumentNullException.ThrowIfNull(storageModel, nameof(storageModel));
-
-        return $"{storageModel.GetDfsEndpoint()}/{storageModel.CatalogId}";
+        ArgumentNullException.ThrowIfNull(accountStorageModel, nameof(accountStorageModel));
+        return $"{accountStorageModel.GetDfsEndpoint()}/{accountStorageModel.CatalogId}";
     }
 }
