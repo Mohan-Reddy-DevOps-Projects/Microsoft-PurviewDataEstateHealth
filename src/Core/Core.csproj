@@ -18,7 +18,6 @@
     <PackageReference Include="Azure.Storage.Files.DataLake" />
     <PackageReference Include="Microsoft.Azure.Management.Storage" />
     <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
-    <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />

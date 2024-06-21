@@ -4,7 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
-using Microsoft.Azure.Management.ResourceManager.Fluent;
 using System;
 using System.Collections.Generic;
 using Environment = Microsoft.Purview.DataGovernance.Common.Environment;

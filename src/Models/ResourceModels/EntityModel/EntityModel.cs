@@ -4,9 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Models;
 
-using System;
 using global::Azure;
-using Microsoft.Azure.Management.ResourceManager.Fluent.Core;
+using System;
 
 /// <summary>
 /// Entity model.
