@@ -36,10 +36,26 @@ internal class DHActionJobStage : IJobCallbackStage
     public async Task<JobExecutionResult> Execute()
     {
         this.logger.LogInformation("Start to execute DHActionJobStage.");
-        var isSuccess = await this.dataHealthApiService.CleanUpActionsJobCallback(this.metadata.AccountServiceModel, CancellationToken.None);
+        var isSuccess = await this.ExecuteCleanupWithRetry();
         this.metadata.ActionCleanUpCompleted = isSuccess;
         var jobStageStatus = isSuccess ? JobExecutionStatus.Succeeded : JobExecutionStatus.Failed;
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, "", DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
+    }
+
+    private async Task<bool> ExecuteCleanupWithRetry(int maxRetryCount = 5)
+    {
+        this.logger.LogInformation($"Start to ExecuteCleanupWithRetry. Remaining attempts: {maxRetryCount}");
+        var isSuccess = await this.dataHealthApiService.CleanUpActionsJobCallback(this.metadata.AccountServiceModel, CancellationToken.None);
+        if (isSuccess)
+        {
+            return true;
+        }
+        if (maxRetryCount > 0)
+        {
+            await Task.Delay(1000);
+            return await this.ExecuteCleanupWithRetry(maxRetryCount - 1);
+        }
+        return false;
     }
 
     public bool IsStageComplete()
