@@ -150,7 +150,7 @@ public class DHScheduleService(
                                 assessment,
                                 jobId).ConfigureAwait(false);
                         }
-                        catch (MDQJobDQSubmissionException ex) when (ex.InnerException is ProcessingStorageAccountMappingNotExistsException || ex.InnerException is DomainModelNotExistsException)
+                        catch (MDQJobDQSubmissionException ex) when (ex.InnerException is DomainModelNotExistsException)
                         {
                             logger.LogInformation($"{ex.InnerException.GetType().Name} is caught. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
                             // Update DQ status to failed in monitoring table
@@ -236,14 +236,6 @@ public class DHScheduleService(
                     await scoreService.ProcessControlComputingResultsAsync(job, scoreResult).ConfigureAwait(false);
                     await dataQualityExecutionService.PurgeObserver(job).ConfigureAwait(false);
                     logger.LogTipInformation("MDQ job score is processed successfully", tipInfo);
-                }
-                catch (MDQJobDQSubmissionException ex) when (ex.InnerException is ProcessingStorageAccountMappingNotExistsException)
-                {
-                    logger.LogInformation($"{ex.InnerException.GetType().Name} is caught. DQ job id: {job.DQJobId}");
-                    // Update DQ status to failed in monitoring table
-                    job.Status = DHComputingJobStatus.Failed;
-                    await monitoringService.UpdateComputingJob(job, MDQEventOperationName).ConfigureAwait(false);
-                    logger.LogInformation($"{ex.InnerException.GetType().Name}, updated job status to failed. DQ job id: {job.DQJobId}");
                 }
                 catch (Exception ex)
                 {
