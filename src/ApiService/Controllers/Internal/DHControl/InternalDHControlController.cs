@@ -74,7 +74,14 @@ public class InternalDHControlController(
         var accountId = requestHeaderContext.AccountObjectId;
         using (logger.LogElapsed($"Trigger schedule job. TenantId: {tenantId}. AccountId: {accountId}."))
         {
-            await dhScheduleService.TriggerScheduleJobCallbackAsync(requestBody).ConfigureAwait(false);
+            try
+            {
+                await dhScheduleService.TriggerScheduleJobCallbackAsync(requestBody).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                return this.Problem(ex.Message);
+            }
         }
         return this.Ok();
     }
@@ -94,7 +101,14 @@ public class InternalDHControlController(
         }
         using (logger.LogElapsed($"MDQ job callback start. TenantId: {requestHeaderContext.TenantId}. AccountId: {requestHeaderContext.AccountObjectId}. Job Id: {requestBody.DQJobId}. Job Status: {requestBody.JobStatus}."))
         {
-            await dhScheduleService.UpdateMDQJobStatusAsync(requestBody).ConfigureAwait(false);
+            try
+            {
+                await dhScheduleService.UpdateMDQJobStatusAsync(requestBody).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                return this.Problem(ex.Message);
+            }
         }
         return this.Ok();
     }

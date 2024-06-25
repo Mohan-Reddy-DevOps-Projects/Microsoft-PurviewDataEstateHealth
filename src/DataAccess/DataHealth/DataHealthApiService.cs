@@ -50,7 +50,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 try
                 {
 
-                    if (isRetry && jobModel.CreatedAt < DateTimeOffset.Now.AddDays(-3))
+                    if (isRetry && jobModel.CreatedAt < DateTimeOffset.Now.AddDays(-5))
                     {
                         this.logger.LogInformation($"Clean outdated failed MDQ job. Job Id: {jobModel.DQJobId}. Job status: {jobModel.JobStatus}. Request ID: {requestId}.");
                         await this.CleanMDQFailedJob(jobModel.DQJobId).ConfigureAwait(false);
@@ -84,6 +84,11 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                     {
                         await this.CleanMDQFailedJob(jobModel.DQJobId).ConfigureAwait(false);
                         this.logger.LogError($"Monitoring job not found failed job removed. DQ job id: {jobModel.DQJobId}.");
+                    }
+
+                    if (isRetry && jobModel.CreatedAt < DateTimeOffset.Now.AddDays(-2))
+                    {
+                        this.logger.LogCritical($"Failed MDQ job retried for more than two days. Error: {ex.Message}. Job Id: {jobModel.DQJobId}. Job status: {jobModel.JobStatus}. Request ID: {requestId}.");
                     }
                 }
             });

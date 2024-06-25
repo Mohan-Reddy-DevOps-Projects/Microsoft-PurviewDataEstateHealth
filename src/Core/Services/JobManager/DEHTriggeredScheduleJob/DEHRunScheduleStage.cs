@@ -20,7 +20,8 @@ internal class DEHRunScheduleStage : IJobCallbackStage
 {
     private const int GetMessageSize = 32;
     private const int MessageConcurrencyCount = 5;
-    private const int MaxRetryCount = 24 * 3; // 3 days
+    private const int MaxRetryCount = 24 * 5; // 5 days
+    private const int LogCriticalRetryCount = 24 * 2; // 2 days
 
     private readonly JobCallbackUtils<DEHTriggeredScheduleJobMetadata> jobCallbackUtils;
 
@@ -150,6 +151,11 @@ internal class DEHRunScheduleStage : IJobCallbackStage
             var body = JsonConvert.SerializeObject(entity);
             await this.triggeredScheduleQueue.UpdateMessage(message.MessageId, message.PopReceipt, body).ConfigureAwait(false);
             this.logger.LogInformation($"Fail to trigger schedule. Update queue message. Try count: {entity.TryCount}. AccountId: {entity.AccountId}. ControlId: {entity.ControlId}.");
+
+            if (entity.TryCount > LogCriticalRetryCount)
+            {
+                this.logger.LogCritical($"Fail to trigger schedule for more than two days. AccountId: {entity.AccountId}. ControlId: {entity.ControlId}.");
+            }
         }
     }
 

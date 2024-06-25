@@ -175,7 +175,7 @@ public class DHScheduleService(
                     }
                     catch (Exception ex)
                     {
-                        logger.LogCritical($"control failed to start. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}", ex);
+                        logger.LogError($"control failed to start. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}", ex);
                         failedJobsCount++;
                     }
                 }
@@ -197,7 +197,7 @@ public class DHScheduleService(
             }
             catch (Exception ex)
             {
-                logger.LogCritical($"Failed to trigger schedule job", ex);
+                logger.LogError($"Failed to trigger schedule job", ex);
                 throw;
             }
         }
