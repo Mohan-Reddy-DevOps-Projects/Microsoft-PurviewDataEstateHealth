@@ -12,8 +12,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
-using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService.Configurations;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Newtonsoft.Json;
@@ -32,8 +30,6 @@ public class PlatformAccountNotificationsController : ControlPlaneController
 {
     private readonly ICoreLayerFactory coreLayerFactory;
     private readonly IDataEstateHealthRequestLogger logger;
-    private readonly IPartnerService<AccountServiceModel, IPartnerDetails> partnerService;
-    private readonly PartnerConfig<IPartnerDetails> partnerConfig;
     private readonly IAccountExposureControlConfigProvider exposureControl;
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly DHProvisionService dhProvisionService;
@@ -42,9 +38,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     /// </summary>
     public PlatformAccountNotificationsController(
         ICoreLayerFactory coreLayerFactory,
-        IPartnerService<AccountServiceModel, IPartnerDetails> partnerService,
         IAccountExposureControlConfigProvider exposureControl,
-        IOptions<PartnerConfiguration> partnerConfiguration,
         IDataEstateHealthRequestLogger logger,
         IProcessingStorageManager processingStorageManager,
         DHProvisionService provisionService,
@@ -52,9 +46,7 @@ public class PlatformAccountNotificationsController : ControlPlaneController
     {
         this.coreLayerFactory = coreLayerFactory;
         this.logger = logger;
-        this.partnerService = partnerService;
         this.exposureControl = exposureControl;
-        this.partnerConfig = new(partnerConfiguration);
         this.processingStorageManager = processingStorageManager;
         this.dhProvisionService = provisionService;
 

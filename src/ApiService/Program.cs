@@ -14,7 +14,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.ProvisioningService;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic;
@@ -81,7 +80,6 @@ public class Program
             .AddLogger(genevaConfiguration, serviceConfiguration, environmentConfiguration, builder.Environment.IsDevelopment())
             .AddApiServiceConfigurations(builder.Configuration)
             .AddApiServices()
-            .AddProvisioningService()
             .AddCoreLayer()
             .AddDataAccessLayer()
             .AddServiceBasicsForApiService();

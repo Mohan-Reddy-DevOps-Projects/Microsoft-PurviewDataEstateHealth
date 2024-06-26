@@ -25,7 +25,6 @@
     <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\DHConfigurations\DHConfigurations.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
-    <ProjectReference Include="..\ProvisioningService\ProvisioningService.csproj" />
     <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj" />
     <ProjectReference Include="..\DHModels\DHModels.csproj" />
     <ProjectReference Include="..\DHDataAccess\DHDataAccess.csproj" />
