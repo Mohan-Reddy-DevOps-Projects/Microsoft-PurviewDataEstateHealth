@@ -4,6 +4,7 @@ using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.MDQJob;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -87,9 +88,9 @@ internal class InMemoryProcessingStorageCache : IProcessingStorageManager
         await this.repository.Provision(accountServiceModel, cancellationToken);
     }
 
-    public async Task<bool> CheckFolderExists(Models.ProcessingStorageModel processingStorageModel, string folderPath)
+    public async Task<DomainModelStatus> CheckDomainModelExists(Models.ProcessingStorageModel processingStorageModel, string folderPath)
     {
-        return await this.repository.CheckFolderExists(processingStorageModel, folderPath);
+        return await this.repository.CheckDomainModelExists(processingStorageModel, folderPath);
     }
 
     public async Task<string> GetSasTokenForDQ(Models.ProcessingStorageModel processingStorageModel, Models.StorageSasRequest parameters)

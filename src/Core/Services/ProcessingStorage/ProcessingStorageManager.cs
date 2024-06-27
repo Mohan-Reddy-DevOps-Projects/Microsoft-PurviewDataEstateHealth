@@ -19,6 +19,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.MDQJob;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Common;
 using System.Threading;
@@ -188,21 +189,45 @@ internal class ProcessingStorageManager : StorageManager<ProcessingStorageConfig
         return $"{storageModel.GetDfsEndpoint()}/{containerName}";
     }
 
-    public async Task<bool> CheckFolderExists(
+    public async Task<DomainModelStatus> CheckDomainModelExists(
         ProcessingStorageModel processingStorageModel,
         string folderPath)
     {
-        this.logger.LogInformation($"Start CheckFolderExists, folderPath:{folderPath}");
+        this.logger.LogInformation($"Start CheckDomainModelExists, folderPath:{folderPath}");
         string serviceEndpoint = processingStorageModel.GetDfsEndpoint();
         this.logger.LogInformation($"Check params, serviceEndpoint:{serviceEndpoint}, container:{processingStorageModel.CatalogId}");
         var serviceClient = new DataLakeServiceClient(new Uri(serviceEndpoint), this.tokenCredential);
         var fileSystemClient = serviceClient.GetFileSystemClient(processingStorageModel.CatalogId.ToString()); ;
         var directoryClient = fileSystemClient.GetDirectoryClient(folderPath);
-        var result = await directoryClient.ExistsAsync().ConfigureAwait(false);
+        var folderCheckResult = await directoryClient.ExistsAsync().ConfigureAwait(false);
 
-        this.logger.LogInformation($"End CheckFolderExists, result:{result.Value}, folderPath:{folderPath}");
+        DomainModelStatus result;
 
-        return result.Value;
+        if (!folderCheckResult.Value)
+        {
+            result = DomainModelStatus.NoSetup;
+        }
+        else
+        {
+            result = DomainModelStatus.NoData;
+            await foreach (PathItem pathItem in directoryClient.GetPathsAsync())
+            {
+                if (pathItem.IsDirectory ?? false)
+                {
+                    continue;
+                }
+
+                if (pathItem.Name.EndsWith(".parquet", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    result = DomainModelStatus.HasData;
+                    break;
+                }
+            }
+        }
+
+        this.logger.LogInformation($"End CheckDomainModelExists, result:{result}, folderPath:{folderPath}");
+
+        return result;
     }
 
     /// <summary>

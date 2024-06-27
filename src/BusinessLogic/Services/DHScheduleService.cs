@@ -150,13 +150,13 @@ public class DHScheduleService(
                                 assessment,
                                 jobId).ConfigureAwait(false);
                         }
-                        catch (MDQJobDQSubmissionException ex) when (ex.InnerException is DomainModelNotExistsException)
+                        catch (MDQJobDQSubmissionException ex) when (ex.InnerException is DomainModelNotExistsException || ex.InnerException is DomainModelHasNoDataException)
                         {
                             logger.LogInformation($"{ex.InnerException.GetType().Name} is caught. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
-                            // Update DQ status to failed in monitoring table
-                            jobWrapper.Status = DHComputingJobStatus.Failed;
+                            // Update DQ status to skipped in monitoring table
+                            jobWrapper.Status = DHComputingJobStatus.Skipped;
                             await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
-                            logger.LogInformation($"{ex.InnerException.GetType().Name}, updated job status to failed. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                            logger.LogInformation($"{ex.InnerException.GetType().Name}, updated job status to skipped. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
                             continue;
                         }
 

@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.MDQJob;
 using System.Threading;
 using System.Threading.Tasks;
 using ProcessingStorageModel = Models.ProcessingStorageModel;
@@ -68,5 +69,5 @@ public interface IProcessingStorageManager
 
     Task<string> GetSasTokenForDQ(ProcessingStorageModel processingStorageModel, StorageSasRequest parameters);
 
-    Task<bool> CheckFolderExists(ProcessingStorageModel processingStorageModel, string folderPath);
+    Task<DomainModelStatus> CheckDomainModelExists(ProcessingStorageModel processingStorageModel, string folderPath);
 }

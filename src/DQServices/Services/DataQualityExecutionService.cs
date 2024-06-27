@@ -4,6 +4,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Repositories.DataQualityOutput;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.MDQJob;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.DomainModels;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
@@ -98,14 +99,20 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             }
 
             // Check if domain model exists
-            var isDomainModelExisted = await this.processingStorageManager.CheckFolderExists(
+            var domainModelStatus = await this.processingStorageManager.CheckDomainModelExists(
                 accountStorageModel,
-                // Use DataProduct folder as representative to check
-                DomainModelUtils.GetDomainModel(DomainModelType.DataProduct).FolderPath).ConfigureAwait(false);
-            if (!isDomainModelExisted)
+                // Use BusinessDomain folder as representative to check
+                DomainModelUtils.GetDomainModel(DomainModelType.BusinessDomain).FolderPath).ConfigureAwait(false);
+            if (domainModelStatus == DomainModelStatus.NoSetup)
             {
                 this.logger.LogInformation($"Interrupt SubmitDQJOb, domain model does not exist, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
                 throw new DomainModelNotExistsException();
+            }
+            else if (domainModelStatus == DomainModelStatus.NoData)
+            {
+                // if user has not created any domain, skip MDQ job
+                this.logger.LogInformation($"Interrupt SubmitDQJOb, no data in domain model, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
+                throw new DomainModelHasNoDataException();
             }
 
             var dfsEndpoint = accountStorageModel.GetDfsEndpoint();
