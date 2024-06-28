@@ -5,6 +5,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.MDQJob;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
@@ -12,7 +13,6 @@ using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Queue;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
-using Microsoft.Purview.DataEstateHealth.DHModels.Exceptions;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
@@ -104,6 +104,8 @@ public class DHScheduleService(
 
                 var DQControlList = new Dictionary<string, DHControlNodeWrapper>();
 
+                DomainModelStatus? domainModelStatus = null;
+
                 foreach (var control in controls)
                 {
                     try
@@ -141,24 +143,31 @@ public class DHScheduleService(
 
                         var dqJobId = string.Empty;
                         // Step 3: submit DQ jobs
-                        try
+                        if (domainModelStatus == null)
                         {
-                            dqJobId = await dataQualityExecutionService.SubmitDQJob(
+                            domainModelStatus = await dataQualityExecutionService.CheckDomainModelStatus(
                                 requestHeaderContext.TenantId.ToString(),
-                                requestHeaderContext.AccountObjectId.ToString(),
-                                control,
-                                assessment,
-                                jobId).ConfigureAwait(false);
+                                requestHeaderContext.AccountObjectId.ToString());
                         }
-                        catch (MDQJobDQSubmissionException ex) when (ex.InnerException is DomainModelNotExistsException || ex.InnerException is DomainModelHasNoDataException)
+
+                        if (domainModelStatus == DomainModelStatus.NoAccountMapping
+                            || domainModelStatus == DomainModelStatus.NoSetup
+                            || domainModelStatus == DomainModelStatus.NoData)
                         {
-                            logger.LogInformation($"{ex.InnerException.GetType().Name} is caught. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                            logger.LogInformation($"Skip submit MDQ, DomainModelStatus: {domainModelStatus}, ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
                             // Update DQ status to skipped in monitoring table
                             jobWrapper.Status = DHComputingJobStatus.Skipped;
                             await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
-                            logger.LogInformation($"{ex.InnerException.GetType().Name}, updated job status to skipped. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                            logger.LogInformation($"Skip submit MDQ and update job status to skipped, DomainModelStatus: {domainModelStatus}, ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
                             continue;
                         }
+
+                        dqJobId = await dataQualityExecutionService.SubmitDQJob(
+                            requestHeaderContext.TenantId.ToString(),
+                            requestHeaderContext.AccountObjectId.ToString(),
+                            control,
+                            assessment,
+                            jobId).ConfigureAwait(false);
 
                         // Update DQ job id in monitoring table
                         jobWrapper.DQJobId = dqJobId;

@@ -9,5 +9,6 @@ public enum DomainModelStatus
 {
     NoSetup,
     NoData,
-    HasData
+    HasData,
+    NoAccountMapping
 }

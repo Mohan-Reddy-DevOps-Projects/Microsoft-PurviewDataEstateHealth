@@ -1,5 +1,6 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.MDQJob;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
@@ -14,4 +15,6 @@ public interface IDataQualityExecutionService
     public Task PurgeObserver(DHComputingJobWrapper job);
 
     public Task<IEnumerable<DHRawScore>> ParseDQResult(DHComputingJobWrapper job);
+
+    public Task<DomainModelStatus> CheckDomainModelStatus(string tenantId, string accountId);
 }

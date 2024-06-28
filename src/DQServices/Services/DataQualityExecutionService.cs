@@ -92,29 +92,6 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             // Query storage account
             var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
 
-            if (accountStorageModel == null)
-            {
-                this.logger.LogInformation($"Interrupt SubmitDQJOb, processing storage account mapping does not exist, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
-                throw new ProcessingStorageAccountMappingNotExistsException();
-            }
-
-            // Check if domain model exists
-            var domainModelStatus = await this.processingStorageManager.CheckDomainModelExists(
-                accountStorageModel,
-                // Use BusinessDomain folder as representative to check
-                DomainModelUtils.GetDomainModel(DomainModelType.BusinessDomain).FolderPath).ConfigureAwait(false);
-            if (domainModelStatus == DomainModelStatus.NoSetup)
-            {
-                this.logger.LogInformation($"Interrupt SubmitDQJOb, domain model does not exist, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
-                throw new DomainModelNotExistsException();
-            }
-            else if (domainModelStatus == DomainModelStatus.NoData)
-            {
-                // if user has not created any domain, skip MDQ job
-                this.logger.LogInformation($"Interrupt SubmitDQJOb, no data in domain model, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
-                throw new DomainModelHasNoDataException();
-            }
-
             var dfsEndpoint = accountStorageModel.GetDfsEndpoint();
             var catalogId = accountStorageModel.CatalogId.ToString();
 
@@ -135,9 +112,9 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             var observer = observerAdapter.FromControlAssessment();
 
             observer.ExecutionData = new JObject()
-        {
-            { DataEstateHealthConstants.DEH_KEY_DATA_SOURCE_ENDPOINT, dfsEndpoint }
-        };
+            {
+                { DataEstateHealthConstants.DEH_KEY_DATA_SOURCE_ENDPOINT, dfsEndpoint }
+            };
 
             var dataQualityServiceClient = this.dataQualityServiceClientFactory.GetClient();
 
@@ -172,6 +149,24 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         {
             throw new MDQJobDQSubmissionException(ex.Message, ex);
         }
+    }
+
+    public async Task<DomainModelStatus> CheckDomainModelStatus(string tenantId, string accountId)
+    {
+        // Query storage account
+        var accountStorageModel = await this.processingStorageManager.Get(new Guid(accountId), CancellationToken.None).ConfigureAwait(false);
+
+        if (accountStorageModel == null)
+        {
+            return DomainModelStatus.NoAccountMapping;
+        }
+
+        // Check if domain model exists
+        var domainModelStatus = await this.processingStorageManager.CheckDomainModelExists(
+            accountStorageModel,
+            // Use BusinessDomain folder as representative to check
+            DomainModelUtils.GetDomainModel(DomainModelType.BusinessDomain).FolderPath).ConfigureAwait(false);
+        return domainModelStatus;
     }
 
     public async Task PurgeObserver(DHComputingJobWrapper job)
