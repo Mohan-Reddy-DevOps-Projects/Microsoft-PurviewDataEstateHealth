@@ -223,9 +223,9 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
 
                 this.DataEstateHealthRequestLogger.LogInformation($"Current TotalFailedCount: {this.BackgroundJob.TotalFailedCount}, MaxRetryCount: {this.MaxRetryCount}, CurrentRetryCount: {this.BackgroundJob.CurrentRetryCount}, CurrentRepeatCount: {this.BackgroundJob.CurrentRepeatCount}");
 
-                if (result.Status == JobExecutionStatus.Failed && this.BackgroundJob.TotalFailedCount >= this.MaxRetryCount)
+                if (result.Status == JobExecutionStatus.Failed && this.BackgroundJob.CurrentRetryCount >= this.MaxRetryCount)
                 {
-                    this.DataEstateHealthRequestLogger.LogInformation($"Job failed with {this.BackgroundJob.TotalFailedCount} retries");
+                    this.DataEstateHealthRequestLogger.LogInformation($"Job failed with {this.BackgroundJob.CurrentRetryCount} retries");
                     await this.TransitionToJobFailed();
 
                     if (this.IsRecurringJob)
