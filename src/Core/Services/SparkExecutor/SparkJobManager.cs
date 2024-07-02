@@ -72,12 +72,12 @@ internal sealed class SparkJobManager : ISparkJobManager
                 }
                 return await this.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, retryCount: retryCount - 1);
             }
-            catch (RequestFailedException ex) when (ex.Status == 429)
+            catch (RequestFailedException ex) when (ex.Status == 429 || ex.Status == 504)
             {
-                this.logger.LogWarning($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Too many requests. Re-submit the job. Remaining retry times: {retryCount}.", ex);
+                this.logger.LogWarning($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. {ex.ErrorCode}. Re-submit the job. Remaining retry times: {retryCount}.", ex);
                 if (retryCount <= 0)
                 {
-                    this.logger.LogError($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Too many requests.", ex);
+                    this.logger.LogError($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. {ex.ErrorCode}.", ex);
                     throw;
                 }
                 await Task.Delay(Random.Shared.Next(1000, 5000), cancellationToken);
