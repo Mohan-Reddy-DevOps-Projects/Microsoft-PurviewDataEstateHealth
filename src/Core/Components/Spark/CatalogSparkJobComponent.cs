@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
+using global::Azure.Core;
 using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
@@ -42,7 +43,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     }
 
     /// <inheritdoc/>
-    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId)
+    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId)
     {
         KeyVaultSecret cosmosDBKey = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBWritekey", cancellationToken);
         KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
@@ -54,7 +55,10 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         //Update Main Method
         string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";
         SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value, jarClassName);
-        return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken);
+
+        var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
+
+        return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, poolResourceId);
     }
 
     public async Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken) => await this.sparkJobManager.GetJob(accountServiceModel, batchId, cancellationToken);

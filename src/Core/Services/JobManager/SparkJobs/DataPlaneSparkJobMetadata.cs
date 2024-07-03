@@ -16,12 +16,6 @@ internal class DataPlaneSparkJobMetadata : StagedWorkerJobMetadata
     public AccountServiceModel AccountServiceModel { get; set; }
 
     /// <summary>
-    /// Spark job id. (Compatible with running job)
-    /// </summary>
-    [JsonProperty]
-    public string SparkJobBatchId { get; set; }
-
-    /// <summary>
     /// Spark pool id.
     /// </summary>
     [JsonProperty]

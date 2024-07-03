@@ -76,7 +76,6 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJ
 
     private void ResetJobWorkingState()
     {
-        this.Metadata.SparkJobBatchId = string.Empty;
         this.Metadata.CatalogSparkJobBatchId = string.Empty;
         this.Metadata.DimensionSparkJobBatchId = string.Empty;
         this.Metadata.SparkPoolId = string.Empty;

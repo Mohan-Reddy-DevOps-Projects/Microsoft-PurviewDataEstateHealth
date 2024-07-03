@@ -42,23 +42,18 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
         {
             try
             {
-                this.dataEstateHealthRequestLogger.LogInformation($"Running spark jobId, {this.metadata.SparkJobBatchId}");
-
-                if (string.IsNullOrEmpty(this.metadata.SparkJobBatchId))
-                {
-                    var jobInfo = await this.catalogSparkJobComponent.SubmitJob(
-                        this.metadata.AccountServiceModel,
-                        new CancellationToken(), jobId);
-
-                    this.metadata.SparkPoolId = jobInfo.PoolResourceId;
-                    this.metadata.CatalogSparkJobBatchId = jobInfo.JobId;
-                }
-                else
-                {
-                    this.metadata.CatalogSparkJobBatchId = this.metadata.SparkJobBatchId;
-                }
-
                 this.metadata.CurrentScheduleStartTime = DateTime.UtcNow;
+                this.metadata.CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others;
+
+                var jobInfo = await this.catalogSparkJobComponent.SubmitJob(
+                    this.metadata.AccountServiceModel,
+                    new CancellationToken(),
+                    jobId,
+                    this.metadata.SparkPoolId);
+
+                this.metadata.SparkPoolId = jobInfo.PoolResourceId;
+                this.metadata.CatalogSparkJobBatchId = jobInfo.JobId;
+
                 jobStageStatus = JobExecutionStatus.Completed;
                 jobStatusMessage = $"DEH_Domain_Model job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId} ";
                 this.dataEstateHealthRequestLogger.LogTrace(jobStatusMessage);
@@ -76,12 +71,12 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
 
     public bool IsStageComplete()
     {
-        return int.TryParse(this.metadata.CatalogSparkJobBatchId, out int _);
+        // if the job is failed, we need to retry the job
+        return int.TryParse(this.metadata.CatalogSparkJobBatchId, out int _) && this.metadata.CatalogSparkJobStatus != DataPlaneSparkJobStatus.Failed;
     }
 
     public bool IsStagePreconditionMet()
     {
-        return string.IsNullOrEmpty(this.metadata.CatalogSparkJobBatchId) &&
-            string.IsNullOrEmpty(this.metadata.SparkPoolId);
+        return string.IsNullOrEmpty(this.metadata.CatalogSparkJobBatchId) || this.metadata.CatalogSparkJobStatus == DataPlaneSparkJobStatus.Failed;
     }
 }

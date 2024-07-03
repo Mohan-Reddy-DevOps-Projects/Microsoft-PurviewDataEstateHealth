@@ -21,7 +21,7 @@ public interface ICatalogSparkJobComponent
     /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>    
-    Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId);
+    Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId);
 
     /// <summary>
     /// Get details for a spark job.

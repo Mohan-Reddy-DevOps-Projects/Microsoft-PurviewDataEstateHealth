@@ -41,6 +41,8 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
         {
             try
             {
+                this.metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others;
+
                 var jobInfo = await this.dimensionModelSparkJobComponent.SubmitJob(
                     this.metadata.AccountServiceModel,
                     new CancellationToken(),
@@ -67,12 +69,13 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
 
     public bool IsStageComplete()
     {
-        return int.TryParse(this.metadata.DimensionSparkJobBatchId, out int _);
+        // if the job is failed, we need to retry the job
+        return int.TryParse(this.metadata.DimensionSparkJobBatchId, out int _) && this.metadata.DimensionSparkJobStatus != DataPlaneSparkJobStatus.Failed;
     }
 
     public bool IsStagePreconditionMet()
     {
-        return string.IsNullOrEmpty(this.metadata.DimensionSparkJobBatchId) &&
-            this.metadata.CatalogSparkJobStatus == DataPlaneSparkJobStatus.Succeeded;
+        return this.metadata.CatalogSparkJobStatus == DataPlaneSparkJobStatus.Succeeded &&
+            (string.IsNullOrEmpty(this.metadata.DimensionSparkJobBatchId) || this.metadata.DimensionSparkJobStatus == DataPlaneSparkJobStatus.Failed);
     }
 }
