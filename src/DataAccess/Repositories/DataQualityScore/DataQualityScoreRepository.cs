@@ -4,7 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Services.Lock;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Adapters;
 using Microsoft.DGP.ServiceBasics.BaseModels;
@@ -24,20 +23,16 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
 
     private const string DatabaseName = "health_1";
 
-    private IThreadLockService threadLockService;
-
     public DataQualityScoreRepository(
          ModelAdapterRegistry modelAdapterRegistry,
          IProcessingStorageManager processingStorageManager,
          IServerlessQueryExecutor queryExecutor,
-         IServerlessQueryRequestBuilder queryRequestBuilder,
-         IThreadLockService threadLockService)
+         IServerlessQueryRequestBuilder queryRequestBuilder)
     {
         this.modelAdapterRegistry = modelAdapterRegistry;
         this.processingStorageManager = processingStorageManager;
         this.queryExecutor = queryExecutor;
         this.queryRequestBuilder = queryRequestBuilder;
-        this.threadLockService = threadLockService;
     }
 
     public async Task<IBatchResults<DataQualityScoreEntity>> GetMultiple(
@@ -53,20 +48,12 @@ internal class DataQualityScoreRepository : IDataQualityScoreRepository
 
         ArgumentNullException.ThrowIfNull(query, nameof(query));
 
-        await this.threadLockService.WaitAsync(LockName.DEHServerlessQueryLock);
-        try
+        var list = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+        return new BaseBatchResults<DataQualityScoreEntity>
         {
-            var list = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
-            return new BaseBatchResults<DataQualityScoreEntity>
-            {
-                Results = list,
-                ContinuationToken = continuationToken
-            };
-        }
-        finally
-        {
-            this.threadLockService.Release(LockName.DEHServerlessQueryLock);
-        }
+            Results = list,
+            ContinuationToken = continuationToken
+        };
     }
 
     private async Task<string> ConstructContainerPath(Guid accountId, CancellationToken cancellationToken)

@@ -40,7 +40,6 @@ public class ThreadLockService : IThreadLockService
     {
         this.lockObjs = new Dictionary<LockName, SemaphoreSlim>()
         {
-            { LockName.DEHServerlessQueryLock, new SemaphoreSlim(5, 5) }
         };
     }
 
