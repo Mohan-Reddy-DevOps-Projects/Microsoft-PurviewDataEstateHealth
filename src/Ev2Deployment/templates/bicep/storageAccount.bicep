@@ -15,6 +15,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
     accessTier: 'Hot'
     allowBlobPublicAccess: false
     supportsHttpsTrafficOnly: true
+    allowSharedKeyAccess: false
+    isLocalUserEnabled: false
     minimumTlsVersion: 'TLS1_2'
     networkAcls: !empty(commonSubnetId) ? {
       defaultAction: 'Deny'

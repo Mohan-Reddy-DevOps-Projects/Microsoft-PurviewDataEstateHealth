@@ -12,6 +12,9 @@ resource synapseStorageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = 
   properties: {
     minimumTlsVersion: 'TLS1_2'
     isHnsEnabled: true
+    allowSharedKeyAccess: false
+    isLocalUserEnabled: false
+    allowBlobPublicAccess: false
   }
 }
 
