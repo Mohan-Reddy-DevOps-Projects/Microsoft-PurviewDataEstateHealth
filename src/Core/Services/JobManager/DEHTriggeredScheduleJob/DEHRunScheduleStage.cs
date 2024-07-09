@@ -20,8 +20,8 @@ internal class DEHRunScheduleStage : IJobCallbackStage
 {
     private const int GetMessageSize = 32;
     private const int MessageConcurrencyCount = 5;
-    private const int MaxRetryCount = 24 * 5; // 5 days
-    private const int LogCriticalRetryCount = 24 * 2; // 2 days
+    private const int MaxRetryCount = 23; // 23 hours
+    private const int LogCriticalRetryCount = 12; // 12 hours
 
     private readonly JobCallbackUtils<DEHTriggeredScheduleJobMetadata> jobCallbackUtils;
 
