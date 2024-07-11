@@ -2,6 +2,7 @@ namespace UnitTests.CosmosDBCommonRepository;
 
 using Bogus;
 using Microsoft.Azure.Purview.DataEstateHealth.FunctionalTests.Common;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using UnitTests.CosmosDBTestingMetadata;
@@ -16,7 +17,9 @@ public class CommonRepositoryTests
         .RuleFor(o => o.Description, f => f.Lorem.Sentence());
 
     [TestMethod]
+    [Ignore("Entity without account id will no longer be supported!")]
     [Owner(Owners.CosmosDB)]
+    [Obsolete("This test is obsolete and will be removed in the future.")]
     public async Task ICanAddEntityToContainerWithoutAccountId()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -28,14 +31,18 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
-        var tenantId = this.faker.Random.Guid().ToString();
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
 
-        var addedEntity = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, tenantId);
-        Assert.AreEqual(tenantId, addedEntity.TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
+        var addedEntity = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, accountIdentifier);
+        Assert.AreEqual(accountIdentifier.TenantId, addedEntity.TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
         Assert.IsNull(addedEntity.AccountId, "The AccountId of the added entity should be null.");
         Assert.IsTrue(JObject.DeepEquals(entity.JObject, addedEntity.JObject), "The JObject of the added entity should be the same as the JObject of the entity passed to the AddAsync method.");
 
-        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(addedEntity.Id, tenantId);
+        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(addedEntity.Id, accountIdentifier);
         Assert.AreEqual(addedEntity.Id, retrievedEntity!.Id, "The Id of the retrieved entity should be the same as the Id of the added entity.");
         Assert.AreEqual(addedEntity.TenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the TenantId of the added entity.");
         Assert.AreEqual(addedEntity.AccountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the AccountId of the added entity.");
@@ -55,15 +62,18 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
-        var tenantId = this.faker.Random.Guid().ToString();
-        var accountId = this.faker.Random.Guid().ToString();
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
 
-        var addedEntity = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, tenantId, accountId);
-        Assert.AreEqual(tenantId, addedEntity.TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
-        Assert.AreEqual(accountId, addedEntity.AccountId, "The AccountId of the added entity should be the same as the accountId passed to the AddAsync method.");
+        var addedEntity = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, accountIdentifier);
+        Assert.AreEqual(accountIdentifier.TenantId, addedEntity.TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
+        Assert.AreEqual(accountIdentifier.AccountId, addedEntity.AccountId, "The AccountId of the added entity should be the same as the accountId passed to the AddAsync method.");
         Assert.IsTrue(JObject.DeepEquals(entity.JObject, addedEntity.JObject), "The JObject of the added entity should be the same as the JObject of the entity passed to the AddAsync method.");
 
-        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(addedEntity.Id, tenantId);
+        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(addedEntity.Id, accountIdentifier);
         Assert.AreEqual(addedEntity.Id, retrievedEntity!.Id, "The Id of the retrieved entity should be the same as the Id of the added entity.");
         Assert.AreEqual(addedEntity.TenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the TenantId of the added entity.");
         Assert.AreEqual(addedEntity.AccountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the AccountId of the added entity.");
@@ -85,9 +95,13 @@ public class CommonRepositoryTests
             Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         }
 
-        var tenantId = this.faker.Random.Guid().ToString();
-        var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
+
+        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, accountIdentifier);
 
         Assert.AreEqual(0, FailedItems.Count, "The FailedItems list should be empty.");
         Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
@@ -98,11 +112,11 @@ public class CommonRepositoryTests
 
         for (var i = 0; i < orderedList1.Count; i += 1)
         {
-            Assert.AreEqual(tenantId, orderedList2[i].TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
-            Assert.AreEqual(accountId, orderedList2[i].AccountId, "The AccountId of the added entity should be the same as the accountId passed to the AddAsync method.");
+            Assert.AreEqual(accountIdentifier.TenantId, orderedList2[i].TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
+            Assert.AreEqual(accountIdentifier.AccountId, orderedList2[i].AccountId, "The AccountId of the added entity should be the same as the accountId passed to the AddAsync method.");
             Assert.IsTrue(JObject.DeepEquals(orderedList1[i].JObject, orderedList2[i].JObject), "The JObject of the added entity should be the same as the JObject of the entity passed to the AddAsync method.");
 
-            var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(orderedList2[i].Id, tenantId);
+            var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(orderedList2[i].Id, accountIdentifier);
             Assert.AreEqual(orderedList2[i].Id, retrievedEntity!.Id, "The Id of the retrieved entity should be the same as the Id of the added entity.");
             Assert.AreEqual(orderedList2[i].TenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the TenantId of the added entity.");
             Assert.AreEqual(orderedList2[i].AccountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the AccountId of the added entity.");
@@ -125,24 +139,28 @@ public class CommonRepositoryTests
             Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         }
 
-        var tenantId = this.faker.Random.Guid().ToString();
-        var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
+
+        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, accountIdentifier);
 
         Assert.AreEqual(entities.Count, SucceededItems.Count + FailedItems.Count, "The sum of succeeded entities and failed entities should be the same as the number of entities passed to the AddAsync method.");
         Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
 
         foreach (var item in SucceededItems)
         {
-            Assert.AreEqual(tenantId, item.TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
-            Assert.AreEqual(accountId, item.AccountId, "The AccountId of the added entity should be the same as the accountId passed to the AddAsync method.");
+            Assert.AreEqual(accountIdentifier.TenantId, item.TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
+            Assert.AreEqual(accountIdentifier.AccountId, item.AccountId, "The AccountId of the added entity should be the same as the accountId passed to the AddAsync method.");
 
             var originalEntity = entities.Single(x => x.Id == item.Id);
             Assert.IsNotNull(originalEntity);
 
             Assert.IsTrue(JObject.DeepEquals(originalEntity.JObject, item.JObject), "The JObject of the added entity should be the same as the JObject of the entity passed to the AddAsync method.");
 
-            var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(item.Id, tenantId);
+            var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(item.Id, accountIdentifier);
             Assert.AreEqual(item.Id, retrievedEntity!.Id, "The Id of the retrieved entity should be the same as the Id of the added entity.");
             Assert.AreEqual(item.TenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the TenantId of the added entity.");
             Assert.AreEqual(item.AccountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the AccountId of the added entity.");
@@ -151,7 +169,9 @@ public class CommonRepositoryTests
     }
 
     [TestMethod]
+    [Ignore("Entity without account id will no longer be supported!")]
     [Owner(Owners.CosmosDB)]
+    [Obsolete("This test is obsolete and will be removed in the future.")]
     public async Task ICanUpdateEntityInContainerWithoutAccountId()
     {
         if (!CosmosDBClient.TestingDBAvailable)
@@ -163,21 +183,26 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
-        var tenantId = this.faker.Random.Guid().ToString();
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
 
-        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, tenantId);
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, accountIdentifier);
 
         var draftEntity = new TestEntityWrapper((JObject)entity.JObject.DeepClone())
         {
-            TenantId = tenantId,
+            TenantId = accountIdentifier.TenantId,
+            AccountId = accountIdentifier.AccountId,
             Description = this.faker.Lorem.Sentence()
         };
 
         Assert.AreNotEqual(entity.Description, draftEntity.Description, "The description of the draft entity should be different from the description of the original entity.");
         Assert.IsTrue(AreJObjectsMostlyEqual(entity.JObject, draftEntity.JObject, "description"), "The JObject of the draft entity should be mostly the same as the JObject of the original entity, except for the Description property.");
 
-        var updatedEntity = await CosmosDBClient.DBTestEntityRepository!.UpdateAsync(draftEntity, tenantId);
-        Assert.AreEqual(tenantId, updatedEntity.TenantId, "The TenantId of the updated entity should be the same as the tenantId passed to the UpdateAsync method.");
+        var updatedEntity = await CosmosDBClient.DBTestEntityRepository!.UpdateAsync(draftEntity, accountIdentifier);
+        Assert.AreEqual(accountIdentifier.TenantId, updatedEntity.TenantId, "The TenantId of the updated entity should be the same as the tenantId passed to the UpdateAsync method.");
         Assert.IsNull(updatedEntity.AccountId, "The AccountId of the updated entity should be null.");
         Assert.AreEqual(draftEntity.Description, updatedEntity.Description, "The Description of the updated entity should be the same as the Description of the draft entity.");
         Assert.IsTrue(JObject.DeepEquals(draftEntity.JObject, updatedEntity.JObject), "The JObject of the updated entity should be the same as the JObject of the draft entity.");
@@ -198,9 +223,13 @@ public class CommonRepositoryTests
             Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         }
 
-        var tenantId = this.faker.Random.Guid().ToString();
-        var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
+
+        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, accountIdentifier);
 
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
@@ -208,28 +237,29 @@ public class CommonRepositoryTests
 
         var draftEntities = SucceededItems.Select(item => new TestEntityWrapper((JObject)item.JObject.DeepClone())
         {
-            TenantId = tenantId,
+            TenantId = accountIdentifier.TenantId,
+            AccountId = accountIdentifier.AccountId,
             Description = this.faker.Lorem.Sentence()
         }).ToList();
 
         foreach (var draftEntity in draftEntities)
         {
             var addedEntity = SucceededItems.Single(x => x.Id == draftEntity.Id);
-            Assert.AreEqual(tenantId, addedEntity.TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
-            Assert.AreEqual(accountId, addedEntity.AccountId, "The AccountId of the added entity should be the same as the accountId passed to the AddAsync method.");
+            Assert.AreEqual(accountIdentifier.TenantId, addedEntity.TenantId, "The TenantId of the added entity should be the same as the tenantId passed to the AddAsync method.");
+            Assert.AreEqual(accountIdentifier.AccountId, addedEntity.AccountId, "The AccountId of the added entity should be the same as the accountId passed to the AddAsync method.");
             Assert.AreNotEqual(addedEntity.Description, draftEntity.Description, "The description of the draft entity should be different from the description of the original entity.");
             Assert.IsTrue(AreJObjectsMostlyEqual(addedEntity.JObject, draftEntity.JObject, "description"), "The JObject of the draft entity should be mostly the same as the JObject of the original entity, except for the Description property.");
         }
 
-        (SucceededItems, FailedItems) = await CosmosDBClient.DBTestEntityRepository!.UpdateAsync(draftEntities, tenantId, accountId);
+        (SucceededItems, FailedItems) = await CosmosDBClient.DBTestEntityRepository!.UpdateAsync(draftEntities, accountIdentifier);
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(draftEntities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the UpdateAsync method.");
 
         foreach (var updatedEntity in SucceededItems)
         {
             var draftEntity = draftEntities.Single(x => x.Id == updatedEntity.Id);
-            Assert.AreEqual(tenantId, updatedEntity.TenantId, "The TenantId of the updated entity should be the same as the tenantId passed to the UpdateAsync method.");
-            Assert.AreEqual(accountId, updatedEntity.AccountId, "The AccountId of the updated entity should be the same as the accountId passed to the UpdateAsync method.");
+            Assert.AreEqual(accountIdentifier.TenantId, updatedEntity.TenantId, "The TenantId of the updated entity should be the same as the tenantId passed to the UpdateAsync method.");
+            Assert.AreEqual(accountIdentifier.AccountId, updatedEntity.AccountId, "The AccountId of the updated entity should be the same as the accountId passed to the UpdateAsync method.");
             Assert.AreEqual(draftEntity.Description, updatedEntity.Description, "The Description of the updated entity should be the same as the Description of the draft entity.");
             Assert.IsTrue(JObject.DeepEquals(draftEntity.JObject, updatedEntity.JObject), "The JObject of the updated entity should be the same as the JObject of the draft entity.");
         }
@@ -248,15 +278,20 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
-        var tenantId = this.faker.Random.Guid().ToString();
-        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, tenantId);
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
 
-        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, tenantId);
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, accountIdentifier);
+
+        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, accountIdentifier);
         Assert.IsNotNull(retrievedEntity, "The retrieved entity should not be null.");
 
-        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(entity, tenantId);
+        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(entity, accountIdentifier);
 
-        retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, tenantId);
+        retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, accountIdentifier);
         Assert.IsNull(retrievedEntity, "The retrieved entity should be null.");
     }
 
@@ -273,15 +308,20 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
-        var tenantId = this.faker.Random.Guid().ToString();
-        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, tenantId);
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
 
-        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, tenantId);
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, accountIdentifier);
+
+        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, accountIdentifier);
         Assert.IsNotNull(retrievedEntity, "The retrieved entity should not be null.");
 
-        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(entity.Id, tenantId);
+        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(entity.Id, accountIdentifier);
 
-        retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, tenantId);
+        retrievedEntity = await CosmosDBClient.DBTestEntityRepository.GetByIdAsync(entity.Id, accountIdentifier);
         Assert.IsNull(retrievedEntity, "The retrieved entity should be null.");
     }
 
@@ -294,7 +334,13 @@ public class CommonRepositoryTests
             Assert.Inconclusive($@"The test case ""{nameof(GetByIdShouldReturnNullIfIdNotExist)}"" is inconclusive.");
         }
 
-        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository!.GetByIdAsync(this.faker.Random.Guid().ToString(), this.faker.Random.Guid().ToString());
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
+
+        var retrievedEntity = await CosmosDBClient.DBTestEntityRepository!.GetByIdAsync(this.faker.Random.Guid().ToString(), accountIdentifier);
         Assert.IsNull(retrievedEntity, "The retrieved entity should be null.");
     }
 
@@ -307,11 +353,17 @@ public class CommonRepositoryTests
             Assert.Inconclusive($@"The test case ""{nameof(DeleteShouldNotThrowIfEntityNotExist)}"" is inconclusive.");
         }
 
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
+
         var entity = this.testEntityFaker.Generate();
         Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
-        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(entity, this.faker.Random.Guid().ToString());
+        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(entity, accountIdentifier);
     }
 
     [TestMethod]
@@ -323,7 +375,13 @@ public class CommonRepositoryTests
             Assert.Inconclusive($@"The test case ""{nameof(DeleteShouldNotThrowIfEntityIdNotExist)}"" is inconclusive.");
         }
 
-        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(this.faker.Random.Guid().ToString(), this.faker.Random.Guid().ToString());
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
+
+        await CosmosDBClient.DBTestEntityRepository!.DeleteAsync(this.faker.Random.Guid().ToString(), accountIdentifier);
     }
 
     [TestMethod]
@@ -341,15 +399,19 @@ public class CommonRepositoryTests
             Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         }
 
-        var tenantId = this.faker.Random.Guid().ToString();
-        var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
+
+        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, accountIdentifier);
 
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
         Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
 
-        (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
+        (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, accountIdentifier);
 
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(0, SucceededItems.Count, "The number of added entities should be zero.");
@@ -373,23 +435,26 @@ public class CommonRepositoryTests
             Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         }
 
-        var tenantId = this.faker.Random.Guid().ToString();
-        var accountId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, tenantId, accountId);
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString()
+        };
+        var (SucceededItems, FailedItems, IgnoredItems) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(entities, accountIdentifier);
 
         Assert.AreEqual(FailedItems.Count, 0, "The FailedItems list should be empty.");
         Assert.AreEqual(entities.Count, SucceededItems.Count, "The number of added entities should be the same as the number of entities passed to the AddAsync method.");
         Assert.AreEqual(0, IgnoredItems.Count, "The IgnoredItems list should be empty.");
 
-        var retrievedEntities = await CosmosDBClient.DBTestEntityRepository.GetAllAsync(tenantId);
+        var retrievedEntities = await CosmosDBClient.DBTestEntityRepository.GetAllAsync(accountIdentifier);
         Assert.AreEqual(entities.Count, retrievedEntities.Count(), "The number of retrieved entities should be the same as the number of entities passed to the AddAsync method.");
 
         foreach (var retrievedEntity in retrievedEntities)
         {
             var addedEntity = SucceededItems.Single(x => x.Id == retrievedEntity.Id);
             Assert.IsNotNull(addedEntity, "The added entity should not be null.");
-            Assert.AreEqual(tenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the tenantId passed to the AddAsync method.");
-            Assert.AreEqual(accountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the accountId passed to the AddAsync method.");
+            Assert.AreEqual(accountIdentifier.TenantId, retrievedEntity.TenantId, "The TenantId of the retrieved entity should be the same as the tenantId passed to the AddAsync method.");
+            Assert.AreEqual(accountIdentifier.AccountId, retrievedEntity.AccountId, "The AccountId of the retrieved entity should be the same as the accountId passed to the AddAsync method.");
             Assert.IsTrue(JObject.DeepEquals(addedEntity.JObject, retrievedEntity.JObject), "The JObject of the retrieved entity should be the same as the JObject of the added entity.");
         }
     }
@@ -409,7 +474,12 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
 #nullable disable
-        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, null);
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = null,
+            AccountId = null
+        };
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, accountIdentifier);
 #nullable enable
     }
 
@@ -427,7 +497,13 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
-        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, "Invalid GUID");
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = "Invalid GUID",
+            AccountId = "Invalid GUID"
+        };
+
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, accountIdentifier);
     }
 
     [TestMethod]
@@ -444,7 +520,13 @@ public class CommonRepositoryTests
         Assert.IsNull(entity.TenantId, "The initial value of TenantId should be null.");
         Assert.IsNull(entity.AccountId, "The initial value of AccountId should be null.");
 
-        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, Guid.Empty.ToString());
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = Guid.Empty.ToString(),
+            AccountId = Guid.Empty.ToString()
+        };
+
+        await CosmosDBClient.DBTestEntityRepository!.AddAsync(entity, accountIdentifier);
     }
 
     private static bool AreJObjectsMostlyEqual(JObject obj1, JObject obj2, string propertyNameToExclude)

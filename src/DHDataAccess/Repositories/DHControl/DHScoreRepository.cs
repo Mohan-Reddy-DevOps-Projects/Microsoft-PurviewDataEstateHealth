@@ -34,7 +34,7 @@ public class DHScoreRepository(
     public async Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
     {
         var methodName = nameof(QueryScoreGroupByControl);
-        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {this.TenantId}, accountId = {this.AccountId ?? "N/A"}"))
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, {this.AccountIdentifier.Log}"))
         {
             // Construct the SQL query
             var sqlQuery = new StringBuilder(@$"
@@ -46,7 +46,7 @@ SELECT
     MAX(c.Time) AS Time,
     SUM(c.ScoreSum) AS ScoreSum,
     SUM(c.ScoreCount) AS ScoreCount
-FROM c WHERE 1=1 ");
+FROM c WHERE c.AccountId = '{this.AccountIdentifier.AccountId}' ");
 
             // Add filtering conditions based on provided parameters
             if (domainIds != null && domainIds.Any())
@@ -87,7 +87,7 @@ FROM c WHERE 1=1 ");
             while (queryResultSetIterator.HasMoreResults)
             {
                 var response = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
-                this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response, queryDefinition.QueryText);
+                this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response, queryDefinition.QueryText);
                 intermediateResults.AddRange(response.Resource.Where(x => x.ScoreCount > 0).Select(x => new DHScoreAggregatedByControl
                 {
                     ControlGroupId = x.ControlGroupId,
@@ -137,7 +137,7 @@ SELECT
     MAX(c.Time) AS Time,
     SUM(c.ScoreSum) as ScoreSum,
     SUM(c.ScoreCount) AS ScoreCount
-FROM c WHERE c.ControlGroupId = c.ControlId ");
+FROM c WHERE c.ControlGroupId = c.ControlId AND c.AccountId = '{this.AccountIdentifier.AccountId}' ");
 
         // Add filtering conditions based on provided parameters
         if (domainIds != null && domainIds.Any())
@@ -178,7 +178,7 @@ FROM c WHERE c.ControlGroupId = c.ControlId ");
         while (queryResultSetIterator.HasMoreResults)
         {
             var response = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response, queryDefinition.QueryText);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response, queryDefinition.QueryText);
             intermediateResults.AddRange(response.Resource);
         }
 
@@ -210,7 +210,7 @@ SELECT
     MAX(c.Time) AS Time,
     SUM(c.ScoreSum) as ScoreSum,
     SUM(c.ScoreCount) AS ScoreCount
-FROM c WHERE 1=1 ");
+FROM c WHERE c.AccountId == '{this.AccountIdentifier.AccountId}' ");
 
         // Add filtering conditions based on provided parameters
         if (domainIds != null && domainIds.Any())
@@ -251,7 +251,7 @@ FROM c WHERE 1=1 ");
         while (queryResultSetIterator.HasMoreResults)
         {
             var response = await queryResultSetIterator.ReadNextAsync().ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response, queryDefinition.QueryText);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response, queryDefinition.QueryText);
             intermediateResults.AddRange(response.Resource);
         }
 

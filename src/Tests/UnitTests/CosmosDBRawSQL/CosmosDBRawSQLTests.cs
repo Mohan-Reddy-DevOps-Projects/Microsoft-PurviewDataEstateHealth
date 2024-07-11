@@ -3,6 +3,7 @@ namespace UnitTests.CosmosDBRawSQL;
 using Bogus;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Purview.DataEstateHealth.FunctionalTests.Common;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UnitTests.CosmosDBTestingMetadata;
 
@@ -28,8 +29,12 @@ public class CosmosDBRawSQLTests
 
         // Arrange
         var testEntities = this.testEntityFaker.Generate(5);
-        var tenantId = this.faker.Random.Guid().ToString();
-        var (SucceededItems, _, _) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(testEntities, tenantId);
+        var accountIdentifier = new AccountIdentifier
+        {
+            TenantId = this.faker.Random.Guid().ToString(),
+            AccountId = this.faker.Random.Guid().ToString(),
+        };
+        var (SucceededItems, _, _) = await CosmosDBClient.DBTestEntityRepository!.AddAsync(testEntities, accountIdentifier);
         Assert.AreEqual(testEntities.Count, SucceededItems.Count, "The number of items added to the database does not match the expected count.");
 
         // Act

@@ -14,26 +14,27 @@ public abstract class CommonHttpContextRepository<TEntity>(
     : CommonRepository<TEntity>(logger, cosmosMetricsTracker), IHttpContextRepository<TEntity>
     where TEntity : BaseEntityWrapper, IContainerEntityWrapper
 {
-    protected string TenantId => requestHeaderContext.TenantId.ToString();
-    protected string AccountId => requestHeaderContext.AccountObjectId.ToString();
+    private string TenantId => requestHeaderContext.TenantId.ToString();
+    private string AccountId => requestHeaderContext.AccountObjectId.ToString();
     protected PartitionKey TenantPartitionKey => new(this.TenantId);
+    protected AccountIdentifier AccountIdentifier => new() { TenantId = this.TenantId, AccountId = this.AccountId };
 
     /// <inheritdoc />
     public Task<TEntity> AddAsync(TEntity entity)
     {
-        return this.AddAsync(entity, this.TenantId, this.AccountId);
+        return this.AddAsync(entity, this.AccountIdentifier);
     }
 
     /// <inheritdoc />
     public Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems, IReadOnlyCollection<TEntity> IgnoredItems)> AddAsync(IReadOnlyList<TEntity> entities)
     {
-        return this.AddAsync(entities, this.TenantId, this.AccountId);
+        return this.AddAsync(entities, this.AccountIdentifier);
     }
 
     /// <inheritdoc />
     public Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> UpdateAsync(IReadOnlyList<TEntity> entities)
     {
-        return this.UpdateAsync(entities, this.TenantId, this.AccountId);
+        return this.UpdateAsync(entities, this.AccountIdentifier);
     }
 
     /// <inheritdoc />
@@ -45,41 +46,41 @@ public abstract class CommonHttpContextRepository<TEntity>(
     /// <inheritdoc />
     public Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> DeleteAsync(IReadOnlyList<TEntity> entities)
     {
-        return this.DeleteAsync(entities, this.TenantId, this.AccountId);
+        return this.DeleteAsync(entities, this.AccountIdentifier);
     }
 
     /// <inheritdoc />
     public Task DeleteAsync(string id)
     {
-        return this.DeleteAsync(id, this.TenantId);
+        return this.DeleteAsync(id, this.AccountIdentifier);
     }
 
     /// <inheritdoc />
     public Task DeprovisionAsync()
     {
-        return this.DeprovisionAsync(this.TenantId);
+        return this.DeprovisionAsync(this.AccountIdentifier);
     }
 
     public Task DeprovisionDEHAsync()
     {
-        return this.DeprovisionDEHAsync(this.AccountId);
+        return this.DeprovisionDEHAsync(this.AccountIdentifier);
     }
 
     /// <inheritdoc />
     public Task<IEnumerable<TEntity>> GetAllAsync()
     {
-        return this.GetAllAsync(this.TenantId);
+        return this.GetAllAsync(this.AccountIdentifier);
     }
 
     /// <inheritdoc />
     public Task<TEntity?> GetByIdAsync(string id)
     {
-        return this.GetByIdAsync(id, this.TenantId);
+        return this.GetByIdAsync(id, this.AccountIdentifier);
     }
 
     /// <inheritdoc />
     public Task<TEntity> UpdateAsync(TEntity entity)
     {
-        return this.UpdateAsync(entity, this.TenantId, this.AccountId);
+        return this.UpdateAsync(entity, this.AccountIdentifier);
     }
 }

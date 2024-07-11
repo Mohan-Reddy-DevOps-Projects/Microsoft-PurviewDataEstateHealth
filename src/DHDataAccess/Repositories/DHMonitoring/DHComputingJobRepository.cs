@@ -35,16 +35,16 @@ public class DHComputingJobRepository(
         var methodName = nameof(GetByDQJobId);
         var query = this.CosmosContainer.GetItemLinqQueryable<DHComputingJobWrapper>(
             requestOptions: new QueryRequestOptions { PartitionKey = this.TenantPartitionKey }
-        ).Where(job => job.DQJobId == dqJobId);
+        ).Where(job => job.DQJobId == dqJobId && job.AccountId == this.AccountIdentifier.AccountId);
         var feedIterator = query.ToFeedIterator();
         var results = new List<DHComputingJobWrapper>();
         while (feedIterator.HasMoreResults)
         {
             var response = await this.retryPolicy.ExecuteAsync(
                 (context) => feedIterator.ReadNextAsync(),
-                new Context($"{this.GetType().Name}#{methodName}_{dqJobId}_{this.TenantId}")
+                new Context($"{this.GetType().Name}#{methodName}_{dqJobId}_{this.AccountIdentifier.ConcatenatedId}")
             ).ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
             results.AddRange([.. response]);
         }
         return results.FirstOrDefault();
@@ -54,7 +54,7 @@ public class DHComputingJobRepository(
     {
         var query = this.CosmosContainer.GetItemLinqQueryable<DHComputingJobWrapper>(
             requestOptions: new QueryRequestOptions { PartitionKey = this.TenantPartitionKey }
-        ).Where(predicate);
+        ).Where(x => x.AccountId == this.AccountIdentifier.AccountId).Where(predicate);
         var str = query.ToString();
         var feedIterator = query.ToFeedIterator();
         var results = new List<DHComputingJobWrapper>();
@@ -62,9 +62,9 @@ public class DHComputingJobRepository(
         {
             var response = await this.retryPolicy.ExecuteAsync(
                 (context) => feedIterator.ReadNextAsync(),
-                new Context($"{this.GetType().Name}#{nameof(QueryJobsWithFilter)}_{this.TenantId}")
+                new Context($"{this.GetType().Name}#{nameof(QueryJobsWithFilter)}_{this.AccountIdentifier.ConcatenatedId}")
             ).ConfigureAwait(false);
-            this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+            this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
             results.AddRange([.. response]);
         }
         return results;

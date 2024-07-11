@@ -35,12 +35,12 @@ public class DHControlStatusPaletteRepository(
     {
         var methodName = nameof(QueryStatusPalettesAsync);
 
-        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {base.TenantId}"))
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, {this.AccountIdentifier.Log}"))
         {
             try
             {
                 IQueryable<DHControlStatusPaletteWrapper> query = this.CosmosContainer.GetItemLinqQueryable<DHControlStatusPaletteWrapper>(
-                    requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey });
+                    requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey }).Where(x => x.AccountId == this.AccountIdentifier.AccountId);
 
                 if (filters?.ids?.Any() == true)
                 {
@@ -53,7 +53,7 @@ public class DHControlStatusPaletteRepository(
                 while (resultQuery.HasMoreResults)
                 {
                     var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
-                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
                     results.AddRange(response);
                 }
 
@@ -61,7 +61,7 @@ public class DHControlStatusPaletteRepository(
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {base.TenantId}", ex);
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, {this.AccountIdentifier.Log}", ex);
                 throw;
             }
         }

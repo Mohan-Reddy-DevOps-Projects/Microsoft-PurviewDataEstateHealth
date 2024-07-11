@@ -34,16 +34,16 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
     protected abstract Container CosmosContainer { get; }
 
     /// <inheritdoc />
-    public async Task<TEntity> AddAsync(TEntity entity, string tenantId, string? accountId = null)
+    public async Task<TEntity> AddAsync(TEntity entity, AccountIdentifier accountIdentifier)
     {
-        ValidateTenantId(tenantId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(AddAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {entity.Id}, {accountIdentifier.Log}"))
         {
             try
             {
-                PopulateMetadataForEntity(entity, tenantId, accountId);
-                var tenantPartitionKey = new PartitionKey(tenantId);
+                PopulateMetadataForEntity(entity, accountIdentifier);
+                var tenantPartitionKey = new PartitionKey(accountIdentifier.TenantId);
                 var isRetry = false;
                 async Task<ItemResponse<TEntity>> Run()
                 {
@@ -64,25 +64,25 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                 // Execute the asynchronous operation with the defined retry policy
                 var response = await this.retryPolicy.ExecuteAsync(
                     (context) => Run(),
-                    new Context($"{this.GetType().Name}#{methodName}_{entity.Id}_{tenantId}_{accountId}")
+                    new Context($"{this.GetType().Name}#{methodName}_{entity.Id}_{accountIdentifier.ConcatenatedId}")
                 ).ConfigureAwait(false);
-                cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
+                cosmosMetricsTracker.LogCosmosMetrics(accountIdentifier, response);
                 return response.Resource;
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {entity.Id}, {accountIdentifier.Log}", ex);
                 throw;
             }
         }
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems, IReadOnlyCollection<TEntity> IgnoredItems)> AddAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
+    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems, IReadOnlyCollection<TEntity> IgnoredItems)> AddAsync(IReadOnlyList<TEntity> entities, AccountIdentifier accountIdentifier)
     {
-        ValidateTenantId(tenantId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(AddAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, {accountIdentifier.Log}"))
         {
             try
             {
@@ -93,10 +93,10 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 foreach (var entity in entities)
                 {
-                    PopulateMetadataForEntity(entity, tenantId, accountId);
+                    PopulateMetadataForEntity(entity, accountIdentifier);
                 }
 
-                var tenantPartitionKey = new PartitionKey(tenantId);
+                var tenantPartitionKey = new PartitionKey(accountIdentifier.TenantId);
 
                 ConcurrentBag<TEntity> succeededItems = [];
                 ConcurrentBag<TEntity> failedItems = [];
@@ -107,13 +107,13 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                     // Execute the asynchronous operation with the defined retry policy
                     return this.retryPolicy.ExecuteAsync(
                         (context) => this.CosmosContainer.CreateItemAsync(entity, tenantPartitionKey),
-                        new Context($"{this.GetType().Name}#{methodName}(batch)_{entity.Id}_{tenantId}_{accountId}")
+                        new Context($"{this.GetType().Name}#{methodName}(batch)_{entity.Id}_{accountIdentifier.ConcatenatedId}")
                     ).ContinueWith(responseTask =>
                     {
                         if (responseTask.IsCompletedSuccessfully)
                         {
                             succeededItems.Add(responseTask.Result.Resource);
-                            cosmosMetricsTracker.LogCosmosMetrics(tenantId, responseTask.Result);
+                            cosmosMetricsTracker.LogCosmosMetrics(accountIdentifier, responseTask.Result);
                         }
                         else
                         {
@@ -126,7 +126,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                                 }
                             }
                             failedItems.Add(entity);
-                            logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to add entity to CosmosDB in a bulk add, entityType = {entity.GetType().Name}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", responseTask.Exception);
+                            logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to add entity to CosmosDB in a bulk add, entityType = {entity.GetType().Name}, entityId = {entity.Id}, {accountIdentifier.Log}", responseTask.Exception);
                         }
                     });
                 })).ConfigureAwait(false);
@@ -135,37 +135,37 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityCount = {entities.Count}, {accountIdentifier.Log}", ex);
                 throw;
             }
         }
     }
 
     /// <inheritdoc />
-    public Task DeleteAsync(TEntity entity, string tenantId)
+    public Task DeleteAsync(TEntity entity, AccountIdentifier accountIdentifier)
     {
-        ValidateTenantId(tenantId);
-        return this.DeleteAsync(entity.Id, tenantId);
+        ValidateAccountIdentifier(accountIdentifier);
+        return this.DeleteAsync(entity.Id, accountIdentifier);
     }
 
     /// <inheritdoc />
-    public async Task DeleteAsync(string id, string tenantId)
+    public async Task DeleteAsync(string id, AccountIdentifier accountIdentifier)
     {
-        ValidateTenantId(tenantId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(DeleteAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, tenantId = {tenantId}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, {accountIdentifier.Log}"))
         {
             try
             {
-                var tenantPartitionKey = new PartitionKey(tenantId);
+                var tenantPartitionKey = new PartitionKey(accountIdentifier.TenantId);
 
                 // Execute the asynchronous operation with the defined retry policy
                 var response = await this.retryPolicy.ExecuteAsync(
                     (context) => this.CosmosContainer.DeleteItemAsync<TEntity>(id, tenantPartitionKey),
-                    new Context($"{this.GetType().Name}#{methodName}_{id}_{tenantId}")
+                    new Context($"{this.GetType().Name}#{methodName}_{id}_{accountIdentifier.ConcatenatedId}")
                 ).ConfigureAwait(false);
 
-                cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
+                cosmosMetricsTracker.LogCosmosMetrics(accountIdentifier, response);
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -173,7 +173,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {id}, tenantId = {tenantId}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {id}, {accountIdentifier.Log}", ex);
                 throw;
             }
         }
@@ -181,23 +181,23 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
 
     /// <inheritdoc />
-    public async Task DeleteDEHAsync(string id, string accountId)
+    public async Task DeleteDEHAsync(string id, AccountIdentifier accountIdentifier)
     {
-        ValidateAccountId(accountId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(DeleteDEHAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, accountId = {accountId}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, {accountIdentifier.Log}"))
         {
             try
             {
-                var tenantPartitionKey = new PartitionKey(accountId);
+                var tenantPartitionKey = new PartitionKey(accountIdentifier.AccountId);
 
                 // Execute the asynchronous operation with the defined retry policy
                 var response = await this.retryPolicy.ExecuteAsync(
-                    (context) => this.CosmosContainer.DeleteItemAsync<cosmosEntity>(id, tenantPartitionKey),
-                    new Context($"{this.GetType().Name}#{methodName}_{id}_{accountId}")
+                    (context) => this.CosmosContainer.DeleteItemAsync<CosmosEntity>(id, tenantPartitionKey),
+                    new Context($"{this.GetType().Name}#{methodName}_{id}_{accountIdentifier.ConcatenatedId}")
                 ).ConfigureAwait(false);
 
-                cosmosMetricsTracker.LogCosmosMetrics(accountId, response);
+                cosmosMetricsTracker.LogCosmosMetrics(accountIdentifier, response);
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
@@ -205,7 +205,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {id}, accountId = {accountId}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {id}, {accountIdentifier.Log}", ex);
                 throw;
             }
         }
@@ -213,19 +213,19 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TEntity>> GetAllAsync(string tenantId)
+    public async Task<IEnumerable<TEntity>> GetAllAsync(AccountIdentifier accountIdentifier)
     {
-        ValidateTenantId(tenantId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(GetAllAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {tenantId}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, {accountIdentifier.Log}"))
         {
             try
             {
-                var tenantPartitionKey = new PartitionKey(tenantId);
+                var tenantPartitionKey = new PartitionKey(accountIdentifier.TenantId);
 
                 var feedIterator = this.CosmosContainer.GetItemLinqQueryable<TEntity>(
                     requestOptions: new QueryRequestOptions { PartitionKey = tenantPartitionKey }
-                ).Where(x => true).ToFeedIterator();
+                ).Where(x => x.AccountId == accountIdentifier.AccountId).ToFeedIterator();
 
                 var results = new List<TEntity>();
                 while (feedIterator.HasMoreResults)
@@ -233,9 +233,9 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                     // Execute the asynchronous operation with the defined retry policy
                     var response = await this.retryPolicy.ExecuteAsync(
                         (context) => feedIterator.ReadNextAsync(),
-                        new Context($"{this.GetType().Name}#{methodName}_{tenantId}")
+                        new Context($"{this.GetType().Name}#{methodName}_{accountIdentifier.ConcatenatedId}")
                     ).ConfigureAwait(false);
-                    cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
+                    cosmosMetricsTracker.LogCosmosMetrics(accountIdentifier, response);
                     results.AddRange([.. response]);
                 }
 
@@ -243,44 +243,44 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {tenantId}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, {accountIdentifier.Log}", ex);
                 throw;
             }
         }
     }
 
-    public class cosmosEntity
+    public class CosmosEntity
     {
         public string Id { get; set; } = "";
-        public string accountId { get; set; } = "";
+        public string AccountId { get; set; } = "";
 
     }
 
 
     /// <inheritdoc />
-    public async Task<IEnumerable<cosmosEntity>> GetAllDEHAsync(string accountId)
+    public async Task<IEnumerable<CosmosEntity>> GetAllDEHAsync(AccountIdentifier accountIdentifier)
     {
-        ValidateAccountId(accountId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(GetAllDEHAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, accountId = {accountId}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, {accountIdentifier.Log}"))
         {
             try
             {
-                var accountPartitionKey = new PartitionKey(accountId);
+                var accountPartitionKey = new PartitionKey(accountIdentifier.AccountId);
 
-                var feedIterator = this.CosmosContainer.GetItemLinqQueryable<cosmosEntity>(
+                var feedIterator = this.CosmosContainer.GetItemLinqQueryable<CosmosEntity>(
                     requestOptions: new QueryRequestOptions { PartitionKey = accountPartitionKey }
                 ).Where(x => true).ToFeedIterator();
 
-                var results = new List<cosmosEntity>();
+                var results = new List<CosmosEntity>();
                 while (feedIterator.HasMoreResults)
                 {
                     // Execute the asynchronous operation with the defined retry policy
                     var response = await this.retryPolicy.ExecuteAsync(
                         (context) => feedIterator.ReadNextAsync(),
-                        new Context($"{this.GetType().Name}#{methodName}_{accountId}")
+                        new Context($"{this.GetType().Name}#{methodName}_{accountIdentifier.ConcatenatedId}")
                     ).ConfigureAwait(false);
-                    cosmosMetricsTracker.LogCosmosMetrics(accountId, response);
+                    cosmosMetricsTracker.LogCosmosMetrics(accountIdentifier, response);
                     results.AddRange([.. response]);
                 }
 
@@ -288,7 +288,7 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {accountId}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, {accountIdentifier.Log}", ex);
                 throw;
             }
         }
@@ -296,22 +296,22 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
 
     /// <inheritdoc />
-    public async Task<TEntity?> GetByIdAsync(string id, string tenantId)
+    public async Task<TEntity?> GetByIdAsync(string id, AccountIdentifier accountIdentifier)
     {
-        ValidateTenantId(tenantId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(GetByIdAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, tenantId = {tenantId}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {id}, {accountIdentifier.Log}"))
         {
             try
             {
-                var tenantPartitionKey = new PartitionKey(tenantId);
+                var tenantPartitionKey = new PartitionKey(accountIdentifier.TenantId);
 
                 // Execute the asynchronous operation with the defined retry policy
                 var response = await this.retryPolicy.ExecuteAsync(
                     (context) => this.CosmosContainer.ReadItemAsync<TEntity>(id, tenantPartitionKey),
-                    new Context($"{this.GetType().Name}#{methodName}_{id}_{tenantId}")
+                    new Context($"{this.GetType().Name}#{methodName}_{id}_{accountIdentifier.ConcatenatedId}")
                 ).ConfigureAwait(false);
-                cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
+                cosmosMetricsTracker.LogCosmosMetrics(accountIdentifier, response);
                 return response.Resource;
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -320,46 +320,46 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {id}, tenantId = {tenantId}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {id}, {accountIdentifier.Log}", ex);
                 throw;
             }
         }
     }
 
     /// <inheritdoc />
-    public async Task<TEntity> UpdateAsync(TEntity entity, string tenantId, string? accountId = null)
+    public async Task<TEntity> UpdateAsync(TEntity entity, AccountIdentifier accountIdentifier)
     {
-        ValidateTenantId(tenantId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(UpdateAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityId = {entity.Id}, {accountIdentifier.Log}"))
         {
             try
             {
-                PopulateMetadataForEntity(entity, tenantId, accountId);
-                var tenantPartitionKey = new PartitionKey(tenantId);
+                PopulateMetadataForEntity(entity, accountIdentifier);
+                var tenantPartitionKey = new PartitionKey(accountIdentifier.TenantId);
 
                 // Execute the asynchronous operation with the defined retry policy
                 var response = await this.retryPolicy.ExecuteAsync(
                     (context) => this.CosmosContainer.UpsertItemAsync(entity, tenantPartitionKey),
-                    new Context($"{this.GetType().Name}#{methodName}_{entity.Id}_{tenantId}_{accountId}")
+                    new Context($"{this.GetType().Name}#{methodName}_{entity.Id}_{accountIdentifier.ConcatenatedId}")
                 ).ConfigureAwait(false);
-                cosmosMetricsTracker.LogCosmosMetrics(tenantId, response);
+                cosmosMetricsTracker.LogCosmosMetrics(accountIdentifier, response);
                 return response.Resource;
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityId = {entity.Id}, {accountIdentifier.Log}", ex);
                 throw;
             }
         }
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> UpdateAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
+    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> UpdateAsync(IReadOnlyList<TEntity> entities, AccountIdentifier accountIdentifier)
     {
-        ValidateTenantId(tenantId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(UpdateAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, {accountIdentifier.Log}"))
         {
             try
             {
@@ -370,10 +370,10 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 foreach (var entity in entities)
                 {
-                    PopulateMetadataForEntity(entity, tenantId, accountId);
+                    PopulateMetadataForEntity(entity, accountIdentifier);
                 }
 
-                var tenantPartitionKey = new PartitionKey(tenantId);
+                var tenantPartitionKey = new PartitionKey(accountIdentifier.TenantId);
 
                 ConcurrentBag<TEntity> succeededItems = [];
                 ConcurrentBag<TEntity> failedItems = [];
@@ -383,18 +383,18 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                     // Execute the asynchronous operation with the defined retry policy
                     return this.retryPolicy.ExecuteAsync(
                         (context) => this.CosmosContainer.UpsertItemAsync(entity, tenantPartitionKey),
-                        new Context($"{this.GetType().Name}#{methodName}(batch)_{entity.Id}_{tenantId}_{accountId}")
+                        new Context($"{this.GetType().Name}#{methodName}(batch)_{entity.Id}_{accountIdentifier.ConcatenatedId}")
                     ).ContinueWith(responseTask =>
                     {
                         if (responseTask.IsCompletedSuccessfully)
                         {
                             succeededItems.Add(entity);
-                            cosmosMetricsTracker.LogCosmosMetrics(tenantId, responseTask.Result);
+                            cosmosMetricsTracker.LogCosmosMetrics(accountIdentifier, responseTask.Result);
                         }
                         else
                         {
                             failedItems.Add(entity);
-                            logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to update entity to CosmosDB in a bulk update, entityType = {entity.GetType().Name}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", responseTask.Exception);
+                            logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to update entity to CosmosDB in a bulk update, entityType = {entity.GetType().Name}, entityId = {entity.Id}, {accountIdentifier.Log}", responseTask.Exception);
                         }
                     });
                 })).ConfigureAwait(false);
@@ -403,17 +403,18 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityCount = {entities.Count}, {accountIdentifier.Log}", ex);
                 throw;
             }
         }
     }
 
     /// <inheritdoc />
-    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> DeleteAsync(IReadOnlyList<TEntity> entities, string tenantId, string? accountId = null)
+    public async Task<(IReadOnlyCollection<TEntity> SucceededItems, IReadOnlyCollection<TEntity> FailedItems)> DeleteAsync(IReadOnlyList<TEntity> entities, AccountIdentifier accountIdentifier)
     {
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(DeleteAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, entityCount = {entities.Count}, {accountIdentifier.Log}"))
         {
             try
             {
@@ -424,10 +425,10 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
 
                 foreach (var entity in entities)
                 {
-                    PopulateMetadataForEntity(entity, tenantId, accountId);
+                    PopulateMetadataForEntity(entity, accountIdentifier);
                 }
 
-                var tenantPartitionKey = new PartitionKey(tenantId);
+                var tenantPartitionKey = new PartitionKey(accountIdentifier.TenantId);
 
                 ConcurrentBag<TEntity> succeededItems = [];
                 ConcurrentBag<TEntity> failedItems = [];
@@ -437,18 +438,18 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
                     // Execute the asynchronous operation with the defined retry policy
                     return this.retryPolicy.ExecuteAsync(
                         (context) => this.CosmosContainer.DeleteItemAsync<TEntity>(entity.Id, tenantPartitionKey),
-                        new Context($"{this.GetType().Name}#{methodName}(batch)_{entity.Id}_{tenantId}_{accountId}")
+                        new Context($"{this.GetType().Name}#{methodName}(batch)_{entity.Id}_{accountIdentifier.ConcatenatedId}")
                     ).ContinueWith(responseTask =>
                     {
                         if (responseTask.IsCompletedSuccessfully)
                         {
                             succeededItems.Add(responseTask.Result.Resource);
-                            cosmosMetricsTracker.LogCosmosMetrics(tenantId, responseTask.Result);
+                            cosmosMetricsTracker.LogCosmosMetrics(accountIdentifier, responseTask.Result);
                         }
                         else
                         {
                             failedItems.Add(entity);
-                            logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to delete entity from CosmosDB in a bulk delete, entityType = {entity.GetType().Name}, entityId = {entity.Id}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", responseTask.Exception);
+                            logger.LogWarning($"{this.GetType().Name}#{methodName}, failed to delete entity from CosmosDB in a bulk delete, entityType = {entity.GetType().Name}, entityId = {entity.Id}, {accountIdentifier.Log}", responseTask.Exception);
                         }
                     });
                 })).ConfigureAwait(false);
@@ -457,86 +458,86 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityCount = {entities.Count}, tenantId = {tenantId}, accountId = {accountId ?? "N/A"}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, entityCount = {entities.Count}, {accountIdentifier.Log}", ex);
                 throw;
             }
         }
     }
 
     /// <inheritdoc />
-    public async Task DeprovisionAsync(string tenantId)
+    public async Task DeprovisionAsync(AccountIdentifier accountIdentifier)
     {
-        ValidateTenantId(tenantId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(DeprovisionAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {tenantId}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, {accountIdentifier.Log}"))
         {
             try
             {
                 // TODO: Delete by partition key feature is in preview in Cosmos SDK.
                 // Will switch to that once it's GA. https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-delete-by-partition-key?tabs=dotnet-example
 
-                var allItems = await this.GetAllAsync(tenantId).ConfigureAwait(false);
+                var allItems = await this.GetAllAsync(accountIdentifier).ConfigureAwait(false);
 
-                logger.LogInformation($"{this.GetType().Name}#{methodName}, deleting {allItems.Count()} entities from CosmosDB during deprovisioning, tenantId = {tenantId}");
+                logger.LogInformation($"{this.GetType().Name}#{methodName}, deleting {allItems.Count()} entities from CosmosDB during deprovisioning, {accountIdentifier.Log}");
 
                 await Task.WhenAll(allItems.Select(async item =>
                 {
                     try
                     {
-                        await this.DeleteAsync(item.Id, tenantId).ConfigureAwait(false);
+                        await this.DeleteAsync(item.Id, accountIdentifier).ConfigureAwait(false);
 
-                        logger.LogInformation($"{this.GetType().Name}#{methodName}, deleted entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id}, tenantId = {tenantId}");
+                        logger.LogInformation($"{this.GetType().Name}#{methodName}, deleted entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id}, {accountIdentifier.Log}");
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError($"{this.GetType().Name}#{methodName}, failed to delete entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id}, tenantId = {tenantId}", ex);
+                        logger.LogError($"{this.GetType().Name}#{methodName}, failed to delete entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id}, {accountIdentifier.Log}", ex);
                     }
                 })).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {tenantId}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, {accountIdentifier.Log}", ex);
             }
         }
     }
 
     /// <inheritdoc />
-    public async Task DeprovisionDEHAsync(string accountId)
+    public async Task DeprovisionDEHAsync(AccountIdentifier accountIdentifier)
     {
         //use this id to Test
         //accountId = "ecf09339-34e0-464b-a8fb-661209048541";
 
-        ValidateAccountId(accountId);
+        ValidateAccountIdentifier(accountIdentifier);
         var methodName = nameof(DeprovisionDEHAsync);
-        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, accountId = {accountId}"))
+        using (logger.LogElapsed($"{this.GetType().Name}#{methodName}, {accountIdentifier.Log}"))
         {
             try
             {
                 // TODO: Delete by partition key feature is in preview in Cosmos SDK.
                 // Will switch to that once it's GA. https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-delete-by-partition-key?tabs=dotnet-example
 
-                var allItems = await this.GetAllDEHAsync(accountId).ConfigureAwait(false);
+                var allItems = await this.GetAllDEHAsync(accountIdentifier).ConfigureAwait(false);
                 var containerName = this.CosmosContainer.Id;
 
-                logger.LogInformation($"{this.GetType().Name}#{methodName}, deleting {allItems.Count()} entities from CosmosDB during deprovisioning, ContainerName = {containerName}, tenantId = {accountId}");
+                logger.LogInformation($"{this.GetType().Name}#{methodName}, deleting {allItems.Count()} entities from CosmosDB during deprovisioning, ContainerName = {containerName}, {accountIdentifier.Log}");
 
                 await Task.WhenAll(allItems.Select(async item =>
                 {
                     try
                     {
-                        await this.DeleteDEHAsync(item.Id, accountId).ConfigureAwait(false);
+                        await this.DeleteDEHAsync(item.Id, accountIdentifier).ConfigureAwait(false);
 
-                        logger.LogInformation($"{this.GetType().Name}#{methodName}, deleted entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id}, ContainerName = {containerName}, tenantId = {accountId}");
+                        logger.LogInformation($"{this.GetType().Name}#{methodName}, deleted entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id}, ContainerName = {containerName}, {accountIdentifier.Log}");
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError($"{this.GetType().Name}#{methodName}, failed to delete entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id},  ContainerName = {containerName}, tenantId = {accountId}", ex);
+                        logger.LogError($"{this.GetType().Name}#{methodName}, failed to delete entity from CosmosDB during deprovisioning, entityType = {item.GetType().Name}, entityId = {item.Id},  ContainerName = {containerName}, {accountIdentifier.Log}", ex);
                     }
                 })).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {accountId}", ex);
+                logger.LogError($"{this.GetType().Name}#{methodName} failed, {accountIdentifier.Log}", ex);
             }
         }
     }
@@ -560,14 +561,17 @@ public abstract class CommonRepository<TEntity>(IDataEstateHealthRequestLogger l
         }
     }
 
-
-    private static void PopulateMetadataForEntity(TEntity entity, string tenantId, string? accountId = null)
+    private static void ValidateAccountIdentifier(AccountIdentifier accountIdentifier)
     {
-        ValidateTenantId(tenantId);
-        entity.TenantId = tenantId;
-        if (accountId != null)
-        {
-            entity.AccountId = accountId;
-        }
+        ValidateTenantId(accountIdentifier.TenantId);
+        ValidateAccountId(accountIdentifier.AccountId);
+    }
+
+
+    private static void PopulateMetadataForEntity(TEntity entity, AccountIdentifier accountIdentifier)
+    {
+        ValidateAccountIdentifier(accountIdentifier);
+        entity.TenantId = accountIdentifier.TenantId;
+        entity.AccountId = accountIdentifier.AccountId;
     }
 }

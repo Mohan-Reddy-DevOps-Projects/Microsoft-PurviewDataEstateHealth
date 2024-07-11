@@ -40,7 +40,7 @@ public class DHActionRepository(
     {
         using (this.logger.LogElapsed("Start to query actions in DB"))
         {
-            var sqlQuery = new StringBuilder("SELECT * FROM c WHERE 1 = 1");
+            var sqlQuery = new StringBuilder($"SELECT * FROM c WHERE c.AccountId = '{this.AccountIdentifier.AccountId}'");
 
             sqlQuery.Append(this.GenerateFilterQueryStr(query.Filter));
 
@@ -75,18 +75,18 @@ public class DHActionRepository(
             {
                 response = await this.retryPolicy.ExecuteAsync(
                     (context) => feedIterator.ReadNextAsync(),
-                    new Context($"{this.GetType().Name}#{nameof(GetActionsByFilterAsync)}_{this.TenantId}")
+                    new Context($"{this.GetType().Name}#{nameof(GetActionsByFilterAsync)}_{this.AccountIdentifier.ConcatenatedId}")
                 ).ConfigureAwait(false);
-                this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
                 results.AddRange(response);
 
                 while (feedIterator.HasMoreResults && fetchAll)
                 {
                     response = await this.retryPolicy.ExecuteAsync(
                         (context) => feedIterator.ReadNextAsync(),
-                        new Context($"{this.GetType().Name}#{nameof(GetActionsByFilterAsync)}_{this.TenantId}")
+                        new Context($"{this.GetType().Name}#{nameof(GetActionsByFilterAsync)}_{this.AccountIdentifier.ConcatenatedId}")
                     ).ConfigureAwait(false);
-                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
                     results.AddRange(response);
                 }
             }
@@ -120,7 +120,7 @@ public class DHActionRepository(
                     {
                         this.logger.LogInformation("Query with assignedTo Facets");
 
-                        sqlQuery.Append($"SELECT {property.Name} as 'Value', COUNT(1) as 'Count' FROM c  JOIN {property.Name} IN c.{property.Name}  WHERE 1 = 1");
+                        sqlQuery.Append($"SELECT {property.Name} as 'Value', COUNT(1) as 'Count' FROM c  JOIN {property.Name} IN c.{property.Name}  WHERE c.AccountId = '{this.AccountIdentifier.AccountId}' ");
 
                         sqlQuery.Append(this.GenerateFilterQueryStr(filters));
 
@@ -128,7 +128,7 @@ public class DHActionRepository(
                     }
                     else
                     {
-                        sqlQuery.Append($"SELECT c.{property.Name} as 'Value', COUNT(1) as 'Count' FROM c WHERE 1 = 1");
+                        sqlQuery.Append($"SELECT c.{property.Name} as 'Value', COUNT(1) as 'Count' FROM c WHERE c.AccountId = '{this.AccountIdentifier.AccountId}' ");
 
                         sqlQuery.Append(this.GenerateFilterQueryStr(filters));
 
@@ -145,7 +145,7 @@ public class DHActionRepository(
                     while (sqlResultSetIterator.HasMoreResults)
                     {
                         FeedResponse<FacetEntityItem> currentResultSet = await sqlResultSetIterator.ReadNextAsync().ConfigureAwait(false);
-                        this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, currentResultSet);
+                        this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, currentResultSet);
                         foreach (FacetEntityItem facetResult in currentResultSet)
                         {
                             sqlResults.Add(facetResult);
@@ -314,7 +314,7 @@ public class DHActionRepository(
 
     private async Task<int> QueryCount(ActionsFilter? filter)
     {
-        var countQuery = new StringBuilder("SELECT VALUE COUNT(1) FROM c WHERE 1 = 1");
+        var countQuery = new StringBuilder($"SELECT VALUE COUNT(1) FROM c WHERE c.AccountId = '{this.AccountIdentifier.AccountId}'");
         if (filter != null)
         {
             countQuery.Append(this.GenerateFilterQueryStr(filter));
@@ -323,7 +323,7 @@ public class DHActionRepository(
         var countFeedIterator = this.CosmosContainer.GetItemQueryIterator<int>(countQueryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
 
         var countResponse = await countFeedIterator.ReadNextAsync().ConfigureAwait(false);
-        this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, countResponse);
+        this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, countResponse);
         return countResponse.Resource.FirstOrDefault();
     }
 

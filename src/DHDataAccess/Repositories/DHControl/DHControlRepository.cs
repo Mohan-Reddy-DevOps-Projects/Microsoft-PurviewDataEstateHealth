@@ -35,13 +35,13 @@ public class DHControlRepository(
     {
         var methodName = nameof(QueryControlNodesAsync);
 
-        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {base.TenantId}"))
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, {this.AccountIdentifier.Log}"))
         {
             try
             {
                 var query = this.CosmosContainer.GetItemLinqQueryable<DHControlNodeWrapper>(
                     requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
-                    .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Node);
+                    .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Node && x.AccountId == this.AccountIdentifier.AccountId);
 
                 if (filter?.AssessmentIds?.Any() == true)
                 {
@@ -83,7 +83,7 @@ public class DHControlRepository(
                 while (resultQuery.HasMoreResults)
                 {
                     var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
-                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
                     results.AddRange([.. response]);
                 }
 
@@ -91,7 +91,7 @@ public class DHControlRepository(
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {base.TenantId}", ex);
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, {this.AccountIdentifier.Log}", ex);
                 throw;
             }
         }
@@ -101,13 +101,13 @@ public class DHControlRepository(
     {
         var methodName = nameof(QueryControlGroupsAsync);
 
-        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {base.TenantId}"))
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, {this.AccountIdentifier.Log}"))
         {
             try
             {
                 var query = this.CosmosContainer.GetItemLinqQueryable<DHControlGroupWrapper>(
                     requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
-                    .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Group);
+                    .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Group && x.AccountId == this.AccountIdentifier.AccountId);
 
                 if (!string.IsNullOrWhiteSpace(filter?.TemplateName))
                 {
@@ -125,7 +125,7 @@ public class DHControlRepository(
                 while (resultQuery.HasMoreResults)
                 {
                     var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
-                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
                     results.AddRange([.. response]);
                 }
 
@@ -133,7 +133,7 @@ public class DHControlRepository(
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {base.TenantId}", ex);
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, {this.AccountIdentifier.Log}", ex);
                 throw;
             }
         }

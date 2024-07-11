@@ -35,13 +35,13 @@ public class DHControlScheduleRepository(
     {
         var methodName = nameof(QueryScheduleAsync);
 
-        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {base.TenantId}"))
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, {this.AccountIdentifier.Log}"))
         {
             try
             {
                 var query = this.CosmosContainer.GetItemLinqQueryable<DHControlScheduleStoragePayloadWrapper>(
                     requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
-                    .Where(c => c.Type == scheduleType)
+                    .Where(c => c.Type == scheduleType && c.AccountId == this.AccountIdentifier.AccountId)
                     .ToFeedIterator();
 
                 var results = new List<DHControlScheduleStoragePayloadWrapper>();
@@ -49,9 +49,9 @@ public class DHControlScheduleRepository(
                 {
                     var response = await this.retryPolicy.ExecuteAsync(
                         (context) => query.ReadNextAsync(),
-                        new Context($"{this.GetType().Name}#{methodName}_{scheduleType}_{this.TenantId}")
+                        new Context($"{this.GetType().Name}#{methodName}_{scheduleType}_{this.AccountIdentifier.ConcatenatedId}")
                     ).ConfigureAwait(false);
-                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
                     results.AddRange([.. response]);
                 }
 
@@ -59,7 +59,7 @@ public class DHControlScheduleRepository(
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {base.TenantId}", ex);
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, {this.AccountIdentifier.Log}", ex);
                 throw;
             }
         }

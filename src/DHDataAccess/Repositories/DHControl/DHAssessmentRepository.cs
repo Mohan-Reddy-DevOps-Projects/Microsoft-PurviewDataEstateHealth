@@ -35,13 +35,13 @@ public class DHAssessmentRepository(
     {
         var methodName = nameof(QueryAssessmentsAsync);
 
-        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {base.TenantId}"))
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, {this.AccountIdentifier.Log}"))
         {
             try
             {
                 var query = this.CosmosContainer.GetItemLinqQueryable<DHAssessmentWrapper>(
                     requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
-                    .Where(x => true);
+                    .Where(x => x.AccountId == this.AccountIdentifier.AccountId);
 
                 if (!string.IsNullOrWhiteSpace(filter?.TemplateName))
                 {
@@ -59,7 +59,7 @@ public class DHAssessmentRepository(
                 while (resultQuery.HasMoreResults)
                 {
                     var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
-                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
                     results.AddRange([.. response]);
                 }
 
@@ -67,7 +67,7 @@ public class DHAssessmentRepository(
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {base.TenantId}", ex);
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, {this.AccountIdentifier.Log}", ex);
                 throw;
             }
         }

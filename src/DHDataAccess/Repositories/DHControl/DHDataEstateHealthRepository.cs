@@ -43,24 +43,24 @@ public class DHDataEstateHealthRepository(
 
 
 
-    public async Task<IEnumerable<cosmosEntity>> QueryControlNodesAsync(cosmosEntity filter)
+    public async Task<IEnumerable<CosmosEntity>> QueryControlNodesAsync(CosmosEntity filter)
     {
         var methodName = nameof(QueryControlNodesAsync);
 
-        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, ContainerName = {this.ContainerName}, tenantId = {base.TenantId}"))
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, ContainerName = {this.ContainerName}, {this.AccountIdentifier.Log}"))
         {
             try
             {
-                var query = this.CosmosContainer.GetItemLinqQueryable<cosmosEntity>(
-                    requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey });
-                
+                var query = this.CosmosContainer.GetItemLinqQueryable<CosmosEntity>(
+                    requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey }).Where(x => x.AccountId == this.AccountIdentifier.AccountId);
+
                 var resultQuery = query.ToFeedIterator();
 
-                var results = new List<cosmosEntity>();
+                var results = new List<CosmosEntity>();
                 while (resultQuery.HasMoreResults)
                 {
                     var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
-                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
                     results.AddRange([.. response]);
                 }
 
@@ -68,7 +68,7 @@ public class DHDataEstateHealthRepository(
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, ContainerName = {this.ContainerName}, tenantId = {base.TenantId}", ex);
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, ContainerName = {this.ContainerName}, {this.AccountIdentifier.Log}", ex);
                 throw;
             }
 
@@ -79,13 +79,13 @@ public class DHDataEstateHealthRepository(
     {
         var methodName = nameof(QueryControlGroupsAsync);
 
-        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, tenantId = {base.TenantId}"))
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, {this.AccountIdentifier.Log}"))
         {
             try
             {
                 var query = this.CosmosContainer.GetItemLinqQueryable<DHControlGroupWrapper>(
                     requestOptions: new QueryRequestOptions { PartitionKey = base.TenantPartitionKey })
-                    .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Group);
+                    .Where(x => x.Type == DHControlBaseWrapperDerivedTypes.Group && x.AccountId == this.AccountIdentifier.AccountId);
 
                 if (!string.IsNullOrWhiteSpace(filter?.TemplateName))
                 {
@@ -103,7 +103,7 @@ public class DHDataEstateHealthRepository(
                 while (resultQuery.HasMoreResults)
                 {
                     var response = await resultQuery.ReadNextAsync().ConfigureAwait(false);
-                    this.cosmosMetricsTracker.LogCosmosMetrics(this.TenantId, response);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
                     results.AddRange([.. response]);
                 }
 
@@ -111,7 +111,7 @@ public class DHDataEstateHealthRepository(
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, tenantId = {base.TenantId}", ex);
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, {this.AccountIdentifier.Log}", ex);
                 throw;
             }
         }
