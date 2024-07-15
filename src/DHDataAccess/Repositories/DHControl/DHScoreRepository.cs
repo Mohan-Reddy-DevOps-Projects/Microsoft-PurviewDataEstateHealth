@@ -210,7 +210,7 @@ SELECT
     MAX(c.Time) AS Time,
     SUM(c.ScoreSum) as ScoreSum,
     SUM(c.ScoreCount) AS ScoreCount
-FROM c WHERE c.AccountId == '{this.AccountIdentifier.AccountId}' ");
+FROM c WHERE c.AccountId = '{this.AccountIdentifier.AccountId}' ");
 
         // Add filtering conditions based on provided parameters
         if (domainIds != null && domainIds.Any())
