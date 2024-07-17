@@ -84,7 +84,7 @@ internal sealed class SynapseSparkExecutor(
     public async Task<SparkBatchJob> GetJob(string sparkPoolName, int batchId, CancellationToken cancellationToken)
     {
         SparkBatchClient client = this.GetSparkBatchClient(sparkPoolName);
-        return (await client.GetSparkBatchJobAsync(batchId)).Value;
+        return (await client.GetSparkBatchJobAsync(batchId, true, cancellationToken)).Value;
     }
 
     public async Task<List<SparkBatchJob>> ListJobs(string sparkPoolName, CancellationToken cancellationToken)
