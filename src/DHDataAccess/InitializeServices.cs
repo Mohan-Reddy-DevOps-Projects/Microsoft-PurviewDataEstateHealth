@@ -53,6 +53,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
             services.AddScoped<DHActionRepository>();
             services.AddScoped<DHComputingJobRepository>();
             services.AddScoped<DHAlertRepository>();
+            services.AddScoped<DHStorageConfigRepository>();
             services.AddSingleton<TriggeredScheduleQueue>();
 
             return services;

@@ -67,3 +67,12 @@ module cosmosDatabaseDHAction 'cosmosDatabase.bicep' = {
     containerNames: ['DHAction']
   }
 }
+
+module cosmosDatabaseDHSettings 'cosmosDatabase.bicep' = {
+  name: 'cosmosDatabaDHseSettings'
+  params: {
+    accountName: cosmosAccountName
+    databaseName: 'dgh-Settings'
+    containerNames: ['DHStorageConfig']
+  }
+}

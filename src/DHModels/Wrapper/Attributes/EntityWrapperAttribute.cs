@@ -31,6 +31,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes
         MonitoringJob,
         NofityTarget,
         Alert,
+        StorageConfig,
     }
 
     [AttributeUsage(AttributeTargets.Class)]
