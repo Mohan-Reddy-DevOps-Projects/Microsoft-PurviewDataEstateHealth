@@ -9,6 +9,7 @@ resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 
 var controlDatabaseName = 'dgh-Control'
 var actionDatabaseName = 'dgh-Action'
+var settingsDatabaseName = 'dgh-Settings'
 // Contributor role assignment
 // Document: https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/tutorial-vm-managed-identities-cosmos?tabs=azure-resource-manager#grant-access
 var contributorRoleDefName = '00000000-0000-0000-0000-000000000002'
@@ -36,6 +37,19 @@ module actionCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep' 
   }
   dependsOn: [
     cosmosDatabaseDHAction
+  ]
+}
+
+module settingsCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep' = {
+  name: 'settingsCosmosContributorRoleAssignmentModule'
+  params: {
+    accountName: cosmosAccountName
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: contributorRoleDefName
+    databaseName: settingsDatabaseName
+  }
+  dependsOn: [
+    cosmosDatabaseDHSettings
   ]
 }
 
