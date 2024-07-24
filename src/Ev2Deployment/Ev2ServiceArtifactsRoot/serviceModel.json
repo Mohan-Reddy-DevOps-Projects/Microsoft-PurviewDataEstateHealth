@@ -57,7 +57,7 @@
                   "type": "Run",
                   "properties": {
                     "imageName": "adm-mariner-20-l",
-                    "imageVersion": "v6"
+                    "imageVersion": "v9"
                   }
                 }
               ]
@@ -82,7 +82,7 @@
                   "type": "Run",
                   "properties": {
                     "imageName": "adm-mariner-20-l",
-                    "imageVersion": "v6"
+                    "imageVersion": "v9"
                   }
                 }
               ]
@@ -176,7 +176,7 @@
                   "type": "Run",
                   "properties": {
                     "imageName": "adm-mariner-20-l",
-                    "imageVersion": "v6"
+                    "imageVersion": "v9"
                   }
                 }
               ]
