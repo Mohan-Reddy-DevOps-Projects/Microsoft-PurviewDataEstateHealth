@@ -18,5 +18,5 @@ public class DHStorageConfigBaseWrapper(JObject jObject) : ContainerEntityDynami
 
 public static class DHStorageConfigWrapperDerivedTypes
 {
-    public const string ADLSGen2 = "ADLSGen2";
+    public const string Fabric = "Fabric";
 }
