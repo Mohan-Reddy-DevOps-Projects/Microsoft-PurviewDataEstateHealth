@@ -38,7 +38,7 @@ internal sealed class HealthDatasetUpgrade
     /// <param name="schemaUpgradeSucceeded"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<Dictionary<Guid, List<Dataset>>> UpgradeDatasets(AccountServiceModel account, Guid profileId, Guid workspaceId, bool schemaUpgradeSucceeded, string datasetName, CancellationToken cancellationToken)
+    public async Task<Dictionary<Guid, List<Dataset>>> UpgradeDatasets(AccountServiceModel account, Guid profileId, Guid workspaceId, bool schemaUpgradeSucceeded, CancellationToken cancellationToken)
     {
         IDatasetRequest datasetRequest = new DatasetRequest()
         {
@@ -46,7 +46,7 @@ internal sealed class HealthDatasetUpgrade
             WorkspaceId = workspaceId,
         };
         Datasets existingDatasets = await this.datasetCommand.List(datasetRequest, cancellationToken);
-        IList<Dataset> datasetsToUpgrade = await this.GetUpgradableDatasets(profileId, workspaceId, existingDatasets, datasetName, cancellationToken);
+        IList<Dataset> datasetsToUpgrade = await this.GetUpgradableDatasets(profileId, workspaceId, existingDatasets, cancellationToken);
         this.logger.LogInformation($"Attempting to upgrade datasets. Datasets={JsonSerializer.Serialize(datasetsToUpgrade)}");
         IList<Dataset> upgradedDatasets = await this.Upgrade(account, profileId, workspaceId, schemaUpgradeSucceeded, datasetsToUpgrade, cancellationToken);
         Dictionary<Guid, List<Dataset>> datasetUpgrades = MapPreviousToNewDatasets(upgradedDatasets, existingDatasets.Value, schemaUpgradeSucceeded);
@@ -130,25 +130,30 @@ internal sealed class HealthDatasetUpgrade
     /// <param name="existingDatasets"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<IList<Dataset>> GetUpgradableDatasets(Guid profileId, Guid workspaceId, Datasets existingDatasets, string datasetName, CancellationToken cancellationToken)
+    public async Task<IList<Dataset>> GetUpgradableDatasets(Guid profileId, Guid workspaceId, Datasets existingDatasets, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(existingDatasets);
         List<Dataset> upgradedDatasets = new();
-
-        foreach (Dataset dataset in existingDatasets.Value.Where(x => x.Name.Equals(datasetName, StringComparison.Ordinal)))
+        var datasetLength = Enum.GetValues(typeof(HealthDataset.Dataset)).Length;
+        for (int i = 0; i < datasetLength; i++)
         {
-            DatasetRequest datasetRequest = new()
+            var enumValue = Enum.GetValues(typeof(HealthDataset.Dataset)).GetValue(i);
+            string datasetName = SystemDatasets.Get()[enumValue.ToString()].Name;
+            foreach (Dataset dataset in existingDatasets.Value.Where(x => x.Name.Equals(datasetName, StringComparison.Ordinal)))
             {
-                ProfileId = profileId,
-                WorkspaceId = workspaceId,
-                DatasetContainer = "powerbi",
-                DatasetFileName = $"{dataset.Name}.pbix",
-            };
-            var properties = await this.datasetCommand.GetDatasetFileProperties(datasetRequest, cancellationToken);
-            this.logger.LogInformation($"Upgrade check, name: {dataset.Name}, createdtime: {dataset.CreatedDate}, newversion time: {properties.LastModified}");
-            if (properties != null && ShouldUpgradeDataset(dataset, properties.LastModified))
-            {
-                upgradedDatasets.Add(dataset);
+                DatasetRequest datasetRequest = new()
+                {
+                    ProfileId = profileId,
+                    WorkspaceId = workspaceId,
+                    DatasetContainer = "powerbi",
+                    DatasetFileName = $"{dataset.Name}.pbix",
+                };
+                var properties = await this.datasetCommand.GetDatasetFileProperties(datasetRequest, cancellationToken);
+                this.logger.LogInformation($"Upgrade check, name: {dataset.Name}, createdtime: {dataset.CreatedDate}, newversion time: {properties.LastModified}");
+                if (properties != null && ShouldUpgradeDataset(dataset, properties.LastModified))
+                {
+                    upgradedDatasets.Add(dataset);
+                }
             }
         }
 

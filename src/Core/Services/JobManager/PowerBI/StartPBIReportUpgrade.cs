@@ -64,7 +64,8 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
             };
             Group workspace = await this.workspaceCommand.Get(workspaceContext, CancellationToken.None);
             HealthDatasetUpgrade insightsDatasetUpgrade = new(this.logger, this.datasetCommand, this.healthPBIReportComponent, this.powerBICredentialComponent);
-            Dictionary<Guid, List<Dataset>> datasetUpgrades = await insightsDatasetUpgrade.UpgradeDatasets(this.metadata.Account, profileModel.Id, workspace.Id, true, SystemDatasets.Get()[HealthDataset.Dataset.DataGovernance.ToString()].Name, CancellationToken.None);
+            Dictionary<Guid, List<Dataset>> datasetUpgrades = await insightsDatasetUpgrade.UpgradeDatasets(this.metadata.Account, profileModel.Id, workspace.Id, true,  CancellationToken.None);            
+            //datasetUpgrades = await insightsDatasetUpgrade.UpgradeDatasets(this.metadata.Account, profileModel.Id, workspace.Id, true, SystemDatasets.Get()[HealthDataset.Dataset.DataGovernance.ToString()].Name, CancellationToken.None);
             this.metadata.DatasetUpgrades = datasetUpgrades;
             this.metadata.ProfileId = profileModel.Id;
             this.metadata.WorkspaceId = workspace.Id;
