@@ -27,6 +27,7 @@ public class AssetDQScoreJoinAdapter : DataQualityJoinAdapter
     {
         var inputDataset1 = this.GetInputDataset(DomainModelType.DataProductAssetAssignment);
         var inputDataset2 = this.GetInputDataset(DomainModelType.DataQualityAssetRuleExecution);
+        var inputDataset3 = this.GetInputDataset(DomainModelType.DataQualityRuleColumnExecution);
 
         return new JoinAdapterResult
         {
@@ -35,7 +36,7 @@ public class AssetDQScoreJoinAdapter : DataQualityJoinAdapter
                     DataProduct.DataProductID as DADQSCountDataProductId,
                     DataProductAssetAssignment.DataAssetId as DADQSDataAssetId,
                     CASE
-                        WHEN COUNT(TDataQualityAssetRuleExecution.AssetResultScore) > 0 THEN 'true'
+                        WHEN COUNT(TDataQualityAssetRuleExecution.ResultScore) > 0 THEN 'true'
                         ELSE 'false'
                     END AS DataProductRelatedAssetsHaveDQScore
                 FROM DataProduct 
@@ -44,14 +45,20 @@ public class AssetDQScoreJoinAdapter : DataQualityJoinAdapter
                 LEFT JOIN (
                     SELECT 
                         DataAssetId,
-                        MAX(AssetResultScore) AS AssetResultScore
-                    FROM DataQualityAssetRuleExecution
-                    WHERE AssetResultScore IS NOT NULL
+                        MAX(ResultScore) AS ResultScore
+                    FROM (
+                        SELECT DataAssetId, AssetResultScore AS ResultScore
+                        FROM DataQualityAssetRuleExecution
+                        UNION ALL
+                        SELECT DataAssetId, ColumnResultScore AS ResultScore
+                        FROM DataQualityRuleColumnExecution
+                    )
+                    WHERE ResultScore IS NOT NULL
                     GROUP BY DataAssetId
                 ) TDataQualityAssetRuleExecution ON DataProductAssetAssignment.DataAssetId = TDataQualityAssetRuleExecution.DataAssetId
                 GROUP BY DataProduct.DataProductID, DataProductAssetAssignment.DataAssetId
             ) DataProductAssetDQScore ON DataProduct.DataProductID = DataProductAssetDQScore.DADQSCountDataProductId",
-            inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2 },
+            inputDatasetsFromJoin = new List<InputDatasetWrapper>() { inputDataset1, inputDataset2, inputDataset3 },
             SchemaFromJoin = this.outputSchema
         };
     }

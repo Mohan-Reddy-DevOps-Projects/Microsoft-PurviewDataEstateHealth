@@ -16,6 +16,7 @@ internal static class DomainModelUtils
         { DomainModelType.DataProductStatus, new DataProductStatusDomainModel() },
         { DomainModelType.DataProductTermsOfUse, new DataProductTermsOfUseDomainModel() },
         { DomainModelType.DataQualityAssetRuleExecution, new DataQualityAssetRuleExecutionDomainModel() },
+        { DomainModelType.DataQualityRuleColumnExecution, new DataQualityRuleColumnExecutionDomainModel() },
         { DomainModelType.GlossaryTerm, new GlossaryTermDomainModel() },
         { DomainModelType.GlossaryTermDataProductAssignment, new GlossaryTermDataProductAssignmentDomainModel() },
     };

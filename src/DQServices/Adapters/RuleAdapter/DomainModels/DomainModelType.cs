@@ -3,6 +3,7 @@ public enum DomainModelType
 {
     DataProductAssetAssignment,
     DataQualityAssetRuleExecution,
+    DataQualityRuleColumnExecution,
     DataAssetColumnClassificationAssignment,
     DataAssetOwnerAssignment,
     DataProductBusinessDomainAssignment,
