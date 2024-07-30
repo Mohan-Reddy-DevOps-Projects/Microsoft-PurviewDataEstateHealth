@@ -56,7 +56,7 @@ public class DataProductDQScoreJoinAdapter : DataQualityJoinAdapter
                         UNION ALL
                         SELECT DataAssetId, ColumnResultScore AS ResultScore
                         FROM DataQualityRuleColumnExecution
-                    )
+                    ) AS TDPDQScore
                     WHERE ResultScore IS NOT NULL
                     GROUP BY DataAssetId
                 ) TDataQualityAssetRuleExecution ON DataProductAssetAssignment.DataAssetId = TDataQualityAssetRuleExecution.DataAssetId
