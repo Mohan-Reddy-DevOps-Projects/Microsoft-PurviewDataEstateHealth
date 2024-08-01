@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Platforms>x64</Platforms>
@@ -16,10 +16,11 @@
     <PackageReference Include="Microsoft.Data.DeltaLake" />
     <PackageReference Include="Microsoft.Purview.DataGovernance.Reporting" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" />
     <PackageReference Include="Microsoft.WindowsAzure.ResourceStack" />
     <PackageReference Include="Polly.Contrib.WaitAndRetry" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" />
     <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="System.Drawing.Common" />
+    <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
 </Project>
