@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Extensions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
@@ -66,15 +67,16 @@ public class Program
         // Add services to the container.
         builder.Services
             .AddApiVersioning(
-            //o =>
-            //{
-            //    o.ReportApiVersions = true; 
-            //    o.AssumeDefaultVersionWhenUnspecified = true; 
-            //    o.DefaultApiVersion = new ApiVersion(new DateOnly(2023,10,1), "preview");
-            //    o.ApiVersionReader = new QueryStringApiVersionReader("api-version");
-            //}
+        //o =>
+        //{
+        //    o.ReportApiVersions = true; 
+        //    o.AssumeDefaultVersionWhenUnspecified = true; 
+        //    o.DefaultApiVersion = new ApiVersion(new DateOnly(2023,10,1), "preview");
+        //    o.ApiVersionReader = new QueryStringApiVersionReader("api-version");
+        //}
             )
             .AddMvc();
+        builder.Services.AddMvc((config) => config.Filters.Add<RequestAuditFilter>());
 
         builder.Services
             .AddLogger(genevaConfiguration, serviceConfiguration, environmentConfiguration, builder.Environment.IsDevelopment())
