@@ -4,12 +4,10 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Purview.DataGovernance.Common;
 using OpenTelemetry.Audit.Geneva;
 using System;
 using System.Diagnostics;
@@ -29,14 +27,14 @@ public abstract class DataEstateHealthLogger
     /// <summary>
     /// Initializes a new instance of the <see cref="DataEstateHealthLogger" /> class.
     /// </summary>
-    public DataEstateHealthLogger(ILoggerFactory loggerFactory, IOptions<EnvironmentConfiguration> environmentConfiguration, 
+    public DataEstateHealthLogger(ILoggerFactory loggerFactory, IOptions<EnvironmentConfiguration> environmentConfiguration,
         IOptions<GenevaConfiguration> genevaConfiguration)
     {
-        
-        
+
+
         this.logger = loggerFactory.CreateLogger("Log");
         this.environmentConfiguration = environmentConfiguration.Value;
-        if (this.environmentConfiguration.Environment != Microsoft.Purview.DataGovernance.Common.Environment.Development)
+        if (this.environmentConfiguration.Environment != Microsoft.Purview.DataGovernance.Common.CloudEnvironment.Development)
         {
             this.dataPlaneAuditLogger = AuditLoggerFactory.Create(options =>
             {
@@ -220,10 +218,11 @@ public abstract class DataEstateHealthLogger
         string targetResourceId,
         OperationCategory operationCategory = OperationCategory.ResourceManagement)
     {
-        if (this.dataPlaneAuditLogger == null) {
+        if (this.dataPlaneAuditLogger == null)
+        {
             return;
         }
-        
+
         try
         {
             var httpContext = this.GetRequestContext();

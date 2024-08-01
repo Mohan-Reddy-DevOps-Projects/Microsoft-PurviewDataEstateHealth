@@ -9,7 +9,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.Core;
@@ -58,7 +57,7 @@ public static class CoreLayer
         services.AddScoped<IDatasetsComponent, DatasetsComponent>();
         services.AddScoped<IRefreshComponent, RefreshComponent>();
 
-        services.AddScoped<IRequestHeaderContext, RequestHeaderContext>();
+        services.AddScoped<Models.IRequestHeaderContext, Models.RequestHeaderContext>();
         services.AddScoped<ICoreLayerFactory, CoreLayerFactory>();
 
         services.AddScoped<IJobManager, JobManager>();

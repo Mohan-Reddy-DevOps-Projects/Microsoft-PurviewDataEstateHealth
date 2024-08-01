@@ -6,7 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 using System;
 using System.Collections.Generic;
-using Environment = Microsoft.Purview.DataGovernance.Common.Environment;
+using Environment = Microsoft.Purview.DataGovernance.Common.CloudEnvironment;
 
 /// <summary>
 /// Environment Configurations
