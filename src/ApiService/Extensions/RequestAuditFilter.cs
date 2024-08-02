@@ -17,6 +17,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Extensions
 
         public void OnActionExecuted(ActionExecutedContext context)
         {
+            logger.LogInformation("RequestAuditFilter.OnActionExecuted");
             if (context != null)
             {
                 this.Audit(context);
@@ -32,6 +33,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Extensions
 #pragma warning disable CA1031 // Do not catch general exception types
             try
             {
+                logger.LogInformation("RequestAuditFilter.Audit start");
                 var httpContext = context.HttpContext;
                 var requestUri = httpContext.Request.GetDisplayUrl();
                 var operationName = context.ActionDescriptor.DisplayName;
@@ -75,6 +77,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Extensions
                 audit.AddCallerAccessLevel(audit.OperationAccessLevel);
                 audit.AddCallerIdentity(CallerIdentityType.TenantId, requestHeaderContext.TenantId.ToString(), "audit");
                 audit.AddTargetResource("CorrelationId", requestHeaderContext.CorrelationId);
+                logger.LogInformation("RequestAuditFilter.Audit start to write audit logs");
                 logger.LogAudit(audit);
             }
             catch (Exception ex)

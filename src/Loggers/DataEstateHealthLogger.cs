@@ -251,4 +251,22 @@ public abstract class DataEstateHealthLogger
             this.LogError("Failed to capture audit log.", ex);
         }
     }
+
+    public void LogAudit(AuditRecord record)
+    {
+        if (this.dataPlaneAuditLogger == null)
+        {
+            return;
+        }
+
+        try
+        {
+            this.dataPlaneAuditLogger.LogAudit(record);
+            this.LogInformation("Audit log successful");
+        }
+        catch (Exception ex)
+        {
+            this.LogError("Failed to capture audit log.", ex);
+        }
+    }
 }

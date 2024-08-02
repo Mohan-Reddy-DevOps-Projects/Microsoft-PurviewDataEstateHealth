@@ -106,4 +106,6 @@ public interface IDataEstateHealthRequestLogger : ILogger
         string targetResourceType,
         string targetResourceId,
         OperationCategory operationCategory = OperationCategory.ResourceManagement);
+
+    public void LogAudit(AuditRecord record);
 }
