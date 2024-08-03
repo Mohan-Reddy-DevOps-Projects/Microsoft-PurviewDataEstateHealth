@@ -1,46 +1,73 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Platforms>x64</Platforms>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.Core</RootNamespace>
-    <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Core</AssemblyName>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Azure.Messaging.EventHubs" />
-    <PackageReference Include="Azure.Messaging.EventHubs.Processor" />
-    <PackageReference Include="Azure.Analytics.Synapse.Spark" />
-    <PackageReference Include="Azure.ResourceManager.Storage" />
-    <PackageReference Include="Azure.ResourceManager.Synapse" />
-    <PackageReference Include="Azure.Security.KeyVault.Certificates" />
-    <PackageReference Include="Azure.Security.KeyVault.Secrets" />
-    <PackageReference Include="Azure.Storage.Blobs" />
-    <PackageReference Include="Azure.Storage.Files.DataLake" />
-    <PackageReference Include="Microsoft.Azure.Management.Storage" />
-    <PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" />
-    <PackageReference Include="Microsoft.Extensions.Http" />
-    <PackageReference Include="Microsoft.Purview.DataGovernance.DeltaWriter" />
-    <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="Parquet.Net" />
-    <PackageReference Include="System.Text.Json" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
-    <ProjectReference Include="..\DHDataAccess\DHDataAccess.csproj" />
-    <ProjectReference Include="..\DHModels\DHModels.csproj" />
-    <ProjectReference Include="..\Models\Models.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Setup\setup.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>setup.sql</TargetPath>
-    </None>
-    <None Update="Setup\setup-rollback.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>setup-rollback.sql</TargetPath>
-    </None>
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Platforms>x64</Platforms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.Core</RootNamespace>
+		<AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Core</AssemblyName>
+	</PropertyGroup>
+	<ItemGroup>
+	  <None Remove="Services\JobManager\MetersToBillingJob\Queries\PDG_deh_billing.kql" />
+	  <None Remove="Services\JobManager\MetersToBillingJob\Queries\PDG_dq_billing.kql" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Update="Services\JobManager\MetersToBillingJob\Queries\PDG_deh_billing.kql">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <TargetPath>PDG_deh_billing.kql</TargetPath>
+	  </Content>
+	  <Content Update="Services\JobManager\MetersToBillingJob\Queries\PDG_dq_billing.kql">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	    <TargetPath>PDG_dq_billing.kql</TargetPath>
+	  </Content>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Azure.Messaging.EventHubs" />
+		<PackageReference Include="Azure.Messaging.EventHubs.Processor" />
+		<PackageReference Include="Azure.Analytics.Synapse.Spark" />
+		<PackageReference Include="Azure.Monitor.Query" />
+		<PackageReference Include="Azure.ResourceManager.Storage" />
+		<PackageReference Include="Azure.ResourceManager.Synapse" />
+		<PackageReference Include="Azure.Security.KeyVault.Certificates" />
+		<PackageReference Include="Azure.Security.KeyVault.Secrets" />
+		<PackageReference Include="Azure.Storage.Blobs" />
+		<PackageReference Include="Azure.Storage.Files.DataLake" />
+		<PackageReference Include="LogAnalytics.Client" />
+		<PackageReference Include="Microsoft.Azure.Management.Storage" />
+		<PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+		<PackageReference Include="Microsoft.Purview.DataGovernance.AuditAPI" />
+		<PackageReference Include="Microsoft.Purview.DataGovernance.BillingServiceClient" />
+		<PackageReference Include="Microsoft.Purview.DataGovernance.Common" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" />
+		<PackageReference Include="Microsoft.Extensions.Http" />
+		<PackageReference Include="Microsoft.Purview.DataGovernance.DeltaWriter" />
+		<PackageReference Include="Newtonsoft.Json" />
+		<PackageReference Include="Parquet.Net" />
+		<PackageReference Include="System.Text.Json" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\DataAccess\DataAccess.csproj" />
+		<ProjectReference Include="..\DHDataAccess\DHDataAccess.csproj" />
+		<ProjectReference Include="..\DHModels\DHModels.csproj" />
+		<ProjectReference Include="..\Models\Models.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="Services\JobManager\MetersToBillingJob\PDG_deh_billing.kql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<TargetPath>PDG_deh_billing.kql</TargetPath>
+		</None>
+		<None Update="Services\JobManager\MetersToBillingJob\PDG_dq_billing.kql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<TargetPath>PDG_dq_billing.kql</TargetPath>
+		</None>
+		<None Update="Setup\setup.sql">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>setup.sql</TargetPath>
+		</None>
+		<None Update="Setup\setup-rollback.sql">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<TargetPath>setup-rollback.sql</TargetPath>
+		</None>
+	</ItemGroup>
 </Project>

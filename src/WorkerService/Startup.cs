@@ -45,7 +45,7 @@ public static class Startup
             .AddDataAccessLayer()
             .SetupDHDataAccessServices()
             .AddServiceBasicsForWorkerService()
-            .AddCoreLayer()
+            .AddCoreLayer(builder.Configuration)
             .AddPartnerEventsProcessor();
 
         builder.Services.AddHostedService<WorkerService>();

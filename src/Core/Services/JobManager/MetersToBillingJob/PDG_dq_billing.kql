@@ -1,0 +1,86 @@
+﻿//Declare Query Parameters
+let StartTime = datetime(2024-07-22 11:10:00);
+let EndTime = datetime(2024-07-24 12:10:00);
+// GET JOB IN THE INTERVAL
+let JobsInInterval = DQ_Job_Logs_CL
+| where TimeGenerated >= StartTime and TimeGenerated <= EndTime
+| project JobId_g, JobStatus_s;
+// JOIN WITH JOB DETAILS AND GET OTHER DETAILS
+let jobDetails = DQ_Spark_Logs_CL
+| join kind=inner (
+    JobsInInterval
+    | project JobId_g, JobStatus_s
+) on $left.JobId_g == $right.JobId_g
+| summarize
+    ProcessingTier = any(case(
+        NodeSize_s == "Small", "Basic",
+        NodeSize_s == "Medium", "Basic",
+        NodeSize_s == "Large", "Standard",
+        NodeSize_s == "XLarge", "Advanced",
+        NodeSize_s == "XXLarge", "Advanced",
+        "Unknown Status")),
+    EventCorelationId = any(id_g),
+    JobId = any(JobId_g), // JobId from the driver table
+    AccountId = any(accountId_g_g),
+    BusinessDomainId = any(BusinessDomainId_g),
+    JobStatus = any(JobStatus_s), // JobStatus from the driver table
+    ProcessingUnits = any(0.0),
+    JobCompletionTime_d = any(JobCompletionTime_d),
+    JobStartTime_d = any(JobStartTime_d),
+    DMSScope = any("DQ"),
+    DMSJobSubType = any(Entity_s)
+by ApplicationId_s;
+// Step 2: Summarize the start and end times from SparkLoggingEvent_CL using ApplicationId_s from jobDetails
+let distinctAppIds = jobDetails | project ApplicationId_s;
+let sparkEventLogs = SparkLoggingEvent_CL
+| where applicationId_s in (distinctAppIds)
+| summarize MinStartTime = min(TimeGenerated), MaxEndTime = max(TimeGenerated) by applicationId_s
+| extend Duration = datetime_diff('second', MaxEndTime, MinStartTime);
+// Step 3: Left join jobDetails with jobTimes
+let jobDetailsWithTimes = jobDetails
+| join kind=leftouter (sparkEventLogs) on $left.ApplicationId_s == $right.applicationId_s
+| extend JobDurationSeconds = iff(isnull(Duration), 0, Duration)
+| extend JobDurationMinutes = round(JobDurationSeconds / 60.0, 0)
+| extend JobDurationModuloMin =  JobDurationMinutes%60
+| extend JobDurationModuloHours = toint(JobDurationMinutes/60)
+| project
+    ApplicationId_s,
+    ProcessingTier,
+    EventCorelationId,
+    JobId,
+    JobDuration = toint(JobDurationSeconds),
+    JobDurationMinutes = toint(JobDurationMinutes),
+    JobDurationModuloMin=toint(JobDurationModuloMin),
+    JobDurationModuloHours=toint(JobDurationModuloHours),
+    AccountId,
+    BusinessDomainId,
+    JobStatus,
+    ProcessingUnits,
+  ProcessingTimestamp = iff(isnull(MaxEndTime), datetime(2020-01-01 00:00:00), MaxEndTime),
+    JobStartTime = iff(isnull(MinStartTime), datetime(2020-01-01 00:00:00), MinStartTime),
+    JobEndTime = iff(isnull(MaxEndTime), datetime(2020-01-01 00:00:00), MaxEndTime),
+    DMSScope,
+    DMSJobSubType;
+// Step 5: Join with processingUnitsMapping to get ProcessingUnits based on JobDurationMinutes
+jobDetailsWithTimes
+| extend RawProcessingUnits = round(todecimal(iff(JobDurationModuloMin == 0, 1, JobDurationModuloMin))/60,2) + JobDurationModuloHours // Base calculation
+| extend
+    ProcessingUnits = RawProcessingUnits
+| project
+    ApplicationId_s,
+    ProcessingTier,
+    EventCorelationId,
+    JobId,
+    JobDuration,
+    JobDurationMinutes,
+    JobDurationModuloMin,
+    JobDurationModuloHours,
+    AccountId,
+    BusinessDomainId,
+    JobStatus,
+    ProcessingUnits,
+    ProcessingTimestamp,
+    JobStartTime,
+    JobEndTime,
+    DMSScope,
+    DMSJobSubType;

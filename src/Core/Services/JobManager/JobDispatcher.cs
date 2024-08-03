@@ -78,9 +78,10 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
     {
         try
         {
-            this.logger.LogInformation("Starting job dispatcher.");
 
             this.Start();
+
+            this.logger.LogInformation("Starting job dispatcher.11");
 
             if (!this.environmentConfiguration.IsDevelopmentEnvironment())
             {
@@ -95,6 +96,9 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
             await jobManager.ProvisionBackgroundJobCleanupJob();
             await jobManager.ProvisionBackgroundJobMonitoringJob();
             await jobManager.ProvisionDEHTriggeredScheduleJob();
+            this.logger.LogInformation("Starting job ProvisionMetersToBillingJob");
+
+            await jobManager.ProvisionMetersToBillingJob();
 
             this.logger.LogInformation("Job dispatcher started successfully.");
         }

@@ -41,7 +41,15 @@
           "partitionCount": 2
         }
       ],
-      "genevaActionSubjectName": "AME.genevaActions.$(pdg.tenant.dnsZoneName)"
+      "genevaActionSubjectName": "AME.genevaActions.$(pdg.tenant.dnsZoneName)",
+      "AuditService": {
+        "AADAuth": {
+          "Authority": "https://login.microsoftonline.com/33e01921-4d64-4f8c-a055-5bdaffd5e33d",
+          "ClientId": "73c2949e-da2d-457a-9607-fcc665198967",
+          "CertificateName": "client-cert"
+        },
+        "AuditEnvironment": "PROD",
+      }
     }
   },
   "geographies": [

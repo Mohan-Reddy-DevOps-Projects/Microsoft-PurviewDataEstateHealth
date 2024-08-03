@@ -12,11 +12,13 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.Core;
-using Microsoft.Purview.DataGovernance.Common;
 using Microsoft.Purview.DataGovernance.DeltaWriter;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
 using Microsoft.Purview.DataGovernance.Reporting.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Purview.DataGovernance.BillingServiceClient;
+using Microsoft.Azure.Purview.DataEstateHealth.Core.Extensions;
 
 /// <summary>
 /// Provides behavior on the core layer level.
@@ -27,7 +29,7 @@ public static class CoreLayer
     /// Initializes the core layer.
     /// </summary>
     /// <param name="services">Gives the core layer a chance to configure its dependency injection.</param>
-    public static IServiceCollection AddCoreLayer(this IServiceCollection services)
+    public static IServiceCollection AddCoreLayer(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<ICertificateLoaderService, CertificateLoaderService>();
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -49,7 +51,7 @@ public static class CoreLayer
         services.AddSingleton<IDeltaTableEventProcessor, DeltaTableEventProcessor>();
 
         services.AddPowerBI();
-        services.AddCommands();
+        services.AddCommands(configuration);
         services.AddScoped<ICatalogSparkJobComponent, CatalogSparkJobComponent>();
         services.AddScoped<IDimensionModelSparkJobComponent, DimensionModelSparkJobComponent>();
         services.AddScoped<IFabricSparkJobComponent, FabricSparkJobComponent>();
@@ -92,7 +94,7 @@ public static class CoreLayer
         {
             var auxStorage = provider.GetRequiredService<IOptions<AuxStorageConfiguration>>();
             var logger = provider.GetRequiredService<IDataEstateHealthRequestLogger>();
-            var credentialFactory = provider.GetRequiredService<AzureCredentialFactory>();
+            var credentialFactory = provider.GetRequiredService<Microsoft.Purview.DataGovernance.Common.AzureCredentialFactory>();
 
             return new BlobStorageAccessor(logger, credentialFactory, auxStorage.Value);
 
@@ -113,7 +115,7 @@ public static class CoreLayer
     /// Add commands
     /// </summary>
     /// <param name="services">Service collection</param>
-    public static IServiceCollection AddCommands(this IServiceCollection services)
+    public static IServiceCollection AddCommands(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IPowerBICredentialComponent, PowerBICredentialComponent>();
         services.AddScoped(provider =>
@@ -155,6 +157,10 @@ public static class CoreLayer
          });
         services.AddScoped<HealthWorkspaceCommand>();
         services.AddScoped<IDatabaseManagementService, DatabaseManagementService>();
+
+        services.SetupAuditService(configuration);
+
+        services.AddSingleton<IBillingServiceClient, BillingServiceClient>();
 
         return services;
     }

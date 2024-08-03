@@ -42,6 +42,7 @@ builder.WebHost.ConfigureKestrel((hostingContext, options) =>
     }
 });
 
+
 WebApplication app = builder.Build();
 await Initialize(app);
 

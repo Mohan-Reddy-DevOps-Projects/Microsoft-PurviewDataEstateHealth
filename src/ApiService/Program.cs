@@ -82,7 +82,7 @@ public class Program
             .AddLogger(genevaConfiguration, serviceConfiguration, environmentConfiguration, builder.Environment.IsDevelopment())
             .AddApiServiceConfigurations(builder.Configuration)
             .AddApiServices()
-            .AddCoreLayer()
+            .AddCoreLayer(builder.Configuration)
             .AddDataAccessLayer()
             .AddServiceBasicsForApiService();
 

@@ -1,19 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Platforms>x64</Platforms>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.Configurations</RootNamespace>
-    <AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Configurations</AssemblyName>
+	<TargetFramework>net8.0</TargetFramework>
+	<Platforms>x64</Platforms>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<RootNamespace>Microsoft.Azure.Purview.DataEstateHealth.Configurations</RootNamespace>
+	<AssemblyName>Microsoft.Azure.Purview.DataEstateHealth.Configurations</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
-    <PackageReference Include="Microsoft.Purview.DataGovernance.DataLakeAPI" />
+	<PackageReference Include="Microsoft.Data.SqlClient" />
+	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+	<PackageReference Include="Microsoft.Purview.DataGovernance.DataLakeAPI" />
+	<PackageReference Include="Microsoft.Purview.DataGovernance.Common" />
+	<PackageReference Include="Microsoft.Purview.DataGovernance.AuditAPI" />
+	<PackageReference Include="Microsoft.Purview.DataGovernance.BillingServiceClient" />
+
     <PackageReference Include="Microsoft.Windows.Compatibility" />
     <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj" />
+	<ProjectReference Include="..\Common\Common.csproj" />
   </ItemGroup>
 </Project>

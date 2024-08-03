@@ -130,6 +130,12 @@ public interface IJobManager
     Task ProvisionBackgroundJobMonitoringJob();
 
     /// <summary>
+    /// Provisions background job for Meters to Billing
+    /// </summary>
+    /// <returns></returns>
+    Task ProvisionMetersToBillingJob();
+    
+    /// <summary>
     /// Clean resolved actions.
     /// </summary>
     /// <returns></returns>

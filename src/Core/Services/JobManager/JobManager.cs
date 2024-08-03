@@ -518,6 +518,44 @@ public class JobManager : IJobManager
         }
     }
 
+    public async Task ProvisionMetersToBillingJob()
+    {
+        string jobPartition = "PDG-METERSTOBILLING-TRIGGERED-SCHEDULE";
+        string jobId = "PDG-METERSTOBILLING-TRIGGERED";
+
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null && job.State == JobState.Faulted)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new MetersToBillingJobMetadata
+            {
+                LastPollTime = DateTime.MinValue.ToString(),
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext())
+
+            };
+
+            var repeatInterval = TimeSpan.FromMinutes(10);
+            var startTime = DateTime.UtcNow;
+
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(MetersToBillingJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = repeatInterval,
+                StartTime = startTime
+            };
+
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+        }
+    }
+
     /// <inheritdoc />
     public async Task ProvisionDEHTriggeredScheduleJob()
     {
@@ -945,6 +983,7 @@ public class JobManager : IJobManager
 
         await this.CreateJobAsync(jobBuilder);
     }
+
 }
 
 class BackgroundJobOptions

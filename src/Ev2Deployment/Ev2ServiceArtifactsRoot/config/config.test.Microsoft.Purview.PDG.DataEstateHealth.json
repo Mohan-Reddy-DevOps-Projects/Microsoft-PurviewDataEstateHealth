@@ -1,47 +1,55 @@
 {
-    "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
-    "settings": {
-        "dgh": {
-            "acrName": "$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
-            "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)wus2common",
-            "sparkPoolTableName": "SparkPool",
-            "mdqFailedJobTableName": "MDQFailedJob",
-            "jobDefinitionTableName": "jobdefinitions",
-            "triggeredScheduleQueueName": "triggeredschedule",
-            "synapseWorkspaceName": "$(dgh.serviceShortName)dogfoodsynapse",
-            "apiServiceReadinessProbePort": 8081,
-            "workerServiceReadinessProbePort": 8082,
-            "sqlAdminUserSecretName": "synapseSqlAdminUsername",
-            "sqlAdminPassSecretName": "synapseSqlAdminPassword",
-            "powerBiClientId": "f5257d9c-4ed4-459b-b9e9-61e3e755fcf4",
-            "dgFPAClientId": "24676e7f-bd4d-4ae7-8782-dd551f44c6ce",
-            "powerBiEnabled": "true",
-            "resourceGroupName": "dgh-dogfood-westus2-rg",
-            "serverlessPoolEnabled": "true",
-            "serviceShortName": "dgh",
-            "subdomainName": "df-westus2-health",
-            "synapseRegion": "eastus",
-            "useEstsr": "false",
-            "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
-            "consumerGroupName": "dg-health",
-            "eventHubs": [
-              {
-                "name": "catalogevent",
-                "messageRetentionDays": 90,
-                "partitionCount": 4
-              },
-              {
-                "name": "dataaccessevent",
-                "messageRetentionDays": 90,
-                "partitionCount": 4
-              },
-              {
-                "name": "dataqualityevent",
-                "messageRetentionDays": 90,
-                "partitionCount": 4
-              }
-            ],
-            "genevaActionSubjectName": "Microsoft.genevaActions.$(pdg.tenant.dnsZoneName)"
+  "$schema": "https://ev2schema.azure.net/schemas/2020-01-01/ConfigurationSpecification.json",
+  "settings": {
+    "dgh": {
+      "acrName": "$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
+      "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)wus2common",
+      "sparkPoolTableName": "SparkPool",
+      "mdqFailedJobTableName": "MDQFailedJob",
+      "jobDefinitionTableName": "jobdefinitions",
+      "triggeredScheduleQueueName": "triggeredschedule",
+      "synapseWorkspaceName": "$(dgh.serviceShortName)dogfoodsynapse",
+      "apiServiceReadinessProbePort": 8081,
+      "workerServiceReadinessProbePort": 8082,
+      "sqlAdminUserSecretName": "synapseSqlAdminUsername",
+      "sqlAdminPassSecretName": "synapseSqlAdminPassword",
+      "powerBiClientId": "f5257d9c-4ed4-459b-b9e9-61e3e755fcf4",
+      "dgFPAClientId": "24676e7f-bd4d-4ae7-8782-dd551f44c6ce",
+      "powerBiEnabled": "true",
+      "resourceGroupName": "dgh-dogfood-westus2-rg",
+      "serverlessPoolEnabled": "true",
+      "serviceShortName": "dgh",
+      "subdomainName": "df-westus2-health",
+      "synapseRegion": "eastus",
+      "useEstsr": "false",
+      "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
+      "consumerGroupName": "dg-health",
+      "eventHubs": [
+        {
+          "name": "catalogevent",
+          "messageRetentionDays": 90,
+          "partitionCount": 4
+        },
+        {
+          "name": "dataaccessevent",
+          "messageRetentionDays": 90,
+          "partitionCount": 4
+        },
+        {
+          "name": "dataqualityevent",
+          "messageRetentionDays": 90,
+          "partitionCount": 4
         }
+      ],
+      "genevaActionSubjectName": "Microsoft.genevaActions.$(pdg.tenant.dnsZoneName)",
+      "AuditService": {
+        "AADAuth": {
+          "Authority": "https://login.microsoftonline.com/72f988bf-86f1-41af-91ab-2d7cd011db47",
+          "ClientId": "ccd59bc3-c9aa-4676-9683-e3df1f8ee2ad",
+          "CertificateName": "client-cert"
+        },
+        "AuditEnvironment": "PPE"
+      }
     }
+  }
 }
