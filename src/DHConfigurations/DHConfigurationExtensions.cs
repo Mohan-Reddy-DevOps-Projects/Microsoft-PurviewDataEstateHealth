@@ -20,7 +20,9 @@ namespace Microsoft.Purview.DataEstateHealth.DHConfigurations
             IConfiguration configuration)
         {
             services.AddOptions()
-                .Configure<DHScheduleConfiguration>(configuration.GetSection(DHScheduleConfiguration.ConfigSectionName));
+                .Configure<DHScheduleConfiguration>(configuration.GetSection(DHScheduleConfiguration.ConfigSectionName))
+                .Configure<DHDataQualityJobManagerConfiguration>(configuration.GetSection(DHDataQualityJobManagerConfiguration.ConfigSectionName))
+                .Configure<DHFabricOnelakeConfiguration>(configuration.GetSection(DHFabricOnelakeConfiguration.ConfigSectionName));
 
             return services;
         }

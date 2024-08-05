@@ -31,5 +31,10 @@ public enum CertificateSet
     /// <summary>
     /// Control Schedule
     /// </summary>
-    DHControlSchedule
+    DHControlSchedule,
+
+    /// <summary>
+    /// DH Settings
+    /// </summary>
+    DHSettings,
 }

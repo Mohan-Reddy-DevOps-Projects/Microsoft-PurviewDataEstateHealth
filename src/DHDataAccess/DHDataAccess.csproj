@@ -15,7 +15,8 @@
 		<PackageReference Include="Azure.Identity" />
     <PackageReference Include="Azure.Storage.Queues" />
     <PackageReference Include="ConfigureAwaitChecker.Analyzer" PrivateAssets="All" />
-	</ItemGroup>
+    <PackageReference Include="Microsoft.AspNet.WebApi.Client" />
+  </ItemGroup>
 
 	<ItemGroup>
 	   <ProjectReference Include="..\Configurations\Configurations.csproj" />

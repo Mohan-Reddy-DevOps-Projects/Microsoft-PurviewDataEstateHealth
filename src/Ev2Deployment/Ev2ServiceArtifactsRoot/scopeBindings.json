@@ -77,6 +77,14 @@
         {
           "find": "__CERTS_WORKER_CLIENT_CERT_DOMAIN__",
           "replaceWith": "health-worker.$config(pdg.tenant.dnsZoneName)"
+        },
+        {
+          "find": "__CERTS_SCALA_CLIENT_CERT_NAME__",
+          "replaceWith": "scalaclient-cert"
+        },
+        {
+          "find": "__CERTS_SCALA_CLIENT_CERT_DOMAIN__",
+          "replaceWith": "health-scala.$config(pdg.tenant.dnsZoneName)"
         }
       ]
     },

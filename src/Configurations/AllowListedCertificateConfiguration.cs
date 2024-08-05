@@ -39,6 +39,11 @@ public class AllowListedCertificateConfiguration
     public List<string> AllowListedDHControlScheduleSubjectNames { get; set; }
 
     /// <summary>
+    /// Allow listed Scala service subject names.
+    /// </summary>
+    public List<string> AllowListedDHSettingsSubjectNames { get; set; }
+
+    /// <summary>
     /// Get list of allowed subject names.
     /// </summary>
     /// <param name="certificateSet">Input certificate set.</param>
@@ -56,6 +61,8 @@ public class AllowListedCertificateConfiguration
                 return this.AllowListedDataQualitySubjectNames;
             case CertificateSet.DHControlSchedule:
                 return this.AllowListedDHControlScheduleSubjectNames;
+            case CertificateSet.DHSettings:
+                return this.AllowListedDHSettingsSubjectNames;
             default:
                 throw new ServiceError(
                         ErrorCategory.ServiceError,

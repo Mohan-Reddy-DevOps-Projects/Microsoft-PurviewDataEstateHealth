@@ -49,7 +49,8 @@
           "CertificateName": "client-cert"
         },
         "AuditEnvironment": "PROD",
-      }
+      },
+      "dqmjSubjectName": "purview-dqjm-prod-$(regionName).babylon-service.azure.com"
     }
   },
   "geographies": [

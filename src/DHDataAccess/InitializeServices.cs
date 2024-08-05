@@ -16,6 +16,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DataHealthAction;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
     using Microsoft.Purview.DataEstateHealth.DHDataAccess.Schedule;
+    using Microsoft.Purview.DataEstateHealth.DHDataAccess.StorageConfig;
 
     public static class InitializeServices
     {
@@ -25,6 +26,12 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
 
             services.AddScheduleServiceHttpClient(ScheduleServiceClientFactory.HttpClientName);
             services.AddSingleton<ScheduleServiceClientFactory>();
+
+            services.AddPurviewMITokenHttpClient(PurviewMITokenClientFactory.HttpClientName);
+            services.AddSingleton<PurviewMITokenClientFactory>();
+
+            services.AddFabricOnelakeHttpClient(FabricOnelakeClientFactory.HttpClientName);
+            services.AddSingleton<FabricOnelakeClientFactory>();
 
             services.AddSingleton<CosmosClient>(serviceProvider =>
             {
@@ -74,6 +81,42 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
             };
 
             return services.AddDHCustomHttpClient<DHScheduleConfiguration>(httpClientSettings,
+                (serviceProvider, request, policy) => { });
+        }
+
+        /// <summary>
+        /// Register the http client for purview MI token http client
+        /// </summary>
+        /// <param name="services">Service collection</param>
+        /// <param name="name">The user agent for the http client</param>
+        /// <returns>Http client builder</returns>
+        public static IHttpClientBuilder AddPurviewMITokenHttpClient(this IServiceCollection services, string name)
+        {
+            HttpClientSettings httpClientSettings = new()
+            {
+                Name = name,
+                RetryCount = 3
+            };
+
+            return services.AddDHCustomHttpClient<DHDataQualityJobManagerConfiguration>(httpClientSettings,
+                (serviceProvider, request, policy) => { });
+        }
+
+        /// <summary>
+        /// Register the http client for fabric onelake http client
+        /// </summary>
+        /// <param name="services">Service collection</param>
+        /// <param name="name">The user agent for the http client</param>
+        /// <returns>Http client builder</returns>
+        public static IHttpClientBuilder AddFabricOnelakeHttpClient(this IServiceCollection services, string name)
+        {
+            HttpClientSettings httpClientSettings = new()
+            {
+                Name = name,
+                RetryCount = 1
+            };
+
+            return services.AddDHCustomHttpClient<DHFabricOnelakeConfiguration>(httpClientSettings,
                 (serviceProvider, request, policy) => { });
         }
     }
