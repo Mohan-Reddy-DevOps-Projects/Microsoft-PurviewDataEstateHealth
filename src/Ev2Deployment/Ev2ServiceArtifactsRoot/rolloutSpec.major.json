@@ -50,6 +50,7 @@
         "Extension/CreateOneCertV2PrivateIssuer",
         "Extension/CreateCertificate-Client",
         "Extension/CreateCertificate-WorkerClient",
+        "Extension/CreateCertificate-ScalaClient",
         "Extension/CreateCertificate-ArtifactStore",
         "Extension/ManageSynapseRBAC-add"
       ],
