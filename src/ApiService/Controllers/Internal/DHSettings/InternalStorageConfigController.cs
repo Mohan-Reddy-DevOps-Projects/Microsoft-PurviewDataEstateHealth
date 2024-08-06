@@ -1,9 +1,11 @@
 ﻿#nullable enable
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Internal.DHSettings;
 
+using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
+using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
@@ -11,6 +13,7 @@ using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Newtonsoft.Json.Linq;
 
 [ApiController]
+[ApiVersion(ServiceVersion.LabelV2)]
 [CertificateConfig(CertificateSet.DHSettings)]
 [Authorize(AuthenticationSchemes = "Certificate")]
 [Route("/internal/settings")]
