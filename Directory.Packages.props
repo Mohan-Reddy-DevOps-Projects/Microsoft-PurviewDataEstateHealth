@@ -46,7 +46,7 @@
     <PackageVersion Include="Microsoft.Purview.DataGovernance.Common" Version="1.0.18" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.DataLakeAPI" Version="1.0.15" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.DeltaWriter" Version="1.0.4" />
-    <PackageVersion Include="Microsoft.Purview.DataGovernance.Reporting" Version="1.0.12" />
+    <PackageVersion Include="Microsoft.Purview.DataGovernance.Reporting" Version="1.0.8" />
     <PackageVersion Include="OpenTelemetry.Audit.Geneva" Version="2.2.3" />
     <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.9.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
@@ -67,7 +67,7 @@
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Identity.Client" Version="4.62.0" />
     <PackageVersion Include="Microsoft.Identity.ServerAuthorization" Version="4.7.1" />
-    <PackageVersion Include="Microsoft.PowerBI.Api" Version="4.20.0" />
+    <PackageVersion Include="Microsoft.PowerBI.Api" Version="4.18.0" />
     <PackageVersion Include="Microsoft.Rest.ClientRuntime" Version="2.3.200" />
     <PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
     <PackageVersion Include="Microsoft.WindowsAzure.ResourceStack" Version="6.0.0.1318" />
