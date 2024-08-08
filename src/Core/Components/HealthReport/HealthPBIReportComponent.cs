@@ -38,7 +38,7 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
         Dataset sharedDataset = await this.CreateDataset(profileId, workspaceId, sharedDatasetRequest, cancellationToken);
         await this.CreateReport(sharedDataset, reportRequest, cancellationToken);
     }
-    
+
     public async Task CreateDataQualityReport(AccountServiceModel account, Guid profileId, Guid workspaceId, PowerBICredential powerBICredential, CancellationToken cancellationToken, bool update = false)
     {
         IDatasetRequest reportRequest = this.GetDataQualityReportRequest(profileId, workspaceId, powerBICredential);
@@ -51,6 +51,19 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
     {
         Datasets datasets = await this.datasetCommand.List(sharedDatasetRequest, cancellationToken);
         Dataset sharedDataset = datasets.Value.FirstOrDefault(d => d.Name == sharedDatasetRequest.DatasetName);
+        List<Dataset> allDatasettype = datasets.Value.Where(item => item.Name == sharedDatasetRequest.DatasetName).ToList();
+
+        if (allDatasettype != null)
+        {
+            if (allDatasettype.Count != 1)
+            {
+                update = true;
+                foreach (var item in allDatasettype)
+                {
+                    await this.datasetCommand.Delete(profileId, workspaceId, Guid.Parse(item.Id), cancellationToken);
+                }
+            }
+        }
 
         try
         {
@@ -81,6 +94,19 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
     public async Task<Report> CreateReport(Dataset sharedDataset, IDatasetRequest reportRequest, CancellationToken cancellationToken, bool upgrade = false)
     {
         Reports existingReports = await this.reportCommand.List(reportRequest.ProfileId, reportRequest.WorkspaceId, cancellationToken);
+        List<Report> allDatasettype = existingReports.Value.Where(item => item.Name == reportRequest.DatasetName).ToList();
+        if (allDatasettype != null)
+        {
+            if (allDatasettype.Count != 1)
+            {
+                upgrade = true;
+                foreach (var item in allDatasettype)
+                {
+                    await this.reportCommand.Delete(reportRequest.ProfileId, reportRequest.WorkspaceId, item.Id, cancellationToken);
+                }
+            }
+        }
+
         if (upgrade || !existingReports.Value.Any(r => r.Name == reportRequest.DatasetName))
         {
             return await this.reportCommand.Bind(sharedDataset, reportRequest, cancellationToken);
