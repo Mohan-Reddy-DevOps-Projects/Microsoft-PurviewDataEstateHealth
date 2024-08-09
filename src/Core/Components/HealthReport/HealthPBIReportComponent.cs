@@ -43,15 +43,34 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
     {
         IDatasetRequest reportRequest = this.GetDataQualityReportRequest(profileId, workspaceId, powerBICredential);
         IDatasetRequest sharedDatasetRequest = this.GetDataQualityDatasetRequest(account, profileId, workspaceId, powerBICredential);
+        await this.DeleteOldDatasets(profileId, workspaceId, sharedDatasetRequest, "Data quality", cancellationToken);
         Dataset sharedDataset = await this.CreateDataset(profileId, workspaceId, sharedDatasetRequest, cancellationToken);
+        await this.DeleteOldReports(sharedDataset, reportRequest, "Data quality", cancellationToken);
         await this.CreateReport(sharedDataset, reportRequest, cancellationToken);
     }
+
+    public async Task<bool> DeleteOldDatasets(Guid profileId, Guid workspaceId, IDatasetRequest sharedDatasetRequest, string dataSetName, CancellationToken cancellationToken, bool update = false)
+    {
+        Datasets datasets = await this.datasetCommand.List(sharedDatasetRequest, cancellationToken);
+        List<Dataset> allDatasettype = datasets.Value.Where(item => item.Name.ToLowerInvariant() == dataSetName.ToLowerInvariant()).ToList();
+
+        if (allDatasettype != null)
+        {
+
+            foreach (var item in allDatasettype)
+            {
+                await this.datasetCommand.Delete(profileId, workspaceId, Guid.Parse(item.Id), cancellationToken);
+            }
+        }
+        return true;
+    }
+
 
     public async Task<Dataset> CreateDataset(Guid profileId, Guid workspaceId, IDatasetRequest sharedDatasetRequest, CancellationToken cancellationToken, bool update = false)
     {
         Datasets datasets = await this.datasetCommand.List(sharedDatasetRequest, cancellationToken);
         Dataset sharedDataset = datasets.Value.FirstOrDefault(d => d.Name == sharedDatasetRequest.DatasetName);
-        List<Dataset> allDatasettype = datasets.Value.Where(item => item.Name == sharedDatasetRequest.DatasetName).ToList();
+        List<Dataset> allDatasettype = datasets.Value.Where(item => item.Name.ToLowerInvariant() == sharedDatasetRequest.DatasetName.ToLowerInvariant()).ToList();
 
         if (allDatasettype != null)
         {
@@ -91,10 +110,27 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
         return sharedDataset;
     }
 
+
+
+    public async Task<bool> DeleteOldReports(Dataset sharedDataset, IDatasetRequest reportRequest, string reportName, CancellationToken cancellationToken, bool upgrade = false)
+    {
+        Reports existingReports = await this.reportCommand.List(reportRequest.ProfileId, reportRequest.WorkspaceId, cancellationToken);
+        List<Report> allDatasettype = existingReports.Value.Where(item => item.Name.ToLowerInvariant() == reportName.ToLowerInvariant()).ToList();
+        if (allDatasettype != null)
+        {
+            foreach (var item in allDatasettype)
+            {
+                await this.reportCommand.Delete(reportRequest.ProfileId, reportRequest.WorkspaceId, item.Id, cancellationToken);
+            }
+        }
+
+        return true;
+    }
+
     public async Task<Report> CreateReport(Dataset sharedDataset, IDatasetRequest reportRequest, CancellationToken cancellationToken, bool upgrade = false)
     {
         Reports existingReports = await this.reportCommand.List(reportRequest.ProfileId, reportRequest.WorkspaceId, cancellationToken);
-        List<Report> allDatasettype = existingReports.Value.Where(item => item.Name == reportRequest.DatasetName).ToList();
+        List<Report> allDatasettype = existingReports.Value.Where(item => item.Name.ToLowerInvariant() == reportRequest.DatasetName.ToLowerInvariant()).ToList();
         if (allDatasettype != null)
         {
             if (allDatasettype.Count != 1)
