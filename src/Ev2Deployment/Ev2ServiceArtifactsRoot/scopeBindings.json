@@ -116,6 +116,15 @@
           "replaceWith": "$config(pdg.regionSharedInfrastructure.vnet.name)"
         },
         {
+          "find": "__CORE_SHARED_EVENT_HUB_NAMESPACE_ALIAS__",
+          //"replaceWith": "$config(pdg.regionSharedInfrastructure.eventHub.name)-gr"
+          "replaceWith": "$config(pdg.regionSharedInfrastructure.eventHub.alias)"
+        },
+        {
+          "find": "__CORE_SHARED_CATALOGEVENT_HUB_NAMESPACE_NAME__",
+          "replaceWith": "$config(pdg.firstparty.catalog.eventHubNamespaceName)"
+        },
+        {
           "find": "__CORE_SHARED_EVENT_HUB_NAMESPACE_NAME__",
           "replaceWith": "$config(pdg.regionSharedInfrastructure.eventHub.name)"
         },
@@ -175,6 +184,10 @@
         {
           "find": "__INFRA_RESOURCE_GROUP_NAME__",
           "replaceWith": "$config(dgh.resourceGroupName)"
+        },
+        {
+          "find": "\"__INFRA_PROCESSING_STORAGE_SUBSCRIPTIONS__\"",
+          "replaceWith": "$config(pdg.regionSharedInfrastructure.sharedSubscriptions.storage)"
         },
         {
           "find": "__INFRA_SUBSCRIPTION_ID__",
@@ -249,6 +262,14 @@
           "replaceWith": "$config(pdg.regionSharedInfrastructure.cosmos.accountName)"
         },
         {
+          "find": "__INFRA_SHARED_KEYVAULT_NAME__",
+          "replaceWith": "$config(pdg.regionSharedInfrastructure.keyVaultName)"
+        },
+        {
+          "find": "__INFRA_STREAMANALYTICS_ACCOUNT_NAME__",
+          "replaceWith": "streamAnalyticsDFtest"
+        },
+        {
           "find": "\"__INFRA_EVENT_HUBS__\"",
           "replaceWith": "$config(dgh.eventHubs)"
         },
@@ -289,6 +310,23 @@
         {
           "find": "__PROCESSING_STORAGE_SUBSCRIPTIONID__",
           "replaceWith": "$subscriptionId()"
+        }
+      ]
+    },
+    {
+      "scopeTagName": "streamAnalyticsSetup",
+      "bindings": [
+        {
+          "find": "__SASETUP_STREAM_ANALYS_PREFIX_NAME__",
+          "replaceWith": "$config(dgh.streamAnalyticsPrefixname)"
+        },
+        {
+          "find": "__SASETUP_DEH_COSMOSDB_DBNAME_NAME__",
+          "replaceWith": "$config(dgh.analytics.dehCosmosDBDatabaseName)"
+        },
+        {
+          "find": "__SASETUP_ASA_APP_IDENTITY_NAME__",
+          "replaceWith": "$config(dgh.analytics.dehAppIdentityName)"
         }
       ]
     }

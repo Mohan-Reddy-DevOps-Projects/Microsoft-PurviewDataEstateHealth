@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "streamAnalyticsPrefixName": {
+      "value": "__SASETUP_STREAM_ANALYS_PREFIX_NAME__"
+    },
+    "sharedCatalogEventHubNamespaceName": {
+      "value": "__CATALOG_EVENT_HUB_NAMESPACE_NAME__"
+    },
+    "catalogResourceGroupName": {
+      "value": "__CATALOG_RESOURCE_GROUP_NAME__"
+    },
+    "catalogSubscriptionId": {
+      "value": "__CATALOG_SUBSCRIPTION_ID__"
+    },
+    "sharedEventHubNamespaceAlias": {
+      "value": "__CORE_SHARED_EVENT_HUB_NAMESPACE_ALIAS__"
+    },
+    "containerAppIdentityName": {
+      "value": "__INFRA_CONTAINER_APP_IDENTITY_NAME__"
+    },
+    "dehAppIdentityName": {
+      "value": "__SASETUP_ASA_APP_IDENTITY_NAME__"
+    },
+    "cosmosAccountName": {
+      "value": "__INFRA_COSMOS_ACCOUNT_NAME__"
+    },
+    "dghResourceGroupName": {
+      "value": "__INFRA_RESOURCE_GROUP_NAME__"
+    },
+    "dehCosmosDBDatabaseName": {
+      "value": "__SASETUP_DEH_COSMOSDB_DBNAME_NAME__"
+    },
+    "keyVaultName": {
+      "value": "__INFRA_KEY_VAULT_NAME__"
+    },
+    "coreResourceGroupName": {
+      "value": "__CORE_RESOURCE_GROUP_NAME__"
+    }
+  }
+}

@@ -5,6 +5,11 @@ steps:
   parameters:
     folderToScan: $(Build.SourcesDirectory)/src/
 
+
+- script: sudo yum install -y maven
+  displayName: 'Install Maven'
+  condition: eq(variables['Agent.OS'], 'Linux')
+
 - task: ArchiveFiles@2
   displayName: "Archive Power BI files"
   inputs:
@@ -13,5 +18,63 @@ steps:
     archiveType: "tar"
     tarCompression: none
     archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/powerbi.tar'
+    replaceExistingArchive: true
+    verbose: true
+
+- task: DownloadSecureFile@1
+  displayName: 'Download secure settings.xml'
+  inputs:
+    secureFile: settings.xml
+
+- task: Maven@3
+  displayName: Maven DomainModel/pom.xml
+  inputs:
+    mavenPOMFile: src/DataDomain/DomainModel/pom.xml
+    options: '-X -B -s $(Agent.TempDirectory)/settings.xml'
+
+- task: Maven@3
+  displayName: Maven DEHFabricSync/pom.xml
+  inputs:
+    mavenPOMFile: src/DataDomain/DEHFabricSync/pom.xml
+    options: '-X -B -s $(Agent.TempDirectory)/settings.xml'
+
+- task: Maven@3
+  displayName: Maven DimensionalModel/pom.xml
+  inputs:
+    mavenPOMFile: src/DataDomain/DimensionalModel/pom.xml
+    options: '-X -B -s $(Agent.TempDirectory)/settings.xml'
+
+
+- task: ArchiveFiles@2
+  displayName: "Archive Domain Model Jar"
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DataDomain/DomainModel/target/dataestatehealthanalytics-domainmodel-azure-purview-1.1-jar.jar'
+    includeRootFolder: true
+    archiveType: "tar"
+    tarCompression: none
+    archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/domainmodel.tar'
+    replaceExistingArchive: true
+    verbose: true
+    
+- task: ArchiveFiles@2
+  displayName: "Archive dehfabricsync Jar"
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DataDomain/DEHFabricSync/target/dataestatehealthanalytics-dehfabricsync-azure-purview-1.0-jar.jar'
+    includeRootFolder: true
+    archiveType: "tar"
+    tarCompression: none
+    archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/dehfabricsync.tar'
+    replaceExistingArchive: true
+    verbose: true
+
+
+- task: ArchiveFiles@2
+  displayName: "Archive dimensionalmodel Jar"
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DataDomain/DimensionalModel/target/dataestatehealthanalytics-dimensionalmodel-azure-purview-1.1-jar.jar'
+    includeRootFolder: true
+    archiveType: "tar"
+    tarCompression: none
+    archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/dimensionalmodel.tar'
     replaceExistingArchive: true
     verbose: true

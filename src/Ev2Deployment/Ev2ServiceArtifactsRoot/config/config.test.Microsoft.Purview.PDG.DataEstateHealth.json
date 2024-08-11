@@ -4,6 +4,7 @@
     "dgh": {
       "acrName": "$(pdg.groupName)dghacr$(pdg.environment.shortName)$(regionShortName)",
       "commonStorageAccountName": "$(dgh.serviceShortName)$(pdg.environment.name)wus2common",
+      "streamAnalyticsPrefixname": "$(dgh.serviceShortName)$(pdg.environment.name)$(regionShortName)-asa",
       "sparkPoolTableName": "SparkPool",
       "mdqFailedJobTableName": "MDQFailedJob",
       "jobDefinitionTableName": "jobdefinitions",
@@ -23,6 +24,10 @@
       "synapseRegion": "eastus",
       "useEstsr": "false",
       "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
+      "analytics": {
+        "dehCosmosDBDatabaseName": "dgh-DataEstateHealth",
+        "dehAppIdentityName": "$(dgh.serviceShortName)$(pdg.environment.name)$(regionShortName)-asa-identity"
+      },
       "consumerGroupName": "dg-health",
       "eventHubs": [
         {

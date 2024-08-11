@@ -4,6 +4,7 @@
     "dgh": {
       "powerBiClientId": "28456abb-1abf-47c1-abc3-acb68b96484e",
       "dgFPAClientId": "6afef871-d95c-4232-91b2-62e704ccaafa",
+      "streamAnalyticsPrefixname": "$(dgh.serviceShortName)$(pdg.environment.name)$(regionShortName)-asa",
       "powerBiEnabled": "true",
       "resourceGroupName": "dgh-prod-$(regionName)-rg",
       "serverlessPoolEnabled": "true",
@@ -24,6 +25,11 @@
       "sqlAdminPassSecretName": "synapseSqlAdminPassword",
       "scheduleSubjectName": "dgschedule-client-$(pdg.environment.shortName)-$(regionShortName).$(pdg.tenant.dnsZoneName)",
       "consumerGroupName": "dg-health",
+      "dataQualityServiceEndpoint": "purview-dqservice-$(pdg.environment.shortName)-$(pdg.firstParty.purviewShortRegion).babylon-service.azure.com",
+      "analytics": {
+        "dehCosmosDBDatabaseName": "dgh-DataEstateHealth",
+        "dehAppIdentityName": "$(dgh.serviceShortName)$(pdg.environment.name)$(regionShortName)-asa-identity"
+      },
       "eventHubs": [
         {
           "name": "catalogevent",
@@ -48,7 +54,7 @@
           "ClientId": "73c2949e-da2d-457a-9607-fcc665198967",
           "CertificateName": "client-cert"
         },
-        "AuditEnvironment": "PROD",
+        "AuditEnvironment": "PROD"
       },
       "dqmjSubjectName": "purview-dqjm-prod-$(regionName).babylon-service.azure.com"
     }

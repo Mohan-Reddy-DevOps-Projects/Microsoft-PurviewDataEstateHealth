@@ -1,6 +1,7 @@
 param cosmosAccountName string
 param containerAppIdentityName string
 param dghResourceGroupName string
+param sharedKeyVaultName string
 
 resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
   name: containerAppIdentityName
@@ -10,6 +11,7 @@ resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
 var controlDatabaseName = 'dgh-Control'
 var actionDatabaseName = 'dgh-Action'
 var settingsDatabaseName = 'dgh-Settings'
+var dehDatabaseName = 'dgh-DataEstateHealth'
 // Contributor role assignment
 // Document: https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/tutorial-vm-managed-identities-cosmos?tabs=azure-resource-manager#grant-access
 var contributorRoleDefName = '00000000-0000-0000-0000-000000000002'
@@ -53,13 +55,45 @@ module settingsCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep
   ]
 }
 
+
+module dehCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep' = {
+  name: 'dehCosmosContributorRoleAssignmentModule'
+  params: {
+    accountName: cosmosAccountName
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: contributorRoleDefName
+    databaseName: dehDatabaseName
+  }
+  dependsOn: [
+    controlCosmosDatabaseDataEstateHealth
+  ]
+}
+
+
 // Databases and containers
 module controlCosmosDatabaseDHControl 'cosmosDatabase.bicep' = {
   name: 'controlCosmosDatabaseDHControl'
   params: {
     accountName: cosmosAccountName
     databaseName: 'dgh-Control'
+    partitionid: '/TenantId'
+    containerAppIdentityName :  containerAppIdentityName
     containerNames: ['DHControl', 'DHSchedule', 'DHControlStatusPalette', 'DHAssessment', 'DHComputingJob', 'DHAlert']
+    containerdehNames: []    
+  }
+}
+
+
+// Databases and containers
+module controlCosmosDatabaseDataEstateHealth 'cosmosDatabase.bicep' = {
+  name: 'controlCosmosDatabaseDataEstateHealth'
+  params: {
+    accountName: cosmosAccountName
+    databaseName: dehDatabaseName // 'dgh-DataEstateHealth'
+    partitionid: '/accountId'
+    containerAppIdentityName :  containerAppIdentityName
+    containerdehNames: ['businessdomain', 'dataasset', 'dataproduct', 'dataqualityfact', 'datasubscription', 'policyset','relationship','term', 'dehsentinel','provisionevent','dataassetwithlineage', 'dcatalogall', 'cde']
+    containerNames: []    
   }
 }
 
@@ -69,7 +103,10 @@ module cosmosDatabaseDHControlScoreContainer 'cosmosDatabase.bicep' = {
     accountName: cosmosAccountName
     databaseName: 'dgh-Control'
     containerNames: ['DHScore']
+    partitionid: '/TenantId'
     throughput: 40000
+    containerAppIdentityName :  containerAppIdentityName
+    containerdehNames: []
   }
 }
 
@@ -78,15 +115,22 @@ module cosmosDatabaseDHAction 'cosmosDatabase.bicep' = {
   params: {
     accountName: cosmosAccountName
     databaseName: 'dgh-Action'
+    partitionid: '/TenantId'
     containerNames: ['DHAction']
+    containerAppIdentityName :  containerAppIdentityName
+    containerdehNames: []
   }
 }
+
 
 module cosmosDatabaseDHSettings 'cosmosDatabase.bicep' = {
   name: 'cosmosDatabaDHseSettings'
   params: {
     accountName: cosmosAccountName
     databaseName: 'dgh-Settings'
+    partitionid: '/TenantId'
     containerNames: ['DHStorageConfig']
+    containerAppIdentityName :  containerAppIdentityName
+    containerdehNames: []
   }
 }

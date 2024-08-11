@@ -7,6 +7,8 @@ parameters:
   - major
   - minor
   - powerBi
+  - dataDomain
+
 
 - name: 'debug'
   displayName: 'Enable debug output'
@@ -55,3 +57,12 @@ extends:
           serviceRootPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot
           pdgEnvironment: Dogfood
           alias: 'DataEstateHealthPowerBI'
+    - ${{ if eq(parameters['deployType'],'dataDomain')}}:
+      - template: v1/stages/Pdg.Release.Base.yml@pdgTemplates
+        parameters:
+          ob_release_environment: Test
+          regions: '*'
+          rolloutSpecPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot/rolloutSpec.dataDomain.major.json
+          serviceRootPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot
+          pdgEnvironment: Dogfood
+          alias: 'DataEstateHealthDataDomain'

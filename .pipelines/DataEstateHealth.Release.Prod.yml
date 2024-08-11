@@ -7,6 +7,8 @@ parameters:
   - major
   - minor
   - powerBi
+  - dataDomain
+
 
 - name: productionRegions
   type: string
@@ -84,3 +86,12 @@ extends:
           alias: 'DataEstateHealthPowerBI'
           ${{ if or(eq(parameters['expediteRollout'],'true'),eq(parameters['globalOutageRollout'],'true')) }}:
             isEnvApprovalExempt: true
+    - ${{ if eq(parameters['deployType'],'dataDomain')}}:
+      - template: v1/stages/Pdg.Release.Base.yml@pdgTemplates
+        parameters:
+          ob_release_environment: Production
+          regions: ${{ parameters.productionRegions }}
+          rolloutSpecPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot/rolloutSpec.dataDomain.major.json
+          serviceRootPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot
+          pdgEnvironment: prod
+          alias: 'DataEstateHealthDataDomain'

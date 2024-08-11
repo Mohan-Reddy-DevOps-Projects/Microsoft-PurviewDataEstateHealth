@@ -39,5 +39,20 @@
   <ItemGroup>
     <Bicep Include="templates/bicep/*.bicep" OutputFile="$(ServiceGroupRootDropPath)/templates/%(FileName).json" />
   </ItemGroup>
+  <ItemGroup>
+    <FilesToCopy Remove="Ev2ServiceArtifactsRoot\parameters\rolloutSpec.dataDomain.major.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Ev2ServiceArtifactsRoot\parameters\rolloutSpec.dataDomain.major.json" />
+    <None Remove="templates\bicep\streamAnalyticsAccount.bicep" />
+    <None Remove="templates\bicep\streamAnalyticsEventHubConsumerGroup.bicep" />
+    <None Remove="templates\bicep\streamAnalyticsRoleAssignment.bicep" />
+    <None Remove="templates\bicep\streamAnalyticsSetup.bicep" />
+    <None Remove="templates\bicep\streamCopyCosmosDBkeytoKV.bicep" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Ev2ServiceArtifactsRoot\rolloutSpec.dataDomain.major.json" />
+  </ItemGroup>
+  <ProjectExtensions><VisualStudio><UserProperties ev2serviceartifactsroot_4rolloutspec_1major_1json__JsonSchema="https://geojson.org/schema/GeoJSON.json" /></VisualStudio></ProjectExtensions>
 	
 </Project>

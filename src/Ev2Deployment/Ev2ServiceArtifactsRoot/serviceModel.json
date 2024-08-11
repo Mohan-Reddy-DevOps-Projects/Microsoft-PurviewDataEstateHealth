@@ -167,6 +167,31 @@
           ]
         },
         {
+          "name": "dataDomainFilesResourceDefintion",
+          "composedOf": {
+            "extension": {
+              "rolloutParametersPath": "Parameters\\deployDataDomain.rollout.parameters.json",
+              "shell": [
+                {
+                  "type": "Run",
+                  "properties": {
+                    "imageName": "adm-mariner-20-l",
+                    "imageVersion": "v6"
+                  }
+                }
+              ]
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "Infrastructure"
+            },
+            {
+              "name": "Core"
+            }
+          ]
+        },
+        {
           "name": "powerBIFilesResourceDefintion",
           "composedOf": {
             "extension": {
@@ -188,6 +213,40 @@
             },
             {
               "name": "Core"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "streamAnalyticsResourceGroupDefinition",
+      "azureResourceGroupName": "$config(dgh.resourceGroupName)",
+      "subscriptionKey": "$config(pdg.regionSharedInfrastructure.subscriptionKeys.core)",
+      "serviceResourceDefinitions": [
+        {
+          "name": "streamAnalyticsSetupResourceDefinition",
+          "composedOf": {
+            "arm": {
+              "templatePath": "Templates\\streamAnalyticsSetup.json",
+              "parametersPath": "Parameters\\streamAnalyticsSetup.parameters.json",
+              "deploymentLevel": "ResourceGroup"
+            },
+            "extension": {
+              "rolloutParametersPath": "Parameters\\wait.rollout.parameters.json"
+            }
+          },
+          "scopeTags": [
+            {
+              "name": "Infrastructure"
+            },
+            {
+              "name": "streamAnalyticsSetup"
+            },
+            {
+              "name": "Core"
+            },
+            {
+              "name": "Catalog"
             }
           ]
         }
@@ -261,8 +320,8 @@
               "deploymentLevel": "Subscription",
               "templatePath": "Templates\\processingStorageRoleAssignments.json",
               "parametersPath": "Parameters\\processingStorageRoleAssignments.Parameters.json",
-              "fallbackLocations": ["eastus"]
-          },
+              "fallbackLocations": [ "eastus" ]
+            },
             "extension": {
               "rolloutParametersPath": "Parameters\\wait.rollout.parameters.json"
             }

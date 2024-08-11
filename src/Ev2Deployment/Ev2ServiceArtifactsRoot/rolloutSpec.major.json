@@ -36,11 +36,11 @@
       "name": "deployProcessingStorage",
       "targetType": "ServiceResourceDefinition",
       "targetName": "processingStorageResourceDefinition",
-      "actions": ["deploy"]
+      "actions": [ "deploy" ]
     },
     {
       "name": "deployInfrastructure",
-      "dependsOn": ["deployProcessingStorage"],
+      "dependsOn": [ "deployProcessingStorage" ],
       "targetType": "ServiceResourceDefinition",
       "targetName": "infrastructureResourceDefinition",
       "actions": [
@@ -57,66 +57,79 @@
       "onFailure": {
         "continue": {
           "conditions": {
-            "errorsContainAny": ["RoleAssignmentAlreadyExists"]
+            "errorsContainAny": [ "RoleAssignmentAlreadyExists" ]
           }
         }
       }
     },
     {
       "name": "deployProcessingStorageRoleAssignments",
-      "dependsOn": ["deployInfrastructure"],
+      "dependsOn": [ "deployInfrastructure" ],
       "targetType": "ServiceResourceDefinition",
       "targetName": "processingStorageRoleAssignmentResourceDefinition",
-      "actions": ["deploy"]
+      "actions": [ "deploy" ]
     },
     {
       "name": "deployPowerBIFiles",
-      "dependsOn": ["deployInfrastructure"],
+      "dependsOn": [ "deployInfrastructure" ],
       "targetType": "ServiceResourceDefinition",
       "targetName": "powerBIFilesResourceDefintion",
-      "actions": ["wait/skip"]
+      "actions": [ "wait/skip" ]
     },
     {
       "name": "setupCosmosStorage",
-      "dependsOn": ["deployInfrastructure"],
+      "dependsOn": [ "deployInfrastructure" ],
       "targetType": "ServiceResourceDefinition",
       "targetName": "cosmosStorageSetupResourceDefinition",
-      "actions": ["deploy"]
+      "actions": [ "deploy" ]
+    },
+    {
+      "name": "setupStreamAnalytics",
+      "dependsOn": [ "deployInfrastructure" ],
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "streamAnalyticsSetupResourceDefinition",
+      "actions": [ "wait/skip" ]
+    },
+    {
+      "name": "deployDataDomainFiles",
+      "targetType": "ServiceResourceDefinition",
+      "targetName": "dataDomainFilesResourceDefintion",
+      "actions": [ "wait/skip" ]
     },
     {
       "name": "pushApiServiceImage",
-      "dependsOn": ["deployInfrastructure"],
+      "dependsOn": [ "deployInfrastructure" ],
       "targetType": "ServiceResourceDefinition",
       "targetName": "apiServiceImageResourceDefinition",
-      "actions": ["Shell/Run"]
+      "actions": [ "Shell/Run" ]
     },
     {
       "name": "pushWorkerServiceImage",
-      "dependsOn": ["deployInfrastructure"],
+      "dependsOn": [ "deployInfrastructure" ],
       "targetType": "ServiceResourceDefinition",
       "targetName": "workerServiceImageResourceDefinition",
-      "actions": ["Shell/Run"]
+      "actions": [ "Shell/Run" ]
     },
     {
       "name": "addDnsRecords",
-      "dependsOn": ["pushApiServiceImage"],
+      "dependsOn": [ "pushApiServiceImage" ],
       "targetType": "ServiceResourceDefinition",
       "targetName": "apiServiceContainerAppDnsRecordsResourceDefinition",
-      "actions": ["deploy"]
+      "actions": [ "deploy" ]
     },
     {
       "name": "deployApiService",
-      "dependsOn": ["addDnsRecords", "pushWorkerServiceImage", "setupCosmosStorage"],
+      "dependsOn": [ "addDnsRecords", "pushWorkerServiceImage", "setupCosmosStorage" ],
       "targetType": "ServiceResourceDefinition",
       "targetName": "apiServiceContainerAppResourceDefinition",
-      "actions": ["deploy"]
+      "actions": [ "deploy" ]
     },
     {
       "name": "deployWorkerService",
-      "dependsOn": ["addDnsRecords", "pushWorkerServiceImage"],
+      "dependsOn": [ "addDnsRecords", "pushWorkerServiceImage" ],
       "targetType": "ServiceResourceDefinition",
       "targetName": "workerServiceContainerAppResourceDefinition",
-      "actions": ["deploy"]
+      "actions": [ "deploy" ]
     }
   ]
 }
