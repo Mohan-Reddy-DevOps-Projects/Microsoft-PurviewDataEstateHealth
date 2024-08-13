@@ -3,7 +3,6 @@ let StartTime = datetime(2024-07-22 11:10:00);
 let EndTime = datetime(2024-07-24 12:10:00);
 // GET JOB IN THE INTERVAL
 let JobsInInterval = DQ_Job_Logs_CL
-| where TimeGenerated >= StartTime and TimeGenerated <= EndTime
 | project JobId_g, JobStatus_s;
 // JOIN WITH JOB DETAILS AND GET OTHER DETAILS
 let jobDetails = DQ_Spark_Logs_CL
@@ -62,7 +61,7 @@ let jobDetailsWithTimes = jobDetails
     DMSScope,
     DMSJobSubType;
 // Step 5: Join with processingUnitsMapping to get ProcessingUnits based on JobDurationMinutes
-jobDetailsWithTimes
+let billingEvents = jobDetailsWithTimes
 | extend RawProcessingUnits = round(todecimal(iff(JobDurationModuloMin == 0, 1, JobDurationModuloMin))/60,2) + JobDurationModuloHours // Base calculation
 | extend
     ProcessingUnits = RawProcessingUnits
@@ -84,3 +83,12 @@ jobDetailsWithTimes
     JobEndTime,
     DMSScope,
     DMSJobSubType;
+    
+//
+// Select everything that has not been signaled by CBS as Succeeded (ACKed)
+//
+billingEvents
+| join kind=leftouter ( CBSBillingReceipts_CL 
+                        | where Status_s == 'Succeeded'
+                        | project TimeGenerated, EventId_g, Status_s ) on $left.JobId == $right.EventId_g
+| where Status_s <> 'Succeeded'
