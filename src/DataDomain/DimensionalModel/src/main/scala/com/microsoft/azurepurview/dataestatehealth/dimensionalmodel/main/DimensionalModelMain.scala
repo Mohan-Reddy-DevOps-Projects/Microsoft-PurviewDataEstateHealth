@@ -1,5 +1,6 @@
 package com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.main
-import com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.common.CommandLineParser
+
+import com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.common.{CommandLineParser, LogAnalyticsLogger}
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
@@ -26,14 +27,17 @@ object DimensionalModelMain {
     val parser = new CommandLineParser()
     parser.parse(args) match {
       case Some(config) =>
+        logger.setLevel(Level.INFO)
+        logger.info("Started the DimensionalModel Main Spark Application!")
+
+        val spark = SparkSession.builder
+          .appName("DimensionalModelMainSparkApplication")
+          .getOrCreate()
         try {
           println("In DimensionalModel Main Spark Application!")
-          logger.setLevel(Level.INFO)
-          logger.info("Started the DimensionalModel Main Spark Application!")
 
-          val spark = SparkSession.builder
-            .appName("DimensionalModelMainSparkApplication")
-            .getOrCreate()
+
+          spark.conf.set("spark.cosmos.accountKey",mssparkutils.credentials.getSecret(spark.conf.get("spark.keyvault.name"), spark.conf.get("spark.analyticalcosmos.keyname")))
 
           println(
             s"""Received parameters:
@@ -42,16 +46,27 @@ object DimensionalModelMain {
                |Account ID - ${config.AccountId},
                |Unique JobRunGuid (CorrelationId) - ${config.JobRunGuid}""".stripMargin)
 
+          // Initialize LogAnalyticsConfig with Spark session
+          LogAnalyticsLogger.initialize(spark)
+          LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid
+            , jobStatus = "Started")
+
           // Processing DimDate Delta Table
           com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.dimension.DimMain.main(config.AdlsTargetDirectory,config.ReProcessingThresholdInMins,config.AccountId,config.JobRunGuid,spark)
           com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.fact.FactMain.main(config.AdlsTargetDirectory,config.ReProcessingThresholdInMins,config.AccountId,config.JobRunGuid,spark)
 
-          spark.stop()
-        } catch {
-          case e: Exception =>
-            println(s"Error In DimensionalModel Main Spark Application!: ${e.getMessage}")
-            logger.error(s"Error In DimensionalModel Main Spark Application!: ${e.getMessage}")
-            throw new IllegalArgumentException(s"Error In DimensionalModel Main Spark Application!: ${e.getMessage}")
+        }
+        catch {
+          case e =>
+            logger.error(s"Error in DomainModel Main Spark Application: ${e.getMessage}", e)
+            throw e // Re-throw the exception to ensure the job failure is reported correctly
+        } finally {
+          LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
+            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed")
+          if (spark != null) {
+            Thread.sleep(10000)
+            spark.stop()
+          }
         }
       case None =>
         println("Failed to parse command line arguments.")

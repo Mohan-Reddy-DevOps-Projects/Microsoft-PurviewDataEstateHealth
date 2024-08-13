@@ -90,7 +90,8 @@ class Maintenance (spark: SparkSession, logger:Logger) {
          ))
      val dfSentinel = spark.createDataFrame(spark.sparkContext.parallelize(data),schema=sentinelSchema)
      val reader = new Reader(spark,logger)
-     reader.writeCosmosData(dfSentinel,Entity)
+     //reader.writeCosmosData(dfSentinel,Entity)
+     reader.writeToLogAnalyticsAsync(dfSentinel,Entity,"DEH_Spark_Logs")
      println(s"checkpointSentinel operation completed for Entity $Entity Delta table at path: $deltaTablePath")
    } catch {
      case e: Exception =>

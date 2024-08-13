@@ -38,7 +38,7 @@ class DataAsset (spark: SparkSession, logger:Logger){
           ,col("payload.before.id").alias("DataAssetId")
           ,col("payload.before.type").alias("DataAssetType")
           ,col("payload.before.name").alias("AssetDisplayName")
-          ,col("payload.after.description").alias("AssetDescription")
+          ,col("payload.before.description").alias("AssetDescription")
           ,col("payload.before.source.fqn").alias("FullyQualifiedName")
           ,col("payload.before.source.type").alias("ScanSource")
           ,col("payload.before.source.lastRefreshedAt").alias("DataAssetLastUpdatedDatetime")
@@ -47,7 +47,7 @@ class DataAsset (spark: SparkSession, logger:Logger){
           ,col("payload.before.systemData.createdBy").alias("CreatedByUserId")
           ,col("payload.before.systemData.lastModifiedAt").alias("ModifiedDateTime")
           ,col("payload.before.systemData.lastModifiedBy").alias("ModifiedByUserId")
-          ,col("payload.after.domain").alias("BusinessDomainId"))
+          ,col("payload.before.domain").alias("BusinessDomainId"))
           .filter("operationType=='Delete'")
         dfProcess = dfProcessUpsert.unionAll(dfProcessDelete)
       } else {

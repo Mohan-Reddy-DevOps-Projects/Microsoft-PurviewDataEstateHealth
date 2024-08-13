@@ -1,11 +1,14 @@
 package com.microsoft.azurepurview.dataestatehealth.domainmodel.main
-import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.CommandLineParser
+
+import com.microsoft.azurepurview.dataestatehealth.domainmodel.accesspolicyset.AccessPolicySetMain.logger
+import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.{CommandLineParser, LogAnalyticsLogger}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
+
 import java.util.ResourceBundle
 
 object DomainModelMain {
-  val logger : Logger = Logger.getLogger(getClass.getName)
+  val logger: Logger = Logger.getLogger(getClass.getName)
 
   def main(args: Array[String]): Unit = {
     val resourceBundle = ResourceBundle.getBundle("domainmodel")
@@ -17,22 +20,26 @@ object DomainModelMain {
          |Artifact ID - ${resourceBundle.getString("artifactId")},
          |Version - ${resourceBundle.getString("version")}""".stripMargin)
     logger.setLevel(Level.INFO)
-    logger.info(s"""Release Version:
-                   |Group ID - ${resourceBundle.getString("groupId")},
-                   |Artifact ID - ${resourceBundle.getString("artifactId")},
-                   |Version - ${resourceBundle.getString("version")}""".stripMargin)
+    logger.info(
+      s"""Release Version:
+         |Group ID - ${resourceBundle.getString("groupId")},
+         |Artifact ID - ${resourceBundle.getString("artifactId")},
+         |Version - ${resourceBundle.getString("version")}""".stripMargin)
 
     val parser = new CommandLineParser()
     parser.parse(args) match {
       case Some(config) =>
+        logger.setLevel(Level.INFO)
+        logger.info("Started the DomainModel Main Spark Application!")
+
+        val spark = SparkSession.builder
+          .appName("DomainModelMainSparkApplication")
+          .getOrCreate()
+
         try {
           println("In DomainModel Main Spark Application!")
-          logger.setLevel(Level.INFO)
-          logger.info("Started the DomainModel Main Spark Application!")
 
-          val spark = SparkSession.builder
-            .appName("DomainModelMainSparkApplication")
-            .getOrCreate()
+          spark.conf.set("spark.cosmos.accountKey", mssparkutils.credentials.getSecret(spark.conf.get("spark.keyvault.name"), spark.conf.get("spark.analyticalcosmos.keyname")))
 
           println(
             s"""Received parameters:
@@ -43,26 +50,36 @@ object DomainModelMain {
                |Re-processing Threshold (in minutes) - ${config.ReProcessingThresholdInMins},
                |Unique JobRunGuid (CorrelationId) - ${config.JobRunGuid}""".stripMargin)
 
-        // Processing BusinessDomain Delta Table
-        com.microsoft.azurepurview.dataestatehealth.domainmodel.businessdomain.BusinessDomainMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid),spark,config.ReProcessingThresholdInMins)
-        com.microsoft.azurepurview.dataestatehealth.domainmodel.dataproduct.DataProductMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType,config.JobRunGuid),spark,config.ReProcessingThresholdInMins)
-        com.microsoft.azurepurview.dataestatehealth.domainmodel.glossaryterm.GlossaryTermMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType,config.JobRunGuid),spark,config.ReProcessingThresholdInMins)
-        com.microsoft.azurepurview.dataestatehealth.domainmodel.relationship.RelationshipMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType,config.JobRunGuid),spark,config.ReProcessingThresholdInMins)
-        com.microsoft.azurepurview.dataestatehealth.domainmodel.dataasset.DataAssetMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType,config.JobRunGuid),spark,config.ReProcessingThresholdInMins)
-        com.microsoft.azurepurview.dataestatehealth.domainmodel.accesspolicyset.AccessPolicySetMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType,config.JobRunGuid),spark,config.ReProcessingThresholdInMins)
-        com.microsoft.azurepurview.dataestatehealth.domainmodel.subscription.SubscriptionMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType,config.JobRunGuid),spark,config.ReProcessingThresholdInMins)
-        com.microsoft.azurepurview.dataestatehealth.domainmodel.dataquality.DataQualityMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType,config.JobRunGuid),spark,config.ReProcessingThresholdInMins)
-        spark.stop()
-      }
-        catch
-        {
-          case e: Exception =>
-            println(s"Error In DomainModel Main Spark Application!: ${e.getMessage}")
-            logger.error(s"Error In DomainModel Main Spark Application!: ${e.getMessage}")
-            throw new IllegalArgumentException(s"Error In DomainModel Main Spark Application!: ${e.getMessage}")
+          // Initialize LogAnalyticsConfig with Spark session
+          LogAnalyticsLogger.initialize(spark)
+          LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
+            jobStatus = "Started")
+
+          // Processing BusinessDomain Delta Table
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.businessdomain.BusinessDomainMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.dataproduct.DataProductMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.glossaryterm.GlossaryTermMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.relationship.RelationshipMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.dataasset.DataAssetMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.accesspolicyset.AccessPolicySetMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.subscription.SubscriptionMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.dataquality.DataQualityMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+        }
+        catch {
+          case e =>
+            logger.error(s"Error in DomainModel Main Spark Application: ${e.getMessage}", e)
+            throw e // Re-throw the exception to ensure the job failure is reported correctly
+        } finally {
+          LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
+            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed")
+          if (spark != null) {
+            Thread.sleep(10000)
+            spark.stop()
+          }
         }
       case _ =>
         println("Failed to parse command line arguments.")
         sys.exit(1)
+    }
   }
-}}
+}

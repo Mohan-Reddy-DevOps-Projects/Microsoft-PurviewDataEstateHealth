@@ -20,7 +20,7 @@ class DataProductType (spark: SparkSession, logger:Logger){
       var dfProcess=dfProcessUpsert
       if (!DeleteIsEmpty) {
         val dfProcessDelete = df.select(col("payload.before.type").alias("DataProductTypeDisplayName")
-          , col("payload.after.type").alias("DataProductTypeDescription"))
+          , col("payload.before.type").alias("DataProductTypeDescription"))
           .filter("operationType=='Delete'")
         dfProcess = dfProcessUpsert.unionAll(dfProcessDelete)
       }

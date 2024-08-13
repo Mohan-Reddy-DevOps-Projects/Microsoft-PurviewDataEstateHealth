@@ -83,6 +83,21 @@
             <artifactId>scopt_${scala.version.major}</artifactId>
             <version>4.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure.synapse</groupId>
+            <artifactId>synapseutils_${scala.version.major}</artifactId>
+            <version>1.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang.modules</groupId>
+            <artifactId>scala-java8-compat_2.13</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
