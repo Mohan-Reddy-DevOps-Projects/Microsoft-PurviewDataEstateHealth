@@ -61,6 +61,88 @@ Target Spark Compute Cluster Spark Configurations:
 **DimensionalModel**: --AdlsTargetDirectory abfss://<container>@<storageaccount>.dfs.core.windows.net --ReProcessingThresholdInMins <Int> --AccountId <accountId> --JobRunGuid <UUID> <br />
 **DEHFabricSync**: --DEHStorageAccount abfss://<container>@<storageaccount>.<zNumber>.dfs.storage.azure.net --FabricSyncRootPath abfss://<groupId>@msit-onelake.dfs.fabric.microsoft.com/<LakehouseId>/Files --AccountId <Account> --ProcessDomainModel <Boolean example true> --ProcessDimensionaModel <Boolean example false> <br />
 
+# Build Pipeline on Azure DevOps
+
+Any changes pushed to the `main` or `user` branch will trigger the build pipeline [DataEstateHealth](https://msdata.visualstudio.com/Purview%20Data%20Governance/_build?definitionId=29692&_a=summary).
+
+## Maven Repository Compliance
+
+In accordance with Microsoft compliance guidelines, Maven packages must be sourced from the Microsoft Maven repository. 
+The `pom.xml` file for the DEH solution is configured to point to this repository. The build pipeline is giong to get all the maven dependencies from this repo and it will use PAT (personal access token) through `settings.xml` file to connect to the Microsoft maven repo.
+
+```xml
+    <repositories>
+        <repository>
+            <id>central</id>
+            <url>https://msdata.pkgs.visualstudio.com/4031b34e-6354-4257-94de-a85346a777ae/_packaging/PurviewDataGov/maven/v1</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <url>https://msdata.pkgs.visualstudio.com/4031b34e-6354-4257-94de-a85346a777ae/_packaging/PurviewDataGov/maven/v1</url>
+        </pluginRepository>
+    </pluginRepositories>
+```
+
+### Access Configuration - `settings.xml`
+
+The build pipeline (build agent) uses the `settings.xml` file to access the Microsoft Maven repository. 
+Authentication to the repository is managed through the `settings.xml` file using a Personal Access Token (PAT).
+Here is the content of `settings.xml`, the password should the PAT. 
+Here is the [link](https://msdata.visualstudio.com/_usersSettings/tokens) to generate PAT.
+
+```xml
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                             https://maven.apache.org/xsd/settings-1.0.0.xsd">
+ <servers>
+   <server>
+     <id>central</id>
+     <username>msdata</username>
+     <password></password>
+   </server>
+ </servers>
+</settings>
+```
+
+### Location of `settings.xml` File
+
+The [settings.xml](https://msdata.visualstudio.com/Purview%20Data%20Governance/_library?itemType=SecureFiles) file can be found under **Library** → **Secure files**.
+
+### Update settings.xml file
+
+The PAT typically expires after 7 days, but it can be configured to last up to 30 days. If the build pipeline encounters 
+an authentication error during the Maven build step, potential reason for failure could be the PAT token has expired. In this case, 
+regenerate the PAT and update the `settings.xml` file accordingly.
+
+After updating the `settings.xml` file locally, you must delete and re-upload it, as direct updates are not allowed.
+
+### Grant access to Build Pipeline and other users
+
+Once a new token is generated and updated in the `settings.xml` file, grant access to build pipelines.
+Note: everytime the `security.xml` file is uploaded, grant access to build pipeline and other users within team.
+
+- Navigate to **Library** → **Secure files**.
+- Click on security.xml file and go to pipeline permissions.
+- add following pipelines
+   - DataEstateHealth.CI
+   - DataEstateHealth.Build.PullRequest
+   - DataEstateHealth-Release.Official
+   - DataEstateHealth.Release.Demo
+   - DataEstateHealth.Release.Dogfood
+   - DataEstateHealth.Release.Dev
+   - DataEstateHealth.Release.Prod
+   - DataEstateHealth.Build.CodeQL
+   - DataEstateHealth.Buddy-t
+
 # Contribute
 References 
 - [guidelines](https://learn.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-overview)
