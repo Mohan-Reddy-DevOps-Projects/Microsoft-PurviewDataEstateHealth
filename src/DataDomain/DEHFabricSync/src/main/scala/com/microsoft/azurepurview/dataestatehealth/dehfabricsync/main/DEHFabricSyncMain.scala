@@ -1,7 +1,7 @@
 package com.microsoft.azurepurview.dataestatehealth.dehfabricsync.main
 
 import com.microsoft.azurepurview.dataestatehealth.dehfabricsync.auth.TokenManager
-import com.microsoft.azurepurview.dataestatehealth.dehfabricsync.common.{CommandLineParser, LakehouseCopy}
+import com.microsoft.azurepurview.dataestatehealth.dehfabricsync.common.{CommandLineParser, LakehouseCopy, LogAnalyticsLogger}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
@@ -27,14 +27,15 @@ object DEHFabricSyncMain {
     val parser = new CommandLineParser()
     parser.parse(args) match {
       case Some(config) =>
+        val spark = SparkSession.builder
+          .appName("DEHFabricSyncMainSparkApplication")
+          .getOrCreate()
+
         try {
           println("In DEHFabricSync Main Spark Application!")
           logger.setLevel(Level.INFO)
           logger.info("Started the DEHFabricSync Main Spark Application!")
 
-          val spark = SparkSession.builder
-            .appName("DEHFabricSyncMainSparkApplication")
-            .getOrCreate()
 
           println(
             s"""Received parameters:
@@ -57,6 +58,11 @@ object DEHFabricSyncMain {
           // Set Spark configurations
           spark.conf.set(s"fs.azure.account.auth.type.$storageEndpoint", "Custom")
           spark.conf.set(s"fs.azure.account.oauth.provider.type.$storageEndpoint", "com.microsoft.azurepurview.dataestatehealth.dehfabricsync.auth.MITokenProvider")
+          // Initialize LogAnalyticsConfig with Spark session
+
+          LogAnalyticsLogger.initialize(spark)
+          LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
+            jobStatus = "Started")
 
           if (config.ProcessDomainModel){
             val lakehouseDomainModelSync = new LakehouseCopy(spark,logger)
@@ -66,7 +72,6 @@ object DEHFabricSyncMain {
             val lakehouseDimensionalModelSync = new LakehouseCopy(spark,logger)
             lakehouseDimensionalModelSync.processLakehouseCopy(config.DEHStorageAccount.concat("/DimensionalModel"),config.FabricSyncRootPath)
           }
-          spark.stop()
         }
         catch
         {
@@ -74,6 +79,13 @@ object DEHFabricSyncMain {
             println(s"Error In DEHFabricSync Main Spark Application!: ${e.getMessage}")
             logger.error(s"Error In DEHFabricSync Main Spark Application!: ${e.getMessage}")
             throw new IllegalArgumentException(s"Error In DEHFabricSync Main Spark Application!: ${e.getMessage}")
+        } finally {
+          LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
+            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed")
+          if (spark != null) {
+            Thread.sleep(10000)
+            spark.stop()
+          }
         }
       case _ =>
         println("Failed to parse command line arguments.")
