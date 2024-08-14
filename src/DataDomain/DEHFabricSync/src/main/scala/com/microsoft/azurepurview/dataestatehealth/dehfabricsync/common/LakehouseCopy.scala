@@ -5,7 +5,7 @@ import org.apache.spark.sql.SparkSession
 class LakehouseCopy (spark: SparkSession, logger:Logger){
   def processLakehouseCopy(sourceDataLakePath:String, FabricSyncRootPath:String):Boolean={
     try {
-      mssparkutils.fs.fastcp(sourceDataLakePath, FabricSyncRootPath, true)
+      mssparkutils.fs.cp(sourceDataLakePath, FabricSyncRootPath, true)
       println(s"$sourceDataLakePath Copied successfully to $FabricSyncRootPath.")
       true
     }catch {

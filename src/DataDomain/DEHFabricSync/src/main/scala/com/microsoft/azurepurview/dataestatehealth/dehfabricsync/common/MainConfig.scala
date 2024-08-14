@@ -5,5 +5,6 @@ case class MainConfig(
                        FabricSyncRootPath: String = "",
                        AccountId: String = "",
                        ProcessDomainModel: Boolean = true,
-                       ProcessDimensionaModel: Boolean = true
+                       ProcessDimensionalModel: Boolean = true,
+                       JobRunGuid: String = ""
                      )

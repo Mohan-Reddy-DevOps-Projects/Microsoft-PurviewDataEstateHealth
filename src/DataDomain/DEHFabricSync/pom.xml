@@ -88,6 +88,11 @@
             <artifactId>synapseutils_2.12</artifactId>
             <version>1.5.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-azure</artifactId>
+            <version>3.3.1</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

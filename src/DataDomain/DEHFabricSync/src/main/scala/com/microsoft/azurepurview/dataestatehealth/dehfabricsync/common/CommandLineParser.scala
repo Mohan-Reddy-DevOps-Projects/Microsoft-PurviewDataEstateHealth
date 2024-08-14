@@ -20,8 +20,11 @@ class CommandLineParser {
       .action((x, c) => c.copy(ProcessDomainModel = x))
       .text("ProcessDomainModel"),
     opt[Boolean]("ProcessDimensionaModel")
-      .action((x, c) => c.copy(ProcessDimensionaModel = x))
-      .text("ProcessDimensionaModel"))
+      .action((x, c) => c.copy(ProcessDimensionalModel = x))
+      .text("ProcessDimensionaModel"),
+      opt[String]("JobRunGuid")
+        .action((x, c) => c.copy(JobRunGuid = x))
+        .text("JobRunGuid"))
   }
   def parse(args: Array[String]): Option[MainConfig] = {
     OParser.parse(parser, args, MainConfig())
