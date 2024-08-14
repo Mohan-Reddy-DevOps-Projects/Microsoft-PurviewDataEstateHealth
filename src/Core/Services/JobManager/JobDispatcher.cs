@@ -101,6 +101,11 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
             await jobManager.ProvisionMetersToBillingJob();
 
             this.logger.LogInformation("Job dispatcher started successfully.");
+
+            if (this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment())
+            {
+                await jobManager.ProvisionGovernedAssetsJob();
+            }
         }
         catch (Exception exception)
         {

@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Core.Services.JobManager.GovernedAssetsJobs;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
@@ -76,6 +77,9 @@ public class JobManager : IJobManager
 
     static readonly string ActionCleanUpJobPartitionAffix = "-ACTION-CLEAN-UP-JOBS";
     static readonly string ActionCleanUpJobIdAffix = "-ACTION-CLEAN-UP-JOB";
+
+    static readonly string GovernedAssetsJobPartition = "GOVERNED-ASSETS-JOBS";
+    static readonly string GovernedAssetsJobId = "GOVERNED-ASSETS-JOB";
 
     private EnvironmentConfiguration environmentConfiguration;
     private static readonly Random RandomGenerator = new();
@@ -881,6 +885,51 @@ public class JobManager : IJobManager
                 this.dataEstateHealthRequestLogger.LogError($"Fail to get background job detail. {jobPartition} {jobId}", exception);
                 throw;
             }
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task ProvisionGovernedAssetsJob()
+    {
+        var catalogRepeatStrategy = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ?
+       TimeSpan.FromHours(1) : TimeSpan.FromHours(24);
+
+        string jobPartition = GovernedAssetsJobPartition;
+        string jobId = GovernedAssetsJobId;
+
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null/* && job.State == JobState.Faulted*/)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new DataPlaneSparkJobMetadata
+            {
+                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+                AccountServiceModel = null,
+                SparkPoolId = string.Empty,
+                CatalogSparkJobBatchId = string.Empty,
+                DimensionSparkJobBatchId = string.Empty,
+                CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others,
+                DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others
+            };
+            int randomMins = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 1 : RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
+
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(GovernedAssetsJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = catalogRepeatStrategy,
+                StartTime = DateTime.UtcNow.AddMinutes(randomMins),
+                RetryStrategy = TimeSpan.FromMinutes(SparkJobsRetryStrategyTime)
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
 

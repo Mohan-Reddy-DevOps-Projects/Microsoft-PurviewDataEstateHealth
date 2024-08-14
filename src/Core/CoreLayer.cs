@@ -7,18 +7,18 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Core.Extensions;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.Core;
+using Microsoft.Purview.DataGovernance.BillingServiceClient;
 using Microsoft.Purview.DataGovernance.DeltaWriter;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
 using Microsoft.Purview.DataGovernance.Reporting.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Purview.DataGovernance.BillingServiceClient;
-using Microsoft.Azure.Purview.DataEstateHealth.Core.Extensions;
 
 /// <summary>
 /// Provides behavior on the core layer level.
@@ -56,6 +56,7 @@ public static class CoreLayer
         services.AddScoped<IDimensionModelSparkJobComponent, DimensionModelSparkJobComponent>();
         services.AddScoped<IFabricSparkJobComponent, FabricSparkJobComponent>();
         services.AddScoped<IDataQualitySparkJobComponent, DataQualitySparkJobComponent>();
+        services.AddScoped<IComputeGovernedAssetsSparkJobComponent, ComputeGovernedAssetsSparkJobComponent>();
         services.AddScoped<IDatasetsComponent, DatasetsComponent>();
         services.AddScoped<IRefreshComponent, RefreshComponent>();
 
