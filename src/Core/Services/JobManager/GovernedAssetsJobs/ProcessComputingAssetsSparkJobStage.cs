@@ -61,12 +61,12 @@ internal class ProcessComputingAssetsSparkJobStage : IJobCallbackStage
                         // TODO pull
                         billingAccount.ComputeGovernedAssetsSparkJobStatus = DataPlaneSparkJobStatus.Succeeded;
 
-                        var jobStatusMessage = $"DEH_Billing job submitted for account: {billingAccount.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId} ";
+                        var jobStatusMessage = $"DEH_ComputeGovernedAssets job submitted for account: {billingAccount.AccountServiceModel.Id} in {this.StageName}, JobID : {jobId} ";
                         this.dataEstateHealthRequestLogger.LogTrace(jobStatusMessage);
                     }
                     catch (Exception exception)
                     {
-                        var jobStatusMessage = $"Failed to submit DEH_Billing job for account: {billingAccount.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}, JobID : {jobId}";
+                        var jobStatusMessage = $"Failed to submit DEH_ComputeGovernedAssets job for account: {billingAccount.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}, JobID : {jobId}";
                         this.dataEstateHealthRequestLogger.LogError(jobStatusMessage, exception);
                     }
                 }

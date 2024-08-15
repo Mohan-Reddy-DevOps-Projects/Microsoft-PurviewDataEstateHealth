@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.Core;
+using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
@@ -43,10 +44,13 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent : IComputeGovernedA
     /// <inheritdoc/>
     public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId)
     {
+        KeyVaultSecret workSpaceID = await this.keyVaultAccessorService.GetSecretAsync("logAnalyticsWorkspaceId", cancellationToken);
+
         SparkJobRequest sparkJobRequest = new()
         {
             ExecutorCount = 2,
-            File = $"abfss://jartest@dghdogfoodsynapse.dfs.core.windows.net/test.py",
+            File = $"abfss://jartest@dghdogfoodsynapse.dfs.core.windows.net/dataestatehealthanalytics-computegovernedassets-azure-purview-1.0-jar.jar",
+            ClassName = "com.microsoft.azurepurview.dataestatehealth.computegovernedassets.main.ComputeGovernedAssetsMain",
             Name = "ComputingAssetSparkJob",
             RunManagerArgument = new List<string>()
             {
@@ -58,6 +62,27 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent : IComputeGovernedA
                 { "rdd.directory", $"abfss://{accountServiceModel.DefaultCatalogId}@{accountServiceModel.ProcessingStorageModel?.Name}.{accountServiceModel.ProcessingStorageModel?.DnsZone}.dfs.storage.azure.net/AtlasRdd/AtlasDeltaDataset" },
                 // TODO
                 { "rdd.sasToken", string.Empty },
+                {$"spark.microsoft.delta.optimizeWrite.enabled" ,"true" },
+                {$"spark.serializer","org.apache.spark.serializer.KryoSerializer" },
+                {$"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" },
+                {$"spark.dynamicAllocation.enabled", "true" },
+                {$"spark.dynamicAllocation.minExecutors","1" },
+                {$"spark.dynamicAllocation.maxExecutors","2" },
+                {$"spark.dynamicAllocation.executorIdleTimeout","900s" },
+                {$"spark.sql.adaptive.enabled", "true" },
+                {$"spark.sql.adaptive.skewJoin.enabled", "true" },
+                //{$"spark.cosmos.accountEndpoint", $"{cosmosDBEndpoint}" },
+                {$"spark.cosmos.database", "dgh-DataEstateHealth" },
+                //{$"spark.cosmos.accountKey", cosmosDBKey },
+                {$"spark.keyvault.name", this.keyVaultBaseURL},
+                {$"spark.analyticalcosmos.keyname", "cosmosDBWritekey"},
+                //Don't deploy till log analytics is automated
+                {$"spark.loganalytics.workspaceid","logAnalyticsWorkspaceId"},
+                {$"spark.loganalytics.workspacekeyname", "logAnalyticsKey" },
+                {$"spark.synapse.logAnalytics.enabled", "true" },
+                {$"spark.synapse.logAnalytics.workspaceId",workSpaceID.Value },
+                {$"spark.synapse.logAnalytics.keyVault.name", this.keyVaultBaseURL},
+                {$"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" }
             }
         };
 
