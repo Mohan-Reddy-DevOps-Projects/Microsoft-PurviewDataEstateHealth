@@ -59,30 +59,32 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent : IComputeGovernedA
             },
             Configuration = new Dictionary<string, string>()
             {
-                { "rdd.directory", $"abfss://{accountServiceModel.DefaultCatalogId}@{accountServiceModel.ProcessingStorageModel?.Name}.{accountServiceModel.ProcessingStorageModel?.DnsZone}.dfs.storage.azure.net/AtlasRdd/AtlasDeltaDataset" },
                 // TODO
-                { "rdd.sasToken", string.Empty },
-                {$"spark.microsoft.delta.optimizeWrite.enabled" ,"true" },
-                {$"spark.serializer","org.apache.spark.serializer.KryoSerializer" },
-                {$"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" },
-                {$"spark.dynamicAllocation.enabled", "true" },
-                {$"spark.dynamicAllocation.minExecutors","1" },
-                {$"spark.dynamicAllocation.maxExecutors","2" },
-                {$"spark.dynamicAllocation.executorIdleTimeout","900s" },
-                {$"spark.sql.adaptive.enabled", "true" },
-                {$"spark.sql.adaptive.skewJoin.enabled", "true" },
+                {"spark.rdd.sasToken", string.Empty },
+                {"spark.rdd.containerName", accountServiceModel.DefaultCatalogId },
+                {"spark.rdd.accountName", accountServiceModel.ProcessingStorageModel?.Name },
+                {"spark.rdd.dnsZone", accountServiceModel.ProcessingStorageModel?.DnsZone },
+                {"spark.microsoft.delta.optimizeWrite.enabled" ,"true" },
+                {"spark.serializer","org.apache.spark.serializer.KryoSerializer" },
+                {"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" },
+                {"spark.dynamicAllocation.enabled", "true" },
+                {"spark.dynamicAllocation.minExecutors","1" },
+                {"spark.dynamicAllocation.maxExecutors","2" },
+                {"spark.dynamicAllocation.executorIdleTimeout","900s" },
+                {"spark.sql.adaptive.enabled", "true" },
+                {"spark.sql.adaptive.skewJoin.enabled", "true" },
                 //{$"spark.cosmos.accountEndpoint", $"{cosmosDBEndpoint}" },
-                {$"spark.cosmos.database", "dgh-DataEstateHealth" },
+                {"spark.cosmos.database", "dgh-DataEstateHealth" },
                 //{$"spark.cosmos.accountKey", cosmosDBKey },
-                {$"spark.keyvault.name", this.keyVaultBaseURL},
-                {$"spark.analyticalcosmos.keyname", "cosmosDBWritekey"},
+                {"spark.keyvault.name", this.keyVaultBaseURL},
+                {"spark.analyticalcosmos.keyname", "cosmosDBWritekey"},
                 //Don't deploy till log analytics is automated
-                {$"spark.loganalytics.workspaceid","logAnalyticsWorkspaceId"},
-                {$"spark.loganalytics.workspacekeyname", "logAnalyticsKey" },
-                {$"spark.synapse.logAnalytics.enabled", "true" },
-                {$"spark.synapse.logAnalytics.workspaceId",workSpaceID.Value },
-                {$"spark.synapse.logAnalytics.keyVault.name", this.keyVaultBaseURL},
-                {$"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" }
+                {"spark.loganalytics.workspaceid","logAnalyticsWorkspaceId"},
+                {"spark.loganalytics.workspacekeyname", "logAnalyticsKey" },
+                {"spark.synapse.logAnalytics.enabled", "true" },
+                {"spark.synapse.logAnalytics.workspaceId",workSpaceID.Value },
+                {"spark.synapse.logAnalytics.keyVault.name", this.keyVaultBaseURL},
+                {"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" }
             }
         };
 
