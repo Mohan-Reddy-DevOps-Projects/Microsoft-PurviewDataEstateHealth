@@ -149,6 +149,36 @@ public class MetersToBillingJobStage : IJobCallbackStage
         // only emit those billable events not having a CBSBillingReceipts_CL.Status_s  == "Succeded" 
         // 
         // This approach ensures auto-healing/auto-retry of all billable events for the last 7 days.        
+
+        var billingReceipts = "CBSBillingReceipts_CL";
+        try
+        {
+            var meteredEvent = await this.logsAnalyticsReader.Query<CBSBillingReceipt>(billingReceipts, pollFrom, utcNow);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError($"Error in Querying {billingReceipts}, Table not found", ex);
+
+            List<CBSBillingReceipt> billingEvents = new List<CBSBillingReceipt>();
+            CBSBillingReceipt cBSBillingReceipt = new CBSBillingReceipt()
+            {
+                BillingTimestamp = DateTime.Now,
+                BillingEvent = "coldStart",
+                CorrelationId = Guid.NewGuid().ToString(),
+                EventId = Guid.NewGuid().ToString(),
+                BatchId = Guid.NewGuid().ToString(),
+                Service = "NA",
+                Status = CBSReceiptStatus.Unknown,
+                StatusDetail = String.Empty
+            };
+
+            billingEvents.Add(cBSBillingReceipt);
+            var coldStartReceipts = billingEvents.ToList();
+
+            //Create the table if it does not exist
+            await this.logsAnalyticsWriter.SendLogEntries<CBSBillingReceipt>(coldStartReceipts, billingReceipts);
+
+        }
         var meteredEvents = await this.logsAnalyticsReader.Query<DEHMeteredEvent>(await this.LoadKQL(DEHBillingProcesingKQL), pollFrom, utcNow);
 
         int totalEvents = 0;
