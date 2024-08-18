@@ -1,4 +1,4 @@
-package com.microsoft.azurepurview.dataestatehealth.dehfabricsync.common
+package com.microsoft.azurepurview.dataestatehealth.storagesync.common
 
 case class JobStatusSchema(Id: String,
                            AccountId: String,

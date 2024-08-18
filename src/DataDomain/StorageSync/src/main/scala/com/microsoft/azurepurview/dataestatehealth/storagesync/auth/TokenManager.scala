@@ -1,4 +1,4 @@
-package com.microsoft.azurepurview.dataestatehealth.dehfabricsync.auth
+package com.microsoft.azurepurview.dataestatehealth.storagesync.auth
 
 import java.util.Date
 

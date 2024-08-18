@@ -1,8 +1,8 @@
-package com.microsoft.azurepurview.dataestatehealth.dehfabricsync.common
+package com.microsoft.azurepurview.dataestatehealth.storagesync.common
 import org.apache.log4j.Logger
-import org.apache.spark.sql.SparkSession
 
-class LakehouseCopy (spark: SparkSession, logger:Logger){
+class LakeCopy(logger:Logger){
+
   def processLakehouseCopy(sourceDataLakePath:String, FabricSyncRootPath:String):Boolean={
     try {
       mssparkutils.fs.cp(sourceDataLakePath, FabricSyncRootPath, true)

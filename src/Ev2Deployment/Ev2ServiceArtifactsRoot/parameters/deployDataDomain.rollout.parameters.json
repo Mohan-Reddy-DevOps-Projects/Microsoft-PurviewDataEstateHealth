@@ -38,9 +38,9 @@
             "asSecureValue": "true"
           },
           {
-            "name": "DEHFABRICSYNC_ARCHIVE_SAS",
+            "name": "STORAGESYNC_ARCHIVE_SAS",
             "reference": {
-              "path": "dehfabricsync.tar"
+              "path": "storagesync.tar"
             },
             "asSecureValue": "true"
           },

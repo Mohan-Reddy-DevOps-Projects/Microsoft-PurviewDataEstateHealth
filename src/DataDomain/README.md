@@ -2,7 +2,7 @@
 This is the Data Engineering Repository for Purview Data Governance. The repository includes DomainModel (3NF) and DataProductModel (Fact-Dimension).
 
 # Getting Started
-The repository includes DomainModel and DataProductModel, DEHFabricSync (BYOCT) all of them are Scala code repositories. Dependencies includes - 
+The repository includes DomainModel and DataProductModel, StorageSync (BYOCT) all of them are Scala code repositories. Dependencies includes - 
 1.	IDE - Intellij IDEA Community Edition 22.1.4, ensure adding the following plugins - "Scala", "Azure Toolkit for Intellij", "Maven Helper", "Azure DevOps".
 2.	JarExplorer-jdk1.5-2.2.1
 3.	Java Version 1.8.0_401
@@ -22,9 +22,9 @@ To build the code execute "mvn clean package" from Intellij IDE Terminal. It wil
 1.  dataestatehealthanalytics-dimensionalmodel-azure-purview-1.0-jar.jar
 2.  dataestatehealthanalytics-dimensionalmodel-azure-purview-1.0-tests.jar
 
-## DEHFabricSync
-1.  dataestatehealthanalytics-dehfabricsync-azure-purview-1.0-jar.jar
-2.  dataestatehealthanalytics-dehfabricsync-azure-purview-1.0-tests.jar
+## StorageSync
+1.  dataestatehealthanalytics-storagesync-azure-purview-1.0-jar.jar
+2.  dataestatehealthanalytics-storagesync-azure-purview-1.0-tests.jar
 
 Target Spark Compute Cluster Spark Configurations: 
 
@@ -49,17 +49,16 @@ Target Spark Compute Cluster Spark Configurations:
    --AccountId (Purview Instance AccountId GUID)
    --JobRunGuid Unique JobRunGuid (CorrelationId)
 
-3. The generated **DEHFabricSync** Main Class JAR accepts 5 parameters
+3. The generated **StorageSync** Main Class JAR accepts 5 parameters
    - DEHStorageAccount
-   - FabricSyncRootPath
+   - SyncRootPath
+   - SyncType
    - AccountId
-   - ProcessDomainModel
-   - ProcessDimensionaModel
    
 ### Arguments Example 
 **DomainModel**: --CosmosDBLinkedServiceName <synapseAnalyticalCosmosLinkedServiceName> --AdlsTargetDirectory abfss://<container>@<storageaccount>.dfs.core.windows.net/DomainModel --AccountId <accountId> --RefreshType <incremental/full> --ReProcessingThresholdInMins <Int> --JobRunGuid <UUID> <br />
 **DimensionalModel**: --AdlsTargetDirectory abfss://<container>@<storageaccount>.dfs.core.windows.net --ReProcessingThresholdInMins <Int> --AccountId <accountId> --JobRunGuid <UUID> <br />
-**DEHFabricSync**: --DEHStorageAccount abfss://<container>@<storageaccount>.<zNumber>.dfs.storage.azure.net --FabricSyncRootPath abfss://<groupId>@msit-onelake.dfs.fabric.microsoft.com/<LakehouseId>/Files --AccountId <Account> --ProcessDomainModel <Boolean example true> --ProcessDimensionaModel <Boolean example false> <br />
+**StorageSync**: --DEHStorageAccount abfss://<container>@<storageaccount>.<zNumber>.dfs.storage.azure.net --FabricSyncRootPath abfss://<groupId>@msit-onelake.dfs.fabric.microsoft.com/<LakehouseId>/Files --AccountId <Account> --ProcessDomainModel <Boolean example true> --ProcessDimensionaModel <Boolean example false> <br />
 
 # Build Pipeline on Azure DevOps
 

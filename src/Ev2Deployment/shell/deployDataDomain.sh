@@ -21,8 +21,8 @@ if [ -z ${DIMENSIONALMODEL_ARCHIVE_SAS+x} ]; then
     exit 1;
 fi
 
-if [ -z ${DEHFABRICSYNC_ARCHIVE_SAS+x} ]; then
-    echo "DEHFABRICSYNC_ARCHIVE_SAS is unset, unable to continue"
+if [ -z ${STORAGESYNC_ARCHIVE_SAS+x} ]; then
+    echo "STORAGESYNC_ARCHIVE_SAS is unset, unable to continue"
     exit 1;
 fi
 
@@ -60,12 +60,12 @@ mkdir domain
 
 echo "wget domainmodel.tar to directory domain"
 wget $DOMAINMODEL_ARCHIVE_SAS -O domainmodel.tar
-wget $DEHFABRICSYNC_ARCHIVE_SAS -O dehfabricsync.tar
+wget $STORAGESYNC_ARCHIVE_SAS -O storagesync.tar
 wget $DIMENSIONALMODEL_ARCHIVE_SAS -O dimensionalmodel.tar
 
 echo "Untar domainmodel.tar to directory domain"
 tar -C domain -xvf domainmodel.tar
-tar -C domain -xvf dehfabricsync.tar
+tar -C domain -xvf storagesync.tar
 tar -C domain -xvf dimensionalmodel.tar
 
 cd ..
@@ -76,7 +76,7 @@ echo "list all files and folders - ls -R"
 ls -R
 
 cp ./unarchive/domain/dataestatehealthanalytics-domainmodel-azure-purview-1.1-jar.jar ./domainfiles/
-cp ./unarchive/domain/dataestatehealthanalytics-dehfabricsync-azure-purview-1.0-jar.jar ./domainfiles/
+cp ./unarchive/domain/dataestatehealthanalytics-storagesync-azure-purview-1.0-jar.jar ./domainfiles/
 cp ./unarchive/domain/dataestatehealthanalytics-dimensionalmodel-azure-purview-1.1-jar.jar ./domainfiles/
 
 

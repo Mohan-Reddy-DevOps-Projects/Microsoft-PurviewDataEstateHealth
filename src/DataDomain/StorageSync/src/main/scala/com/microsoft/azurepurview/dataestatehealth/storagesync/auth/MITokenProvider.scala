@@ -1,4 +1,4 @@
-package com.microsoft.azurepurview.dataestatehealth.dehfabricsync.auth
+package com.microsoft.azurepurview.dataestatehealth.storagesync.auth
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.azurebfs.extensions.CustomTokenProviderAdaptee
@@ -30,8 +30,8 @@ class MITokenProvider extends CustomTokenProviderAdaptee {
    * @param accountName The name of the account to be associated with the token.
    */
   override def initialize(configuration: Configuration, accountName: String): Unit = {
-    accessToken = getAccessToken()
-    expiryTime = getExpiryTime()
+    accessToken = TokenManager.getAccessToken
+    expiryTime = TokenManager.getExpiryTime
   }
 
   /**
@@ -40,7 +40,7 @@ class MITokenProvider extends CustomTokenProviderAdaptee {
    * @return The current access token as a `String`.
    */
   override def getAccessToken(): String = {
-    TokenManager.getAccessToken
+    this.accessToken
   }
 
   /**
@@ -49,7 +49,7 @@ class MITokenProvider extends CustomTokenProviderAdaptee {
    * @return The expiry time of the access token as a `Date`.
    */
   override def getExpiryTime(): Date = {
-    TokenManager.getExpiryTime
+    this.expiryTime
   }
 
   /**

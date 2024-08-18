@@ -1,4 +1,4 @@
-package com.microsoft.azurepurview.dataestatehealth.dehfabricsync.common
+package com.microsoft.azurepurview.dataestatehealth.storagesync.common
 
 import com.google.gson.Gson
 import org.apache.spark.sql.SparkSession
@@ -38,7 +38,7 @@ object LogAnalyticsLogger {
         Id = UUID.randomUUID().toString,
         AccountId = accountId,
         JobId = jobRunGuid,
-        JobName = "DEHFabricSync",
+        JobName = "StorageSync",
         JobStatus = jobStatus,
         JobCompletionTime = Timestamp.from(Instant.now()).toString
       )

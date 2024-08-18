@@ -33,9 +33,9 @@ steps:
     options: '-X -B -s $(Agent.TempDirectory)/settings.xml'
 
 - task: Maven@3
-  displayName: Maven DEHFabricSync/pom.xml
+  displayName: Maven StorageSync/pom.xml
   inputs:
-    mavenPOMFile: src/DataDomain/DEHFabricSync/pom.xml
+    mavenPOMFile: src/DataDomain/StorageSync/pom.xml
     options: '-X -B -s $(Agent.TempDirectory)/settings.xml'
 
 - task: Maven@3
@@ -57,13 +57,13 @@ steps:
     verbose: true
     
 - task: ArchiveFiles@2
-  displayName: "Archive dehfabricsync Jar"
+  displayName: "Archive storagesync Jar"
   inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DataDomain/DEHFabricSync/target/dataestatehealthanalytics-dehfabricsync-azure-purview-1.0-jar.jar'
+    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DataDomain/StorageSync/target/dataestatehealthanalytics-storagesync-azure-purview-1.0-jar.jar'
     includeRootFolder: true
     archiveType: "tar"
     tarCompression: none
-    archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/dehfabricsync.tar'
+    archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/storagesync.tar'
     replaceExistingArchive: true
     verbose: true
 
