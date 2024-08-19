@@ -3,7 +3,7 @@ package com.microsoft.azurepurview.dataestatehealth.computegovernedassets.main
 import com.microsoft.azurepurview.dataestatehealth.computegovernedassets.common.{CommandLineParser, LogAnalyticsLogger}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{AnalysisException, SparkSession, functions => F}
-
+import com.google.gson.Gson
 import java.util.ResourceBundle
 
 object ComputeGovernedAssetsMain {
@@ -53,8 +53,6 @@ object ComputeGovernedAssetsMain {
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
             jobStatus = "Started")
 
-          println("Hello")
-
           // Print all configurations
           /*println("Spark Configuration:")
           spark.conf.getAll.foreach { case (key, value) =>
@@ -100,10 +98,16 @@ object ComputeGovernedAssetsMain {
             throw e // Re-throw the exception to ensure the job failure is reported correctly
         } finally {
           println(s"Total asset count in Data Map: $totalAssetCountInDataMap")
-          println(s"Assets with term count in Data Map: $assetWithTermCountInDataMap")
+          println(s"Asset with term count in Data Map: $assetWithTermCountInDataMap")
+
+          logger.info(s"Total assets count in Data Map: $totalAssetCountInDataMap")
+          logger.info(s"Assets with term count in Data Map: $assetWithTermCountInDataMap")
 
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
-            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed")
+            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed",
+            new Gson().toJson(ComputeGovernedAssetsCountResult(
+              TotalAssetCountInDataMap = totalAssetCountInDataMap,
+              AssetWithTermCountInDataMap = assetWithTermCountInDataMap)))
           if (spark != null) {
             Thread.sleep(10000)
             spark.stop()

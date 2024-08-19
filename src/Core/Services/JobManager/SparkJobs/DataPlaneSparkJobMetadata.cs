@@ -46,6 +46,18 @@ internal class DataPlaneSparkJobMetadata : StagedWorkerJobMetadata
     public DataPlaneSparkJobStatus DimensionSparkJobStatus { get; set; }
 
     /// <summary>
+    /// Compute Governed Assets Spark job id.
+    /// </summary>
+    [JsonProperty]
+    public string ComputeGovernedAssetsSparkJobBatchId { get; set; }
+
+    /// <summary>
+    /// Compute Governed Assets Spark job status.
+    /// </summary>
+    [JsonProperty]
+    public DataPlaneSparkJobStatus ComputeGovernedAssetsSparkJobStatus { get; set; }
+
+    /// <summary>
     /// Current schedule start time. 
     /// </summary>
     [JsonProperty]
