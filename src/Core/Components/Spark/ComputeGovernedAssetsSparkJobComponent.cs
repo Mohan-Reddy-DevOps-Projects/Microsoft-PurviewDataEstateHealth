@@ -47,7 +47,6 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
             ],
             Configuration = new Dictionary<string, string>()
             {
-                // TODO
                 {"spark.rdd.sasToken", storageTokenKey.Key },
                 {"spark.rdd.containerName", accountServiceModel.DefaultCatalogId },
                 {"spark.rdd.accountName", accountServiceModel.ProcessingStorageModel?.Name },

@@ -4,22 +4,23 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core.Services.JobManager.SparkJobs.CatalogSparkJob;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using System.Threading.Tasks;
 
-internal class TriggerComputingAssetsSparkJobStage : IJobCallbackStage
+internal class TriggerComputeGovernedAssetsSparkJobStage : IJobCallbackStage
 {
     private readonly JobCallbackUtils<DataPlaneSparkJobMetadata> jobCallbackUtils;
 
     private readonly DataPlaneSparkJobMetadata metadata;
-
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
-
     private readonly IComputeGovernedAssetsSparkJobComponent billingSparkJobComponent;
+    private readonly IAccountExposureControlConfigProvider exposureControl;
 
-    public TriggerComputingAssetsSparkJobStage(
+
+    public TriggerComputeGovernedAssetsSparkJobStage(
         IServiceScope scope,
         DataPlaneSparkJobMetadata metadata,
         JobCallbackUtils<DataPlaneSparkJobMetadata> jobCallbackUtils)
@@ -28,9 +29,10 @@ internal class TriggerComputingAssetsSparkJobStage : IJobCallbackStage
         this.jobCallbackUtils = jobCallbackUtils;
         this.dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
         this.billingSparkJobComponent = scope.ServiceProvider.GetService<IComputeGovernedAssetsSparkJobComponent>();
+        this.exposureControl = scope.ServiceProvider.GetService<IAccountExposureControlConfigProvider>();
     }
 
-    public string StageName => nameof(TriggerComputingAssetsSparkJobStage);
+    public string StageName => nameof(TriggerComputeGovernedAssetsSparkJobStage);
 
     public async Task<JobExecutionResult> Execute()
     {
@@ -61,7 +63,7 @@ internal class TriggerComputingAssetsSparkJobStage : IJobCallbackStage
             {
                 // TODO Not throw error/log error for the time being
                 // Fill an id to complete this stage
-                this.metadata.ComputeGovernedAssetsSparkJobBatchId = Guid.NewGuid().ToString();
+                this.metadata.ComputeGovernedAssetsSparkJobBatchId = "-1";
                 jobStageStatus = JobExecutionStatus.Failed;
                 jobStatusMessage = $"Failed to submit DEH_ComputeGovernedAssets job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}, JobID : {jobId}";
                 this.dataEstateHealthRequestLogger.LogInformation(jobStatusMessage, exception);
@@ -73,7 +75,8 @@ internal class TriggerComputingAssetsSparkJobStage : IJobCallbackStage
 
     public bool IsStageComplete()
     {
-        return this.metadata.ComputeGovernedAssetsSparkJobBatchId != null;
+        return !this.exposureControl.IsDataGovBillingEventEnabled(this.metadata.AccountServiceModel.Id, this.metadata.AccountServiceModel.SubscriptionId, this.metadata.AccountServiceModel.TenantId)
+            || this.metadata.ComputeGovernedAssetsSparkJobBatchId != null;
     }
 
     public bool IsStagePreconditionMet()

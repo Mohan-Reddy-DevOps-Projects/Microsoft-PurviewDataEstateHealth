@@ -54,7 +54,8 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJ
             new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TriggerComputingAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils)
+            new TriggerComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            new TrackComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils)
         };
     }
 
@@ -84,6 +85,8 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJ
         this.Metadata.CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.CurrentScheduleStartTime = null;
+        this.Metadata.ComputeGovernedAssetsSparkJobBatchId = null;
+        this.Metadata.ComputeGovernedAssetsSparkJobStatus = DataPlaneSparkJobStatus.Others;
     }
 
     private async Task DeleteSparkPools()
