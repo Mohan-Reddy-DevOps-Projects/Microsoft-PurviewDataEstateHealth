@@ -4,8 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Metadata service accessor
@@ -24,5 +24,5 @@ public interface IMetadataAccessorService
     /// <param name="blobPath"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<StorageTokenKey> GetProcessingStorageSasToken(Guid accountId, string blobPath, CancellationToken cancellationToken);
+    Task<StorageTokenKey> GetProcessingStorageSasToken(Guid accountId, string containerName, string blobPath, CancellationToken cancellationToken);
 }

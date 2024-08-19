@@ -4,15 +4,15 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
-using System;
-using System.Net;
-using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.DGP.ServiceBasics.Errors;
 using Microsoft.Rest;
+using System;
+using System.Net;
+using System.Threading.Tasks;
 
 internal class MetadataAccessorService : IMetadataAccessorService
 {
@@ -41,6 +41,7 @@ internal class MetadataAccessorService : IMetadataAccessorService
     /// <inheritdoc/>
     public async Task<StorageTokenKey> GetProcessingStorageSasToken(
         Guid accountId,
+        string containerName,
         string blobPath,
         CancellationToken cancellationToken)
     {
@@ -49,7 +50,8 @@ internal class MetadataAccessorService : IMetadataAccessorService
             Services = "b",
             Permissions = "rl",
             BlobPath = blobPath,
-            TimeToLive = TimeSpan.FromHours(1).ToString(@"hh\:mm\:ss")
+            TimeToLive = TimeSpan.FromHours(1).ToString(@"hh\:mm\:ss"),
+            ContainerName = containerName
         };
 
         try

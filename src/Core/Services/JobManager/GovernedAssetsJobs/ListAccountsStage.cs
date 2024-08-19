@@ -40,12 +40,13 @@ internal class ListAccountStage : IJobCallbackStage
         this.metadata.GovernedAssetsJobAccounts.Add(new GovernedAssetsJobAccount()
         {
             AccountServiceModel = new AccountServiceModel(
-                id: "4285effc-d0a0-43bb-88b9-34932df50117",
+                id: "ecf09339-34e0-464b-a8fb-661209048543",
                 tenantId: "12d98746-0b5a-4778-8bd0-449994469062",
+                defaultCatalogId: "ef5af140-62b9-431f-89be-2cdfcb0bf3a8",
                 processingStorageModel: new ProcessingStorageModel()
                 {
-                    Name = "",
-                    DnsZone = "",
+                    Name = "processingwus2twzassx",
+                    DnsZone = "z37",
                 }),
             ComputeGovernedAssetsSparkJobStatus = DataPlaneSparkJobStatus.Others
         });
