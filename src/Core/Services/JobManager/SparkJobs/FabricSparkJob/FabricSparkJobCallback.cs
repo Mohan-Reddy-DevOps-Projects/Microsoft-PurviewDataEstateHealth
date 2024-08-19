@@ -47,8 +47,9 @@ internal class FabricSparkJobCallback : StagedWorkerJobCallback<SparkJobMetadata
     {
         this.JobStages = new List<IJobCallbackStage>
         {
-            new TriggerFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TrackFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            //Not used anymore keeping it just in case if we need to reverse it
+            //new TriggerFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            //new TrackFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
         };
     }
 

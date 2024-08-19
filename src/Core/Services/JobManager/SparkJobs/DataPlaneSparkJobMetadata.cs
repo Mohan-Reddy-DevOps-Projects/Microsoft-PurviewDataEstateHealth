@@ -40,6 +40,12 @@ internal class DataPlaneSparkJobMetadata : StagedWorkerJobMetadata
     public string DimensionSparkJobBatchId { get; set; }
 
     /// <summary>
+    /// Fabric Spark job id.
+    /// </summary>
+    [JsonProperty]
+    public string FabricSparkJobBatchId { get; set; }
+
+    /// <summary>
     /// Dimension Spark job status.
     /// </summary>
     [JsonProperty]
@@ -56,6 +62,12 @@ internal class DataPlaneSparkJobMetadata : StagedWorkerJobMetadata
     /// </summary>
     [JsonProperty]
     public DataPlaneSparkJobStatus ComputeGovernedAssetsSparkJobStatus { get; set; }
+
+    /// <summary>
+    /// Dimension Spark job status.
+    /// </summary>
+    [JsonProperty]
+    public DataPlaneSparkJobStatus FabricSparkJobStatus { get; set; }
 
     /// <summary>
     /// Current schedule start time. 

@@ -52,6 +52,29 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             await this.HandleResponseStatusCode(response);
         }
 
+        public async Task<string> GetMITokenfromDEH(string accountId, CancellationToken cancellationToken)
+        {
+            var requestUri = this.CreateRequestUri($"/internal/settings/storageConfig/mitoken");
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            request.Headers.Add(HeaderAccountIdName, accountId);
+            var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            await this.HandleResponseStatusCode(response);
+            return responseContent;
+        }
+
+        public async Task<string> GetStorageConfigSettings(string accountId, string tenantId, CancellationToken cancellationToken)
+        {
+            var requestUri = this.CreateRequestUri($"/internal/settings/storageConfig");
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            request.Headers.Add(HeaderAccountIdName, accountId);
+            request.Headers.Add(HeaderTenantIdName, tenantId);
+            var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            await this.HandleResponseStatusCode(response);
+            return responseContent;
+        }
+
         public async Task TriggerSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken)
         {
             var requestUri = this.CreateRequestUri("/internal/control/triggerScheduleJob");

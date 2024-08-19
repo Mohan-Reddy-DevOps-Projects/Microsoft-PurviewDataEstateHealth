@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
 {
     using Microsoft.Azure.ProjectBabylon.Metadata.Models;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
+    using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.JobManagerModels;
 
     /// <summary>
     /// Metadata service accessor
@@ -41,5 +42,19 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<bool> CleanUpActionsJobCallback(AccountServiceModel account, CancellationToken cancellationToken);
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Task<string> GetMIToken(string accountId);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Task<StorageConfiguration> GetStorageConfigSettings(string accountId, string tenantId);
+
     }
 }

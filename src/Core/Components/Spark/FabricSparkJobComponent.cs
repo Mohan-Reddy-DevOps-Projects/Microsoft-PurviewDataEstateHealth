@@ -5,11 +5,16 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
+using global::Azure.Core;
+using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
+using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.JobManagerModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using System;
 using System.Collections.Generic;
@@ -21,26 +26,70 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
     private readonly ISparkJobManager sparkJobManager;
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly ServerlessPoolConfiguration serverlessPoolConfiguration;
+    private readonly IKeyVaultAccessorService keyVaultAccessorService;
+    private readonly string keyVaultBaseURL;
+    private readonly IDataHealthApiService dataHealthApiService;
 
     public FabricSparkJobComponent(
         ISparkJobManager sparkJobManager,
         IProcessingStorageManager processingStorageManager,
-        IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration)
+        IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration,
+        IKeyVaultAccessorService keyVaultAccessorService,
+        IOptions<KeyVaultConfiguration> keyVaultConfig,
+        IDataHealthApiService dataHealthApiService)
     {
         this.sparkJobManager = sparkJobManager;
         this.processingStorageManager = processingStorageManager;
         this.serverlessPoolConfiguration = serverlessPoolConfiguration.Value;
+        this.keyVaultAccessorService = keyVaultAccessorService;
+        this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
+        this.dataHealthApiService = dataHealthApiService;
     }
 
     /// <inheritdoc/>
-    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
+    //public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
+    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId)
     {
+        KeyVaultSecret cosmosDBKey = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBWritekey", cancellationToken);
+        KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
+        KeyVaultSecret workSpaceID = await this.keyVaultAccessorService.GetSecretAsync("logAnalyticsWorkspaceId", cancellationToken);
+
         Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
         string containerName = accountServiceModel.DefaultCatalogId;
         Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
-        //string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";
-        SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host);
-        return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken);
+        string jarClassName = "com.microsoft.azurepurview.dataestatehealth.storagesync.main.StorageSyncMain";
+        var miToken = "";
+        miToken = await this.GetMIToken(accountServiceModel.Id.ToString());
+        StorageConfiguration storageConfig = new StorageConfiguration();
+        storageConfig = await this.GetStorageConfigSettings(accountServiceModel.Id.ToString(), accountServiceModel.TenantId);
+        if (!string.IsNullOrEmpty(storageConfig.TypeProperties.LocationURL) & !string.IsNullOrEmpty(miToken))
+        {
+            SparkJobRequestModel sparkJobRequestModel = new SparkJobRequestModel
+            {
+                sasUri = sinkSasUri,
+                accountId = processingStorageModel.AccountId.ToString(),
+                containerName = containerName,
+                sinkLocation = sinkSasUri.Host,
+                jobId = jobId,
+                jarClassName = jarClassName,
+                miToken = miToken,
+                storageUrl = storageConfig.TypeProperties.LocationURL,
+                storageType = storageConfig.Type,
+                cosmosDBEndpoint = cosmosDBEndpoint.Value,
+                cosmosDBKey = cosmosDBKey.Value,
+                workSpaceID = workSpaceID.Value
+            };
+
+
+            SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sparkJobRequestModel);
+            //sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, jarClassName, miToken, fabricConfig, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value);
+            var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
+            return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, poolResourceId);
+        }
+        else
+        {
+            return null;
+        }
     }
 
     public async Task<SparkBatchJob> GetJob(AccountServiceModel accountServiceModel, int batchId, CancellationToken cancellationToken) => await this.sparkJobManager.GetJob(accountServiceModel, batchId, cancellationToken);
@@ -59,38 +108,74 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
         return await this.processingStorageManager.GetProcessingStorageSasUri(processingStorageModel, storageSasRequest, containerName, cancellationToken);
     }
 
-    private SparkJobRequest GetSparkJobRequest(Uri sasUri, string accountId, string containerName, string sinkLocation, string jarClassName = "")
+    //Uri sasUri, string accountId, string containerName, string sinkLocation, string jobId, string jarClassName, string miToken, string fabricConfig, string cosmosDBEndpoint = "", string cosmosDBKey = "", string workSpaceID = "")
+    private SparkJobRequest GetSparkJobRequest(SparkJobRequestModel sparkJobRequestModel)
+
     {
         return new()
         {
-            Configuration = this.GetSinkConfiguration(sasUri, containerName),
-            ExecutorCount = 1,
-            File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-dehfabricsync-azure-purview-1.0-jar.jar",
+            //Configuration = this.GetSinkConfiguration(sasUri, containerName),
+            Configuration = this.GetSinkConfiguration(sparkJobRequestModel), //accountId, sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID, miToken),
+            ExecutorCount = 2,
+            File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-storagesync-azure-purview-1.0-jar.jar",
             Name = "FabricSparkJob",
-            ClassName = jarClassName,
+            ClassName = sparkJobRequestModel.jarClassName,
             RunManagerArgument = new List<string>()
             {
-
-                $"--CosmosDBLinkedServiceName", "analyticalCosmosDbLinkedService",
-                $"--AdlsTargetDirectory", $"abfss://{containerName}@{sinkLocation}/DomainModelDev",
-                $"--AccountId", $"{accountId}",
-                $"--RefreshType", "incremental",
-                $"--ReProcessingThresholdInMins", "0"
+                $"--DEHStorageAccount", $"abfss://{sparkJobRequestModel.containerName}@{sparkJobRequestModel.sinkLocation}",
+                $"--SyncRootPath", $"{sparkJobRequestModel.storageUrl}",
+                $"--SyncType", $"{sparkJobRequestModel.storageType}",
+                $"--AccountId", $"{sparkJobRequestModel.accountId}",
+                $"--JobRunGuid", $"{sparkJobRequestModel.jobId}",
             },
         };
     }
 
-    private Dictionary<string, string> GetSinkConfiguration(Uri sasUri, string containerName)
+
+    private async Task<string> GetMIToken(string accountId)
+    {
+        //Get MI token
+        var returnToken = "";
+        var serviceClient = await this.dataHealthApiService.GetMIToken(accountId);
+        return returnToken;
+    }
+
+    private async Task<StorageConfiguration> GetStorageConfigSettings(string accountId, string tenantId)
+    {
+        //Get Fabric Configuration
+        StorageConfiguration returnConfig = new StorageConfiguration();
+        returnConfig = await this.dataHealthApiService.GetStorageConfigSettings(accountId, tenantId);
+        return returnConfig;
+    }
+
+    //private Dictionary<string, string> GetSinkConfiguration(Uri sasUri, string containerName)
+    //string accountId, Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey, string workSpaceID, string miToken)
+    private Dictionary<string, string> GetSinkConfiguration(SparkJobRequestModel sparkJobRequestModel)
     {
         return new Dictionary<string, string>()
         {
-            {$"fs.azure.account.auth.type.{sasUri.Host}", "SAS"},
-            {$"fs.azure.sas.token.provider.type.{sasUri.Host}", "com.microsoft.azure.synapse.tokenlibrary.ConfBasedSASProvider" },
-            {$"spark.storage.synapse.{containerName}.{sasUri.Host}.sas", sasUri.Query[1..] },
-            {$"fs.azure.sas.fixed.token.{sasUri.Host}.dfs.core.windows.net", sasUri.Query[1..]},
             {$"spark.microsoft.delta.optimizeWrite.enabled" ,"true" },
             {$"spark.serializer","org.apache.spark.serializer.KryoSerializer" },
-            {$"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" }
+            {$"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" },
+            {$"spark.dynamicAllocation.enabled", "true" },
+            {$"spark.dynamicAllocation.minExecutors","3" },
+            {$"spark.dynamicAllocation.maxExecutors","16" },
+            {$"spark.dynamicAllocation.executorIdleTimeout","900s" },
+            {$"spark.sql.adaptive.enabled", "true" },
+            {$"spark.sql.adaptive.skewJoin.enabled", "true" },
+            {$"spark.cosmos.accountEndpoint", $"{sparkJobRequestModel.cosmosDBEndpoint}" },
+            {$"spark.cosmos.database", "dgh-DataEstateHealth" },
+            {$"spark.keyvault.name", this.keyVaultBaseURL},
+            {$"spark.analyticalcosmos.keyname", "cosmosDBWritekey"},
+            //Don't deploy till log analytics is automated
+            {$"spark.loganalytics.workspaceid","logAnalyticsWorkspaceId"},
+            {$"spark.loganalytics.workspacekeyname", "logAnalyticsKey" },
+            {$"spark.synapse.logAnalytics.enabled", "true" },
+            {$"spark.synapse.logAnalytics.workspaceId",sparkJobRequestModel.workSpaceID },
+            {$"spark.synapse.logAnalytics.keyVault.name", this.keyVaultBaseURL},
+            {$"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" },
+            {$"spark.mitoken.value",$"{sparkJobRequestModel.miToken}" }
+
         };
     }
 }

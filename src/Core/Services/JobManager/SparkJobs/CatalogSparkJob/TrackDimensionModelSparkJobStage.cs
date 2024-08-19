@@ -78,13 +78,12 @@ internal class TrackDimensionModelSparkJobStage : IJobCallbackStage
 
                 if (SparkJobUtils.IsSuccess(jobDetails))
                 {
-                    //Not enabled yet
-                    //await this.ProvisionFabricRefreshJob(this.metadata, this.metadata.AccountServiceModel);
                     this.metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Succeeded;
                     jobStageStatus = JobExecutionStatus.Completed;
                     await this.ProvisionResetDataPlaneScheduleJob(this.metadata.AccountServiceModel).ConfigureAwait(false);
 
-                    if (this.exposureControl.IsDataGovHealthRunSetupSQLEnabled(this.metadata.AccountServiceModel.Id, this.metadata.AccountServiceModel.SubscriptionId, this.metadata.AccountServiceModel.TenantId))
+                    //Removing the EC update in all cases
+                    //if (this.exposureControl.IsDataGovHealthRunSetupSQLEnabled(this.metadata.AccountServiceModel.Id, this.metadata.AccountServiceModel.SubscriptionId, this.metadata.AccountServiceModel.TenantId))
                     {
                         // update SQL external table
                         await this.databaseManagementService.Initialize(this.metadata.AccountServiceModel, CancellationToken.None).ConfigureAwait(false);

@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
     using Microsoft.Azure.ProjectBabylon.Metadata.Models;
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
+    using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.JobManagerModels;
     using Newtonsoft.Json;
     using System;
     using System.Threading;
@@ -41,6 +42,51 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             return client;
         }
 
+        /// <summary>
+        /// Generate Purview MI token, using DEH -> RP services 
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <returns></returns>
+        public async Task<string> GetMIToken(string accountId)
+        {
+            string returnToken = "";
+            var client = this.GetDEHServiceClient();
+
+            var resonseString = await client.GetMITokenfromDEH(accountId, CancellationToken.None);
+            //await this.purviewMITokenClient.GetMIToken(accountId, "azurestorage").ConfigureAwait(false);
+
+            var payload = JsonConvert.DeserializeObject<MITokenPayload>(resonseString);
+            returnToken = payload.Token;
+            if (string.IsNullOrEmpty(returnToken))
+            {
+                this.logger.LogInformation($"Get MI token from DEH. Account Id: {accountId}, empty token generated, MI Token generation failed.");
+            }
+
+            return returnToken;
+        }
+
+
+        /// <summary>
+        /// Get Storage Config settings from DEH, the User will configure this from DEH settings
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="tenantId"></param>
+        /// <returns></returns>
+        public async Task<StorageConfiguration> GetStorageConfigSettings(string accountId, string tenantId)
+        {
+            string returnLocationURL = "";
+            var client = this.GetDEHServiceClient();
+            var responseString = await client.GetStorageConfigSettings(accountId, tenantId, CancellationToken.None);
+
+            var payload = JsonConvert.DeserializeObject<StorageConfiguration>(responseString);
+            returnLocationURL = payload.TypeProperties.LocationURL;
+            if (string.IsNullOrEmpty(returnLocationURL))
+            {
+                this.logger.LogInformation($"Get MI token from DEH. Account Id: {accountId} failed!");
+            }
+            return payload;
+        }
+
         public void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry, CancellationToken cancellationToken)
         {
             var requestId = Guid.NewGuid();
@@ -64,7 +110,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                         TenantId = jobModel.TenantId,
                         AccountId = jobModel.AccountId,
                         IsRetry = isRetry,
-                        RequestId = requestId,
+                        RequestId = requestId                        
                     };
                     var client = this.GetDEHServiceClient();
                     await client.TriggerMDQJobCallback(payload, cancellationToken).ConfigureAwait(false);

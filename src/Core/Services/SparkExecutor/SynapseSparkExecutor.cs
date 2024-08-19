@@ -151,7 +151,7 @@ internal sealed class SynapseSparkExecutor(
             },
             SparkEventsFolder = "/events",
             NodeCount = 4,
-            SparkVersion = "3.3",
+            SparkVersion = "3.4",
             DefaultSparkLogFolder = "/logs",
             NodeSize = BigDataPoolNodeSize.Medium,
             NodeSizeFamily = BigDataPoolNodeSizeFamily.MemoryOptimized

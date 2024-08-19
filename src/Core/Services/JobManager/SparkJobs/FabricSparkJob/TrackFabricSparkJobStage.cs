@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,8 +16,8 @@ using System.Threading.Tasks;
 
 internal class TrackFabricSparkJobStage : IJobCallbackStage
 {
-    private readonly JobCallbackUtils<SparkJobMetadata> jobCallbackUtils;
-    private readonly SparkJobMetadata metadata;
+    private readonly JobCallbackUtils<DataPlaneSparkJobMetadata> jobCallbackUtils;
+    private readonly DataPlaneSparkJobMetadata metadata;
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly IFabricSparkJobComponent fabricSparkJobComponent;
     private readonly IJobManager backgroundJobManager;
@@ -27,8 +28,8 @@ internal class TrackFabricSparkJobStage : IJobCallbackStage
 
     public TrackFabricSparkJobStage(
     IServiceScope scope,
-    SparkJobMetadata metadata,
-    JobCallbackUtils<SparkJobMetadata> jobCallbackUtils)
+    DataPlaneSparkJobMetadata metadata,
+    JobCallbackUtils<DataPlaneSparkJobMetadata> jobCallbackUtils)
     {
         this.metadata = metadata;
         this.jobCallbackUtils = jobCallbackUtils;
@@ -41,7 +42,7 @@ internal class TrackFabricSparkJobStage : IJobCallbackStage
 
     public async Task<JobExecutionResult> Execute()
     {
-        JobExecutionStatus jobStageStatus;
+        JobExecutionStatus jobStageStatus = JobExecutionStatus.Postponed;
         string jobStatusMessage;
 
         try
@@ -53,7 +54,7 @@ internal class TrackFabricSparkJobStage : IJobCallbackStage
                 // per-account pre-provisioned pool
                 jobDetails = await this.fabricSparkJobComponent.GetJob(
                     this.metadata.AccountServiceModel,
-                    int.Parse(this.metadata.SparkJobBatchId),
+                    int.Parse(this.metadata.FabricSparkJobBatchId),
                     new CancellationToken());
             }
             else
@@ -61,18 +62,29 @@ internal class TrackFabricSparkJobStage : IJobCallbackStage
                 // per-job pool
                 var jobInfo = new SparkPoolJobModel()
                 {
-                    JobId = this.metadata.SparkJobBatchId,
+                    JobId = this.metadata.FabricSparkJobBatchId,
                     PoolResourceId = this.metadata.SparkPoolId
                 };
                 jobDetails = await this.fabricSparkJobComponent.GetJob(
                     jobInfo, new CancellationToken());
             }
+                   
+            if (SparkJobUtils.IsSuccess(jobDetails))
+            {
+                this.metadata.FabricSparkJobStatus = DataPlaneSparkJobStatus.Succeeded;
+                jobStageStatus = JobExecutionStatus.Completed;
+                await this.ProvisionResetDataPlaneScheduleJob(this.metadata.AccountServiceModel).ConfigureAwait(false);                
+            }
+            else if (SparkJobUtils.IsFailure(jobDetails))
+            {
+                this.metadata.FabricSparkJobStatus = DataPlaneSparkJobStatus.Failed;
+                jobStageStatus = JobExecutionStatus.Failed;
+            }
 
-            jobStageStatus = SparkJobUtils.DetermineJobStageStatus(jobDetails);
             jobStatusMessage = SparkJobUtils.GenerateStatusMessage(this.metadata.AccountServiceModel.Id, jobDetails, jobStageStatus, this.StageName);
-            this.logger.LogTrace(jobStatusMessage);
+            this.logger.LogTrace($"track dimension spark job stage status: {jobStatusMessage}");
 
-            this.metadata.IsCompleted = SparkJobUtils.IsJobCompleted(jobDetails);
+
         }
         catch (Exception exception)
         {
@@ -86,11 +98,19 @@ internal class TrackFabricSparkJobStage : IJobCallbackStage
 
     public bool IsStageComplete()
     {
-        return this.metadata.IsCompleted;
+        //return this.metadata.IsCompleted;
+        return this.metadata.FabricSparkJobStatus == DataPlaneSparkJobStatus.Succeeded || this.metadata.FabricSparkJobStatus == DataPlaneSparkJobStatus.Failed;
+
+    }
+
+    private async Task ProvisionResetDataPlaneScheduleJob(AccountServiceModel account)
+    {
+        await this.backgroundJobManager.ProvisionBackgroundJobResetJob(account);
     }
 
     public bool IsStagePreconditionMet()
     {
-        return int.TryParse(this.metadata.SparkJobBatchId, out int _);
+        //return int.TryParse(this.metadata.SparkJobBatchId, out int _);
+        return int.TryParse(this.metadata.FabricSparkJobBatchId, out int _);
     }
 }

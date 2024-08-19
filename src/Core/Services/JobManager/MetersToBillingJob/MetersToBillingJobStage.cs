@@ -96,7 +96,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
     public async Task<JobExecutionResult> Execute()
     {
-        this.logger.LogInformation("Starting Metring Job." + this.metadata.TenantId);
+        this.logger.LogInformation("Starting Metering Job." + this.metadata.TenantId);
 
         // job final state initializaation
         var jobStarted = DateTimeOffset.UtcNow;
@@ -231,7 +231,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                         CreationTime = now,
                         // BUG IN CBS DO NOT ALLOW FRACTIONAL UNITS
                         Quantity = meteredEvent.ProcessingUnits,
-                        BillingTags = billingTags,
+                        BillingTags = billingTags                        
                     });
 
                     return billingEvent;

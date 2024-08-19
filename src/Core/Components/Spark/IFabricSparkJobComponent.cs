@@ -21,8 +21,8 @@ public interface IFabricSparkJobComponent
     /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
-
+    Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId);
+    
     /// <summary>
     /// Get details for a spark job.
     /// </summary>

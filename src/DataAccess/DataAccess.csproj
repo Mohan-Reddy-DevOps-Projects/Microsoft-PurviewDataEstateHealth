@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Configurations\Configurations.csproj" />
+    <ProjectReference Include="..\DHDataAccess\DHDataAccess.csproj" />
     <ProjectReference Include="..\Loggers\Loggers.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
   </ItemGroup>

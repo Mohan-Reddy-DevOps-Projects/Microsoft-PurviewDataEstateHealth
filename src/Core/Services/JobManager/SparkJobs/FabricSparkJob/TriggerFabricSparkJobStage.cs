@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 
 internal class TriggerFabricSparkJobStage : IJobCallbackStage
 {
-    private readonly JobCallbackUtils<SparkJobMetadata> jobCallbackUtils;
+    private readonly JobCallbackUtils<DataPlaneSparkJobMetadata> jobCallbackUtils;
 
-    private readonly SparkJobMetadata metadata;
+    private readonly DataPlaneSparkJobMetadata metadata;
 
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
 
@@ -21,8 +21,8 @@ internal class TriggerFabricSparkJobStage : IJobCallbackStage
 
     public TriggerFabricSparkJobStage(
     IServiceScope scope,
-    SparkJobMetadata metadata,
-    JobCallbackUtils<SparkJobMetadata> jobCallbackUtils)
+    DataPlaneSparkJobMetadata metadata,
+    JobCallbackUtils<DataPlaneSparkJobMetadata> jobCallbackUtils)
     {
         this.metadata = metadata;
         this.jobCallbackUtils = jobCallbackUtils;
@@ -36,15 +36,26 @@ internal class TriggerFabricSparkJobStage : IJobCallbackStage
     {
         JobExecutionStatus jobStageStatus;
         string jobStatusMessage;
+        var jobId = Guid.NewGuid().ToString();
+
 
         try
         {
             var jobInfo = await this.fabricSparkJobComponent.SubmitJob(
                 this.metadata.AccountServiceModel,
-                new CancellationToken());
+                new CancellationToken(),
+                jobId,
+                this.metadata.SparkPoolId);
+            if (jobInfo == null)
+            {
+                this.dataEstateHealthRequestLogger.LogInformation($"Copy Activity not configured account: {this.metadata.AccountServiceModel.Id} in {this.StageName}");
+                jobStatusMessage = $"Copy Activity not configured account: {this.metadata.AccountServiceModel.Id} in {this.StageName}";
+                jobStageStatus = JobExecutionStatus.Completed;
+                return this.jobCallbackUtils.GetExecutionResult(JobExecutionStatus.Completed, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
+            }
 
             this.metadata.SparkPoolId = jobInfo.PoolResourceId;
-            this.metadata.SparkJobBatchId = jobInfo.JobId;
+            this.metadata.FabricSparkJobBatchId = jobInfo.JobId;
 
             jobStageStatus = JobExecutionStatus.Succeeded;
             jobStatusMessage = $"Fabric SPARK job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}";
@@ -62,11 +73,11 @@ internal class TriggerFabricSparkJobStage : IJobCallbackStage
 
     public bool IsStageComplete()
     {
-        return int.TryParse(this.metadata.SparkJobBatchId, out int _);
+        return int.TryParse(this.metadata.FabricSparkJobBatchId, out int _) && this.metadata.FabricSparkJobStatus != DataPlaneSparkJobStatus.Failed;
     }
 
     public bool IsStagePreconditionMet()
     {
-        return string.IsNullOrEmpty(this.metadata.SparkJobBatchId);
+        return string.IsNullOrEmpty(this.metadata.FabricSparkJobBatchId);
     }
 }

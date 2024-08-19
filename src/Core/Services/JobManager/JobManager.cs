@@ -543,8 +543,8 @@ public class JobManager : IJobManager
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext())
 
             };
-
-            var repeatInterval = TimeSpan.FromMinutes(10);
+            
+            var repeatInterval = TimeSpan.FromMinutes(this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 1 : 10);
             var startTime = DateTime.UtcNow;
 
             var jobOptions = new BackgroundJobOptions()
@@ -667,10 +667,13 @@ public class JobManager : IJobManager
                 SparkPoolId = string.Empty,
                 CatalogSparkJobBatchId = string.Empty,
                 DimensionSparkJobBatchId = string.Empty,
+                FabricSparkJobBatchId = string.Empty,
                 CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others,
-                DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others
+                DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others,
+                FabricSparkJobStatus = DataPlaneSparkJobStatus.Others,
+
             };
-            int randomMins = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 3 : RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
+            int randomMins = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 1 : RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
 
             var jobOptions = new BackgroundJobOptions()
             {
