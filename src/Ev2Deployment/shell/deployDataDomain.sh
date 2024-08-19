@@ -26,6 +26,11 @@ if [ -z ${STORAGESYNC_ARCHIVE_SAS+x} ]; then
     exit 1;
 fi
 
+if [ -z ${COMPUTEGOVERNEDASSETS_ARCHIVE_SAS+x} ]; then
+    echo "COMPUTEGOVERNEDASSETS_ARCHIVE_SAS is unset, unable to continue"
+    exit 1;
+fi
+
 if [ -z ${STORAGE_ACCOUNT_NAME+x} ]; then
     echo "STORAGE_ACCOUNT_NAME is unset, unable to continue"
     exit 1;
@@ -62,11 +67,13 @@ echo "wget domainmodel.tar to directory domain"
 wget $DOMAINMODEL_ARCHIVE_SAS -O domainmodel.tar
 wget $STORAGESYNC_ARCHIVE_SAS -O storagesync.tar
 wget $DIMENSIONALMODEL_ARCHIVE_SAS -O dimensionalmodel.tar
+wget $COMPUTEGOVERNEDASSETS_ARCHIVE_SAS -O computegovernedassets.tar
 
 echo "Untar domainmodel.tar to directory domain"
 tar -C domain -xvf domainmodel.tar
 tar -C domain -xvf storagesync.tar
 tar -C domain -xvf dimensionalmodel.tar
+tar -C domain -xvf computegovernedassets.tar
 
 cd ..
 
@@ -78,6 +85,7 @@ ls -R
 cp ./unarchive/domain/dataestatehealthanalytics-domainmodel-azure-purview-1.1-jar.jar ./domainfiles/
 cp ./unarchive/domain/dataestatehealthanalytics-storagesync-azure-purview-1.0-jar.jar ./domainfiles/
 cp ./unarchive/domain/dataestatehealthanalytics-dimensionalmodel-azure-purview-1.1-jar.jar ./domainfiles/
+cp ./unarchive/domain/dataestatehealthanalytics-computegovernedassets-azure-purview-1.0-jar.jar ./domainfiles/
 
 
 echo "Creating container"

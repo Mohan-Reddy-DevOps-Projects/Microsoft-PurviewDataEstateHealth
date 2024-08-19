@@ -52,6 +52,13 @@
             "asSecureValue": "true"
           },
           {
+            "name": "COMPUTEGOVERNEDASSETS_ARCHIVE_SAS",
+            "reference": {
+              "path": "computegovernedassets.tar"
+            },
+            "asSecureValue": "true"
+          },
+          {
             "name": "STORAGE_ACCOUNT_NAME",
             "value": "__INFRA_SYNAPSE_WORKSPACE_STORAGE_ACCOUNT_NAME__"
           },
