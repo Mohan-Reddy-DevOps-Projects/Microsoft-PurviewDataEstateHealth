@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,11 +29,12 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
     private readonly DatasetProvider datasetCommand;
     private readonly IHealthPBIReportComponent healthPBIReportComponent;
     private readonly IPowerBICredentialComponent powerBICredentialComponent;
+    private readonly CapacityProvider capacityAssignment;
 
     public StartPBIReportUpgradeStage(
-        IServiceScope scope,
-        StartPBIRefreshMetadata metadata,
-        JobCallbackUtils<StartPBIRefreshMetadata> jobCallbackUtils)
+    IServiceScope scope,
+    StartPBIRefreshMetadata metadata,
+    JobCallbackUtils<StartPBIRefreshMetadata> jobCallbackUtils)
     {
         this.scope = scope;
         this.metadata = metadata;
@@ -44,6 +46,7 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
         this.datasetCommand = scope.ServiceProvider.GetRequiredService<DatasetProvider>();
         this.healthPBIReportComponent = scope.ServiceProvider.GetRequiredService<IHealthPBIReportComponent>();
         this.powerBICredentialComponent = scope.ServiceProvider.GetRequiredService<IPowerBICredentialComponent>();
+        this.capacityAssignment = scope.ServiceProvider.GetRequiredService<CapacityProvider>();
     }
 
     public string StageName => nameof(StartPBIReportUpgradeStage);
@@ -54,6 +57,7 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
         string jobStatusMessage;
         try
         {
+
             Guid accountId = Guid.Parse(this.metadata.Account.Id);
             ProfileKey profileKey = new(accountId);
             IProfileModel profileModel = await this.profileCommand.Get(profileKey, CancellationToken.None);
@@ -63,10 +67,13 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
                 ProfileId = profileModel.Id,
             };
             Group workspace = await this.workspaceCommand.Get(workspaceContext, CancellationToken.None);
-            HealthDatasetUpgrade insightsDatasetUpgrade = new(this.logger, this.datasetCommand, this.healthPBIReportComponent, this.powerBICredentialComponent);
-            Dictionary<Guid, List<Dataset>> datasetUpgrades = await insightsDatasetUpgrade.UpgradeDatasets(this.metadata.Account, profileModel.Id, workspace.Id, true,  CancellationToken.None);            
-            //datasetUpgrades = await insightsDatasetUpgrade.UpgradeDatasets(this.metadata.Account, profileModel.Id, workspace.Id, true, SystemDatasets.Get()[HealthDataset.Dataset.DataGovernance.ToString()].Name, CancellationToken.None);
-            this.metadata.DatasetUpgrades = datasetUpgrades;
+
+            // make sure this list is updated so refresh happens this.metadata.DatasetUpgrades
+            await this.CreatePowerBIResources(this.metadata, this.metadata.Account, CancellationToken.None);
+            //HealthDatasetUpgrade insightsDatasetUpgrade = new(this.logger, this.datasetCommand, this.healthPBIReportComponent, this.powerBICredentialComponent);
+            //Dictionary<Guid, List<Dataset>> datasetUpgrades = await insightsDatasetUpgrade.UpgradeDatasets(this.metadata.Account, profileModel.Id, workspace.Id, true, CancellationToken.None);
+            ////datasetUpgrades = await insightsDatasetUpgrade.UpgradeDatasets(this.metadata.Account, profileModel.Id, workspace.Id, true, SystemDatasets.Get()[HealthDataset.Dataset.DataGovernance.ToString()].Name, CancellationToken.None);
+            //this.metadata.DatasetUpgrades = datasetUpgrades;
             this.metadata.ProfileId = profileModel.Id;
             this.metadata.WorkspaceId = workspace.Id;
 
@@ -86,6 +93,56 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
         this.logger.LogInformation(jobStatusSuccessMessage);
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
     }
+
+
+    private async Task CreatePowerBIResources(StartPBIRefreshMetadata metadata, AccountServiceModel account,
+            CancellationToken cancellationToken)
+    {
+        using (this.logger.LogElapsed("start to create/update PowerBI resources"))
+        {
+            try
+            {
+                ProfileKey profileKey = new(Guid.Parse(account.Id));
+                IProfileModel profile = await this.profileCommand.Create(profileKey, cancellationToken);
+                this.logger.LogInformation("Profile created successfully");
+                IWorkspaceContext context = new WorkspaceContext()// this.Context)
+                {
+                    ProfileId = profile.Id,
+                    AccountId = Guid.Parse(this.metadata.Account.Id),
+                    TenantId = Guid.Parse(this.metadata.Account.TenantId)
+                };
+                Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
+                this.logger.LogInformation("Workspace created successfully");
+
+                await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
+                this.logger.LogInformation("Workspace assigned successfully");
+                PowerBICredential powerBICredential = await this.powerBICredentialComponent.GetSynapseDatabaseLoginInfo(context.AccountId, OwnerNames.Health, cancellationToken);
+                this.logger.LogInformation("PowerBI credential retrieved successfully");
+                if (powerBICredential == null)
+                {
+                    // If the credential doesn't exist, lets create one. Otherwise this logic can be skipped
+                    powerBICredential = this.powerBICredentialComponent.CreateCredential(context.AccountId, OwnerNames.Health);
+                    await this.powerBICredentialComponent.AddOrUpdateSynapseDatabaseLoginInfo(powerBICredential, cancellationToken);
+                    this.logger.LogInformation("PowerBI credential created successfully");
+                }
+
+                await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken, metadata: metadata);
+                //Removing Exposure Control
+                //if (this.exposureControl.IsDataGovHealthDQReportEnabled(account.Id, account.SubscriptionId, account.TenantId))
+                //{                    
+                //}
+                await this.healthPBIReportComponent.CreateDataQualityReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken, metadata: metadata);
+                this.logger.LogInformation("PowerBI report created successfully");
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError("Failed to create PowerBI resources", e);
+                throw;
+            }
+        }
+    }
+
+
 
     public bool IsStageComplete()
     {

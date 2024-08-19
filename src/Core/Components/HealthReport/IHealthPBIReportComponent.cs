@@ -14,8 +14,8 @@ using System.Threading.Tasks;
 
 internal interface IHealthPBIReportComponent
 {
-    Task CreateDataGovernanceReport(AccountServiceModel account, Guid profileId, Guid workspaceId, PowerBICredential powerBICredential, CancellationToken cancellationToken, bool update = false);
-    Task CreateDataQualityReport(AccountServiceModel account, Guid profileId, Guid workspaceId, PowerBICredential powerBICredential, CancellationToken cancellationToken, bool update = false);
+    Task CreateDataGovernanceReport(AccountServiceModel account, Guid profileId, Guid workspaceId, PowerBICredential powerBICredential, CancellationToken cancellationToken, bool update = false, StartPBIRefreshMetadata metadata = null);
+    Task CreateDataQualityReport(AccountServiceModel account, Guid profileId, Guid workspaceId, PowerBICredential powerBICredential, CancellationToken cancellationToken, bool update = false, StartPBIRefreshMetadata metadata = null);
     Task<Dataset> CreateDataset(Guid profileId, Guid workspaceId, IDatasetRequest sharedDatasetRequest, CancellationToken cancellationToken, bool update = false);
     Task<Report> CreateReport(Dataset sharedDataset, IDatasetRequest reportRequest, CancellationToken cancellationToken, bool update = false);
     IDatasetRequest GetReportRequest(Guid profileId, Guid workspaceId, PowerBICredential powerBICredential, string reportName);

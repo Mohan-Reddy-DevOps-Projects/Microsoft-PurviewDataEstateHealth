@@ -46,6 +46,14 @@ internal sealed class HealthDatasetUpgrade
             WorkspaceId = workspaceId,
         };
         Datasets existingDatasets = await this.datasetCommand.List(datasetRequest, cancellationToken);
+        //Guid accountId = Guid.Parse(account.Id);
+        //var powerBICredential = this.powerBICredentialComponent.CreateCredential(accountId, OwnerNames.Health);
+        //this.logger.LogInformation($"Attempting to create/upgrade data governance dataset and reports. profile={profileId}, workspace={workspaceId} ");
+        //await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profileId, workspaceId, powerBICredential, cancellationToken);
+
+        //this.logger.LogInformation($"Attempting to create/upgrade DQ dataset and reports. profile={profileId}, workspace={workspaceId} ");
+        //await this.healthPBIReportComponent.CreateDataQualityReport(account, profileId, workspaceId, powerBICredential, cancellationToken);
+
         IList<Dataset> datasetsToUpgrade = await this.GetUpgradableDatasets(profileId, workspaceId, existingDatasets, cancellationToken);
         this.logger.LogInformation($"Attempting to upgrade datasets. Datasets={JsonSerializer.Serialize(datasetsToUpgrade)}");
         IList<Dataset> upgradedDatasets = await this.Upgrade(account, profileId, workspaceId, schemaUpgradeSucceeded, datasetsToUpgrade, cancellationToken);
@@ -139,7 +147,8 @@ internal sealed class HealthDatasetUpgrade
         {
             var enumValue = Enum.GetValues(typeof(HealthDataset.Dataset)).GetValue(i);
             string datasetName = SystemDatasets.Get()[enumValue.ToString()].Name;
-            foreach (Dataset dataset in existingDatasets.Value.Where(x => x.Name.Equals(datasetName, StringComparison.Ordinal)))
+            var existingDs = existingDatasets.Value.Where(x => x.Name.Equals(datasetName, StringComparison.Ordinal));
+            foreach (Dataset dataset in existingDs)
             {
                 DatasetRequest datasetRequest = new()
                 {
