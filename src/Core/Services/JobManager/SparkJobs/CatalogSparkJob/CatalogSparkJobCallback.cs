@@ -4,7 +4,6 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
-using Microsoft.Azure.Purview.DataEstateHealth.Core.Services.JobManager.SparkJobs.CatalogSparkJob;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
@@ -12,17 +11,10 @@ using System;
 using System.Threading.Tasks;
 
 [JobCallback(Name = nameof(CatalogSparkJobCallback))]
-internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJobMetadata>
+internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCallback<DataPlaneSparkJobMetadata>(scope)
 {
-    private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
-    private readonly ISparkJobManager sparkJobManager;
-
-    public CatalogSparkJobCallback(IServiceScope scope)
-        : base(scope)
-    {
-        this.dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
-        this.sparkJobManager = scope.ServiceProvider.GetService<ISparkJobManager>();
-    }
+    private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
+    private readonly ISparkJobManager sparkJobManager = scope.ServiceProvider.GetService<ISparkJobManager>();
 
     protected override string JobName => nameof(CatalogSparkJobCallback);
 
@@ -48,17 +40,17 @@ internal class CatalogSparkJobCallback : StagedWorkerJobCallback<DataPlaneSparkJ
 
     protected override void OnJobConfigure()
     {
-        this.JobStages = new List<IJobCallbackStage>
-        {
+        this.JobStages =
+        [
             new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TriggerFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TriggerComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TrackComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils)
-        };
+            // new TriggerComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            // new TrackComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils)
+        ];
     }
 
     protected override async Task TransitionToJobFailed()
