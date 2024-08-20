@@ -62,7 +62,8 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
         miToken = await this.GetMIToken(accountServiceModel.Id.ToString());
         StorageConfiguration storageConfig = new StorageConfiguration();
         storageConfig = await this.GetStorageConfigSettings(accountServiceModel.Id.ToString(), accountServiceModel.TenantId);
-        if (!string.IsNullOrEmpty(storageConfig.TypeProperties.LocationURL) & !string.IsNullOrEmpty(miToken))
+
+        if (!string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) & !string.IsNullOrEmpty(miToken))
         {
             SparkJobRequestModel sparkJobRequestModel = new SparkJobRequestModel
             {

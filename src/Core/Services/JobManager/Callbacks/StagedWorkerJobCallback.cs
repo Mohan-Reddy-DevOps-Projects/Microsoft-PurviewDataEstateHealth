@@ -352,7 +352,7 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
                 this.DataEstateHealthRequestLogger.LogInformation($"Start to run {stage.StageName}");
                 if (stage.IsStageComplete())
                 {
-                    this.DataEstateHealthRequestLogger.LogInformation($"{stage.StageName} already completed, skiped");
+                    this.DataEstateHealthRequestLogger.LogInformation($"{stage.StageName} already completed, skipped");
                     continue;
                 }
 

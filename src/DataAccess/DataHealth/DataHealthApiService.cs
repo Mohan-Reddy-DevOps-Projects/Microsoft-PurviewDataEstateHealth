@@ -75,16 +75,25 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         public async Task<StorageConfiguration> GetStorageConfigSettings(string accountId, string tenantId)
         {
             string returnLocationURL = "";
-            var client = this.GetDEHServiceClient();
-            var responseString = await client.GetStorageConfigSettings(accountId, tenantId, CancellationToken.None);
-
-            var payload = JsonConvert.DeserializeObject<StorageConfiguration>(responseString);
-            returnLocationURL = payload.TypeProperties.LocationURL;
-            if (string.IsNullOrEmpty(returnLocationURL))
+            try
             {
-                this.logger.LogInformation($"Get MI token from DEH. Account Id: {accountId} failed!");
+                var client = this.GetDEHServiceClient();
+                var responseString = await client.GetStorageConfigSettings(accountId, tenantId, CancellationToken.None);
+
+                var payload = JsonConvert.DeserializeObject<StorageConfiguration>(responseString);
+                returnLocationURL = payload.TypeProperties.LocationURL;
+                if (string.IsNullOrEmpty(returnLocationURL))
+                {
+                    this.logger.LogInformation($"GetStorageConfigSettings from DEH. Account Id: {accountId} failed!");
+                }
+                return payload;
+
             }
-            return payload;
+            catch (Exception ex)
+            {
+                this.logger.LogError($"GetStorageConfigSettings|Fail to get self serve settings for storage. Job Id: {accountId}.", ex);                
+            }
+            return null;
         }
 
         public void TriggerMDQJobCallback(MDQJobModel jobModel, bool isRetry, CancellationToken cancellationToken)
@@ -110,7 +119,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                         TenantId = jobModel.TenantId,
                         AccountId = jobModel.AccountId,
                         IsRetry = isRetry,
-                        RequestId = requestId                        
+                        RequestId = requestId
                     };
                     var client = this.GetDEHServiceClient();
                     await client.TriggerMDQJobCallback(payload, cancellationToken).ConfigureAwait(false);

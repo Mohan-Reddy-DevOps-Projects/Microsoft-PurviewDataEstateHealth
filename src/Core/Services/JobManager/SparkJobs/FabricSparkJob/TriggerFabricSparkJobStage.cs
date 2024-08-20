@@ -50,7 +50,8 @@ internal class TriggerFabricSparkJobStage : IJobCallbackStage
             {
                 this.dataEstateHealthRequestLogger.LogInformation($"Copy Activity not configured account: {this.metadata.AccountServiceModel.Id} in {this.StageName}");
                 jobStatusMessage = $"Copy Activity not configured account: {this.metadata.AccountServiceModel.Id} in {this.StageName}";
-                jobStageStatus = JobExecutionStatus.Completed;
+                jobStageStatus = JobExecutionStatus.Succeeded;                
+                this.metadata.FabricSparkJobBatchId = "-1";
                 return this.jobCallbackUtils.GetExecutionResult(JobExecutionStatus.Completed, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
             }
 

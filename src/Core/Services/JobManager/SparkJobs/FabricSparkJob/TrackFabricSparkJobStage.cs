@@ -99,7 +99,10 @@ internal class TrackFabricSparkJobStage : IJobCallbackStage
     public bool IsStageComplete()
     {
         //return this.metadata.IsCompleted;
-        return this.metadata.FabricSparkJobStatus == DataPlaneSparkJobStatus.Succeeded || this.metadata.FabricSparkJobStatus == DataPlaneSparkJobStatus.Failed;
+        //return this.metadata.FabricSparkJobStatus == DataPlaneSparkJobStatus.Succeeded || this.metadata.FabricSparkJobStatus == DataPlaneSparkJobStatus.Failed;
+        //FabricSparkJobBatchId == "-1" when no config is set
+        return this.metadata.FabricSparkJobBatchId == "-1" || this.metadata.FabricSparkJobStatus == DataPlaneSparkJobStatus.Succeeded || this.metadata.FabricSparkJobStatus == DataPlaneSparkJobStatus.Failed;
+
 
     }
 
