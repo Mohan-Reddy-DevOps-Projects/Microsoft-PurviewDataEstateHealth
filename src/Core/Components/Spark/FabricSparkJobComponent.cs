@@ -119,7 +119,7 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
             Configuration = this.GetSinkConfiguration(sparkJobRequestModel), //accountId, sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID, miToken),
             ExecutorCount = 2,
             File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-storagesync-azure-purview-1.0-jar.jar",
-            Name = "FabricSparkJob",
+            Name = $"FabricSparkJob-{sparkJobRequestModel.accountId}",
             ClassName = sparkJobRequestModel.jarClassName,
             RunManagerArgument = new List<string>()
             {

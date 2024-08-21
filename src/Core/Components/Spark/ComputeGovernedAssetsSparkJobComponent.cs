@@ -39,7 +39,7 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
             ExecutorCount = 2,
             File = $"abfss://datadomain@dghdogfoodsynapse.dfs.core.windows.net/dataestatehealthanalytics-computegovernedassets-azure-purview-1.0-jar.jar",
             ClassName = "com.microsoft.azurepurview.dataestatehealth.computegovernedassets.main.ComputeGovernedAssetsMain",
-            Name = "ComputingAssetSparkJob",
+            Name = $"ComputingAssetSparkJob-{accountServiceModel.Id}",
             RunManagerArgument =
             [
                 $"--AccountId", $"{accountServiceModel.Id}",

@@ -40,7 +40,7 @@ object LogAnalyticsLogger {
         Id = UUID.randomUUID().toString,
         AccountId = accountId,
         JobId = jobRunGuid,
-        JobName = "DomainModel",
+        JobName = "DimensionalModel",
         JobStatus = jobStatus,
         JobCompletionTime = Timestamp.from(Instant.now()).toString
       )

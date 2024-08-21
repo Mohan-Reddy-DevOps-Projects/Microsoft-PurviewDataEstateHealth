@@ -85,7 +85,7 @@ internal sealed class DimensionModelSparkJobComponent : IDimensionModelSparkJobC
             Configuration = this.GetSinkConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID),
             ExecutorCount = 2,
             File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-dimensionalmodel-azure-purview-1.1-jar.jar",
-            Name = "DimensionModelSparkJob",
+            Name = $"DimensionModelSparkJob-{accountId}",
             ClassName = jarClassName,
             RunManagerArgument = new List<string>()
             {
