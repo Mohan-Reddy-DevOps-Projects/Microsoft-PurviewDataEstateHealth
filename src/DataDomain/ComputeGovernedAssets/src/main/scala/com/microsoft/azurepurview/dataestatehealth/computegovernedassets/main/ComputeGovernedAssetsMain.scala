@@ -54,27 +54,26 @@ object ComputeGovernedAssetsMain {
             jobStatus = "Started")
 
           // Print all configurations
-          /*println("Spark Configuration:")
-          spark.conf.getAll.foreach { case (key, value) =>
+          println("Spark Configuration:")
+          /*spark.conf.getAll.foreach { case (key, value) =>
             println(s"$key = $value")
           }*/
 
           // Read OT data
           var rddContainerName = spark.conf.get("spark.rdd.containerName")
-          var rddAccountName = spark.conf.get("spark.rdd.accountName")
-          var rddDnsZone = spark.conf.get("spark.rdd.dnsZone")
-          var rddSasToken = spark.conf.get("spark.rdd.sasToken")
+          var rddHost = spark.conf.get("spark.rdd.host")
           println(s"rddContainerName: $rddContainerName")
-          spark.sparkContext.hadoopConfiguration.set(
+          println(s"rddHost: $rddHost")
+          /*spark.sparkContext.hadoopConfiguration.set(
             s"fs.azure.sas.$rddContainerName.$rddAccountName.blob.core.windows.net",
             rddSasToken
-          )
+          )*/
           val allAssetsInDataMap = spark.read
             .format("delta")
-            .load(s"abfss://$rddContainerName@$rddAccountName.$rddDnsZone.dfs.storage.azure.net/AtlasRdd/AtlasDeltaDataset" )
+            .load(s"abfss://$rddContainerName@$rddHost/AtlasRdd/AtlasDeltaDataset")
           totalAssetCountInDataMap = allAssetsInDataMap.count();
 
-          var assetsWithTermInDataMap = allAssetsInDataMap
+          val assetsWithTermInDataMap = allAssetsInDataMap
             .filter(
               F.col("mainAsset.relationshipAttributes.meanings").isNotNull// Check if 'meanings' array in 'mainAsset' is not empty
               || F.expr("AGGREGATE(schemaEntities, 0L, (total, col) -> total + IF(col.relationshipAttributes.meanings IS NOT NULL, 1L, 0L)) > 0") // Check if column has term

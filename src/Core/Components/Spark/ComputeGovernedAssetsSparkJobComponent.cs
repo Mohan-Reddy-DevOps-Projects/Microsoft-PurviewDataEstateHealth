@@ -30,7 +30,10 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
         KeyVaultSecret workSpaceID = await keyVaultAccessorService.GetSecretAsync("logAnalyticsWorkspaceId", cancellationToken);
         var keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
 
-        var rddBlobPath = "AtlasDeltaDataset";
+        var containerName = accountServiceModel.DefaultCatalogId;
+        var rddBlobPath = "AtlasRdd/AtlasDeltaDataset";
+        var rddHost = $"{accountServiceModel.ProcessingStorageModel?.Name}.{accountServiceModel.ProcessingStorageModel?.DnsZone}.blob.storage.azure.net";
+        var rddDfsHost = $"{accountServiceModel.ProcessingStorageModel?.Name}.{accountServiceModel.ProcessingStorageModel?.DnsZone}.dfs.storage.azure.net";
 
         var storageTokenKey = await metadataAccessorService.GetProcessingStorageSasToken(Guid.Parse(accountServiceModel.Id), accountServiceModel.DefaultCatalogId, rddBlobPath, cancellationToken);
 
@@ -39,7 +42,7 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
             ExecutorCount = 2,
             File = $"abfss://datadomain@dghdogfoodsynapse.dfs.core.windows.net/dataestatehealthanalytics-computegovernedassets-azure-purview-1.0-jar.jar",
             ClassName = "com.microsoft.azurepurview.dataestatehealth.computegovernedassets.main.ComputeGovernedAssetsMain",
-            Name = $"ComputingAssetSparkJob-{accountServiceModel.Id}",
+            Name = $"ComputeGovernedAssetsSparkJob-{accountServiceModel.Id}",
             RunManagerArgument =
             [
                 $"--AccountId", $"{accountServiceModel.Id}",
@@ -47,10 +50,8 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
             ],
             Configuration = new Dictionary<string, string>()
             {
-                {"spark.rdd.sasToken", storageTokenKey.Key },
-                {"spark.rdd.containerName", accountServiceModel.DefaultCatalogId },
-                {"spark.rdd.accountName", accountServiceModel.ProcessingStorageModel?.Name },
-                {"spark.rdd.dnsZone", accountServiceModel.ProcessingStorageModel?.DnsZone },
+                {"spark.rdd.containerName", containerName },
+                {"spark.rdd.host", rddDfsHost },
                 {"spark.microsoft.delta.optimizeWrite.enabled" ,"true" },
                 {"spark.serializer","org.apache.spark.serializer.KryoSerializer" },
                 {"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" },
@@ -72,6 +73,9 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
                 {"spark.synapse.logAnalytics.workspaceId",workSpaceID.Value },
                 {"spark.synapse.logAnalytics.keyVault.name", keyVaultBaseURL},
                 {"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" },
+                {$"fs.azure.account.auth.type.{rddHost}", "SAS" },
+                {$"fs.azure.sas.token.provider.type.{rddHost}", "com.microsoft.azure.synapse.tokenlibrary.ConfBasedSASProvider" },
+                {$"spark.storage.synapse.{containerName}.{rddHost}.sas", storageTokenKey.Key }
             }
         };
 

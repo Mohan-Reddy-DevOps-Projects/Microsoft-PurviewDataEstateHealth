@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using Microsoft.Azure.Purview.DataEstateHealth.Core.Services.JobManager.SparkJobs.CatalogSparkJob;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
@@ -48,8 +49,8 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
             new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TriggerFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            // new TriggerComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            // new TrackComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils)
+            new TriggerComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            new TrackComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
         ];
     }
 

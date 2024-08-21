@@ -543,7 +543,7 @@ public class JobManager : IJobManager
                 RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext())
 
             };
-            
+
             var repeatInterval = TimeSpan.FromMinutes(this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 1 : 10);
             var startTime = DateTime.UtcNow;
 
@@ -895,7 +895,7 @@ public class JobManager : IJobManager
     public async Task ProvisionGovernedAssetsJob()
     {
         var catalogRepeatStrategy = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ?
-       TimeSpan.FromHours(1) : TimeSpan.FromHours(24);
+            TimeSpan.FromMinutes(20) : TimeSpan.FromHours(24);
 
         string jobPartition = GovernedAssetsJobPartition;
         string jobId = GovernedAssetsJobId;
