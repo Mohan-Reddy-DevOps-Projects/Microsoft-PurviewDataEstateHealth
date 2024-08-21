@@ -58,45 +58,47 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
         KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
         KeyVaultSecret workSpaceID = await this.keyVaultAccessorService.GetSecretAsync("logAnalyticsWorkspaceId", cancellationToken);
 
-        Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
-        string containerName = accountServiceModel.DefaultCatalogId;
-        Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
-        string jarClassName = "com.microsoft.azurepurview.dataestatehealth.storagesync.main.StorageSyncMain";
-        var miToken = "";
-        miToken = await this.GetMIToken(accountServiceModel.Id.ToString());
-        StorageConfiguration storageConfig = new StorageConfiguration();
-        storageConfig = await this.GetStorageConfigSettings(accountServiceModel.Id.ToString(), accountServiceModel.TenantId);
-        this.logger.LogInformation($"SubmitJob|StorageConfig: {storageConfig}");
-        this.logger.LogInformation($"SubmitJob|MiToken: {miToken.Substring(0, 20)}");
-
-        if (!string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) && !string.IsNullOrEmpty(miToken))
+        using (this.logger.LogElapsed($"{this.GetType().Name}: Submit Fabric Spark job {accountServiceModel.Id}"))
         {
-            SparkJobRequestModel sparkJobRequestModel = new SparkJobRequestModel
+            Models.ProcessingStorageModel processingStorageModel = await this.processingStorageManager.Get(accountServiceModel, cancellationToken);
+            string containerName = accountServiceModel.DefaultCatalogId;
+            Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
+            string jarClassName = "com.microsoft.azurepurview.dataestatehealth.storagesync.main.StorageSyncMain";
+            var miToken = "";
+            miToken = await this.GetMIToken(accountServiceModel.Id.ToString());
+            StorageConfiguration storageConfig = new StorageConfiguration();
+            storageConfig = await this.GetStorageConfigSettings(accountServiceModel.Id.ToString(), accountServiceModel.TenantId);
+            this.logger.LogInformation($"SubmitJob|StorageConfig: {storageConfig}, accountid: {accountServiceModel.Id}");
+            this.logger.LogInformation($"SubmitJob|MiToken: {string.IsNullOrEmpty(miToken)}, accountid: {accountServiceModel.Id}");
+
+            if (!string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) && !string.IsNullOrEmpty(miToken))
             {
-                sasUri = sinkSasUri,
-                accountId = processingStorageModel.AccountId.ToString(),
-                containerName = containerName,
-                sinkLocation = sinkSasUri.Host,
-                jobId = jobId,
-                jarClassName = jarClassName,
-                miToken = miToken,
-                storageUrl = storageConfig.TypeProperties.LocationURL,
-                storageType = storageConfig.Type,
-                cosmosDBEndpoint = cosmosDBEndpoint.Value,
-                cosmosDBKey = cosmosDBKey.Value,
-                workSpaceID = workSpaceID.Value
-            };
+                SparkJobRequestModel sparkJobRequestModel = new SparkJobRequestModel
+                {
+                    sasUri = sinkSasUri,
+                    accountId = processingStorageModel.AccountId.ToString(),
+                    containerName = containerName,
+                    sinkLocation = sinkSasUri.Host,
+                    jobId = jobId,
+                    jarClassName = jarClassName,
+                    miToken = miToken,
+                    storageUrl = storageConfig.TypeProperties.LocationURL,
+                    storageType = storageConfig.Type,
+                    cosmosDBEndpoint = cosmosDBEndpoint.Value,
+                    cosmosDBKey = cosmosDBKey.Value,
+                    workSpaceID = workSpaceID.Value
+                };
 
-
-            SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sparkJobRequestModel);
-            //sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, jarClassName, miToken, fabricConfig, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value);
-            var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
-            return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, poolResourceId);
-        }
-        else
-        {
-            this.logger.LogInformation($"SubmitJob|Unable to create Fabric Job Details: accountID:  {processingStorageModel.AccountId.ToString()}");
-            return null;
+                SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sparkJobRequestModel);
+                //sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, jarClassName, miToken, fabricConfig, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value);
+                var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
+                return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, poolResourceId);
+            }
+            else
+            {
+                this.logger.LogInformation($"SubmitJob|Unable to create Fabric Job Details: accountID:  {processingStorageModel.AccountId.ToString()}");
+                return null;
+            }
         }
     }
 

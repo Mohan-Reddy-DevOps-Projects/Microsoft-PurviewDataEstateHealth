@@ -38,35 +38,37 @@ internal class TriggerFabricSparkJobStage : IJobCallbackStage
         string jobStatusMessage;
         var jobId = Guid.NewGuid().ToString();
 
-
-        try
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"{this.GetType().Name}: Trigger Fabric spark job accountId: {this.metadata.AccountServiceModel.Id}"))
         {
-            var jobInfo = await this.fabricSparkJobComponent.SubmitJob(
-                this.metadata.AccountServiceModel,
-                new CancellationToken(),
-                jobId,
-                this.metadata.SparkPoolId);
-            if (jobInfo == null)
+            try
             {
-                this.dataEstateHealthRequestLogger.LogInformation($"Copy Activity not configured account: {this.metadata.AccountServiceModel.Id} in {this.StageName}");
-                jobStatusMessage = $"Copy Activity not configured account: {this.metadata.AccountServiceModel.Id} in {this.StageName}";
-                jobStageStatus = JobExecutionStatus.Succeeded;                
-                this.metadata.FabricSparkJobBatchId = "-1";
-                return this.jobCallbackUtils.GetExecutionResult(JobExecutionStatus.Completed, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
+                var jobInfo = await this.fabricSparkJobComponent.SubmitJob(
+                    this.metadata.AccountServiceModel,
+                    new CancellationToken(),
+                    jobId,
+                    this.metadata.SparkPoolId);
+                if (jobInfo == null)
+                {
+                    this.dataEstateHealthRequestLogger.LogInformation($"Copy Activity not configured account: {this.metadata.AccountServiceModel.Id} in {this.StageName}");
+                    jobStatusMessage = $"Copy Activity not configured account: {this.metadata.AccountServiceModel.Id} in {this.StageName}";
+                    jobStageStatus = JobExecutionStatus.Succeeded;
+                    this.metadata.FabricSparkJobBatchId = "-1";
+                    return this.jobCallbackUtils.GetExecutionResult(JobExecutionStatus.Completed, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
+                }
+
+                this.metadata.SparkPoolId = jobInfo.PoolResourceId;
+                this.metadata.FabricSparkJobBatchId = jobInfo.JobId;
+
+                jobStageStatus = JobExecutionStatus.Succeeded;
+                jobStatusMessage = $"Fabric SPARK job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}";
+                this.dataEstateHealthRequestLogger.LogTrace(jobStatusMessage);
             }
-
-            this.metadata.SparkPoolId = jobInfo.PoolResourceId;
-            this.metadata.FabricSparkJobBatchId = jobInfo.JobId;
-
-            jobStageStatus = JobExecutionStatus.Succeeded;
-            jobStatusMessage = $"Fabric SPARK job submitted for account: {this.metadata.AccountServiceModel.Id} in {this.StageName}";
-            this.dataEstateHealthRequestLogger.LogTrace(jobStatusMessage);
-        }
-        catch (Exception exception)
-        {
-            jobStageStatus = JobExecutionStatus.Completed;
-            jobStatusMessage = $"Failed to submit Fabric SPARK job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}";
-            this.dataEstateHealthRequestLogger.LogError(jobStatusMessage, exception);
+            catch (Exception exception)
+            {
+                jobStageStatus = JobExecutionStatus.Completed;
+                jobStatusMessage = $"Failed to submit Fabric SPARK job for account: {this.metadata.AccountServiceModel.Id} in {this.StageName} with error: {exception.Message}";
+                this.dataEstateHealthRequestLogger.LogError(jobStatusMessage, exception);
+            }
         }
 
         return this.jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
