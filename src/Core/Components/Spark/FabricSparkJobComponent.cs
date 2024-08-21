@@ -145,8 +145,7 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
     private async Task<string> GetMIToken(string accountId)
     {
         //Get MI token
-        var returnToken = "";
-        var serviceClient = await this.dataHealthApiService.GetMIToken(accountId);
+        var returnToken = await this.dataHealthApiService.GetMIToken(accountId);
         return returnToken;
     }
 
