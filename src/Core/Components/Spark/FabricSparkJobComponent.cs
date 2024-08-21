@@ -10,6 +10,7 @@ using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.JobManagerModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
@@ -29,6 +30,7 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
     private readonly IKeyVaultAccessorService keyVaultAccessorService;
     private readonly string keyVaultBaseURL;
     private readonly IDataHealthApiService dataHealthApiService;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     public FabricSparkJobComponent(
         ISparkJobManager sparkJobManager,
@@ -36,7 +38,8 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
         IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration,
         IKeyVaultAccessorService keyVaultAccessorService,
         IOptions<KeyVaultConfiguration> keyVaultConfig,
-        IDataHealthApiService dataHealthApiService)
+        IDataHealthApiService dataHealthApiService,
+        IDataEstateHealthRequestLogger logger)
     {
         this.sparkJobManager = sparkJobManager;
         this.processingStorageManager = processingStorageManager;
@@ -44,6 +47,7 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
         this.keyVaultAccessorService = keyVaultAccessorService;
         this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
         this.dataHealthApiService = dataHealthApiService;
+        this.logger = logger;
     }
 
     /// <inheritdoc/>
@@ -62,8 +66,10 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
         miToken = await this.GetMIToken(accountServiceModel.Id.ToString());
         StorageConfiguration storageConfig = new StorageConfiguration();
         storageConfig = await this.GetStorageConfigSettings(accountServiceModel.Id.ToString(), accountServiceModel.TenantId);
+        this.logger.LogInformation($"SubmitJob|StorageConfig: {storageConfig}");
+        this.logger.LogInformation($"SubmitJob|MiToken: {miToken.Substring(0, 20)}");
 
-        if (!string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) & !string.IsNullOrEmpty(miToken))
+        if (!string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) && !string.IsNullOrEmpty(miToken))
         {
             SparkJobRequestModel sparkJobRequestModel = new SparkJobRequestModel
             {
@@ -89,6 +95,7 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
         }
         else
         {
+            this.logger.LogInformation($"SubmitJob|Unable to create Fabric Job Details: accountID:  {processingStorageModel.AccountId.ToString()}");
             return null;
         }
     }

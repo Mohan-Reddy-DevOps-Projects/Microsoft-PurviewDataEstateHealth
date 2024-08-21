@@ -79,6 +79,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             {
                 var client = this.GetDEHServiceClient();
                 var responseString = await client.GetStorageConfigSettings(accountId, tenantId, CancellationToken.None);
+                this.logger.LogInformation($"GetStorageConfigSettings from DEH. Account Id: {accountId}. Response: {responseString}");
 
                 var payload = JsonConvert.DeserializeObject<StorageConfiguration>(responseString);
                 returnLocationURL = payload.TypeProperties.LocationURL;
