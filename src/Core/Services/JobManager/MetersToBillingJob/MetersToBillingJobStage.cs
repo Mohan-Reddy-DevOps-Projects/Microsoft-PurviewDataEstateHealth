@@ -66,25 +66,22 @@ public class MetersToBillingJobStage : IJobCallbackStage
         var keyVaultConfig = scope.ServiceProvider.GetService<IOptions<KeyVaultConfiguration>>();
         this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
 
-
-        this.logger.LogInformation("MetersToBillingJobStage Constructor.1");
-
-        // Get logAnalyticsWriter credentials
-        var task = Task.Run(async () =>
+        using (this.logger.LogElapsed("MetersToBillingJobStage Constructor"))
         {
-            await this.GetWorkspaceCredentials();
-        });
-        Task.WaitAll(task);
+            // Get logAnalyticsWriter credentials
+            var task = Task.Run(async () =>
+            {
+                await this.GetWorkspaceCredentials();
+            });
+            Task.WaitAll(task);
 
-        this.logsAnalyticsWriter = new LogAnalyticsClient(workspaceId: this.workspaceId, sharedKey: this.workspaceKey);
+            this.logsAnalyticsWriter = new LogAnalyticsClient(workspaceId: this.workspaceId, sharedKey: this.workspaceKey);
 
-        // Log analytics reader
-        LogAnalyticsManager manager = new LogAnalyticsManager(this.credentialFactory.CreateDefaultAzureCredential());
-        this.logsAnalyticsReader = manager.WithWorkspace(this.workspaceId);
-
-
-        this.logger.LogInformation("MetersToBillingJobStage Finished");
-
+            // Log analytics reader
+            LogAnalyticsManager manager = new LogAnalyticsManager(this.credentialFactory.CreateDefaultAzureCredential());
+            this.logsAnalyticsReader = manager.WithWorkspace(this.workspaceId);
+            //this.logger.LogInformation("MetersToBillingJobStage Finished");
+        }
     }
 
     public string StageName => nameof(MetersToBillingJobStage);
@@ -96,46 +93,50 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
     public async Task<JobExecutionResult> Execute()
     {
-        this.logger.LogInformation("Starting Metering Job." + this.metadata.TenantId);
+        using (this.logger.LogElapsed($"{this.GetType().Name}: Starting Metering Job." + this.metadata.TenantId))
+        {
+            // job final state initializaation
+            var jobStarted = DateTimeOffset.UtcNow;
+            string finalExecutionStatusDetails = $"Job Started at {jobStarted.ToString()}";
+            var finalExecutionStatus = JobExecutionStatus.Faulted;
+            this.logger.LogInformation(finalExecutionStatusDetails);
 
-        // job final state initializaation
-        var jobStarted = DateTimeOffset.UtcNow;
-        string finalExecutionStatusDetails = $"Job Started at {jobStarted.ToString()}";
-        var finalExecutionStatus = JobExecutionStatus.Faulted;
-        this.logger.LogInformation(finalExecutionStatusDetails);
 
+            ////////////////////////////////////
+            // DEH Processing
 
-        ////////////////////////////////////
-        // DEH Processing
+            finalExecutionStatusDetails += await this.ProcessBilling("PDG_deh_billing.kql");
+            finalExecutionStatusDetails += await this.ProcessBilling("PDG_dq_billing.kql");
 
-        finalExecutionStatusDetails += await this.ProcessBilling("PDG_deh_billing.kql");
-        finalExecutionStatusDetails += await this.ProcessBilling("PDG_dq_billing.kql");
+            finalExecutionStatus = JobExecutionStatus.Succeeded;
 
-        finalExecutionStatus = JobExecutionStatus.Succeeded;
-
-        return this.jobCallbackUtils.GetExecutionResult(
-              finalExecutionStatus,
-              finalExecutionStatusDetails);
+            return this.jobCallbackUtils.GetExecutionResult(
+                  finalExecutionStatus,
+                  finalExecutionStatusDetails);
+        }
     }
 
     private async Task<string> ProcessBilling(string kql)
     {
         string finalStatus = string.Empty;
         DateTimeOffset started = DateTimeOffset.UtcNow;
-        try
+        using (this.logger.LogElapsed($"{this.GetType().Name}: {this.StageName} | Processing Billing with KQL: {kql}"))
         {
-            int totalEvents = await this.ProcessBillingEvents(kql);
-            // set the final details into the job
-            finalStatus = $" | KQL: {kql} | Completed on {DateTimeOffset.Now.ToString()} | Duration {(DateTimeOffset.UtcNow - started).TotalSeconds} seconds. | Total Events Processed: {totalEvents}";
-        }
-        catch (Exception ex)
-        {
-            // set the final details when faulted
-            finalStatus += $" | KQL: {kql} | Failed on {DateTimeOffset.Now.ToString()} | Duration {(DateTimeOffset.UtcNow - started).TotalSeconds} seconds. Reason: {ex.ToString()}";
-            this.logger.LogError(finalStatus, ex);
-        }
+            try
+            {
+                int totalEvents = await this.ProcessBillingEvents(kql);
+                // set the final details into the job
+                finalStatus = $" | KQL: {kql} | Completed on {DateTimeOffset.Now.ToString()} | Duration {(DateTimeOffset.UtcNow - started).TotalSeconds} seconds. | Total Events Processed: {totalEvents}";
+            }
+            catch (Exception ex)
+            {
+                // set the final details when faulted
+                finalStatus += $" | KQL: {kql} | Failed on {DateTimeOffset.Now.ToString()} | Duration {(DateTimeOffset.UtcNow - started).TotalSeconds} seconds. Reason: {ex.ToString()}";
+                this.logger.LogError(finalStatus, ex);
+            }
 
-        return finalStatus;
+            return finalStatus;
+        }
     }
 
     private async Task<int> ProcessBillingEvents(string DEHBillingProcesingKQL)
@@ -154,10 +155,11 @@ public class MetersToBillingJobStage : IJobCallbackStage
         try
         {
             var meteredEvent = await this.logsAnalyticsReader.Query<CBSBillingReceipt>(billingReceipts, pollFrom, utcNow);
+            this.logger.LogInformation($"{this.GetType().Name}:|{billingReceipts} table found in Log Analytics.");
         }
         catch (Exception ex)
         {
-            this.logger.LogError($"Error in Querying {billingReceipts}, Table not found", ex);
+            this.logger.LogError($"{this.GetType().Name}:|Error in Querying {billingReceipts}, Table not found", ex);
 
             List<CBSBillingReceipt> billingEvents = new List<CBSBillingReceipt>();
             CBSBillingReceipt cBSBillingReceipt = new CBSBillingReceipt()
@@ -177,6 +179,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
             //Create the table if it does not exist
             await this.logsAnalyticsWriter.SendLogEntries<CBSBillingReceipt>(coldStartReceipts, billingReceipts);
+            this.logger.LogInformation($"{this.GetType().Name}:|Created {billingReceipts} table.");
 
         }
         var meteredEvents = await this.logsAnalyticsReader.Query<DEHMeteredEvent>(await this.LoadKQL(DEHBillingProcesingKQL), pollFrom, utcNow);
@@ -198,7 +201,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                 .WaitAndRetry(maxRetries, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                     (exception, timeSpan, retryCount, context) =>
                     {
-                        this.logger.LogInformation($"{this.StageName} | Retry {retryCount} out of {maxRetries} because of: {exception.Message}. Waiting {timeSpan} before next retry.");
+                        this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | Retry {retryCount} out of {maxRetries} because of: {exception.Message}. Waiting {timeSpan} before next retry.");
                     });
 
             // push events
@@ -231,7 +234,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                         CreationTime = now,
                         // BUG IN CBS DO NOT ALLOW FRACTIONAL UNITS
                         Quantity = meteredEvent.ProcessingUnits,
-                        BillingTags = billingTags                        
+                        BillingTags = billingTags
                     });
 
                     return billingEvent;
@@ -240,7 +243,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
                 if (batch.Count > 0)
                 {
-                    await this.EmitEventsWithRetryAndErrorHandling($"Batch number {currentBatch}. Batch Size {batchSize}. Emitted so far.... {(currentBatch * batchSize) + batchSize} billable events",
+                    await this.EmitEventsWithRetryAndErrorHandling($"{this.GetType().Name}:|Batch number {currentBatch}. Batch Size {batchSize}. Emitted so far.... {(currentBatch * batchSize) + batchSize} billable events",
                                             batch, Guid.NewGuid());
                     // next batch
                     currentBatch++;
