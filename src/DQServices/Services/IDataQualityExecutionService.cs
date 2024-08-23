@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 public interface IDataQualityExecutionService
 {
-    public Task<string> SubmitDQJob(string tenantId, string accountId, DHControlNodeWrapper control, DHAssessmentWrapper assessment, string healthJobId);
+    public Task<string> SubmitDQJob(string tenantId, string accountId, DHControlNodeWrapper control, DHAssessmentWrapper assessment, string healthJobId, string scheduleRunId);
 
     public Task PurgeObserver(DHComputingJobWrapper job);
 

@@ -167,7 +167,10 @@ public class DHScheduleService(
                             requestHeaderContext.AccountObjectId.ToString(),
                             control,
                             assessment,
-                            jobId).ConfigureAwait(false);
+                            jobId,
+                            scheduleRunId).ConfigureAwait(false);
+
+
 
                         // Update DQ job id in monitoring table
                         jobWrapper.DQJobId = dqJobId;

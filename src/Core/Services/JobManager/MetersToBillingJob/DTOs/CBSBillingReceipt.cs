@@ -22,3 +22,4 @@ internal class CBSBillingReceipt
     public string Status { get; set; }
     public string StatusDetail { get; set; }
 }
+

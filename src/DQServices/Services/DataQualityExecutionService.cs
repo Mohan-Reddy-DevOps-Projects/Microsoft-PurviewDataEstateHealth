@@ -1,10 +1,17 @@
 ﻿namespace Microsoft.Purview.DataEstateHealth.DHModels.Services;
 
+using global::Azure.Security.KeyVault.Secrets;
+using LogAnalytics.Client;
+using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Core;
+using Microsoft.Azure.Purview.DataEstateHealth.Core.Services.JobManager.MetersToBillingJob.DTOs;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Repositories.DataQualityOutput;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.MDQJob;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.DomainModels;
 using Microsoft.Purview.DataEstateHealth.DHModels.Adapters.RuleAdapter.Rules;
@@ -15,6 +22,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
+using Microsoft.Purview.DataGovernance.Common;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -30,7 +38,17 @@ public class DataQualityExecutionService : IDataQualityExecutionService
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly IDataQualityOutputRepository dataQualityOutputRepository;
 
+    private readonly LogAnalyticsClient logsAnalyticsWriter;
+    private readonly IServiceProvider scope;
+    private readonly IKeyVaultAccessorService keyVaultAccessorService;
+    private readonly string keyVaultBaseURL;
+    private string workspaceId;
+    private string workspaceKey;
+    private readonly LogAnalyticsManager.LogAnalyticsQueryClient logsAnalyticsReader;
+    private readonly AzureCredentialFactory credentialFactory;
+
     public DataQualityExecutionService(
+        IServiceProvider scope,
         IProcessingStorageManager processingStorageManager,
         DataQualityServiceClientFactory dataQualityServiceClientFactory,
         IDataQualityOutputRepository dataQualityOutputRepository,
@@ -40,6 +58,32 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         this.dataQualityServiceClientFactory = dataQualityServiceClientFactory;
         this.logger = logger;
         this.dataQualityOutputRepository = dataQualityOutputRepository;
+        
+        this.credentialFactory = scope.GetService<AzureCredentialFactory>();
+        this.keyVaultAccessorService = scope.GetService<IKeyVaultAccessorService>();
+        var keyVaultConfig = scope.GetService<IOptions<KeyVaultConfiguration>>();
+        this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
+        this.scope = scope;
+        this.keyVaultAccessorService = scope.GetService<IKeyVaultAccessorService>();
+        // Get logAnalyticsWriter credentials
+        var task = Task.Run(async () =>
+        {
+            await this.GetWorkspaceCredentials().ConfigureAwait(false);
+        });
+        Task.WaitAll(task);
+        this.logsAnalyticsWriter = new LogAnalyticsClient(workspaceId: this.workspaceId, sharedKey: this.workspaceKey);
+        // Log analytics reader
+        LogAnalyticsManager manager = new LogAnalyticsManager(this.credentialFactory.CreateDefaultAzureCredential());
+        this.logsAnalyticsReader = manager.WithWorkspace(this.workspaceId);
+    }
+
+
+    private async Task GetWorkspaceCredentials()
+    {
+        KeyVaultSecret workspaceId = await this.keyVaultAccessorService.GetSecretAsync("logAnalyticsWorkspaceId", default(CancellationToken)).ConfigureAwait(false);
+        KeyVaultSecret workspaceKey = await this.keyVaultAccessorService.GetSecretAsync("logAnalyticsKey", default(CancellationToken)).ConfigureAwait(false);
+        this.workspaceId = workspaceId.Value;
+        this.workspaceKey = workspaceKey.Value;
     }
 
     public async Task<IEnumerable<DHRawScore>> ParseDQResult(DHComputingJobWrapper job)
@@ -83,7 +127,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         }
     }
 
-    public async Task<string> SubmitDQJob(string tenantId, string accountId, DHControlNodeWrapper control, DHAssessmentWrapper assessment, string healthJobId)
+    public async Task<string> SubmitDQJob(string tenantId, string accountId, DHControlNodeWrapper control, DHAssessmentWrapper assessment, string healthJobId, string scheduleRunId)
     {
         try
         {
@@ -141,6 +185,8 @@ public class DataQualityExecutionService : IDataQualityExecutionService
                     dataAssetId,
                     aliasList)).ConfigureAwait(false);
 
+            await this.LogDQJobInitMappingJob(healthJobId, scheduleRunId, tenantId, accountId, control.Id, control.Name).ConfigureAwait(false);
+
             this.logger.LogInformation($"End SubmitDQJOb, controlId: {control.Id}, healthJobId: {healthJobId}, dqJobId:{dqJobId}");
 
             return dqJobId;
@@ -148,6 +194,34 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         catch (Exception ex)
         {
             throw new MDQJobDQSubmissionException(ex.Message, ex);
+        }
+    }
+
+    private async Task LogDQJobInitMappingJob(string jobId, string batchId, string tenantId, string accountId, string controlId, string controlName)
+    {
+        try
+        {
+            string dqLogTableName = "DEH_JobInitMapping_log";
+            List<DQJobMappingLogTable> billingEvents = new List<DQJobMappingLogTable>();
+            DQJobMappingLogTable dqJobMappingLogTable = new DQJobMappingLogTable()
+            {
+                AccountId = Guid.Parse(accountId),
+                TenantId = Guid.Parse(tenantId),
+                BatchId = batchId,
+                CreatedAt = DateTime.UtcNow,
+                DQJobId = Guid.Parse(jobId),
+                JobStatus = "Init",
+                ControlId = controlId,
+                ControlName = controlName
+            };
+            billingEvents.Add(dqJobMappingLogTable);
+            var dqJobMapping = billingEvents.ToList();
+            //Create the table if it does not exist
+            await this.logsAnalyticsWriter.SendLogEntries<DQJobMappingLogTable>(dqJobMapping, dqLogTableName).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError("MDQ|SubmitDQJob|Unable to create Log table DEH_JobMapping_log -> MDQ job", ex);
         }
     }
 
