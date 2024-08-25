@@ -61,7 +61,7 @@ var datasubscription = '${streamAnalyticsPrefixName}-${streampartNameDataaccess}
 var policyset =  '${streamAnalyticsPrefixName}-${streampartNameDataaccess}-policyset'
 
 var dataqualityfact = '${streamAnalyticsPrefixName}-${streampartNameDQ}-dataqualityfact'
-var dataqualityv2fact = '${streamAnalyticsPrefixName}-${streampartNameDQ}-dataqualityv2fact'
+var dataqualityv2fact = '${streamAnalyticsPrefixName}-${streampartNameDQv2}-dataqualityv2fact'
 var provisioningdata = '${streamAnalyticsPrefixName}-${streampartNamePV}-provisionevent'
 
 module streamAnalyticsJobsCatalog 'streamAnalyticsAccount.bicep' = {
@@ -299,7 +299,7 @@ module streamAnalyticsJobsDataQuality  'streamAnalyticsAccount.bicep' = {
 
 var streaAnalyticsBicepNameDataQualityv2= 'generateDataQualityv2Stream'
 var streampartNameDQv2 = 'dq2'
-var dataQualityv2EH= 'dataqualityv2event'
+var dataQualityv2EH= 'dataqualityeventv2'
 
 module streamAnalyticsJobsDataQualityv2  'streamAnalyticsAccount.bicep' = {
   name: streaAnalyticsBicepNameDataQualityv2  
