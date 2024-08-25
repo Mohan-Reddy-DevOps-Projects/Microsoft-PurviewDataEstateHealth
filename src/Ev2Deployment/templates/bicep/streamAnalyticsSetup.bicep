@@ -61,6 +61,7 @@ var datasubscription = '${streamAnalyticsPrefixName}-${streampartNameDataaccess}
 var policyset =  '${streamAnalyticsPrefixName}-${streampartNameDataaccess}-policyset'
 
 var dataqualityfact = '${streamAnalyticsPrefixName}-${streampartNameDQ}-dataqualityfact'
+var dataqualityv2fact = '${streamAnalyticsPrefixName}-${streampartNameDQ}-dataqualityv2fact'
 var provisioningdata = '${streamAnalyticsPrefixName}-${streampartNamePV}-provisionevent'
 
 module streamAnalyticsJobsCatalog 'streamAnalyticsAccount.bicep' = {
@@ -294,6 +295,52 @@ module streamAnalyticsJobsDataQuality  'streamAnalyticsAccount.bicep' = {
 }
 
 
+
+
+var streaAnalyticsBicepNameDataQualityv2= 'generateDataQualityv2Stream'
+var streampartNameDQv2 = 'dq2'
+var dataQualityv2EH= 'dataqualityv2event'
+
+module streamAnalyticsJobsDataQualityv2  'streamAnalyticsAccount.bicep' = {
+  name: streaAnalyticsBicepNameDataQualityv2  
+  dependsOn: [ streamAnalyticsJobsDataQuality ]
+  params: {
+    location: location
+    userAssignedIdentity: dehResourceAppIdentity.id
+    inputName: inputName
+    eventHubNamespacealias: eventHubNamespace.name  //sharedEventHubNamespaceName 
+    eventHubNamespacename : sharedCatalogEventHubNamespaceName  //sharedEventHubNamespaceName 
+    eventHubName: dataQualityv2EH
+    cosmosAccountName: cosmosAccountName
+    cosmosDbDatabaseName: dehCosmosDBDatabaseName
+    streamNameList: '${dataqualityv2fact}'
+    partitionKey: partitionKey 
+    documentId : documentId
+    dghResourceGroupName : dghResourceGroupName 
+    principalId : dehResourceAppIdentity.properties.principalId
+    subscriptionId : subscriptionId
+    streamAnalyticsPrefixName : streamAnalyticsPrefixName
+    streampartNameDataCatalog : streampartNameDataCatalog
+    streampartNameDataaccess : streampartNameDataaccess
+    streampartNameDQ : streampartNameDQv2
+    catalogResourceGroupName : catalogResourceGroupName 
+    catalogSubscriptionId : catalogSubscriptionId 
+    streamNames: [
+      { StreamName: dataqualityv2fact // '${streamAnalyticsPrefixName}-${streampartNameDQ}-dataqualityv2fact'
+        OutputName: outputName
+        collectionName: 'dataqualityv2fact'
+        consumerGroupName: dataqualityv2fact
+        fromSelect : ' * '
+        toSelect : ' * '
+        FilterField1 : 'payloadKind'
+        FilterValue1 : 'dataQualityFact'
+        Operator : ' And '
+        FilterField2 : 'payloadKind'
+        FilterValue2 : 'dataQualityFact'
+      }
+    ]
+  }
+}
 
     
 
