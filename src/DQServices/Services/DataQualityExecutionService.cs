@@ -58,7 +58,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         this.dataQualityServiceClientFactory = dataQualityServiceClientFactory;
         this.logger = logger;
         this.dataQualityOutputRepository = dataQualityOutputRepository;
-        
+
         this.credentialFactory = scope.GetService<AzureCredentialFactory>();
         this.keyVaultAccessorService = scope.GetService<IKeyVaultAccessorService>();
         var keyVaultConfig = scope.GetService<IOptions<KeyVaultConfiguration>>();
@@ -185,7 +185,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
                     dataAssetId,
                     aliasList)).ConfigureAwait(false);
 
-            await this.LogDQJobInitMappingJob(healthJobId, scheduleRunId, tenantId, accountId, control.Id, control.Name).ConfigureAwait(false);
+            await this.LogDQJobInitMappingJob(dqJobId, scheduleRunId, tenantId, accountId, control.Id, control.Name).ConfigureAwait(false);
 
             this.logger.LogInformation($"End SubmitDQJOb, controlId: {control.Id}, healthJobId: {healthJobId}, dqJobId:{dqJobId}");
 
@@ -197,7 +197,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         }
     }
 
-    private async Task LogDQJobInitMappingJob(string jobId, string batchId, string tenantId, string accountId, string controlId, string controlName)
+    private async Task LogDQJobInitMappingJob(string dqJobId, string batchId, string tenantId, string accountId, string controlId, string controlName)
     {
         try
         {
@@ -209,7 +209,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
                 TenantId = Guid.Parse(tenantId),
                 BatchId = batchId,
                 CreatedAt = DateTime.UtcNow,
-                DQJobId = Guid.Parse(jobId),
+                DQJobId = Guid.Parse(dqJobId),
                 JobStatus = "Init",
                 ControlId = controlId,
                 ControlName = controlName
