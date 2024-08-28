@@ -35,8 +35,9 @@ object ComputeGovernedAssetsMain {
           .appName("ComputeGovernedAssetsMainSparkApplication")
           .getOrCreate()
 
-        var totalAssetCountInDataMap = 0L;
-        var assetWithTermCountInDataMap = 0L;
+        var countOfAssetsInDataMap = 0L;
+        var countOfAssetsWithTermInDataMap = 0L;
+        var exceptionMsg = "";
 
         try {
           println("In ComputeGovernedAssets Main Spark Application!")
@@ -60,28 +61,23 @@ object ComputeGovernedAssetsMain {
           }*/
 
           // Read OT data
-          var rddContainerName = spark.conf.get("spark.rdd.containerName")
-          var rddHost = spark.conf.get("spark.rdd.host")
-          println(s"rddContainerName: $rddContainerName")
-          println(s"rddHost: $rddHost")
-          /*spark.sparkContext.hadoopConfiguration.set(
-            s"fs.azure.sas.$rddContainerName.$rddAccountName.blob.core.windows.net",
-            rddSasToken
-          )*/
+          var rddAssetsFormat = spark.conf.get("spark.rdd.assetsFormat")
+          var rddAssetsPath = spark.conf.get("spark.rdd.assetsPath")
+          println(s"rddAssetsPath: $rddAssetsPath")
           val allAssetsInDataMap = spark.read
-            .format("delta")
-            .load(s"abfss://$rddContainerName@$rddHost/AtlasRdd/AtlasDeltaDataset")
-          totalAssetCountInDataMap = allAssetsInDataMap.count();
+            .format(rddAssetsFormat)
+            .load(rddAssetsPath)
+          countOfAssetsInDataMap = allAssetsInDataMap.count();
 
           val assetsWithTermInDataMap = allAssetsInDataMap
             .filter(
-              F.col("mainAsset.relationshipAttributes.meanings").isNotNull// Check if 'meanings' array in 'mainAsset' is not empty
-              || F.expr("AGGREGATE(schemaEntities, 0L, (total, col) -> total + IF(col.relationshipAttributes.meanings IS NOT NULL, 1L, 0L)) > 0") // Check if column has term
+              F.col("mainAsset.relationshipAttributes.meanings").isNotNull // Check if 'meanings' array in 'mainAsset' is not empty
+                .or(F.expr("AGGREGATE(schemaEntities, 0L, (total, col) -> total + IF(col.relationshipAttributes.meanings IS NOT NULL, 1L, 0L)) > 0")) // Check if column has term
             )
             .select(F.col("mainAsset.guid").alias("assetId"))
           assetsWithTermInDataMap.show();
 
-          assetWithTermCountInDataMap = assetsWithTermInDataMap.count();
+          countOfAssetsWithTermInDataMap = assetsWithTermInDataMap.count();
         }
         catch {
           case e: AnalysisException =>
@@ -90,23 +86,29 @@ object ComputeGovernedAssetsMain {
               logger.info("Caught AnalysisException: Path does not exist", e)
             }
             else {
+              logger.error(s"Error in ComputeGovernedAssets Main Spark Application: ${e.getMessage}", e)
+              exceptionMsg = e.getMessage
               throw e
             }
           case e =>
             logger.error(s"Error in ComputeGovernedAssets Main Spark Application: ${e.getMessage}", e)
+            exceptionMsg = e.getMessage
             throw e // Re-throw the exception to ensure the job failure is reported correctly
         } finally {
-          println(s"Total asset count in Data Map: $totalAssetCountInDataMap")
-          println(s"Asset with term count in Data Map: $assetWithTermCountInDataMap")
+          println(s"CountOfAssetsInDataMap:$countOfAssetsInDataMap")
+          println(s"CountOfAssetsWithTermInDataMap:$countOfAssetsWithTermInDataMap")
 
-          logger.info(s"Total assets count in Data Map: $totalAssetCountInDataMap")
-          logger.info(s"Assets with term count in Data Map: $assetWithTermCountInDataMap")
+          logger.info(s"CountOfAssetsInDataMap: $countOfAssetsInDataMap")
+          logger.info(s"CountOfAssetsWithTermInDataMap: $countOfAssetsWithTermInDataMap")
 
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
             if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed",
             new Gson().toJson(ComputeGovernedAssetsCountResult(
-              TotalAssetCountInDataMap = totalAssetCountInDataMap,
-              AssetWithTermCountInDataMap = assetWithTermCountInDataMap)))
+              CountOfAssetsInDataMap = countOfAssetsInDataMap,
+              CountOfAssetsWithTermInDataMap = countOfAssetsWithTermInDataMap,
+              CountOfAssetsInDG = 0,
+              CountOfGovernedAssets = countOfAssetsWithTermInDataMap,
+              ExceptionMsg = exceptionMsg)))
           if (spark != null) {
             Thread.sleep(10000)
             spark.stop()

@@ -31,11 +31,12 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
         var keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
 
         var containerName = accountServiceModel.DefaultCatalogId;
-        var rddBlobPath = "AtlasRdd/AtlasDeltaDataset";
         var rddHost = $"{accountServiceModel.ProcessingStorageModel?.Name}.{accountServiceModel.ProcessingStorageModel?.DnsZone}.blob.storage.azure.net";
-        var rddDfsHost = $"{accountServiceModel.ProcessingStorageModel?.Name}.{accountServiceModel.ProcessingStorageModel?.DnsZone}.dfs.storage.azure.net";
+        var rddAssetsFormat = "delta";
+        var rddAssetsFolderPath = "AtlasRdd/AtlasDeltaDataset";
+        var rddAssetsPath = $"wasbs://{containerName}@{rddHost}/{rddAssetsFolderPath}";
 
-        var storageTokenKey = await metadataAccessorService.GetProcessingStorageSasToken(Guid.Parse(accountServiceModel.Id), accountServiceModel.DefaultCatalogId, rddBlobPath, cancellationToken);
+        var storageTokenKey = await metadataAccessorService.GetProcessingStorageSasToken(Guid.Parse(accountServiceModel.Id), accountServiceModel.DefaultCatalogId, rddAssetsFolderPath, cancellationToken);
 
         SparkJobRequest sparkJobRequest = new()
         {
@@ -50,8 +51,13 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
             ],
             Configuration = new Dictionary<string, string>()
             {
-                {"spark.rdd.containerName", containerName },
-                {"spark.rdd.host", rddDfsHost },
+                // RDD connection configs
+                {$"spark.hadoop.fs.azure.account.auth.type.{rddHost}", "SAS" },
+                {$"spark.hadoop.fs.azure.sas.token.provider.type.{rddHost}", "com.microsoft.azure.synapse.tokenlibrary.ConfBasedSASProvider" },
+                {$"spark.hadoop.fs.azure.sas.{containerName}.{rddHost}", storageTokenKey.Key },
+                {"spark.rdd.assetsFormat", rddAssetsFormat },
+                {"spark.rdd.assetsPath", rddAssetsPath },
+                // RDD connection configs ends
                 {"spark.microsoft.delta.optimizeWrite.enabled" ,"true" },
                 {"spark.serializer","org.apache.spark.serializer.KryoSerializer" },
                 {"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" },
@@ -73,9 +79,6 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
                 {"spark.synapse.logAnalytics.workspaceId",workSpaceID.Value },
                 {"spark.synapse.logAnalytics.keyVault.name", keyVaultBaseURL},
                 {"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" },
-                {$"fs.azure.account.auth.type.{rddHost}", "SAS" },
-                {$"fs.azure.sas.token.provider.type.{rddHost}", "com.microsoft.azure.synapse.tokenlibrary.ConfBasedSASProvider" },
-                {$"spark.storage.synapse.{containerName}.{rddHost}.sas", storageTokenKey.Key }
             }
         };
 

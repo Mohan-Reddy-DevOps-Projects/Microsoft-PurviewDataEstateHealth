@@ -1,4 +1,8 @@
 package com.microsoft.azurepurview.dataestatehealth.computegovernedassets.main
 
-case class ComputeGovernedAssetsCountResult(TotalAssetCountInDataMap: Long,
-                                            AssetWithTermCountInDataMap: Long)
+case class ComputeGovernedAssetsCountResult(CountOfAssetsInDataMap: Long,
+                                            CountOfAssetsWithTermInDataMap: Long,
+                                            CountOfAssetsInDG: Long,
+                                            CountOfGovernedAssets: Long,
+                                            ExceptionMsg: String)
+
