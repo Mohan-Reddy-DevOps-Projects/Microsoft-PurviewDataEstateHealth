@@ -36,7 +36,7 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
         var rddAssetsFolderPath = "AtlasRdd/AtlasDeltaDataset";
         var rddAssetsPath = $"wasbs://{containerName}@{rddHost}/{rddAssetsFolderPath}";
 
-        var storageTokenKey = await metadataAccessorService.GetProcessingStorageSasToken(Guid.Parse(accountServiceModel.Id), accountServiceModel.DefaultCatalogId, rddAssetsFolderPath, cancellationToken);
+        var storageTokenKey = await metadataAccessorService.GetProcessingStorageDelegationSasToken(Guid.Parse(accountServiceModel.Id), accountServiceModel.DefaultCatalogId, "racwdli", cancellationToken);
 
         SparkJobRequest sparkJobRequest = new()
         {

@@ -24,5 +24,11 @@ public interface IMetadataAccessorService
     /// <param name="blobPath"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<StorageTokenKey> GetProcessingStorageSasToken(Guid accountId, string containerName, string blobPath, CancellationToken cancellationToken);
+    Task<StorageTokenKey> GetProcessingStorageSasToken(Guid accountId, string blobPath, CancellationToken cancellationToken);
+
+    Task<StorageTokenKey> GetProcessingStorageDelegationSasToken(
+        Guid accountId,
+        string containerName,
+        string permissions,
+        CancellationToken cancellationToken);
 }
