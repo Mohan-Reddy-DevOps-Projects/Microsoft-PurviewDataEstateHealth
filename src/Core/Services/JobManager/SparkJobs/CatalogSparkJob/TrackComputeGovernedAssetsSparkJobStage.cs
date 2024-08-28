@@ -86,11 +86,6 @@ internal class TrackComputeGovernedAssetsSparkJobStage : IJobCallbackStage
                     this.metadata.ComputeGovernedAssetsSparkJobStatus = DataPlaneSparkJobStatus.Failed;
                     jobStageStatus = JobExecutionStatus.Failed;
                 }
-                else if (jobDetails.Id == -1)
-                {
-                    this.metadata.ComputeGovernedAssetsSparkJobStatus = DataPlaneSparkJobStatus.Failed;
-                    jobStageStatus = JobExecutionStatus.Failed;
-                }
 
                 jobStatusMessage = SparkJobUtils.GenerateStatusMessage(this.metadata.AccountServiceModel.Id, jobDetails, jobStageStatus, this.StageName);
                 this.logger.LogTrace($"track compute governed assets spark job stage status: {jobStatusMessage}");
@@ -109,6 +104,7 @@ internal class TrackComputeGovernedAssetsSparkJobStage : IJobCallbackStage
     public bool IsStageComplete()
     {
         return !this.exposureControl.IsDataGovBillingEventEnabled(this.metadata.AccountServiceModel.Id, this.metadata.AccountServiceModel.SubscriptionId, this.metadata.AccountServiceModel.TenantId)
+            || this.metadata.ComputeGovernedAssetsSparkJobBatchId == "-1"
             || this.metadata.ComputeGovernedAssetsSparkJobStatus == DataPlaneSparkJobStatus.Succeeded
             || this.metadata.ComputeGovernedAssetsSparkJobStatus == DataPlaneSparkJobStatus.Failed;
     }

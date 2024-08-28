@@ -76,7 +76,7 @@ internal class TriggerComputeGovernedAssetsSparkJobStage : IJobCallbackStage
     public bool IsStageComplete()
     {
         return !this.exposureControl.IsDataGovBillingEventEnabled(this.metadata.AccountServiceModel.Id, this.metadata.AccountServiceModel.SubscriptionId, this.metadata.AccountServiceModel.TenantId)
-            || this.metadata.ComputeGovernedAssetsSparkJobBatchId != null;
+            || !string.IsNullOrEmpty(this.metadata.ComputeGovernedAssetsSparkJobBatchId);
     }
 
     public bool IsStagePreconditionMet()
