@@ -13,7 +13,7 @@
         {
             try
             {
-                string[] containerNames = new string[] { "businessdomain", "dataasset", "dataproduct", "dataqualityfact", "datasubscription", "policyset", "relationship", "term" };
+                string[] containerNames = new string[] { "businessdomain", "dataasset", "dataproduct", "dataqualityfact", "dataqualityv2fact", "datasubscription", "policyset", "relationship", "term", "cde", "dcatalogall" };
                 var methodName = nameof(DeprovisionForDEHAsync);
 
                 using (logger.LogElapsed($"{this.GetType().Name}#{nameof(DeprovisionForDEHAsync)}: Deprovision for Data Estate Health"))
