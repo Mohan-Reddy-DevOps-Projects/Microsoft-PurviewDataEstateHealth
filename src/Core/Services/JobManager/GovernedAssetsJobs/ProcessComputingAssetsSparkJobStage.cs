@@ -39,7 +39,7 @@ internal class ProcessComputingAssetsSparkJobStage : IJobCallbackStage
 
         this.metadata.CurrentScheduleStartTime = DateTime.UtcNow;
 
-        using (this.dataEstateHealthRequestLogger.LogElapsed($"Start to trigger catalog spark job"))
+        using (this.dataEstateHealthRequestLogger.LogElapsed($"Start to trigger process governed assets spark job"))
         {
             foreach (var billingAccount in this.metadata.GovernedAssetsJobAccounts)
             {

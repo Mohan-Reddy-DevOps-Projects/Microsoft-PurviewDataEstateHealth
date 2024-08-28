@@ -80,6 +80,8 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
         this.Metadata.CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.CurrentScheduleStartTime = null;
+        this.Metadata.ComputeGovernedAssetsSparkJobBatchId = string.Empty;
+        this.Metadata.ComputeGovernedAssetsSparkJobStatus = DataPlaneSparkJobStatus.Others;
     }
 
     private async Task DeleteSparkPools()
