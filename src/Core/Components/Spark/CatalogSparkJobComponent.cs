@@ -127,7 +127,8 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
             {$"spark.synapse.logAnalytics.enabled", "true" },
             {$"spark.synapse.logAnalytics.workspaceId",workSpaceID },
             {$"spark.synapse.logAnalytics.keyVault.name", this.keyVaultBaseURL},
-            {$"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" }
+            {$"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" },
+            {$"spark.ec.deleteModelFolder","true" }
         };
     }
 }
