@@ -85,7 +85,6 @@
                 try
                 {
                     token = await this.purviewMITokenClient.GetMIToken(accountId, "azurestorage").ConfigureAwait(false);
-                    this.logger.LogInformation($"MI token retrieved. {token}");
                 }
                 catch (Exception ex)
                 {
