@@ -13,6 +13,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Extensions.Options;
+using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
     ISparkJobManager sparkJobManager,
     IKeyVaultAccessorService keyVaultAccessorService,
     IOptions<KeyVaultConfiguration> keyVaultConfig,
+    IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration,
     IMetadataAccessorService metadataAccessorService) : IComputeGovernedAssetsSparkJobComponent
 {
 
@@ -41,7 +43,7 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
         SparkJobRequest sparkJobRequest = new()
         {
             ExecutorCount = 2,
-            File = $"abfss://datadomain@dghdogfoodsynapse.dfs.core.windows.net/dataestatehealthanalytics-computegovernedassets-azure-purview-1.0-jar.jar",
+            File = $"abfss://datadomain@{serverlessPoolConfiguration.Value.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-computegovernedassets-azure-purview-1.0-jar.jar",
             ClassName = "com.microsoft.azurepurview.dataestatehealth.computegovernedassets.main.ComputeGovernedAssetsMain",
             Name = $"ComputeGovernedAssetsSparkJob-{accountServiceModel.Id}",
             RunManagerArgument =
