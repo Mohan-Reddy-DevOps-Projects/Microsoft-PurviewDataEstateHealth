@@ -42,7 +42,7 @@
           "partitionCount": 2
         },
         {
-          "name": "dataqualityevent",
+          "name": "dataqualityeventv2",
           "messageRetentionDays": 90,
           "partitionCount": 2
         }
@@ -83,7 +83,7 @@
                   "partitionCount": 1
                 },
                 {
-                  "name": "dataqualityevent",
+                  "name": "dataqualityeventv2",
                   "messageRetentionDays": 7,
                   "partitionCount": 2
                 }
@@ -112,7 +112,7 @@
                   "partitionCount": 2
                 },
                 {
-                  "name": "dataqualityevent",
+                  "name": "dataqualityeventv2",
                   "messageRetentionDays": 7,
                   "partitionCount": 2
                 }

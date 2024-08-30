@@ -41,7 +41,7 @@
           "partitionCount": 4
         },
         {
-          "name": "dataqualityevent",
+          "name": "dataqualityeventv2",
           "messageRetentionDays": 90,
           "partitionCount": 4
         }
