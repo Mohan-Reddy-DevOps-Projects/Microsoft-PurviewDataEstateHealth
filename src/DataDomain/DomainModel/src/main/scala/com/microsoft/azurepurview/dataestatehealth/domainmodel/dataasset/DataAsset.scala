@@ -81,7 +81,12 @@ class DataAsset (spark: SparkSession, logger:Logger){
         ,col("BusinessDomainId").alias("BusinessDomainId").cast(StringType)
       )
 
-      val windowSpec = Window.partitionBy("DataAssetId").orderBy(col("ModifiedDateTime").desc)
+      val windowSpec = Window.partitionBy("DataAssetId").orderBy(col("ModifiedDateTime").desc,
+        when(col("OperationType") === "Create", 1)
+          .when(col("OperationType") === "Update", 2)
+          .when(col("OperationType") === "Delete", 3)
+          .otherwise(4)
+          .desc)
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpec))
         .filter(col("row_number") === 1)
         .drop("row_number")
@@ -135,7 +140,7 @@ class DataAsset (spark: SparkSession, logger:Logger){
               .merge(
                 mergeDfSource.as("source"),
                 """target.DataAssetId = source.DataAssetId""")
-              .whenMatched("source.ModifiedDatetime>target.ModifiedDatetime")
+              .whenMatched("source.ModifiedDatetime>=target.ModifiedDatetime")
               .updateAll()
               .whenNotMatched()
               .insertAll()

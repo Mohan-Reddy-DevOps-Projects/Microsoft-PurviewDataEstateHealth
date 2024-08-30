@@ -65,7 +65,12 @@ class DataProduct (spark: SparkSession, logger:Logger){
       dfProcess = dfProcessUpsert
     }
     val windowSpecDataProduct = Window.partitionBy("DataProductId")
-      .orderBy(coalesce(col("lastModifiedAt").cast(TimestampType), lit(Timestamp.valueOf("2000-01-01 00:00:00"))).desc)
+      .orderBy(coalesce(col("lastModifiedAt").cast(TimestampType), lit(Timestamp.valueOf("2000-01-01 00:00:00"))).desc,
+        when(col("operationType") === "Create", 1)
+          .when(col("operationType") === "Update", 2)
+          .when(col("operationType") === "Delete", 3)
+          .otherwise(4)
+          .desc)
     dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpecDataProduct))
       .filter(col("row_number") === 1)
       .drop("row_number")
@@ -110,7 +115,12 @@ class DataProduct (spark: SparkSession, logger:Logger){
                                       | AND CreatedByUserId IS NOT NULL
                                       | AND ModifiedByUserId IS NOT NULL""".stripMargin).distinct()
 
-      val windowSpec = Window.partitionBy("DataProductID").orderBy(col("ModifiedDateTime").desc)
+      val windowSpec = Window.partitionBy("DataProductID").orderBy(col("ModifiedDateTime").desc,
+        when(col("OperationType") === "Create", 1)
+          .when(col("OperationType") === "Update", 2)
+          .when(col("OperationType") === "Delete", 3)
+          .otherwise(4)
+          .desc)
       dfJoin = dfJoin.withColumn("row_number", row_number().over(windowSpec))
         .filter(col("row_number") === 1)
         .drop("row_number")
@@ -161,7 +171,7 @@ class DataProduct (spark: SparkSession, logger:Logger){
               .merge(
                 mergeDfSource.as("source"),
                 """target.DataProductID = source.DataProductID""")
-              .whenMatched("source.ModifiedDatetime>target.ModifiedDatetime")
+              .whenMatched("source.ModifiedDatetime>=target.ModifiedDatetime")
               .updateAll()
               .whenNotMatched()
               .insertAll()

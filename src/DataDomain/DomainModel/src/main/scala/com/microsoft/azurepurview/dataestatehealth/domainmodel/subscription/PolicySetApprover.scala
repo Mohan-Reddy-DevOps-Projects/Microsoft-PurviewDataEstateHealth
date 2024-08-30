@@ -5,7 +5,7 @@ import io.delta.tables.DeltaTable
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{col, explode_outer, expr, lower, max, row_number}
+import org.apache.spark.sql.functions.{col, explode_outer, expr, lower, max, row_number, when}
 import org.apache.spark.sql.types.{BooleanType, LongType, StringType, TimestampType}
 
 class PolicySetApprover (spark: SparkSession, logger:Logger){
@@ -87,7 +87,12 @@ class PolicySetApprover (spark: SparkSession, logger:Logger){
         ,"AccessPolicySetId"
         ,"ApproverIdentityType"
         ,"ApproverUserId"
-        ,"ApproverUserTenantId").orderBy(col("ModifiedDateTime").desc)
+        ,"ApproverUserTenantId").orderBy(col("ModifiedDateTime").desc,
+        when(col("OperationType") === "Create", 1)
+          .when(col("OperationType") === "Update", 2)
+          .when(col("OperationType") === "Delete", 3)
+          .otherwise(4)
+          .desc)
 
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpec))
         .filter(col("row_number") === 1)
@@ -148,7 +153,7 @@ class PolicySetApprover (spark: SparkSession, logger:Logger){
                     | AND target.ApproverIdentityType = source.ApproverIdentityType
                     | AND target.ApproverUserId = source.ApproverUserId
                     | AND target.ApproverUserTenantId = source.ApproverUserTenantId""".stripMargin)
-                .whenMatched("source.ModifiedDatetime>target.ModifiedDatetime")
+                .whenMatched("source.ModifiedDatetime>=target.ModifiedDatetime")
                 .updateAll()
                 .whenNotMatched()
                 .insertAll()

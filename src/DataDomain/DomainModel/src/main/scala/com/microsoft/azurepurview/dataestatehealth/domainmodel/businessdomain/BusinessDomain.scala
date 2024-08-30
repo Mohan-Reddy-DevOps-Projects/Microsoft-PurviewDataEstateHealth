@@ -65,7 +65,12 @@ class BusinessDomain (spark: SparkSession, logger:Logger) {
       ,col("EventProcessingTime").alias("EventProcessingTime").cast(LongType)
       ,col("operationType").alias("OperationType")
     )
-      val windowSpec = Window.partitionBy("BusinessDomainId").orderBy(col("ModifiedDateTime").desc)
+      val windowSpec = Window.partitionBy("BusinessDomainId").orderBy(col("ModifiedDateTime").desc,
+        when(col("OperationType") === "Create", 1)
+          .when(col("OperationType") === "Update", 2)
+          .when(col("OperationType") === "Delete", 3)
+          .otherwise(4)
+          .desc)
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpec))
         .filter(col("row_number") === 1)
         .drop("row_number")
@@ -113,7 +118,7 @@ class BusinessDomain (spark: SparkSession, logger:Logger) {
               .merge(
                 mergeDfSource.as("source"),
                 """target.BusinessDomainId = source.BusinessDomainId""")
-              .whenMatched("source.ModifiedDatetime>target.ModifiedDatetime")
+              .whenMatched("source.ModifiedDatetime>=target.ModifiedDatetime")
               .updateAll()
               .whenNotMatched()
               .insertAll()

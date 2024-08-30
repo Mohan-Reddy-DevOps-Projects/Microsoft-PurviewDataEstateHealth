@@ -1,6 +1,6 @@
 package com.microsoft.azurepurview.dataestatehealth.domainmodel.dataasset
 import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.{ColdStartSoftCheck, Maintenance, Reader, Writer}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.log4j.{Level, Logger}
 object DataAssetMain {
   val logger : Logger = Logger.getLogger(getClass.getName)
@@ -81,14 +81,6 @@ object DataAssetMain {
         VacuumOptimize.checkpointSentinel(accountId,adlsTargetDirectory.concat("/DataAssetColumn"),Some(df_dataAssetColumnProcessed),jobRunGuid, "DataAssetColumn","")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataAssetColumn"))
 
-        //Process DataAssetDomainAssignment
-        val dataAssetDomainAssignmentSchema = new DataAssetDomainAssignmentSchema().dataAssetDomainAssignmentSchema
-        val dataAssetDomainAssignment = new DataAssetDomainAssignment(spark,logger)
-        val df_dataAssetDomainAssignmentProcessed = dataAssetDomainAssignment.processDataAssetDomainAssignment(df_Asset,dataAssetDomainAssignmentSchema)
-        writer.overWriteData(df_dataAssetDomainAssignmentProcessed,adlsTargetDirectory,"DataAssetDomainAssignment",ReProcessingThresholdInMins)
-        VacuumOptimize.checkpointSentinel(accountId,adlsTargetDirectory.concat("/DataAssetDomainAssignment"),Some(df_dataAssetDomainAssignmentProcessed),jobRunGuid, "DataAssetDomainAssignment","")
-        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataAssetDomainAssignment"))
-
         // Process DataAssetOwnerAssignment
         val dataAssetOwnerAssignmentSchema = new DataAssetOwnerAssignmentSchema().dataAssetOwnerAssignmentSchema
         val dataAssetOwnerAssignment = new DataAssetOwnerAssignment(spark,logger)
@@ -110,6 +102,20 @@ object DataAssetMain {
         dataAsset.writeData(df_dataAssetProcessed,adlsTargetDirectory,refreshType,ReProcessingThresholdInMins)
         VacuumOptimize.checkpointSentinel(accountId,adlsTargetDirectory.concat("/DataAsset"),Some(df_dataAssetProcessed),jobRunGuid, "DataAsset","")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataAsset"))
+
+        // Read Delta tables
+        println("Applied Global Asset Migration Changes.")
+        val dataAssetDomainAssignment = new DataAssetDomainAssignment(spark,logger)
+        val dataAssetDomainAssignmentSchema = new DataAssetDomainAssignmentSchema().dataAssetDomainAssignmentSchema
+        val dfDataProductAssetAssignment: Option[DataFrame] = reader.readAdlsDelta(DeltaPath = adlsTargetDirectory, Entity = "/DataProductAssetAssignment")
+        val dfDataProductBusinessDomainAssignment: Option[DataFrame] = reader.readAdlsDelta(DeltaPath = adlsTargetDirectory, Entity = "/DataProductBusinessDomainAssignment")
+        val dfDataAssetDomainAssignment = dataAssetDomainAssignment.extractDataAssetDomainMapping(
+          dfDataProductAssetAssignment = dfDataProductAssetAssignment,
+          dfDataProductBusinessDomainAssignment = dfDataProductBusinessDomainAssignment,
+          schema = dataAssetDomainAssignmentSchema)
+        writer.overWriteData(dfDataAssetDomainAssignment,adlsTargetDirectory,"DataAssetDomainAssignment",ReProcessingThresholdInMins)
+        VacuumOptimize.checkpointSentinel(accountId,adlsTargetDirectory.concat("/DataAssetDomainAssignment"),Some(dfDataAssetDomainAssignment),jobRunGuid, "DataAssetDomainAssignment","")
+        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataAssetDomainAssignment"))
       }
     } catch
     {

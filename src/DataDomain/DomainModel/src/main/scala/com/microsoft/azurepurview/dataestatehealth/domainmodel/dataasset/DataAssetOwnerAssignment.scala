@@ -46,7 +46,12 @@ class DataAssetOwnerAssignment (spark: SparkSession, logger:Logger){
       }
 
       val windowSpecAsset = Window.partitionBy("DataAssetId")
-        .orderBy(coalesce(col("ModifiedDateTime").cast(TimestampType), lit(Timestamp.valueOf("2000-01-01 00:00:00"))).desc)
+        .orderBy(coalesce(col("ModifiedDateTime").cast(TimestampType), lit(Timestamp.valueOf("2000-01-01 00:00:00"))).desc,
+          when(col("OperationType") === "Create", 1)
+            .when(col("OperationType") === "Update", 2)
+            .when(col("OperationType") === "Delete", 3)
+            .otherwise(4)
+            .desc)
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpecAsset))
         .filter(col("row_number") === 1)
         .drop("row_number")
@@ -77,7 +82,13 @@ class DataAssetOwnerAssignment (spark: SparkSession, logger:Logger){
         ,col("EventProcessingTime").alias("EventProcessingTime").cast(LongType)
         ,col("OperationType").alias("OperationType").cast(StringType)
       )
-      val windowSpec = Window.partitionBy("DataAssetId","DataAssetOwnerId").orderBy(col("ModifiedDateTime").desc)
+      val windowSpec = Window.partitionBy("DataAssetId","DataAssetOwnerId")
+        .orderBy(col("ModifiedDateTime").desc,
+          when(col("OperationType") === "Create", 1)
+            .when(col("OperationType") === "Update", 2)
+            .when(col("OperationType") === "Delete", 3)
+            .otherwise(4)
+            .desc)
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpec))
         .filter(col("row_number") === 1)
         .drop("row_number")

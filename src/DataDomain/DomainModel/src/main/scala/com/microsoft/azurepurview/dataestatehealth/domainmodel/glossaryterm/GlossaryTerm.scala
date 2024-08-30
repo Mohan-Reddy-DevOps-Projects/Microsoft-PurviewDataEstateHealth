@@ -47,7 +47,12 @@ class GlossaryTerm (spark: SparkSession, logger:Logger){
       }
 
       val windowSpecGT = Window.partitionBy("GlossaryTermId")
-        .orderBy(coalesce(col("ModifiedDateTime").cast(TimestampType), lit(Timestamp.valueOf("2000-01-01 00:00:00"))).desc)
+        .orderBy(coalesce(col("ModifiedDateTime").cast(TimestampType), lit(Timestamp.valueOf("2000-01-01 00:00:00"))).desc,
+          when(col("OperationType") === "Create", 1)
+            .when(col("OperationType") === "Update", 2)
+            .when(col("OperationType") === "Delete", 3)
+            .otherwise(4)
+            .desc)
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpecGT))
         .filter(col("row_number") === 1)
         .drop("row_number")
@@ -73,7 +78,12 @@ class GlossaryTerm (spark: SparkSession, logger:Logger){
         ,col("OperationType").cast(StringType)
         ,col("BusinessDomainId").cast(StringType)
       )
-      val windowSpec = Window.partitionBy("GlossaryTermId").orderBy(col("ModifiedDateTime").desc)
+      val windowSpec = Window.partitionBy("GlossaryTermId").orderBy(col("ModifiedDateTime").desc,
+        when(col("OperationType") === "Create", 1)
+          .when(col("OperationType") === "Update", 2)
+          .when(col("OperationType") === "Delete", 3)
+          .otherwise(4)
+          .desc)
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpec))
         .filter(col("row_number") === 1)
         .drop("row_number")
@@ -119,7 +129,7 @@ class GlossaryTerm (spark: SparkSession, logger:Logger){
               .merge(
                 mergeDfSource.as("source"),
                 """target.GlossaryTermID = source.GlossaryTermId""")
-              .whenMatched("source.ModifiedDatetime>target.ModifiedDatetime")
+              .whenMatched("source.ModifiedDatetime>=target.ModifiedDatetime")
               .updateAll()
               .whenNotMatched()
               .insertAll()

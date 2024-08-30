@@ -1,8 +1,10 @@
 package com.microsoft.azurepurview.dataestatehealth.domainmodel.common
+
 import org.apache.log4j.Logger
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.SaveMode
+import io.delta.tables.DeltaTable
 
 import scala.concurrent.{Future, Promise}
 import java.time.format.DateTimeFormatter
@@ -43,6 +45,7 @@ class Reader (spark: SparkSession, logger:Logger){
         throw e
     }
   }
+
   def writeCosmosData(df:DataFrame,Entity:String): Unit = {
     try {
       df.write.format("cosmos.oltp")
@@ -168,4 +171,49 @@ class Reader (spark: SparkSession, logger:Logger){
     promise.future
   }
 
+  /**
+   * Checks if a Delta table exists at the given path.
+   *
+   * This method tries to determine whether a Delta table exists at the specified path.
+   * It handles any potential exceptions and returns `false` if an error occurs.
+   *
+   * @param deltaTablePath The path to the Delta table.
+   * @return `true` if the Delta table exists, `false` otherwise.
+   */
+  private def deltaTableExists(deltaTablePath: String): Boolean = {
+    try {
+      DeltaTable.isDeltaTable(deltaTablePath)
+    } catch {
+      case _: Throwable => false
+    }
+  }
+
+  /**
+   * Reads a Delta table from Azure Data Lake Storage (ADLS) and returns it as a DataFrame.
+   *
+   * This method constructs the full path to the Delta table using the base path and entity name,
+   * checks if the Delta table exists, and if it is not empty. It returns the DataFrame if both
+   * conditions are met; otherwise, it logs a message and returns `None`.
+   *
+   * @param deltaPath The base path where Delta tables are stored.
+   * @param entity The specific entity name to append to the base path.
+   * @param spark The SparkSession used to interact with the Delta table.
+   * @return An `Option` containing the DataFrame if the table exists and is not empty, `None` otherwise.
+   */
+  def readAdlsDelta(DeltaPath: String, Entity: String): Option[DataFrame] = {
+    val directoryPath = DeltaPath.concat(Entity)
+    if (deltaTableExists(directoryPath)) {
+        val deltaTable = DeltaTable.forPath(spark, directoryPath)
+        val df = deltaTable.toDF
+        if (df.isEmpty) {
+          println(s"Delta table at path $directoryPath is empty.")
+          None
+        } else {
+          Some(df)
+        }
+    } else {
+      println(s"Delta table does not exist at path: $directoryPath")
+      None
+    }
+  }
 }

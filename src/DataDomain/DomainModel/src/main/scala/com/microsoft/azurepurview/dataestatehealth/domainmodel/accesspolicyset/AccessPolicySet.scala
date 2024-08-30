@@ -3,7 +3,7 @@ import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.{DeltaTabl
 import io.delta.tables.DeltaTable
 import org.apache.log4j.Logger
 import org.apache.spark.sql.expressions.Window
-import org.apache.spark.sql.functions.{col, explode_outer, expr, lit, lower, max, row_number}
+import org.apache.spark.sql.functions.{col, explode_outer, expr, lit, lower, max, row_number, when}
 import org.apache.spark.sql.types.{IntegerType, LongType, StringType, TimestampType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
@@ -103,7 +103,12 @@ class AccessPolicySet (spark: SparkSession, logger:Logger){
         ,col("ResourceType").cast(StringType)
       )
 
-      val windowSpec = Window.partitionBy("AccessPolicySetId").orderBy(col("ModifiedDateTime").desc)
+      val windowSpec = Window.partitionBy("AccessPolicySetId").orderBy(col("ModifiedDateTime").desc,
+        when(col("OperationType") === "Create", 1)
+          .when(col("OperationType") === "Update", 2)
+          .when(col("OperationType") === "Delete", 3)
+          .otherwise(4)
+          .desc)
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpec))
         .filter(col("row_number") === 1)
         .drop("row_number")
@@ -163,7 +168,7 @@ class AccessPolicySet (spark: SparkSession, logger:Logger){
                 .merge(
                   mergeDfSource.as("source"),
                   """target.AccessPolicySetId = source.AccessPolicySetId""")
-                .whenMatched("source.ModifiedDatetime>target.ModifiedDatetime")
+                .whenMatched("source.ModifiedDatetime>=target.ModifiedDatetime")
                 .updateAll()
                 .whenNotMatched()
                 .insertAll()
