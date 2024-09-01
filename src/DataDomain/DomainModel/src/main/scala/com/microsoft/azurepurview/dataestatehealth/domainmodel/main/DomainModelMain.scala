@@ -10,6 +10,27 @@ import java.util.ResourceBundle
 object DomainModelMain {
   val logger: Logger = Logger.getLogger(getClass.getName)
 
+  def performMaintenance(accountId: String, adlsDir: String): Unit = {
+    def fileExists(path: String): Boolean = {
+      try {
+        mssparkutils.fs.ls(path).nonEmpty
+      } catch {
+        case _: Exception => false
+      }
+    }
+
+    val basePath = adlsDir.stripSuffix("/DomainModel")
+    val filePath = s"$basePath/Maintenance/OneTimeCleanup/DomainModel.txt"
+
+    if (fileExists(filePath)) {
+      println("SKIP: Delete root directory & full load.")
+    } else {
+      println("Delete root directory & full load.")
+      mssparkutils.fs.rm(adlsDir, true)
+      mssparkutils.fs.put(filePath, accountId)
+    }
+  }
+
   def main(args: Array[String]): Unit = {
     val resourceBundle = ResourceBundle.getBundle("domainmodel")
 
@@ -42,8 +63,7 @@ object DomainModelMain {
           spark.conf.set("spark.cosmos.accountKey", mssparkutils.credentials.getSecret(spark.conf.get("spark.keyvault.name"), spark.conf.get("spark.analyticalcosmos.keyname")))
 
           if (spark.conf.get("spark.ec.deleteModelFolder", "false").toBoolean){
-            println("Delete root directory to do full load.")
-            mssparkutils.fs.rm(config.AdlsTargetDirectory, true)
+            performMaintenance(config.AccountId, config.AdlsTargetDirectory)
           }
 
           println(
