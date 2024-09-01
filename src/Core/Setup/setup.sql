@@ -1737,7 +1737,7 @@ CREATE VIEW [' + @DomainSchema + '].[vwDataAssetClassification]
 AS 
 SELECT DISTINCT DP.DataProductID DataProductSourceId, DDP.DataProductID, DP.DataProductDisplayName, DA.DataAssetId AS DataAssetSourceId, DDA.DataAssetId, DA.AssetDisplayName, 
 CASE WHEN DACC.DataAssetId IS NULL THEN 0 ELSE 1 END AS AssetClassificationFlag,DACC.ColumnId DataAssetColumnSourceId, 
-DDAC.DataAssetColumnId,DACC.ColumnId 
+DDAC.DataAssetColumnId,DACC.ColumnId, DAD.BusinessDomainId 
 FROM [' + @DomainSchema + '].[DataProduct] DP 
 INNER JOIN [' + @DimensionalSchema + '].[DimDataProduct]DDP 
 	on DP.DataProductId=DDP.DataProductSourceId 
@@ -1750,7 +1750,9 @@ INNER JOIN [' + @DimensionalSchema + '].[DimDataAsset]DDA
 LEFT JOIN [' + @DomainSchema + '].[DataAssetColumnClassificationAssignment] DACC 
 	ON DA.DataAssetId=DACC.DataAssetId 
 LEFT JOIN [' + @DimensionalSchema + '].[DimDataAssetColumn] DDAC 
-	ON DACC.ColumnId=DDAC.DataAssetColumnSourceId';
+	ON DACC.ColumnId=DDAC.DataAssetColumnSourceId
+LEFT JOIN [' + @DomainSchema + '].[DataAssetDomainAssignment] DAD ON
+DA.DataAssetId = DAD.DataAssetId';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'VIEW created: vwDataAssetClassification';
 PRINT 'VIEW COMPLETE';
