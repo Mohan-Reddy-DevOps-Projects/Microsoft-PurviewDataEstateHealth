@@ -10,6 +10,7 @@ using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Extensions.Options;
@@ -23,7 +24,8 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
     IKeyVaultAccessorService keyVaultAccessorService,
     IOptions<KeyVaultConfiguration> keyVaultConfig,
     IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration,
-    IMetadataAccessorService metadataAccessorService) : IComputeGovernedAssetsSparkJobComponent
+    IMetadataAccessorService metadataAccessorService,
+    IProcessingStorageManager processingStorageManager) : IComputeGovernedAssetsSparkJobComponent
 {
 
     /// <inheritdoc/>
@@ -39,6 +41,10 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
         var rddAssetsPath = $"wasbs://{containerName}@{rddHost}/{rddAssetsFolderPath}";
 
         var storageTokenKey = await metadataAccessorService.GetProcessingStorageDelegationSasToken(Guid.Parse(accountServiceModel.Id), accountServiceModel.DefaultCatalogId, "racwdli", cancellationToken);
+
+        var dgAccountStorageModel = await processingStorageManager.Get(new Guid(accountServiceModel.Id), CancellationToken.None).ConfigureAwait(false);
+        var domainModelAssetsFormat = "delta";
+        var domainModelAssetsPath = $"abfss://{containerName}@{dgAccountStorageModel.GetDfsEndpoint()}/DomainModel/DataAsset";
 
         SparkJobRequest sparkJobRequest = new()
         {
@@ -59,7 +65,11 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
                 {$"spark.hadoop.fs.azure.sas.{containerName}.{rddHost}", storageTokenKey.Key },
                 {"spark.rdd.assetsFormat", rddAssetsFormat },
                 {"spark.rdd.assetsPath", rddAssetsPath },
-                // RDD connection configs ends
+                // RDD connection configs end
+                // Domain model configs
+                {"spark.domainModel.assetsFormat", domainModelAssetsFormat },
+                {"spark.domainModel.assetsPath", domainModelAssetsPath },
+                // Domain model configs end
                 {"spark.microsoft.delta.optimizeWrite.enabled" ,"true" },
                 {"spark.serializer","org.apache.spark.serializer.KryoSerializer" },
                 {"spark.jars.packages","com.github.scopt:scopt_2.12:4.0.1" },
