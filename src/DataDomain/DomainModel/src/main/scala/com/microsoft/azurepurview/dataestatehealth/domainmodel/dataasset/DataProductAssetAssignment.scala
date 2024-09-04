@@ -1,6 +1,7 @@
 package com.microsoft.azurepurview.dataestatehealth.domainmodel.dataasset
 import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.Validator
 import org.apache.log4j.Logger
+import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, lit, row_number, when}
 import org.apache.spark.sql.types.{IntegerType, LongType, StringType, TimestampType}
 import org.apache.spark.sql.{DataFrame, SparkSession, types}
@@ -44,9 +45,21 @@ class DataProductAssetAssignment (spark: SparkSession, logger:Logger){
 
       var dfProcess = df1.union(df2).distinct()
 
+      val windowSpec = Window.partitionBy(col("DataAssetId"),col("DataProductId"))
+        .orderBy(col("ModifiedDateTime").desc,
+          when(col("OperationType") === "Create", 1)
+            .when(col("OperationType") === "Update", 2)
+            .when(col("OperationType") === "Delete", 3)
+            .otherwise(4)
+            .desc)
+      dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpec))
+        .filter(col("row_number") === 1)
+        .drop("row_number")
+        .distinct()
+
       dfProcess = dfProcess.filter(s"""DataProductId IS NOT NULL
                                       | AND DataAssetId IS NOT NULL
-                                      | AND AssignedByUserId IS NOT NULL""".stripMargin).distinct()
+                                      | AND ActiveFlag = 1""".stripMargin).distinct()
 
       val dfProcessed = spark.createDataFrame(dfProcess.rdd, schema=schema)
       val filterString = s"""DataProductId is null

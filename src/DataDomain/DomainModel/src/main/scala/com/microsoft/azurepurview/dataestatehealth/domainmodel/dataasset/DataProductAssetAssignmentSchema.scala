@@ -5,7 +5,7 @@ class DataProductAssetAssignmentSchema {
     Array(
       StructField("DataProductId", StringType, nullable = false),
       StructField("DataAssetId", StringType, nullable = false),
-      StructField("AssignedByUserId", StringType, nullable = false),
+      StructField("AssignedByUserId", StringType, nullable = true),
       StructField("ActiveFlagLastModifiedDatetime", TimestampType, nullable = true),
       StructField("AssignmentLastModifiedDatetime", TimestampType, nullable = true),
       StructField("ActiveFlag", IntegerType, nullable = true),

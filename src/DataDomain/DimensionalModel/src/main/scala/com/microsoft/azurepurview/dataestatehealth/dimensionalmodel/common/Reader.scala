@@ -27,15 +27,26 @@ class Reader(spark: SparkSession, logger: Logger) {
 
   def readAdlsDelta(DeltaPath: String, Entity: String): Option[DataFrame] = {
     val directoryPath = DeltaPath.concat("/DomainModel/").concat(Entity)
-    val DomainDeltaTable = DeltaTable.forPath(spark, directoryPath)
-    val dfDomainDeltaTable = DomainDeltaTable.toDF
-    if (deltaTableExists(directoryPath) && !dfDomainDeltaTable.isEmpty) {
-      val df = dfDomainDeltaTable
-      Some(df)
+    val pathExists = try {
+      mssparkutils.fs.ls(directoryPath).nonEmpty
+    } catch {
+      case _: Exception => false
+    }
+    if (pathExists){
+      val DomainDeltaTable = DeltaTable.forPath(spark, directoryPath)
+      val dfDomainDeltaTable = DomainDeltaTable.toDF
+      if (deltaTableExists(directoryPath) && !dfDomainDeltaTable.isEmpty) {
+        val df = dfDomainDeltaTable
+        Some(df)
+      } else {
+        println(s"Delta table does not exist at path or IsEmpty: $directoryPath")
+        None
+      }
     } else {
-      println(s"Delta table does not exist at path or IsEmpty: $directoryPath")
+      println(s"Path does not exist or folder is empty: $directoryPath")
       None
     }
+
   }
   def writeCosmosData(df:DataFrame,Entity:String): Unit = {
     try {
