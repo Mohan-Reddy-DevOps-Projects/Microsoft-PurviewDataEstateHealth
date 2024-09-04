@@ -44,7 +44,7 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
 
         var dgAccountStorageModel = await processingStorageManager.Get(new Guid(accountServiceModel.Id), CancellationToken.None).ConfigureAwait(false);
         var domainModelAssetsFormat = "delta";
-        var domainModelAssetsPath = $"abfss://{containerName}@{dgAccountStorageModel.GetDfsEndpoint()}/DomainModel/DataAsset";
+        var domainModelAssetsPath = $"abfss://{containerName}@{dgAccountStorageModel.GetStorageAccountName()}.{dgAccountStorageModel.Properties.DnsZone}.dfs.{dgAccountStorageModel.Properties.EndpointSuffix}/DomainModel/DataAsset";
 
         SparkJobRequest sparkJobRequest = new()
         {
