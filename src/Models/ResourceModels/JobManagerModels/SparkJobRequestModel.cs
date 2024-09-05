@@ -15,9 +15,10 @@ public class SparkJobRequestModel
     public string jarClassName { get; set; }
     public string miToken { get; set; }
     public string storageUrl { get; set; }
-
     public string storageType { get; set; }
     public string cosmosDBEndpoint { get; set; } = "";
     public string cosmosDBKey { get; set; } = "";
     public string workSpaceID { get; set; } = "";
+    public String tenantId { get; set; }
+
 }

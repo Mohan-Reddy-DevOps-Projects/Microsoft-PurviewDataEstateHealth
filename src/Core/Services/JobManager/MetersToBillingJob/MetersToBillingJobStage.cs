@@ -220,11 +220,14 @@ public class MetersToBillingJobStage : IJobCallbackStage
             {
                 var batch = meteredEvents.Value.Skip(currentBatch * batchSize).Take(batchSize).ToList().Select(meteredEvent =>
                 {
-                    var billingTags = new BillingTags
-                    {
-                        AccountId = Guid.Parse(meteredEvent.AccountId)
-                    };
+                    //var billingTags = new BillingTags
+                    //{
+                    //    AccountId = Guid.Parse(meteredEvent.AccountId)
+                    //};
 
+                    var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
+                    billingTags += $"\"TenantId\":\"{meteredEvent.TenantId}\",";
+                    billingTags += $"\"SubSolutionName\":\"{meteredEvent.DMSScope}\"}}";
                     var now = DateTime.UtcNow;
 
                     var billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
@@ -234,7 +237,11 @@ public class MetersToBillingJobStage : IJobCallbackStage
                         CreationTime = now,
                         // BUG IN CBS DO NOT ALLOW FRACTIONAL UNITS
                         Quantity = meteredEvent.ProcessingUnits,
-                        BillingTags = billingTags
+                        BillingTags = billingTags,
+                        BillingStartDate = meteredEvent.JobStartTime.DateTime,
+                        BillingEndDate = meteredEvent.JobEndTime.DateTime,
+                        SKU = BillingSKU.Basic,
+                        LogOnly = false
                     });
 
                     return billingEvent;
@@ -292,7 +299,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
         return scriptText;
     }
 
-    private async Task EmitEventsWithRetryAndErrorHandling(string logShared, List<BillingEvent> billingEvents, Guid correlationId)
+    private async Task EmitEventsWithRetryAndErrorHandling(string logShared, List<ExtendedBillingEvent> billingEvents, Guid correlationId)
     {
         try
         {
@@ -310,12 +317,12 @@ public class MetersToBillingJobStage : IJobCallbackStage
             {
                 return new CBSBillingReceipt()
                 {
-                    BillingTimestamp = q.CreationTime,
+                    BillingTimestamp = q.BillingEvent.CreationTime,
                     BillingEvent = JsonConvert.SerializeObject(q),
-                    CorrelationId = q.CorrelationId.ToString(),
-                    EventId = q.Id.ToString(),
+                    CorrelationId = q.BillingEvent.CorrelationId.ToString(),
+                    EventId = q.BillingEvent.Id.ToString(),
                     BatchId = correlationId.ToString(),
-                    Service = q.SolutionName,
+                    Service = q.BillingEvent.SolutionName,
                     Status = CBSReceiptStatus.Unknown,
                     StatusDetail = String.Empty
                 };

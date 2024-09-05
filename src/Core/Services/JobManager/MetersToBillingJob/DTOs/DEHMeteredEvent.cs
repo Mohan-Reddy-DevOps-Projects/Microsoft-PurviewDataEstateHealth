@@ -7,9 +7,9 @@ using System;
 /// </summary>
 public class DEHMeteredEvent
 {
-    public DateTimeOffset ProcessingTimestamp{ get; set; }
-    public string ApplicationId{ get; set; }
-    public string ProcessingTier{ get; set; }
+    public DateTimeOffset ProcessingTimestamp { get; set; }
+    public string ApplicationId { get; set; }
+    public string ProcessingTier { get; set; }
     public string EventCorrelationId { get; set; }
     public string JobId { get; set; }
     public double JobDuration { get; set; }
@@ -18,7 +18,9 @@ public class DEHMeteredEvent
     public string JobStatus { get; set; }
     public double ProcessingUnits { get; set; }
     public DateTimeOffset JobStartTime { get; set; }
-    public DateTimeOffset  JobEndTime { get; set; }
+    public DateTimeOffset JobEndTime { get; set; }
     public String DMSScope { get; set; }
     public String DMSJobSubType { get; set; }
+    public String TenantId { get; set; }
+
 }

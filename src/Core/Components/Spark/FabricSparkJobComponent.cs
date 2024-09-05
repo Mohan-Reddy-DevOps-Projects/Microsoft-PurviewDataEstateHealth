@@ -15,7 +15,6 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.JobManagerModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using System;
 using System.Collections.Generic;
@@ -86,7 +85,8 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
                     storageType = storageConfig.Type,
                     cosmosDBEndpoint = cosmosDBEndpoint.Value,
                     cosmosDBKey = cosmosDBKey.Value,
-                    workSpaceID = workSpaceID.Value
+                    workSpaceID = workSpaceID.Value,
+                    tenantId = accountServiceModel.TenantId
                 };
 
                 SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sparkJobRequestModel);
@@ -183,8 +183,8 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
             {$"spark.synapse.logAnalytics.workspaceId",sparkJobRequestModel.workSpaceID },
             {$"spark.synapse.logAnalytics.keyVault.name", this.keyVaultBaseURL},
             {$"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" },
-            {$"spark.mitoken.value",$"{sparkJobRequestModel.miToken}" }
-
+            {$"spark.mitoken.value",$"{sparkJobRequestModel.miToken}" },
+            {$"spark.purview.tenantId",  $"{sparkJobRequestModel.tenantId}" }
         };
     }
 }
