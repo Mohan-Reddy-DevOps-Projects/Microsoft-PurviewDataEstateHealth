@@ -24,8 +24,12 @@ object DimensionalModelMain {
     if (fileExists(filePath)) {
       println("SKIP: Delete root directory & full load.")
     } else {
-      println("Delete root directory & full load.")
-      mssparkutils.fs.rm(adlsDir.concat("/DimensionalModel"), true)
+      if (fileExists(adlsDir.concat("/DimensionalModel"))) {
+        println("Delete root directory & full load.")
+        mssparkutils.fs.rm(adlsDir.concat("/DimensionalModel"), true)
+      } else {
+        println("No root directory.")
+      }
       mssparkutils.fs.put(filePath, accountId)
     }
   }

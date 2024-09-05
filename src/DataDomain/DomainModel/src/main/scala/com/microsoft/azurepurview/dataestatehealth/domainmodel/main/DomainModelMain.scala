@@ -25,8 +25,12 @@ object DomainModelMain {
     if (fileExists(filePath)) {
       println("SKIP: Delete root directory & full load.")
     } else {
-      println("Delete root directory & full load.")
-      mssparkutils.fs.rm(adlsDir, true)
+      if (fileExists(adlsDir)) {
+        println("Delete root directory & full load.")
+        mssparkutils.fs.rm(adlsDir, true)
+      } else {
+        println("No root directory.")
+      }
       mssparkutils.fs.put(filePath, accountId)
     }
   }
