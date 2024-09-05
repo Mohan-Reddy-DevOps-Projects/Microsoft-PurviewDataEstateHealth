@@ -31,6 +31,8 @@ object StorageSyncMain {
           .appName("StorageSyncMainSparkApplication")
           .getOrCreate()
 
+        val TenantId = spark.conf.get("spark.purview.tenantId", "")
+
         try {
 
           println("In StorageSync Main Spark Application!")
@@ -69,7 +71,7 @@ object StorageSyncMain {
           // Initialize LogAnalyticsConfig with Spark session
           LogAnalyticsLogger.initialize(spark)
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
-            jobStatus = "Started")
+            jobStatus = "Started", TenantId = TenantId)
 
           val lakeCopy = new LakeCopy(logger)
           lakeCopy.processLakehouseCopy(config.DEHStorageAccount.concat("/DomainModel"), fabricSyncRootPath.concat("/DomainModel"))
@@ -90,7 +92,7 @@ object StorageSyncMain {
             throw new IllegalArgumentException(s"Error In StorageSync Main Spark Application!: ${e.getMessage}")
         } finally {
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
-            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed")
+            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed", TenantId = TenantId)
           if (spark != null) {
             Thread.sleep(10000)
             spark.stop()

@@ -61,6 +61,8 @@ object DomainModelMain {
           .appName("DomainModelMainSparkApplication")
           .getOrCreate()
 
+        val TenantId = spark.conf.get("spark.purview.tenantId", "")
+
         try {
           println("In DomainModel Main Spark Application!")
 
@@ -82,7 +84,7 @@ object DomainModelMain {
           // Initialize LogAnalyticsConfig with Spark session
           LogAnalyticsLogger.initialize(spark)
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
-            jobStatus = "Started")
+            jobStatus = "Started", TenantId = TenantId)
 
           // Processing BusinessDomain Delta Table
           com.microsoft.azurepurview.dataestatehealth.domainmodel.businessdomain.BusinessDomainMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
@@ -100,7 +102,7 @@ object DomainModelMain {
             throw e // Re-throw the exception to ensure the job failure is reported correctly
         } finally {
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
-            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed")
+            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed", TenantId = TenantId)
           if (spark != null) {
             Thread.sleep(10000)
             spark.stop()

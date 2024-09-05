@@ -5,4 +5,5 @@ case class JobStatusSchema(Id: String,
                            JobId: String,
                            JobName: String,
                            JobStatus: String,
-                           JobCompletionTime: String)
+                           JobCompletionTime: String,
+                           TenantId: String)
