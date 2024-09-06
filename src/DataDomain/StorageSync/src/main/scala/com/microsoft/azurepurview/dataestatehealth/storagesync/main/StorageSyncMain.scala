@@ -32,6 +32,7 @@ object StorageSyncMain {
           .getOrCreate()
 
         val tenantId = spark.conf.get("spark.purview.tenantId", "")
+        println(s"PurviewTenantId:$tenantId")
 
         try {
 

@@ -62,6 +62,7 @@ object DomainModelMain {
           .getOrCreate()
 
         val tenantId = spark.conf.get("spark.purview.tenantId", "")
+        println(s"PurviewTenantId:$tenantId")
 
         try {
           println("In DomainModel Main Spark Application!")

@@ -60,6 +60,7 @@ object DimensionalModelMain {
           .getOrCreate()
 
         val tenantId = spark.conf.get("spark.purview.tenantId", "")
+        println(s"PurviewTenantId:$tenantId")
 
         try {
           println("In DimensionalModel Main Spark Application!")

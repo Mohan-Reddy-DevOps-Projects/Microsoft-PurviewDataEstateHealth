@@ -42,7 +42,7 @@ object LogAnalyticsLogger {
         JobName = "DomainModel",
         JobStatus = jobStatus,
         JobCompletionTime = Timestamp.from(Instant.now()).toString,
-        TenantId = tenantId
+        PurviewTenantId = tenantId
       )
 
       // Convert data to JSON string
