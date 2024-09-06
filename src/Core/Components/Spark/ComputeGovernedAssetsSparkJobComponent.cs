@@ -91,6 +91,7 @@ internal sealed class ComputeGovernedAssetsSparkJobComponent(
                 {"spark.synapse.logAnalytics.workspaceId",workSpaceID.Value },
                 {"spark.synapse.logAnalytics.keyVault.name", keyVaultBaseURL},
                 {"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" },
+                {"spark.purview.tenantId", dgAccountStorageModel.TenantId.ToString()}
             }
         };
 

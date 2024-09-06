@@ -41,6 +41,8 @@ object ComputeGovernedAssetsMain {
         var countOfGovernedAsset = 0L;
         var exceptionMsg = "";
 
+        val tenantId = spark.conf.get("spark.purview.tenantId", "")
+
         try {
           println("In ComputeGovernedAssets Main Spark Application!")
 
@@ -54,7 +56,7 @@ object ComputeGovernedAssetsMain {
           // Initialize LogAnalyticsConfig with Spark session
           LogAnalyticsLogger.initialize(spark)
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
-            jobStatus = "Started")
+            jobStatus = "Started", tenantId = tenantId)
 
           // Print all configurations
           println("Spark Configuration:")
@@ -123,12 +125,12 @@ object ComputeGovernedAssetsMain {
           logger.info(s"CountOfGovernedAsset: $countOfGovernedAsset")
 
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
-            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed",
-            new Gson().toJson(ComputeGovernedAssetsCountResult(
+            jobStatus = if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed",
+            result = new Gson().toJson(ComputeGovernedAssetsCountResult(
               CountOfAssetsInDataMap = countOfAssetsInDataMap,
               CountOfAssetsInDG = countOfAssetInDG,
               CountOfGovernedAssets = countOfGovernedAsset,
-              ExceptionMsg = exceptionMsg)))
+              ExceptionMsg = exceptionMsg)), tenantId = tenantId)
           if (spark != null) {
             Thread.sleep(10000)
             spark.stop()
