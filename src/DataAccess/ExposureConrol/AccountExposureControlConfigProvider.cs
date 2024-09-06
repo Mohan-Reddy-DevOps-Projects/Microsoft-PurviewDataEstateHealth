@@ -179,9 +179,9 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     }
 
     /// <inheritdoc/>
-    public bool IsDataGovUsageSettingsEnabled(string accountId, string subscriptionId, string tenantId)
+    public bool IsDataGovBYOCEnabled(string accountId, string subscriptionId, string tenantId)
     {
-        ExposureControlOptions options = new(Features.DGUsageSettings.ToString(), false)
+        ExposureControlOptions options = new(Features.UXDGBYOC.ToString(), false)
         {
             AccountId = accountId,
             SubscriptionId = subscriptionId,

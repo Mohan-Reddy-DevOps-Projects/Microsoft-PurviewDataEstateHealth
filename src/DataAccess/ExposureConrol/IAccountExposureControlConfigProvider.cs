@@ -72,7 +72,7 @@ public interface IAccountExposureControlConfigProvider
     /// <param name="subscriptionId"></param>
     /// <param name="tenantId"></param>
     /// <returns></returns>
-    public bool IsDataGovUsageSettingsEnabled(string accountId, string subscriptionId, string tenantId);
+    public bool IsDataGovBYOCEnabled(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
     /// Determines if DG Billing Event is enabled. By default this is false.

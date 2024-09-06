@@ -109,7 +109,7 @@ public class DHSettingsController(
     {
         var accountId = requestHeaderContext.AccountObjectId.ToString();
         var tenantId = requestHeaderContext.TenantId.ToString();
-        if (!exposureControl.IsDataGovUsageSettingsEnabled(accountId, string.Empty, tenantId))
+        if (!exposureControl.IsDataGovBYOCEnabled(accountId, string.Empty, tenantId))
         {
             throw new EntityForbiddenException();
         }
