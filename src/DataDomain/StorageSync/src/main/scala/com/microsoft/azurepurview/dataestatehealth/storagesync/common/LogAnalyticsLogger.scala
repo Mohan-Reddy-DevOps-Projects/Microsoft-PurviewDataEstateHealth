@@ -32,7 +32,7 @@ object LogAnalyticsLogger {
     }
   }
 
-  def checkpointJobStatus(accountId: String, jobRunGuid: String, jobStatus: String, TenantId: String): Unit = {
+  def checkpointJobStatus(accountId: String, jobRunGuid: String, jobStatus: String, tenantId: String): Unit = {
     try {
       val data = JobStatusSchema(
         Id = UUID.randomUUID().toString,
@@ -41,7 +41,7 @@ object LogAnalyticsLogger {
         JobName = "StorageSync",
         JobStatus = jobStatus,
         JobCompletionTime = Timestamp.from(Instant.now()).toString,
-        TenantId = TenantId
+        TenantId = tenantId
       )
 
       // Convert data to JSON string

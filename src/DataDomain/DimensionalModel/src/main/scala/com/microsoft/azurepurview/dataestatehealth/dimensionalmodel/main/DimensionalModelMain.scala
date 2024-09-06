@@ -59,7 +59,7 @@ object DimensionalModelMain {
           .appName("DimensionalModelMainSparkApplication")
           .getOrCreate()
 
-        val TenantId = spark.conf.get("spark.purview.tenantId", "")
+        val tenantId = spark.conf.get("spark.purview.tenantId", "")
 
         try {
           println("In DimensionalModel Main Spark Application!")
@@ -80,7 +80,7 @@ object DimensionalModelMain {
           // Initialize LogAnalyticsConfig with Spark session
           LogAnalyticsLogger.initialize(spark)
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid
-            , jobStatus = "Started", TenantId = TenantId)
+            , jobStatus = "Started", tenantId = tenantId)
 
           // Processing DimDate Delta Table
           com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.dimension.DimMain.main(config.AdlsTargetDirectory,config.ReProcessingThresholdInMins,config.AccountId,config.JobRunGuid,spark)
@@ -93,7 +93,7 @@ object DimensionalModelMain {
             throw e // Re-throw the exception to ensure the job failure is reported correctly
         } finally {
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
-            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed", TenantId = TenantId)
+            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed", tenantId = tenantId)
           if (spark != null) {
             Thread.sleep(10000)
             spark.stop()
