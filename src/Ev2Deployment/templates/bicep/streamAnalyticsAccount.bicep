@@ -310,7 +310,7 @@ resource startStreamAnalytics 'Microsoft.Resources/deploymentScripts@2020-10-01'
             $jobState = $streamAnalyticsJob.JobState
             # Check if the job status is running
             if ($streamAnalyticsJob.ProvisioningState -eq "Succeeded") {
-              Write-Output "Stopping Stream Analytics $item"
+              Write-Output "Starting Stream Analytics $item"
               #Stop-AzStreamAnalyticsJob -ResourceGroupName ${Env:dghResourceGroupName} -Name $item
               Start-AzStreamAnalyticsJob -ResourceGroupName ${Env:dghResourceGroupName} -Name $item
             }

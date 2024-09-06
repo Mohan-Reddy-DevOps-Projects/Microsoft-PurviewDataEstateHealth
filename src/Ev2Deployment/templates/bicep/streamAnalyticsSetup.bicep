@@ -350,7 +350,7 @@ var provisioningEH= 'provisionevent'
 
 module streamAnalyticsJobsProvision  'streamAnalyticsAccount.bicep' = {
   name: streaAnalyticsBicepNameProvision  
-  dependsOn: [ streamAnalyticsJobsDataQuality ]
+  dependsOn: [ streamAnalyticsJobsDataQualityv2 ]
   params: {
     location: location
     userAssignedIdentity: dehResourceAppIdentity.id
