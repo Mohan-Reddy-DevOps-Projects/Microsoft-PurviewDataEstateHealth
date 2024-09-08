@@ -6,6 +6,7 @@ let JobsInInterval = DQ_Job_Logs_CL
 | project JobId_g, JobStatus_s;
 // JOIN WITH JOB DETAILS AND GET OTHER DETAILS
 let jobDetails = DQ_Spark_Logs_CL
+| where  Entity_s !startswith "mdq_"
 | join kind=inner (
     JobsInInterval
     | project JobId_g, JobStatus_s
