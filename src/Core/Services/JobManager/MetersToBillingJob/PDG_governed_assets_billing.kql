@@ -4,7 +4,7 @@ let billingEvents = DEH_Job_Logs_CL
 | extend ParsedResult = parse_json(Result_s)
 | extend CountOfGovernedAssets = tolong(ParsedResult.CountOfGovernedAssets)
 | where CountOfGovernedAssets > 0
-| project ProcessingTimestamp=TimeGenerated, JobId=JobId_g, JobStatus_s, CountOfGovernedAssets, DMSScope="GovernedAsset", TenantId=TenantId, AccountId=AccountId_g;
+| project ProcessingTimestamp=TimeGenerated, JobId=JobId_g, JobStatus_s, CountOfGovernedAssets, DMSScope="GovernedAsset", TenantId=TenantId_g, AccountId=AccountId_g;
 
 //
 // Select everything that has not been signaled by CBS as Succeeded (ACKed)

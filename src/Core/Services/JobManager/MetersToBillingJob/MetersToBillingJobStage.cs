@@ -249,17 +249,17 @@ public class MetersToBillingJobStage : IJobCallbackStage
                             LogOnly = false
                         });
                     }
-                    else if (meteredEvent is GovernedAssetsMeteredEvent governedAssetMeteredEvent)
+                    else if (meteredEvent is GovernedAssetsMeteredEvent governedAssetsMeteredEvent)
                     {
                         billingEvent = BillingEventHelper.CreateGovernedAssetCountBillingEvent(new GovernedAssetCountBillingEventParameters
                         {
-                            EventId = Guid.Parse(governedAssetMeteredEvent.JobId), // EventId is use for dedup downstream - handle with care
-                            TenantId = Guid.Parse(governedAssetMeteredEvent.TenantId),
+                            EventId = Guid.Parse(governedAssetsMeteredEvent.JobId), // EventId is use for dedup downstream - handle with care
+                            TenantId = Guid.Parse(governedAssetsMeteredEvent.TenantId),
                             CreationTime = now,
-                            Quantity = governedAssetMeteredEvent.CountOfGovernedAssets,
+                            Quantity = governedAssetsMeteredEvent.CountOfGovernedAssets,
                             BillingTags = billingTags,
-                            BillingStartDate = governedAssetMeteredEvent.ProcessingTimestamp.DateTime,
-                            BillingEndDate = governedAssetMeteredEvent.ProcessingTimestamp.DateTime,
+                            BillingStartDate = governedAssetsMeteredEvent.ProcessingTimestamp.DateTime,
+                            BillingEndDate = governedAssetsMeteredEvent.ProcessingTimestamp.DateTime,
                             LogOnly = false
                         });
                     }
