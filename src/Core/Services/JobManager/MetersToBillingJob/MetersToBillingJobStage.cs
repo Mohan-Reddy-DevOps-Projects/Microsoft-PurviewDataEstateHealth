@@ -105,8 +105,9 @@ public class MetersToBillingJobStage : IJobCallbackStage
             ////////////////////////////////////
             // DEH Processing
 
-            finalExecutionStatusDetails += await this.ProcessBilling("PDG_deh_billing.kql");
-            finalExecutionStatusDetails += await this.ProcessBilling("PDG_dq_billing.kql");
+            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billing.kql");
+            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_dq_billing.kql");
+            finalExecutionStatusDetails += await this.ProcessBilling<GovernedAssetsMeteredEvent>("PDG_governed_assets_billing.kql");
 
             finalExecutionStatus = JobExecutionStatus.Succeeded;
 
@@ -116,7 +117,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
         }
     }
 
-    private async Task<string> ProcessBilling(string kql)
+    private async Task<string> ProcessBilling<T>(string kql) where T : MeteredEvent
     {
         string finalStatus = string.Empty;
         DateTimeOffset started = DateTimeOffset.UtcNow;
@@ -124,7 +125,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
         {
             try
             {
-                int totalEvents = await this.ProcessBillingEvents(kql);
+                int totalEvents = await this.ProcessBillingEvents<T>(kql);
                 // set the final details into the job
                 finalStatus = $" | KQL: {kql} | Completed on {DateTimeOffset.Now.ToString()} | Duration {(DateTimeOffset.UtcNow - started).TotalSeconds} seconds. | Total Events Processed: {totalEvents}";
             }
@@ -139,7 +140,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
         }
     }
 
-    private async Task<int> ProcessBillingEvents(string DEHBillingProcesingKQL)
+    private async Task<int> ProcessBillingEvents<T>(string DEHBillingProcesingKQL) where T : MeteredEvent
     {
         // Reprocessing window is last 7 days
         DateTimeOffset pollFrom = DateTimeOffset.UtcNow.AddDays(-7);
@@ -182,7 +183,8 @@ public class MetersToBillingJobStage : IJobCallbackStage
             this.logger.LogInformation($"{this.GetType().Name}:|Created {billingReceipts} table.");
 
         }
-        var meteredEvents = await this.logsAnalyticsReader.Query<DEHMeteredEvent>(await this.LoadKQL(DEHBillingProcesingKQL), pollFrom, utcNow);
+
+        var meteredEvents = await this.logsAnalyticsReader.Query<T>(await this.LoadKQL(DEHBillingProcesingKQL), pollFrom, utcNow);
 
         int totalEvents = 0;
 
@@ -230,19 +232,41 @@ public class MetersToBillingJobStage : IJobCallbackStage
                     billingTags += $"\"SubSolutionName\":\"{meteredEvent.DMSScope}\"}}";
                     var now = DateTime.UtcNow;
 
-                    var billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
+                    ExtendedBillingEvent billingEvent = null;
+                    if (meteredEvent is DEHMeteredEvent dehMeteredEvent)
                     {
-                        EventId = Guid.Parse(meteredEvent.JobId), // EventId is use for dedup downstream - handle with care
-                        TenantId = Guid.Parse(meteredEvent.AccountId),
-                        CreationTime = now,
-                        // BUG IN CBS DO NOT ALLOW FRACTIONAL UNITS
-                        Quantity = meteredEvent.ProcessingUnits,
-                        BillingTags = billingTags,
-                        BillingStartDate = meteredEvent.JobStartTime.DateTime,
-                        BillingEndDate = meteredEvent.JobEndTime.DateTime,
-                        SKU = BillingSKU.Basic,
-                        LogOnly = false
-                    });
+                        billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
+                        {
+                            EventId = Guid.Parse(dehMeteredEvent.JobId), // EventId is use for dedup downstream - handle with care
+                            TenantId = Guid.Parse(dehMeteredEvent.AccountId),
+                            CreationTime = now,
+                            // BUG IN CBS DO NOT ALLOW FRACTIONAL UNITS
+                            Quantity = dehMeteredEvent.ProcessingUnits,
+                            BillingTags = billingTags,
+                            BillingStartDate = dehMeteredEvent.JobStartTime.DateTime,
+                            BillingEndDate = dehMeteredEvent.JobEndTime.DateTime,
+                            SKU = BillingSKU.Basic,
+                            LogOnly = false
+                        });
+                    }
+                    else if (meteredEvent is GovernedAssetsMeteredEvent governedAssetMeteredEvent)
+                    {
+                        billingEvent = BillingEventHelper.CreateGovernedAssetCountBillingEvent(new GovernedAssetCountBillingEventParameters
+                        {
+                            EventId = Guid.Parse(governedAssetMeteredEvent.JobId), // EventId is use for dedup downstream - handle with care
+                            TenantId = Guid.Parse(governedAssetMeteredEvent.TenantId),
+                            CreationTime = now,
+                            Quantity = governedAssetMeteredEvent.CountOfGovernedAssets,
+                            BillingTags = billingTags,
+                            BillingStartDate = governedAssetMeteredEvent.ProcessingTimestamp.DateTime,
+                            BillingEndDate = governedAssetMeteredEvent.ProcessingTimestamp.DateTime,
+                            LogOnly = false
+                        });
+                    }
+                    else
+                    {
+                        throw new NotImplementedException($"Unsupported meteredEvent type: {meteredEvent.GetType().Name}");
+                    }
 
                     return billingEvent;
 
