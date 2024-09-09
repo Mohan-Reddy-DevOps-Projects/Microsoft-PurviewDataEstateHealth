@@ -58,9 +58,17 @@
 		<ProjectReference Include="..\Models\Models.csproj" />
 	</ItemGroup>
 	<ItemGroup>
+		<None Update="Services\JobManager\MetersToBillingJob\PDG_deh_jobs.kql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		  <TargetPath>PDG_deh_jobs.kql</TargetPath>
+		</None>
 		<None Update="Services\JobManager\MetersToBillingJob\PDG_deh_billing.kql">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<TargetPath>PDG_deh_billing.kql</TargetPath>
+		</None>
+		<None Update="Services\JobManager\MetersToBillingJob\PDG_dq_billingV1.kql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		  <TargetPath>PDG_dq_billingV1.kql</TargetPath>
 		</None>
 		<None Update="Services\JobManager\MetersToBillingJob\PDG_dq_billing.kql">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>

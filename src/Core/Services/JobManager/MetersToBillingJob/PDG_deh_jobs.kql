@@ -1,0 +1,181 @@
+﻿let GetMDQJobs = (StartTime: datetime, EndTime: datetime) {
+// GET JOB IN THE INTERVAL
+let JobsInInterval = DQ_Job_Logs_CL
+| where TimeGenerated between(StartTime .. EndTime)
+| where JobStatus_s =="Completed"
+| project TenantId, JobId_g, JobStatus_s;
+// JOIN WITH JOB DETAILS AND GET OTHER DETAILS
+let JobDetails = DQ_Spark_Logs_CL
+| join kind=inner (
+    JobsInInterval
+    | project TenantId, JobId_g, JobStatus_s
+) on $left.JobId_g == $right.JobId_g
+| where Entity_s startswith "mdq_"
+| summarize
+    ProcessingTier = any(case(
+        NodeSize_s == "Small", "Basic",
+        NodeSize_s == "Medium", "Basic",
+        NodeSize_s == "Large", "Standard",
+        NodeSize_s == "XLarge", "Advanced",
+        NodeSize_s == "XXLarge", "Advanced",
+        "Unknown Status")),
+    EventCorelationId = any(id_g),
+    TenantId = any(TenantId),
+    JobId = any(JobId_g), // JobId from the driver table
+    DqJobId_g = any(DqJobId_g),
+    AccountId = any(accountId_g_g),
+    BusinessDomainId = any(BusinessDomainId_g),
+    JobStatus = any(JobStatus_s), // JobStatus from the driver table
+    JobCompletionTime_d = any(JobCompletionTime_d),
+    JobStartTime_d = any(JobStartTime_d),
+    DMSScope = any("DEH"),
+    DMSJobSubType = any(Entity_s)
+by ApplicationId_s;
+// Step 2: Summarize the start and end times from SparkLoggingEvent_CL using ApplicationId_s from jobDetails
+let DistinctAppIds = JobDetails | project ApplicationId_s;
+let SparkEventLogs = SparkLoggingEvent_CL
+| where applicationId_s in (DistinctAppIds)
+| summarize MinStartTime = min(TimeGenerated), MaxEndTime = max(TimeGenerated) by applicationId_s
+| extend Duration = datetime_diff('second', MaxEndTime, MinStartTime);
+// Step 3: Left join jobDetails with jobTimes
+let JobDetailsWithTimes = JobDetails
+| join kind=leftouter (SparkEventLogs) on $left.ApplicationId_s == $right.applicationId_s
+| extend JobDurationSeconds = iff(isnull(Duration), 0, Duration)
+| project
+    ApplicationId_s,
+    ProcessingTier,
+    EventCorelationId,
+    TenantId,
+    JobId,
+    DqJobId_g,
+    JobDuration = toint(JobDurationSeconds),
+    AccountId,
+    BusinessDomainId,
+    JobStatus,
+    ProcessingTimestamp = iff(isnull(MaxEndTime), datetime(2020-01-01 00:00:00), MaxEndTime),
+    JobStartTime = iff(isnull(MinStartTime), datetime(2020-01-01 00:00:00), MinStartTime),
+    JobEndTime = iff(isnull(MaxEndTime), datetime(2020-01-01 00:00:00), MaxEndTime),
+    DMSScope,
+    DMSJobSubType;
+// Step 5: Join with processingUnitsMapping to get ProcessingUnits based on JobDurationMinutes
+let BillingEvents = JobDetailsWithTimes
+| project
+    ApplicationId_s,
+    ProcessingTier,
+    EventCorelationId,
+    TenantId,
+    JobId,
+    DqJobId_g,
+    JobDuration,
+    AccountId,
+    BusinessDomainId,
+    JobStatus,
+    ProcessingTimestamp,
+    JobStartTime,
+    JobEndTime,
+    DMSScope,
+    DMSJobSubType;
+//Step 6 : Get only batch records
+// Get the list of distinct BatchId_g for Init jobs that have a corresponding DQJobId_g in joinjobandsparklog
+let CompletedDQJobs = DEH_JobInitMapping_log_CL
+    | where JobStatus_s == "Init" 
+    | join kind=inner (BillingEvents) on $left.DQJobId_g == $right.DqJobId_g;
+// Count the number of initialized jobs by BatchId_g
+let InitiatedBatches = DEH_JobInitMapping_log_CL
+    | join kind=inner (CompletedDQJobs | distinct BatchId_g) on $left.BatchId_g == $right.BatchId_g
+    | where JobStatus_s == "Init" 
+    | summarize cnt = count() by BatchId_g;
+// Filter Completed Batches
+let CompletedBatches = CompletedDQJobs 
+    | summarize cnt = count() by BatchId_g
+    | join kind=inner (InitiatedBatches) on $left.BatchId_g == $right.BatchId_g and $left.cnt == $right.cnt;
+let CompletedBatchesDetail = CompletedDQJobs
+| join kind=inner (CompletedBatches) on $left.BatchId_g == $right.BatchId_g
+| summarize 
+    TimeGenerated = max(TimeGenerated),
+    ProcessingTier = any(ProcessingTier),
+    JobDuration = sum(JobDuration)
+    by AccountId_g, BatchId_g, TenantId;
+    CompletedBatchesDetail
+};
+
+let GetDEHJobs = (StartTime: datetime, EndTime: datetime) {
+let MJobsInInterval = DEH_Job_Logs_CL
+| where TimeGenerated between(StartTime .. EndTime)
+| where JobStatus_s =="Completed"
+| project PurviewTenantId_g, JobId_g, JobStatus_s;
+// JOIN WITH JOB DETAILS AND GET OTHER DETAILS
+let MJobDetails = DEH_Spark_Logs_CL
+| join kind=inner (
+    MJobsInInterval
+    | project PurviewTenantId_g, JobId_g, JobStatus_s
+) on $left.WorkerJobExecutionId_g == $right.JobId_g
+| summarize
+    ProcessingTier = any(case(
+        NodeSize_s == "Small", "Basic",
+        NodeSize_s == "Medium", "Basic",
+        NodeSize_s == "Large", "Standard",
+        NodeSize_s == "XLarge", "Advanced",
+        NodeSize_s == "XXLarge", "Advanced",
+        "Unknown Status")),
+    EventCorelationId = any(id_g),
+    TenantId = any(PurviewTenantId_g),
+    JobId = any(JobId_g), // JobId from the driver table
+    AccountId = any(accountId_g),
+    JobStatus = any(JobStatus_s), // JobStatus from the driver table
+    DMSScope = any("DEH"),
+    DMSJobSubType = any(DEHScope_s)
+by ApplicationId_s;
+// Step 2: Summarize the start and end times from SparkLoggingEvent_CL using ApplicationId_s from jobDetails
+let MDistinctAppIds = MJobDetails | project ApplicationId_s;
+let MSparkEventLogs = SparkLoggingEvent_CL
+| where applicationId_s in (MDistinctAppIds)
+| summarize MinStartTime = min(TimeGenerated), MaxEndTime = max(TimeGenerated) by applicationId_s
+| extend Duration = datetime_diff('second', MaxEndTime, MinStartTime);
+// Step 3: Left join jobDetails with jobTimes
+let MJobDetailsWithTimes = MJobDetails
+| join kind=leftouter (MSparkEventLogs) on $left.ApplicationId_s == $right.applicationId_s
+| extend JobDurationSeconds = iff(isnull(Duration), 0, Duration)
+| project
+    ApplicationId_s,
+    ProcessingTier,
+    EventCorelationId,
+    TenantId,
+    JobId,
+    JobDuration = toint(JobDurationSeconds),
+    AccountId,
+    JobStatus,
+    ProcessingTimestamp = iff(isnull(MaxEndTime), datetime(2020-01-01 00:00:00), MaxEndTime),
+    JobStartTime = iff(isnull(MinStartTime), datetime(2020-01-01 00:00:00), MinStartTime),
+    JobEndTime = iff(isnull(MaxEndTime), datetime(2020-01-01 00:00:00), MaxEndTime),
+    DMSScope,
+    DMSJobSubType;
+MJobDetailsWithTimes
+};
+
+
+//Declare Query Parameters
+let StartTime = datetime(2024-09-04 18:40:00);
+let EndTime = datetime(2024-09-05 18:50:00);
+
+let MDQJobsAgg = GetMDQJobs(StartTime, EndTime);
+let DEHJobs = GetDEHJobs(StartTime, EndTime);
+
+
+MDQJobsAgg
+| sort by TenantId, AccountId_g asc, TimeGenerated desc 
+| extend RowNum = row_number(1, prev(AccountId_g) != AccountId_g) 
+| where RowNum == 1
+| join kind=inner (DEHJobs) on $left.AccountId_g == $right.AccountId  
+| join kind=leftouter (DEHProcessedJobs) on $left.BatchId_g == $right.MDQBatchId
+| project TenantId, 
+    AccountId, 
+    BatchId = BatchId_g, 
+    JobId, 
+    JobTimestamp = TimeGenerated
+| extend MDQBatchId = BatchId_g 
+| join kind=leftouter ( CBSBillingReceipts_CL 
+                        | where Status_s == 'Succeeded'
+                        | project TimeGenerated, EventId_g, Status_s ) on $left.MDQBatchId == $right.EventId_g
+| where Status_s == 'Succeeded'
+

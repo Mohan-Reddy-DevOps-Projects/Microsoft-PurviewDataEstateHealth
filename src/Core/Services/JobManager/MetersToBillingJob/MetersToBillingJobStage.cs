@@ -237,7 +237,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                     {
                         billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
                         {
-                            EventId = Guid.Parse(dehMeteredEvent.JobId), // EventId is use for dedup downstream - handle with care
+                            EventId = Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
                             TenantId = Guid.Parse(dehMeteredEvent.AccountId),
                             CreationTime = now,
                             // BUG IN CBS DO NOT ALLOW FRACTIONAL UNITS

@@ -11,7 +11,7 @@ public class DEHMeteredEvent : MeteredEvent
     public string ApplicationId { get; set; }
     public string ProcessingTier { get; set; }
     public string EventCorrelationId { get; set; }
-    public string JobId { get; set; }
+    public string MDQBatchId { get; set; }
     public double JobDuration { get; set; }
     public string BusinessDomainId { get; set; }
     public string JobStatus { get; set; }
