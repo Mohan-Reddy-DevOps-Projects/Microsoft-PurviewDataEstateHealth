@@ -106,13 +106,15 @@ public class MetersToBillingJobStage : IJobCallbackStage
             var finalExecutionStatus = JobExecutionStatus.Faulted;
             this.logger.LogInformation(finalExecutionStatusDetails);
 
+            // Create tables if not exist
+            await this.InitializeTables();
 
             ////////////////////////////////////
             // DEH Processing
             // Reprocessing window is last 7 days
+
             DateTimeOffset pollFrom = DateTimeOffset.UtcNow.AddDays(-7);
             DateTimeOffset utcNow = DateTimeOffset.UtcNow;
-
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billingV1.kql", QueryType.Deh, pollFrom, utcNow);
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_dq_billing.kql", QueryType.Dq, pollFrom, utcNow);
             finalExecutionStatusDetails += await this.ProcessBilling<GovernedAssetsMeteredEvent>("PDG_governed_assets_billing.kql", QueryType.Govern, pollFrom, utcNow);
@@ -129,7 +131,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
     {
         try
         {
-            await this.logsAnalyticsReader.Query<T>(tableName, DateTimeOffset.UtcNow.AddDays(-7), DateTimeOffset.UtcNow);
+            await this.logsAnalyticsReader.Query<T>(tableName, DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow);
             this.logger.LogInformation($"{tableName} table found.");
         }
         catch (Exception ex)
@@ -141,12 +143,9 @@ public class MetersToBillingJobStage : IJobCallbackStage
             this.logger.LogInformation($"Created {tableName} table.");
         }
     }
-
-    private async Task LogProcessedJobs(string kql, DateTimeOffset fromDate, DateTimeOffset toDate)
+    private async Task InitializeTables()
     {
-        var started = DateTimeOffset.UtcNow;
-        var table = "DEHProcessedJobs_CL";
-        await this.CreateTableIfNotExists<DEHProcessedJobs>(table, () => new DEHProcessedJobs
+        await this.CreateTableIfNotExists<DEHProcessedJobs>("DEHProcessedJobs_CL", () => new DEHProcessedJobs
         {
             //JobStartTime = DateTime.Now,
             //JobEndTime = DateTime.Now,
@@ -155,7 +154,12 @@ public class MetersToBillingJobStage : IJobCallbackStage
             MDQBatchId = Guid.NewGuid().ToString(),
             JobId = Guid.NewGuid().ToString()
         });
+    }
 
+    private async Task LogProcessedJobs(string kql, DateTimeOffset fromDate, DateTimeOffset toDate)
+    {
+        var started = DateTimeOffset.UtcNow;
+        var table = "DEHProcessedJobs_CL";
         try
         {
             var dehJobs = await this.logsAnalyticsReader.Query<DEHProcessedJobs>(await this.LoadKQL(kql), fromDate, toDate);
