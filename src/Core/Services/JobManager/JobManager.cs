@@ -7,7 +7,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.Core.Services.JobManager.GovernedAssetsJobs;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
@@ -894,9 +893,6 @@ public class JobManager : IJobManager
     /// <inheritdoc />
     public async Task ProvisionGovernedAssetsJob()
     {
-        var catalogRepeatStrategy = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ?
-            TimeSpan.FromMinutes(20) : TimeSpan.FromHours(24);
-
         string jobPartition = GovernedAssetsJobPartition;
         string jobId = GovernedAssetsJobId;
 
@@ -906,33 +902,6 @@ public class JobManager : IJobManager
         {
             await this.DeleteJobAsync(jobPartition, jobId);
             job = null;
-        }
-
-        if (job == null)
-        {
-            var jobMetadata = new DataPlaneSparkJobMetadata
-            {
-                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
-                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
-                AccountServiceModel = null,
-                SparkPoolId = string.Empty,
-                CatalogSparkJobBatchId = string.Empty,
-                DimensionSparkJobBatchId = string.Empty,
-                CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others,
-                DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others
-            };
-            int randomMins = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 1 : RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
-
-            var jobOptions = new BackgroundJobOptions()
-            {
-                CallbackName = nameof(GovernedAssetsJobCallback),
-                JobPartition = jobPartition,
-                JobId = jobId,
-                RepeatInterval = catalogRepeatStrategy,
-                StartTime = DateTime.UtcNow.AddMinutes(randomMins),
-                RetryStrategy = TimeSpan.FromMinutes(SparkJobsRetryStrategyTime)
-            };
-            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
         }
     }
 
