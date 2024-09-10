@@ -4,10 +4,9 @@ let StartTime = datetime(2024-09-04 18:40:00);
 
 let EndTime = datetime(2024-09-05 18:50:00);
 
-let GetMDQJobs = (StartTime: datetime, EndTime: datetime) {
+let GetMDQJobs = () {
     // GET JOB IN THE INTERVAL
     let JobsInInterval = DQ_Job_Logs_CL
-        | where TimeGenerated between(StartTime .. EndTime)
         | where JobStatus_s == "Completed"
         | project TenantId, JobId_g, JobStatus_s;
     // JOIN WITH JOB DETAILS AND GET OTHER DETAILS
@@ -119,9 +118,8 @@ let GetMDQJobs = (StartTime: datetime, EndTime: datetime) {
     CompletedBatchesDetail
 };
 
-let GetDEHJobs = (StartTime: datetime, EndTime: datetime) {
+let GetDEHJobs = () {
     let MJobsInInterval = DEH_Job_Logs_CL
-        | where TimeGenerated between(StartTime .. EndTime)
         | where JobStatus_s == "Completed"
         | join kind=leftanti (DEHProcessedJobs_CL) on $left.JobId_g==$right.JobId_g
         | project PurviewTenantId_g, JobId_g, JobStatus_s;
@@ -184,10 +182,10 @@ let GetDEHJobs = (StartTime: datetime, EndTime: datetime) {
     MJobDetailsWithTimes
 };
 
-let MDQJobsAgg = GetMDQJobs(StartTime, EndTime)
+let MDQJobsAgg = GetMDQJobs()
     | sort by AccountId_g asc, TimeGenerated desc 
     | extend RowNum = row_number(1, prev(AccountId_g) != AccountId_g);
-let DEHJobs = GetDEHJobs(StartTime, EndTime);
+let DEHJobs = GetDEHJobs();
 let DEHJobsAgg = DEHJobs
     | summarize 
         JobDuration = sum(JobDuration)
