@@ -13,7 +13,6 @@ using System;
 /// </summary>
 internal class DEHProcessedJobs
 {
-    public DateTime JobTimestamp { get; set; }
     public string TenantId { get; set; }
     public string AccountId { get; set; }
     public string MDQBatchId { get; set; }

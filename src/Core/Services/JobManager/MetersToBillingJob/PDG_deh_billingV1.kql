@@ -192,15 +192,27 @@ let DEHJobsAgg = DEHJobs
     | summarize 
         JobDuration = sum(JobDuration)
         by AccountId;
- 
-let BillingEvents = (MDQJobsAgg | where RowNum == 1)
-    | join kind=inner (DEHJobs) on $left.AccountId_g == $right.AccountId 
+
+let BillingEvents = MDQJobsAgg
+    | join kind=leftouter (DEHJobsAgg) on $left.AccountId_g == $right.AccountId 
     | project
-        TimeGenerated,
         TenantId,
         AccountId=AccountId_g,
         MDQBatchId=BatchId_g,
-        JobId,
+        ProcessingTier,
+        MDQJobDuration = JobDuration,
+        DEHJobDuration = case(RowNum == 1, JobDuration1, 0),
+        JobDuration = case(RowNum == 1, JobDuration + coalesce(JobDuration1, 0), JobDuration),
+        RowNum,
         JobStartTime,
-        JobEndTime;
+        JobEndTime,
+        DMSScope="DEH"
+    | extend JobDurationMinutes = round(JobDuration / 60.0, 0)
+    | extend JobDurationModuloMin =  JobDurationMinutes % 60
+    | extend JobDurationModuloHours = toint(JobDurationMinutes / 60)
+    | extend ProcessingUnits = round(todecimal(iff(toint(JobDurationModuloMin) == 0, 1, toint(JobDurationModuloMin))) / 60, 2) + JobDurationModuloHours; // Base calculation
 BillingEvents
+| join kind=leftouter ( CBSBillingReceipts_CL 
+                        | where Status_s == 'Succeeded'
+                        | project TimeGenerated, EventId_g, Status_s ) on $left.MDQBatchId == $right.EventId_g
+| where Status_s <> 'Succeeded'

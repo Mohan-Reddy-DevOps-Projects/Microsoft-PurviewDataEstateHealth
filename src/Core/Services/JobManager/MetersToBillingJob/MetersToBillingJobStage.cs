@@ -47,7 +47,12 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
     private string workspaceId;
     private string workspaceKey;
-
+    public enum QueryType
+    {
+        Deh,
+        Dq,
+        Govern
+    }
 
     internal MetersToBillingJobStage(
         IServiceScope scope,
@@ -104,10 +109,13 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
             ////////////////////////////////////
             // DEH Processing
+            // Reprocessing window is last 7 days
+            DateTimeOffset pollFrom = DateTimeOffset.UtcNow.AddDays(-7);
+            DateTimeOffset utcNow = DateTimeOffset.UtcNow;
 
-            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billing.kql");
-            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_dq_billing.kql");
-            finalExecutionStatusDetails += await this.ProcessBilling<GovernedAssetsMeteredEvent>("PDG_governed_assets_billing.kql");
+            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billingV1.kql", QueryType.Deh, pollFrom, utcNow);
+            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_dq_billing.kql", QueryType.Dq, pollFrom, utcNow);
+            finalExecutionStatusDetails += await this.ProcessBilling<GovernedAssetsMeteredEvent>("PDG_governed_assets_billing.kql", QueryType.Govern, pollFrom, utcNow);
 
             finalExecutionStatus = JobExecutionStatus.Succeeded;
 
@@ -117,7 +125,56 @@ public class MetersToBillingJobStage : IJobCallbackStage
         }
     }
 
-    private async Task<string> ProcessBilling<T>(string kql) where T : MeteredEvent
+    private async Task CreateTableIfNotExists<T>(string tableName, Func<T> createDefaultItem) where T : class
+    {
+        try
+        {
+            await this.logsAnalyticsReader.Query<T>(tableName, DateTimeOffset.UtcNow.AddDays(-7), DateTimeOffset.UtcNow);
+            this.logger.LogInformation($"{tableName} table found.");
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError($"Error querying {tableName}: Table not found.", ex);
+
+            var defaultItem = createDefaultItem();
+            await this.logsAnalyticsWriter.SendLogEntries(new List<T> { defaultItem }, tableName);
+            this.logger.LogInformation($"Created {tableName} table.");
+        }
+    }
+
+    private async Task LogProcessedJobs(string kql, DateTimeOffset fromDate, DateTimeOffset toDate)
+    {
+        var started = DateTimeOffset.UtcNow;
+        var table = "DEHProcessedJobs_CL";
+        await this.CreateTableIfNotExists<DEHProcessedJobs>(table, () => new DEHProcessedJobs
+        {
+            //JobStartTime = DateTime.Now,
+            //JobEndTime = DateTime.Now,
+            TenantId = "coldStart",
+            AccountId = Guid.NewGuid().ToString(),
+            MDQBatchId = Guid.NewGuid().ToString(),
+            JobId = Guid.NewGuid().ToString()
+        });
+
+        try
+        {
+            var dehJobs = await this.logsAnalyticsReader.Query<DEHProcessedJobs>(await this.LoadKQL(kql), fromDate, toDate);
+            if (dehJobs.Value.Any())
+            {
+                var t = dehJobs.Value.ToList();
+                await this.logsAnalyticsWriter.SendLogEntries<DEHProcessedJobs>(dehJobs.Value.ToList(), table);
+            }
+        }
+        catch (Exception ex)
+        {
+            var duration = (DateTimeOffset.UtcNow - started).TotalSeconds;
+            var errorMessage = ex != null ? $" Reason: {ex}" : string.Empty;
+            var finalStatus = $" | KQL: {kql} | {"Failed"} on {DateTimeOffset.Now} | Duration {duration} seconds. | {errorMessage}";
+            this.logger.LogError(finalStatus);
+        }
+    }
+
+    private async Task<string> ProcessBilling<T>(string kql, QueryType queryType, DateTimeOffset fromDate, DateTimeOffset toDate) where T : MeteredEvent
     {
         string finalStatus = string.Empty;
         DateTimeOffset started = DateTimeOffset.UtcNow;
@@ -125,7 +182,11 @@ public class MetersToBillingJobStage : IJobCallbackStage
         {
             try
             {
-                int totalEvents = await this.ProcessBillingEvents<T>(kql);
+                int totalEvents = await this.ProcessBillingEvents<T>(kql, fromDate, toDate);
+                if (queryType == QueryType.Deh)
+                {
+                    await this.LogProcessedJobs("PDG_deh_jobs.kql", fromDate, toDate);
+                }
                 // set the final details into the job
                 finalStatus = $" | KQL: {kql} | Completed on {DateTimeOffset.Now.ToString()} | Duration {(DateTimeOffset.UtcNow - started).TotalSeconds} seconds. | Total Events Processed: {totalEvents}";
             }
@@ -140,12 +201,8 @@ public class MetersToBillingJobStage : IJobCallbackStage
         }
     }
 
-    private async Task<int> ProcessBillingEvents<T>(string DEHBillingProcesingKQL) where T : MeteredEvent
+    private async Task<int> ProcessBillingEvents<T>(string DEHBillingProcesingKQL, DateTimeOffset fromDate, DateTimeOffset toDate) where T : MeteredEvent
     {
-        // Reprocessing window is last 7 days
-        DateTimeOffset pollFrom = DateTimeOffset.UtcNow.AddDays(-7);
-        DateTimeOffset utcNow = DateTimeOffset.UtcNow;
-
         // Query for Meters:
         // pwdg_billing_deh (or any other function involved in billing) must join CBSBillingReceipts_CL by using EvendId_g and
         // only emit those billable events not having a CBSBillingReceipts_CL.Status_s  == "Succeded" 
@@ -155,7 +212,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
         var billingReceipts = "CBSBillingReceipts_CL";
         try
         {
-            var meteredEvent = await this.logsAnalyticsReader.Query<CBSBillingReceipt>(billingReceipts, pollFrom, utcNow);
+            var meteredEvent = await this.logsAnalyticsReader.Query<CBSBillingReceipt>(billingReceipts, fromDate, toDate);
             this.logger.LogInformation($"{this.GetType().Name}:|{billingReceipts} table found in Log Analytics.");
         }
         catch (Exception ex)
@@ -184,7 +241,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
         }
 
-        var meteredEvents = await this.logsAnalyticsReader.Query<T>(await this.LoadKQL(DEHBillingProcesingKQL), pollFrom, utcNow);
+        var meteredEvents = await this.logsAnalyticsReader.Query<T>(await this.LoadKQL(DEHBillingProcesingKQL), fromDate, toDate);
 
         int totalEvents = 0;
 
@@ -192,7 +249,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
         if (meteredEvents != null && meteredEvents.Value != null && meteredEvents.Value.Count > 0)
         {
             // update from last time poll
-            this.metadata.LastPollTime = utcNow.ToString();
+            this.metadata.LastPollTime = toDate.ToString();
 
             totalEvents = meteredEvents.Value.Count;
 
@@ -238,7 +295,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                         billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
                         {
                             EventId = Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
-                            TenantId = Guid.Parse(dehMeteredEvent.AccountId),
+                            TenantId = Guid.Parse(dehMeteredEvent.TenantId),
                             CreationTime = now,
                             // BUG IN CBS DO NOT ALLOW FRACTIONAL UNITS
                             Quantity = dehMeteredEvent.ProcessingUnits,

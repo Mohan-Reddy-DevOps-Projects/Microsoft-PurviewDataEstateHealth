@@ -66,9 +66,9 @@
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<TargetPath>PDG_deh_billing.kql</TargetPath>
 		</None>
-		<None Update="Services\JobManager\MetersToBillingJob\PDG_dq_billingV1.kql">
+		<None Update="Services\JobManager\MetersToBillingJob\PDG_deh_billingV1.kql">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		  <TargetPath>PDG_dq_billingV1.kql</TargetPath>
+		  <TargetPath>PDG_deh_billingV1.kql</TargetPath>
 		</None>
 		<None Update="Services\JobManager\MetersToBillingJob\PDG_dq_billing.kql">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
