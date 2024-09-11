@@ -6,7 +6,7 @@ public class DQJobMappingLogTable
 {
     public Guid DQJobId { get; set; }
     public string BatchId { get; set; }
-    public Guid TenantId { get; set; }
+    public Guid PurviewTenantId { get; set; }
     public Guid AccountId { get; set; }
     public DateTime CreatedAt { get; set; }
     public string JobStatus { get; set; }

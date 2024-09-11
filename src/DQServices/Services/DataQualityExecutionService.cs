@@ -205,8 +205,8 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             List<DQJobMappingLogTable> billingEvents = new List<DQJobMappingLogTable>();
             DQJobMappingLogTable dqJobMappingLogTable = new DQJobMappingLogTable()
             {
-                AccountId = Guid.Parse(accountId),
-                TenantId = Guid.Parse(tenantId),
+                AccountId = Guid.Parse(accountId),                
+                PurviewTenantId = Guid.Parse(tenantId),
                 BatchId = batchId,
                 CreatedAt = DateTime.UtcNow,
                 DQJobId = Guid.Parse(dqJobId),
