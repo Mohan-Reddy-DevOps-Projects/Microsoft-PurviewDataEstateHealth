@@ -183,6 +183,12 @@ let GetDEHJobs = () {
 };
 
 let MDQJobsAgg = GetMDQJobs()
+    | extend MDQBatchId = BatchId_g
+    | join kind=leftouter (CBSBillingReceipts_CL 
+        | where Status_s == 'Succeeded'
+        | project TimeGenerated, EventId_g, Status_s)
+        on $left.MDQBatchId == $right.EventId_g
+    | where Status_s <> 'Succeeded'
     | sort by AccountId_g asc, TimeGenerated desc 
     | extend RowNum = row_number(1, prev(AccountId_g) != AccountId_g);
 let DEHJobs = GetDEHJobs();
@@ -196,7 +202,7 @@ let BillingEvents = MDQJobsAgg
     | project
         TenantId,
         AccountId=AccountId_g,
-        MDQBatchId=BatchId_g,
+        MDQBatchId,
         ProcessingTier,
         MDQJobDuration = JobDuration,
         DEHJobDuration = case(RowNum == 1, JobDuration1, 0),
@@ -209,8 +215,3 @@ let BillingEvents = MDQJobsAgg
     | extend JobDurationModuloMin =  JobDurationMinutes % 60
     | extend JobDurationModuloHours = toint(JobDurationMinutes / 60)
     | extend ProcessingUnits = round(todecimal(iff(toint(JobDurationModuloMin) == 0, 1, toint(JobDurationModuloMin))) / 60, 2) + JobDurationModuloHours; // Base calculation
-BillingEvents
-| join kind=leftouter ( CBSBillingReceipts_CL 
-                        | where Status_s == 'Succeeded'
-                        | project TimeGenerated, EventId_g, Status_s ) on $left.MDQBatchId == $right.EventId_g
-| where Status_s <> 'Succeeded'
