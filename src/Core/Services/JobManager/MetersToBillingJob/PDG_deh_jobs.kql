@@ -101,13 +101,14 @@ let GetMDQJobs = () {
             | distinct BatchId_g)
             on $left.BatchId_g == $right.BatchId_g
         | where JobStatus_s == "Init" 
-        | summarize cnt = count() by BatchId_g;
+        | summarize cnt = count() by BatchId_g, PurviewTenantId_g;
     // Filter Completed Batches
     let CompletedBatches = CompletedDQJobs 
-        | summarize cnt = count() by BatchId_g
+        | summarize cnt = count() by BatchId_g, PurviewTenantId_g
         | join kind=inner (InitiatedBatches) on $left.BatchId_g == $right.BatchId_g and $left.cnt == $right.cnt;
     let CompletedBatchesDetail = CompletedDQJobs
         | join kind=inner (CompletedBatches) on $left.BatchId_g == $right.BatchId_g
+        | extend TenantId=PurviewTenantId_g
         | summarize 
             TimeGenerated = max(TimeGenerated),
             ProcessingTier = any(ProcessingTier),
