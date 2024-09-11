@@ -17,4 +17,9 @@ internal class DEHProcessedJobs
     public string AccountId { get; set; }
     public string MDQBatchId { get; set; }
     public string JobId { get; set; }
+    public double MDQJobDuration { get; set; }
+    public double MDQProcessingUnits { get; set; }
+    public double DEHJobDuration { get; set; }
+    public double DEHProcessingUnits { get; set; }
+
 }

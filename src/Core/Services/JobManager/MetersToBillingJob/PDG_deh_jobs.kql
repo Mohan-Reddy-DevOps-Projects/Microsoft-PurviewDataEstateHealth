@@ -184,12 +184,18 @@ let GetDEHJobs = () {
 
 let MDQJobsAgg = GetMDQJobs()
     | sort by AccountId_g asc, TimeGenerated desc 
-    | extend RowNum = row_number(1, prev(AccountId_g) != AccountId_g);
-let DEHJobs = GetDEHJobs();
-let DEHJobsAgg = DEHJobs
-    | summarize 
-        JobDuration = sum(JobDuration)
-        by AccountId;
+    | extend RowNum = row_number(1, prev(AccountId_g) != AccountId_g)
+    | extend JobDurationMinutes = round(JobDuration / 60.0, 0)
+    | extend JobDurationModuloMin =  JobDurationMinutes % 60
+    | extend JobDurationModuloHours = toint(JobDurationMinutes / 60)
+    | extend MDQProcessingUnits = round(todecimal(iff(toint(JobDurationModuloMin) == 0, 1, toint(JobDurationModuloMin))) / 60, 2) + JobDurationModuloHours
+    | extend MDQJobDuration = JobDuration;
+let DEHJobs = GetDEHJobs()
+    | extend JobDurationMinutes = round(JobDuration / 60.0, 0)
+    | extend JobDurationModuloMin =  JobDurationMinutes % 60
+    | extend JobDurationModuloHours = toint(JobDurationMinutes / 60)
+    | extend DEHProcessingUnits = round(todecimal(iff(toint(JobDurationModuloMin) == 0, 1, toint(JobDurationModuloMin))) / 60, 2) + JobDurationModuloHours
+    | extend DEHJobDuration = JobDuration;
  
 let BillingEvents = (MDQJobsAgg | where RowNum == 1)
     | join kind=inner (DEHJobs) on $left.AccountId_g == $right.AccountId 
@@ -200,5 +206,9 @@ let BillingEvents = (MDQJobsAgg | where RowNum == 1)
         MDQBatchId=BatchId_g,
         JobId,
         JobStartTime,
-        JobEndTime;
+        JobEndTime,
+        MDQJobDuration,
+        MDQProcessingUnits,
+        DEHJobDuration,
+        DEHProcessingUnits;
 BillingEvents

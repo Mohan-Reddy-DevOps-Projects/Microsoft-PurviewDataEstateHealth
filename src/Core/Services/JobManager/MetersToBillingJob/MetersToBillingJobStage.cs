@@ -152,7 +152,11 @@ public class MetersToBillingJobStage : IJobCallbackStage
             TenantId = "coldStart",
             AccountId = Guid.NewGuid().ToString(),
             MDQBatchId = Guid.NewGuid().ToString(),
-            JobId = Guid.NewGuid().ToString()
+            JobId = Guid.NewGuid().ToString(),
+            MDQJobDuration = 0,
+            MDQProcessingUnits = 0,
+            DEHJobDuration = 0,
+            DEHProcessingUnits = 0
         });
     }
 
