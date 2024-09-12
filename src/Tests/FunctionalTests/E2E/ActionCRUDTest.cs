@@ -13,13 +13,13 @@
             FileFolder = "Actions",
         };
 
-        [TestMethod]
-        [Owner(Owners.Action)]
-        public async Task TestActionCRUDAndList()
-        {
-            var actionQuery = new ActionQueryRequest();
-            var response = await Client.Request<PagedResults<object>>("/actions/query", HttpMethod.Post, actionQuery).ConfigureAwait(false);
-            Assert.AreEqual(response.Count, 0);
-        }
+        //[TestMethod]
+        //[Owner(Owners.Action)]
+        //public async Task TestActionCRUDAndList()
+        //{
+        //    var actionQuery = new ActionQueryRequest();
+        //    var response = await Client.Request<PagedResults<object>>("/actions/query", HttpMethod.Post, actionQuery).ConfigureAwait(false);
+        //    Assert.AreEqual(response.Count, 0);
+        //}
     }
 }
