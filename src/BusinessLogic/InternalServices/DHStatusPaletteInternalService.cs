@@ -57,7 +57,7 @@ public class DHStatusPaletteInternalService(
         new DHControlStatusPaletteWrapper
         {
             Id = "00000000-0000-0000-0000-000000000001",
-            Name = "Undefiend",
+            Name = "Undefined",
             Color = "#949494",
             Reserved = true
         },
