@@ -76,9 +76,11 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
     {
         this.Metadata.CatalogSparkJobBatchId = string.Empty;
         this.Metadata.DimensionSparkJobBatchId = string.Empty;
+        this.Metadata.FabricSparkJobBatchId = string.Empty;
         this.Metadata.SparkPoolId = string.Empty;
         this.Metadata.CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others;
+        this.Metadata.FabricSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.CurrentScheduleStartTime = null;
         this.Metadata.ComputeGovernedAssetsSparkJobBatchId = string.Empty;
         this.Metadata.ComputeGovernedAssetsSparkJobStatus = DataPlaneSparkJobStatus.Others;
