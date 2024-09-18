@@ -43,7 +43,7 @@ resource containerAppIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   location: location
 }
 
-resource acr 'Microsoft.ContainerRegistry/registries@2023-01-01' = {
+resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' = {
   name: toLower(acrName)
   location: location
   sku: {
