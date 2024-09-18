@@ -3,13 +3,13 @@ let StartTime = datetime(2024-07-22 11:10:00);
 let EndTime = datetime(2024-07-24 12:10:00);
 // GET JOB IN THE INTERVAL
 let JobsInInterval = DQ_Job_Logs_CL
-| project JobId_g, JobStatus_s;
+| project JobId_g, JobStatus_s, ClientTenantId_g;
 // JOIN WITH JOB DETAILS AND GET OTHER DETAILS
 let jobDetails = DQ_Spark_Logs_CL
 | where  Entity_s !startswith "mdq_"
 | join kind=inner (
     JobsInInterval
-    | project JobId_g, JobStatus_s
+    | project JobId_g, JobStatus_s, ClientTenantId_g
 ) on $left.JobId_g == $right.JobId_g
 | summarize
     ProcessingTier = any(case(
@@ -21,6 +21,7 @@ let jobDetails = DQ_Spark_Logs_CL
         "Unknown Status")),
     EventCorelationId = any(id_g),
     JobId = any(JobId_g), // JobId from the driver table
+    ClientTenantId_g = any(ClientTenantId_g),
     AccountId = any(accountId_g_g),
     BusinessDomainId = any(BusinessDomainId_g),
     JobStatus = any(JobStatus_s), // JobStatus from the driver table
@@ -48,6 +49,7 @@ let jobDetailsWithTimes = jobDetails
     ProcessingTier,
     EventCorelationId,
     JobId,
+    ClientTenantId_g,
     JobDuration = toint(JobDurationSeconds),
     JobDurationMinutes = toint(JobDurationMinutes),
     JobDurationModuloMin=toint(JobDurationModuloMin),
@@ -71,6 +73,7 @@ let billingEvents = jobDetailsWithTimes
     ProcessingTier,
     EventCorelationId,
     JobId,
+    TenantId = ClientTenantId_g,
     JobDuration,
     JobDurationMinutes,
     JobDurationModuloMin,
