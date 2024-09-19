@@ -9,7 +9,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   kind: 'StorageV2'
   sku: {
     // ZRS SKUs aren't available in some regions.
-    name: location == 'centraluseuap' || location == 'westcentralus' || location == 'westus' || location == 'centralindia' ? 'Standard_GRS' : 'Standard_GZRS'
+    name: location == 'canadaeast' || location == 'centraluseuap' || location == 'westcentralus' || location == 'westus' || location == 'centralindia' ? 'Standard_GRS' : 'Standard_GZRS'
   }
   properties: {
     accessTier: 'Hot'
