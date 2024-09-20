@@ -250,12 +250,14 @@ public class MetersToBillingJobStage : IJobCallbackStage
         }
 
         var meteredEvents = await this.logsAnalyticsReader.Query<T>(await this.LoadKQL(DEHBillingProcesingKQL), fromDate, toDate);
+        this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | Querying {DEHBillingProcesingKQL} from {fromDate} to {toDate}.");
 
         int totalEvents = 0;
 
         // if we get any data
         if (meteredEvents != null && meteredEvents.Value != null && meteredEvents.Value.Count > 0)
         {
+            this.logger.LogInformation($"{this.GetType().Name}:|{meteredEvents.Value.Count.ToString()}");
             // update from last time poll
             this.metadata.LastPollTime = toDate.ToString();
 
@@ -298,6 +300,9 @@ public class MetersToBillingJobStage : IJobCallbackStage
                     var now = DateTime.UtcNow;
 
                     ExtendedBillingEvent billingEvent = null;
+                    this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | {billingTags}");
+                    this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | {JsonConvert.SerializeObject(meteredEvent)}");
+
                     if (meteredEvent is DEHMeteredEvent dehMeteredEvent)
                     {
                         billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
