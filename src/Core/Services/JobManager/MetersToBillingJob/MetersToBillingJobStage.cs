@@ -315,6 +315,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                     if (meteredEvent is DEHMeteredEvent dehMeteredEvent)
                     {
                         Guid jobIdGuid = new Guid();
+                        Guid tenantId = new Guid();
                         if (meteredEvent.DMSScope.ToUpperInvariant() == "DEH")
                         {
                             billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
@@ -331,7 +332,8 @@ public class MetersToBillingJobStage : IJobCallbackStage
                                 LogOnly = false
                             });
                         }
-                        else if (meteredEvent.DMSScope.ToUpperInvariant() == "DQ" && Guid.TryParse(dehMeteredEvent.JobId, out jobIdGuid))
+                        else if (meteredEvent.DMSScope.ToUpperInvariant() == "DQ" && Guid.TryParse(dehMeteredEvent.JobId, out jobIdGuid) &&
+                                    Guid.TryParse(dehMeteredEvent.TenantId, out tenantId))
                         {
                             billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
                             {
