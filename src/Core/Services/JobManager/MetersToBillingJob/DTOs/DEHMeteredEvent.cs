@@ -19,4 +19,5 @@ public class DEHMeteredEvent : MeteredEvent
     public DateTimeOffset JobStartTime { get; set; }
     public DateTimeOffset JobEndTime { get; set; }
     public String DMSJobSubType { get; set; }
+    public String JobId { get; set; }
 }

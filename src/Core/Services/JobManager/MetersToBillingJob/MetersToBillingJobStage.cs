@@ -294,23 +294,32 @@ public class MetersToBillingJobStage : IJobCallbackStage
                     //    AccountId = Guid.Parse(meteredEvent.AccountId)
                     //};
 
+                    Dictionary<string, string> scopeMappings = new Dictionary<string, string>
+                    {
+                        { "DEH", "DEH_Controls" },
+                        { "BYOC", "DEH_BYOC" },
+                        { "DQ", "DQ" }
+                    };
+
+                    string scopeName = scopeMappings.TryGetValue(meteredEvent.DMSScope.ToUpperInvariant(), out var mappedName) ? mappedName : "Unknown";
+
                     var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
                     billingTags += $"\"TenantId\":\"{meteredEvent.TenantId}\",";
-                    billingTags += $"\"SubSolutionName\":\"{meteredEvent.DMSScope}\"}}";
+                    billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
                     var now = DateTime.UtcNow;
 
                     ExtendedBillingEvent billingEvent = null;
-                    this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | {billingTags}");
-                    this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | {JsonConvert.SerializeObject(meteredEvent)}");
+                    this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | billingTags: {billingTags}");
+                    this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | meteredEvent: {JsonConvert.SerializeObject(meteredEvent)}");
 
                     if (meteredEvent is DEHMeteredEvent dehMeteredEvent)
                     {
                         billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
                         {
-                            EventId = Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
+                            //Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
+                            EventId = (meteredEvent.DMSScope.ToUpperInvariant() == "DEH" ? Guid.Parse(dehMeteredEvent.MDQBatchId) : Guid.Parse(dehMeteredEvent.JobId)),
                             TenantId = Guid.Parse(dehMeteredEvent.TenantId),
                             CreationTime = now,
-                            // BUG IN CBS DO NOT ALLOW FRACTIONAL UNITS
                             Quantity = dehMeteredEvent.ProcessingUnits,
                             BillingTags = billingTags,
                             BillingStartDate = dehMeteredEvent.JobStartTime.DateTime,
