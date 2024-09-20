@@ -314,19 +314,44 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
                     if (meteredEvent is DEHMeteredEvent dehMeteredEvent)
                     {
-                        billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
+                        Guid jobIdGuid = new Guid();
+                        if (meteredEvent.DMSScope.ToUpperInvariant() == "DEH")
                         {
-                            //Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
-                            EventId = (meteredEvent.DMSScope.ToUpperInvariant() == "DEH" ? Guid.Parse(dehMeteredEvent.MDQBatchId) : Guid.Parse(dehMeteredEvent.JobId)),
-                            TenantId = Guid.Parse(dehMeteredEvent.TenantId),
-                            CreationTime = now,
-                            Quantity = dehMeteredEvent.ProcessingUnits,
-                            BillingTags = billingTags,
-                            BillingStartDate = dehMeteredEvent.JobStartTime.DateTime,
-                            BillingEndDate = dehMeteredEvent.JobEndTime.DateTime,
-                            SKU = BillingSKU.Basic,
-                            LogOnly = false
-                        });
+                            billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
+                            {
+                                //Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
+                                EventId = Guid.Parse(dehMeteredEvent.MDQBatchId),
+                                TenantId = Guid.Parse(dehMeteredEvent.TenantId),
+                                CreationTime = now,
+                                Quantity = dehMeteredEvent.ProcessingUnits,
+                                BillingTags = billingTags,
+                                BillingStartDate = dehMeteredEvent.JobStartTime.DateTime,
+                                BillingEndDate = dehMeteredEvent.JobEndTime.DateTime,
+                                SKU = BillingSKU.Basic,
+                                LogOnly = false
+                            });
+                        }
+                        else if (meteredEvent.DMSScope.ToUpperInvariant() == "DQ" && Guid.TryParse(dehMeteredEvent.JobId, out jobIdGuid))
+                        {
+                            billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
+                            {
+                                //Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
+                                EventId = Guid.Parse(dehMeteredEvent.JobId),
+                                TenantId = Guid.Parse(dehMeteredEvent.TenantId),
+                                CreationTime = now,
+                                Quantity = dehMeteredEvent.ProcessingUnits,
+                                BillingTags = billingTags,
+                                BillingStartDate = dehMeteredEvent.JobStartTime.DateTime,
+                                BillingEndDate = dehMeteredEvent.JobEndTime.DateTime,
+                                SKU = BillingSKU.Basic,
+                                LogOnly = false
+                            });
+                        }
+                        else
+                        {
+                            this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | skipping logging:{JsonConvert.SerializeObject(meteredEvent)}");
+                        }
+
                     }
                     else if (meteredEvent is GovernedAssetsMeteredEvent governedAssetsMeteredEvent)
                     {
