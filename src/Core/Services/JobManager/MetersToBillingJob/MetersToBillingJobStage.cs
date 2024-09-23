@@ -430,8 +430,13 @@ public class MetersToBillingJobStage : IJobCallbackStage
         return scriptText;
     }
 
-    private async Task EmitEventsWithRetryAndErrorHandling(string logShared, List<ExtendedBillingEvent> billingEvents, Guid correlationId)
+    private async Task EmitEventsWithRetryAndErrorHandling(string logShared, List<ExtendedBillingEvent> billingEventsList, Guid correlationId)
     {
+
+        this.logger.LogInformation($"{this.GetType().Name}:|Before Removing null values {JsonConvert.SerializeObject(billingEventsList)}");
+        var billingEvents = billingEventsList.Where(q => q != null).ToList();
+        this.logger.LogInformation($"{this.GetType().Name}:|After Removing null values{JsonConvert.SerializeObject(billingEvents)}");
+
         try
         {
             this.logger.LogInformation($"Emitting billingEvents -> {logShared}");
