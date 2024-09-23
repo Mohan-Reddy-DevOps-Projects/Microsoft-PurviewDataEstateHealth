@@ -251,6 +251,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
         var meteredEvents = await this.logsAnalyticsReader.Query<T>(await this.LoadKQL(DEHBillingProcesingKQL), fromDate, toDate);
         this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | Querying {DEHBillingProcesingKQL} from {fromDate} to {toDate}.");
+        this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | Querying {JsonConvert.SerializeObject(meteredEvents)}");
 
         int totalEvents = 0;
 
