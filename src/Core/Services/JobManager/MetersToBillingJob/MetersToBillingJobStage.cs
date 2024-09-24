@@ -340,7 +340,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                             {
                                 //Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
                                 EventId = Guid.Parse(dehMeteredEvent.JobId),
-                                TenantId = Guid.Parse(dehMeteredEvent.TenantId),
+                                TenantId = Guid.Parse(dehMeteredEvent.ClientTenantId),  //Guid.Parse(dehMeteredEvent.TenantId),
                                 CreationTime = now,
                                 Quantity = dehMeteredEvent.ProcessingUnits,
                                 BillingTags = billingTags,
@@ -430,12 +430,12 @@ public class MetersToBillingJobStage : IJobCallbackStage
         return scriptText;
     }
 
-    private async Task EmitEventsWithRetryAndErrorHandling(string logShared, List<ExtendedBillingEvent> billingEventsList, Guid correlationId)
+    private async Task EmitEventsWithRetryAndErrorHandling(string logShared, List<ExtendedBillingEvent> billingEvents, Guid correlationId)
     {
 
-        this.logger.LogInformation($"{this.GetType().Name}:|Before Removing null values {JsonConvert.SerializeObject(billingEventsList)}");
-        var billingEvents = billingEventsList.Where(q => q != null).ToList();
-        this.logger.LogInformation($"{this.GetType().Name}:|After Removing null values{JsonConvert.SerializeObject(billingEvents)}");
+        //this.logger.LogInformation($"{this.GetType().Name}:|Before Removing null values {JsonConvert.SerializeObject(billingEventsList)}");
+        //var billingEvents = billingEventsList.Where(q => q != null).ToList();
+        //this.logger.LogInformation($"{this.GetType().Name}:|After Removing null values{JsonConvert.SerializeObject(billingEvents)}");
 
         try
         {

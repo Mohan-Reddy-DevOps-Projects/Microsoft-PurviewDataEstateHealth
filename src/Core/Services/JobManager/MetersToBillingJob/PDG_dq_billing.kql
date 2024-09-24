@@ -44,6 +44,7 @@ let jobDetailsWithTimes = jobDetails
 | extend JobDurationMinutes = round(JobDurationSeconds / 60.0, 0)
 | extend JobDurationModuloMin =  JobDurationMinutes%60
 | extend JobDurationModuloHours = toint(JobDurationMinutes/60)
+| where ClientTenantId_g != ""
 | project
     ApplicationId_s,
     ProcessingTier,
@@ -73,7 +74,7 @@ let billingEvents = jobDetailsWithTimes
     ProcessingTier,
     EventCorelationId,
     JobId,
-    TenantId = ClientTenantId_g,
+    ClientTenantId = ClientTenantId_g,    
     JobDuration,
     JobDurationMinutes,
     JobDurationModuloMin,
