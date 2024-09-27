@@ -388,8 +388,12 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
                 if (batch.Count > 0)
                 {
-                    await this.EmitEventsWithRetryAndErrorHandling($"{this.GetType().Name}:|Batch number {currentBatch}. Batch Size {batchSize}. Emitted so far.... {(currentBatch * batchSize) + batchSize} billable events",
-                                            batch, Guid.NewGuid());
+                    var finalBatch = batch.Where(meteredEvent => meteredEvent != null).ToList();
+                    if (finalBatch.Count > 0)
+                    {
+                        await this.EmitEventsWithRetryAndErrorHandling($"{this.GetType().Name}:|Batch number {currentBatch}. Batch Size {batchSize}. Emitting batch size: {finalBatch.Count}, Emitted so far.... {(currentBatch * batchSize) + batchSize} billable events",
+                                            finalBatch, Guid.NewGuid());
+                    }
                     // next batch
                     currentBatch++;
                 }
