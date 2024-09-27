@@ -117,7 +117,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
             DateTimeOffset utcNow = DateTimeOffset.UtcNow;
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billingV1.kql", QueryType.Deh, pollFrom, utcNow);
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_dq_billing.kql", QueryType.Dq, pollFrom, utcNow);
-            finalExecutionStatusDetails += await this.ProcessBilling<GovernedAssetsMeteredEvent>("PDG_governed_assets_billing.kql", QueryType.Govern, pollFrom, utcNow);
+            //finalExecutionStatusDetails += await this.ProcessBilling<GovernedAssetsMeteredEvent>("PDG_governed_assets_billing.kql", QueryType.Govern, pollFrom, utcNow);
 
             finalExecutionStatus = JobExecutionStatus.Succeeded;
 
@@ -303,20 +303,23 @@ public class MetersToBillingJobStage : IJobCallbackStage
                     };
 
                     string scopeName = scopeMappings.TryGetValue(meteredEvent.DMSScope.ToUpperInvariant(), out var mappedName) ? mappedName : "Unknown";
-
-                    var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
-                    billingTags += $"\"TenantId\":\"{meteredEvent.TenantId}\",";
-                    billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
                     var now = DateTime.UtcNow;
 
                     ExtendedBillingEvent billingEvent = null;
-                    this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | billingTags: {billingTags}");
                     this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | meteredEvent: {JsonConvert.SerializeObject(meteredEvent)}");
 
                     if (meteredEvent is DEHMeteredEvent dehMeteredEvent)
                     {
                         Guid jobIdGuid = new Guid();
                         Guid tenantId = new Guid();
+                        var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
+                        billingTags += $"\"TenantId\":\"{meteredEvent.TenantId}\",";
+                        billingTags += $"\"ConsumedUnit\":\"Data Management Processing Unit\",";
+                        billingTags += $"\"SKU\":\"{this.getProcessSKU(dehMeteredEvent.ProcessingTier)}\",";
+                        billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
+
+                        this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | billingTags: {billingTags}");
+
                         if (meteredEvent.DMSScope.ToUpperInvariant() == "DEH")
                         {
                             billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
@@ -329,7 +332,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                                 BillingTags = billingTags,
                                 BillingStartDate = dehMeteredEvent.JobStartTime.DateTime,
                                 BillingEndDate = dehMeteredEvent.JobEndTime.DateTime,
-                                SKU = BillingSKU.Basic,
+                                SKU = this.getProcessSKU(dehMeteredEvent.ProcessingTier),
                                 LogOnly = false
                             });
                         }
@@ -346,7 +349,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                                 BillingTags = billingTags,
                                 BillingStartDate = dehMeteredEvent.JobStartTime.DateTime,
                                 BillingEndDate = dehMeteredEvent.JobEndTime.DateTime,
-                                SKU = BillingSKU.Basic,
+                                SKU = this.getProcessSKU(dehMeteredEvent.ProcessingTier),
                                 LogOnly = false
                             });
                         }
@@ -358,6 +361,10 @@ public class MetersToBillingJobStage : IJobCallbackStage
                     }
                     else if (meteredEvent is GovernedAssetsMeteredEvent governedAssetsMeteredEvent)
                     {
+                        var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
+                        billingTags += $"\"TenantId\":\"{meteredEvent.TenantId}\",";
+                        billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
+
                         billingEvent = BillingEventHelper.CreateGovernedAssetCountBillingEvent(new GovernedAssetCountBillingEventParameters
                         {
                             EventId = Guid.Parse(governedAssetsMeteredEvent.JobId), // EventId is use for dedup downstream - handle with care
@@ -395,6 +402,27 @@ public class MetersToBillingJobStage : IJobCallbackStage
         }
         return totalEvents;
     }
+
+    private BillingSKU getProcessSKU(string ProcessingTier)
+    {
+        switch (ProcessingTier.ToLowerInvariant())
+        {
+            case "basic":
+                return BillingSKU.Basic;
+
+            case "Standard":
+                return BillingSKU.Standard;
+
+            case "Advanced":
+                return BillingSKU.Advanced;
+
+            default:
+                return BillingSKU.Basic;
+        }
+
+    }
+
+
 
     private async Task GetWorkspaceCredentials()
     {

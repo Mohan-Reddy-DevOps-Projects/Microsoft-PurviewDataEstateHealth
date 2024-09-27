@@ -49,8 +49,8 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
             new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TriggerFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TriggerComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TrackComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            //new TriggerComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            //new TrackComputeGovernedAssetsSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
         ];
     }
 
