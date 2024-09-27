@@ -312,16 +312,17 @@ public class MetersToBillingJobStage : IJobCallbackStage
                     {
                         Guid jobIdGuid = new Guid();
                         Guid tenantId = new Guid();
-                        var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
-                        billingTags += $"\"TenantId\":\"{meteredEvent.TenantId}\",";
-                        billingTags += $"\"ConsumedUnit\":\"Data Management Processing Unit\",";
-                        billingTags += $"\"SKU\":\"{this.getProcessSKU(dehMeteredEvent.ProcessingTier)}\",";
-                        billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
-
-                        this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | billingTags: {billingTags}");
 
                         if (meteredEvent.DMSScope.ToUpperInvariant() == "DEH")
                         {
+                            var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
+                            billingTags += $"\"TenantId\":\"{meteredEvent.TenantId}\",";
+                            billingTags += $"\"ConsumedUnit\":\"Data Management Processing Unit\",";
+                            billingTags += $"\"SKU\":\"{this.getProcessSKU(dehMeteredEvent.ProcessingTier)}\",";
+                            billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
+
+                            this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | billingTags: {billingTags}");
+
                             billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
                             {
                                 //Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
@@ -337,8 +338,16 @@ public class MetersToBillingJobStage : IJobCallbackStage
                             });
                         }
                         else if (meteredEvent.DMSScope.ToUpperInvariant() == "DQ" && Guid.TryParse(dehMeteredEvent.JobId, out jobIdGuid) &&
-                                    Guid.TryParse(dehMeteredEvent.TenantId, out tenantId))
+                                    Guid.TryParse(dehMeteredEvent.ClientTenantId, out tenantId))
                         {
+                            var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
+                            billingTags += $"\"TenantId\":\"{dehMeteredEvent.ClientTenantId}\",";
+                            billingTags += $"\"ConsumedUnit\":\"Data Management Processing Unit\",";
+                            billingTags += $"\"SKU\":\"{this.getProcessSKU(dehMeteredEvent.ProcessingTier)}\",";
+                            billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
+
+                            this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | billingTags: {billingTags}");
+
                             billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
                             {
                                 //Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
