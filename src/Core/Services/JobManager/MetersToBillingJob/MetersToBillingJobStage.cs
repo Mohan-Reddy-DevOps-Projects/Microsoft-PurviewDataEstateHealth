@@ -288,7 +288,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
             // consume all batches
             while (true)
             {
-                var batch = meteredEvents.Value.Skip(currentBatch * batchSize).Take(batchSize).ToList().Select(meteredEvent =>
+                var batch = meteredEvents.Value.Skip(currentBatch * batchSize).Take(batchSize).ToList().Where(meteredEvent => meteredEvent != null).Select(meteredEvent =>
                 {
                     //var billingTags = new BillingTags
                     //{
