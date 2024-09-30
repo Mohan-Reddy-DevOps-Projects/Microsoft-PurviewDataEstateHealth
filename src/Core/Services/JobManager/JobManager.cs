@@ -559,6 +559,44 @@ public class JobManager : IJobManager
         }
     }
 
+    public async Task ProvisionLogAnalyitcsToGenevaJob()
+    {
+        string jobPartition = "PDG-LOGANALYTICSTOGENEVA-TRIGGERED-SCHEDULE";
+        string jobId = "PDG-LOGANALYTICSTOGENEVA-TRIGGERED";
+
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null && job.State == JobState.Faulted)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new LogAnalyticsToGenevaJobMetadata
+            {
+                LastPollTime = DateTime.MinValue,
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext())
+
+            };
+
+            var repeatInterval = TimeSpan.FromMinutes(this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 10 : 10); ;
+            var startTime = DateTime.UtcNow;
+
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(LogAnalyticsToGenevaJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = repeatInterval,
+                StartTime = startTime
+            };
+
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+        }
+    }
+
     /// <inheritdoc />
     public async Task ProvisionDEHTriggeredScheduleJob()
     {

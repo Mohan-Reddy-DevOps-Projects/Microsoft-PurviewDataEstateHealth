@@ -136,6 +136,12 @@ public interface IJobManager
     Task ProvisionMetersToBillingJob();
 
     /// <summary>
+    /// Provisions background job for Log Analytics to Geneva sync
+    /// </summary>
+    /// <returns></returns>
+    Task ProvisionLogAnalyitcsToGenevaJob();
+
+    /// <summary>
     /// Clean resolved actions.
     /// </summary>
     /// <returns></returns>

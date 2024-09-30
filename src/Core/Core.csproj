@@ -58,6 +58,10 @@
 		<ProjectReference Include="..\Models\Models.csproj" />
 	</ItemGroup>
 	<ItemGroup>
+		<None Update="Services\JobManager\LogAnalyticsToGeneva\PDG_deh_job_logs.kql">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		   <TargetPath>PDG_deh_job_logs.kql</TargetPath>
+		</None>
 		<None Update="Services\JobManager\MetersToBillingJob\PDG_deh_jobs.kql">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		  <TargetPath>PDG_deh_jobs.kql</TargetPath>

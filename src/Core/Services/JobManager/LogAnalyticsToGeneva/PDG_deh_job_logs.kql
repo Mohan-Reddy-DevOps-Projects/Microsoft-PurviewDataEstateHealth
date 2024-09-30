@@ -1,0 +1,8 @@
+DEH_Job_Logs_CL
+| project
+    TenantId = PurviewTenantId_g,
+    AccountId = AccountId_g,
+    JobName = JobName_s,
+    JobId = JobId_g,
+    JobStatus = JobStatus_s,
+    TimeGenerated

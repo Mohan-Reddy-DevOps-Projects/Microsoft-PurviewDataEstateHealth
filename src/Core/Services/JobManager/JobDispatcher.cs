@@ -100,6 +100,10 @@ public class JobDispatcher : JobDispatcherClient, IJobDispatcher
 
             await jobManager.ProvisionMetersToBillingJob();
 
+            this.logger.LogInformation("Starting job ProvisionLogAnalyitcsToGenevaJob");
+
+            await jobManager.ProvisionLogAnalyitcsToGenevaJob();
+
             this.logger.LogInformation("Job dispatcher started successfully.");
 
             if (this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment())
