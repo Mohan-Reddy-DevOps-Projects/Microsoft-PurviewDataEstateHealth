@@ -20,6 +20,8 @@ internal class DatabaseCommand : IDatabaseCommand
 
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly string[] databaseSchemas = new string[] { "DomainModel", "DimensionalModel" };
+    private readonly int connectionTimeout = 60;
+    private readonly int commandTimeout = 60;
 
 
     public DatabaseCommand(IServerlessPoolClient serverlessPoolClient, IDataEstateHealthRequestLogger logger)
@@ -36,7 +38,7 @@ internal class DatabaseCommand : IDatabaseCommand
 
             try
             {
-                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken, this.connectionTimeout, this.commandTimeout);
             }
             catch (SqlException sqlEx) when (sqlEx.Number == 1801)
             {
@@ -71,7 +73,7 @@ internal class DatabaseCommand : IDatabaseCommand
 
             try
             {
-                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken, this.connectionTimeout, this.commandTimeout);
             }
             catch (SqlException sqlEx) when (sqlEx.Number == 15578)
             {
@@ -94,7 +96,7 @@ internal class DatabaseCommand : IDatabaseCommand
 
             try
             {
-                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken, this.connectionTimeout, this.commandTimeout);
             }
             catch (SqlException sqlEx) when (sqlEx.Number == 15530)
             {
@@ -132,7 +134,7 @@ internal class DatabaseCommand : IDatabaseCommand
 
             try
             {
-                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken, this.connectionTimeout, this.commandTimeout);
             }
             finally
             {
@@ -151,7 +153,7 @@ internal class DatabaseCommand : IDatabaseCommand
 
             try
             {
-                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken, this.connectionTimeout, this.commandTimeout);
             }
             catch (SqlException sqlEx) when (sqlEx.Number == 15023)
             {
@@ -177,7 +179,7 @@ internal class DatabaseCommand : IDatabaseCommand
                     EXEC('CREATE SCHEMA [{request.SchemaName}.{schema}];');
                 END";
 
-                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken, this.connectionTimeout, this.commandTimeout);
             }
         }
     }
@@ -190,7 +192,7 @@ internal class DatabaseCommand : IDatabaseCommand
         USE [{request.DatabaseName}]
         GRANT REFERENCES ON DATABASE SCOPED CREDENTIAL::[{request.ScopedCredential.Name}] TO [{request.UserName}];";
 
-            await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+            await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken, this.connectionTimeout, this.commandTimeout);
         }
     }
 
@@ -204,7 +206,7 @@ internal class DatabaseCommand : IDatabaseCommand
                 USE [{request.DatabaseName}]
                 GRANT SELECT ON SCHEMA :: [{request.SchemaName}.{schema}] TO {request.UserName} WITH GRANT OPTION";
 
-                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken);
+                await this.serverlessPoolClient.ExecuteCommandAsync(query, cancellationToken, this.connectionTimeout, this.commandTimeout);
 
             }
         }
