@@ -82,17 +82,25 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
                 this.logger.LogInformation($"GetStorageConfigSettings from DEH. Account Id: {accountId}. Response: {responseString}");
 
                 var payload = JsonConvert.DeserializeObject<StorageConfiguration>(responseString);
-                returnLocationURL = payload.TypeProperties.LocationURL;
-                if (string.IsNullOrEmpty(returnLocationURL))
+                if (payload.TypeProperties != null)
+                {
+                    returnLocationURL = payload.TypeProperties.LocationURL;
+                    if (string.IsNullOrEmpty(returnLocationURL))
+                    {
+                        this.logger.LogInformation($"GetStorageConfigSettings from DEH. Account Id: {accountId} failed!");
+                    }
+                }
+                else
                 {
                     this.logger.LogInformation($"GetStorageConfigSettings from DEH. Account Id: {accountId} failed!");
+                    return null;
                 }
                 return payload;
 
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"GetStorageConfigSettings|Fail to get self serve settings for storage. Job Id: {accountId}.", ex);                
+                this.logger.LogError($"GetStorageConfigSettings|Fail to get self serve settings for storage. Job Id: {accountId}.", ex);
             }
             return null;
         }

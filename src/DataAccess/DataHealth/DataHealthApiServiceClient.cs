@@ -59,7 +59,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             request.Headers.Add(HeaderAccountIdName, accountId);
             var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            await this.HandleResponseStatusCode(response);
+            //await this.HandleResponseStatusCode(response);
             return responseContent;
         }
 
@@ -71,7 +71,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             request.Headers.Add(HeaderTenantIdName, tenantId);
             var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            await this.HandleResponseStatusCode(response);
+            //await this.HandleResponseStatusCode(response);
             return responseContent;
         }
 
