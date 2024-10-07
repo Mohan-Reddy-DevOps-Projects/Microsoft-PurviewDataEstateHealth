@@ -315,9 +315,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
                         if (meteredEvent.DMSScope.ToUpperInvariant() == "DEH")
                         {
-                            var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
-                            billingTags += $"\"TenantId\":\"{meteredEvent.TenantId}\",";
-                            billingTags += $"\"ConsumedUnit\":\"Data Management Processing Unit\",";
+                            var billingTags = $"{{\"ConsumedUnit\":\"Data Management Processing Unit\",";
                             billingTags += $"\"SKU\":\"{this.getProcessSKU(dehMeteredEvent.ProcessingTier)}\",";
                             billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
 
@@ -340,9 +338,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                         else if (meteredEvent.DMSScope.ToUpperInvariant() == "DQ" && Guid.TryParse(dehMeteredEvent.JobId, out jobIdGuid) &&
                                     Guid.TryParse(dehMeteredEvent.ClientTenantId, out tenantId))
                         {
-                            var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
-                            billingTags += $"\"TenantId\":\"{dehMeteredEvent.ClientTenantId}\",";
-                            billingTags += $"\"ConsumedUnit\":\"Data Management Processing Unit\",";
+                            var billingTags = $"{{\"ConsumedUnit\":\"Data Management Processing Unit\",";
                             billingTags += $"\"SKU\":\"{this.getProcessSKU(dehMeteredEvent.ProcessingTier)}\",";
                             billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
 
@@ -370,9 +366,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                     }
                     else if (meteredEvent is GovernedAssetsMeteredEvent governedAssetsMeteredEvent)
                     {
-                        var billingTags = $"{{\"AccountId\":\"{meteredEvent.AccountId}\",";
-                        billingTags += $"\"TenantId\":\"{meteredEvent.TenantId}\",";
-                        billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
+                        var billingTags = $"{{\"SubSolutionName\":\"{scopeName}\"}}";
 
                         billingEvent = BillingEventHelper.CreateGovernedAssetCountBillingEvent(new GovernedAssetCountBillingEventParameters
                         {
