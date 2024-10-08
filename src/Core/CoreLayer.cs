@@ -56,7 +56,6 @@ public static class CoreLayer
         services.AddScoped<IDimensionModelSparkJobComponent, DimensionModelSparkJobComponent>();
         services.AddScoped<IFabricSparkJobComponent, FabricSparkJobComponent>();
         services.AddScoped<IDataQualitySparkJobComponent, DataQualitySparkJobComponent>();
-        services.AddScoped<IComputeGovernedAssetsSparkJobComponent, ComputeGovernedAssetsSparkJobComponent>();
         services.AddScoped<IDatasetsComponent, DatasetsComponent>();
         services.AddScoped<IRefreshComponent, RefreshComponent>();
 

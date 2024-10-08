@@ -233,10 +233,4 @@ public interface IJobManager
     /// <param name="jobId"></param>
     /// <returns></returns>
     Task<Dictionary<string, string>> GetBackgroundJobDetailAsync(string jobPartition, string jobId);
-
-    /// <summary>
-    /// Provisions billing job per region.
-    /// </summary>
-    /// <returns></returns>
-    Task ProvisionGovernedAssetsJob();
 }

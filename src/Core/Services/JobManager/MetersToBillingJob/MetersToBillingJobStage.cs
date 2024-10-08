@@ -117,7 +117,6 @@ public class MetersToBillingJobStage : IJobCallbackStage
             DateTimeOffset utcNow = DateTimeOffset.UtcNow;
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billingV1.kql", QueryType.Deh, pollFrom, utcNow);
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_dq_billing.kql", QueryType.Dq, pollFrom, utcNow);
-            //finalExecutionStatusDetails += await this.ProcessBilling<GovernedAssetsMeteredEvent>("PDG_governed_assets_billing.kql", QueryType.Govern, pollFrom, utcNow);
 
             finalExecutionStatus = JobExecutionStatus.Succeeded;
 
@@ -363,22 +362,6 @@ public class MetersToBillingJobStage : IJobCallbackStage
                             this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | skipping logging:{JsonConvert.SerializeObject(meteredEvent)}");
                         }
 
-                    }
-                    else if (meteredEvent is GovernedAssetsMeteredEvent governedAssetsMeteredEvent)
-                    {
-                        var billingTags = $"{{\"SubSolutionName\":\"{scopeName}\"}}";
-
-                        billingEvent = BillingEventHelper.CreateGovernedAssetCountBillingEvent(new GovernedAssetCountBillingEventParameters
-                        {
-                            EventId = Guid.Parse(governedAssetsMeteredEvent.JobId), // EventId is use for dedup downstream - handle with care
-                            TenantId = Guid.Parse(governedAssetsMeteredEvent.TenantId),
-                            CreationTime = now,
-                            Quantity = governedAssetsMeteredEvent.CountOfGovernedAssets,
-                            BillingTags = billingTags,
-                            BillingStartDate = governedAssetsMeteredEvent.ProcessingTimestamp.DateTime,
-                            BillingEndDate = governedAssetsMeteredEvent.ProcessingTimestamp.DateTime,
-                            LogOnly = false
-                        });
                     }
                     else
                     {

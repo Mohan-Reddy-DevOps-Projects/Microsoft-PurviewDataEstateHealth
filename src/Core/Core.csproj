@@ -20,10 +20,6 @@
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	    <TargetPath>PDG_dq_billing.kql</TargetPath>
 	  </Content>
-    <Content Update="Services\JobManager\MetersToBillingJob\Queries\PDG_governed_assets_billing.kql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>PDG_governed_assets_billing.kql</TargetPath>
-    </Content>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Azure.Messaging.EventHubs" />
@@ -78,10 +74,6 @@
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 			<TargetPath>PDG_dq_billing.kql</TargetPath>
 		</None>
-    <None Update="Services\JobManager\MetersToBillingJob\PDG_governed_assets_billing.kql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>PDG_governed_assets_billing.kql</TargetPath>
-    </None>
 		<None Update="Setup\setup.sql">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 			<TargetPath>setup.sql</TargetPath>
