@@ -84,7 +84,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         {
             Configuration = this.GetSinkConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID, tenantId),
             ExecutorCount = 2,
-            File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-domainmodel-azure-purview-1.1-jar.jar",
+            File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-azure-purview-domainmodel-1.1.jar",
             Name = $"DomainModelSparkJob-{accountId}",
             ClassName = jarClassName,
             RunManagerArgument = new List<string>()

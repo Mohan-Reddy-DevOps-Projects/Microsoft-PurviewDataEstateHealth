@@ -31,23 +31,9 @@
             "asSecureValue": "true"
           },
           {
-            "name": "DOMAINMODEL_ARCHIVE_SAS",
+            "name": "DATADOMAINJARS_ARCHIVE_SAS",
             "reference": {
-              "path": "domainmodel.tar"
-            },
-            "asSecureValue": "true"
-          },
-          {
-            "name": "STORAGESYNC_ARCHIVE_SAS",
-            "reference": {
-              "path": "storagesync.tar"
-            },
-            "asSecureValue": "true"
-          },
-          {
-            "name": "DIMENSIONALMODEL_ARCHIVE_SAS",
-            "reference": {
-              "path": "dimensionalmodel.tar"
+              "path": "datadomainjars.tar"
             },
             "asSecureValue": "true"
           },

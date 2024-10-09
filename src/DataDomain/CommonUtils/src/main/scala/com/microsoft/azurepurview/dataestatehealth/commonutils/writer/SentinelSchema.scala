@@ -1,5 +1,6 @@
-package com.microsoft.azurepurview.dataestatehealth.domainmodel.common
-import org.apache.spark.sql.types.{ IntegerType, StringType, StructField, StructType, TimestampType, LongType}
+package com.microsoft.azurepurview.dataestatehealth.commonutils.writer
+
+import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 
 class SentinelSchema {
   val sentinelSchema: StructType = StructType(

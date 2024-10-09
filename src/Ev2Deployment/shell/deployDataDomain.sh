@@ -11,18 +11,8 @@ if [ -z ${POWER_BI_ARCHIVE_SAS+x} ]; then
     exit 1;
 fi
 
-if [ -z ${DOMAINMODEL_ARCHIVE_SAS+x} ]; then
-    echo "DOMAINMODEL_ARCHIVE_SAS is unset, unable to continue"
-    exit 1;
-fi
-
-if [ -z ${DIMENSIONALMODEL_ARCHIVE_SAS+x} ]; then
-    echo "DIMENSIONALMODEL_ARCHIVE_SAS is unset, unable to continue"
-    exit 1;
-fi
-
-if [ -z ${STORAGESYNC_ARCHIVE_SAS+x} ]; then
-    echo "STORAGESYNC_ARCHIVE_SAS is unset, unable to continue"
+if [ -z ${DATADOMAINJARS_ARCHIVE_SAS+x} ]; then
+    echo "DATADOMAINJARS_ARCHIVE_SAS is unset, unable to continue"
     exit 1;
 fi
 
@@ -58,15 +48,11 @@ az extension add --name storage-preview
 echo "Downloading powerbi.tar file from build output"
 mkdir domain
 
-echo "wget domainmodel.tar to directory domain"
-wget $DOMAINMODEL_ARCHIVE_SAS -O domainmodel.tar
-wget $STORAGESYNC_ARCHIVE_SAS -O storagesync.tar
-wget $DIMENSIONALMODEL_ARCHIVE_SAS -O dimensionalmodel.tar
+echo "wget datadomainjars.tar to directory domain"
+wget $DATADOMAINJARS_ARCHIVE_SAS -O datadomainjars.tar
 
-echo "Untar domainmodel.tar to directory domain"
-tar -C domain -xvf domainmodel.tar
-tar -C domain -xvf storagesync.tar
-tar -C domain -xvf dimensionalmodel.tar
+echo "Untar datadomainjars.tar to directory domain"
+tar -C domain -xvf datadomainjars.tar
 
 cd ..
 
@@ -75,10 +61,7 @@ mkdir domainfiles
 echo "list all files and folders - ls -R"
 ls -R
 
-cp ./unarchive/domain/dataestatehealthanalytics-domainmodel-azure-purview-1.1-jar.jar ./domainfiles/
-cp ./unarchive/domain/dataestatehealthanalytics-storagesync-azure-purview-1.0-jar.jar ./domainfiles/
-cp ./unarchive/domain/dataestatehealthanalytics-dimensionalmodel-azure-purview-1.1-jar.jar ./domainfiles/
-
+cp ./unarchive/domain/target/*.jar ./domainfiles/
 
 echo "Creating container"
 echo az storage container create --auth-mode login --account-name $STORAGE_ACCOUNT_NAME --name $DESTINATION_CONTAINER_NAME

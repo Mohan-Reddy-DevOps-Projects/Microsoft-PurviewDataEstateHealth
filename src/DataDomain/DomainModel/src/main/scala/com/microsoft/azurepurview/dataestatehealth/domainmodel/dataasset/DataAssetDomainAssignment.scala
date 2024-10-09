@@ -1,6 +1,7 @@
 package com.microsoft.azurepurview.dataestatehealth.domainmodel.dataasset
 
-import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.{Reader, Validator}
+import com.microsoft.azurepurview.dataestatehealth.commonutils.writer.Reader
+import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.Validator
 import org.apache.log4j.Logger
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{coalesce, col, lit, row_number, when}

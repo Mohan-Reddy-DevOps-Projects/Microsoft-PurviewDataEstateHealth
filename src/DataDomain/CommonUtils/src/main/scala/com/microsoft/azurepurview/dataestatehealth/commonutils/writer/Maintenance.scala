@@ -1,12 +1,14 @@
-package com.microsoft.azurepurview.dataestatehealth.domainmodel.common
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+package com.microsoft.azurepurview.dataestatehealth.commonutils.writer
+
 import io.delta.tables.DeltaTable
 import org.apache.log4j.Logger
 import org.apache.spark.sql.functions.max
-import java.util.UUID
-import java.time.Instant
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.util.UUID
 
 class Maintenance (spark: SparkSession, logger:Logger) {
   def processDeltaTable(deltaTablePath: String): Unit = {

@@ -1,23 +1,19 @@
-package com.microsoft.azurepurview.dataestatehealth.domainmodel.common
+package com.microsoft.azurepurview.dataestatehealth.commonutils.writer
 
-import org.apache.log4j.Logger
-import org.apache.spark.sql.types.StructType
-import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.SaveMode
 import io.delta.tables.DeltaTable
-
-import scala.concurrent.{Future, Promise}
-import java.time.format.DateTimeFormatter
-import java.time.{ZoneOffset, ZonedDateTime}
-
-import javax.crypto.Mac
-import javax.crypto.spec.SecretKeySpec
+import org.apache.log4j.Logger
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, lit, row_number, when}
+import org.apache.spark.sql.types.StructType
+import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
+
 import java.net._
-
-
+import java.time.format.DateTimeFormatter
+import java.time.{ZoneOffset, ZonedDateTime}
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{Future, Promise}
 
 
 class Reader (spark: SparkSession, logger:Logger){

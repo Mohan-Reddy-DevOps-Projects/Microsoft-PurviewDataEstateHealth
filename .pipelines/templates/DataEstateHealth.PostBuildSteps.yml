@@ -27,72 +27,19 @@ steps:
     secureFile: settings.xml
 
 - task: Maven@3
-  displayName: Maven DomainModel/pom.xml
+  displayName: Maven DataDomain/pom.xml
   inputs:
-    mavenPOMFile: src/DataDomain/DomainModel/pom.xml
+    mavenPOMFile: src/DataDomain/pom.xml
     options: '-X -B -s $(Agent.TempDirectory)/settings.xml'
-
-- task: Maven@3
-  displayName: Maven StorageSync/pom.xml
-  inputs:
-    mavenPOMFile: src/DataDomain/StorageSync/pom.xml
-    options: '-X -B -s $(Agent.TempDirectory)/settings.xml'
-
-- task: Maven@3
-  displayName: Maven DimensionalModel/pom.xml
-  inputs:
-    mavenPOMFile: src/DataDomain/DimensionalModel/pom.xml
-    options: '-X -B -s $(Agent.TempDirectory)/settings.xml'
-
-- task: Maven@3
-  displayName: Maven ComputeGovernedAssets/pom.xml
-  inputs:
-    mavenPOMFile: src/DataDomain/ComputeGovernedAssets/pom.xml
-    options: '-X -B -s $(Agent.TempDirectory)/settings.xml'
-
 
 - task: ArchiveFiles@2
-  displayName: "Archive Domain Model Jar"
+  displayName: "Archive Jars"
   inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DataDomain/DomainModel/target/dataestatehealthanalytics-domainmodel-azure-purview-1.1-jar.jar'
+    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DataDomain/target/'
     includeRootFolder: true
     archiveType: "tar"
     tarCompression: none
-    archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/domainmodel.tar'
+    archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/datadomainjars.tar'
     replaceExistingArchive: true
     verbose: true
     
-- task: ArchiveFiles@2
-  displayName: "Archive storagesync Jar"
-  inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DataDomain/StorageSync/target/dataestatehealthanalytics-storagesync-azure-purview-1.0-jar.jar'
-    includeRootFolder: true
-    archiveType: "tar"
-    tarCompression: none
-    archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/storagesync.tar'
-    replaceExistingArchive: true
-    verbose: true
-
-
-- task: ArchiveFiles@2
-  displayName: "Archive dimensionalmodel Jar"
-  inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DataDomain/DimensionalModel/target/dataestatehealthanalytics-dimensionalmodel-azure-purview-1.1-jar.jar'
-    includeRootFolder: true
-    archiveType: "tar"
-    tarCompression: none
-    archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/dimensionalmodel.tar'
-    replaceExistingArchive: true
-    verbose: true
-
-
-- task: ArchiveFiles@2
-  displayName: "Archive computegovernedassets Jar"
-  inputs:
-    rootFolderOrFile: '$(Build.SourcesDirectory)/src/DataDomain/ComputeGovernedAssets/target/dataestatehealthanalytics-computegovernedassets-azure-purview-1.0-jar.jar'
-    includeRootFolder: true
-    archiveType: "tar"
-    tarCompression: none
-    archiveFile: '$(ob_outputDirectory)/Ev2Deployment/Ev2ServiceArtifactsRoot/computegovernedassets.tar'
-    replaceExistingArchive: true
-    verbose: true
