@@ -10,17 +10,49 @@ BEGIN
     CREATE EXTERNAL FILE FORMAT DeltaLakeFormat WITH (  FORMAT_TYPE = DELTA );
 END
 
-IF NOT EXISTS(SELECT [name] FROM sys.external_data_sources WHERE [name] = '@containerName')
-BEGIN
-    CREATE EXTERNAL DATA SOURCE [@containerName]
-    WITH (LOCATION = @containerUri, CREDENTIAL = @databaseScopedCredential);
-END
-
-BEGIN TRAN
 
 DECLARE @DynamicSQL NVARCHAR(MAX);
 DECLARE @DomainSchema NVARCHAR(512) = '@schemaName.DomainModel';
 DECLARE @DimensionalSchema NVARCHAR(512) = '@schemaName.DimensionalModel';
+DECLARE @sql NVARCHAR(MAX) = '';
+
+
+-- Generate drop statements for all tables
+SELECT @sql += 'DROP EXTERNAL TABLE [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '];' + CHAR(13)
+FROM INFORMATION_SCHEMA.TABLES
+WHERE TABLE_TYPE = 'BASE TABLE'
+--and ( TABLE_SCHEMA = @DomainSchema or TABLE_SCHEMA = @DimensionalSchema)
+--drop from all schemas
+
+print @sql
+
+-- Execute the generated SQL
+EXEC SP_EXECUTESQL @sql;
+
+-- Drop all views
+SET @sql = '';
+
+-- Generate drop statements for all views
+SELECT @sql += 'DROP VIEW [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '];' + CHAR(13)
+FROM INFORMATION_SCHEMA.VIEWS
+--WHERE ( TABLE_SCHEMA = @DomainSchema or TABLE_SCHEMA = @DimensionalSchema)
+print @sql
+
+-- Execute the generated SQL
+EXEC SP_EXECUTESQL @sql;
+
+IF EXISTS(SELECT [name] FROM sys.external_data_sources WHERE [name] = '@containerName')
+BEGIN
+   PRINT 'External Data Source Dropped'
+   DROP EXTERNAL DATA SOURCE [@containerName];   
+END
+
+CREATE EXTERNAL DATA SOURCE [@containerName]
+WITH (LOCATION = @containerUri, CREDENTIAL = @databaseScopedCredential);
+
+
+--BEGIN TRAN
+
 /* SCHEMA Creation a part of provisioning hence commented.
 
 IF NOT EXISTS (SELECT * FROM SYS.schemas WHERE name = @DomainSchema)
@@ -1757,4 +1789,4 @@ EXEC sp_executesql @DynamicSQL;
 PRINT 'VIEW created: vwDataAssetClassification';
 PRINT 'VIEW COMPLETE';
 
-COMMIT TRAN
+--COMMIT TRAN

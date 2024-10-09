@@ -1,6 +1,6 @@
 USE [@databaseName];
 
-BEGIN TRAN
+--BEGIN TRAN
 
 DECLARE @DynamicSQL NVARCHAR(MAX);
 DECLARE @DomainSchema NVARCHAR(512) = '@schemaName.DomainModel';
@@ -649,7 +649,7 @@ BEGIN
     PRINT 'Schema DROPPED: ' + @DimensionalSchema;
 END
 
-COMMIT TRAN
+--COMMIT TRAN
 /* --Uncomment WHEN ENTIRE DB CLEAN UP IS NEEDED
 PRINT 'External_data_sources DROPPED: @containerName';
 

@@ -67,11 +67,11 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
             miToken = await this.GetMIToken(accountServiceModel.Id.ToString());
             StorageConfiguration storageConfig = new StorageConfiguration();
             storageConfig = await this.GetStorageConfigSettings(accountServiceModel.Id.ToString(), accountServiceModel.TenantId);
-            this.logger.LogInformation($"SubmitJob|StorageConfig: {storageConfig}, accountid: {accountServiceModel.Id}");
-            this.logger.LogInformation($"SubmitJob|MiToken: {string.IsNullOrEmpty(miToken)}, accountid: {accountServiceModel.Id}");
-
-            if (!string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) && !string.IsNullOrEmpty(miToken))
+            if (storageConfig != null && !string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) && !string.IsNullOrEmpty(miToken))
             {
+                this.logger.LogInformation($"SubmitJob|StorageConfig: {storageConfig}, accountid: {accountServiceModel.Id}");
+                this.logger.LogInformation($"SubmitJob|MiToken: {string.IsNullOrEmpty(miToken)}, accountid: {accountServiceModel.Id}");
+
                 SparkJobRequestModel sparkJobRequestModel = new SparkJobRequestModel
                 {
                     sasUri = sinkSasUri,
@@ -96,7 +96,7 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
             }
             else
             {
-                this.logger.LogInformation($"SubmitJob|Unable to create Fabric Job Details: accountID:  {processingStorageModel.AccountId.ToString()}");
+                this.logger.LogInformation($"SubmitFabricJob |BYOC is not configured: accountID:  {processingStorageModel.AccountId.ToString()}");
                 return null;
             }
         }
