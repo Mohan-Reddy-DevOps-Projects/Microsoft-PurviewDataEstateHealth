@@ -42,7 +42,7 @@ object DataProductMain {
         val dataProductStatus = new DataProductStatus(spark, logger)
         val df_dataProductStatusProcessed = dataProductStatus.processDataProductStatus(df_dataProduct, dataProductStatusSchema)
         dataWriter.writeData(df_dataProductStatusProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
-          , "DataProductStatus", Seq("DataProductStatusID"), refreshType)
+          , "DataProductStatus", Seq("DataProductStatusID"), refreshType, "InsertOnly")
         val VacuumOptimize = new Maintenance(spark, logger)
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/DataProductStatus"), Some(df_dataProductStatusProcessed), jobRunGuid, "DataProductStatus", "")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataProductStatus"))
@@ -52,7 +52,7 @@ object DataProductMain {
         val dataProductUpdateFrequency = new DataProductUpdateFrequency(spark, logger)
         val df_dataProductUpdateFrequencyProcessed = dataProductUpdateFrequency.processDataProductUpdateFrequency(df_dataProduct, dataProductUpdateFrequencySchema)
         dataWriter.writeData(df_dataProductUpdateFrequencyProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
-          , "DataProductUpdateFrequency", Seq("UpdateFrequencyID"), refreshType)
+          , "DataProductUpdateFrequency", Seq("UpdateFrequencyID"), refreshType, "InsertOnly")
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/DataProductUpdateFrequency"), Some(df_dataProductUpdateFrequencyProcessed), jobRunGuid, "DataProductUpdateFrequency", "")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataProductUpdateFrequency"))
 
@@ -61,7 +61,7 @@ object DataProductMain {
         val dataProductType = new DataProductType(spark, logger)
         val df_dataProductTypeProcessed = dataProductType.processDataProductType(df_dataProduct, dataProductTypeSchema)
         dataWriter.writeData(df_dataProductTypeProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
-          , "DataProductType", Seq("DataProductTypeID"), refreshType)
+          , "DataProductType", Seq("DataProductTypeID"), refreshType, "InsertOnly")
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/DataProductType"), Some(df_dataProductTypeProcessed), jobRunGuid, "DataProductType", "")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataProductType"))
 

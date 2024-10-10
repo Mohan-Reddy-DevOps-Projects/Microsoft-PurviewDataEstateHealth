@@ -37,7 +37,7 @@ object DataQualityMain {
         } else {
           Utils.createColdStartDataFrame(spark, dataQualityContractSchema).limit(0)
         }
-        df_dataQualityRule.show(truncate = false)
+        
         val dataQualityRule = new DataQualityRule(spark, logger)
         //Process DataQualityRuleType
         val dataQualityRuleTypeSchema = new DataQualityRuleTypeSchema().dataQualityRuleTypeSchema
@@ -55,7 +55,8 @@ object DataQualityMain {
         val dataQualityJobExecution = new DataQualityJobExecution(spark, logger)
         val df_dataQualityJobExecutionProcessed = dataQualityJobExecution.processDataQualityJobExecution(df_dataQualityRule, dataQualityJobExecutionSchema)
         dataWriter.writeData(df_dataQualityJobExecutionProcessed, adlsTargetDirectory
-          , ReProcessingThresholdInMins, "DataQualityJobExecution", Seq("JobExecutionId"), refreshType)
+          , ReProcessingThresholdInMins, "DataQualityJobExecution", Seq("JobExecutionId")
+          , refreshType, "InsertOnly")
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/DataQualityJobExecution"), Some(df_dataQualityJobExecutionProcessed), jobRunGuid, "DataQualityJobExecution", "")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataQualityJobExecution"))
 
@@ -64,7 +65,8 @@ object DataQualityMain {
         val dataQualityRuleColumnExecution = new DataQualityRuleColumnExecution(spark, logger)
         val df_dataQualityRuleColumnExecutionProcessed = dataQualityRuleColumnExecution.processDataQualityRuleColumnExecution(df_dataQualityRule, dataQualityRuleColumnExecutionSchema, adlsTargetDirectory)
         dataWriter.writeData(df_dataQualityRuleColumnExecutionProcessed, adlsTargetDirectory
-          , ReProcessingThresholdInMins, "DataQualityRuleColumnExecution", Seq("JobExecutionId", "RuleId"), refreshType)
+          , ReProcessingThresholdInMins, "DataQualityRuleColumnExecution", Seq("JobExecutionId", "RuleId")
+          , refreshType, "InsertOnly")
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/DataQualityRuleColumnExecution"), Some(df_dataQualityRuleColumnExecutionProcessed), jobRunGuid, "DataQualityRuleColumnExecution", "")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataQualityRuleColumnExecution"))
 
@@ -73,7 +75,8 @@ object DataQualityMain {
         val dataQualityAssetRuleExecution = new DataQualityAssetRuleExecution(spark, logger)
         val df_dataQualityAssetRuleExecutionProcessed = dataQualityAssetRuleExecution.processDataQualityAssetRuleExecution(df_dataQualityRule, dataQualityAssetRuleExecutionSchema)
         dataWriter.writeData(df_dataQualityAssetRuleExecutionProcessed, adlsTargetDirectory
-          , ReProcessingThresholdInMins, "DataQualityAssetRuleExecution", Seq("JobExecutionId", "RuleId"), refreshType)
+          , ReProcessingThresholdInMins, "DataQualityAssetRuleExecution", Seq("JobExecutionId", "RuleId")
+          , refreshType, "InsertOnly")
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/DataQualityAssetRuleExecution"), Some(df_dataQualityAssetRuleExecutionProcessed), jobRunGuid, "DataQualityAssetRuleExecution", "")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataQualityAssetRuleExecution"))
 

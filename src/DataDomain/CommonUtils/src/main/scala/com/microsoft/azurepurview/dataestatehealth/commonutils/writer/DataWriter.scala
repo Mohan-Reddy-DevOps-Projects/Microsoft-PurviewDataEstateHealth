@@ -9,7 +9,7 @@ import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 class DataWriter(spark: SparkSession) extends SparkLogging {
 
   def writeData(df: DataFrame, adlsTargetDirectory: String, reProcessingThresholdInMins: Int, entityName: String,
-                keyColumns: Seq[String] = Seq(""), refreshType: String = "full"): Unit = {
+                keyColumns: Seq[String] = Seq(""), refreshType: String = "full", operationType: String = "Merge"): Unit = {
     try {
       val targetPath = s"$adlsTargetDirectory/$entityName"
 
@@ -30,7 +30,7 @@ class DataWriter(spark: SparkSession) extends SparkLogging {
           writeFull(if (df.isEmpty) coldStartDF else df, targetPath)
         case "incremental" =>
           logger.info("Handling incremental refresh.")
-          handleIncrementalRefresh(df, targetPath, entityName, coldStartDF, keyColumns)
+          handleIncrementalRefresh(df, targetPath, entityName, coldStartDF, keyColumns, operationType)
         case _ =>
           logger.error(s"Unsupported refreshType: $refreshType")
           throw new IllegalArgumentException(s"Unsupported refreshType: $refreshType") // Handle unsupported refresh types
@@ -56,12 +56,13 @@ class DataWriter(spark: SparkSession) extends SparkLogging {
    * @param coldStartDF A DataFrame to use for cold starts when needed.
    */
   private def handleIncrementalRefresh(df: DataFrame, targetPath: String, entityName: String,
-                                       coldStartDF: DataFrame, keyColumns: Seq[String]): Unit = {
+                                       coldStartDF: DataFrame, keyColumns: Seq[String],
+                                       operationType: String): Unit = {
     try {
       // Check if the Delta table exists
       if (DeltaTable.isDeltaTable(targetPath)) {
         logger.info(s"Delta Table $entityName exists. Handling incremental merge.")
-        handleIncrementalMerge(df, targetPath, entityName, keyColumns, coldStartDF)
+        handleIncrementalMerge(df, targetPath, entityName, keyColumns, coldStartDF, operationType)
       } else {
         // If it does not exist, perform a full overwrite
         logger.warn(s"Delta Table $entityName does not exist for incremental merge. Performing Full Overwrite...")
@@ -82,7 +83,8 @@ class DataWriter(spark: SparkSession) extends SparkLogging {
    * @param entityName         The name of the entity being processed.
    */
   private def handleIncrementalMerge(df: DataFrame, targetPath: String, entityName: String
-                                     , keyColumns: Seq[String], coldStartDF: DataFrame): Unit = {
+                                     , keyColumns: Seq[String], coldStartDF: DataFrame
+                                     , operationType: String): Unit = {
     try {
       val dfTargetDeltaTable = DeltaTable.forPath(spark, targetPath) // Load the target Delta table
       val dfTarget = dfTargetDeltaTable.toDF // Convert DeltaTable to DataFrame
@@ -91,7 +93,7 @@ class DataWriter(spark: SparkSession) extends SparkLogging {
       (df.isEmpty, dfTarget.isEmpty) match {
         case (false, false) =>
           logger.info(s"Both source and target DataFrames are non-empty. Performing merge to $entityName.")
-          performMerge(df, dfTargetDeltaTable, keyColumns) // Both DataFrames are non-empty, perform merge
+          performMerge(df, dfTargetDeltaTable, keyColumns, operationType) // Both DataFrames are non-empty, perform merge
         case (false, true) =>
           logger.warn(s"Target Delta Table $entityName is empty. Performing Full Overwrite...")
           writeFull(df, targetPath) // Target is empty, perform a full overwrite
@@ -109,19 +111,21 @@ class DataWriter(spark: SparkSession) extends SparkLogging {
     }
   }
 
-  private def performMerge(df: DataFrame, dfTargetDeltaTable: DeltaTable, keyColumns: Seq[String]): Unit = {
+  private def performMerge(df: DataFrame, dfTargetDeltaTable: DeltaTable, keyColumns: Seq[String],
+                           operationType: String): Unit = {
 
     val eventProcessingTimeColumnExists = dfTargetDeltaTable.toDF.columns.contains("EventProcessingTime")
     val operationTypeColumnExists = df.columns.contains("OperationType")
 
     if (eventProcessingTimeColumnExists && operationTypeColumnExists) {
-      performMergeWithFilters(df, dfTargetDeltaTable, keyColumns)
+      performMergeWithFilters(df, dfTargetDeltaTable, keyColumns, operationType)
     } else {
-      performMergeWithoutFilters(df, dfTargetDeltaTable, keyColumns)
+      performMergeWithoutFilters(df, dfTargetDeltaTable, keyColumns, operationType)
     }
   }
 
-  private def performMergeWithFilters(df: DataFrame, dfTargetDeltaTable: DeltaTable, keyColumns: Seq[String]): Unit = {
+  private def performMergeWithFilters(df: DataFrame, dfTargetDeltaTable: DeltaTable, keyColumns: Seq[String],
+                                      operationType:String): Unit = {
 
     logger.info("Calculating maximum event processing time from the target DataFrame.")
 
@@ -140,21 +144,27 @@ class DataWriter(spark: SparkSession) extends SparkLogging {
 
     // Perform the merge for updates and inserts
     logger.info("Performing merge for updates and inserts.")
-    dfTargetDeltaTable.as("target")
-      .merge(filteredMergeDfSource.as("source"), mergeCondition)
-      .whenMatched("source.ModifiedDatetime >= target.ModifiedDatetime").updateAll()
-      .whenNotMatched().insertAll()
-      .execute()
+    val mergeBuilder = dfTargetDeltaTable.as("target").merge(df.as("source"), mergeCondition)
 
-    // Perform the delete operation
-    logger.info("Performing merge for deletions.")
-    dfTargetDeltaTable.as("target")
-      .merge(filteredDeleteDfSource.as("source"), mergeCondition)
-      .whenMatched.delete()
-      .execute()
+    // Apply the appropriate merge operation
+    operationType match {
+      case "InsertOnly" => mergeBuilder.whenNotMatched().insertAll().execute()
+      case _ => mergeBuilder.whenMatched().updateAll().whenNotMatched().insertAll().execute()
+    }
+
+    if (operationType != "InsertOnly"){
+      // Perform the delete operation
+      logger.info("Performing merge for deletions.")
+      dfTargetDeltaTable.as("target")
+        .merge(filteredDeleteDfSource.as("source"), mergeCondition)
+        .whenMatched.delete()
+        .execute()
+    }
+
   }
 
-  private def performMergeWithoutFilters(df: DataFrame, dfTargetDeltaTable: DeltaTable, keyColumns: Seq[String]): Unit = {
+  private def performMergeWithoutFilters(df: DataFrame, dfTargetDeltaTable: DeltaTable, keyColumns: Seq[String],
+                                         operationType:String): Unit = {
 
     // Perform the merge for updates and inserts
     logger.info("Performing merge for updates and inserts.")
@@ -162,11 +172,13 @@ class DataWriter(spark: SparkSession) extends SparkLogging {
     // Create the merge condition by combining key columns
     val mergeCondition = keyColumns.map(key => s"target.$key = source.$key").mkString(" AND ")
 
-    dfTargetDeltaTable.as("target")
-      .merge(df.as("source"), mergeCondition)
-      .whenMatched().updateAll()
-      .whenNotMatched().insertAll()
-      .execute()
+    val mergeBuilder = dfTargetDeltaTable.as("target").merge(df.as("source"), mergeCondition)
+
+    // Apply the appropriate merge operation
+    operationType match {
+      case "InsertOnly" => mergeBuilder.whenNotMatched().insertAll().execute()
+      case _ => mergeBuilder.whenMatched().updateAll().whenNotMatched().insertAll().execute()
+    }
   }
 
   /**
