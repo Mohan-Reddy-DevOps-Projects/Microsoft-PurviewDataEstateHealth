@@ -48,7 +48,7 @@ BEGIN
 END
 
 CREATE EXTERNAL DATA SOURCE [@containerName]
-WITH (LOCATION = @containerUri, CREDENTIAL = @databaseScopedCredential);
+WITH (LOCATION = @containerUri, CREDENTIAL = [@databaseScopedCredential]);
 
 
 --BEGIN TRAN
