@@ -21,7 +21,7 @@ DECLARE @sql NVARCHAR(MAX) = '';
 SELECT @sql += 'DROP EXTERNAL TABLE [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '];' + CHAR(13)
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_TYPE = 'BASE TABLE'
---and ( TABLE_SCHEMA = @DomainSchema or TABLE_SCHEMA = @DimensionalSchema)
+and ( TABLE_SCHEMA = @DomainSchema or TABLE_SCHEMA = @DimensionalSchema)
 --drop from all schemas
 
 print @sql
@@ -35,7 +35,7 @@ SET @sql = '';
 -- Generate drop statements for all views
 SELECT @sql += 'DROP VIEW [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '];' + CHAR(13)
 FROM INFORMATION_SCHEMA.VIEWS
---WHERE ( TABLE_SCHEMA = @DomainSchema or TABLE_SCHEMA = @DimensionalSchema)
+WHERE ( TABLE_SCHEMA = @DomainSchema or TABLE_SCHEMA = @DimensionalSchema)
 print @sql
 
 -- Execute the generated SQL
