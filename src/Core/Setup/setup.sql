@@ -14,6 +14,7 @@ END
 DECLARE @DynamicSQL NVARCHAR(MAX);
 DECLARE @DomainSchema NVARCHAR(512) = '@schemaName.DomainModel';
 DECLARE @DimensionalSchema NVARCHAR(512) = '@schemaName.DimensionalModel';
+DECLARE @ContainerSchema NVARCHAR(512) = '@schemaName';
 DECLARE @sql NVARCHAR(MAX) = '';
 
 
@@ -21,7 +22,7 @@ DECLARE @sql NVARCHAR(MAX) = '';
 SELECT @sql += 'DROP EXTERNAL TABLE [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '];' + CHAR(13)
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_TYPE = 'BASE TABLE'
-and ( TABLE_SCHEMA = @DomainSchema or TABLE_SCHEMA = @DimensionalSchema)
+and ( TABLE_SCHEMA = @DomainSchema or TABLE_SCHEMA = @DimensionalSchema or TABLE_SCHEMA = @ContainerSchema)
 --drop from all schemas
 
 print @sql
@@ -35,7 +36,7 @@ SET @sql = '';
 -- Generate drop statements for all views
 SELECT @sql += 'DROP VIEW [' + TABLE_SCHEMA + '].[' + TABLE_NAME + '];' + CHAR(13)
 FROM INFORMATION_SCHEMA.VIEWS
-WHERE ( TABLE_SCHEMA = @DomainSchema or TABLE_SCHEMA = @DimensionalSchema)
+WHERE ( TABLE_SCHEMA = @DomainSchema or TABLE_SCHEMA = @DimensionalSchema or TABLE_SCHEMA = @ContainerSchema)
 print @sql
 
 -- Execute the generated SQL
@@ -47,8 +48,11 @@ BEGIN
    DROP EXTERNAL DATA SOURCE [@containerName];   
 END
 
-CREATE EXTERNAL DATA SOURCE [@containerName]
-WITH (LOCATION = @containerUri, CREDENTIAL = [@databaseScopedCredential]);
+IF not EXISTS(SELECT [name] FROM sys.external_data_sources WHERE [name] = '@containerName')
+BEGIN
+    CREATE EXTERNAL DATA SOURCE [@containerName]
+    WITH (LOCATION = @containerUri, CREDENTIAL = [@databaseScopedCredential]);
+END
 
 
 --BEGIN TRAN
