@@ -137,6 +137,7 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
                 $"--SyncType", $"{sparkJobRequestModel.storageType}",
                 $"--AccountId", $"{sparkJobRequestModel.accountId}",
                 $"--JobRunGuid", $"{sparkJobRequestModel.jobId}",
+                $"--MITokenValue", $"{sparkJobRequestModel.miToken}",
             },
         };
     }
