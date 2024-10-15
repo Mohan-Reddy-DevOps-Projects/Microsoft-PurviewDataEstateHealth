@@ -1,7 +1,6 @@
 package com.microsoft.azurepurview.dataestatehealth.domainmodel.dataquality
 
 import com.microsoft.azurepurview.dataestatehealth.commonutils.writer.{DataWriter, Maintenance, Reader}
-import com.microsoft.azurepurview.dataestatehealth.commonutils.utils.Utils
 import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.ColdStartSoftCheck
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
@@ -16,8 +15,7 @@ object DataQualityMain {
       logger.setLevel(Level.INFO)
       logger.info("Started the DataQuality Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
-      val dataExists = coldStartSoftCheck.validateCheckIn(args(0), "dataqualityv2fact")
-      if (args.length >= 5 ) {
+      if (args.length >= 5 && coldStartSoftCheck.validateCheckIn(args(0),"dataqualityv2fact")) {
         val CosmosDBLinkedServiceName = args(0)
         val adlsTargetDirectory = args(1)
         val accountId = args(2)
@@ -32,13 +30,8 @@ object DataQualityMain {
         val dataQualityContractSchema = new DataQualityContractSchema().dataQualityContractSchema
         val dataQualityRuleSchema = new DataQualityRuleSchema().dataQualityRuleSchema
         val reader = new Reader(spark, logger)
-        val df_dataQualityRule = if (dataExists) {
-          reader.readCosmosData(dataQualityContractSchema, CosmosDBLinkedServiceName, accountId, "dataqualityv2fact", "", "dataQualityFact")
-        } else {
-          Utils.createColdStartDataFrame(spark, dataQualityContractSchema).limit(0)
-        }
-        
-        val dataQualityRule = new DataQualityRule(spark, logger)
+        val df_dataQualityRule = reader.readCosmosData(dataQualityContractSchema,CosmosDBLinkedServiceName,accountId,"dataqualityv2fact","","dataQualityFact")
+        val dataQualityRule = new DataQualityRule(spark,logger)
         //Process DataQualityRuleType
         val dataQualityRuleTypeSchema = new DataQualityRuleTypeSchema().dataQualityRuleTypeSchema
         val dataQualityRuleType = new DataQualityRuleType(spark, logger)
