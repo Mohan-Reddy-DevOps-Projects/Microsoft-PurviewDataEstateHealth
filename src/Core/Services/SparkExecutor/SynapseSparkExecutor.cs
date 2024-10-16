@@ -153,7 +153,7 @@ internal sealed class SynapseSparkExecutor(
             NodeCount = 4,
             SparkVersion = "3.4",
             DefaultSparkLogFolder = "/logs",
-            NodeSize = BigDataPoolNodeSize.Medium,
+            NodeSize = BigDataPoolNodeSize.Small,
             NodeSizeFamily = BigDataPoolNodeSizeFamily.MemoryOptimized
         };
     }
@@ -163,22 +163,6 @@ internal sealed class SynapseSparkExecutor(
         var methodName = nameof(TweakDefaultSparkConfig);
         var tenantId = accountServiceModel.TenantId;
         logger.LogInformation($"[{methodName}] TenantID: {tenantId}");
-
-        switch (tenantId)
-        {
-            case "28941ec8-aeac-4904-8053-1cb7b15f51e5": // PDG Test 14
-                logger.LogInformation($"[{methodName}] Special tenant id '28941ec8-aeac-4904-8053-1cb7b15f51e5' hit, change NodeSize to Medium.");
-                info.NodeSize = BigDataPoolNodeSize.Medium;
-                break;
-            case "8792d440-eee8-44d3-bbc5-fc6199aff555": // PDG Test 15
-                logger.LogInformation($"[{methodName}] Special tenant id '8792d440-eee8-44d3-bbc5-fc6199aff555' hit, change NodeSize to Large.");
-                info.NodeSize = BigDataPoolNodeSize.Large;
-                break;
-            case "d58faaaf-7b1e-4b20-8973-bed2e7a0548f": // PDG Test 08
-                logger.LogInformation($"[{methodName}] Special tenant id 'd58faaaf-7b1e-4b20-8973-bed2e7a0548f' hit, change NodeSize to XLarge.");
-                info.NodeSize = BigDataPoolNodeSize.XLarge;
-                break;
-        }
 
         // above hard code config can be overridden by the following account exposure control config
 
