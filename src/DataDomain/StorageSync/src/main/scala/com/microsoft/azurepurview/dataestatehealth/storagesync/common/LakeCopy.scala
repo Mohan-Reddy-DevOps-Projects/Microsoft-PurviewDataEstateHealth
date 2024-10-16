@@ -5,6 +5,7 @@ class LakeCopy(logger:Logger){
 
   def processLakehouseCopy(sourceDataLakePath:String, FabricSyncRootPath:String):Boolean={
     try {
+      mssparkutils.fs.rm(FabricSyncRootPath, recurse = true)
       mssparkutils.fs.cp(sourceDataLakePath, FabricSyncRootPath, true)
       println(s"$sourceDataLakePath Copied successfully to $FabricSyncRootPath.")
       true

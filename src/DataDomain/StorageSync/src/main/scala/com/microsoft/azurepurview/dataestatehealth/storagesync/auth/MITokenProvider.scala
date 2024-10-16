@@ -3,6 +3,7 @@ package com.microsoft.azurepurview.dataestatehealth.storagesync.auth
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.fs.azurebfs.extensions.CustomTokenProviderAdaptee
 
+import com.microsoft.azurepurview.dataestatehealth.commonutils.logger.SparkLogging
 import java.util.Date
 
 /**
@@ -13,7 +14,7 @@ import java.util.Date
  * @param configuration Configuration object containing necessary setup details.
  * @param accountName Name of the account for which the token is to be managed.
  */
-class MITokenProvider extends CustomTokenProviderAdaptee {
+class MITokenProvider extends CustomTokenProviderAdaptee with SparkLogging {
 
   /** Access token for authentication. */
   private var accessToken: String = _
@@ -30,6 +31,8 @@ class MITokenProvider extends CustomTokenProviderAdaptee {
    * @param accountName The name of the account to be associated with the token.
    */
   override def initialize(configuration: Configuration, accountName: String): Unit = {
+    logger.info(s"initialize Token called: " + TokenManager.getAccessToken.toString)
+    logger.info(s"initialize expiryTime called: " + TokenManager.getExpiryTime.toString)
     accessToken = TokenManager.getAccessToken
     expiryTime = TokenManager.getExpiryTime
   }
@@ -40,6 +43,7 @@ class MITokenProvider extends CustomTokenProviderAdaptee {
    * @return The current access token as a `String`.
    */
   override def getAccessToken(): String = {
+    logger.info(s"getAccessToken called: " + this.accessToken.toString)
     this.accessToken
   }
 
@@ -49,6 +53,7 @@ class MITokenProvider extends CustomTokenProviderAdaptee {
    * @return The expiry time of the access token as a `Date`.
    */
   override def getExpiryTime(): Date = {
+    logger.info(s"getExpiryTime called: " + this.expiryTime.toString)
     this.expiryTime
   }
 
