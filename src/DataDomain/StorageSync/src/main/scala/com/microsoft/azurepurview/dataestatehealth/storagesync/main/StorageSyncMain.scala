@@ -1,5 +1,6 @@
 package com.microsoft.azurepurview.dataestatehealth.storagesync.main
 
+import com.microsoft.azurepurview.dataestatehealth.commonutils.logger.SparkLogging
 import com.microsoft.azurepurview.dataestatehealth.storagesync.auth.TokenManager
 import com.microsoft.azurepurview.dataestatehealth.storagesync.common.{CommandLineParser, LakeCopy, LakeCopySpark, LogAnalyticsLogger, Utils}
 import org.apache.log4j.{Level, Logger}
@@ -7,8 +8,7 @@ import org.apache.spark.sql.SparkSession
 
 import java.util.{Date, ResourceBundle}
 
-object StorageSyncMain {
-  val logger : Logger = Logger.getLogger(getClass.getName)
+object StorageSyncMain extends SparkLogging {
   def main(args: Array[String]): Unit = {
     val resourceBundle = ResourceBundle.getBundle("storagesync")
 
@@ -18,7 +18,7 @@ object StorageSyncMain {
          |Group ID - ${resourceBundle.getString("groupId")},
          |Artifact ID - ${resourceBundle.getString("artifactId")},
          |Version - ${resourceBundle.getString("version")}""".stripMargin)
-    logger.setLevel(Level.INFO)
+
     logger.info(s"""Release Version:
                    |Group ID - ${resourceBundle.getString("groupId")},
                    |Artifact ID - ${resourceBundle.getString("artifactId")},
@@ -37,7 +37,6 @@ object StorageSyncMain {
         try {
 
           println("In StorageSync Main Spark Application!")
-          logger.setLevel(Level.INFO)
           logger.info("Started the StorageSync Main Spark Application!")
 
           println(
@@ -74,7 +73,7 @@ object StorageSyncMain {
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
             jobStatus = "Started", tenantId = tenantId)
 
-          val lakeCopy = new LakeCopy(logger)
+          val lakeCopy = new LakeCopy()
           lakeCopy.processLakehouseCopy(config.DEHStorageAccount.concat("/DomainModel"), fabricSyncRootPath.concat("/DomainModel"))
           lakeCopy.processLakehouseCopy(config.DEHStorageAccount.concat("/DimensionalModel"), fabricSyncRootPath.concat("/DimensionalModel"))
 
