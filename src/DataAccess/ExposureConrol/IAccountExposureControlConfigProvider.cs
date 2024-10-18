@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 
 /// <summary>
 /// Expose Exposure Control APIs
@@ -88,4 +89,12 @@ public interface IAccountExposureControlConfigProvider
     /// </summary>
     /// <returns></returns>
     public Dictionary<string, SparkPoolECConfig> GetDGSparkJobConfig();
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public Dictionary<string, CapacityModel> GetPBICapacities();
+
+
 }

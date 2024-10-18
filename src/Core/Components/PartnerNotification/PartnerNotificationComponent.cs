@@ -13,6 +13,7 @@ using Microsoft.DGP.ServiceBasics.Services.FieldInjection;
 using Microsoft.PowerBI.Api.Models;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Models;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -141,6 +142,17 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
                 };
                 Group workspace = await this.workspaceCommand.Create(context, cancellationToken);
                 this.dataEstateHealthRequestLogger.LogInformation("Workspace created successfully");
+
+                var pbiCapacity = this.exposureControl.GetPBICapacities();
+                if (pbiCapacity != null)
+                {
+                    string jsonString = JsonSerializer.Serialize(pbiCapacity, new JsonSerializerOptions { WriteIndented = false });
+                    this.dataEstateHealthRequestLogger.LogInformation($"CreatePowerBIResources:| PBI Capacity List {jsonString}");
+                }
+                else
+                {
+                    this.dataEstateHealthRequestLogger.LogWarning("CreatePowerBIResources:| PBI Capacity List is null");
+                }
 
                 await this.capacityAssignment.AssignWorkspace(profile.Id, workspace.Id, cancellationToken);
                 this.dataEstateHealthRequestLogger.LogInformation("Workspace assigned successfully");

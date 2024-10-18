@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Azure.Purview.ExposureControlLibrary;
+using Microsoft.Purview.DataGovernance.Reporting.Models;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -117,6 +118,21 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
         };
         return this.IsFeatureEnabled(options);
     }
+
+    /// <inheritdoc/>
+    public Dictionary<string, CapacityModel> GetPBICapacities()
+    {
+        ExposureControlOptions dictionaryOptions = new(Dictionaries.InsightsPBICapacities.ToString());
+        Dictionary<string, string> value = this.GetDictionnary(dictionaryOptions);
+        Dictionary<string, CapacityModel> capacities = new();
+        foreach (KeyValuePair<string, string> item in value)
+        {
+            capacities.Add(item.Key, JsonSerializer.Deserialize<CapacityModel>(item.Value, this.options));
+        }
+
+        return capacities;
+    }
+
 
     /// <inheritdoc/>
     public bool IsDataGovHealthScheduleQueueEnabled(string accountId, string subscriptionId, string tenantId)
