@@ -32,7 +32,7 @@ public abstract class DataEstateHealthLogger
     {
 
 
-        this.logger = loggerFactory.CreateLogger("Log");
+        this.logger = loggerFactory.CreateLogger("DgHealthLog");
         this.environmentConfiguration = environmentConfiguration.Value;
         if (this.environmentConfiguration.Environment != Microsoft.Purview.DataGovernance.Common.CloudEnvironment.Development)
         {

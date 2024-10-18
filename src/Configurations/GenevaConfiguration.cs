@@ -32,9 +32,24 @@ public class GenevaConfiguration
     public int GenevaServicesPort { get; set; }
 
     /// <summary>
-    /// Geneva fluentD port used for audit logging
+    /// Fluentd port
     /// </summary>
     public int GenevaFluentdPort { get; set; }
+
+    /// <summary>
+    /// Otlp log port
+    /// </summary>
+    public int GenevaOtlpLogPort { get; set; }
+
+    /// <summary>
+    /// Otlp trace port
+    /// </summary>
+    public int GenevaOtlpTracePort { get; set; }
+
+    /// <summary>
+    /// Otlp metric port
+    /// </summary>
+    public int GenevaOtlpMdmPort { get; set; }
 
 
     /// <summary>

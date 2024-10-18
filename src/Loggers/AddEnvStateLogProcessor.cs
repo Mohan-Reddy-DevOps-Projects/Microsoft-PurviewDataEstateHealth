@@ -31,7 +31,7 @@ public class AddEnvStateLogProcessor : BaseProcessor<LogRecord>
         // Custom state information
         var logState = new Dictionary<string, object>
         {
-            ["env.name"] = this.environmentConfiguration.Environment.ToString(),
+            ["environment"] = this.environmentConfiguration.Environment.ToString(),
             ["RoleLocation"] = this.environmentConfiguration.Location,
             ["cloud.role"] = Environment.GetEnvironmentVariable("CONTAINER_APP_NAME"),
             ["cloud.roleInstance"] = Environment.GetEnvironmentVariable("CONTAINER_APP_REVISION"),

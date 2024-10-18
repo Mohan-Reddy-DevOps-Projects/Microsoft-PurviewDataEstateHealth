@@ -15,7 +15,6 @@
 	<PackageReference Include="Microsoft.Purview.DataGovernance.BillingServiceClient" />
 
     <PackageReference Include="Microsoft.Windows.Compatibility" />
-    <PackageReference Include="System.Formats.Asn1" />
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\Common\Common.csproj" />

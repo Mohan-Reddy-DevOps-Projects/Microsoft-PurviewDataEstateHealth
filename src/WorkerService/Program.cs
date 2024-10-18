@@ -23,7 +23,9 @@ Startup.Configure(builder);
 
 var environmentConfiguration = builder.Configuration.GetSection("environment").Get<EnvironmentConfiguration>();
 
-builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment(), environmentConfiguration);
+var genevaConfiguration = builder.Configuration.GetSection("geneva").Get<GenevaConfiguration>();
+
+builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment(), genevaConfiguration, environmentConfiguration);
 
 
 builder.WebHost.ConfigureKestrel((hostingContext, options) =>

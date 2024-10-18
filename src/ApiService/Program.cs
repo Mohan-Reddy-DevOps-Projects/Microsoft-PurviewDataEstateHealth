@@ -62,7 +62,7 @@ public class Program
         var serviceConfiguration = builder.Configuration.GetSection("service").Get<ServiceConfiguration>();
         var environmentConfiguration = builder.Configuration.GetSection("environment").Get<EnvironmentConfiguration>();
 
-        builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment(), environmentConfiguration);
+        builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment(), genevaConfiguration, environmentConfiguration);
 
         // Add services to the container.
         builder.Services

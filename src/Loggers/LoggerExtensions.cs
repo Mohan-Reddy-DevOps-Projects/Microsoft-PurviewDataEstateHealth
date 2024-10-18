@@ -124,8 +124,7 @@ public static class LoggerExtensions
                 {
                     builder.AddOtlpExporter(options =>
                     {
-                        string tracingEndpoint = Environment.GetEnvironmentVariable("FIRSTPARTY_TRACING_GRPC_ENDPOINT");
-                        options.Endpoint = new Uri($"http://{tracingEndpoint}");
+                        options.Endpoint = new Uri($"http://{genevaConfiguration.GenevaContainerAppName}:{genevaConfiguration.GenevaOtlpTracePort}");
                         options.Protocol = OtlpExportProtocol.Grpc;
                     });
                 }
@@ -153,8 +152,7 @@ public static class LoggerExtensions
 
                     builder.AddOtlpExporter(options =>
                     {
-                        var metricEndpoint = Environment.GetEnvironmentVariable("FIRSTPARTY_METRIC_GRPC_ENDPOINT");
-                        options.Endpoint = new Uri($"http://{metricEndpoint}");
+                        options.Endpoint = new Uri($"http://{genevaConfiguration.GenevaContainerAppName}:{genevaConfiguration.GenevaOtlpMdmPort}");
                         options.Protocol = OtlpExportProtocol.Grpc;
                     })
                     .AddInMemoryExporter(new List<Metric>(), metricReaderOptions =>
@@ -193,7 +191,7 @@ public static class LoggerExtensions
             ["cloud.role"] = GetRoleName(),
             ["cloud.roleInstance"] = GetSanitizedEnvironmentVariable("CONTAINER_APP_REVISION"),
             ["cloud.roleVer"] = GetSanitizedEnvironmentVariable("BUILD_VERSION"),
-            ["env.name"] = environmentConfiguration.Environment.ToString(),
+            ["environment"] = environmentConfiguration.Environment.ToString(),
             ["RoleLocation"] = environmentConfiguration.Location,
             ["ServiceId"] = GetSanitizedEnvironmentVariable("SERVICE_ID")
         };
@@ -213,6 +211,7 @@ public static class LoggerExtensions
     /// <returns></returns>
     public static ILoggingBuilder AddOltpExporter(this ILoggingBuilder builder,
         bool isDevelopmentEnvironment,
+        GenevaConfiguration genevaConfiguration,
         EnvironmentConfiguration environmentConfiguration)
     {
         builder.ClearProviders();
@@ -228,18 +227,11 @@ public static class LoggerExtensions
             }
             else
             {
-                const string loggingEndpointEnvVar = "FIRSTPARTY_LOGGING_GRPC_ENDPOINT";
-                string loggingEndpoint = Environment.GetEnvironmentVariable(loggingEndpointEnvVar);
-                if (loggingEndpoint == null)
-                {
-                    throw new Exception($"environment variable '{loggingEndpointEnvVar}' was not found");
-                }
-
                 AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 
                 options.AddOtlpExporter(otelOptions =>
                 {
-                    otelOptions.Endpoint = new Uri($"http://{loggingEndpoint}");
+                    otelOptions.Endpoint = new Uri($"http://{genevaConfiguration.GenevaContainerAppName}:{genevaConfiguration.GenevaOtlpLogPort}");
                     otelOptions.Protocol = OtlpExportProtocol.Grpc;
                 });
             }
