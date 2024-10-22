@@ -1,5 +1,7 @@
 package com.microsoft.azurepurview.dataestatehealth.storagesync.auth
 
+import com.microsoft.azurepurview.dataestatehealth.commonutils.logger.SparkLogging
+
 import java.util.Date
 
 /**
@@ -7,7 +9,7 @@ import java.util.Date
  * and its expiry time. It provides methods to initialize, retrieve, and check
  * the status of the access token.
  */
-object TokenManager {
+object TokenManager extends SparkLogging {
 
   /** The current access token. */
   private var accessToken: String = _
@@ -25,6 +27,8 @@ object TokenManager {
   def initialize(token: String, expiry: Date): Unit = {
     accessToken = token
     expiryTime = expiry
+    logger.info(s"TokenManager: initialize: accessToken: " + accessToken)
+    logger.info(s"TokenManager: initialize: expiryTime: " + expiryTime.toString)
   }
 
   /**

@@ -13,11 +13,13 @@ public class StorageConfiguration
     public TypeProperties TypeProperties { get; set; }
     public string Id { get; set; }
     public SystemData SystemData { get; set; }
+    public string Status { get; set; }
 }
 
 public class TypeProperties
 {
     public string LocationURL { get; set; }
+    public string Endpoint { get; set; }
 }
 
 public class SystemData

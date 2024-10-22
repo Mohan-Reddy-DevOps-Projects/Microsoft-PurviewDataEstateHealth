@@ -67,38 +67,41 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
             miToken = await this.GetMIToken(accountServiceModel.Id.ToString());
             StorageConfiguration storageConfig = new StorageConfiguration();
             storageConfig = await this.GetStorageConfigSettings(accountServiceModel.Id.ToString(), accountServiceModel.TenantId);
-            if (storageConfig != null && !string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) && !string.IsNullOrEmpty(miToken))
+            if (string.IsNullOrEmpty(storageConfig.TypeProperties.Endpoint))
             {
-                this.logger.LogInformation($"SubmitJob|StorageConfig: {storageConfig}, accountid: {accountServiceModel.Id}");
-                this.logger.LogInformation($"SubmitJob|MiToken: {string.IsNullOrEmpty(miToken)}, accountid: {accountServiceModel.Id}");
-
-                SparkJobRequestModel sparkJobRequestModel = new SparkJobRequestModel
-                {
-                    sasUri = sinkSasUri,
-                    accountId = processingStorageModel.AccountId.ToString(),
-                    containerName = containerName,
-                    sinkLocation = sinkSasUri.Host,
-                    jobId = jobId,
-                    jarClassName = jarClassName,
-                    miToken = miToken,
-                    storageUrl = storageConfig.TypeProperties.LocationURL,
-                    storageType = storageConfig.Type,
-                    cosmosDBEndpoint = cosmosDBEndpoint.Value,
-                    cosmosDBKey = cosmosDBKey.Value,
-                    workSpaceID = workSpaceID.Value,
-                    tenantId = accountServiceModel.TenantId
-                };
-
-                SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sparkJobRequestModel);
-                //sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, jarClassName, miToken, fabricConfig, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value);
-                var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
-                return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, poolResourceId);
+                storageConfig.TypeProperties.LocationURL = storageConfig.TypeProperties.Endpoint;
             }
-            else
+            if (storageConfig == null || string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) || string.IsNullOrEmpty(miToken)
+                || storageConfig.Status != "Enabled")
             {
-                this.logger.LogInformation($"SubmitFabricJob |BYOC is not configured: accountID:  {processingStorageModel.AccountId.ToString()}");
+                this.logger.LogInformation($"SubmitFabricJob |BYOC is not configured or enabled: accountID:  {processingStorageModel.AccountId.ToString()}");
                 return null;
+
             }
+            this.logger.LogInformation($"SubmitJob|StorageConfig: {storageConfig}, accountid: {accountServiceModel.Id}");
+            this.logger.LogInformation($"SubmitJob|MiToken: {string.IsNullOrEmpty(miToken)}, accountid: {accountServiceModel.Id}");
+
+            SparkJobRequestModel sparkJobRequestModel = new SparkJobRequestModel
+            {
+                sasUri = sinkSasUri,
+                accountId = processingStorageModel.AccountId.ToString(),
+                containerName = containerName,
+                sinkLocation = sinkSasUri.Host,
+                jobId = jobId,
+                jarClassName = jarClassName,
+                miToken = miToken,
+                storageUrl = storageConfig.TypeProperties.LocationURL,
+                storageType = storageConfig.Type,
+                cosmosDBEndpoint = cosmosDBEndpoint.Value,
+                cosmosDBKey = cosmosDBKey.Value,
+                workSpaceID = workSpaceID.Value,
+                tenantId = accountServiceModel.TenantId
+            };
+
+            SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sparkJobRequestModel);
+            //sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, jarClassName, miToken, fabricConfig, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value);
+            var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
+            return await this.sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, poolResourceId);
         }
     }
 

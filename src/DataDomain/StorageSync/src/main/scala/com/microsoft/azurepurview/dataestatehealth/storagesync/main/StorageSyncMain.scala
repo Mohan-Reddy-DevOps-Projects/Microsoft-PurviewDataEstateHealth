@@ -27,15 +27,26 @@ object StorageSyncMain extends SparkLogging {
     val parser = new CommandLineParser()
     parser.parse(args) match {
       case Some(config) =>
+
         val spark = SparkSession.builder
           .appName("StorageSyncMainSparkApplication")
           .getOrCreate()
+
+        TokenManager.initialize(
+          spark.conf.get("spark.mitoken.value",""),
+          new Date(System.currentTimeMillis + 10000000L)
+        )
+        // Define the storage endpoint
+        val storageEndpoint = Utils.getStorageEndpoint(storageType = config.SyncType)
+
+        // Set Spark configurations
+        spark.conf.set(s"fs.azure.account.auth.type.$storageEndpoint", "Custom")
+        spark.conf.set(s"fs.azure.account.oauth.provider.type.$storageEndpoint", "com.microsoft.azurepurview.dataestatehealth.storagesync.auth.MITokenProvider")
 
         val tenantId = spark.conf.get("spark.purview.tenantId", "")
         println(s"PurviewTenantId:$tenantId")
 
         try {
-
           println("In StorageSync Main Spark Application!")
           logger.info("Started the StorageSync Main Spark Application!")
 
@@ -55,18 +66,6 @@ object StorageSyncMain extends SparkLogging {
             fabricSyncRootPath = Utils.convertUrl(config.SyncRootPath)
             println(fabricSyncRootPath)
           }
-
-          TokenManager.initialize(
-            spark.conf.get("spark.mitoken.value"),
-            new Date(System.currentTimeMillis + 10000000L)
-          )
-
-          // Define the storage endpoint
-          val storageEndpoint = Utils.getStorageEndpoint(storageType = config.SyncType)
-
-          // Set Spark configurations
-          spark.conf.set(s"fs.azure.account.auth.type.$storageEndpoint", "Custom")
-          spark.conf.set(s"fs.azure.account.oauth.provider.type.$storageEndpoint", "com.microsoft.azurepurview.dataestatehealth.storagesync.auth.MITokenProvider")
 
           // Initialize LogAnalyticsConfig with Spark session
           LogAnalyticsLogger.initialize(spark)
