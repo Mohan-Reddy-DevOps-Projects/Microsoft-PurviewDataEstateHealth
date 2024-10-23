@@ -66,6 +66,39 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         }
 
 
+        public async Task<string> GetDEHSKUConfig(string accountId)
+        {
+            string returnSKU = "basic";
+            try
+            {
+                var client = this.GetDEHServiceClient();
+                var responseString = await client.GetDEHSKUConfig(accountId, CancellationToken.None);
+                this.logger.LogInformation($"GetDEHSKUConfig from Catalog By Account Id: {accountId}. Response: {responseString}");
+
+                var payload = JsonConvert.DeserializeObject<CatalogDEHSKUSettingsModel>(responseString);
+                if (payload.Sku != null)
+                {
+                    returnSKU = payload.Sku;
+                    if (string.IsNullOrEmpty(returnSKU))
+                    {
+                        this.logger.LogInformation($"GetDEHSKUConfig from Catalog. Account Id: {accountId} failed!");
+                    }
+                }
+                else
+                {
+                    this.logger.LogInformation($"GetDEHSKUConfig from Catalog. Account Id: {accountId} failed!");
+                    return null;
+                }
+                return returnSKU;
+
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogWarning($"GetDEHSKUConfig|Fail to get DEH SKU Config: {accountId}.", ex);
+            }
+            return returnSKU;
+        }
+
         /// <summary>
         /// Get Storage Config settings from DEH, the User will configure this from DEH settings
         /// </summary>

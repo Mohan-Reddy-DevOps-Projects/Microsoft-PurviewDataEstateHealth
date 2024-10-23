@@ -23,11 +23,13 @@ internal sealed class SynapseSparkExecutor(
     IAzureResourceManagerFactory azureResourceManagerFactory,
     IOptions<SynapseSparkConfiguration> synapseAuthConfiguration,
     IAccountExposureControlConfigProvider accountExposureControlConfigProvider,
-    IDataEstateHealthRequestLogger logger) : ISynapseSparkExecutor
+    IDataEstateHealthRequestLogger logger,
+    IDataHealthApiService dataHealthApiService) : ISynapseSparkExecutor
 {
     private readonly TokenCredential tokenCredential = azureCredentialFactory.CreateDefaultAzureCredential();
     private readonly IAzureResourceManager azureResourceManager = azureResourceManagerFactory.Create<ProcessingStorageAuthConfiguration>();
     private readonly SynapseSparkConfiguration synapseSparkConfiguration = synapseAuthConfiguration.Value;
+    private readonly IDataHealthApiService dataHealthApiService = dataHealthApiService;
 
     /// <inheritdoc/>
     public async Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(string sparkPoolName, AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
@@ -36,8 +38,46 @@ internal sealed class SynapseSparkExecutor(
 
         this.TweakDefaultSparkConfig(info, accountServiceModel);
 
+        try
+        {
+            var SKUConfig = await this.GetDEHSKUConfigByAccount(accountServiceModel.Id.ToString());
+            switch (SKUConfig.ToLower())
+            {
+                case "basic":
+                    info.NodeSize = BigDataPoolNodeSize.Small;
+                    break;
+                case "standard":
+                    info.NodeSize = BigDataPoolNodeSize.Large;
+                    break;
+                case "advanced":
+                    info.NodeSize = BigDataPoolNodeSize.XLarge;
+                    break;
+                default:
+                    info.NodeSize = BigDataPoolNodeSize.Small;
+                    break;
+            }
+            logger.LogInformation($"Catalog Spark SKU set to :{info.NodeSize.ToString()} for Account Id: {accountServiceModel.Id}.");
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning($"Unable to get Catalog DEH SKU config, setting the default SKU to small : {accountServiceModel.Id}.", ex);
+        }
+
         return await this.azureResourceManager.CreateOrUpdateSparkPool(this.synapseSparkConfiguration.SubscriptionId, this.synapseSparkConfiguration.ResourceGroup, this.synapseSparkConfiguration.Workspace, sparkPoolName, info, cancellationToken);
     }
+
+    /// <summary>
+    /// Get DEH SKU Configuration
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <returns></returns>
+    private async Task<string> GetDEHSKUConfigByAccount(string accountId)
+    {
+        //Get DEH SKU Configuration        
+        var returnConfig = await this.dataHealthApiService.GetDEHSKUConfig(accountId);
+        return returnConfig;
+    }
+
 
     /// <inheritdoc/>
     public async Task<SynapseBigDataPoolInfoData> GetSparkPool(string sparkPoolName, CancellationToken cancellationToken)

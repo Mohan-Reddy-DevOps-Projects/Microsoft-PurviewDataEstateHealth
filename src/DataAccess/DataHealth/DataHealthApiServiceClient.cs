@@ -21,18 +21,19 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         private const string HeaderAccountIdName = "x-ms-account-id";
         private const string HeaderTenantIdName = "x-ms-client-tenant-id";
         private const string HeaderRequestIdName = "x-ms-client-request-id";
-        private readonly Uri BaseUri;
+        private readonly Uri BaseUri;        
 
         private readonly IDataEstateHealthRequestLogger Logger;
 
         private readonly HttpClient Client;
 
         private const string ApiVersion = ServiceVersion.LabelV2;
+        private const string ApiVersionv1 = ServiceVersion.LabelV1;
 
         public DataHealthApiServiceClient(HttpClient httpClient, Uri baseUri, IDataEstateHealthRequestLogger logger)
         {
             this.Client = httpClient;
-            this.BaseUri = baseUri;
+            this.BaseUri = baseUri;            
             this.Logger = logger;
         }
 
@@ -75,6 +76,20 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             return responseContent;
         }
 
+
+        public async Task<string> GetDEHSKUConfig(string accountId, CancellationToken cancellationToken)
+        {
+            var requestUri = this.CreateProvisioningRequestUri($"/config");
+            var request = new HttpRequestMessage(HttpMethod.Get, requestUri);
+            request.Headers.Add(HeaderAccountIdName, accountId);
+            request.Headers.Add(HeaderTenantIdName, "tenantId");
+            var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            //await this.HandleResponseStatusCode(response);
+            return responseContent;
+        }
+
+
         public async Task TriggerSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken)
         {
             var requestUri = this.CreateRequestUri("/internal/control/triggerScheduleJob");
@@ -112,6 +127,19 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             };
             return builder.Uri;
         }
+
+
+        private Uri CreateProvisioningRequestUri(string pathname)
+        {
+            //https://df-westus2-prov.purview-dg.azure-test.com/config?api-version=2023-10-01-preview
+            var builder = new UriBuilder(this.BaseUri.ToString().Replace("health", "prov"))
+            {
+                Path = pathname,
+                Query = $"api-version={ApiVersionv1}"
+            };
+            return builder.Uri;
+        }
+
 
         private HttpContent CreateRequestContent(object obj)
         {

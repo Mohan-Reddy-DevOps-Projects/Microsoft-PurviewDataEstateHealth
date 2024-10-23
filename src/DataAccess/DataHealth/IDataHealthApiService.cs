@@ -56,5 +56,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
         /// <returns></returns>
         public Task<StorageConfiguration> GetStorageConfigSettings(string accountId, string tenantId);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <returns></returns>
+        public Task<string> GetDEHSKUConfig(string accountId);
+
     }
 }
