@@ -41,8 +41,8 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageVersion Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.3.0" />
     <PackageVersion Include="Microsoft.Purview.ArtifactStoreClient" Version="3.0.30" />
-    <PackageVersion Include="Microsoft.Purview.DataGovernance.AuditAPI" Version="0.3.1" />
-    <PackageVersion Include="Microsoft.Purview.DataGovernance.BillingServiceClient" Version="0.2.4" />
+    <PackageVersion Include="Microsoft.Purview.DataGovernance.AuditAPI" Version="0.4.0" />
+    <PackageVersion Include="Microsoft.Purview.DataGovernance.BillingServiceClient" Version="0.2.5" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.Common" Version="1.0.22" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.DataLakeAPI" Version="1.0.15" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.DeltaWriter" Version="1.0.4" />

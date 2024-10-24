@@ -14,7 +14,7 @@ public class AuditServiceConfiguration
 
     public AuditServiceAADAuthConfiguration AADAuth { get; set; }
 
-    public AuditEnvironment AuditEnvironment { get; set; }
+    public CDPEnvironment AuditEnvironment { get; set; }
 }
 
 public class AuditServiceAADAuthConfiguration

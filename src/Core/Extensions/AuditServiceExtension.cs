@@ -26,14 +26,14 @@ public static class AuditServiceExtensions
 
             services.AddSingleton<AuditAadAppConfiguration>();
 
-            services.AddSingleton(sp =>
+            services.AddSingleton<IAuditClientFactory>(sp =>
             {
                 var logger = sp.GetService<IDataEstateHealthRequestLogger>();
                 var environmentConfig = sp.GetService<IOptionsMonitor<EnvironmentConfiguration>>();
                 var auditServiceConfiguration = sp.GetService<IOptionsMonitor<AuditServiceConfiguration>>();
                 var auditAadAppConfiguration = sp.GetService<AuditAadAppConfiguration>();
 
-                var auditClientFactory = new AuditClientFactory(
+                var auditClientFactory = new CDPClientFactory(
                     auditAadAppConfiguration,
                     new AzureLocation(environmentConfig.CurrentValue.Location),
                     auditServiceConfiguration.CurrentValue.AuditEnvironment, logger);
