@@ -11,6 +11,7 @@ using LogAnalytics.Client;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Core.Services.JobManager.MetersToBillingJob.DTOs;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.BillingServiceClient;
@@ -47,6 +48,8 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
     private string workspaceId;
     private string workspaceKey;
+    private readonly IAccountExposureControlConfigProvider exposureControl;
+
     public enum QueryType
     {
         Deh,
@@ -70,6 +73,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
         this.keyVaultAccessorService = scope.ServiceProvider.GetService<IKeyVaultAccessorService>();
         var keyVaultConfig = scope.ServiceProvider.GetService<IOptions<KeyVaultConfiguration>>();
         this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
+        this.exposureControl = scope.ServiceProvider.GetService<IAccountExposureControlConfigProvider>();
 
         using (this.logger.LogElapsed("MetersToBillingJobStage Constructor"))
         {
@@ -320,6 +324,8 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
                             this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | billingTags: {billingTags}");
 
+                            var ecDEHBillingEnabled = this.exposureControl.IsDEHBillingEventEnabled(dehMeteredEvent.AccountId, string.Empty, dehMeteredEvent.TenantId);
+
                             billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
                             {
                                 //Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
@@ -331,7 +337,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                                 BillingStartDate = dehMeteredEvent.JobStartTime.DateTime,
                                 BillingEndDate = dehMeteredEvent.JobEndTime.DateTime,
                                 SKU = this.getProcessSKU(dehMeteredEvent.ProcessingTier),
-                                LogOnly = false
+                                LogOnly = !ecDEHBillingEnabled
                             });
                         }
                         else if (meteredEvent.DMSScope.ToUpperInvariant() == "DQ" && Guid.TryParse(dehMeteredEvent.JobId, out jobIdGuid) &&
@@ -342,6 +348,8 @@ public class MetersToBillingJobStage : IJobCallbackStage
                             billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
 
                             this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | billingTags: {billingTags}");
+
+                            var ecDQBillingEnabled = this.exposureControl.IsDQBillingEventEnabled(dehMeteredEvent.AccountId, string.Empty, dehMeteredEvent.TenantId);
 
                             billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
                             {
@@ -354,7 +362,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                                 BillingStartDate = dehMeteredEvent.JobStartTime.DateTime,
                                 BillingEndDate = dehMeteredEvent.JobEndTime.DateTime,
                                 SKU = this.getProcessSKU(dehMeteredEvent.ProcessingTier),
-                                LogOnly = false
+                                LogOnly = !ecDQBillingEnabled
                             });
                         }
                         else

@@ -85,6 +85,25 @@ public interface IAccountExposureControlConfigProvider
     public bool IsDataGovBillingEventEnabled(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
+    /// Determines if DEH Billing Event is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDEHBillingEventEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
+    /// Determines if DQ Billing Event is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDQBillingEventEnabled(string accountId, string subscriptionId, string tenantId);
+
+
+    /// <summary>
     /// Retrieve the Spark Job configurations.
     /// </summary>
     /// <returns></returns>
