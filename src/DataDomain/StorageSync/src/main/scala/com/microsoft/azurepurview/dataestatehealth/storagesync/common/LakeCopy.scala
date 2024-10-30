@@ -1,7 +1,6 @@
 package com.microsoft.azurepurview.dataestatehealth.storagesync.common
 
 import com.microsoft.azurepurview.dataestatehealth.commonutils.logger.SparkLogging
-import org.apache.log4j.Logger
 
 class LakeCopy() extends SparkLogging {
 
@@ -19,7 +18,9 @@ class LakeCopy() extends SparkLogging {
         mssparkutils.fs.rm(FabricSyncRootPath, recurse = true)
       }
 
-      mssparkutils.fs.cp(sourceDataLakePath, FabricSyncRootPath, true)
+      if (!sourceDataLakePath.contains("DimensionalModel")) {
+        mssparkutils.fs.cp(sourceDataLakePath, FabricSyncRootPath, true)
+      }
 
       logger.info(s"$sourceDataLakePath Copied successfully to $FabricSyncRootPath.")
       println(s"$sourceDataLakePath Copied successfully to $FabricSyncRootPath.")
