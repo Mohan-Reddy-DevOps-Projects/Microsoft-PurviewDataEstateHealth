@@ -24,24 +24,26 @@ class GlossaryTerm (spark: SparkSession, logger:Logger){
         ,col("payload.after.systemData.createdAt").alias("CreatedDatetime")
         ,col("payload.after.systemData.lastModifiedBy").alias("ModifiedByUserId")
         ,col("payload.after.systemData.lastModifiedAt").alias("ModifiedDateTime")
+        ,col("payload.after.parentId").alias("ParentGlossaryTermId")
         ,col("payload.after.domain").alias("BusinessDomainId")).filter("operationType=='Create' or operationType=='Update'")
       val DeleteIsEmpty = df.filter("operationType=='Delete'").isEmpty
       var dfProcess=dfProcessUpsert
       if (!DeleteIsEmpty) {
-      val dfProcessDelete = df.select(col("accountId").alias("AccountId")
-        ,col("operationType").alias("OperationType")
-        ,col("_ts").alias("EventProcessingTime")
-        ,col("payload.before.id").alias("GlossaryTermId")
-        ,col("payload.before.name").alias("GlossaryTermDisplayName")
-        ,col("payload.before.status").alias("Status")
-        ,col("payload.before.description").alias("GlossaryDescription")
-        ,col("payload.before.systemData.createdBy").alias("CreatedByUserId")
-        ,col("payload.before.systemData.createdAt").alias("CreatedDatetime")
-        ,col("payload.before.systemData.lastModifiedBy").alias("ModifiedByUserId")
-        ,col("payload.before.systemData.lastModifiedAt").alias("ModifiedDateTime")
-        ,col("payload.before.domain").alias("BusinessDomainId")).filter("operationType=='Delete'")
+        val dfProcessDelete = df.select(col("accountId").alias("AccountId")
+          ,col("operationType").alias("OperationType")
+          ,col("_ts").alias("EventProcessingTime")
+          ,col("payload.before.id").alias("GlossaryTermId")
+          ,col("payload.before.name").alias("GlossaryTermDisplayName")
+          ,col("payload.before.status").alias("Status")
+          ,col("payload.before.description").alias("GlossaryDescription")
+          ,col("payload.before.systemData.createdBy").alias("CreatedByUserId")
+          ,col("payload.before.systemData.createdAt").alias("CreatedDatetime")
+          ,col("payload.before.systemData.lastModifiedBy").alias("ModifiedByUserId")
+          ,col("payload.before.systemData.lastModifiedAt").alias("ModifiedDateTime")
+          ,col("payload.before.parentId").alias("ParentGlossaryTermId")
+          ,col("payload.before.domain").alias("BusinessDomainId")).filter("operationType=='Delete'")
 
-      dfProcess = dfProcessUpsert.unionAll(dfProcessDelete)
+        dfProcess = dfProcessUpsert.unionAll(dfProcessDelete)
       } else {
         dfProcess = dfProcessUpsert
       }
@@ -58,7 +60,6 @@ class GlossaryTerm (spark: SparkSession, logger:Logger){
         .drop("row_number")
 
       dfProcess = dfProcess
-        .withColumn("ParentGlossaryTermId", lit(null: StringType))
         .withColumn("IsLeaf", lit(null: IntegerType))
 
       dfProcess = dfProcess.filter("GlossaryTermId IS NOT NULL AND GlossaryTermDisplayName IS NOT NULL").distinct()
