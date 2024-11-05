@@ -64,7 +64,8 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             List<Task> tasks =
             [
                 this.ProvisioningSparkRelatedTask(account, cancellationToken),
-                this.ProvisioningPowerBIRelatedTask(account, cancellationToken),
+                //Removing this provisioning of DB init and PBI, the PBI refresh will take care of this
+                //this.ProvisioningPowerBIRelatedTask(account, cancellationToken),
                 this.ProvisionActionsCleanUpJob(account),
             ];
             await Task.WhenAll(tasks);
