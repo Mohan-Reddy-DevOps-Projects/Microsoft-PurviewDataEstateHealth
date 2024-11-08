@@ -6,9 +6,11 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 {
     using global::Azure.Storage.Files.DataLake;
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+    using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
     using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.StorageConfig;
     using System;
     using System.IO;
+    using System.Security.Policy;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -24,20 +26,33 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services
 
         public async Task TestConnection(DHStorageConfigADLSGen2Wrapper entity, string token)
         {
-            var endpoint = entity.Endpoint;
-            var fileSystemName = $"purviewbyoctestconnection{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
-            var fileName = "file.txt";
+            var endpoint = string.Empty;
             try
             {
-                var dataLakeServiceClient = new DataLakeServiceClient(new Uri(endpoint), new DHStorageConnectionMIToken(token));
-                var fileSystemClient = await dataLakeServiceClient.CreateFileSystemAsync(fileSystemName).ConfigureAwait(false);
-                var directoryClient = fileSystemClient.Value.GetFileClient(fileName);
-                await directoryClient.UploadAsync(new MemoryStream(Encoding.UTF8.GetBytes("Hello, World!"))).ConfigureAwait(false);
-                await dataLakeServiceClient.DeleteFileSystemAsync(fileSystemName).ConfigureAwait(false);
+                // Parse the URI and extract components
+                endpoint = entity.Endpoint;
+                var uri = new Uri(endpoint);
+                var storageAccountName = uri.Host.Split('.')[0];
+                var fileSystemName = uri.AbsolutePath.TrimStart('/').Split('/')[0];
+
+                // Set up the DataLakeServiceClient
+                var dataLakeServiceClient = new DataLakeServiceClient(new Uri($"https://{uri.Host}"),
+                    new DHStorageConnectionMIToken(token));
+
+                // Upload the file content and then delete it to check write access
+                var fileClient = dataLakeServiceClient.GetFileSystemClient(fileSystemName)
+                    .GetFileClient("temp____deh_____byoc_____test_____file.txt");
+
+                var content = Encoding.UTF8.GetBytes("Hello, World!");
+                using (var stream = new MemoryStream(content))
+                {
+                    await fileClient.UploadAsync(stream).ConfigureAwait(false);
+                    await fileClient.DeleteIfExistsAsync().ConfigureAwait(false);
+                }
             }
             catch (Exception ex)
             {
-                this.logger.LogError($"Fail to create file in ADLS Gen2. Endpoint: {endpoint}, FileSystemName: {fileSystemName}, FileName: {fileName}", ex);
+                this.logger.LogError($"Fail to create file in ADLS Gen2. Endpoint: {endpoint}", ex);
                 throw;
             }
         }

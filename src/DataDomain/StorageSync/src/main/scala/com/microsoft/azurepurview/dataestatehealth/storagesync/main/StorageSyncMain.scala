@@ -3,7 +3,6 @@ package com.microsoft.azurepurview.dataestatehealth.storagesync.main
 import com.microsoft.azurepurview.dataestatehealth.commonutils.logger.SparkLogging
 import com.microsoft.azurepurview.dataestatehealth.storagesync.auth.TokenManager
 import com.microsoft.azurepurview.dataestatehealth.storagesync.common.{CommandLineParser, LakeCopy, LakeCopySpark, LogAnalyticsLogger, Utils}
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
 import java.util.{Date, ResourceBundle}
@@ -37,11 +36,12 @@ object StorageSyncMain extends SparkLogging {
           new Date(System.currentTimeMillis + 10000000L)
         )
         // Define the storage endpoint
-        val storageEndpoint = Utils.getStorageEndpoint(storageType = config.SyncType)
+        val (storageEndpoint, syncRootPath) = Utils.convertUrl(config.SyncRootPath)
 
         // Set Spark configurations
         spark.conf.set(s"fs.azure.account.auth.type.$storageEndpoint", "Custom")
-        spark.conf.set(s"fs.azure.account.oauth.provider.type.$storageEndpoint", "com.microsoft.azurepurview.dataestatehealth.storagesync.auth.MITokenProvider")
+        spark.conf.set(s"fs.azure.account.oauth.provider.type.$storageEndpoint",
+          "com.microsoft.azurepurview.dataestatehealth.storagesync.auth.MITokenProvider")
 
         val tenantId = spark.conf.get("spark.purview.tenantId", "")
         println(s"PurviewTenantId:$tenantId")
@@ -58,30 +58,20 @@ object StorageSyncMain extends SparkLogging {
                |Account ID - ${config.AccountId},
                |Job Run Guid - ${config.JobRunGuid}""".stripMargin)
 
-          var fabricSyncRootPath = config.SyncRootPath
-          if (config.SyncRootPath.startsWith("http") )
-          {
-            println("converting http path to abfss..")
-            println(fabricSyncRootPath)
-            fabricSyncRootPath = Utils.convertUrl(config.SyncRootPath)
-            println(fabricSyncRootPath)
-          }
-
           // Initialize LogAnalyticsConfig with Spark session
           LogAnalyticsLogger.initialize(spark)
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
             jobStatus = "Started", tenantId = tenantId)
 
           val lakeCopy = new LakeCopy()
-          lakeCopy.processLakehouseCopy(config.DEHStorageAccount.concat("/DomainModel"), fabricSyncRootPath.concat("/DomainModel"))
-          lakeCopy.processLakehouseCopy(config.DEHStorageAccount.concat("/DimensionalModel"), fabricSyncRootPath.concat("/DimensionalModel"))
+          lakeCopy.processLakehouseCopy(config.DEHStorageAccount.concat("/DomainModel"), syncRootPath.concat("/DomainModel"))
 
           /*
-                    val lakeCopySpark = new LakeCopySpark(spark)
-                    lakeCopySpark.processFolders(config.DEHStorageAccount.concat("/DomainModel"), fabricSyncRootPath.concat("/DomainModel"))
-                    lakeCopySpark.processFolders(config.DEHStorageAccount.concat("/DimensionalModel"),fabricSyncRootPath.concat("/DimensionalModel"))
+                                        val lakeCopySpark = new LakeCopySpark(spark)
+                                        lakeCopySpark.processFolders(config.DEHStorageAccount.concat("/DomainModel"), fabricSyncRootPath.concat("/DomainModel"))
+                                        lakeCopySpark.processFolders(config.DEHStorageAccount.concat("/DimensionalModel"),fabricSyncRootPath.concat("/DimensionalModel"))
 
-           */
+                               */
         }
         catch
         {

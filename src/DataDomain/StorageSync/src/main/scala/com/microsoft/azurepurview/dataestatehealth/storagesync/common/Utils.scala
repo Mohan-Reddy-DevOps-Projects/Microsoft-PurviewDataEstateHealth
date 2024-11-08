@@ -3,30 +3,6 @@ package com.microsoft.azurepurview.dataestatehealth.storagesync.common
 import com.microsoft.azurepurview.dataestatehealth.commonutils.logger.SparkLogging
 
 object Utils extends SparkLogging {
-  /**
-   * Retrieves the storage endpoint based on the specified storage type.
-   *
-   * @param storageType The type of storage for which the endpoint is to be retrieved.
-   *                    Accepted values are "fabric" and "adlsgen2". The comparison is case-insensitive.
-   * @return A string representing the storage endpoint corresponding to the specified storage type.
-   * @throws IllegalArgumentException If the provided storage type is not recognized.
-   *
-   * Usage example:
-   * {{{
-   * val endpoint = getStorageEndpoint("fabric") // returns "onelake.dfs.fabric.microsoft.com"
-   * }}}
-   */
-  def getStorageEndpoint(storageType: String): String = {
-
-    val endpoint = storageType.toLowerCase() match {
-      case "fabric" => "onelake.dfs.fabric.microsoft.com"
-      case "adlsgen2" => "dfs.core.windows.net"
-      case unknown =>
-        logger.error(s"Unknown storage type: $unknown")
-        throw new IllegalArgumentException(s"Unknown storage type: $unknown")
-    }
-    endpoint
-  }
 
   /**
    * Converts a given HTTPS URL into a specific ABFS (Azure Blob File System) format.
@@ -48,7 +24,7 @@ object Utils extends SparkLogging {
    * // returns "abfss://abc@onelake.dfs.fabric.microsoft.com/ddd/Files/DEHDemo"
    * }}}
    */
-  def convertUrl(url: String): String = {
+  def convertUrl(url: String): (String, String) = {
     logger.info(s"Starting URL conversion for: $url")
 
     // Validate the input URL
@@ -80,9 +56,9 @@ object Utils extends SparkLogging {
     logger.info(s"Extracted domain: $domain, tenant: $container, path: $path")
 
     // Construct the new URL
-    val convertedUrl = s"abfss://$container@$domain/$path"
+    val convertedUrl = s"abfss://$container@$domain/$path".replace(
+      ".blob.core.windows.net",".dfs.core.windows.net")
     logger.info(s"Successfully converted URL: $convertedUrl")
-
-    convertedUrl
+    (domain, convertedUrl)
   }
 }

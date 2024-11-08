@@ -18,9 +18,7 @@ class LakeCopy() extends SparkLogging {
         mssparkutils.fs.rm(FabricSyncRootPath, recurse = true)
       }
 
-      if (!sourceDataLakePath.contains("DimensionalModel")) {
-        mssparkutils.fs.cp(sourceDataLakePath, FabricSyncRootPath, true)
-      }
+      mssparkutils.fs.cp(sourceDataLakePath, FabricSyncRootPath, true)
 
       logger.info(s"$sourceDataLakePath Copied successfully to $FabricSyncRootPath.")
       println(s"$sourceDataLakePath Copied successfully to $FabricSyncRootPath.")
