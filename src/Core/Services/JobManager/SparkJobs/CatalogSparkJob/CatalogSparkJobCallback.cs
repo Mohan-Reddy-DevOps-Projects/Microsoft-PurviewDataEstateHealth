@@ -28,7 +28,8 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
     {
         if (this.Metadata.CurrentScheduleStartTime != null)
         {
-            return DateTime.UtcNow > this.Metadata.CurrentScheduleStartTime?.AddHours(1.5);
+            //Increasing the delete spark scenario to handle quota issue.
+            return DateTime.UtcNow > this.Metadata.CurrentScheduleStartTime?.AddHours(6);
         }
         return false;
     }
