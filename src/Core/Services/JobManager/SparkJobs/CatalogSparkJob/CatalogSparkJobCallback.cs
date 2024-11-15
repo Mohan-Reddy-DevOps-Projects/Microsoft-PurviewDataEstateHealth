@@ -8,6 +8,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 [JobCallback(Name = nameof(CatalogSparkJobCallback))]
@@ -15,6 +16,7 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
 {
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
     private readonly ISparkJobManager sparkJobManager = scope.ServiceProvider.GetService<ISparkJobManager>();
+    private readonly IServiceScope serviceScope = scope;
 
     protected override string JobName => nameof(CatalogSparkJobCallback);
 
@@ -41,15 +43,34 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
 
     protected override void OnJobConfigure()
     {
-        this.JobStages =
-        [
+        JobSubmissionEvaluator jobSubmissionEvaluator = new JobSubmissionEvaluator(this.serviceScope);
+        var isStorageSyncConfigured = jobSubmissionEvaluator.IsStorageSyncConfigured(this.Metadata.AccountServiceModel.Id,
+            this.Metadata.AccountServiceModel.TenantId).Result;
+        var isDQDEHActive = jobSubmissionEvaluator.IsDEHDQActive(this.Metadata.AccountServiceModel.Id).Result;
+        if (isStorageSyncConfigured)
+        {
+            this.JobStages = [
             new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TriggerFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             new TrackFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            ];
+        }
+        else if (isDQDEHActive)
+        {
+            this.JobStages = [
+            new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
         ];
+        }
+        else
+        {
+            this.JobStages = [];
+        }
     }
 
     protected override async Task TransitionToJobFailed()
