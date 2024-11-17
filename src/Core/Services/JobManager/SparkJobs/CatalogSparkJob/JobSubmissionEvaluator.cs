@@ -98,9 +98,6 @@ internal class JobSubmissionEvaluator
                             | project AccountId = AccountId_g, JobId=JobId_g, JobTimestamp = TimeGenerated, MDQ;
                                 Jobs 
                                 | where MDQ == ""MDQ"" 
-                                | limit 1
-                                | union Jobs 
-                                | where MDQ != ""DQ"" 
                                 | limit 1";
         try
         {
@@ -110,19 +107,19 @@ internal class JobSubmissionEvaluator
             // If no events were found, return false
             if (dehDQEvents?.Value?.Count == 0)
             {
-                this.logger.LogInformation($"No control or DQ job found within the last 25 hours for account: {accountId}");
+                this.logger.LogInformation($"No control Job found within the last 25 hours for account: {accountId}");
                 return false;
             }
             foreach (var dehDQEvent in dehDQEvents.Value)
             {
-                this.logger.LogInformation($"Control or DQ Job found: {dehDQEvent}");
+                this.logger.LogInformation($"Control Job found: {dehDQEvent}");
             }
             return true;
         }
         catch (Exception ex)
         {
             // Log error if the query or other process fails
-            this.logger.LogError($"Failed to get DEH or DQ Events from logs for account {accountId}: {ex.Message}", ex);
+            this.logger.LogError($"Failed to get Control Job Events from logs for account {accountId}: {ex.Message}", ex);
             return true; // Consider returning `true` as a default to ensure job submission attempt
         }
     }

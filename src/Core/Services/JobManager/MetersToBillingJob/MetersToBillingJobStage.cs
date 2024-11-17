@@ -54,7 +54,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
     {
         Deh,
         Dq,
-        Govern
+        BYOC
     }
 
     internal MetersToBillingJobStage(
@@ -121,6 +121,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
             DateTimeOffset utcNow = DateTimeOffset.UtcNow;
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billingV1.kql", QueryType.Deh, pollFrom, utcNow);
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_dq_billing.kql", QueryType.Dq, pollFrom, utcNow);
+            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_byoc_billing.kql", QueryType.BYOC, pollFrom, utcNow);
 
             finalExecutionStatus = JobExecutionStatus.Succeeded;
 
@@ -197,6 +198,9 @@ public class MetersToBillingJobStage : IJobCallbackStage
                 if (queryType == QueryType.Deh)
                 {
                     await this.LogProcessedJobs("PDG_deh_jobs.kql", fromDate, toDate);
+                }else if(queryType == QueryType.BYOC)
+                {
+                    await this.LogProcessedJobs("PDG_byoc_jobs.kql", fromDate, toDate);
                 }
                 // set the final details into the job
                 finalStatus = $" | KQL: {kql} | Completed on {DateTimeOffset.Now.ToString()} | Duration {(DateTimeOffset.UtcNow - started).TotalSeconds} seconds. | Total Events Processed: {totalEvents}";
@@ -317,6 +321,29 @@ public class MetersToBillingJobStage : IJobCallbackStage
                         Guid tenantId = new Guid();
 
                         if (meteredEvent.DMSScope.ToUpperInvariant() == "DEH")
+                        {
+                            var billingTags = $"{{\"ConsumedUnit\":\"Data Management Processing Unit\",";
+                            billingTags += $"\"SKU\":\"{this.getProcessSKU(dehMeteredEvent.ProcessingTier)}\",";
+                            billingTags += $"\"SubSolutionName\":\"{scopeName}\"}}";
+
+                            this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | billingTags: {billingTags}");
+
+                            var ecDEHBillingEnabled = this.exposureControl.IsDEHBillingEventEnabled(dehMeteredEvent.AccountId, string.Empty, dehMeteredEvent.TenantId);
+
+                            billingEvent = BillingEventHelper.CreateProcessingUnitBillingEvent(new ProcessingUnitBillingEventParameters
+                            {
+                                //Guid.Parse(dehMeteredEvent.MDQBatchId), // EventId is use for dedup downstream - handle with care
+                                EventId = Guid.Parse(dehMeteredEvent.MDQBatchId),
+                                TenantId = Guid.Parse(dehMeteredEvent.TenantId),
+                                CreationTime = now,
+                                Quantity = dehMeteredEvent.ProcessingUnits,
+                                BillingTags = billingTags,
+                                BillingStartDate = dehMeteredEvent.JobStartTime.DateTime,
+                                BillingEndDate = dehMeteredEvent.JobEndTime.DateTime,
+                                SKU = this.getProcessSKU(dehMeteredEvent.ProcessingTier),
+                                LogOnly = !ecDEHBillingEnabled
+                            });
+                        } else if (meteredEvent.DMSScope.ToUpperInvariant() == "BYOC")
                         {
                             var billingTags = $"{{\"ConsumedUnit\":\"Data Management Processing Unit\",";
                             billingTags += $"\"SKU\":\"{this.getProcessSKU(dehMeteredEvent.ProcessingTier)}\",";

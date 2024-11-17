@@ -1,0 +1,143 @@
+let GetOnlyBYOCEnabledAccounts = () {
+    let BYOCEnabledAccounts = DEH_Job_Logs_CL
+        | where JobName_s == "StorageSync"
+        | distinct AccountId_g;
+    let SemanticModelJobs = DEH_Job_Logs_CL
+        | where JobName_s in ("DomainModel", "DimensionalModel")
+        | distinct AccountId_g;
+    let DQSparkLogs =    DQ_Spark_Logs_CL
+        | where Entity_s startswith "mdq_"
+        | distinct JobId_g, accountId_g_g;
+    let DQJobLogs = DQ_Job_Logs_CL
+        | distinct AccountId_g, JobId_g;
+    let ControlsEnabledAccounts = DQJobLogs
+        | join kind=inner DQSparkLogs on $left.JobId_g == $right.JobId_g
+        | distinct AccountId_g;
+    let OnlyBYOCEnabledAccounts = BYOCEnabledAccounts
+        | join kind=leftanti ControlsEnabledAccounts on $left.AccountId_g == $right.AccountId_g
+        | distinct AccountId_g;
+    OnlyBYOCEnabledAccounts
+};
+//Declare Query Parameters
+let GetBYOCJobs = () {
+    // GET JOB IN THE INTERVAL
+    let BYOCJobs = DEH_Job_Logs_CL
+        | where JobName_s == "StorageSync";
+    let CompletedBYOCJobs = BYOCJobs
+        | where JobStatus_s == "Completed";
+    BYOCJobs
+    | summarize JobStartTime = min(TimeGenerated), JobEndTime = max(TimeGenerated) by JobId_g
+    | join kind=inner CompletedBYOCJobs on $left.JobId_g == $right.JobId_g
+    | extend JobDuration = datetime_diff('second', JobEndTime, JobStartTime)
+    | project
+        TenantId= PurviewTenantId_g,
+        AccountId=AccountId_g,
+        JobId=JobId_g,
+        JobStartTime,
+        JobEndTime,
+        JobDuration,
+        ProcessingTier="Basic",
+        DMSScope = "BYOC",
+        TimeGenerated;
+};
+let GetDEHJobs = () {
+    let MJobsInInterval = DEH_Job_Logs_CL
+        | where JobStatus_s == "Completed"
+        | join kind=leftanti (DEHProcessedJobs_CL) on $left.JobId_g == $right.JobId_g
+        | project PurviewTenantId_g, JobId_g, JobStatus_s;
+    // JOIN WITH JOB DETAILS AND GET OTHER DETAILS
+    let MJobDetails = DEH_Spark_Logs_CL
+        | join kind=inner (
+            MJobsInInterval
+            | project PurviewTenantId_g, JobId_g, JobStatus_s
+            )
+            on $left.WorkerJobExecutionId_g == $right.JobId_g
+        | summarize
+            ProcessingTier = any(
+                     case(
+    NodeSize_s == "Small",
+    "Basic",
+    NodeSize_s == "Medium",
+    "Basic",
+    NodeSize_s == "Large",
+    "Standard",
+    NodeSize_s == "XLarge",
+    "Advanced",
+    NodeSize_s == "XXLarge",
+    "Advanced",
+    "Unknown Status"
+)
+                 ),
+            EventCorelationId = any(id_g),
+            TenantId = any(PurviewTenantId_g),
+            JobId = any(JobId_g), // JobId from the driver table
+            AccountId = any(accountId_g),
+            JobStatus = any(JobStatus_s), // JobStatus from the driver table
+            DMSScope = any("DEH"),
+            DMSJobSubType = any(DEHScope_s)
+            by ApplicationId_s;
+    // Step 2: Summarize the start and end times from SparkLoggingEvent_CL using ApplicationId_s from jobDetails
+    let MDistinctAppIds = MJobDetails
+        | project ApplicationId_s;
+    let MSparkEventLogs = SparkLoggingEvent_CL
+        | where applicationId_s in (MDistinctAppIds)
+        | summarize MinStartTime = min(TimeGenerated), MaxEndTime = max(TimeGenerated) by applicationId_s
+        | extend Duration = datetime_diff('second', MaxEndTime, MinStartTime);
+    // Step 3: Left join jobDetails with jobTimes
+    let MJobDetailsWithTimes = MJobDetails
+        | join kind=leftouter (MSparkEventLogs) on $left.ApplicationId_s == $right.applicationId_s
+        | extend JobDurationSeconds = iff(isnull(Duration), 0, Duration)
+        | project
+            ApplicationId_s,
+            ProcessingTier,
+            EventCorelationId,
+            TenantId,
+            JobId,
+            JobDuration = toint(JobDurationSeconds),
+            AccountId,
+            JobStatus,
+            ProcessingTimestamp = iff(isnull(MaxEndTime), datetime(2020-01-01 00:00:00), MaxEndTime),
+            JobStartTime = iff(isnull(MinStartTime), datetime(2020-01-01 00:00:00), MinStartTime),
+            JobEndTime = iff(isnull(MaxEndTime), datetime(2020-01-01 00:00:00), MaxEndTime),
+            DMSScope,
+            DMSJobSubType;
+    MJobDetailsWithTimes
+};
+let BYOCJobs = GetBYOCJobs();
+let OnlyBYOCEnabledAccounts = GetOnlyBYOCEnabledAccounts();
+let BYOCJobsFiltered = BYOCJobs
+    | join kind=inner OnlyBYOCEnabledAccounts on $left.AccountId == $right.AccountId_g
+    | extend MDQBatchId = JobId
+    | join kind=leftouter (CBSBillingReceipts_CL 
+        | where Status_s == 'Succeeded'
+        | project TimeGenerated, EventId_g, Status_s)
+        on $left.JobId == $right.EventId_g
+    | sort by AccountId_g asc, JobStartTime asc 
+    | extend RowNum = row_number(1, prev(AccountId_g) != AccountId_g)
+    | extend JobDurationMinutes = round(JobDuration / 60.0, 0)
+    | extend JobDurationModuloMin =  JobDurationMinutes % 60
+    | extend JobDurationModuloHours = toint(JobDurationMinutes / 60)
+    | extend MDQProcessingUnits = round(todecimal(iff(toint(JobDurationModuloMin) == 0, 1, toint(JobDurationModuloMin))) / 60, 2) + JobDurationModuloHours
+    | extend MDQJobDuration = JobDuration;
+let DEHJobs = GetDEHJobs()
+    | extend JobDurationMinutes = round(JobDuration / 60.0, 0)
+    | extend JobDurationModuloMin =  JobDurationMinutes % 60
+    | extend JobDurationModuloHours = toint(JobDurationMinutes / 60)
+    | extend DEHProcessingUnits = round(todecimal(iff(toint(JobDurationModuloMin) == 0, 1, toint(JobDurationModuloMin))) / 60, 2) + JobDurationModuloHours
+    | extend DEHJobDuration = JobDuration;
+let BillingEvents = (BYOCJobsFiltered
+    | where RowNum == 1)
+    | join kind=inner (DEHJobs) on $left.AccountId_g == $right.AccountId 
+    | project
+        TimeGenerated,
+        TenantId,
+        AccountId=AccountId_g,
+        MDQBatchId,
+        JobId,
+        JobStartTime,
+        JobEndTime,
+        MDQJobDuration,
+        MDQProcessingUnits,
+        DEHJobDuration,
+        DEHProcessingUnits;
+BillingEvents
