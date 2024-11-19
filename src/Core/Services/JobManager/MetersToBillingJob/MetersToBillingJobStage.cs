@@ -176,6 +176,10 @@ public class MetersToBillingJobStage : IJobCallbackStage
                 var t = dehJobs.Value.ToList();
                 await this.logsAnalyticsWriter.SendLogEntries<DEHProcessedJobs>(dehJobs.Value.ToList(), table);
             }
+            foreach(var dehJob in dehJobs.Value)
+            {
+                this.logger.LogInformation($"Emitting Processed Jobs: {dehJob.ToJson()}");
+            }
         }
         catch (Exception ex)
         {

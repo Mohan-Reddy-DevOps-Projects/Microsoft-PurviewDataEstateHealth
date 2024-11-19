@@ -133,7 +133,7 @@ let BillingEvents = (BYOCJobsFiltered
         TenantId,
         AccountId=AccountId_g,
         MDQBatchId,
-        JobId,
+        JobId=JobId1,
         JobStartTime,
         JobEndTime,
         MDQJobDuration,
