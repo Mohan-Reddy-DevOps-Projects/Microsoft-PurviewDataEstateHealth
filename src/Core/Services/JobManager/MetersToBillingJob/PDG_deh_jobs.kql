@@ -190,7 +190,7 @@ let MDQJobsAgg = GetMDQJobs()
         | project TimeGenerated, EventId_g, Status_s)
         on $left.MDQBatchId == $right.EventId_g
     | where Status_s <> 'Succeeded'
-    | sort by AccountId_g asc, TimeGenerated desc 
+    | sort by AccountId_g asc, TimeGenerated asc 
     | extend RowNum = row_number(1, prev(AccountId_g) != AccountId_g)
     | extend JobDurationMinutes = round(JobDuration / 60.0, 0)
     | extend JobDurationModuloMin =  JobDurationMinutes % 60

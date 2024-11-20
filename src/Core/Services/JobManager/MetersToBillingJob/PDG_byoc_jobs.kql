@@ -112,6 +112,7 @@ let BYOCJobsFiltered = BYOCJobs
         | where Status_s == 'Succeeded'
         | project TimeGenerated, EventId_g, Status_s)
         on $left.JobId == $right.EventId_g
+    | where Status_s <> 'Succeeded'
     | sort by AccountId_g asc, JobStartTime asc 
     | extend RowNum = row_number(1, prev(AccountId_g) != AccountId_g)
     | extend JobDurationMinutes = round(JobDuration / 60.0, 0)

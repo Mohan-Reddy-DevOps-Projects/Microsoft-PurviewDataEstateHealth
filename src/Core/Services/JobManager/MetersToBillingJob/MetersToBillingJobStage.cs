@@ -164,29 +164,57 @@ public class MetersToBillingJobStage : IJobCallbackStage
         });
     }
 
-    private async Task LogProcessedJobs(string kql, DateTimeOffset fromDate, DateTimeOffset toDate)
+    private async Task LogProcessedJobs(string kql, DateTimeOffset fromDate, DateTimeOffset toDate, List<CBSBillingReceipt> receipts)
     {
         var started = DateTimeOffset.UtcNow;
-        var table = "DEHProcessedJobs_CL";
+        const string table = "DEHProcessedJobs_CL";
+
         try
         {
+            // Query DEHProcessedJobs based on KQL
             var dehJobs = await this.logsAnalyticsReader.Query<DEHProcessedJobs>(await this.LoadKQL(kql), fromDate, toDate);
-            if (dehJobs.Value.Any())
+
+            // Proceed if there are DEH jobs and receipts
+            if (dehJobs?.Value?.Any() == true && receipts.Any())
             {
-                var t = dehJobs.Value.ToList();
-                await this.logsAnalyticsWriter.SendLogEntries<DEHProcessedJobs>(dehJobs.Value.ToList(), table);
+                // Extract succeeded receipt EventIds
+                var receiptEventIds = receipts
+                    .Where(r => r.Status == CBSReceiptStatus.Succeded)
+                    .Select(r => r.EventId)
+                    .ToHashSet();
+                this.logger.LogInformation($"Successful receipt count: {receiptEventIds.Count}");
+
+                // Filter DEHProcessedJobs based on receipt EventIds
+                var filteredDehJobs = dehJobs.Value.Where(dehJob => receiptEventIds.Contains(dehJob.MDQBatchId)).ToList();
+                this.logger.LogInformation($"Filtered DEH Job Count: {filteredDehJobs.Count}");
+
+                if (filteredDehJobs.Any())
+                {
+                    // Send filtered jobs to the writer
+                    await this.logsAnalyticsWriter.SendLogEntries<DEHProcessedJobs>(filteredDehJobs, table);
+
+                    // Log each processed job
+                    foreach (var dehJob in filteredDehJobs)
+                    {
+                        this.logger.LogInformation($"Emitting Processed Jobs: {dehJob.ToJson()}");
+                    }
+                }
+                else
+                {
+                    this.logger.LogInformation("No matching DEH jobs found for successful receipts.");
+                }
             }
-            foreach(var dehJob in dehJobs.Value)
+            else
             {
-                this.logger.LogInformation($"Emitting Processed Jobs: {dehJob.ToJson()}");
+                this.logger.LogInformation("No DEH jobs or receipts available for processing.");
             }
         }
         catch (Exception ex)
         {
             var duration = (DateTimeOffset.UtcNow - started).TotalSeconds;
-            var errorMessage = ex != null ? $" Reason: {ex}" : string.Empty;
-            var finalStatus = $" | KQL: {kql} | {"Failed"} on {DateTimeOffset.Now} | Duration {duration} seconds. | {errorMessage}";
-            this.logger.LogError(finalStatus);
+            var errorMessage = ex != null ? $" Reason: {ex.Message}" : string.Empty;
+            var status = $"KQL: {kql} | Status: Failed | Duration: {duration} seconds | {errorMessage} | DateTime: {DateTimeOffset.UtcNow}";
+            this.logger.LogError(status);
         }
     }
 
@@ -198,13 +226,15 @@ public class MetersToBillingJobStage : IJobCallbackStage
         {
             try
             {
-                int totalEvents = await this.ProcessBillingEvents<T>(kql, fromDate, toDate);
+                var receipts = await this.ProcessBillingEvents<T>(kql, fromDate, toDate);
+                var totalEvents = receipts.Count();
                 if (queryType == QueryType.Deh)
                 {
-                    await this.LogProcessedJobs("PDG_deh_jobs.kql", fromDate, toDate);
-                }else if(queryType == QueryType.BYOC)
+                    await this.LogProcessedJobs("PDG_deh_jobs.kql", fromDate, toDate, receipts);
+                }
+                else if (queryType == QueryType.BYOC)
                 {
-                    await this.LogProcessedJobs("PDG_byoc_jobs.kql", fromDate, toDate);
+                    await this.LogProcessedJobs("PDG_byoc_jobs.kql", fromDate, toDate, receipts);
                 }
                 // set the final details into the job
                 finalStatus = $" | KQL: {kql} | Completed on {DateTimeOffset.Now.ToString()} | Duration {(DateTimeOffset.UtcNow - started).TotalSeconds} seconds. | Total Events Processed: {totalEvents}";
@@ -220,14 +250,14 @@ public class MetersToBillingJobStage : IJobCallbackStage
         }
     }
 
-    private async Task<int> ProcessBillingEvents<T>(string DEHBillingProcesingKQL, DateTimeOffset fromDate, DateTimeOffset toDate) where T : MeteredEvent
+    private async Task<List<CBSBillingReceipt>> ProcessBillingEvents<T>(string DEHBillingProcesingKQL, DateTimeOffset fromDate, DateTimeOffset toDate) where T : MeteredEvent
     {
         // Query for Meters:
         // pwdg_billing_deh (or any other function involved in billing) must join CBSBillingReceipts_CL by using EvendId_g and
         // only emit those billable events not having a CBSBillingReceipts_CL.Status_s  == "Succeded" 
         // 
         // This approach ensures auto-healing/auto-retry of all billable events for the last 7 days.        
-
+        List<CBSBillingReceipt> receipts = new List<CBSBillingReceipt>();
         var billingReceipts = "CBSBillingReceipts_CL";
         try
         {
@@ -347,7 +377,8 @@ public class MetersToBillingJobStage : IJobCallbackStage
                                 SKU = this.getProcessSKU(dehMeteredEvent.ProcessingTier),
                                 LogOnly = !ecDEHBillingEnabled
                             });
-                        } else if (meteredEvent.DMSScope.ToUpperInvariant() == "BYOC")
+                        }
+                        else if (meteredEvent.DMSScope.ToUpperInvariant() == "BYOC")
                         {
                             var billingTags = $"{{\"ConsumedUnit\":\"Data Management Processing Unit\",";
                             billingTags += $"\"SKU\":\"{this.getProcessSKU(dehMeteredEvent.ProcessingTier)}\",";
@@ -416,8 +447,8 @@ public class MetersToBillingJobStage : IJobCallbackStage
                     var finalBatch = batch.Where(meteredEvent => meteredEvent != null).ToList();
                     if (finalBatch.Count > 0)
                     {
-                        await this.EmitEventsWithRetryAndErrorHandling($"{this.GetType().Name}:|Batch number {currentBatch}. Batch Size {batchSize}. Emitting batch size: {finalBatch.Count}, Emitted so far.... {(currentBatch * batchSize) + batchSize} billable events",
-                                            finalBatch, Guid.NewGuid());
+                        receipts.AddRange(await this.EmitEventsWithRetryAndErrorHandling($"{this.GetType().Name}:|Batch number {currentBatch}. Batch Size {batchSize}. Emitting batch size: {finalBatch.Count}, Emitted so far.... {(currentBatch * batchSize) + batchSize} billable events",
+                                            finalBatch, Guid.NewGuid()));
                     }
                     // next batch
                     currentBatch++;
@@ -429,7 +460,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
                 }
             }
         }
-        return totalEvents;
+        return receipts;
     }
 
     private BillingSKU getProcessSKU(string ProcessingTier)
@@ -487,13 +518,13 @@ public class MetersToBillingJobStage : IJobCallbackStage
         return scriptText;
     }
 
-    private async Task EmitEventsWithRetryAndErrorHandling(string logShared, List<ExtendedBillingEvent> billingEvents, Guid correlationId)
+    private async Task<List<CBSBillingReceipt>> EmitEventsWithRetryAndErrorHandling(string logShared, List<ExtendedBillingEvent> billingEvents, Guid correlationId)
     {
 
         //this.logger.LogInformation($"{this.GetType().Name}:|Before Removing null values {JsonConvert.SerializeObject(billingEventsList)}");
         //var billingEvents = billingEventsList.Where(q => q != null).ToList();
         //this.logger.LogInformation($"{this.GetType().Name}:|After Removing null values{JsonConvert.SerializeObject(billingEvents)}");
-
+        List<CBSBillingReceipt> receipts = new List<CBSBillingReceipt>();
         try
         {
             this.logger.LogInformation($"Emitting billingEvents -> {logShared}");
@@ -506,7 +537,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
             var response = await this.billingServiceClient.SubmitBillingEventsAsync(billingEvents, correlationId);
 
             // prepopulate all the CBS Receipts (optimistically succeded)
-            var receipts = billingEvents.Select(q =>
+            receipts = billingEvents.Select(q =>
             {
                 return new CBSBillingReceipt()
                 {
@@ -651,6 +682,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
         }
 
         this.logger.LogInformation($"Finished | {logShared}");
+        return receipts;
     }
 
     public bool IsStageComplete()
