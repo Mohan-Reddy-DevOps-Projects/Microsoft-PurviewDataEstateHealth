@@ -329,7 +329,20 @@ public class MetersToBillingJobStage : IJobCallbackStage
             // consume all batches
             while (true)
             {
-                var batch = meteredEvents.Value.Skip(currentBatch * batchSize).Take(batchSize).ToList().Where(meteredEvent => meteredEvent != null).Select(meteredEvent =>
+                var batch = meteredEvents.Value.Skip(currentBatch * batchSize).Take(batchSize).ToList()
+                    .Where(meteredEvent => meteredEvent != null)
+                    .Where(meteredEvent =>
+                    {
+                        if (meteredEvent is DEHMeteredEvent dehMeteredEvent)
+                        {
+                            if (toDate.Subtract(dehMeteredEvent.JobEndTime).TotalHours > 24)
+                            {
+                                return false;  // Skip this item
+                            }
+                        }
+                        return true;  // Keep this item
+                    })
+                    .Select(meteredEvent =>
                 {
                     //var billingTags = new BillingTags
                     //{
