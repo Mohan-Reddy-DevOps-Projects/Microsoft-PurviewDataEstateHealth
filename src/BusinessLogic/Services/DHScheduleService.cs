@@ -233,6 +233,8 @@ public class DHScheduleService(
             if (job.Status == DHComputingJobStatus.Failed)
             {
                 logger.LogInformation($"Ignore failed job status update. Job ID: {job.Id}. Job status {jobStatus}.");
+                await dataQualityExecutionService.PurgeObserver(job).ConfigureAwait(false);
+                logger.LogInformation($"Purging Job from artifact store. Job ID: {job.Id}. Job status {jobStatus}.");
                 return;
             }
 
