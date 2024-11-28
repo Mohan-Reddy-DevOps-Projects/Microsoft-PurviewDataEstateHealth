@@ -847,10 +847,10 @@ public class JobManager : IJobManager
                 break;
         }
 
-        // For disabled job, set repeat to 100 years instead of deleting the job
+        // For disabled job, set repeat to 30 years instead of deleting the job
         if (schedulePayload.Status == DHScheduleState.Disabled)
         {
-            repeat = TimeSpan.FromDays(365 * 100);
+            repeat = TimeSpan.FromDays(365 * 30);
         }
 
         var jobOptions = new BackgroundJobOptions()
