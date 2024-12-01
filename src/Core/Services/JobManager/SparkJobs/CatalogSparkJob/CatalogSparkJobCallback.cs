@@ -46,7 +46,7 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
         JobSubmissionEvaluator jobSubmissionEvaluator = new JobSubmissionEvaluator(this.serviceScope);
         var isStorageSyncConfigured = jobSubmissionEvaluator.IsStorageSyncConfigured(this.Metadata.AccountServiceModel.Id,
             this.Metadata.AccountServiceModel.TenantId).Result;
-        var isDQDEHActive = jobSubmissionEvaluator.IsDEHDQActive(this.Metadata.AccountServiceModel.Id).Result;
+        var isDEHRanInLast24Hours = jobSubmissionEvaluator.IsDEHRanInLast24Hours(this.Metadata.AccountServiceModel.Id).Result;
         if (isStorageSyncConfigured)
         {
             this.JobStages = [
@@ -58,7 +58,7 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
             new TrackFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
             ];
         }
-        else if (isDQDEHActive)
+        else if (isDEHRanInLast24Hours)
         {
             this.JobStages = [
             new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),

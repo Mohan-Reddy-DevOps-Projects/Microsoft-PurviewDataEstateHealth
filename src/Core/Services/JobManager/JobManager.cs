@@ -852,6 +852,12 @@ public class JobManager : IJobManager
         {
             repeat = TimeSpan.FromDays(365 * 30);
         }
+        
+        // Check if StartTime is not null and greater than current date + 30 years
+        if (schedulePayload.StartTime.HasValue && schedulePayload.StartTime.Value > DateTime.Now.AddYears(30))
+        {
+            schedulePayload.StartTime = DateTime.Now.AddYears(30);
+        }
 
         var jobOptions = new BackgroundJobOptions()
         {

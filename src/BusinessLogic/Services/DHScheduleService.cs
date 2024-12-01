@@ -64,7 +64,7 @@ public class DHScheduleService(
         }
     }
 
-    public async Task<string> TriggerScheduleJobCallbackAsync(DHScheduleCallbackPayload payload)
+    public async Task<string> TriggerScheduleJobCallbackAsync(DHScheduleCallbackPayload payload, bool isTriggeredFromGeneva=false)
     {
         using (logger.LogElapsed($"{this.GetType().Name}#{nameof(TriggerScheduleJobCallbackAsync)}"))
         {
@@ -168,7 +168,8 @@ public class DHScheduleService(
                             control,
                             assessment,
                             jobId,
-                            scheduleRunId).ConfigureAwait(false);
+                            scheduleRunId,
+                            isTriggeredFromGeneva).ConfigureAwait(false);
 
 
 

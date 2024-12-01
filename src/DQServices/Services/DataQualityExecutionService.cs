@@ -127,10 +127,20 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         }
     }
 
-    public async Task<string> SubmitDQJob(string tenantId, string accountId, DHControlNodeWrapper control, DHAssessmentWrapper assessment, string healthJobId, string scheduleRunId)
+    public async Task<string> SubmitDQJob(string tenantId, string accountId, DHControlNodeWrapper control, DHAssessmentWrapper assessment, string healthJobId, string scheduleRunId, bool isTriggeredFromGeneva)
     {
         try
         {
+            if (!isTriggeredFromGeneva)
+            {
+                var isControlRanInLast12Hours = await this.IsControlRanInLast12Hour(accountId, control.Id).ConfigureAwait(false);
+                if (isControlRanInLast12Hours)
+                {
+                    this.logger.LogInformation($"Skipping SubmitDQJob as the control has run in the last 12 hours, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}");
+                    return "";
+                }
+            }
+            
             this.logger.LogInformation($"Start SubmitDQJOb, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}, healthJobId:{healthJobId}");
 
             // Query storage account
@@ -194,6 +204,41 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         catch (Exception ex)
         {
             throw new MDQJobDQSubmissionException(ex.Message, ex);
+        }
+    }
+
+    private async Task<bool> IsControlRanInLast12Hour(string accountId, string controlId)
+    {
+        // Define time window for query
+        var fromDate = DateTimeOffset.UtcNow.AddHours(-12);
+        var toDate = DateTimeOffset.UtcNow;
+
+        // KQL query string to check for relevant job logs
+        var kqlDehDq =  $@"DEH_JobInitMapping_log_CL
+                            | where AccountId_g == ""{accountId}"" and ControlId_g == ""{controlId}""
+                            | limit 1";
+        try
+        {
+            // Execute the query and fetch events
+            var dehEvents = await this.logsAnalyticsReader.Query<DQJobMappingLogTable>(kqlDehDq, fromDate, toDate).ConfigureAwait(false);
+
+            // If no events were found, return false
+            if (dehEvents?.Value?.Count == 0)
+            {
+                this.logger.LogInformation($"No control Job found within the last 12 hours for account: {accountId}");
+                return false;
+            }
+            foreach (var dehEvent in dehEvents.Value)
+            {
+                this.logger.LogInformation($"Control Job found: {dehEvent}");
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            // Log error if the query or other process fails
+            this.logger.LogError($"Failed to get Control Job Events from logs for account {accountId}: {ex.Message}", ex);
+            return true; // Consider returning `true` as a default to ensure job submission attempt
         }
     }
 

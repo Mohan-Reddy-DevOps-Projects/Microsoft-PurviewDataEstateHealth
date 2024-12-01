@@ -83,31 +83,26 @@ internal class JobSubmissionEvaluator
         }
     }
 
-    public async Task<bool> IsDEHDQActive(string accountId)
+    public async Task<bool> IsDEHRanInLast24Hours(string accountId)
     {
         // Define time window for query
-        var fromDate = DateTimeOffset.UtcNow.AddMinutes(-25);
+        var fromDate = DateTimeOffset.UtcNow.AddHours(-24).AddMinutes(-30);
         var toDate = DateTimeOffset.UtcNow;
 
         // KQL query string to check for relevant job logs
-        var kqlDehDq = $@"let Jobs = DQ_Job_Logs_CL
-                            | where AccountId_g == ""{accountId}""
-                            | join kind=inner DQ_Spark_Logs_CL on $left.JobId_g == $right.JobId_g
-                            | extend MDQ = iff(Entity_s startswith ""mdq_"", ""MDQ"", ""DQ"")
-                            | sort by TimeGenerated
-                            | project AccountId = AccountId_g, JobId=JobId_g, JobTimestamp = TimeGenerated, MDQ;
-                                Jobs 
-                                | where MDQ == ""MDQ"" 
-                                | limit 1";
+        var kqlDeh = $@"DEH_JobInitMapping_log_CL
+                        | where AccountId_g == ""{accountId}""
+                        | project AccountId=AccountId_g, JobId=BatchId_g, JobTimestamp=TimeGenerated
+                        | limit 1";
         try
         {
             // Execute the query and fetch events
-            var dehDQEvents = await this.logsAnalyticsReader.Query<DEHDQEvent>(kqlDehDq, fromDate, toDate);
+            var dehDQEvents = await this.logsAnalyticsReader.Query<DEHDQEvent>(kqlDeh, fromDate, toDate);
 
             // If no events were found, return false
             if (dehDQEvents?.Value?.Count == 0)
             {
-                this.logger.LogInformation($"No control Job found within the last 25 hours for account: {accountId}");
+                this.logger.LogInformation($"No control Job found within the last 24 hours for account: {accountId}");
                 return false;
             }
             foreach (var dehDQEvent in dehDQEvents.Value)

@@ -128,7 +128,7 @@ public class GenevaActionController : ControlPlaneController
             };
             try
             {
-                var scheduleRunId = await this.scheduleService.TriggerScheduleJobCallbackAsync(callbackPayload).ConfigureAwait(false);
+                var scheduleRunId = await this.scheduleService.TriggerScheduleJobCallbackAsync(callbackPayload, true).ConfigureAwait(false);
                 this.logger.LogInformation($"Geneva trigger schedule successfully. ScheduleRunId: {scheduleRunId}.");
                 return this.Ok(new Dictionary<string, string>() { { "scheduleRunId", scheduleRunId } });
             }
