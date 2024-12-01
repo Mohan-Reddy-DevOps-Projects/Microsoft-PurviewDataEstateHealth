@@ -137,7 +137,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
                 if (isControlRanInLast12Hours)
                 {
                     this.logger.LogInformation($"Skipping SubmitDQJob as the control has run in the last 12 hours, tenantId:{tenantId}, accountId:{accountId}, controlId:{control.Id}");
-                    return "";
+                    return $"Skip-{new Guid().ToString()}";
                 }
             }
             
@@ -212,6 +212,17 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         // Define time window for query
         var fromDate = DateTimeOffset.UtcNow.AddHours(-12);
         var toDate = DateTimeOffset.UtcNow;
+
+        // TODO: Remove this after one week - temporary solution to process the queue for these accounts
+        List<string> accountIds = new List<string> 
+        {   "268675e1-07b2-4ee0-a752-0d54921cd84b",
+            "0c89ab95-b9d6-47d8-9101-913ded037ba6",
+            "3f97dbec-dcf4-4b96-b81f-29929c32d93c",
+            "f0029967-80f0-4dd5-9df1-cd17b8b24a67"
+        };
+        if (accountIds.Contains(accountId)) {
+            fromDate = DateTimeOffset.UtcNow.AddDays(-15);
+        }
 
         // KQL query string to check for relevant job logs
         var kqlDehDq =  $@"DEH_JobInitMapping_log_CL

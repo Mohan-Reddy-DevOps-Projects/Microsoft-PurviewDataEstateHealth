@@ -171,7 +171,21 @@ public class DHScheduleService(
                             scheduleRunId,
                             isTriggeredFromGeneva).ConfigureAwait(false);
 
-
+                        if (dqJobId.StartsWith("Skip-"))
+                        {
+                            jobWrapper.DQJobId = dqJobId.Replace("Skip-", "");
+                            jobWrapper.Status = DHComputingJobStatus.Succeeded;
+                            await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
+                            logger.LogTipInformation($"The MDQ job is skipped", new JObject
+                            {
+                                { "jobId" , jobId },
+                                { "dqJobId" , dqJobId },
+                                { "controlId", control.Id },
+                                { "controlName", control.Name},
+                                { "scheduleRunId", scheduleRunId }
+                            });
+                            return scheduleRunId;
+                        }
 
                         // Update DQ job id in monitoring table
                         jobWrapper.DQJobId = dqJobId;
