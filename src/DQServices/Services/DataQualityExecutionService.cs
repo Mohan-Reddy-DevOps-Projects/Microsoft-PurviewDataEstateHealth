@@ -221,7 +221,7 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             "f0029967-80f0-4dd5-9df1-cd17b8b24a67"
         };
         if (accountIds.Contains(accountId)) {
-            fromDate = DateTimeOffset.UtcNow.AddDays(-15);
+            fromDate = DateTimeOffset.UtcNow.AddDays(-90);
         }
 
         // KQL query string to check for relevant job logs
