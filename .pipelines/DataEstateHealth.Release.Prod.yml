@@ -82,7 +82,7 @@ extends:
           regionExceptions: ${{ parameters.regionExceptions }}
           rolloutSpecPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot/rolloutSpec.powerBI.major.json
           serviceRootPath: drop_build_buildContainersLinux/Ev2Deployment/Ev2ServiceArtifactsRoot
-          pdgEnvironment: Production
+          pdgEnvironment: prod
           alias: 'DataEstateHealthPowerBI'
           ${{ if or(eq(parameters['expediteRollout'],'true'),eq(parameters['globalOutageRollout'],'true')) }}:
             isEnvApprovalExempt: true
