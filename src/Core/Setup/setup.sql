@@ -209,7 +209,7 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[GlossaryTerm]
     [GlossaryTermId] [nvarchar](512),
      [ParentGlossaryTermId] [nvarchar](512),
      [GlossaryTermDisplayName] [nvarchar](512),
-     [GlossaryDescription] [nvarchar](512),
+     [GlossaryDescription] [nvarchar](max),
      [AccountId] [nvarchar](512),
      [Status] [nvarchar](50),
      [IsLeaf] [Int],
