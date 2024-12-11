@@ -1,0 +1,99 @@
+// CBS Kusto logs
+let EventsTillNov12 = (cluster("https://mpcbsprodglobalkc.eastus.kusto.windows.net/").database("mpcbsprodlogs").EgressAppEvents
+| where TIMESTAMP <= datetime("2024-11-12")
+| where Tenant != "mpcbsprodmexcsfc"
+| where body !has "TERMINAL"
+| where body startswith "OROEventWriter.Write.LogECSCommerceFlowDisabled" or body startswith "OROEventWriter.LogSuccessfulEventIngestion: ORO send successful for Event with event id "
+| parse body with *" The ConsumptionEvent : " ConsumptionEventStr " , ORO Event :" OROEventStr
+| parse body with *"consumption event: " ConsumptionEventStrold ", oro event: " OROEventStrold
+| extend ConsumptionEventMessage = iff(tostring(ConsumptionEventStr) == "",todynamic(ConsumptionEventStrold),todynamic(ConsumptionEventStr))
+| extend OROEventMessage = iff(tostring(OROEventStr) == "",todynamic(OROEventStrold),todynamic(OROEventStr))
+| extend ParsedOROEvent = extract(@"(\{.*\})", 1, tostring(OROEventMessage))
+| extend OROEvent= parse_json(ParsedOROEvent)
+| extend ConsumptionEvent= parse_json(ConsumptionEventMessage)
+| project ConsumptionEvent, OROEvent
+| evaluate bag_unpack(OROEvent)
+| evaluate bag_unpack(ConsumptionEvent)
+| project
+    CustomerId = tostring(CustomerId),
+    Data = tostring(Data),
+    EventId = tostring(EventId),
+    EventType = tostring(EventType),
+    Location = tostring(Location),
+    SubjectId = tostring(SubjectId),
+    Id = tostring(Id),
+    RecordType = tolong(RecordType),
+    CorrelationId = tostring(CorrelationId),
+    CreationTime = tostring(CreationTime),
+    BillingStartDate = todatetime(BillingStartDate),
+    BillingEndDate = todatetime(BillingEndDate),
+    CBSTenantId = tostring(OrganizationID),
+    SolutionName = tostring(SolutionName),
+    SolutionScenario = tostring(SolutionScenario),
+    Tags = tostring(Tags),
+    ConsumptionValueUnit = tostring(ConsumptionValueUnit),
+    ConsumptionType = tostring(ConsumptionType),
+    ConsumptionValue = todouble(ConsumptionValue)
+| extend ParsedTags = parse_json(Tags)
+| extend JobType = case(
+    tostring(ParsedTags.type) != "", tostring(ParsedTags.type),
+    tostring(ParsedTags.SubSolutionName) != "", tostring(ParsedTags.SubSolutionName),
+    ConsumptionType
+)
+| summarize arg_max(BillingEndDate, *) by EventId
+| order by BillingEndDate desc
+| where SolutionName == "DataGovernance");
+let EventsFromNov12 = (cluster("https://mpcbsprodglobalkc.eastus.kusto.windows.net/").database("mpcbsprodlogs").EgressAppEvents
+| where PreciseTimeStamp >= datetime("2024-11-12")
+| where Tenant != "mpcbsprodmexcsfc"
+| where SolutionName == "DataGovernance"
+| where body has "TERMINAL"
+| extend ConsumptionEventMessage = EventBody
+| extend OROEventMessage = UsageEvent
+| extend ParsedOROEvent = extract(@"(\{.*\})", 1, tostring(OROEventMessage))
+| extend OROEvent= parse_json(ParsedOROEvent)
+| extend ConsumptionEvent= parse_json(ConsumptionEventMessage)
+| project ConsumptionEvent, OROEvent
+| evaluate bag_unpack(OROEvent)
+| evaluate bag_unpack(ConsumptionEvent)
+| project
+    // CustomerId = tostring(CustomerId),
+    Data = tostring(Data),
+    EventId = tostring(EventId),
+    EventType = tostring(EventType),
+    Location = tostring(Location),
+    SubjectId = tostring(SubjectId),
+    Id = tostring(Id),
+    RecordType = tolong(RecordType),
+    CorrelationId = tostring(CorrelationId),
+    CreationTime = tostring(CreationTime),
+    BillingStartDate = todatetime(BillingStartDate),
+    BillingEndDate = todatetime(BillingEndDate),
+    CBSTenantId = iff(tostring(OrganizationID) == "",tostring(OrganizationId),tostring(OrganizationID)),
+    SolutionName = tostring(SolutionName),
+    SolutionScenario = tostring(SolutionScenario),
+    Tags = tostring(Tags),
+    ConsumptionValueUnit = tostring(ConsumptionValueUnit),
+    ConsumptionType = tostring(ConsumptionType),
+    ConsumptionValue = todouble(ConsumptionValue)
+| extend ParsedTags = parse_json(Tags)
+| extend JobType = case(
+    tostring(ParsedTags.type) != "", tostring(ParsedTags.type),
+    tostring(ParsedTags.SubSolutionName) != "", tostring(ParsedTags.SubSolutionName),
+    ConsumptionType
+)
+| summarize arg_max(BillingEndDate, *) by EventId
+| order by BillingEndDate desc
+| where SolutionName == "DataGovernance");
+let CBS = EventsTillNov12
+| union EventsFromNov12
+| summarize arg_max(BillingEndDate, *) by EventId;
+// DG Data management logs
+let DGAccounts = cluster("https://babylon.eastus2.kusto.windows.net/").database("babylonMdsLogs").AccountInfo
+| where AccountTier == "EnterpriseTier";
+CBS
+| join kind=leftouter DGAccounts on $left.CBSTenantId==$right.tenantId
+| summarize CBSPUs = round(sum(todouble(ConsumptionValue)),2) ,
+CBSEventCount = dcount(EventId)
+by JobType,AccountTier,CustomerType, Location, CBSTenantId, OrganizationName,ReconciledStatus,provisioningState
+,BillingDate=bin(todatetime(BillingEndDate), 1d)
