@@ -105,12 +105,13 @@ let GetDEHJobs = () {
 let BYOCJobs = GetBYOCJobs();
 let OnlyBYOCEnabledAccounts = GetOnlyBYOCEnabledAccounts();
 let BYOCJobsFiltered = BYOCJobs
-    | join kind=inner OnlyBYOCEnabledAccounts on $left.AccountId == $right.AccountId_g
+    | join kind=leftouter OnlyBYOCEnabledAccounts on $left.AccountId == $right.AccountId_g
     | join kind=leftouter (CBSBillingReceipts_CL 
         | where Status_s == 'Succeeded'
         | project TimeGenerated, EventId_g, Status_s)
         on $left.JobId == $right.EventId_g
     | where Status_s <> 'Succeeded'
+    | extend OnlyBYOC=iff(isnull(AccountId_g) or AccountId_g == "", 0, 1)  
     | sort by AccountId_g asc, JobStartTime asc 
     | extend RowNum = row_number(1, prev(AccountId_g) != AccountId_g);
 let DEHJobs = GetDEHJobs();
@@ -126,8 +127,8 @@ let BillingEvents = BYOCJobsFiltered
         MDQBatchId=JobId,
         ProcessingTier,
         MDQJobDuration = JobDuration,
-        DEHJobDuration = case(RowNum == 1, JobDuration1, 0),
-        JobDuration = case(RowNum == 1, JobDuration + coalesce(JobDuration1, 0), JobDuration),
+        DEHJobDuration = case(RowNum == 1 and OnlyBYOC == 1, JobDuration1, 0),
+        JobDuration = case(RowNum == 1 and OnlyBYOC == 1, JobDuration + coalesce(JobDuration1, 0), JobDuration),
         RowNum,
         JobStartTime,
         JobEndTime,
