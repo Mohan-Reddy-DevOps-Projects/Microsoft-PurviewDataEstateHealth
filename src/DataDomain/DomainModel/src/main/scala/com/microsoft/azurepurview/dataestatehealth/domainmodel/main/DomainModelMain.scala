@@ -1,7 +1,8 @@
 package com.microsoft.azurepurview.dataestatehealth.domainmodel.main
 
-import com.microsoft.azurepurview.dataestatehealth.domainmodel.accesspolicyset.AccessPolicySetMain.logger
-import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.{CommandLineParser, LogAnalyticsLogger}
+import com.microsoft.azurepurview.dataestatehealth.commonutils.common.JobStatus
+import com.microsoft.azurepurview.dataestatehealth.commonutils.logger.LogAnalyticsLogger
+import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.CommandLineParser
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
@@ -85,7 +86,7 @@ object DomainModelMain {
           // Initialize LogAnalyticsConfig with Spark session
           LogAnalyticsLogger.initialize(spark)
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
-            jobStatus = "Started", tenantId = tenantId)
+            jobName = "DomainModel", jobStatus = JobStatus.Started.toString, tenantId = tenantId)
 
           // Processing BusinessDomain Delta Table
           com.microsoft.azurepurview.dataestatehealth.domainmodel.businessdomain.BusinessDomainMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
@@ -96,14 +97,18 @@ object DomainModelMain {
           com.microsoft.azurepurview.dataestatehealth.domainmodel.accesspolicyset.AccessPolicySetMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
           com.microsoft.azurepurview.dataestatehealth.domainmodel.subscription.SubscriptionMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
           com.microsoft.azurepurview.dataestatehealth.domainmodel.dataquality.DataQualityMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+
+          LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
+            jobName = "DomainModel", JobStatus.Completed.toString, tenantId = tenantId)
+
         }
         catch {
           case e =>
             logger.error(s"Error in DomainModel Main Spark Application: ${e.getMessage}", e)
+            LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
+              jobName = "DomainModel", JobStatus.Failed.toString, tenantId = tenantId, e.toString)
             throw e // Re-throw the exception to ensure the job failure is reported correctly
         } finally {
-          LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
-            if (Thread.currentThread.isInterrupted) "Cancelled" else "Completed", tenantId = tenantId)
           if (spark != null) {
             Thread.sleep(10000)
             spark.stop()
