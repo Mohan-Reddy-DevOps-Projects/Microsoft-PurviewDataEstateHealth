@@ -22,6 +22,7 @@ public class cosmosEntity
 
 public class DHDataEstateHealthRepository(
     CosmosClient cosmosClient,
+    IDefaultCosmosClient defaultCosmosClient,
     IRequestHeaderContext requestHeaderContext,
     IConfiguration configuration,
     IDataEstateHealthRequestLogger logger,
@@ -29,6 +30,12 @@ public class DHDataEstateHealthRepository(
     : CommonHttpContextRepository<DHControlBaseWrapper>(requestHeaderContext, logger, cosmosMetricsTracker)
 {
     //private const string ContainerName = "DHControl";
+    
+    private const string BusinessDomainContainerName = "businessdomain";
+    
+    private Container BusinessDomainContainer => cosmosClient
+        .GetDatabase(this.DatabaseName)
+        .GetContainer(BusinessDomainContainerName);
 
     private readonly CosmosMetricsTracker cosmosMetricsTracker = cosmosMetricsTracker;
 
@@ -40,9 +47,7 @@ public class DHDataEstateHealthRepository(
     protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(this.ContainerName);
 
     private readonly IDataEstateHealthRequestLogger logger = logger;
-
-
-
+    
     public async Task<IEnumerable<CosmosEntity>> QueryControlNodesAsync(CosmosEntity filter)
     {
         var methodName = nameof(QueryControlNodesAsync);
@@ -112,6 +117,56 @@ public class DHDataEstateHealthRepository(
             catch (Exception ex)
             {
                 this.logger.LogError($"{this.GetType().Name}#{methodName} failed, {this.AccountIdentifier.Log}", ex);
+                throw;
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Checks if any documents exist in the business domain container for the current account
+    /// </summary>
+    /// <returns>True if documents exist, false otherwise</returns>
+    public async Task<bool> DoesBusinessDomainHaveDocumentsAsync()
+    {
+        const string methodName = nameof(this.DoesBusinessDomainHaveDocumentsAsync);
+
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, {this.AccountIdentifier.Log}"))
+        {
+            try
+            {
+                const string query = @"
+                    SELECT VALUE COUNT(1)
+                    FROM c
+                    WHERE c.payloadKind = @payloadKind
+                ";
+
+                using var iterator = defaultCosmosClient.Client
+                    .GetDatabase(this.DatabaseName)
+                    .GetContainer(BusinessDomainContainerName)
+                    .GetItemQueryIterator<bool>(
+                        queryDefinition: new QueryDefinition(query)
+                            .WithParameter("@payloadKind", "BusinessDomain"),
+                        requestOptions: new QueryRequestOptions
+                        {
+                            PartitionKey = new PartitionKey(this.AccountIdentifier.AccountId), MaxItemCount = 1
+                        });
+
+                if (!iterator.HasMoreResults)
+                {
+                    return false;
+                }
+
+                var response = await iterator.ReadNextAsync().ConfigureAwait(false);
+                this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, response);
+                return response.Resource.FirstOrDefault();
+
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(
+                    $"{this.GetType().Name}#{methodName}: Failed checking business domain existence. " +
+                    $"{this.AccountIdentifier.Log}",
+                    ex);
                 throw;
             }
         }

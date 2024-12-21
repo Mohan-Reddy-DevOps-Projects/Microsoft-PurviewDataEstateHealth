@@ -48,6 +48,21 @@ namespace Microsoft.Purview.DataEstateHealth.DHDataAccess
                     AllowBulkExecution = true
                 });
             });
+            
+            services.AddSingleton<IDefaultCosmosClient>(serviceProvider =>
+            {
+                var credential = serviceProvider.GetRequiredService<DHCosmosDBContextAzureCredentialManager>().Credential;
+                var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+                string? cosmosDbEndpoint = configuration["cosmosDb:accountEndpoint"];
+
+                var client = new CosmosClient(cosmosDbEndpoint, credential, new CosmosClientOptions
+                {
+                    ConnectionMode = ConnectionMode.Direct,
+                    AllowBulkExecution = true
+                });
+
+                return new DefaultCosmosClient(client);
+            });
 
             services.AddSingleton<CosmosMetricsTracker>();
 

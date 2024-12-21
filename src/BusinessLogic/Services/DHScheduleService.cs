@@ -41,7 +41,8 @@ public class DHScheduleService(
     IRequestHeaderContext requestHeaderContext,
     IDataQualityScoreRepository dataQualityScoreRepository,
     DHScoreRepository dhScoreRepository,
-    TriggeredScheduleQueue triggeredScheduleQueue
+    TriggeredScheduleQueue triggeredScheduleQueue,
+    DHDataEstateHealthRepository dhDataEstateHealthRepository
     )
 {
     private const string MDQEventOperationName = "MDQ event";
@@ -70,7 +71,19 @@ public class DHScheduleService(
         {
             try
             {
-                // Step 1: query all controls
+                string scheduleRunId = Guid.NewGuid().ToString();
+                
+                // Step 1: Check if business domain container has any documents
+                if (!isTriggeredFromGeneva)
+                {
+                    bool hasDocuments = await this.skipIfNoBusinessDomainExists(scheduleRunId);
+                    if (!hasDocuments)
+                    {
+                        return scheduleRunId;
+                    }
+                }
+
+                // Step 2 query all controls
                 var controls = new List<DHControlNodeWrapper>();
                 var controlGroups = new List<DHControlGroupWrapper>();
 
@@ -88,8 +101,7 @@ public class DHScheduleService(
                     controls.Add((DHControlNodeWrapper)result);
                     logger.LogInformation($"Trigger control job. ControlId {payload.ControlId}.");
                 }
-
-                var scheduleRunId = Guid.NewGuid().ToString();
+                
                 logger.LogInformation($"New scheduleRunId generated {scheduleRunId}");
 
                 var assessments = await assessmentService.ListAssessmentsAsync().ConfigureAwait(false);
@@ -104,7 +116,7 @@ public class DHScheduleService(
 
                 var DQControlList = new Dictionary<string, DHControlNodeWrapper>();
 
-                DomainModelStatus? domainModelStatus = null;
+                // DomainModelStatus? domainModelStatus = null;
 
                 foreach (var control in controls)
                 {
@@ -131,7 +143,7 @@ public class DHScheduleService(
                             continue;
                         }
 
-                        // Step 2: save into monitoring table
+                        // Step 3: save into monitoring table
                         var jobId = Guid.NewGuid().ToString();
                         var jobWrapper = new DHComputingJobWrapper();
                         jobWrapper.Id = jobId;
@@ -142,25 +154,25 @@ public class DHScheduleService(
 
 
                         var dqJobId = string.Empty;
-                        // Step 3: submit DQ jobs
-                        if (domainModelStatus == null)
-                        {
-                            domainModelStatus = await dataQualityExecutionService.CheckDomainModelStatus(
-                                requestHeaderContext.TenantId.ToString(),
-                                requestHeaderContext.AccountObjectId.ToString());
-                        }
-
-                        if (domainModelStatus == DomainModelStatus.NoAccountMapping
-                            || domainModelStatus == DomainModelStatus.NoSetup
-                            || domainModelStatus == DomainModelStatus.NoData)
-                        {
-                            logger.LogInformation($"Skip submit MDQ, DomainModelStatus: {domainModelStatus}, ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
-                            // Update DQ status to skipped in monitoring table
-                            jobWrapper.Status = DHComputingJobStatus.Skipped;
-                            await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
-                            logger.LogInformation($"Skip submit MDQ and update job status to skipped, DomainModelStatus: {domainModelStatus}, ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
-                            continue;
-                        }
+                        // Step 4: submit DQ jobs
+                        // if (domainModelStatus == null)
+                        // {
+                        //     domainModelStatus = await dataQualityExecutionService.CheckDomainModelStatus(
+                        //         requestHeaderContext.TenantId.ToString(),
+                        //         requestHeaderContext.AccountObjectId.ToString());
+                        // }
+                        //
+                        // if (domainModelStatus == DomainModelStatus.NoAccountMapping
+                        //     || domainModelStatus == DomainModelStatus.NoSetup
+                        //     || domainModelStatus == DomainModelStatus.NoData)
+                        // {
+                        //     logger.LogInformation($"Skip submit MDQ, DomainModelStatus: {domainModelStatus}, ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                        //     // Update DQ status to skipped in monitoring table
+                        //     jobWrapper.Status = DHComputingJobStatus.Skipped;
+                        //     await monitoringService.UpdateComputingJob(jobWrapper, payload.Operator).ConfigureAwait(false);
+                        //     logger.LogInformation($"Skip submit MDQ and update job status to skipped, DomainModelStatus: {domainModelStatus}, ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
+                        //     continue;
+                        // }
 
                         dqJobId = await dataQualityExecutionService.SubmitDQJob(
                             requestHeaderContext.TenantId.ToString(),
@@ -228,6 +240,21 @@ public class DHScheduleService(
                 throw;
             }
         }
+    }
+
+    private async Task<bool> skipIfNoBusinessDomainExists(string scheduleRunId)
+    {
+        bool hasDocuments = await dhDataEstateHealthRepository.DoesBusinessDomainHaveDocumentsAsync()
+            .ConfigureAwait(false);
+
+        if (!hasDocuments)
+        {
+            logger.LogInformation(
+                $"No business domain documents found, skipping control processing for scheduled run {scheduleRunId}. " +
+                $"TenantId: {requestHeaderContext.TenantId}, AccountId: {requestHeaderContext.AccountObjectId}");
+        }
+
+        return hasDocuments;
     }
 
     public async Task UpdateMDQJobStatusAsync(DHControlMDQJobCallbackPayload payload)
