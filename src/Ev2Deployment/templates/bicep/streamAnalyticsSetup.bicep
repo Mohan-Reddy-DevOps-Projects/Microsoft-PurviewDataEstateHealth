@@ -56,6 +56,8 @@ var relationship = '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-re
 var term = '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-term'
 var dcatalogall= '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-dcatalogall'
 var cde= '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-cde'
+var okr= '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-okr'
+var keyresult= '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-keyresult'
 
 var datasubscription = '${streamAnalyticsPrefixName}-${streampartNameDataaccess}-datasubscription'
 var policyset =  '${streamAnalyticsPrefixName}-${streampartNameDataaccess}-policyset'
@@ -77,7 +79,7 @@ module streamAnalyticsJobsCatalog 'streamAnalyticsAccount.bicep' = {
     cosmosDbDatabaseName: dehCosmosDBDatabaseName
     partitionKey: partitionKey 
     documentId : documentId
-    streamNameList: '${businessdomain},${dataasset},${dataproduct},${relationship},${term},${dataassetwithlineage},${dcatalogall},${cde}'
+    streamNameList: '${businessdomain},${dataasset},${dataproduct},${relationship},${term},${dataassetwithlineage},${dcatalogall},${cde},${okr},${keyresult}'
     dghResourceGroupName : dghResourceGroupName 
     principalId : dehResourceAppIdentity.properties.principalId
     subscriptionId : subscriptionId
@@ -186,6 +188,30 @@ module streamAnalyticsJobsCatalog 'streamAnalyticsAccount.bicep' = {
         Operator : ' And '
         FilterField2 : 'payloadKind'
         FilterValue2 : 'CriticalDataElement'
+      }
+      { StreamName: okr // '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-term'
+        OutputName: outputName
+        collectionName: 'okr'
+        consumerGroupName: okr
+        fromSelect : ' * '
+        toSelect : ' * '
+        FilterField1 : 'eventSource'
+        FilterValue1 : 'DataCatalog'
+        Operator : ' And '
+        FilterField2 : 'payloadKind'
+        FilterValue2 : 'OKR'
+      }
+      { StreamName: keyresult // '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-term'
+        OutputName: outputName
+        collectionName: 'keyresult'
+        consumerGroupName: keyresult
+        fromSelect : ' * '
+        toSelect : ' * '
+        FilterField1 : 'eventSource'
+        FilterValue1 : 'DataCatalog'
+        Operator : ' And '
+        FilterField2 : 'payloadKind'
+        FilterValue2 : 'keyresult'
       }
     ]
   }

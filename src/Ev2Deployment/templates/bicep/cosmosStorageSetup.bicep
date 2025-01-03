@@ -92,7 +92,7 @@ module controlCosmosDatabaseDataEstateHealth 'cosmosDatabase.bicep' = {
     databaseName: dehDatabaseName // 'dgh-DataEstateHealth'
     partitionid: '/accountId'
     containerAppIdentityName :  containerAppIdentityName
-    containerdehNames: ['businessdomain', 'dataasset', 'dataproduct', 'dataqualityfact','dataqualityv2fact', 'datasubscription', 'policyset','relationship','term', 'dehsentinel','provisionevent','dataassetwithlineage', 'dcatalogall', 'cde']
+    containerdehNames: ['businessdomain', 'dataasset', 'dataproduct', 'dataqualityfact','dataqualityv2fact', 'datasubscription', 'policyset','relationship','term', 'dehsentinel','provisionevent','dataassetwithlineage', 'dcatalogall', 'cde','okr','keyresult']
     containerNames: []    
   }
 }
@@ -116,9 +116,9 @@ module cosmosDatabaseDHAction 'cosmosDatabase.bicep' = {
     accountName: cosmosAccountName
     databaseName: 'dgh-Action'
     partitionid: '/TenantId'
-    containerNames: ['DHAction']
+    containerNames: []
     containerAppIdentityName :  containerAppIdentityName
-    containerdehNames: []
+    containerdehNames: ['DHAction']
   }
 }
 
