@@ -17,21 +17,45 @@ import scala.concurrent.{Future, Promise}
 
 
 class Reader (spark: SparkSession, logger:Logger){
-  def readCosmosData(contractSchema:StructType,cosmosDBLinkedServiceName:String,accountId:String,container:String,eventSource:String,payloadKind:String): DataFrame = {
+  def readCosmosData(contractSchema:StructType,cosmosDBLinkedServiceName:String,accountId:String
+                     ,container:String,eventSource:String,payloadKind:String
+                     ,database:String=spark.conf.get("spark.cosmos.database","")
+                    , tenantId:String=""): DataFrame = {
     try {
+
+      // Initialize a list to hold the filter conditions
+      val filters = scala.collection.mutable.ArrayBuffer[String]()
+
+      // Add `payloadKind` to the filters if it is not blank
+      if (payloadKind != null && payloadKind.nonEmpty) {
+        filters += s"payloadKind = '$payloadKind'"
+      }
+
+      // Add `accountId` to the filters if it is not blank
+      if (accountId != null && accountId.nonEmpty) {
+        filters += s"accountId = '$accountId'"
+      }
+
+      // Add `tenantId` to the filters if it is not blank
+      if (tenantId != null && tenantId.nonEmpty) {
+        filters += s"tenantId = '$tenantId'"
+      }
+
+      // Add `eventSource` to the filters if it is not blank
+      if (eventSource != null && eventSource.nonEmpty) {
+        filters += s"eventSource = '$eventSource'"
+      }
+
+      // Combine the filters with `AND` if any filters exist
+      val filterCondition = if (filters.nonEmpty) filters.mkString(" AND ") else ""  // If no filters, return an empty string
 
       var df = spark.read.format("cosmos.olap")
         .schema(contractSchema)
-        //.option("spark.synapse.linkedService", cosmosDBLinkedServiceName)
         .option("spark.cosmos.accountEndpoint", spark.conf.get("spark.cosmos.accountEndpoint"))
-        .option("spark.cosmos.database", spark.conf.get("spark.cosmos.database"))
+        .option("spark.cosmos.database", database)
         .option("spark.cosmos.container", container)
         .option("spark.cosmos.accountKey",spark.conf.get("spark.cosmos.accountKey"))
-        .load().filter(s"accountId = '$accountId'")
-        .filter(s"payloadKind = '$payloadKind'")
-      if (eventSource.nonEmpty) {
-        df = df.filter(s"eventSource = '$eventSource'")
-      }
+        .load().filter(filterCondition)
       df
     }
     catch {
