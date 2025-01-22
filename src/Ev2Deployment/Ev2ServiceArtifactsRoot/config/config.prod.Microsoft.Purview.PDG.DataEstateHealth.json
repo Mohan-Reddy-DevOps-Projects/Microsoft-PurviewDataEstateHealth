@@ -34,17 +34,17 @@
         {
           "name": "catalogevent",
           "messageRetentionDays": 90,
-          "partitionCount": 2
+          "partitionCount": 4
         },
         {
           "name": "dataaccessevent",
           "messageRetentionDays": 90,
-          "partitionCount": 2
+          "partitionCount": 4
         },
         {
           "name": "dataqualityeventv2",
           "messageRetentionDays": 90,
-          "partitionCount": 2
+          "partitionCount": 4
         }
       ],
       "genevaActionSubjectName": "AME.genevaActions.$(pdg.tenant.dnsZoneName)",
