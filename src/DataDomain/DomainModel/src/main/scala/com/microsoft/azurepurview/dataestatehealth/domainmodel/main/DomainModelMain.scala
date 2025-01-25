@@ -21,7 +21,7 @@ object DomainModelMain {
     }
 
     val basePath = adlsDir.stripSuffix("/DomainModel")
-    val filePath = s"$basePath/Maintenance/OneTimeCleanup/DomainModel.txt"
+    val filePath = s"$basePath/Maintenance/OneTimeCleanup/DomainModel0124.txt"
 
     if (fileExists(filePath)) {
       println("SKIP: Delete root directory & full load.")

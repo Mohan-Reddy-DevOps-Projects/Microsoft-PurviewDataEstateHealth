@@ -144,7 +144,7 @@ class DataWriter(spark: SparkSession) extends SparkLogging {
 
     // Perform the merge for updates and inserts
     logger.info("Performing merge for updates and inserts.")
-    val mergeBuilder = dfTargetDeltaTable.as("target").merge(df.as("source"), mergeCondition)
+    val mergeBuilder = dfTargetDeltaTable.as("target").merge(filteredMergeDfSource.as("source"), mergeCondition)
 
     // Apply the appropriate merge operation
     operationType match {
