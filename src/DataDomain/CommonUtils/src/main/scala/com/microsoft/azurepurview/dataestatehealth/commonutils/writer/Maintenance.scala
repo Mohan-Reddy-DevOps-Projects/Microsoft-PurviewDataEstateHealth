@@ -55,7 +55,7 @@ class Maintenance (spark: SparkSession, logger:Logger) {
     sdf.format(new Timestamp(posixTime * 1000L))
   }
   def checkpointSentinel (accountId:String,deltaTablePath:String,df:Option[DataFrame],JobRunGuid:String,Entity:String,ExceptionStackTrace:String): Unit={
-   try {
+    try {
      val sentinelSchema = new SentinelSchema().sentinelSchema
      val maxEventProcessingTime = df match {
        case Some(dfNotNull) if dfNotNull.columns.contains("EventProcessingTime") =>
@@ -99,6 +99,5 @@ class Maintenance (spark: SparkSession, logger:Logger) {
      case e: Exception =>
        println(s"Error during checkpointSentinel operation for Entity $Entity Delta table at path: $deltaTablePath Error: ${e.getMessage}")
    }
-
  }
 }

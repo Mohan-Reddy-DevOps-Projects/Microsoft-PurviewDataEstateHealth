@@ -4,7 +4,7 @@ import org.apache.log4j.Logger
 import org.apache.spark.sql.SparkSession
 
 class ColdStartSoftCheck(spark: SparkSession, logger: Logger) {
-  def validateCheckIn(cosmosDBLinkedServiceName: String, containerName: String
+  def validateCheckIn(containerName: String
                       , database:String=spark.conf.get("spark.cosmos.database")): Boolean = {
     try {
       //Soft Check to Overcome the cold Start Problem

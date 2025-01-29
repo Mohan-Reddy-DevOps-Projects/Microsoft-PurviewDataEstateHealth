@@ -14,15 +14,13 @@ object RelationshipMain {
       logger.setLevel(Level.INFO)
       logger.info("Started the Relationship Table Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
-      if (args.length >= 5 && coldStartSoftCheck.validateCheckIn(args(0), "relationship")) {
-        val CosmosDBLinkedServiceName = args(0)
-        val adlsTargetDirectory = args(1)
-        val accountId = args(2)
-        val refreshType = args(3)
-        val jobRunGuid = args(4)
+      if (args.length >= 4 && coldStartSoftCheck.validateCheckIn("relationship")) {
+        val adlsTargetDirectory = args(0)
+        val accountId = args(1)
+        val refreshType = args(2)
+        val jobRunGuid = args(3)
         println(
-          s"""Received parameters: Source Cosmos Linked Service - $CosmosDBLinkedServiceName
-        , Target ADLS Path - $adlsTargetDirectory
+          s"""Received parameters: Target ADLS Path - $adlsTargetDirectory
         , AccountId - $accountId
         , Processing Type - $refreshType
         , JobRunGuid - $jobRunGuid""")
@@ -30,7 +28,7 @@ object RelationshipMain {
         val relationshipSchema = new RelationshipSchema().relationshipSchema
         val relationship = new Relationship(spark, logger)
         val reader = new Reader(spark, logger)
-        val df_relationship = reader.readCosmosData(relationshipContractSchema, CosmosDBLinkedServiceName, accountId, "relationship", "DataCatalog", "Relationship")
+        val df_relationship = reader.readCosmosData(relationshipContractSchema,"", accountId, "relationship", "DataCatalog", "Relationship")
         val df_processRelationship = relationship.processRelationship(df_relationship, relationshipSchema)
         val dataWriter = new DataWriter(spark)
         dataWriter.writeData(df_processRelationship, adlsTargetDirectory

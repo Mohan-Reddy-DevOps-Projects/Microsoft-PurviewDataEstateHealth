@@ -76,7 +76,6 @@ object DomainModelMain {
 
           println(
             s"""Received parameters:
-               |Source Cosmos Linked Service - ${config.CosmosDBLinkedServiceName},
                |Target ADLS Path - ${config.AdlsTargetDirectory},
                |Account ID - ${config.AccountId},
                |Refresh Type - ${config.RefreshType},
@@ -89,18 +88,18 @@ object DomainModelMain {
             jobName = "DomainModel", jobStatus = JobStatus.Started.toString, tenantId = tenantId)
 
           // Processing BusinessDomain Delta Table
-          com.microsoft.azurepurview.dataestatehealth.domainmodel.businessdomain.BusinessDomainMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-          com.microsoft.azurepurview.dataestatehealth.domainmodel.dataproduct.DataProductMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-          com.microsoft.azurepurview.dataestatehealth.domainmodel.glossaryterm.GlossaryTermMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-          com.microsoft.azurepurview.dataestatehealth.domainmodel.relationship.RelationshipMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-          com.microsoft.azurepurview.dataestatehealth.domainmodel.dataasset.DataAssetMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-          com.microsoft.azurepurview.dataestatehealth.domainmodel.accesspolicyset.AccessPolicySetMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-          com.microsoft.azurepurview.dataestatehealth.domainmodel.subscription.SubscriptionMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-          com.microsoft.azurepurview.dataestatehealth.domainmodel.dataquality.DataQualityMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-          /*com.microsoft.azurepurview.dataestatehealth.domainmodel.okr.OKRMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-          com.microsoft.azurepurview.dataestatehealth.domainmodel.action.ActionMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-          com.microsoft.azurepurview.dataestatehealth.domainmodel.cde.CDEMain.main(Array(config.CosmosDBLinkedServiceName, config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
-*/
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.businessdomain.BusinessDomainMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.dataproduct.DataProductMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.glossaryterm.GlossaryTermMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.relationship.RelationshipMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.dataasset.DataAssetMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.accesspolicyset.AccessPolicySetMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.subscription.SubscriptionMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.dataquality.DataQualityMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.okr.OKRMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.action.ActionMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+          com.microsoft.azurepurview.dataestatehealth.domainmodel.cde.CDEMain.main(Array(config.AdlsTargetDirectory, config.AccountId, config.RefreshType, config.JobRunGuid), spark, config.ReProcessingThresholdInMins)
+
           LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid,
             jobName = "DomainModel", JobStatus.Completed.toString, tenantId = tenantId)
 

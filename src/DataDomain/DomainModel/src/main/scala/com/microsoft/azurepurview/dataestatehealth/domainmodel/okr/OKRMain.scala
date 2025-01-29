@@ -14,15 +14,13 @@ package object OKRMain {
       logger.setLevel(Level.INFO)
       logger.info("Started the OKR Table Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
-      if (args.length >= 5 && coldStartSoftCheck.validateCheckIn(args(0), "okr")) {
-        val CosmosDBLinkedServiceName = args(0)
-        val adlsTargetDirectory = args(1)
-        val accountId = args(2)
-        val refreshType = args(3)
-        val jobRunGuid = args(4)
+      if (args.length >= 4 && coldStartSoftCheck.validateCheckIn( "okr")) {
+        val adlsTargetDirectory = args(0)
+        val accountId = args(1)
+        val refreshType = args(2)
+        val jobRunGuid = args(3)
         println(
-          s"""Received parameters: Source Cosmos Linked Service - $CosmosDBLinkedServiceName
-        , Target ADLS Path - $adlsTargetDirectory
+          s"""Received parameters: Target ADLS Path - $adlsTargetDirectory
         , AccountId - $accountId
         , Processing Type - $refreshType
         , JobRunGuid - $jobRunGuid""")
@@ -33,8 +31,8 @@ package object OKRMain {
         val keyResultContractSchema = new KeyResultContractSchema().keyResultContractSchema
         val keyResultSchema = new KeyResultSchema().keyResultSchema
         val keyResult = new KeyResult(spark, logger)
-        val dfKeyResult = reader.readCosmosData(keyResultContractSchema, CosmosDBLinkedServiceName, accountId, "keyresult", "DataCatalog","keyresult")
-        val dfKeyResultProcessed = keyResult.processKeyResult(dfKeyResult, keyResultSchema)
+        val dfKeyResult = reader.readCosmosData(keyResultContractSchema,"", accountId, "keyresult", "DataCatalog","KeyResult")
+        val dfKeyResultProcessed = keyResult.processKeyResult(dfKeyResult, keyResultSchema, adlsTargetDirectory)
         dataWriter.writeData(dfKeyResultProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
           , "KeyResult", Seq("KeyResultId"), refreshType)
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/KeyResult"), Some(dfKeyResultProcessed), jobRunGuid, "KeyResult", "")
@@ -43,7 +41,7 @@ package object OKRMain {
         val okrContractSchema = new OKRContractSchema().okrContractSchema
         val okrSchema = new OKRSchema().okrSchema
         val okr = new OKR(spark, logger)
-        val dfOkr = reader.readCosmosData(okrContractSchema, CosmosDBLinkedServiceName, accountId, "okr", "DataCatalog", "OKR")
+        val dfOkr = reader.readCosmosData(okrContractSchema, "", accountId, "okr", "DataCatalog", "OKR")
         val dfOkrProcessed = okr.processOKR(dfOkr, okrSchema)
         dataWriter.writeData(dfOkrProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
           , "OKR", Seq("OKRId"), refreshType)

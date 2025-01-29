@@ -3,6 +3,7 @@ package com.microsoft.azurepurview.dataestatehealth.domainmodel.cde
 import org.apache.log4j.Logger
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, row_number, when}
+import org.apache.spark.sql.types.{LongType, StringType, TimestampType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 class CDEDataProductAssignment(spark: SparkSession, logger: Logger) {
@@ -33,7 +34,7 @@ class CDEDataProductAssignment(spark: SparkSession, logger: Logger) {
       ).filter("TargetType='CriticalDataElement' and SourceType='DataProduct'")
 
       val dfProcess = dfProcess1.union(dfProcess2)
-        .withColumn("CDEID", col("SourceId"))
+        .withColumn("CDEId", col("SourceId"))
         .withColumn("DataProductId", col("TargetId"))
 
       val windowSpec = Window.partitionBy("CDEId","DataProductId").orderBy(col("ModifiedDateTime").desc,
@@ -47,6 +48,13 @@ class CDEDataProductAssignment(spark: SparkSession, logger: Logger) {
         .filter(col("row_number") === 1)
         .drop("row_number")
         .distinct()
+        .select(col("CDEId").cast(StringType)
+          ,col("DataProductId").cast(StringType)
+          ,col("ModifiedDateTime").cast(TimestampType)
+          ,col("ModifiedByUserId").cast(StringType)
+          ,col("EventProcessingTime").cast(LongType)
+          ,col("OperationType").cast(StringType)
+        )
 
       val dfFiltered = dfLatest.filter(col("OperationType") =!= "Delete")
 

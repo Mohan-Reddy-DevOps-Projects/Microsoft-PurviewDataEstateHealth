@@ -19,15 +19,13 @@ object DataProductMain {
       logger.setLevel(Level.INFO)
       logger.info("Started the DataProduct Table Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
-      if (args.length >= 5 && coldStartSoftCheck.validateCheckIn(args(0), "dataproduct")) {
-        val CosmosDBLinkedServiceName = args(0)
-        val adlsTargetDirectory = args(1)
-        val accountId = args(2)
-        val refreshType = args(3)
-        val jobRunGuid = args(4)
+      if (args.length >= 4 && coldStartSoftCheck.validateCheckIn("dataproduct")) {
+        val adlsTargetDirectory = args(0)
+        val accountId = args(1)
+        val refreshType = args(2)
+        val jobRunGuid = args(3)
         println(
-          s"""Received parameters: Source Cosmos Linked Service - $CosmosDBLinkedServiceName
-        , Target ADLS Path - $adlsTargetDirectory
+          s"""Received parameters: Target ADLS Path - $adlsTargetDirectory
         , AccountId - $accountId
         , Processing Type - $refreshType
         , JobRunGuid - $jobRunGuid""")
@@ -35,7 +33,7 @@ object DataProductMain {
         val dataProductSchema = new DataProductSchema().dataProductAssetSchema
         val reader = new Reader(spark, logger)
         val dataProduct = new DataProduct(spark, logger)
-        val df_dataProduct = reader.readCosmosData(dataProductContractSchema, CosmosDBLinkedServiceName, accountId, "dataproduct", "DataCatalog", "DataProduct")
+        val df_dataProduct = reader.readCosmosData(dataProductContractSchema,"", accountId, "dataproduct", "DataCatalog", "DataProduct")
         val dataWriter = new DataWriter(spark)
         // Process DataProductStatus
         val dataProductStatusSchema = new DataProductStatusSchema().dataProductStatusSchema

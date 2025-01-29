@@ -211,7 +211,7 @@ module streamAnalyticsJobsCatalog 'streamAnalyticsAccount.bicep' = {
         FilterValue1 : 'DataCatalog'
         Operator : ' And '
         FilterField2 : 'payloadKind'
-        FilterValue2 : 'keyresult'
+        FilterValue2 : 'KeyResult'
       }
     ]
   }

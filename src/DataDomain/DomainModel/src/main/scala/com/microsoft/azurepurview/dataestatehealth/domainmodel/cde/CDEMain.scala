@@ -14,15 +14,13 @@ package object  CDEMain {
       logger.setLevel(Level.INFO)
       logger.info("Started the CDE Table Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
-      if (args.length >= 5 && coldStartSoftCheck.validateCheckIn(args(0), "cde")) {
-        val CosmosDBLinkedServiceName = args(0)
-        val adlsTargetDirectory = args(1)
-        val accountId = args(2)
-        val refreshType = args(3)
-        val jobRunGuid = args(4)
+      if (args.length >= 4 && coldStartSoftCheck.validateCheckIn("cde")) {
+        val adlsTargetDirectory = args(0)
+        val accountId = args(1)
+        val refreshType = args(2)
+        val jobRunGuid = args(3)
         println(
-          s"""Received parameters: Source Cosmos Linked Service - $CosmosDBLinkedServiceName
-        , Target ADLS Path - $adlsTargetDirectory
+          s"""Received parameters: Target ADLS Path - $adlsTargetDirectory
         , AccountId - $accountId
         , Processing Type - $refreshType
         , JobRunGuid - $jobRunGuid""")
@@ -33,11 +31,11 @@ package object  CDEMain {
         val cdeContractSchema = new CDEContractSchema().cdeContractSchema
         val cdeSchema = new CDESchema().cdeSchema
         val cde = new CDE(spark, logger)
-        val dfCDE = reader.readCosmosData(cdeContractSchema, CosmosDBLinkedServiceName, accountId, "cde", "DataCatalog","CriticalDataElement")
-        val dfKeyResultProcessed = cde.processCDE(dfCDE, cdeSchema)
-        dataWriter.writeData(dfKeyResultProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
+        val dfCDE = reader.readCosmosData(cdeContractSchema,"", accountId, "cde", "DataCatalog","CriticalDataElement")
+        val dfCDEProcessed = cde.processCDE(dfCDE, cdeSchema)
+        dataWriter.writeData(dfCDEProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
           , "CDE", Seq("CDEId"), refreshType)
-        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/CDE"), Some(dfKeyResultProcessed), jobRunGuid, "CDE", "")
+        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/CDE"), Some(dfCDEProcessed), jobRunGuid, "CDE", "")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/CDE"))
 
         val cdeDataProductAssignment = new CDEDataProductAssignment(spark, logger)
@@ -53,6 +51,7 @@ package object  CDEMain {
         val cdeColumnAssignmentSchema = new CDEColumnAssignmentSchema().cdeColumnAssignmentSchema
         val dfCDEColumnAssignment = cdeColumnAssignment.processCDEColumnAssignment(
           adlsTargetDirectory = adlsTargetDirectory, schema = cdeColumnAssignmentSchema)
+
         dataWriter.writeData(dfCDEColumnAssignment, adlsTargetDirectory
           , ReProcessingThresholdInMins, "CDEColumnAssignment")
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/CDEColumnAssignment"), Some(dfCDEDataProductAssignment), jobRunGuid, "CDEColumnAssignment", "")
@@ -62,6 +61,7 @@ package object  CDEMain {
         val cdeGlossaryTermAssignmentSchema = new CDEGlossaryTermAssignmentSchema().cdeGlossaryTermAssignmentSchema
         val dfCDEGlossaryTermAssignment = cdeGlossaryTermAssignment.processCDEGlossaryTermAssignment(
           adlsTargetDirectory = adlsTargetDirectory, schema = cdeGlossaryTermAssignmentSchema)
+
         dataWriter.writeData(dfCDEGlossaryTermAssignment, adlsTargetDirectory
           , ReProcessingThresholdInMins, "CDEGlossaryTermAssignment")
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/CDEGlossaryTermAssignment"), Some(dfCDEDataProductAssignment), jobRunGuid, "CDEGlossaryTermAssignment", "")

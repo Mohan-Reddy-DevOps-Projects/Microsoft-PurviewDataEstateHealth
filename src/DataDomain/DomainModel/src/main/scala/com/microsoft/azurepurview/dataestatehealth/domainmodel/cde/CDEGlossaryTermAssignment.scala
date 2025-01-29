@@ -4,6 +4,7 @@ import org.apache.log4j.Logger
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.functions.{col, row_number, when}
+import org.apache.spark.sql.types.{LongType, StringType, TimestampType}
 
 class CDEGlossaryTermAssignment(spark: SparkSession, logger: Logger) {
   def processCDEGlossaryTermAssignment(adlsTargetDirectory: String, schema: org.apache.spark.sql.types.StructType): DataFrame = {
@@ -32,7 +33,7 @@ class CDEGlossaryTermAssignment(spark: SparkSession, logger: Logger) {
       ).filter("TargetType='CriticalDataElement' and SourceType='Term'")
 
       val dfProcess = dfProcess1.union(dfProcess2)
-        .withColumn("CDEID", col("SourceId"))
+        .withColumn("CDEId", col("SourceId"))
         .withColumn("GlossaryTermId", col("TargetId"))
 
       val windowSpec = Window.partitionBy("CDEId","GlossaryTermId").orderBy(col("ModifiedDateTime").desc,
@@ -46,6 +47,13 @@ class CDEGlossaryTermAssignment(spark: SparkSession, logger: Logger) {
         .filter(col("row_number") === 1)
         .drop("row_number")
         .distinct()
+        .select(col("CDEId").cast(StringType)
+          ,col("GlossaryTermId").cast(StringType)
+          ,col("ModifiedDateTime").cast(TimestampType)
+          ,col("ModifiedByUserId").cast(StringType)
+          ,col("EventProcessingTime").cast(LongType)
+          ,col("OperationType").cast(StringType)
+        )
 
       val dfFiltered = dfLatest.filter(col("OperationType") =!= "Delete")
 

@@ -15,15 +15,13 @@ object AccessPolicySetMain {
       logger.setLevel(Level.INFO)
       logger.info("Started the AccessPolicySet Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
-      if (args.length >= 5 && coldStartSoftCheck.validateCheckIn(args(0), "policyset")) {
-        val CosmosDBLinkedServiceName = args(0)
-        val adlsTargetDirectory = args(1)
-        val accountId = args(2)
-        val refreshType = args(3)
-        val jobRunGuid = args(4)
+      if (args.length >= 4 && coldStartSoftCheck.validateCheckIn("policyset")) {
+        val adlsTargetDirectory = args(0)
+        val accountId = args(1)
+        val refreshType = args(2)
+        val jobRunGuid = args(3)
         println(
-          s"""Received parameters: Source Cosmos Linked Service - $CosmosDBLinkedServiceName
-        , Target ADLS Path - $adlsTargetDirectory
+          s"""Received parameters: Target ADLS Path - $adlsTargetDirectory
         , AccountId - $accountId
         , Processing Type - $refreshType
         , JobRunGuid - $jobRunGuid""")
@@ -32,7 +30,7 @@ object AccessPolicySetMain {
         val accessPolicySetSchema = new AccessPolicySetSchema().accessPolicySetSchema
         val accessPolicySet = new AccessPolicySet(spark, logger)
         val reader = new Reader(spark, logger)
-        val df_accessPolicySet = reader.readCosmosData(accessPolicySetContractSchema, CosmosDBLinkedServiceName, accountId, "policyset", "DataAccess", "PolicySet")
+        val df_accessPolicySet = reader.readCosmosData(accessPolicySetContractSchema,"", accountId, "policyset", "DataAccess", "PolicySet")
         val df_accessPolicySetProcessed = accessPolicySet.processAccessPolicySet(df_accessPolicySet, accessPolicySetSchema)
         // Process AccessPolicyProvisioningState
         val accessPolicyProvisioningStateSchema = new AccessPolicyProvisioningStateSchema().accessPolicyProvisioningStateSchema

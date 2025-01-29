@@ -15,15 +15,13 @@ object SubscriptionMain {
       logger.setLevel(Level.INFO)
       logger.info("Started the Subscription Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
-      if (args.length >= 5 && coldStartSoftCheck.validateCheckIn(args(0), "datasubscription")) {
-        val CosmosDBLinkedServiceName = args(0)
-        val adlsTargetDirectory = args(1)
-        val accountId = args(2)
-        val refreshType = args(3)
-        val jobRunGuid = args(4)
+      if (args.length >= 4 && coldStartSoftCheck.validateCheckIn("datasubscription")) {
+        val adlsTargetDirectory = args(0)
+        val accountId = args(1)
+        val refreshType = args(2)
+        val jobRunGuid = args(3)
         println(
-          s"""Received parameters: Source Cosmos Linked Service - $CosmosDBLinkedServiceName
-        , Target ADLS Path - $adlsTargetDirectory
+          s"""Received parameters: Target ADLS Path - $adlsTargetDirectory
         , AccountId - $accountId
         , Processing Type - $refreshType
         , JobRunGuid - $jobRunGuid""")
@@ -32,7 +30,7 @@ object SubscriptionMain {
         val dataSubscriberRequestSchema = new DataSubscriberRequestSchema().dataSubscriberRequestSchema
         val reader = new Reader(spark, logger)
         val dataWriter = new DataWriter(spark)
-        val df_subscription = reader.readCosmosData(subscriptionContractSchema, CosmosDBLinkedServiceName, accountId, "datasubscription", "DataAccess", "DataSubscription")
+        val df_subscription = reader.readCosmosData(subscriptionContractSchema,"", accountId, "datasubscription", "DataAccess", "DataSubscription")
         val dataSubscriberRequest = new DataSubscriberRequest(spark, logger)
         val df_dataSubscriberRequestProcessed = dataSubscriberRequest.processDataSubscriberRequest(df_subscription, dataSubscriberRequestSchema)
         dataWriter.writeData(df_dataSubscriberRequestProcessed, adlsTargetDirectory

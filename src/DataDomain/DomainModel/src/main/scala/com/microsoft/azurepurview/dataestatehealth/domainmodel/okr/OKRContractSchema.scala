@@ -11,25 +11,15 @@ class OKRContractSchema {
         StructField("targetDate", StringType),
         StructField("contacts", StructType(Seq(
           StructField("owner", ArrayType(StructType(Seq(
-            StructField("id", StringType),
-            StructField("description", StringType)
+            StructField("id", StringType)
           )))),
         ))),
         StructField("status", StringType),
-        StructField("additionalProperties", StructType(Seq(
-          StructField("OverallStatus", StringType),
-          StructField("OverallProgress", IntegerType),
-          StructField("OverallGoal", IntegerType),
-          StructField("OverallMax", IntegerType),
-          StructField("KeyResultsCount", IntegerType),
-        ))),
         StructField("systemData", StructType(Seq(
           StructField("lastModifiedAt", StringType),
           StructField("lastModifiedBy", StringType),
           StructField("createdAt", StringType),
-          StructField("createdBy", StringType),
-          StructField("expiredAt", StringType),
-          StructField("expiredBy", StringType)
+          StructField("createdBy", StringType)
         )))
       ))),
       StructField("after", StructType(Seq(
@@ -39,30 +29,18 @@ class OKRContractSchema {
         StructField("targetDate", StringType),
         StructField("contacts", StructType(Seq(
           StructField("owner", ArrayType(StructType(Seq(
-            StructField("id", StringType),
-            StructField("description", StringType)
+            StructField("id", StringType)
           )))),
         ))),
         StructField("status", StringType),
-        StructField("additionalProperties", StructType(Seq(
-          StructField("OverallStatus", StringType),
-          StructField("OverallProgress", IntegerType),
-          StructField("OverallGoal", IntegerType),
-          StructField("OverallMax", IntegerType),
-          StructField("KeyResultsCount", IntegerType),
-        ))),
         StructField("systemData", StructType(Seq(
           StructField("lastModifiedAt", StringType),
           StructField("lastModifiedBy", StringType),
           StructField("createdAt", StringType),
-          StructField("createdBy", StringType),
-          StructField("expiredAt", StringType),
-          StructField("expiredBy", StringType)
+          StructField("createdBy", StringType)
         )))
       ))),
-      StructField("related", StructType(Seq(
-        StructField("dataAssetId", ArrayType(StringType))
-      )))))),
+      ))),
     StructField("eventSource", StringType),
     StructField("payloadKind", StringType),
     StructField("operationType", StringType),

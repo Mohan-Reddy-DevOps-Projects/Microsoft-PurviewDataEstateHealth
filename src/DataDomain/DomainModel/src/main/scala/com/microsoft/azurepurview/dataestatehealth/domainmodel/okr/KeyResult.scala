@@ -2,73 +2,107 @@ package com.microsoft.azurepurview.dataestatehealth.domainmodel.okr
 
 import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.Validator
 import org.apache.log4j.Logger
-import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, row_number, when}
 import org.apache.spark.sql.types.{LongType, TimestampType}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
-class KeyResult(spark: SparkSession, logger:Logger) {
-  def processKeyResult(df:DataFrame,schema: org.apache.spark.sql.types.StructType):DataFrame={
-    try{
+class KeyResult(spark: SparkSession, logger: Logger) {
+
+  def getKeyResultOKRMapping(adlsTargetDirectory: String): DataFrame = {
+    val dfRelationship = spark.read.format("delta").load(adlsTargetDirectory.concat("/Relationship"))
+
+    val dfOKRKeyResult = dfRelationship.select(col("SourceType")
+      , col("SourceId")
+      , col("TargetType")
+      , col("TargetId")
+      , col("ModifiedByUserId")
+      , col("ModifiedDateTime")
+      , col("EventProcessingTime")
+      , col("OperationType")
+    ).filter("SourceType='Objective' and TargetType='KeyResult'")
+
+    val dfKeyResultOKR = dfRelationship.select(col("TargetType")
+      , col("TargetId")
+      , col("SourceType")
+      , col("SourceId")
+      , col("ModifiedByUserId")
+      , col("ModifiedDateTime")
+      , col("EventProcessingTime")
+      , col("OperationType")
+    ).filter("TargetType='Objective' and SourceType='KeyResult'")
+
+    val dfOKRKeyResultMapping = dfOKRKeyResult.union(dfKeyResultOKR)
+      .withColumn("OKRId", col("SourceId"))
+      .withColumn("KeyResultId", col("TargetId"))
+      .select("OKRId","KeyResultId")
+
+    dfOKRKeyResultMapping
+  }
+
+  def processKeyResult(df: DataFrame, schema: org.apache.spark.sql.types.StructType,
+                       adlsTargetDirectory: String): DataFrame = {
+    try {
       val dfProcessUpsert = df.select(col("accountId").alias("AccountId")
-        ,col("operationType").alias("OperationType")
-        ,col("_ts").alias("EventProcessingTime")
-        ,col("payload.after.id").alias("KeyResultId")
-        ,col("payload.after.definition").alias("KeyResultDefintion")
-        ,col("payload.after.domainId").alias("BusinessDomainId")
-        ,col("payload.after.status").alias("Status")
-        ,col("payload.after.progress").alias("Progress")
-        ,col("payload.after.goal").alias("Goal")
-        ,col("payload.after.max").alias("Max")
-        ,col("payload.after.okrid").alias("OKRId")
-        ,col("payload.after.systemData.createdBy").alias("CreatedBy")
-        ,col("payload.after.systemData.createdAt").alias("CreatedAt")
-        ,col("payload.after.systemData.lastModifiedBy").alias("LastModifiedBy")
-        ,col("payload.after.systemData.lastModifiedAt").alias("LastModifiedAt")).filter("OperationType=='Create' or OperationType=='Update'")
+        , col("operationType").alias("OperationType")
+        , col("_ts").alias("EventProcessingTime")
+        , col("payload.after.id").alias("KeyResultId")
+        , col("payload.after.definition").alias("KeyResultDefintion")
+        , col("payload.after.domainId").alias("BusinessDomainId")
+        , col("payload.after.status").alias("Status")
+        , col("payload.after.progress").alias("Progress")
+        , col("payload.after.goal").alias("Goal")
+        , col("payload.after.max").alias("Max")
+        , col("payload.after.systemData.createdBy").alias("CreatedBy")
+        , col("payload.after.systemData.createdAt").alias("CreatedAt")
+        , col("payload.after.systemData.lastModifiedBy").alias("LastModifiedBy")
+        , col("payload.after.systemData.lastModifiedAt").alias("LastModifiedAt")).filter("OperationType=='Create' or OperationType=='Update'")
 
       val DeleteIsEmpty = df.filter("OperationType=='Delete'").isEmpty
-      var dfProcess=dfProcessUpsert
+      var dfProcess = dfProcessUpsert
       if (!DeleteIsEmpty) {
         val dfProcessDelete = df.select(col("accountId").alias("AccountId")
-          ,col("operationType").alias("OperationType")
-          ,col("_ts").alias("EventProcessingTime")
-          ,col("payload.after.id").alias("KeyResultId")
-          ,col("payload.after.definition").alias("KeyResultDefintion")
-          ,col("payload.after.domainId").alias("BusinessDomainId")
-          ,col("payload.after.status").alias("Status")
-          ,col("payload.after.progress").alias("Progress")
-          ,col("payload.after.goal").alias("Goal")
-          ,col("payload.after.max").alias("Max")
-          ,col("payload.after.okrid").alias("OKRId")
-          ,col("payload.after.systemData.createdBy").alias("CreatedBy")
-          ,col("payload.after.systemData.createdAt").alias("CreatedAt")
-          ,col("payload.after.systemData.lastModifiedBy").alias("LastModifiedBy")
-          ,col("payload.after.systemData.lastModifiedAt").alias("LastModifiedAt")).filter("OperationType=='Delete'")
+          , col("operationType").alias("OperationType")
+          , col("_ts").alias("EventProcessingTime")
+          , col("payload.after.id").alias("KeyResultId")
+          , col("payload.after.definition").alias("KeyResultDefintion")
+          , col("payload.after.domainId").alias("BusinessDomainId")
+          , col("payload.after.status").alias("Status")
+          , col("payload.after.progress").alias("Progress")
+          , col("payload.after.goal").alias("Goal")
+          , col("payload.after.max").alias("Max")
+          , col("payload.after.systemData.createdBy").alias("CreatedBy")
+          , col("payload.after.systemData.createdAt").alias("CreatedAt")
+          , col("payload.after.systemData.lastModifiedBy").alias("LastModifiedBy")
+          , col("payload.after.systemData.lastModifiedAt").alias("LastModifiedAt")).filter("OperationType=='Delete'")
         dfProcess = dfProcessUpsert.unionAll(dfProcessDelete)
       }
-      else{
+      else {
         dfProcess = dfProcessUpsert
       }
 
-      dfProcess = dfProcess.filter(s"""KeyResultId IS NOT NULL
-                                      | AND KeyResultDefintion IS NOT NULL""".stripMargin).distinct()
+      val dfOKRKeyResultMapping = getKeyResultOKRMapping(adlsTargetDirectory)
 
-      dfProcess = dfProcess.select(col("KeyResultId")
-        ,col("KeyResultDefintion")
-        ,col("Status")
-        ,col("Progress")
-        ,col("Goal")
-        ,col("Max")
-        ,col("OKRId")
-        ,col("AccountId")
-        ,col("CreatedAt").alias("CreatedDatetime").cast(TimestampType)
-        ,col("CreatedBy").alias("CreatedByUserId")
-        ,col("LastModifiedAt").alias("ModifiedDateTime").cast(TimestampType)
-        ,col("LastModifiedBy").alias("ModifiedByUserId")
-        ,col("EventProcessingTime").cast(LongType)
-        ,col("OperationType")
-        ,col("BusinessDomainId")
-      )
+      dfProcess = dfProcess
+        .filter(s"""KeyResultId IS NOT NULL AND KeyResultDefintion IS NOT NULL""".stripMargin)
+        .distinct()
+        .join(dfOKRKeyResultMapping, "KeyResultId")
+        .select(col("KeyResultId")
+          , col("KeyResultDefintion")
+          , col("Status")
+          , col("Progress")
+          , col("Goal")
+          , col("Max")
+          , col("OKRId")
+          , col("AccountId")
+          , col("CreatedAt").alias("CreatedDatetime").cast(TimestampType)
+          , col("CreatedBy").alias("CreatedByUserId")
+          , col("LastModifiedAt").alias("ModifiedDateTime").cast(TimestampType)
+          , col("LastModifiedBy").alias("ModifiedByUserId")
+          , col("EventProcessingTime").cast(LongType)
+          , col("OperationType")
+          , col("BusinessDomainId")
+        )
 
       val windowSpec = Window.partitionBy("KeyResultId").orderBy(col("ModifiedDateTime").desc,
         when(col("OperationType") === "Create", 1)
@@ -80,9 +114,9 @@ class KeyResult(spark: SparkSession, logger:Logger) {
         .filter(col("row_number") === 1)
         .drop("row_number")
         .distinct()
-      val dfProcessed = spark.createDataFrame(dfProcess.rdd, schema=schema)
+      val dfProcessed = spark.createDataFrame(dfProcess.rdd, schema = schema)
       val validator = new Validator()
-      validator.validateDataFrame(dfProcessed,"KeyResultId is null or KeyResultDefintion is null or AccountId is null")
+      validator.validateDataFrame(dfProcessed, "KeyResultId is null or KeyResultDefintion is null or AccountId is null")
       dfProcessed
     }
     catch {

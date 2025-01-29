@@ -14,15 +14,13 @@ package object ActionMain {
       logger.setLevel(Level.INFO)
       logger.info("Started the Action Table Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
-      if (args.length >= 5 && coldStartSoftCheck.validateCheckIn(args(0), "DHAction","dgh-Action")) {
-        val CosmosDBLinkedServiceName = args(0)
-        val adlsTargetDirectory = args(1)
-        val accountId = args(2)
-        val refreshType = args(3)
-        val jobRunGuid = args(4)
+      if (args.length >= 4 && coldStartSoftCheck.validateCheckIn("DHAction", "dgh-Action")) {
+        val adlsTargetDirectory = args(0)
+        val accountId = args(1)
+        val refreshType = args(2)
+        val jobRunGuid = args(3)
         println(
-          s"""Received parameters: Source Cosmos Linked Service - $CosmosDBLinkedServiceName
-        , Target ADLS Path - $adlsTargetDirectory
+          s"""Received parameters: Target ADLS Path - $adlsTargetDirectory
         , AccountId - $accountId
         , Processing Type - $refreshType
         , JobRunGuid - $jobRunGuid""")
@@ -34,8 +32,7 @@ package object ActionMain {
         val actionContractSchema = new ActionContractSchema().actionContractSchema
         val actionSchema = new ActionSchema().actionSchema
         val action = new Action(spark, logger)
-        val dfAction = reader.readCosmosData(actionContractSchema, CosmosDBLinkedServiceName
-          , accountId, "DHAction", "","","dgh-Action",tenantId)
+        val dfAction = reader.readCosmosData(actionContractSchema,"", accountId, "DHAction", "","","dgh-Action",tenantId)
         val dfActionProcessed = action.processAction(dfAction, actionSchema)
         dataWriter.writeData(dfActionProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
           , "Action", Seq("ActionId"))

@@ -13,14 +13,11 @@ class KeyResultContractSchema {
         StructField("goal", StringType),
         StructField("max", StringType),
         StructField("status", StringType),
-        StructField("okrid", StringType),
         StructField("systemData", StructType(Seq(
           StructField("lastModifiedAt", StringType),
           StructField("lastModifiedBy", StringType),
           StructField("createdAt", StringType),
           StructField("createdBy", StringType),
-          StructField("expiredAt", StringType),
-          StructField("expiredBy", StringType)
         )))
       ))),
       StructField("after", StructType(Seq(
@@ -31,14 +28,11 @@ class KeyResultContractSchema {
         StructField("goal", StringType),
         StructField("max", StringType),
         StructField("status", StringType),
-        StructField("okrid", StringType),
         StructField("systemData", StructType(Seq(
           StructField("lastModifiedAt", StringType),
           StructField("lastModifiedBy", StringType),
           StructField("createdAt", StringType),
           StructField("createdBy", StringType),
-          StructField("expiredAt", StringType),
-          StructField("expiredBy", StringType)
         )))
       ))),
       StructField("related", StructType(Seq(

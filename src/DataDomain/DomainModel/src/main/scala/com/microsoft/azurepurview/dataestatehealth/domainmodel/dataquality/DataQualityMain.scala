@@ -15,22 +15,20 @@ object DataQualityMain {
       logger.setLevel(Level.INFO)
       logger.info("Started the DataQuality Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
-      if (args.length >= 5 && coldStartSoftCheck.validateCheckIn(args(0),"dataqualityv2fact")) {
-        val CosmosDBLinkedServiceName = args(0)
-        val adlsTargetDirectory = args(1)
-        val accountId = args(2)
-        val refreshType = args(3)
-        val jobRunGuid = args(4)
+      if (args.length >= 4 && coldStartSoftCheck.validateCheckIn("dataqualityv2fact")) {
+        val adlsTargetDirectory = args(0)
+        val accountId = args(1)
+        val refreshType = args(2)
+        val jobRunGuid = args(3)
         println(
-          s"""Received parameters: Source Cosmos Linked Service - $CosmosDBLinkedServiceName
-        , Target ADLS Path - $adlsTargetDirectory
+          s"""Received parameters: Target ADLS Path - $adlsTargetDirectory
         , AccountId - $accountId
         , Processing Type - $refreshType
         , JobRunGuid - $jobRunGuid""")
         val dataQualityContractSchema = new DataQualityContractSchema().dataQualityContractSchema
         val dataQualityRuleSchema = new DataQualityRuleSchema().dataQualityRuleSchema
         val reader = new Reader(spark, logger)
-        val df_dataQualityRule = reader.readCosmosData(dataQualityContractSchema,CosmosDBLinkedServiceName,accountId,"dataqualityv2fact","","dataQualityFact")
+        val df_dataQualityRule = reader.readCosmosData(dataQualityContractSchema,"", accountId,"dataqualityv2fact","","dataQualityFact")
         val dataQualityRule = new DataQualityRule(spark,logger)
         //Process DataQualityRuleType
         val dataQualityRuleTypeSchema = new DataQualityRuleTypeSchema().dataQualityRuleTypeSchema

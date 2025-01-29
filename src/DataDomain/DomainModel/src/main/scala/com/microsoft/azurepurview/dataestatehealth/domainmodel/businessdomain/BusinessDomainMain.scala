@@ -17,15 +17,13 @@ object BusinessDomainMain {
       logger.warn("This is a warning message, after starting the main.")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
 
-      if (args.length >= 5 && coldStartSoftCheck.validateCheckIn(args(0), "businessdomain")) {
-        val CosmosDBLinkedServiceName = args(0)
-        val adlsTargetDirectory = args(1)
-        val accountId = args(2)
-        val refreshType = args(3)
-        val jobRunGuid = args(4)
+      if (args.length >= 4 && coldStartSoftCheck.validateCheckIn("businessdomain")) {
+        val adlsTargetDirectory = args(0)
+        val accountId = args(1)
+        val refreshType = args(2)
+        val jobRunGuid = args(3)
         println(
-          s"""Received parameters: Source Cosmos Linked Service - $CosmosDBLinkedServiceName
-        , Target ADLS Path - $adlsTargetDirectory
+          s"""Received parameters: Target ADLS Path - $adlsTargetDirectory
         , AccountId - $accountId
         , Processing Type - $refreshType
         , JobRunGuid - $jobRunGuid""")
@@ -34,7 +32,7 @@ object BusinessDomainMain {
         val businessDomain = new BusinessDomain(spark, logger)
         val dataWriter = new DataWriter(spark)
         val reader = new Reader(spark, logger)
-        val df_domain = reader.readCosmosData(businessDomainContractSchema, CosmosDBLinkedServiceName, accountId, "businessdomain", "DataCatalog", "BusinessDomain")
+        val df_domain = reader.readCosmosData(businessDomainContractSchema,"", accountId, "businessdomain", "DataCatalog", "BusinessDomain")
         val df_businessDomainProcessed = businessDomain.processBusinessDomain(df_domain, businessDomainSchema)
         // businessDomain.writeData(df_businessDomainProcessed,adlsTargetDirectory, refreshType,ReProcessingThresholdInMins)
         dataWriter.writeData(df = df_businessDomainProcessed, adlsTargetDirectory,
