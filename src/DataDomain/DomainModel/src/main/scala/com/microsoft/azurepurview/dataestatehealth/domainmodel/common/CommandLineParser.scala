@@ -7,6 +7,9 @@ class CommandLineParser {
     OParser.sequence(
       programName("DomainModelMain"),
       head("DomainModelMain", "1.0"),
+      opt[String]("CosmosDBLinkedServiceName")
+        .action((x, c) => c.copy(CosmosDBLinkedServiceName = x))
+        .text("Source Cosmos Linked Service"),
       opt[String]("AdlsTargetDirectory")
         .action((x, c) => c.copy(AdlsTargetDirectory = x))
         .text("Target ADLS Path"),
@@ -29,4 +32,3 @@ class CommandLineParser {
     OParser.parse(parser, args, MainConfig())
   }
 }
-
