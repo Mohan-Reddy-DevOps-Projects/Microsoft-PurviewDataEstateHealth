@@ -52,7 +52,7 @@ class OKR (spark: SparkSession, logger:Logger) {
       dfProcess = dfProcess.select(col("OKRId")
         ,col("OKRDefintion")
         ,col("Status")
-        ,col("TargetDate")
+        ,col("TargetDate").cast(TimestampType)
         ,col("AccountId")
         ,col("CreatedAt").alias("CreatedDatetime").cast(TimestampType)
         ,col("CreatedBy").alias("CreatedByUserId")

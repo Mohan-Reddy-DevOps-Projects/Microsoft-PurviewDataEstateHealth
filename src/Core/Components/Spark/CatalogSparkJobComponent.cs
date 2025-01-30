@@ -89,7 +89,6 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
             ClassName = jarClassName,
             RunManagerArgument = new List<string>()
             {
-                $"--CosmosDBLinkedServiceName", "analyticalCosmosDbLinkedService",
                 $"--AdlsTargetDirectory", $"abfss://{containerName}@{sinkLocation}/DomainModel",
                 $"--AccountId", $"{accountId}",
                 $"--RefreshType", "incremental",

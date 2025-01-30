@@ -8,7 +8,7 @@ class OKRSchema {
       StructField("OKRId", StringType, nullable = false),
       StructField("OKRDefintion", StringType, nullable = false),
       StructField("Status", StringType, nullable = false),
-      StructField("TargetDate", StringType, nullable = true),
+      StructField("TargetDate", TimestampType, nullable = true),
       StructField("AccountId", StringType, nullable = false),
       StructField("CreatedDatetime", TimestampType, nullable = true),
       StructField("CreatedByUserId", StringType, nullable = true),

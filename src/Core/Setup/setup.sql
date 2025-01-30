@@ -1118,6 +1118,138 @@ WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CustomAccessUseC
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: CustomAccessUseCase';
 
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDE]
+(
+    Name [nvarchar](512),
+    DataType [nvarchar](50),
+    Status [nvarchar](50),
+    Description [nvarchar](max),
+    CDEId [nvarchar](50),
+    AccountId [nvarchar](50),
+    CreatedDatetime [datetime2],
+    CreatedByUserId [nvarchar](50),
+    ModifiedDateTime [datetime2],
+    ModifiedByUserId [nvarchar](50),
+    EventProcessingTime [bigint],
+    OperationType [nvarchar](10),
+    BusinessDomainId [nvarchar](50)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CDE/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: CDE';
+
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDEColumnAssignment]
+(
+    CDEId [nvarchar](50),
+    ColumnId [nvarchar](50),
+    ModifiedDateTime [datetime2],
+    ModifiedByUserId [nvarchar](50),
+    EventProcessingTime [bigint],
+    OperationType [nvarchar](10)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CDEColumnAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: CDEColumnAssignment';
+
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDEDataProductAssignment]
+(
+    CDEId [nvarchar](50),
+    DataProductId [nvarchar](50),
+    ModifiedDateTime [datetime2],
+    ModifiedByUserId [nvarchar](50),
+    EventProcessingTime [bigint],
+    OperationType [nvarchar](10)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CDEDataProductAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: CDEDataProductAssignment';
+
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDEGlossaryTermAssignment]
+(
+    CDEId [nvarchar](50),
+    GlossaryTermId [nvarchar](50),
+    ModifiedDateTime [datetime2],
+    ModifiedByUserId [nvarchar](50),
+    EventProcessingTime [bigint],
+    OperationType [nvarchar](10)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CDEGlossaryTermAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: CDEGlossaryTermAssignment';
+
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Action]
+(
+    ActionId [nvarchar](50),
+    AccountId [nvarchar](50),
+    BusinessDomainId [nvarchar](50),
+    Category [nvarchar](200),
+    Severity [nvarchar](10),
+    FindingId [nvarchar](150),
+    FindingName [nvarchar](500),
+    Reason [nvarchar](4000),
+    Recommendation [nvarchar](4000),
+    FindingType [nvarchar](100),
+    FindingSubType [nvarchar](100),
+    TargetEntityType [nvarchar](100),
+    Type [nvarchar](100),
+    Status [nvarchar](50),
+    CreatedDatetime [datetime2],
+    CreatedByUserId [nvarchar](50),
+    ModifiedDateTime [datetime2],
+    ModifiedByUserId [nvarchar](50)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/Action/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: Action';
+
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[OKR]
+(
+    OKRId [nvarchar](50),
+    OKRDefintion [nvarchar](4000),
+    Status [nvarchar](50),
+    TargetDate [datetime2],
+    AccountId [nvarchar](50),
+    CreatedDatetime [datetime2],
+    CreatedByUserId [nvarchar](50),
+    ModifiedDateTime [datetime2],
+    ModifiedByUserId [nvarchar](50),
+    EventProcessingTime [bigint],
+    OperationType [nvarchar](10),
+    BusinessDomainId [nvarchar](50)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/OKR/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: OKR';
+
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[KeyResult]
+(
+    KeyResultId [nvarchar](50),
+    KeyResultDefintion [nvarchar](4000),
+    Status [nvarchar](50),
+    Progress [int],
+    Goal [int],
+    Max [int],
+    OKRId [nvarchar](50),
+    AccountId [nvarchar](50),
+    CreatedDatetime [datetime2],
+    CreatedByUserId [nvarchar](50),
+    ModifiedDateTime [datetime2],
+    ModifiedByUserId [nvarchar](50),
+    EventProcessingTime [bigint],
+    OperationType [nvarchar](10),
+    BusinessDomainId [nvarchar](50)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/KeyResult/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: KeyResult';
+
 PRINT 'DOMAIN TABLES CREATION COMPLETE!'
 /*
 DIMENSIONAL MODEL SECTION

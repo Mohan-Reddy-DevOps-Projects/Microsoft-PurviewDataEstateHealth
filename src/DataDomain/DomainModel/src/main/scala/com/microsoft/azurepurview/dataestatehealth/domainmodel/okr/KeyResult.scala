@@ -4,7 +4,7 @@ import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.Validator
 import org.apache.log4j.Logger
 import org.apache.spark.sql.expressions.Window
 import org.apache.spark.sql.functions.{col, row_number, when}
-import org.apache.spark.sql.types.{LongType, TimestampType}
+import org.apache.spark.sql.types.{IntegerType, LongType, TimestampType}
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 class KeyResult(spark: SparkSession, logger: Logger) {
@@ -90,9 +90,9 @@ class KeyResult(spark: SparkSession, logger: Logger) {
         .select(col("KeyResultId")
           , col("KeyResultDefintion")
           , col("Status")
-          , col("Progress")
-          , col("Goal")
-          , col("Max")
+          , col("Progress").cast(IntegerType)
+          , col("Goal").cast(IntegerType)
+          , col("Max").cast(IntegerType)
           , col("OKRId")
           , col("AccountId")
           , col("CreatedAt").alias("CreatedDatetime").cast(TimestampType)

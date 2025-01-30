@@ -483,6 +483,90 @@ BEGIN
     PRINT 'External table dropped: CustomAccessUseCase';
 END
 
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'CDE'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[CDE]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: CDE';
+END
+
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'CDEColumnAssignment'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[CDEColumnAssignment]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: CDEColumnAssignment';
+END
+
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'CDEDataProductAssignment'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[CDEDataProductAssignment]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: CDEDataProductAssignment';
+END
+
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'CDEGlossaryTermAssignment'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[CDEGlossaryTermAssignment]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: CDEGlossaryTermAssignment';
+END
+
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'Action'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[Action]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: Action';
+END
+
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'OKR'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[OKR]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: OKR';
+END
+
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'KeyResult'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[KeyResult]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: KeyResult';
+END
+
 PRINT 'DOMAIN EXTERNAL TABLES DROPS COMPLETE!'
 /*
 DIMENSIONAL MODEL SECTION
