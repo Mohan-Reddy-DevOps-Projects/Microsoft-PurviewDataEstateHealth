@@ -11,7 +11,6 @@ class KeyResultSchema {
       StructField("Progress", IntegerType, nullable = false),
       StructField("Goal", IntegerType, nullable = true),
       StructField("Max", IntegerType, nullable = true),
-      StructField("OKRId", StringType, nullable = true),
       StructField("AccountId", StringType, nullable = false),
       StructField("CreatedDatetime", TimestampType, nullable = true),
       StructField("CreatedByUserId", StringType, nullable = true),

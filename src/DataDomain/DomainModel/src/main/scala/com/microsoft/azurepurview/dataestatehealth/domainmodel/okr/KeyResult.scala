@@ -9,37 +9,6 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 
 class KeyResult(spark: SparkSession, logger: Logger) {
 
-  def getKeyResultOKRMapping(adlsTargetDirectory: String): DataFrame = {
-    val dfRelationship = spark.read.format("delta").load(adlsTargetDirectory.concat("/Relationship"))
-
-    val dfOKRKeyResult = dfRelationship.select(col("SourceType")
-      , col("SourceId")
-      , col("TargetType")
-      , col("TargetId")
-      , col("ModifiedByUserId")
-      , col("ModifiedDateTime")
-      , col("EventProcessingTime")
-      , col("OperationType")
-    ).filter("SourceType='Objective' and TargetType='KeyResult'")
-
-    val dfKeyResultOKR = dfRelationship.select(col("TargetType")
-      , col("TargetId")
-      , col("SourceType")
-      , col("SourceId")
-      , col("ModifiedByUserId")
-      , col("ModifiedDateTime")
-      , col("EventProcessingTime")
-      , col("OperationType")
-    ).filter("TargetType='Objective' and SourceType='KeyResult'")
-
-    val dfOKRKeyResultMapping = dfOKRKeyResult.union(dfKeyResultOKR)
-      .withColumn("OKRId", col("SourceId"))
-      .withColumn("KeyResultId", col("TargetId"))
-      .select("OKRId","KeyResultId")
-
-    dfOKRKeyResultMapping
-  }
-
   def processKeyResult(df: DataFrame, schema: org.apache.spark.sql.types.StructType,
                        adlsTargetDirectory: String): DataFrame = {
     try {
@@ -81,19 +50,15 @@ class KeyResult(spark: SparkSession, logger: Logger) {
         dfProcess = dfProcessUpsert
       }
 
-      val dfOKRKeyResultMapping = getKeyResultOKRMapping(adlsTargetDirectory)
-
       dfProcess = dfProcess
         .filter(s"""KeyResultId IS NOT NULL AND KeyResultDefintion IS NOT NULL""".stripMargin)
         .distinct()
-        .join(dfOKRKeyResultMapping, "KeyResultId")
         .select(col("KeyResultId")
           , col("KeyResultDefintion")
           , col("Status")
           , col("Progress").cast(IntegerType)
           , col("Goal").cast(IntegerType)
           , col("Max").cast(IntegerType)
-          , col("OKRId")
           , col("AccountId")
           , col("CreatedAt").alias("CreatedDatetime").cast(TimestampType)
           , col("CreatedBy").alias("CreatedByUserId")

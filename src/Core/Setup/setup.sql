@@ -1250,6 +1250,20 @@ WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/KeyResult/'', FI
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: KeyResult';
 
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[OKRKeyResultAssignment]
+(
+    OKRId [nvarchar](50),
+    KeyResultId [nvarchar](50),
+    ModifiedDateTime [datetime2],
+    ModifiedByUserId [nvarchar](50),
+    EventProcessingTime [bigint],
+    OperationType [nvarchar](10)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/OKRKeyResultAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: OKRKeyResultAssignment';
+
 PRINT 'DOMAIN TABLES CREATION COMPLETE!'
 /*
 DIMENSIONAL MODEL SECTION

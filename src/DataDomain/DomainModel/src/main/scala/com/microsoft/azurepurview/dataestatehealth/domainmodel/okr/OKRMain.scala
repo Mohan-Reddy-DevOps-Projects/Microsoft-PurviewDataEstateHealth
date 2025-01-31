@@ -38,6 +38,15 @@ package object OKRMain {
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/KeyResult"), Some(dfKeyResultProcessed), jobRunGuid, "KeyResult", "")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/KeyResult"))
 
+        val okrKeyResultAssignment = new OKRKeyResultAssignment(spark, logger)
+        val okrKeyResultAssignmentSchema = new OKRKeyResultAssignmentSchema().okrKeyResultAssignmentSchema
+        val dfOKRKeyResultAssignment = okrKeyResultAssignment.processOKRKeyResultAssignment(
+          adlsTargetDirectory = adlsTargetDirectory, schema = okrKeyResultAssignmentSchema)
+        dataWriter.writeData(dfOKRKeyResultAssignment, adlsTargetDirectory
+          , ReProcessingThresholdInMins, "OKRKeyResultAssignment")
+        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/OKRKeyResultAssignment"), Some(dfOKRKeyResultAssignment), jobRunGuid, "OKRKeyResultAssignment", "")
+        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/OKRKeyResultAssignment"))
+
         val okrContractSchema = new OKRContractSchema().okrContractSchema
         val okrSchema = new OKRSchema().okrSchema
         val okr = new OKR(spark, logger)
