@@ -245,6 +245,7 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     /// <inheritdoc/>
     public bool IsDEHDataCleanup(string accountId, string subscriptionId, string tenantId)
     {
+        this.logger.LogInformation($"EC IsDEHDataCleanup called for account: {accountId} , tennant: {tenantId}");
         ExposureControlOptions options = new(Features.DEHDataCleanup.ToString(), false)
         {
             AccountId = accountId,

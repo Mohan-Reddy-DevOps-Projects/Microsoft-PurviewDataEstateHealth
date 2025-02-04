@@ -4,8 +4,11 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Identity.Client;
+using Microsoft.Purview.ArtifactStoreClient.Models;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using System.Threading.Tasks;
 
@@ -18,6 +21,8 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger;
 
     private readonly IDimensionModelSparkJobComponent dimensionModelSparkJobComponent;
+    
+    private readonly IAccountExposureControlConfigProvider exposureControl;
 
     public TriggerDimensionModelSparkJobStage(
     IServiceScope scope,
@@ -28,6 +33,7 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
         this.jobCallbackUtils = jobCallbackUtils;
         this.dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
         this.dimensionModelSparkJobComponent = scope.ServiceProvider.GetService<IDimensionModelSparkJobComponent>();
+        this.exposureControl = scope.ServiceProvider.GetService<IAccountExposureControlConfigProvider>();
     }
 
     public string StageName => nameof(TriggerDimensionModelSparkJobStage);
@@ -37,6 +43,9 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
         JobExecutionStatus jobStageStatus;
         string jobStatusMessage;
         var jobId = Guid.NewGuid().ToString();
+        var accountId = this.metadata.AccountServiceModel.Id;
+        var tenantId = this.metadata.AccountServiceModel.TenantId;
+        var isDEHDataCleanup = this.exposureControl.IsDEHDataCleanup(accountId, string.Empty, tenantId);
         using (this.dataEstateHealthRequestLogger.LogElapsed($"Start to trigger dimension spark job"))
         {
             try
@@ -47,7 +56,8 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
                     this.metadata.AccountServiceModel,
                     new CancellationToken(),
                     jobId,
-                    this.metadata.SparkPoolId);
+                    this.metadata.SparkPoolId,
+                    isDEHDataCleanup);
 
                 this.metadata.SparkPoolId = jobInfo.PoolResourceId;
                 this.metadata.DimensionSparkJobBatchId = jobInfo.JobId;
