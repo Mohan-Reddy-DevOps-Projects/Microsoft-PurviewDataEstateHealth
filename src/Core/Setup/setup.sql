@@ -1236,7 +1236,6 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[KeyResult]
     Progress [int],
     Goal [int],
     Max [int],
-    OKRId [nvarchar](50),
     AccountId [nvarchar](50),
     CreatedDatetime [datetime2],
     CreatedByUserId [nvarchar](50),

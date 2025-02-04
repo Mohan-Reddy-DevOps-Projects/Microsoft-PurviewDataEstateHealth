@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
@@ -19,6 +20,8 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
 
     private readonly ICatalogSparkJobComponent catalogSparkJobComponent;
 
+    private readonly IAccountExposureControlConfigProvider exposureControl;
+
     public TriggerCatalogSparkJobStage(
     IServiceScope scope,
     DataPlaneSparkJobMetadata metadata,
@@ -28,6 +31,7 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
         this.jobCallbackUtils = jobCallbackUtils;
         this.dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
         this.catalogSparkJobComponent = scope.ServiceProvider.GetService<ICatalogSparkJobComponent>();
+        this.exposureControl = scope.ServiceProvider.GetService<IAccountExposureControlConfigProvider>();
     }
 
     public string StageName => nameof(TriggerCatalogSparkJobStage);
@@ -37,6 +41,9 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
         JobExecutionStatus jobStageStatus;
         string jobStatusMessage;
         var jobId = Guid.NewGuid().ToString();
+        var accountId = this.metadata.AccountServiceModel.Id;
+        var tenantId = this.metadata.AccountServiceModel.TenantId;
+        var isDEHDataCleanup = this.exposureControl.IsDEHDataCleanup(accountId, string.Empty, tenantId);
 
         using (this.dataEstateHealthRequestLogger.LogElapsed($"Start to trigger catalog spark job"))
         {
@@ -49,7 +56,8 @@ internal class TriggerCatalogSparkJobStage : IJobCallbackStage
                     this.metadata.AccountServiceModel,
                     new CancellationToken(),
                     jobId,
-                    this.metadata.SparkPoolId);
+                    this.metadata.SparkPoolId,
+                    isDEHDataCleanup);
 
                 this.metadata.SparkPoolId = jobInfo.PoolResourceId;
                 this.metadata.CatalogSparkJobBatchId = jobInfo.JobId;

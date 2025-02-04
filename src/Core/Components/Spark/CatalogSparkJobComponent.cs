@@ -43,7 +43,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     }
 
     /// <inheritdoc/>
-    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId)
+    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId, bool isDEHDataCleanup)
     {
         KeyVaultSecret cosmosDBKey = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBWritekey", cancellationToken);
         KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
@@ -54,7 +54,8 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         Uri sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
         //Update Main Method
         string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";        
-        SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId, accountServiceModel.TenantId, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value, jarClassName);
+        SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId
+            , accountServiceModel.TenantId, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value, jarClassName, isDEHDataCleanup);
 
 
         var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
@@ -78,11 +79,12 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         return await this.processingStorageManager.GetProcessingStorageSasUri(processingStorageModel, storageSasRequest, containerName, cancellationToken);
     }
 
-    private SparkJobRequest GetSparkJobRequest(Uri sasUri, string accountId, string containerName, string sinkLocation, string joId, string tenantId, string cosmosDBEndpoint = "", string cosmosDBKey = "", string workSpaceID = "", string jarClassName = "")
+    private SparkJobRequest GetSparkJobRequest(Uri sasUri, string accountId, string containerName, string sinkLocation, string joId, string tenantId, string cosmosDBEndpoint = ""
+        , string cosmosDBKey = "", string workSpaceID = "", string jarClassName = "", bool isDEHDataCleanup = false)
     {
         return new()
         {
-            Configuration = this.GetSinkConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID, tenantId),
+            Configuration = this.GetSinkConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID, tenantId, isDEHDataCleanup),
             ExecutorCount = 2,
             File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-azure-purview-domainmodel-1.1.jar",
             Name = $"DomainModelSparkJob-{accountId}",
@@ -100,7 +102,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     }
 
 
-    private Dictionary<string, string> GetSinkConfiguration(Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey, string workSpaceID, string tenantId)
+    private Dictionary<string, string> GetSinkConfiguration(Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey, string workSpaceID, string tenantId, bool isDEHDataCleanup)
     {
         return new Dictionary<string, string>()
         {
@@ -129,7 +131,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
             {$"spark.synapse.logAnalytics.workspaceId",workSpaceID },
             {$"spark.synapse.logAnalytics.keyVault.name", this.keyVaultBaseURL},
             {$"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" },
-            {$"spark.ec.deleteModelFolder","true" },
+            {$"spark.ec.deleteModelFolder", isDEHDataCleanup.ToString() },
             {$"spark.purview.tenantId",  $"{tenantId}" }
 
         };

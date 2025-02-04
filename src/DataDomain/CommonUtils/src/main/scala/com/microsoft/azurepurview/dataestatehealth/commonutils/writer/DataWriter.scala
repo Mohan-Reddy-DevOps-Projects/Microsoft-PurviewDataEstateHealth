@@ -133,25 +133,29 @@ class DataWriter(spark: SparkSession) extends SparkLogging {
     val mergeCondition = keyColumns.map(key => s"target.$key = source.$key").mkString(" AND ")
 
     // Get the maximum EventProcessingTime
-    val maxEventProcessingTime = dfTargetDeltaTable.toDF.agg(max("EventProcessingTime")).as("maxEventProcessingTime").head().getLong(0)
+    val maxEventProcessingTime = dfTargetDeltaTable.toDF
+      .agg(max("EventProcessingTime")).as("maxEventProcessingTime")
+      .first()
+      .getLong(0)
 
     // Prepare DataFrames for merging (updates/inserts) and deletions
     val filteredMergeDfSource = df.filter(lower(col("OperationType")) =!= "delete")
       .filter(col("EventProcessingTime") > maxEventProcessingTime)
 
     val filteredDeleteDfSource = df.filter(lower(col("OperationType")) === "delete")
-      .filter(col("EventProcessingTime") > maxEventProcessingTime)
 
     // Perform the merge for updates and inserts
     logger.info("Performing merge for updates and inserts.")
     val mergeBuilder = dfTargetDeltaTable.as("target").merge(filteredMergeDfSource.as("source"), mergeCondition)
 
+    logger.info(s"Max Event Processing Time Prior to Update:=======> ${maxEventProcessingTime.toString}")
     // Apply the appropriate merge operation
     operationType match {
       case "InsertOnly" => mergeBuilder.whenNotMatched().insertAll().execute()
       case _ => mergeBuilder.whenMatched().updateAll().whenNotMatched().insertAll().execute()
     }
 
+    logger.info(s"Max Event Processing Time Prior to Delete:=======> ${maxEventProcessingTime.toString}")
     if (operationType != "InsertOnly"){
       // Perform the delete operation
       logger.info("Performing merge for deletions.")

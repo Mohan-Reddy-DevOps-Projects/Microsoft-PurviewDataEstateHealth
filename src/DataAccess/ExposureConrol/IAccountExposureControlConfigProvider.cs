@@ -102,6 +102,14 @@ public interface IAccountExposureControlConfigProvider
     /// <returns></returns>
     public bool IsDQBillingEventEnabled(string accountId, string subscriptionId, string tenantId);
 
+    /// <summary>
+    /// Determines if DEH data cleanup is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDEHDataCleanup(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
     /// Retrieve the Spark Job configurations.

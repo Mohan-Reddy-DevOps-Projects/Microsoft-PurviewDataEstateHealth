@@ -2,6 +2,7 @@ package com.microsoft.azurepurview.dataestatehealth.domainmodel.main
 
 import com.microsoft.azurepurview.dataestatehealth.commonutils.common.JobStatus
 import com.microsoft.azurepurview.dataestatehealth.commonutils.logger.LogAnalyticsLogger
+import com.microsoft.azurepurview.dataestatehealth.commonutils.maintenance.Maintenance
 import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.CommandLineParser
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
@@ -10,31 +11,6 @@ import java.util.ResourceBundle
 
 object DomainModelMain {
   val logger: Logger = Logger.getLogger(getClass.getName)
-
-  def performMaintenance(accountId: String, adlsDir: String): Unit = {
-    def fileExists(path: String): Boolean = {
-      try {
-        mssparkutils.fs.ls(path).nonEmpty
-      } catch {
-        case _: Exception => false
-      }
-    }
-
-    val basePath = adlsDir.stripSuffix("/DomainModel")
-    val filePath = s"$basePath/Maintenance/OneTimeCleanup/DomainModel0124.txt"
-
-    if (fileExists(filePath)) {
-      println("SKIP: Delete root directory & full load.")
-    } else {
-      if (fileExists(adlsDir)) {
-        println("Delete root directory & full load.")
-        mssparkutils.fs.rm(adlsDir, true)
-      } else {
-        println("No root directory.")
-      }
-      mssparkutils.fs.put(filePath, accountId)
-    }
-  }
 
   def main(args: Array[String]): Unit = {
     val resourceBundle = ResourceBundle.getBundle("domainmodel")
@@ -71,7 +47,7 @@ object DomainModelMain {
           spark.conf.set("spark.cosmos.accountKey", mssparkutils.credentials.getSecret(spark.conf.get("spark.keyvault.name"), spark.conf.get("spark.analyticalcosmos.keyname")))
 
           if (spark.conf.get("spark.ec.deleteModelFolder", "false").toBoolean){
-            performMaintenance(config.AccountId, config.AdlsTargetDirectory)
+            Maintenance.performMaintenance(config.AdlsTargetDirectory)
           }
 
           println(
