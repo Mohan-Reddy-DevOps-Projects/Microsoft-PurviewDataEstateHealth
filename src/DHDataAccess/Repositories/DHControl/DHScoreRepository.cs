@@ -210,7 +210,7 @@ SELECT
     MAX(c.Time) AS Time,
     SUM(c.ScoreSum) as ScoreSum,
     SUM(c.ScoreCount) AS ScoreCount
-FROM c WHERE c.AccountId = '{this.AccountIdentifier.AccountId}' ");
+FROM c WHERE c.AccountId = @accountId ");
 
         // Add filtering conditions based on provided parameters
         if (domainIds != null && domainIds.Any())
@@ -242,7 +242,8 @@ FROM c WHERE c.AccountId = '{this.AccountIdentifier.AccountId}' ");
 
         sqlQuery.Append("GROUP BY c.ControlGroupId, c.ControlId, c.ScheduleRunId");
 
-        var queryDefinition = new QueryDefinition(sqlQuery.ToString());
+        var queryDefinition = new QueryDefinition(sqlQuery.ToString())
+            .WithParameter("@accountId", this.AccountIdentifier.AccountId);  // Passing AccountId as a parameter
 
         // Execute the query
         var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreSQLQueryResponse2>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });

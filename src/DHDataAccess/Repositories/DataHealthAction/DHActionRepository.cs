@@ -40,8 +40,7 @@ public class DHActionRepository(
     {
         using (this.logger.LogElapsed("Start to query actions in DB"))
         {
-            var sqlQuery = new StringBuilder($"SELECT * FROM c WHERE c.AccountId = '{this.AccountIdentifier.AccountId}'");
-
+            var sqlQuery = new StringBuilder($"SELECT * FROM c WHERE c.AccountId = @accountId");
             sqlQuery.Append(this.GenerateFilterQueryStr(query.Filter));
 
             if (query.Sorters != null && query.Sorters.Count != 0)
@@ -55,9 +54,10 @@ public class DHActionRepository(
                 sqlQuery.Append(string.Join(", ", orderByConditions));
             }
 
-            var sqlQueryText = sqlQuery.ToString();
+                var sqlQueryText = sqlQuery.ToString();
 
-            var queryDefinition = new QueryDefinition(sqlQueryText);
+                var queryDefinition = new QueryDefinition(sqlQueryText)
+                    .WithParameter("@accountId", this.AccountIdentifier.AccountId);
             var feedIterator = this.CosmosContainer.GetItemQueryIterator<DataHealthActionWrapper>(
                 queryDefinition,
                 query.ContinuationToken,
@@ -120,7 +120,7 @@ public class DHActionRepository(
                     {
                         this.logger.LogInformation("Query with assignedTo Facets");
 
-                        sqlQuery.Append($"SELECT {property.Name} as 'Value', COUNT(1) as 'Count' FROM c  JOIN {property.Name} IN c.{property.Name}  WHERE c.AccountId = '{this.AccountIdentifier.AccountId}' ");
+                        sqlQuery.Append($"SELECT {property.Name} as 'Value', COUNT(1) as 'Count' FROM c JOIN {property.Name} IN c.{property.Name} WHERE c.AccountId = @accountId ");
 
                         sqlQuery.Append(this.GenerateFilterQueryStr(filters));
 
@@ -128,7 +128,7 @@ public class DHActionRepository(
                     }
                     else
                     {
-                        sqlQuery.Append($"SELECT c.{property.Name} as 'Value', COUNT(1) as 'Count' FROM c WHERE c.AccountId = '{this.AccountIdentifier.AccountId}' ");
+                        sqlQuery.Append($"SELECT c.{property.Name} as 'Value', COUNT(1) as 'Count' FROM c WHERE c.AccountId = @accountId ");
 
                         sqlQuery.Append(this.GenerateFilterQueryStr(filters));
 
@@ -137,7 +137,8 @@ public class DHActionRepository(
 
                     string sqlQueryText = sqlQuery.ToString();
 
-                    var queryDefinition = new QueryDefinition(sqlQueryText);
+                        var queryDefinition = new QueryDefinition(sqlQueryText)
+                            .WithParameter("@accountId", this.AccountIdentifier.AccountId);
 
                     FeedIterator<FacetEntityItem> sqlResultSetIterator = this.CosmosContainer.GetItemQueryIterator<FacetEntityItem>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
 
@@ -314,12 +315,13 @@ public class DHActionRepository(
 
     private async Task<int> QueryCount(ActionsFilter? filter)
     {
-        var countQuery = new StringBuilder($"SELECT VALUE COUNT(1) FROM c WHERE c.AccountId = '{this.AccountIdentifier.AccountId}'");
+        var countQuery = new StringBuilder($"SELECT VALUE COUNT(1) FROM c WHERE c.AccountId = @accountId");
         if (filter != null)
         {
             countQuery.Append(this.GenerateFilterQueryStr(filter));
         }
-        var countQueryDefinition = new QueryDefinition(countQuery.ToString());
+        var countQueryDefinition = new QueryDefinition(countQuery.ToString())
+                            .WithParameter("@accountId", this.AccountIdentifier.AccountId);
         var countFeedIterator = this.CosmosContainer.GetItemQueryIterator<int>(countQueryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
 
         var countResponse = await countFeedIterator.ReadNextAsync().ConfigureAwait(false);
