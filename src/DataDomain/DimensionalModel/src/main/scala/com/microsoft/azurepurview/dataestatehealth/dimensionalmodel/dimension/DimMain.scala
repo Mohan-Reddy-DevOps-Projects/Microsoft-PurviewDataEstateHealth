@@ -39,7 +39,8 @@ object DimMain {
             case Some(df) =>
               // DataFrame exists, perform further processing
               val df_dimBusinessDomainProcessed =  dimBusinessDomain.processDimBusinessDomain(df,dimBusinessDomainSchema,AdlsTargetDirectory.concat("/DimensionalModel/DimBusinessDomain"))
-              dimBusinessDomain.writeData(df_dimBusinessDomainProcessed,AdlsTargetDirectory,"incremental",ReProcessingThresholdInMins)
+              // dimBusinessDomain.writeData(df_dimBusinessDomainProcessed,AdlsTargetDirectory,"incremental",ReProcessingThresholdInMins)
+              writer.overWriteData(df_dimBusinessDomainProcessed,AdlsTargetDirectory,"DimBusinessDomain",ReProcessingThresholdInMins)
               VacuumOptimize.checkpointSentinel(AccountId,AdlsTargetDirectory.concat("/DimensionalModel/DimBusinessDomain"),Some(df),JobRunGuid, "DimBusinessDomain","")
               VacuumOptimize.processDeltaTable(AdlsTargetDirectory.concat("/DimensionalModel/DimBusinessDomain"))
             case None =>
@@ -58,7 +59,8 @@ object DimMain {
             case Some(df) =>
               // DataFrame exists, perform further processing
               val df_dimDataProductProcessed = dimDataProduct.processDimDataProduct(df,dimDataProductSchema,AdlsTargetDirectory)
-              dimDataProduct.writeData(df_dimDataProductProcessed,AdlsTargetDirectory,"incremental",ReProcessingThresholdInMins)
+              // dimDataProduct.writeData(df_dimDataProductProcessed,AdlsTargetDirectory,"incremental",ReProcessingThresholdInMins)
+              writer.overWriteData(df_dimDataProductProcessed,AdlsTargetDirectory,"DimDataProduct",ReProcessingThresholdInMins)
               VacuumOptimize.checkpointSentinel(AccountId,AdlsTargetDirectory.concat("/DimensionalModel/DimDataProduct"),Some(df),JobRunGuid, "DimDataProduct","")
               VacuumOptimize.processDeltaTable(AdlsTargetDirectory.concat("/DimensionalModel/DimDataProduct"))
             case None =>
@@ -77,7 +79,8 @@ object DimMain {
             case Some(df) =>
               // DataFrame exists, perform further processing
               val df_DimDataAssetProcessed = dimDataAsset.processDimDataAsset(df,dimDataAssetSchema,AdlsTargetDirectory.concat("/DimensionalModel/DimDataAsset"))
-              dimDataAsset.writeData(df_DimDataAssetProcessed,AdlsTargetDirectory,"incremental",ReProcessingThresholdInMins)
+              // dimDataAsset.writeData(df_DimDataAssetProcessed,AdlsTargetDirectory,"incremental",ReProcessingThresholdInMins)
+              writer.overWriteData(df_DimDataAssetProcessed,AdlsTargetDirectory,"DimDataAsset",ReProcessingThresholdInMins)
               VacuumOptimize.checkpointSentinel(AccountId,AdlsTargetDirectory.concat("/DimensionalModel/DimDataAsset"),Some(df),JobRunGuid, "DimDataAsset","")
               VacuumOptimize.processDeltaTable(AdlsTargetDirectory.concat("/DimensionalModel/DimDataAsset"))
             case None =>
@@ -96,7 +99,8 @@ object DimMain {
             case Some(df) =>
               // DataFrame exists, perform further processing
               val df_dimDataAssetColumnProcessed = dimDataAssetColumn.processDimDataAssetColumn(df,dimDataAssetColumnSchema,AdlsTargetDirectory.concat("/DimensionalModel/DimDataAssetColumn"))
-              dimDataAssetColumn.writeData(df_dimDataAssetColumnProcessed,AdlsTargetDirectory,"incremental",ReProcessingThresholdInMins)
+              // dimDataAssetColumn.writeData(df_dimDataAssetColumnProcessed,AdlsTargetDirectory,"incremental",ReProcessingThresholdInMins)
+              writer.overWriteData(df_dimDataAssetColumnProcessed,AdlsTargetDirectory,"DimDataAssetColumn",ReProcessingThresholdInMins)
               VacuumOptimize.checkpointSentinel(AccountId,AdlsTargetDirectory.concat("/DimensionalModel/DimDataAssetColumn"),Some(df),JobRunGuid, "DimDataAssetColumn","")
               VacuumOptimize.processDeltaTable(AdlsTargetDirectory.concat("/DimensionalModel/DimDataAssetColumn"))
             case None =>
