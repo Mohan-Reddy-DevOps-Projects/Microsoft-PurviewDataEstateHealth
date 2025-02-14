@@ -1263,6 +1263,20 @@ WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/OKRKeyResultAssi
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: OKRKeyResultAssignment';
 
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductOKRAssignment]
+(
+    OKRId [nvarchar](50),
+    DataProductId [nvarchar](50),
+    ModifiedDateTime [datetime2],
+    ModifiedByUserId [nvarchar](50),
+    EventProcessingTime [bigint],
+    OperationType [nvarchar](10)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataProductOKRAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: DataProductOKRAssignment';
+
 PRINT 'DOMAIN TABLES CREATION COMPLETE!'
 /*
 DIMENSIONAL MODEL SECTION

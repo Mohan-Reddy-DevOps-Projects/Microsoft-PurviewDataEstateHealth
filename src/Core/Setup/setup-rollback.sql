@@ -579,6 +579,18 @@ BEGIN
     PRINT 'External table dropped: OKRKeyResultAssignment';
 END
 
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'DataProductOKRAssignment'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[DataProductOKRAssignment]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: DataProductOKRAssignment';
+END
+
 PRINT 'DOMAIN EXTERNAL TABLES DROPS COMPLETE!'
 /*
 DIMENSIONAL MODEL SECTION
