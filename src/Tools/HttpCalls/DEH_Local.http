@@ -1,0 +1,39 @@
+@baseUrl=https://localhost:5001
+@accountId=4285effc-d0a0-43bb-88b9-34932df50117
+@tenantId=12d98746-0b5a-4778-8bd0-449994469062
+@catalogId=ef5af140-62b9-431f-89be-2cdfcb0bf3a8
+@apiVersion=2024-02-01-preview
+
+### List All Scores
+GET {{baseUrl}}/scores
+accept: application/json
+content-type: application/json
+x-ms-account-id: {{accountId}}
+x-ms-client-tenant-id: {{tenantId}}
+x-ms-catalog-id: {{catalogId}}
+
+### Query Control Group Scores - Primary Route
+POST {{baseUrl}}/scores/query?type=ControlGroup&api-version={{apiVersion}}
+accept: application/json
+content-type: application/json
+x-ms-account-id: {{accountId}}
+x-ms-client-tenant-id: {{tenantId}}
+x-ms-catalog-id: {{catalogId}}
+
+{
+  "controlGroupIds": [
+    "0fc05c66-727f-439f-9ac3-a988591df553",
+    "8a7b81a0-805a-4cd0-96d5-5fb141b71f91",
+    "c739cdca-eadc-482a-81a7-6f4f84958f03",
+    "a340bd5f-3f68-4f09-b22e-f1e3aa35f74c",
+    "b506f24f-fec3-4fb0-bf01-ae6b04c38af2",
+    "4e8bcc42-61a7-4e82-926d-bb097ec0dfd3",
+    "062e80d4-b947-4989-ba39-5fb7b8bc17c2"
+  ],
+  "domainIds": [],
+  "recordLatestCounts": 35,
+  "recordTimeRange": {
+    "start": "2025-01-16T21:48:53.130Z",
+    "end": "2025-02-15T21:48:53.130Z"
+  }
+}

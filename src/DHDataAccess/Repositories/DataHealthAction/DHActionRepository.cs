@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 
 public class DHActionRepository(
     CosmosClient cosmosClient,
+    IDefaultCosmosClient defaultCosmosClient,
     IRequestHeaderContext requestHeaderContext,
     IConfiguration configuration,
     IDataEstateHealthRequestLogger logger,
@@ -35,6 +36,8 @@ public class DHActionRepository(
     private string DatabaseName => configuration["cosmosDb:actionDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHAction is not found in the configuration");
 
     protected override Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
+
+    protected Container DefaultCosmosContainer => defaultCosmosClient.Client.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
     public async Task<BatchResults<DataHealthActionWrapper>> GetActionsByFilterAsync(CosmosDBQuery<ActionsFilter> query, bool fetchAll = false)
     {
@@ -58,7 +61,7 @@ public class DHActionRepository(
 
                 var queryDefinition = new QueryDefinition(sqlQueryText)
                     .WithParameter("@accountId", this.AccountIdentifier.AccountId);
-            var feedIterator = this.CosmosContainer.GetItemQueryIterator<DataHealthActionWrapper>(
+            var feedIterator = this.DefaultCosmosContainer.GetItemQueryIterator<DataHealthActionWrapper>(
                 queryDefinition,
                 query.ContinuationToken,
                 new QueryRequestOptions
@@ -96,7 +99,7 @@ public class DHActionRepository(
             return new BatchResults<DataHealthActionWrapper>(
                 results, totalCount, response?.ContinuationToken
             );
-        };
+        }
     }
 
     public async Task<ActionFacets> GetActionFacetsAsync(ActionsFilter filters, ActionFacets facets)
@@ -140,7 +143,7 @@ public class DHActionRepository(
                         var queryDefinition = new QueryDefinition(sqlQueryText)
                             .WithParameter("@accountId", this.AccountIdentifier.AccountId);
 
-                    FeedIterator<FacetEntityItem> sqlResultSetIterator = this.CosmosContainer.GetItemQueryIterator<FacetEntityItem>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+                    FeedIterator<FacetEntityItem> sqlResultSetIterator = this.DefaultCosmosContainer.GetItemQueryIterator<FacetEntityItem>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
 
                     List<FacetEntityItem> sqlResults = new List<FacetEntityItem>();
                     while (sqlResultSetIterator.HasMoreResults)
@@ -322,7 +325,7 @@ public class DHActionRepository(
         }
         var countQueryDefinition = new QueryDefinition(countQuery.ToString())
                             .WithParameter("@accountId", this.AccountIdentifier.AccountId);
-        var countFeedIterator = this.CosmosContainer.GetItemQueryIterator<int>(countQueryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+        var countFeedIterator = this.DefaultCosmosContainer.GetItemQueryIterator<int>(countQueryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
 
         var countResponse = await countFeedIterator.ReadNextAsync().ConfigureAwait(false);
         this.cosmosMetricsTracker.LogCosmosMetrics(this.AccountIdentifier, countResponse);

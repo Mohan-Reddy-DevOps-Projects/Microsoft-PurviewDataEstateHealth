@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 
 public class DHScoreRepository(
     CosmosClient cosmosClient,
+    IDefaultCosmosClient defaultCosmosClient,
     IRequestHeaderContext requestHeaderContext,
     IConfiguration configuration,
     IDataEstateHealthRequestLogger logger,
@@ -30,6 +31,8 @@ public class DHScoreRepository(
     private string DatabaseName => configuration["cosmosDb:controlDatabaseName"] ?? throw new InvalidOperationException("CosmosDB databaseName for DHControl is not found in the configuration");
 
     protected override Azure.Cosmos.Container CosmosContainer => cosmosClient.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
+
+    protected Azure.Cosmos.Container DefaultCosmosContainer => defaultCosmosClient.Client.GetDatabase(this.DatabaseName).GetContainer(ContainerName);
 
     public async Task<IEnumerable<DHScoreAggregatedByControl>> QueryScoreGroupByControl(IEnumerable<string> controlIds, IEnumerable<string>? domainIds, int? recordLatestCounts, DateTime? start, DateTime? end, string? status)
     {
@@ -246,7 +249,7 @@ FROM c WHERE c.AccountId = @accountId ");
             .WithParameter("@accountId", this.AccountIdentifier.AccountId);  // Passing AccountId as a parameter
 
         // Execute the query
-        var queryResultSetIterator = this.CosmosContainer.GetItemQueryIterator<DHScoreSQLQueryResponse2>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
+        var queryResultSetIterator = this.DefaultCosmosContainer.GetItemQueryIterator<DHScoreSQLQueryResponse2>(queryDefinition, null, new QueryRequestOptions { PartitionKey = this.TenantPartitionKey });
         var intermediateResults = new List<DHScoreSQLQueryResponse2>();
 
         while (queryResultSetIterator.HasMoreResults)
