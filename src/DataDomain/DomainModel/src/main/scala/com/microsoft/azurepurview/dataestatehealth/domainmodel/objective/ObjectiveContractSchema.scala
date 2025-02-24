@@ -1,8 +1,8 @@
-package com.microsoft.azurepurview.dataestatehealth.domainmodel.okr
+package com.microsoft.azurepurview.dataestatehealth.domainmodel.objective
 import org.apache.spark.sql.types._
 
-class OKRContractSchema {
-  val okrContractSchema : StructType = StructType(Seq(
+class ObjectiveContractSchema {
+  val objectiveContractSchema : StructType = StructType(Seq(
     StructField("payload", StructType(Seq(
       StructField("before", StructType(Seq(
         StructField("id", StringType),

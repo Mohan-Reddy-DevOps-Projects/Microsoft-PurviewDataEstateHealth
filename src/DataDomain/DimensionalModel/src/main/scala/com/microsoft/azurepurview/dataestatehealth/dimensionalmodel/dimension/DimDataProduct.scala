@@ -87,29 +87,14 @@ class DimDataProduct (spark: SparkSession, logger:Logger){
       var naDF = spark.createDataFrame(spark.sparkContext.parallelize(Seq(newRow)), dimDataProductNASchema)
       naDF = naDF.withColumn("DataProductSourceId", col("DataProductDisplayName"))
 
-      val targetDeltaTableExists = DeltaTable.isDeltaTable(AdlsTargetDirectory.concat("/DimensionalModel/DimDataProduct"))
-      // If table not exists - Or is Empty
-      if (targetDeltaTableExists){
-        if (spark.read.format("delta").load(AdlsTargetDirectory.concat("/DimensionalModel/DimDataProduct")).isEmpty) {
-          dfProcess = dfProcess.union(naDF.select(
-            col("DataProductSourceId"),
-            col("DataProductDisplayName"),
-            col("DataProductStatusDisplayName"),
-            col("CreatedDatetime"),
-            col("ModifiedDatetime"),
-            col("IsActive")
-          ))}
-      }
-      else if (!targetDeltaTableExists){
-        dfProcess = dfProcess.union(naDF.select(
-          col("DataProductSourceId"),
-          col("DataProductDisplayName"),
-          col("DataProductStatusDisplayName"),
-          col("CreatedDatetime"),
-          col("ModifiedDatetime"),
-          col("IsActive")
-        ))
-      }
+      dfProcess = dfProcess.union(naDF.select(
+        col("DataProductSourceId"),
+        col("DataProductDisplayName"),
+        col("DataProductStatusDisplayName"),
+        col("CreatedDatetime"),
+        col("ModifiedDatetime"),
+        col("IsActive")
+      ))
 
       val generateIdColumn = new GenerateId()
       dfProcess = generateIdColumn.IdGenerator(dfProcess,List("DataProductSourceId"),"DataProductId")

@@ -10,8 +10,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 class Action(spark: SparkSession, logger:Logger) {
   def processAction(df:DataFrame,schema: org.apache.spark.sql.types.StructType):DataFrame={
     try{
-      var dfProcess = df.select(col("accountId").alias("AccountId")
-        ,col("_ts").alias("EventProcessingTime")
+      var dfProcess = df.select(col("_ts").alias("EventProcessingTime")
         ,col("JObject.category").alias("Category")
         ,col("JObject.severity").alias("Severity")
         ,col("JObject.findingId").alias("FindingId")
@@ -21,6 +20,7 @@ class Action(spark: SparkSession, logger:Logger) {
         ,col("JObject.findingType").alias("FindingType")
         ,col("JObject.findingSubType").alias("FindingSubType")
         ,col("JObject.targetEntityType").alias("TargetEntityType")
+        ,col("JObject.targetEntityId").alias("TargetEntityId")
         ,col("JObject.domainId").alias("BusinessDomainId")
         ,col("JObject.extraProperties.type").alias("Type")
         ,col("JObject.status").alias("Status")
@@ -31,11 +31,9 @@ class Action(spark: SparkSession, logger:Logger) {
         ,col("JObject.systemData.lastModifiedAt").alias("LastModifiedAt"))
 
 
-      dfProcess = dfProcess.filter(s"""ActionId IS NOT NULL
-                                      | AND AccountId IS NOT NULL""".stripMargin).distinct()
+      dfProcess = dfProcess.filter(s"""ActionId IS NOT NULL""".stripMargin).distinct()
 
       dfProcess = dfProcess.select(col("ActionId")
-        ,col("AccountId")
         ,col("BusinessDomainId")
         ,col("Category")
         ,col("Severity")
@@ -46,6 +44,7 @@ class Action(spark: SparkSession, logger:Logger) {
         ,col("FindingType")
         ,col("FindingSubType")
         ,col("TargetEntityType")
+        ,col("TargetEntityId")
         ,col("Type")
         ,col("Status")
         ,col("CreatedAt").alias("CreatedDatetime").cast(TimestampType)
@@ -57,7 +56,7 @@ class Action(spark: SparkSession, logger:Logger) {
 
       val dfProcessed = spark.createDataFrame(dfProcess.rdd, schema=schema)
       val validator = new Validator()
-      validator.validateDataFrame(dfProcessed,"ActionId is null or AccountId is null")
+      validator.validateDataFrame(dfProcessed,"ActionId is null")
       dfProcessed
     }
     catch {

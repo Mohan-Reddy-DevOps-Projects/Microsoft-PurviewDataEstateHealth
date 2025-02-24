@@ -146,7 +146,7 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Relationship]
 	[SourceId] [nvarchar](512),
 	[TargetType] [nvarchar](512),
 	[TargetId] [nvarchar](512),
-	[ModifiedByUserId] [nvarchar](512),
+	[ModifiedByUserId] [nvarchar](50),
 	[ModifiedDateTime] [datetime2](7),
 	[EventProcessingTime] [bigint],
 	[OperationType] [nvarchar](50)
@@ -171,17 +171,17 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[GlossaryTermBusinessDomainAssignment]
 (
-    [GlossaryTermID] [nvarchar](512),
-       [BusinessDomainId] [nvarchar](512),
-       [AssignedByUserId]  [nvarchar](512),
+    [GlossaryTermID] [nvarchar](50),
+       [BusinessDomainId] [nvarchar](50),
+       [AssignedByUserId]  [nvarchar](50),
        [AssignmentDatetime]  [datetime2],
        [GlossaryTermStatus] [nvarchar](512),
        [ActiveFlag] [int],
        [ActiveFlagLastModifiedDatetime]  [datetime2],
        [CreatedDatetime]  [datetime2],
-       [CreatedByUserId]  [nvarchar](512),
+       [CreatedByUserId]  [nvarchar](50),
        [ModifiedDateTime]  [datetime2],
-       [ModifiedByUserId]  [nvarchar](512),
+       [ModifiedByUserId]  [nvarchar](50),
        [EventProcessingTime] [bigint],
 	   [OperationType] [nvarchar](50)
      
@@ -206,17 +206,17 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[GlossaryTerm]
 (
-    [GlossaryTermId] [nvarchar](512),
-     [ParentGlossaryTermId] [nvarchar](512),
+    [GlossaryTermId] [nvarchar](50),
+     [ParentGlossaryTermId] [nvarchar](50),
      [GlossaryTermDisplayName] [nvarchar](512),
      [GlossaryDescription] [nvarchar](max),
      [AccountId] [nvarchar](512),
      [Status] [nvarchar](50),
      [IsLeaf] [Int],
      [CreatedDatetime] [datetime2],
-     [CreatedByUserId] [nvarchar](512),
+     [CreatedByUserId] [nvarchar](50),
      [ModifiedDateTime] [datetime2],
-     [ModifiedByUserId] [nvarchar](512),
+     [ModifiedByUserId] [nvarchar](50),
      [EventProcessingTime] [bigint],
 	 [OperationType] [nvarchar](50)
      
@@ -241,7 +241,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataQualityRuleType]
 (
-     [RuleTypeId] [nvarchar](256),
+     [RuleTypeId] [nvarchar](50),
      [RuleTypeDisplayName] [nvarchar](512),
      [RuleTypeDesc] [nvarchar](512),
      [DimensionDisplayName] [nvarchar](512)
@@ -267,10 +267,10 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataQualityRuleColumnExecution]
 (
-    [JobExecutionId] [nvarchar](256),
-     [RuleId] [nvarchar](256),
-     [DataAssetId] [nvarchar](512),
-     [ColumnId] [nvarchar](256),
+    [JobExecutionId] [nvarchar](50),
+     [RuleId] [nvarchar](50),
+     [DataAssetId] [nvarchar](50),
+     [ColumnId] [nvarchar](50),
      [ColumnResultScore] [decimal](18,10),
      [RowPassCount] [Int],
      [RowFailCount] [Int],
@@ -298,22 +298,22 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataQualityRule]
 (
-      [RuleId] [nvarchar](256),
-      [SourceRuleId] [nvarchar](256),
-      [BusinessDomainId] [nvarchar](512),
-      [DataProductId] [nvarchar](512),
-      [DataAssetId] [nvarchar](512),
-      [RuleTypeId] [nvarchar](256),
+      [RuleId] [nvarchar](50),
+      [SourceRuleId] [nvarchar](50),
+      [BusinessDomainId] [nvarchar](50),
+      [DataProductId] [nvarchar](50),
+      [DataAssetId] [nvarchar](50),
+      [RuleTypeId] [nvarchar](50),
       [RuleOriginDisplayName] [nvarchar](512),
       [RuleTargetObjectType] [nvarchar](512),
       [RuleDisplayName] [nvarchar](512),
       [RuleDescription] [nvarchar](max),
       [Status] [nvarchar](256),	  
-      [AccountId] [nvarchar](256),
+      [AccountId] [nvarchar](50),
       [CreatedDatetime] [datetime2],
-      [CreatedByUserId] [nvarchar](256),
+      [CreatedByUserId] [nvarchar](50),
       [ModifiedDateTime] [datetime2],
-      [ModifiedByUserId] [nvarchar](256),
+      [ModifiedByUserId] [nvarchar](50),
       [EventProcessingTime] [bigint],
 	  [OperationType] [nvarchar](50)
 )
@@ -336,7 +336,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataQualityJobExecution]
 (
-	 [JobExecutionId] [nvarchar](256),
+	 [JobExecutionId] [nvarchar](50),
      [JobExecutionStatusDisplayName] [nvarchar](512),
      [JobType] [nvarchar](512),
      [ScanTypeDisplayName] [nvarchar](512),
@@ -364,9 +364,9 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataQualityAssetRuleExecution]
 (
-    [JobExecutionId] [nvarchar](256),
-     [RuleId] [nvarchar](256),
-     [DataAssetId] [nvarchar](512),
+    [JobExecutionId] [nvarchar](50),
+     [RuleId] [nvarchar](50),
+     [DataAssetId] [nvarchar](50),
      [AssetResultScore] [decimal](18,10),
      [RowPassCount] [Int],
      [RowFailCount] [Int],
@@ -393,7 +393,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductUpdateFrequency]
 (
-    [UpdateFrequencyId] [nvarchar](512),
+    [UpdateFrequencyId] [nvarchar](50),
     [UpdateFrequencyDisplayName] [nvarchar](512),
     [SortOrder] [int]
 )
@@ -416,7 +416,7 @@ IF EXISTS (
     SET @DynamicSQL = '
         CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductType]
         (
-            [DataProductTypeID] [nvarchar](256),
+            [DataProductTypeID] [nvarchar](50),
             [DataProductTypeDisplayName] [nvarchar](512),
             [DataProductTypeDescription] [nvarchar](max)
         )
@@ -444,11 +444,11 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductTermsOfUse]
 (
-     [DataProductId] [nvarchar](512),
-     [TermsOfUseId] [nvarchar](256),
+     [DataProductId] [nvarchar](50),
+     [TermsOfUseId] [nvarchar](50),
      [TermsOfUseDisplayName] [nvarchar](512),
      [TermsOfUseHyperlink] [nvarchar](512),
-     [DataAssetId] [nvarchar](512)
+     [DataAssetId] [nvarchar](50)
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataProductTermsOfUse/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
@@ -469,7 +469,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductStatus]
 (
-    [DataProductStatusID] [nvarchar](256),
+    [DataProductStatusID] [nvarchar](50),
     [DataProductStatusDisplayName] [nvarchar](512)
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataProductStatus/'', FILE_FORMAT = [DeltaLakeFormat])';
@@ -491,11 +491,11 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductDocumentation]
 (
-    [DataProductId] [nvarchar](512),
-     [DocumentationId] [nvarchar](256),
+    [DataProductId] [nvarchar](50),
+     [DocumentationId] [nvarchar](50),
      [DocumentationDisplayName] [nvarchar](512),
      [DocumentationHyperlink] [nvarchar](512),
-     [DataAssetId] [nvarchar](512)
+     [DataAssetId] [nvarchar](50)
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataProductDocumentation/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
@@ -516,9 +516,9 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductBusinessDomainAssignment]
 (
-    [DataProductID] [nvarchar](512),
-     [BusinessDomainId] [nvarchar](512),
-     [AssignedByUserId] [nvarchar](512),
+    [DataProductID] [nvarchar](50),
+     [BusinessDomainId] [nvarchar](50),
+     [AssignedByUserId] [nvarchar](50),
      [AssignmentDateTime] [datetime2],
      [ActiveFlag] [int],
      [ActiveFlagLastModifiedDateTime] [datetime2]
@@ -542,14 +542,14 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductAssetAssignment]
 (
-      [DataProductId] [nvarchar](512),
-	  [DataAssetId] [nvarchar](512),
-      [AssignedByUserId] [nvarchar](512),
+      [DataProductId] [nvarchar](50),
+	  [DataAssetId] [nvarchar](50),
+      [AssignedByUserId] [nvarchar](50),
       [ActiveFlagLastModifiedDatetime] [datetime2],
       [AssignmentLastModifiedDatetime] [datetime2],
       [ActiveFlag] [int],
       [ModifiedDateTime] [datetime2],
-      [ModifiedByUserId] [nvarchar](512),
+      [ModifiedByUserId] [nvarchar](50),
       [EventProcessingTime] [bigint],
 	  [OperationType] [nvarchar](50)
      
@@ -573,8 +573,8 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductOwner]
 (
-    [DataProductId] [nvarchar](512),
-    [DataProductOwnerId] [nvarchar](512),
+    [DataProductId] [nvarchar](50),
+    [DataProductOwnerId] [nvarchar](50),
     [DataProductOwnerDescription] [nvarchar](512)
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataProductOwner/'', FILE_FORMAT = [DeltaLakeFormat])';
@@ -596,11 +596,11 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProduct]
 (
-    [DataProductID] [nvarchar](512),
+    [DataProductID] [nvarchar](50),
       [DataProductDisplayName] [nvarchar](512),
       [DataProductDescription] [nvarchar](max),
-      [AccountId] [nvarchar](512),
-      [DataProductTypeID] [nvarchar](256),
+      [AccountId] [nvarchar](50),
+      [DataProductTypeID] [nvarchar](50),
       [UseCases] [nvarchar](max),
       [SensitivityLabel] [nvarchar](512),
 	  [Endorsed] [bit],
@@ -608,13 +608,13 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProduct]
       [DocumentationHyperlink] [nvarchar](512),
       [ExpiredFlag] [int],
       [ExpiredFlagLastModifiedDatetime] [datetime2],
-      [DataProductStatusID] [nvarchar](256),
+      [DataProductStatusID] [nvarchar](50),
       [DataProductStatusLastUpdatedDatetime] [datetime2],
-      [UpdateFrequencyId] [nvarchar](512),
+      [UpdateFrequencyId] [nvarchar](50),
       [CreatedDatetime] [datetime2],
-      [CreatedByUserId] [nvarchar](512),
+      [CreatedByUserId] [nvarchar](50),
       [ModifiedDateTime] [datetime2],
-      [ModifiedByUserId] [nvarchar](512),
+      [ModifiedByUserId] [nvarchar](50),
       [EventProcessingTime] [bigint],
 	  [OperationType] [nvarchar](50)
      
@@ -638,8 +638,8 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataAssetTypeDataType]
 (
-     [DataTypeId] [nvarchar] (256),
-	 [DataAssetTypeId] [nvarchar] (256),
+     [DataTypeId] [nvarchar] (50),
+	 [DataAssetTypeId] [nvarchar] (50),
      [DataTypeDisplayName] [nvarchar](512)
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataAssetTypeDataType/'', FILE_FORMAT = [DeltaLakeFormat])';
@@ -661,7 +661,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataAssetType]
 (
-    [DataAssetTypeId] [nvarchar](256),
+    [DataAssetTypeId] [nvarchar](50),
      [DataAssetTypeDisplayName] [nvarchar](512)
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataAssetType/'', FILE_FORMAT = [DeltaLakeFormat])';
@@ -683,14 +683,14 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataAssetOwnerAssignment]
 (
-    [DataAssetId] [nvarchar](512),
-	  [DataAssetOwnerId] [nvarchar](256),
-      [AssignedByUserId] [nvarchar](512),	  
+    [DataAssetId] [nvarchar](50),
+	  [DataAssetOwnerId] [nvarchar](50),
+      [AssignedByUserId] [nvarchar](50),	  
       [ActiveFlagLastModifiedDatetime] [datetime2],
       [AssignmentLastModifiedDatetime] [datetime2],
       [ActiveFlag] [int],
       [ModifiedDateTime] [datetime2],
-      [ModifiedByUserId] [nvarchar](512),
+      [ModifiedByUserId] [nvarchar](50),
       [EventProcessingTime] [bigint],
 	  [OperationType] [nvarchar](50)
      
@@ -714,7 +714,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataAssetOwner]
 (
-    [DataAssetOwnerId] [nvarchar](256),
+    [DataAssetOwnerId] [nvarchar](50),
      [DataAssetOwner] [nvarchar](512)
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataAssetOwner/'', FILE_FORMAT = [DeltaLakeFormat])';
@@ -737,14 +737,14 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataAssetDomainAssignment]
 (
-    [DataAssetId] [nvarchar](512),
-	  [BusinessDomainId] [nvarchar](512),
-      [AssignedByUserId] [nvarchar](512),	  
+    [DataAssetId] [nvarchar](50),
+	  [BusinessDomainId] [nvarchar](50),
+      [AssignedByUserId] [nvarchar](50),	  
       [ActiveFlagLastModifiedDatetime] [datetime2],
       [AssignmentLastModifiedDatetime] [datetime2],
       [ActiveFlag] [int],
       [ModifiedDateTime] [datetime2],
-      [ModifiedByUserId] [nvarchar](512),
+      [ModifiedByUserId] [nvarchar](50),
       [EventProcessingTime] [bigint],
 	  [OperationType] [nvarchar](50)
      
@@ -768,9 +768,9 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataAssetColumnClassificationAssignment]
 (
-     [DataAssetId] [nvarchar] (256),
-	 [ColumnId] [nvarchar] (256),
-	 [ClassificationId] [nvarchar] (256),
+     [DataAssetId] [nvarchar] (50),
+	 [ColumnId] [nvarchar] (50),
+	 [ClassificationId] [nvarchar] (50),
      [ModifiedDateTime] [datetime2]
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataAssetColumnClassificationAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
@@ -792,20 +792,20 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataAssetColumn]
 (
-    [DataAssetId] [nvarchar](512),
-      [ColumnId] [nvarchar](256),
+    [DataAssetId] [nvarchar](50),
+      [ColumnId] [nvarchar](50),
       [ColumnDisplayName] [nvarchar](512),
       [ColumnDescription] [nvarchar](512),
-      [DataAssetTypeId] [nvarchar](256),
-      [DataTypeId] [nvarchar](256),
-      [AccountId] [nvarchar](256),
+      [DataAssetTypeId] [nvarchar](50),
+      [DataTypeId] [nvarchar](50),
+      [AccountId] [nvarchar](50),
       [CreatedDatetime] [datetime2],
-      [CreatedByUserId] [nvarchar](512),
+      [CreatedByUserId] [nvarchar](50),
       [ModifiedDateTime] [datetime2],
-      [ModifiedByUserId] [nvarchar](512),
+      [ModifiedByUserId] [nvarchar](50),
       [EventProcessingTime] [bigint],
 	  [OperationType] [nvarchar](50),
-      [ClassificationId] [nvarchar](512),
+      [ClassificationId] [nvarchar](50),
       [ColumnDataType] [nvarchar](50),
       [ColumnClassification] [nvarchar](50)
 )
@@ -828,20 +828,20 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataAsset]
 (
-    [DataAssetId] [nvarchar](512),
-      [DataAssetTypeId] [nvarchar](256),
+    [DataAssetId] [nvarchar](50),
+      [DataAssetTypeId] [nvarchar](50),
       [AssetDisplayName] [nvarchar](512),
       [AssetDescription] [nvarchar](max),
       [FullyQualifiedName] [nvarchar](512),	  
       [ScanSource] [nvarchar](512),
       [IsCertified] [int],
       [DataAssetStatusLastUpdatedDatetime] [datetime2],
-      [DataAssetLastUpdatedByUserId] [nvarchar](256),
-      [AccountId] [nvarchar](256),
+      [DataAssetLastUpdatedByUserId] [nvarchar](50),
+      [AccountId] [nvarchar](50),
       [CreatedDatetime] [datetime2],
-      [CreatedByUserId] [nvarchar](256),
+      [CreatedByUserId] [nvarchar](50),
       [ModifiedDateTime] [datetime2],
-      [ModifiedByUserId] [nvarchar](256),
+      [ModifiedByUserId] [nvarchar](50),
       [EventProcessingTime] [bigint],
 	  [OperationType] [nvarchar](50)
      
@@ -849,29 +849,6 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataAsset]
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataAsset/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: DataAsset';
-
-IF EXISTS (
-    SELECT * 
-    FROM sys.tables 
-    WHERE [name] = 'DataQualityRuleType'
-    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
-)
-BEGIN
-    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[DataQualityRuleType]';
-    EXEC sp_executesql @DynamicSQL;
-    PRINT 'External table dropped: DataQualityRuleType';
-END
-
-SET @DynamicSQL = '
-CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataQualityRuleType]
-(
-    [AccessPolicySetId] [nvarchar](512),
-     [AccessUseCaseDisplayName] [nvarchar](512),
-     [AccessUseCaseDescription] [nvarchar](512)
-)
-WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataQualityRuleType/'', FILE_FORMAT = [DeltaLakeFormat])';
-EXEC sp_executesql @DynamicSQL;
-PRINT 'External table created: DataQualityRuleType';
 
 IF EXISTS (
     SELECT * 
@@ -888,7 +865,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Classification]
 (
-    [ClassificationId] [nvarchar] (256),
+    [ClassificationId] [nvarchar] (50),
 	 [ClassificationDisplayName] [nvarchar] (256),
 	 [ClassificationDescription] [nvarchar] (256)
 )
@@ -911,19 +888,19 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[BusinessDomain]
 (
-    [BusinessDomainId] [nvarchar](256),
-     [ParentBusinessDomainId] [nvarchar](512),
+    [BusinessDomainId] [nvarchar](50),
+     [ParentBusinessDomainId] [nvarchar](50),
      [BusinessDomainName] [nvarchar](512),
      [BusinessDomainDisplayName] [nvarchar](512),
      [BusinessDomainDescription] [nvarchar](max),
      [Status] [nvarchar](50),
      [IsRootDomain] [bit],
      [HasValidOwner] [bit],
-     [AccountId] [nvarchar](512),
+     [AccountId] [nvarchar](50),
      [CreatedDatetime] [datetime2],
-     [CreatedByUserId] [nvarchar](512),
+     [CreatedByUserId] [nvarchar](50),
      [ModifiedDateTime] [datetime2],
-     [ModifiedByUserId] [nvarchar](512),
+     [ModifiedByUserId] [nvarchar](50),
      [EventProcessingTime] [bigint],
 	 [OperationType] [nvarchar](50)
      
@@ -947,28 +924,28 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataSubscriberRequest]
 (
-    [SubscriberRequestId] [nvarchar](512),
-     [DataProductId] [nvarchar](512),
-     [BusinessDomainId] [nvarchar](512),
-     [AccessPolicySetId] [nvarchar](512),
+    [SubscriberRequestId] [nvarchar](50),
+     [DataProductId] [nvarchar](50),
+     [BusinessDomainId] [nvarchar](50),
+     [AccessPolicySetId] [nvarchar](50),
      [SubscriberIdentityTypeDisplayName] [nvarchar](512),
      [RequestorIdentityTypeDisplayName] [nvarchar](512),
      [SubscriberRequestStatus] [nvarchar](512),
      [RequestStatusDisplayName] [nvarchar](512),
-     [SubscribedByUserId] [nvarchar](512),
-     [SubscribedByUserTenantId] [nvarchar](512),
+     [SubscribedByUserId] [nvarchar](50),
+     [SubscribedByUserTenantId] [nvarchar](50),
      [SubscribedByUserEmail] [nvarchar](512),
-     [RequestedByUserId] [nvarchar](512),
-     [RequestedByUserTenantId] [nvarchar](512),
+     [RequestedByUserId] [nvarchar](50),
+     [RequestedByUserTenantId] [nvarchar](50),
      [RequestedByUserEmail] [nvarchar](512),
      [RequestWriteAccess] [int] ,
      [RequestAccessDecisionDateTime] [datetime2],
      [Version] [nvarchar](512),
-     [AccountId] [nvarchar](512),
+     [AccountId] [nvarchar](50),
      [CreatedDatetime] [datetime2],
-     [CreatedByUserId] [nvarchar](256),
+     [CreatedByUserId] [nvarchar](50),
      [ModifiedDateTime] [datetime2],
-     [ModifiedByUserId] [nvarchar](256),
+     [ModifiedByUserId] [nvarchar](50),
      [EventProcessingTime] [bigint],
      [OperationType] [nvarchar](50)
      
@@ -994,11 +971,11 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[PolicySetApprover]
 (
-    [SubscriberRequestId] [nvarchar](512),
-     [AccessPolicySetId] [nvarchar](512),
-     [ApproverUserId] [nvarchar](512),
+    [SubscriberRequestId] [nvarchar](50),
+     [AccessPolicySetId] [nvarchar](50),
+     [ApproverUserId] [nvarchar](50),
      [ApproverIdentityType] [nvarchar](512),
-     [ApproverUserTenantId] [nvarchar](512),
+     [ApproverUserTenantId] [nvarchar](50),
      [ApproverUserEmail] [nvarchar](512),
      [TermsOfUseRequired] [int] ,
      [PartnerExposurePermitted] [int] ,
@@ -1006,11 +983,11 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[PolicySetApprover]
      [PrivacyComplianceApprovalRequired] [int] ,
      [ManagerApprovalRequired] [int],
      [DataCopyPermitted] [int],
-     [AccountId] [nvarchar](512),
+     [AccountId] [nvarchar](50),
      [CreatedDatetime] [datetime2],
-     [CreatedByUserId] [nvarchar](256),
+     [CreatedByUserId] [nvarchar](50),
      [ModifiedDateTime] [datetime2],
-     [ModifiedByUserId] [nvarchar](256),
+     [ModifiedByUserId] [nvarchar](50),
      [EventProcessingTime] [bigint],
      [OperationType] [nvarchar](50)
      
@@ -1034,9 +1011,9 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[AccessPolicySet]
 (
-    [AccessPolicySetId] [nvarchar](512),
-      [ResourceTypeId] [nvarchar](256),
-      [ProvisioningStateId] [nvarchar](256),
+    [AccessPolicySetId] [nvarchar](50),
+      [ResourceTypeId] [nvarchar](50),
+      [ProvisioningStateId] [nvarchar](50),
       [ActiveFlag] [int],
       [UseCaseExternalSharingPermittedFlag] [int],
       [UseCaseInternalSharingPermittedFlag] [int],
@@ -1048,11 +1025,11 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[AccessPolicySet]
       [PolicyAppliedOnId] [nvarchar](512),
       [PolicyAppliedOn] [nvarchar](256),
       [AccessPolicySetVersion] [int],
-      [AccountId] [nvarchar](512),
+      [AccountId] [nvarchar](50),
       [CreatedDatetime] [datetime2],
-      [CreatedByUserId] [nvarchar](256),
+      [CreatedByUserId] [nvarchar](50),
       [ModifiedDateTime] [datetime2],
-      [ModifiedByUserId] [nvarchar](256),
+      [ModifiedByUserId] [nvarchar](50),
       [EventProcessingTime] [bigint],
       [OperationType] [nvarchar](50),
       [ProvisioningStateDisplayName] [nvarchar](512),
@@ -1080,11 +1057,11 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[GlossaryTermDataProductAssignment]
 (
-    [GlossaryTermID] [nvarchar](512),
-	[DataProductId] [nvarchar](512),
+    [GlossaryTermID] [nvarchar](50),
+	[DataProductId] [nvarchar](50),
 	[ActiveFlag] [int],
 	[ModifiedDateTime] [datetime2](7),
-	[ModifiedByUserId] [nvarchar](512),
+	[ModifiedByUserId] [nvarchar](50),
 	[EventProcessingTime] [bigint],
 	[OperationType] [nvarchar](50)
      
@@ -1109,7 +1086,7 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CustomAccessUseCase]
 (
-    [AccessPolicySetId] [nvarchar](512),
+    [AccessPolicySetId] [nvarchar](50),
 	[AccessUseCaseDisplayName] [nvarchar](512),
 	[AccessUseCaseDescription] [nvarchar](512)
      
@@ -1126,7 +1103,6 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDE]
     Status [nvarchar](50),
     Description [nvarchar](max),
     CDEId [nvarchar](50),
-    AccountId [nvarchar](50),
     CreatedDatetime [datetime2],
     CreatedByUserId [nvarchar](50),
     ModifiedDateTime [datetime2],
@@ -1185,7 +1161,6 @@ SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Action]
 (
     ActionId [nvarchar](50),
-    AccountId [nvarchar](50),
     BusinessDomainId [nvarchar](50),
     Category [nvarchar](200),
     Severity [nvarchar](10),
@@ -1196,6 +1171,7 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Action]
     FindingType [nvarchar](100),
     FindingSubType [nvarchar](100),
     TargetEntityType [nvarchar](100),
+    TargetEntityId [nvarchar](200),
     Type [nvarchar](100),
     Status [nvarchar](50),
     CreatedDatetime [datetime2],
@@ -1208,13 +1184,12 @@ EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: Action';
 
 SET @DynamicSQL = '
-CREATE EXTERNAL TABLE [' + @DomainSchema + '].[OKR]
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Objective]
 (
-    OKRId [nvarchar](50),
-    OKRDefintion [nvarchar](4000),
+    ObjectiveId [nvarchar](50),
+    ObjectiveDisplayName [nvarchar](4000),
     Status [nvarchar](50),
     TargetDate [datetime2],
-    AccountId [nvarchar](50),
     CreatedDatetime [datetime2],
     CreatedByUserId [nvarchar](50),
     ModifiedDateTime [datetime2],
@@ -1223,50 +1198,35 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[OKR]
     OperationType [nvarchar](10),
     BusinessDomainId [nvarchar](50)
 )
-WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/OKR/'', FILE_FORMAT = [DeltaLakeFormat])';
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/Objective/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
-PRINT 'External table created: OKR';
+PRINT 'External table created: Objective';
 
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[KeyResult]
 (
     KeyResultId [nvarchar](50),
-    KeyResultDefintion [nvarchar](4000),
+    ObjectiveId [nvarchar](50),
+    KeyResultDisplayName [nvarchar](4000),
     Status [nvarchar](50),
     Progress [int],
     Goal [int],
-    Max [int],
-    AccountId [nvarchar](50),
+    Maximum [int],
     CreatedDatetime [datetime2],
     CreatedByUserId [nvarchar](50),
     ModifiedDateTime [datetime2],
     ModifiedByUserId [nvarchar](50),
     EventProcessingTime [bigint],
-    OperationType [nvarchar](10),
-    BusinessDomainId [nvarchar](50)
+    OperationType [nvarchar](10)
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/KeyResult/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: KeyResult';
 
 SET @DynamicSQL = '
-CREATE EXTERNAL TABLE [' + @DomainSchema + '].[OKRKeyResultAssignment]
-(
-    OKRId [nvarchar](50),
-    KeyResultId [nvarchar](50),
-    ModifiedDateTime [datetime2],
-    ModifiedByUserId [nvarchar](50),
-    EventProcessingTime [bigint],
-    OperationType [nvarchar](10)
-)
-WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/OKRKeyResultAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
-EXEC sp_executesql @DynamicSQL;
-PRINT 'External table created: OKRKeyResultAssignment';
-
-SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductOKRAssignment]
 (
-    OKRId [nvarchar](50),
+    ObjectiveId [nvarchar](50),
     DataProductId [nvarchar](50),
     ModifiedDateTime [datetime2],
     ModifiedByUserId [nvarchar](50),
@@ -1298,8 +1258,8 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[DimBusinessDomain]
 (
-    [BusinessDomainId] [nvarchar](512),
-     [BusinessDomainSourceId] [nvarchar](256),
+    [BusinessDomainId] [nvarchar](50),
+     [BusinessDomainSourceId] [nvarchar](50),
      [BusinessDomainDisplayName] [nvarchar](512),
      [CreatedDatetime] [datetime2],
      [ModifiedDatetime] [datetime2],
@@ -1328,8 +1288,8 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[DimDataProduct]
 (
-    [DataProductId] [nvarchar](512),
-	[DataProductSourceId] [nvarchar](256),
+    [DataProductId] [nvarchar](50),
+	[DataProductSourceId] [nvarchar](50),
 	[DataProductDisplayName] [nvarchar](512),
 	[DataProductStatus] [nvarchar](50),
 	[CreatedDatetime] [datetime2](7),
@@ -1355,8 +1315,8 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[DimDataAsset]
 (
-     [DataAssetId] [nvarchar](512),
-     [DataAssetSourceId] [nvarchar](256),
+     [DataAssetId] [nvarchar](50),
+     [DataAssetSourceId] [nvarchar](50),
      [DataAssetDisplayName] [nvarchar](512),
      [CreatedDatetime] [datetime2],
      [ModifiedDatetime] [datetime2],
@@ -1383,8 +1343,8 @@ END
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[DimDataAssetColumn]
 (
-    [DataAssetColumnId] [nvarchar](512),
-     [DataAssetColumnSourceId] [nvarchar](256),
+    [DataAssetColumnId] [nvarchar](50),
+     [DataAssetColumnSourceId] [nvarchar](50),
      [DataAssetColumnDisplayName] [nvarchar](512),
      [CreatedDatetime] [datetime2],
      [ModifiedDatetime] [datetime2],
@@ -1438,7 +1398,7 @@ SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[DimDQRuleType]
 (
      [DQRuleTypeId] [int],
-     [DQRuleTypeSourceId] [nvarchar](256),
+     [DQRuleTypeSourceId] [nvarchar](50),
      [DQRuleTypeDisplayName] [nvarchar](512),
      [QualityDimension] [nvarchar](512),
      [QualityDimensionCustomIndicator] [nvarchar](256)
@@ -1467,8 +1427,8 @@ SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[DimDQRuleName]
 (
      [DQRuleId] [Int],
-     [DQRuleNameId] [nvarchar](256),
-     [DQRuleNameSourceId] [nvarchar](256),
+     [DQRuleNameId] [nvarchar](50),
+     [DQRuleNameSourceId] [nvarchar](50),
      [DQRuleNameDisplayName] [nvarchar](512)
 )
 WITH (
@@ -1596,14 +1556,14 @@ SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[FactDataQuality]
 (
     [FactDataQualityId] [int],
-	[DQJobSourceId] [nvarchar](256),
+	[DQJobSourceId] [nvarchar](50),
 	[DQRuleId] [int],
 	[RuleScanCompletionDatetime] [datetime2](7),
 	[DEHLastProcessedDatetime] [datetime2](7),
-	[BusinessDomainId] [nvarchar](512),
-	[DataProductId] [nvarchar](512),
-	[DataAssetId] [nvarchar](512),
-	[DataAssetColumnId] [nvarchar](512),
+	[BusinessDomainId] [nvarchar](50),
+	[DataProductId] [nvarchar](50),
+	[DataAssetId] [nvarchar](50),
+	[DataAssetColumnId] [nvarchar](50),
 	[JobTypeId] [int],
 	[DQRuleTypeId] [int],
 	[DQScanProfileId] [int],
@@ -1639,10 +1599,10 @@ SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DimensionalSchema + '].[FactDataGovernanceScan]
 (
     [HealthControlId] [bigint],
-	[DataProductId] [nvarchar](512),
+	[DataProductId] [nvarchar](50),
 	[DEHProcessingDateId] [int],
 	[LastProcessedDatetime] [datetime2](7),
-	[BusinessDomainId] [nvarchar](512),
+	[BusinessDomainId] [nvarchar](50),
 	[TotalDataProductAssetCount] [int],
 	[DataProductCounter] [int],
 	[ClassifiedAssetCount] [int],

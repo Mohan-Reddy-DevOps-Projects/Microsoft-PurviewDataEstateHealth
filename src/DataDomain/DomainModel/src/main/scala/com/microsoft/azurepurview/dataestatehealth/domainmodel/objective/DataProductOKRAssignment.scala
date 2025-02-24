@@ -1,4 +1,4 @@
-package com.microsoft.azurepurview.dataestatehealth.domainmodel.okr
+package com.microsoft.azurepurview.dataestatehealth.domainmodel.objective
 
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{DataFrame, SparkSession}
@@ -12,7 +12,7 @@ class DataProductOKRAssignment(spark: SparkSession, logger: Logger) {
 
       val dfRelationship = spark.read.format("delta").load(adlsTargetDirectory.concat("/Relationship"))
 
-      val dfOKRDataProduct = dfRelationship.select(col("SourceType")
+      val dfObjectiveDataProduct = dfRelationship.select(col("SourceType")
         , col("SourceId")
         , col("TargetType")
         , col("TargetId")
@@ -22,7 +22,7 @@ class DataProductOKRAssignment(spark: SparkSession, logger: Logger) {
         , col("OperationType")
       ).filter("SourceType='Objective' and TargetType='DataProduct'")
 
-      val dfDataProductOKR = dfRelationship.select(col("TargetType")
+      val dfDataProductObjective = dfRelationship.select(col("TargetType")
         , col("TargetId")
         , col("SourceType")
         , col("SourceId")
@@ -32,11 +32,11 @@ class DataProductOKRAssignment(spark: SparkSession, logger: Logger) {
         , col("OperationType")
       ).filter("TargetType='Objective' and SourceType='DataProduct'")
 
-      val dfProcess = dfOKRDataProduct.union(dfDataProductOKR)
-        .withColumn("OKRId", col("SourceId"))
+      val dfProcess = dfObjectiveDataProduct.union(dfDataProductObjective)
+        .withColumn("ObjectiveId", col("SourceId"))
         .withColumn("DataProductId", col("TargetId"))
 
-      val windowSpec = Window.partitionBy("OKRId","DataProductId").orderBy(col("ModifiedDateTime").desc,
+      val windowSpec = Window.partitionBy("ObjectiveId","DataProductId").orderBy(col("ModifiedDateTime").desc,
         when(col("OperationType") === "Create", 1)
           .when(col("OperationType") === "Update", 2)
           .when(col("OperationType") === "Delete", 3)
@@ -47,7 +47,7 @@ class DataProductOKRAssignment(spark: SparkSession, logger: Logger) {
         .filter(col("row_number") === 1)
         .drop("row_number")
         .distinct()
-        .select(col("OKRId").cast(StringType)
+        .select(col("ObjectiveId").cast(StringType)
           ,col("DataProductId").cast(StringType)
           ,col("ModifiedDateTime").cast(TimestampType)
           ,col("ModifiedByUserId").cast(StringType)

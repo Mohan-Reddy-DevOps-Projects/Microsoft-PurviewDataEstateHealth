@@ -10,7 +10,6 @@ class CDESchema {
       StructField("Status", StringType, nullable = true),
       StructField("Description", StringType, nullable = true),
       StructField("CDEId", StringType, nullable = true),
-      StructField("AccountId", StringType, nullable = true),
       StructField("CreatedDatetime", TimestampType, nullable = true),
       StructField("CreatedByUserId", StringType, nullable = true),
       StructField("ModifiedDateTime", TimestampType, nullable = true),

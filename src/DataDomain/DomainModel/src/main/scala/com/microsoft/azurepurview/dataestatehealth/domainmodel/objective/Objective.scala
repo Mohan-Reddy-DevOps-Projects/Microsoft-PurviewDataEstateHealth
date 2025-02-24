@@ -1,4 +1,4 @@
-package com.microsoft.azurepurview.dataestatehealth.domainmodel.okr
+package com.microsoft.azurepurview.dataestatehealth.domainmodel.objective
 
 import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.Validator
 import org.apache.log4j.Logger
@@ -9,14 +9,13 @@ import org.apache.spark.sql.types.{BooleanType, IntegerType, LongType, StringTyp
 
 import java.sql.Timestamp
 
-class OKR (spark: SparkSession, logger:Logger) {
-  def processOKR(df:DataFrame,schema: org.apache.spark.sql.types.StructType):DataFrame={
+class Objective (spark: SparkSession, logger:Logger) {
+  def processObjective(df:DataFrame,schema: org.apache.spark.sql.types.StructType):DataFrame={
     try{
-      val dfProcessUpsert = df.select(col("accountId").alias("AccountId")
-        ,col("operationType").alias("OperationType")
+      val dfProcessUpsert = df.select(col("operationType").alias("OperationType")
         ,col("_ts").alias("EventProcessingTime")
-        ,col("payload.after.id").alias("OKRId")
-        ,col("payload.after.definition").alias("OKRDefintion")
+        ,col("payload.after.id").alias("ObjectiveId")
+        ,col("payload.after.definition").alias("ObjectiveDisplayName")
         ,col("payload.after.domain").alias("BusinessDomainId")
         ,col("payload.after.status").alias("Status")
         ,col("payload.after.targetDate").alias("TargetDate")
@@ -28,11 +27,10 @@ class OKR (spark: SparkSession, logger:Logger) {
       val DeleteIsEmpty = df.filter("OperationType=='Delete'").isEmpty
       var dfProcess=dfProcessUpsert
       if (!DeleteIsEmpty) {
-        val dfProcessDelete = df.select(col("accountId").alias("AccountId")
-          ,col("operationType").alias("OperationType")
+        val dfProcessDelete = df.select(col("operationType").alias("OperationType")
           ,col("_ts").alias("EventProcessingTime")
-          ,col("payload.after.id").alias("OKRId")
-          ,col("payload.after.definition").alias("OKRDefintion")
+          ,col("payload.after.id").alias("ObjectiveId")
+          ,col("payload.after.definition").alias("ObjectiveDisplayName")
           ,col("payload.after.domain").alias("BusinessDomainId")
           ,col("payload.after.status").alias("Status")
           ,col("payload.after.targetDate").alias("TargetDate")
@@ -46,14 +44,13 @@ class OKR (spark: SparkSession, logger:Logger) {
         dfProcess = dfProcessUpsert
       }
 
-      dfProcess = dfProcess.filter(s"""OKRId IS NOT NULL
-                                      | AND OKRDefintion IS NOT NULL""".stripMargin).distinct()
+      dfProcess = dfProcess.filter(s"""ObjectiveId IS NOT NULL
+                                      | AND ObjectiveDisplayName IS NOT NULL""".stripMargin).distinct()
 
-      dfProcess = dfProcess.select(col("OKRId")
-        ,col("OKRDefintion")
+      dfProcess = dfProcess.select(col("ObjectiveId")
+        ,col("ObjectiveDisplayName")
         ,col("Status")
         ,col("TargetDate").cast(TimestampType)
-        ,col("AccountId")
         ,col("CreatedAt").alias("CreatedDatetime").cast(TimestampType)
         ,col("CreatedBy").alias("CreatedByUserId")
         ,col("LastModifiedAt").alias("ModifiedDateTime").cast(TimestampType)
@@ -62,7 +59,7 @@ class OKR (spark: SparkSession, logger:Logger) {
         ,col("OperationType")
         ,col("BusinessDomainId")
       )
-      val windowSpec = Window.partitionBy("OKRId").orderBy(col("ModifiedDateTime").desc,
+      val windowSpec = Window.partitionBy("ObjectiveId").orderBy(col("ModifiedDateTime").desc,
         when(col("OperationType") === "Create", 1)
           .when(col("OperationType") === "Update", 2)
           .when(col("OperationType") === "Delete", 3)
@@ -74,13 +71,13 @@ class OKR (spark: SparkSession, logger:Logger) {
         .distinct()
       val dfProcessed = spark.createDataFrame(dfProcess.rdd, schema=schema)
       val validator = new Validator()
-      validator.validateDataFrame(dfProcessed,"OKRId is null or OKRDefintion is null or AccountId is null")
+      validator.validateDataFrame(dfProcessed,"ObjectiveId is null or ObjectiveDisplayName is null")
       dfProcessed
     }
     catch {
       case e: Exception =>
-        println(s"Error Processing OKR Data: ${e.getMessage}")
-        logger.error(s"Error Processing OKR Data: ${e.getMessage}")
+        println(s"Error Processing Objective Data: ${e.getMessage}")
+        logger.error(s"Error Processing Objective Data: ${e.getMessage}")
         throw e
     }
   }

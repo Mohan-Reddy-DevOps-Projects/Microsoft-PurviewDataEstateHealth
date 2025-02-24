@@ -1,4 +1,4 @@
-package com.microsoft.azurepurview.dataestatehealth.domainmodel.okr
+package com.microsoft.azurepurview.dataestatehealth.domainmodel.objective
 
 import org.apache.spark.sql.types.{ArrayType, IntegerType, LongType, StringType, StructField, StructType}
 

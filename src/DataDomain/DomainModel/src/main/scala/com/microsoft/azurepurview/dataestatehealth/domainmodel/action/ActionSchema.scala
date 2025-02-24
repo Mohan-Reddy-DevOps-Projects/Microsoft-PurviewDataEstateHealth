@@ -6,7 +6,6 @@ class ActionSchema {
   val actionSchema: StructType = StructType(
     Array(
       StructField("ActionId", StringType, nullable = false),
-      StructField("AccountId", StringType, nullable = false),
       StructField("BusinessDomainId", StringType, nullable = false),
       StructField("Category", StringType, nullable = false),
       StructField("Severity", StringType, nullable = true),
@@ -17,6 +16,7 @@ class ActionSchema {
       StructField("FindingType", StringType, nullable = false),
       StructField("FindingSubType", StringType, nullable = false),
       StructField("TargetEntityType", StringType, nullable = false),
+      StructField("TargetEntityId", StringType, nullable = true),
       StructField("Type", StringType, nullable = false),
       StructField("Status", StringType, nullable = false),
       StructField("CreatedDatetime", TimestampType, nullable = true),

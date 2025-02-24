@@ -67,25 +67,12 @@ class DimDataAsset (spark: SparkSession, logger:Logger){
       var naDF = spark.createDataFrame(spark.sparkContext.parallelize(Seq(newRow)), dimDataAssetNASchema)
       naDF = naDF.withColumn("DataAssetSourceId", col("DataAssetDisplayName"))
 
-      val targetDeltaTableExists = DeltaTable.isDeltaTable(targetAdlsFullPath)
-      // If table not exists - Or is Empty
-      if (targetDeltaTableExists){
-        if (spark.read.format("delta").load(targetAdlsFullPath).isEmpty) {
-          dfProcess = dfProcess.union(naDF.select(
-            col("DataAssetSourceId"),
-            col("DataAssetDisplayName"),
-            col("CreatedDatetime"),
-            col("ModifiedDatetime")
-          ))}
-      }
-      else if (!targetDeltaTableExists){
-        dfProcess = dfProcess.union(naDF.select(
-          col("DataAssetSourceId"),
-          col("DataAssetDisplayName"),
-          col("CreatedDatetime"),
-          col("ModifiedDatetime")
-        ))
-      }
+      dfProcess = dfProcess.union(naDF.select(
+        col("DataAssetSourceId"),
+        col("DataAssetDisplayName"),
+        col("CreatedDatetime"),
+        col("ModifiedDatetime")
+      ))
 
       val generateIdColumn = new GenerateId()
       dfProcess = generateIdColumn.IdGenerator(dfProcess, List("DataAssetSourceId"), "DataAssetId")

@@ -1,15 +1,14 @@
-package com.microsoft.azurepurview.dataestatehealth.domainmodel.okr
+package com.microsoft.azurepurview.dataestatehealth.domainmodel.objective
 
 import org.apache.spark.sql.types.{BooleanType, IntegerType, LongType, StringType, StructField, StructType, TimestampType}
 
-class OKRSchema {
-  val okrSchema: StructType = StructType(
+class ObjectiveSchema {
+  val objectiveSchema: StructType = StructType(
     Array(
-      StructField("OKRId", StringType, nullable = false),
-      StructField("OKRDefintion", StringType, nullable = false),
+      StructField("ObjectiveId", StringType, nullable = false),
+      StructField("ObjectiveDisplayName", StringType, nullable = false),
       StructField("Status", StringType, nullable = false),
       StructField("TargetDate", TimestampType, nullable = true),
-      StructField("AccountId", StringType, nullable = false),
       StructField("CreatedDatetime", TimestampType, nullable = true),
       StructField("CreatedByUserId", StringType, nullable = true),
       StructField("ModifiedDateTime", TimestampType, nullable = true),

@@ -1,18 +1,18 @@
-package com.microsoft.azurepurview.dataestatehealth.domainmodel.okr
+package com.microsoft.azurepurview.dataestatehealth.domainmodel.objective
 
 import com.microsoft.azurepurview.dataestatehealth.commonutils.writer.{DataWriter, Maintenance, Reader}
 import com.microsoft.azurepurview.dataestatehealth.domainmodel.common.ColdStartSoftCheck
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
-package object OKRMain {
+package object ObjectiveMain {
   val logger: Logger = Logger.getLogger(getClass.getName)
 
   def main(args: Array[String], spark: SparkSession, ReProcessingThresholdInMins: Int): Unit = {
     try {
-      println("In OKR Main Spark Application!")
+      println("In Objective Main Spark Application!")
       logger.setLevel(Level.INFO)
-      logger.info("Started the OKR Table Main Application!")
+      logger.info("Started the Objective Table Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
       if (args.length >= 4 && coldStartSoftCheck.validateCheckIn( "okr")) {
         val adlsTargetDirectory = args(0)
@@ -38,15 +38,6 @@ package object OKRMain {
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/KeyResult"), Some(dfKeyResultProcessed), jobRunGuid, "KeyResult", "")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/KeyResult"))
 
-        val okrKeyResultAssignment = new OKRKeyResultAssignment(spark, logger)
-        val okrKeyResultAssignmentSchema = new OKRKeyResultAssignmentSchema().okrKeyResultAssignmentSchema
-        val dfOKRKeyResultAssignment = okrKeyResultAssignment.processOKRKeyResultAssignment(
-          adlsTargetDirectory = adlsTargetDirectory, schema = okrKeyResultAssignmentSchema)
-        dataWriter.writeData(dfOKRKeyResultAssignment, adlsTargetDirectory
-          , ReProcessingThresholdInMins, "OKRKeyResultAssignment")
-        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/OKRKeyResultAssignment"), Some(dfOKRKeyResultAssignment), jobRunGuid, "OKRKeyResultAssignment", "")
-        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/OKRKeyResultAssignment"))
-
         val dataProductOKRAssignment = new DataProductOKRAssignment(spark, logger)
         val dataProductOKRAssignmentSchema = new DataProductOKRAssignmentSchema().dataProductOKRAssignmentSchema
         val dfDataProductOKRAssignment = dataProductOKRAssignment.processDataProductOKRAssignment(
@@ -56,24 +47,24 @@ package object OKRMain {
         VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/DataProductOKRAssignment"), Some(dfDataProductOKRAssignment), jobRunGuid, "DataProductOKRAssignment", "")
         VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataProductOKRAssignment"))
 
-        val okrContractSchema = new OKRContractSchema().okrContractSchema
-        val okrSchema = new OKRSchema().okrSchema
-        val okr = new OKR(spark, logger)
-        val dfOkr = reader.readCosmosData(okrContractSchema, "", accountId, "okr", "DataCatalog", "OKR")
-        val dfOkrProcessed = okr.processOKR(dfOkr, okrSchema)
-        dataWriter.writeData(dfOkrProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
-          , "OKR", Seq("OKRId"), refreshType)
-        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/OKR"), Some(dfOkrProcessed), jobRunGuid, "OKR", "")
-        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/OKR"))
+        val objectiveContractSchema = new ObjectiveContractSchema().objectiveContractSchema
+        val objectiveSchema = new ObjectiveSchema().objectiveSchema
+        val objective = new Objective(spark, logger)
+        val dfObjective = reader.readCosmosData(objectiveContractSchema, "", accountId, "okr", "DataCatalog", "OKR")
+        val dfObjectiveProcessed = objective.processObjective(dfObjective, objectiveSchema)
+        dataWriter.writeData(dfObjectiveProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
+          , "Objective", Seq("ObjectiveId"), refreshType)
+        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/Objective"), Some(dfObjectiveProcessed), jobRunGuid, "Objective", "")
+        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/Objective"))
 
       }
     } catch {
       case e: Exception =>
-        println(s"Error In Main OKR Spark Application!: ${e.getMessage}")
-        logger.error(s"Error In Main OKR Spark Application!: ${e.getMessage}")
+        println(s"Error In Main Objective Spark Application!: ${e.getMessage}")
+        logger.error(s"Error In Main Objective Spark Application!: ${e.getMessage}")
         val VacuumOptimize = new Maintenance(spark, logger)
-        VacuumOptimize.checkpointSentinel(args(2), args(1).concat("/OKR"), None, args(4), "OKR", s"Error In Main OKR Spark Application!: ${e.getMessage}")
-        throw new IllegalArgumentException(s"Error In Main OKR Spark Application!: ${e.getMessage}")
+        VacuumOptimize.checkpointSentinel(args(2), args(1).concat("/Objective"), None, args(4), "Objective", s"Error In Main Objective Spark Application!: ${e.getMessage}")
+        throw new IllegalArgumentException(s"Error In Main Objective Spark Application!: ${e.getMessage}")
     }
   }
 }

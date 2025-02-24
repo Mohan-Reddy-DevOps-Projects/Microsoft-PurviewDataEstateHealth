@@ -10,8 +10,7 @@ import org.apache.spark.sql.types.{LongType, TimestampType}
 class CDE(spark: SparkSession, logger:Logger) {
   def processCDE(df:DataFrame,schema: org.apache.spark.sql.types.StructType):DataFrame={
     try{
-      val dfProcessUpsert = df.select(col("accountId").alias("AccountId")
-        ,col("operationType").alias("OperationType")
+      val dfProcessUpsert = df.select(col("operationType").alias("OperationType")
         ,col("_ts").alias("EventProcessingTime")
         ,col("payload.after.name").alias("Name")
         ,col("payload.after.dataType").alias("DataType")
@@ -27,8 +26,7 @@ class CDE(spark: SparkSession, logger:Logger) {
       val DeleteIsEmpty = df.filter("OperationType=='Delete'").isEmpty
       var dfProcess=dfProcessUpsert
       if (!DeleteIsEmpty) {
-        val dfProcessDelete = df.select(col("accountId").alias("AccountId")
-          ,col("operationType").alias("OperationType")
+        val dfProcessDelete = df.select(col("operationType").alias("OperationType")
           ,col("_ts").alias("EventProcessingTime")
           ,col("payload.before.name").alias("Name")
           ,col("payload.before.dataType").alias("DataType")
@@ -54,7 +52,6 @@ class CDE(spark: SparkSession, logger:Logger) {
         ,col("Status")
         ,col("Description")
         ,col("CDEId")
-        ,col("AccountId")
         ,col("CreatedAt").alias("CreatedDatetime").cast(TimestampType)
         ,col("CreatedBy").alias("CreatedByUserId")
         ,col("LastModifiedAt").alias("ModifiedDateTime").cast(TimestampType)
@@ -78,7 +75,7 @@ class CDE(spark: SparkSession, logger:Logger) {
 
       val dfProcessed = spark.createDataFrame(dfProcess.rdd, schema=schema)
       val validator = new Validator()
-      validator.validateDataFrame(dfProcessed,"CDEId is null or Name is null or AccountId is null")
+      validator.validateDataFrame(dfProcessed,"CDEId is null or Name is null")
 
       dfProcessed
     }
