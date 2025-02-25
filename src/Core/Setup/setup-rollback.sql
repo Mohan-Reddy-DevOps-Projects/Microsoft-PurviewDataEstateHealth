@@ -482,7 +482,7 @@ BEGIN
     EXEC sp_executesql @DynamicSQL;
     PRINT 'External table dropped: CustomAccessUseCase';
 END
-
+/*
 IF EXISTS (
     SELECT * 
     FROM sys.tables 
@@ -530,7 +530,7 @@ BEGIN
     EXEC sp_executesql @DynamicSQL;
     PRINT 'External table dropped: CDEGlossaryTermAssignment';
 END
-
+*/
 IF EXISTS (
     SELECT * 
     FROM sys.tables 
@@ -542,17 +542,17 @@ BEGIN
     EXEC sp_executesql @DynamicSQL;
     PRINT 'External table dropped: Action';
 END
-
+/*
 IF EXISTS (
     SELECT * 
     FROM sys.tables 
-    WHERE [name] = 'OKR'
+    WHERE [name] = 'Objective'
     AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
 )
 BEGIN
-    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[OKR]';
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[Objective]';
     EXEC sp_executesql @DynamicSQL;
-    PRINT 'External table dropped: OKR';
+    PRINT 'External table dropped: Objective';
 END
 
 IF EXISTS (
@@ -570,18 +570,6 @@ END
 IF EXISTS (
     SELECT * 
     FROM sys.tables 
-    WHERE [name] = 'OKRKeyResultAssignment'
-    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
-)
-BEGIN
-    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[OKRKeyResultAssignment]';
-    EXEC sp_executesql @DynamicSQL;
-    PRINT 'External table dropped: OKRKeyResultAssignment';
-END
-
-IF EXISTS (
-    SELECT * 
-    FROM sys.tables 
     WHERE [name] = 'DataProductOKRAssignment'
     AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
 )
@@ -590,7 +578,7 @@ BEGIN
     EXEC sp_executesql @DynamicSQL;
     PRINT 'External table dropped: DataProductOKRAssignment';
 END
-
+*/
 PRINT 'DOMAIN EXTERNAL TABLES DROPS COMPLETE!'
 /*
 DIMENSIONAL MODEL SECTION

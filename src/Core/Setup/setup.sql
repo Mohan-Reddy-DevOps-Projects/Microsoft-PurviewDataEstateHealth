@@ -1094,7 +1094,7 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CustomAccessUseCase]
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CustomAccessUseCase/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: CustomAccessUseCase';
-
+/*
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDE]
 (
@@ -1156,7 +1156,7 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDEGlossaryTermAssignment]
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CDEGlossaryTermAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: CDEGlossaryTermAssignment';
-
+*/
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Action]
 (
@@ -1182,7 +1182,7 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Action]
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/Action/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: Action';
-
+/*
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Objective]
 (
@@ -1236,7 +1236,7 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductOKRAssignment]
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataProductOKRAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: DataProductOKRAssignment';
-
+*/
 PRINT 'DOMAIN TABLES CREATION COMPLETE!'
 /*
 DIMENSIONAL MODEL SECTION
