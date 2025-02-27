@@ -19,6 +19,7 @@ using Microsoft.Purview.DataGovernance.Reporting.Common;
 using System.Threading;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
 {
@@ -156,9 +157,19 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
 
     public async Task<Dataset> CreateDataset(Guid profileId, Guid workspaceId, IDatasetRequest sharedDatasetRequest, CancellationToken cancellationToken, bool update = false)
     {
+        this.logger.LogInformation("Received CreateDataset request with ProfileId: {ProfileId}, WorkspaceId: {WorkspaceId}, DatasetName: {DatasetName}" +
+            ", Parameters: {Parameters}, DatasetId: {DatasetId}, DatasetContainer: {DatasetContainer}, DatasetFileName: {DatasetFileName}" +
+            ", OptimizedDataset: {OptimizedDataset}, SkipReport: {SkipReport}",
+           profileId, workspaceId, sharedDatasetRequest.DatasetName, JsonConvert.SerializeObject(sharedDatasetRequest.Parameters, Formatting.Indented)
+           , sharedDatasetRequest.DatasetId, sharedDatasetRequest.DatasetContainer, sharedDatasetRequest.DatasetFileName, sharedDatasetRequest.OptimizedDataset
+           , sharedDatasetRequest.SkipReport);
+
         Datasets datasets = await this.datasetCommand.List(sharedDatasetRequest, cancellationToken);
         Dataset sharedDataset = datasets.Value.FirstOrDefault(d => d.Name == sharedDatasetRequest.DatasetName);
         List<Dataset> allDatasettype = datasets.Value.Where(item => item.Name.ToLowerInvariant() == sharedDatasetRequest.DatasetName.ToLowerInvariant()).ToList();
+
+        // Log the number of datasets found
+        this.logger.LogInformation("Found {DatasetCount} datasets with the name {DatasetName}", allDatasettype.Count, sharedDatasetRequest.DatasetName);
 
         //Remove dataset that automatically gets generated when a report ux is imported.
         List<Dataset> allDatasettypeDG = datasets.Value.Where(item => item.Name.ToLowerInvariant() == this.datasetMapping[sharedDatasetRequest.DatasetName].ToLowerInvariant()).ToList();
@@ -177,6 +188,7 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
                 update = true;
                 foreach (var item in allDatasettype)
                 {
+                    this.logger.LogInformation("Deleting dataset {DatasetId} as there are multiple datasets with the same name", item.Id);
                     await this.datasetCommand.Delete(profileId, workspaceId, Guid.Parse(item.Id), cancellationToken);
                 }
             }
@@ -186,6 +198,7 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
                 if (properties != null && ShouldUpgradeDataset(sharedDataset, properties.LastModified))
                 {
                     update = true;
+                    this.logger.LogInformation("Dataset {DatasetId} is outdated and will be deleted to create a new version", sharedDataset.Id);
                     //Delete the existing Dataset and create a new one since a newer version is there in the storage
                     await this.datasetCommand.Delete(profileId, workspaceId, Guid.Parse(sharedDataset.Id), cancellationToken);
                 }
@@ -196,15 +209,18 @@ internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
         {
             if (update)
             {
+                this.logger.LogInformation("Dataset will be updated or newly created.");
                 sharedDataset = await this.datasetCommand.Create(sharedDatasetRequest, cancellationToken);
             }
             else
             {
+                this.logger.LogInformation("Dataset exists and will not be updated.");
                 sharedDataset ??= await this.datasetCommand.Create(sharedDatasetRequest, cancellationToken);
             }
         }
         catch (ServiceException ex) when (ex.ServiceError.Category == ErrorCategory.ServiceError && ex.ServiceError.Code == ErrorCode.PowerBI_ReportDeleteFailed.Code)
         {
+            this.logger.LogError(ex, "An unexpected error occurred while creating or updating the dataset.");
             IDatasetRequest deleteRequest = new DatasetRequest()
             {
                 DatasetId = Guid.Parse(sharedDataset.Id),
