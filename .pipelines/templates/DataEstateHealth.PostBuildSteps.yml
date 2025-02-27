@@ -6,7 +6,7 @@ steps:
     folderToScan: $(Build.SourcesDirectory)/src/
 
 
-- script: sudo yum install -y maven
+- script: sudo tdnf install -y maven
   displayName: 'Install Maven'
   condition: eq(variables['Agent.OS'], 'Linux')
 
