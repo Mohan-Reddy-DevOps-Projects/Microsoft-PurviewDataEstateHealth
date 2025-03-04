@@ -15,7 +15,7 @@ class HealthActionContractSchema {
       StructField("findingSubType", StringType),
       StructField("targetEntityType", StringType),
       StructField("targetEntityId", StringType),
-      StructField("assginedTo", ArrayType(StructType(Seq()))),
+      StructField("assignedTo", ArrayType(StringType)),
       StructField("domainId", StringType),
       StructField("extraProperties", StructType(Seq(
         StructField("type", StringType),

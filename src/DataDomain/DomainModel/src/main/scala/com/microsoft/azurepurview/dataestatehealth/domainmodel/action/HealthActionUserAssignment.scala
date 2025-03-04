@@ -10,7 +10,7 @@ class HealthActionUserAssignment(spark: SparkSession, logger: Logger) {
     try {
 
       var dfProcess = df.select(col("JObject.id").alias("ActionId")
-        , col("JObject.assginedTo").alias("AssignedToUserIds"))
+        , col("JObject.assignedTo").alias("AssignedToUserIds"))
 
       dfProcess = dfProcess.filter(s"""ActionId IS NOT NULL""".stripMargin).distinct()
 
