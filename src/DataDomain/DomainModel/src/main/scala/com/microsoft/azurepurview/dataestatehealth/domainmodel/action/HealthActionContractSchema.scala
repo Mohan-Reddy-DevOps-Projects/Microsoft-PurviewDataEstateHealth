@@ -2,8 +2,8 @@ package com.microsoft.azurepurview.dataestatehealth.domainmodel.action
 
 import org.apache.spark.sql.types._
 
-class ActionContractSchema {
-  val actionContractSchema: StructType = StructType(Seq(
+class HealthActionContractSchema {
+  val healthActionContractSchema: StructType = StructType(Seq(
     StructField("JObject", StructType(Seq(
       StructField("category", StringType),
       StructField("severity", StringType),

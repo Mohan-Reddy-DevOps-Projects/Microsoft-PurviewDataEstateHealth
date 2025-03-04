@@ -1158,18 +1158,16 @@ EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: CDEGlossaryTermAssignment';
 */
 SET @DynamicSQL = '
-CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Action]
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[HealthAction]
 (
     ActionId [nvarchar](50),
+    FindingDisplayName [nvarchar](4000),
+    FindingTypeId [nvarchar](50),
     BusinessDomainId [nvarchar](50),
     Category [nvarchar](200),
     Severity [nvarchar](10),
-    FindingId [nvarchar](150),
-    FindingName [nvarchar](500),
     Reason [nvarchar](4000),
     Recommendation [nvarchar](4000),
-    FindingType [nvarchar](100),
-    FindingSubType [nvarchar](100),
     TargetEntityType [nvarchar](100),
     TargetEntityId [nvarchar](200),
     Type [nvarchar](100),
@@ -1179,9 +1177,40 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Action]
     ModifiedDateTime [datetime2],
     ModifiedByUserId [nvarchar](50)
 )
-WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/Action/'', FILE_FORMAT = [DeltaLakeFormat])';
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/HealthAction/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
-PRINT 'External table created: Action';
+PRINT 'External table created: HealthAction';
+
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[HealthActionFindingType]
+(
+    FindingTypeId [nvarchar](50),
+    FindingTypeDisplayName [nvarchar](500)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/HealthActionFindingType/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: HealthActionFindingType';
+
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[HealthActionFindingSubType]
+(
+    FindingSubTypeId [nvarchar](50),
+    FindingSubTypeDisplayName [nvarchar](500),
+    FindingTypeId [nvarchar](50)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/HealthActionFindingSubType/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: HealthActionFindingSubType';
+
+SET @DynamicSQL = '
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[HealthActionUserAssignment]
+(
+    ActionId [nvarchar](50),
+    AssignedToUserId [nvarchar](50)
+)
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/HealthActionUserAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
+EXEC sp_executesql @DynamicSQL;
+PRINT 'External table created: HealthActionUserAssignment';
 /*
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Objective]
