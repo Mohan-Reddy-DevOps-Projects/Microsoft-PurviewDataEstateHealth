@@ -126,12 +126,10 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
                     this.logger.LogInformation("PowerBI credential created successfully");
                 }
 
-                await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken, metadata: metadata);
-                //Removing Exposure Control
-                //if (this.exposureControl.IsDataGovHealthDQReportEnabled(account.Id, account.SubscriptionId, account.TenantId))
-                //{                    
-                //}
-                await this.healthPBIReportComponent.CreateDataQualityReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken, metadata: metadata);
+                await this.RetryAsync(() => this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken, metadata: metadata), nameof(this.healthPBIReportComponent.CreateDataGovernanceReport));
+
+                await this.RetryAsync(() => this.healthPBIReportComponent.CreateDataQualityReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken, metadata: metadata), nameof(this.healthPBIReportComponent.CreateDataQualityReport));
+
                 this.logger.LogInformation("PowerBI report created successfully");
             }
             catch (Exception e)
@@ -142,7 +140,34 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
         }
     }
 
+    public async Task RetryAsync(Func<Task> action, string functionName = "", int maxRetries = 5, int delayMilliseconds = 5000)
+    {
+        int retryCount = 0;
 
+        while (retryCount < maxRetries)
+        {
+            try
+            {
+                await action();
+                this.logger.LogInformation($"{functionName} completed successfully in {retryCount} attempt");
+                return; // Exit if successful
+            }
+            catch (Exception ex)
+            {
+                retryCount++;
+                this.logger.LogInformation($"{functionName} attempt {retryCount} failed: {ex.Message}");
+
+                if (retryCount == maxRetries)
+                {
+                    this.logger.LogInformation($"{functionName} All retry attempts failed.");
+                    throw; // Rethrow the exception if all retries fail
+                }
+
+                // Optional: Add a delay before retrying
+                await Task.Delay(delayMilliseconds);
+            }
+        }
+    }
 
     public bool IsStageComplete()
     {
