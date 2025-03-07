@@ -502,6 +502,7 @@ module sharedEventHubModule 'eventHub.bicep' = [for eventHub in eventHubs: {
 module sharedEventHubConsumerGroupModule 'eventHubConsumerGroups.bicep' = [for eventHub in eventHubs: {
   name: 'sharedEventHubConsumerGroupDeploy${eventHub.name}'
   scope: resourceGroup(coreResourceGroupName)
+  dependsOn: [sharedEventHubModule]
   params: {
     eventHubNamespaceName: sharedEventHubNamespaceName
     eventHubName: eventHub.name
