@@ -531,17 +531,55 @@ BEGIN
     PRINT 'External table dropped: CDEGlossaryTermAssignment';
 END
 */
+
 IF EXISTS (
     SELECT * 
     FROM sys.tables 
-    WHERE [name] = 'Action'
+    WHERE [name] = 'HealthAction'
     AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
 )
 BEGIN
-    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[Action]';
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[HealthAction]';
     EXEC sp_executesql @DynamicSQL;
-    PRINT 'External table dropped: Action';
+    PRINT 'External table dropped: HealthAction';
 END
+
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'HealthActionFindingType'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[HealthActionFindingType]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: HealthActionFindingType';
+END
+
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'HealthActionFindingSubType'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[HealthActionFindingSubType]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: HealthActionFindingSubType';
+END
+
+IF EXISTS (
+    SELECT * 
+    FROM sys.tables 
+    WHERE [name] = 'HealthActionUserAssignment'
+    AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
+)
+BEGIN
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[HealthActionUserAssignment]';
+    EXEC sp_executesql @DynamicSQL;
+    PRINT 'External table dropped: HealthActionUserAssignment';
+END
+
 /*
 IF EXISTS (
     SELECT * 
