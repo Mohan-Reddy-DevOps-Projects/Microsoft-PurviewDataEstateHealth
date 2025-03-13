@@ -1,4 +1,4 @@
-﻿// -----------------------------------------------------------
+﻿    // -----------------------------------------------------------
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
@@ -247,6 +247,18 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
     {
         this.logger.LogInformation($"EC IsDEHDataCleanup called for account: {accountId} , tennant: {tenantId}");
         ExposureControlOptions options = new(Features.DEHDataCleanup.ToString(), false)
+        {
+            AccountId = accountId,
+            SubscriptionId = subscriptionId,
+            TenantId = tenantId
+        };
+        return this.IsFeatureEnabled(options);
+    }
+
+    public bool IsDEHEnableAutoGenerateRulesDescriptiveFieldsValue(string accountId, string subscriptionId, string tenantId)
+    {
+        this.logger.LogInformation($"EC DEHEnableAutoGenerateRulesDescriptiveFieldsValue called for account: {accountId} , tennant: {tenantId}");
+        ExposureControlOptions options = new(Features.DEHEnableAutoGenerateRulesDescriptiveFieldsValue.ToString(), false)
         {
             AccountId = accountId,
             SubscriptionId = subscriptionId,

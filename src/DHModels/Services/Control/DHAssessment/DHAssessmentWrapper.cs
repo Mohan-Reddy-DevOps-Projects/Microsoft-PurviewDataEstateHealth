@@ -19,6 +19,7 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
     private const string keyAggregation = "aggregation";
     private const string keySystemTemplate = "systemTemplate";
     private const string keySystemTemplateEntityId = "systemTemplateEntityId";
+    private const string keyIsAutoGenerateActionPropertiesEnabled = "isAutoGenerateActionPropertiesEnabled";
 
     public static DHAssessmentWrapper Create(JObject jObject)
     {
@@ -99,6 +100,13 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
         set => this.SetPropertyValue(keySystemTemplateEntityId, value);
     }
 
+
+    [EntityProperty(keyIsAutoGenerateActionPropertiesEnabled)]
+    public bool IsAutoGenerateActionPropertiesEnabled
+    {
+        get => this.GetPropertyValue<bool>(keyIsAutoGenerateActionPropertiesEnabled);
+        set => this.SetPropertyValue(keyIsAutoGenerateActionPropertiesEnabled, value);
+    }
     public override void OnCreate(string userId, string? id = null)
     {
         base.OnCreate(userId, id);
@@ -207,6 +215,10 @@ public class DHAssessmentWrapper(JObject jObject) : ContainerEntityBaseWrapper<D
             if (string.IsNullOrEmpty(rule.Id))
             {
                 rule.Id = Guid.NewGuid().ToString();
+            }
+            if (this.IsAutoGenerateActionPropertiesEnabled)
+            {
+                rule.UpdateActionProperties();
             }
         }
     }
