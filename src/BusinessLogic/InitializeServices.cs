@@ -5,6 +5,7 @@
 namespace Microsoft.Purview.DataEstateHealth.BusinessLogic
 {
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Purview.DataEstateHealth.BusinessLogic.Interfaces;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
@@ -29,6 +30,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic
             services.AddScoped<DHProvisionService>();
             services.AddScoped<DHAlertService>();
             services.AddScoped<DHStorageConfigService>();
+            services.AddScoped<IDHAnalyticsScheduleService, DHAnalyticsScheduleService>();
         }
     }
 }

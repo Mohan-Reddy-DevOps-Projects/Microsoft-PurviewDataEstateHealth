@@ -46,6 +46,12 @@ internal sealed class DHWorkerServiceTriggerComponent : BaseComponent<IDHWorkerS
     }
 
     /// <inheritdoc/>
+    public async Task UpsertDEHAnalyticsScheduleJob(DHControlScheduleWrapper schedule)
+    {
+        await this.backgroundJobManager.ProvisionDEHAnalyticsScheduleJob(this.context.TenantId.ToString(), this.context.AccountId.ToString(), schedule);
+    }
+
+    /// <inheritdoc/>
     public async Task DeleteDEHScheduleJob()
     {
         await this.backgroundJobManager.DeprovisionDEHScheduleJob(this.context.TenantId.ToString(), this.context.AccountId.ToString());

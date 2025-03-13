@@ -35,6 +35,13 @@ public interface IDHWorkerServiceTriggerComponent : IComponent<IDHWorkerServiceT
     /// <param name="schedule"></param>
     /// <returns></returns>
     Task UpsertDEHScheduleJob(DHControlScheduleWrapper schedule);
+  
+    /// <summary>
+    /// Create or update DEH schedule job.
+    /// </summary>
+    /// <param name="schedule"></param>
+    /// <returns></returns>
+    Task UpsertDEHAnalyticsScheduleJob(DHControlScheduleWrapper schedule); 
 
     /// <summary>
     /// Delete DEH schedule job.

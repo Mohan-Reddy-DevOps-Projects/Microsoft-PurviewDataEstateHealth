@@ -210,6 +210,15 @@ public interface IJobManager
     Task ProvisionDEHScheduleJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload);
 
     /// <summary>
+    /// Provisions DEH analytics schedule job.
+    /// </summary>
+    /// <param name="tenantId"></param>
+    /// <param name="accountId"></param>
+    /// <param name="schedulePayload"></param>
+    /// <returns></returns>
+    Task ProvisionDEHAnalyticsScheduleJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload);
+
+    /// <summary>
     /// Deprovisions DEH schedule job.
     /// </summary>
     /// <param name="tenantId"></param>

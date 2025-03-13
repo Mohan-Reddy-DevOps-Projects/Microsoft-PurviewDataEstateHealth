@@ -22,6 +22,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
     public class DHScheduleInternalService
     {
         private readonly DHControlScheduleRepository dhControlScheduleRepository;
+        private readonly DHAnalyticsScheduleRepository dHAnalyticsScheduleRepository;
         private readonly ScheduleServiceClient scheduleServiceClient;
         private readonly DHScheduleConfiguration scheduleConfiguration;
         private readonly IRequestHeaderContext requestHeaderContext;
@@ -34,7 +35,8 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
             ScheduleServiceClientFactory scheduleServiceClientFactory,
             IOptions<DHScheduleConfiguration> scheduleConfiguration,
             IDataEstateHealthRequestLogger logger,
-            ICoreLayerFactory coreLayerFactory)
+            ICoreLayerFactory coreLayerFactory,
+            DHAnalyticsScheduleRepository dHAnalyticsScheduleRepository)
         {
             this.dhControlScheduleRepository = dhControlScheduleRepository;
             this.scheduleServiceClient = scheduleServiceClientFactory.GetClient();
@@ -42,6 +44,7 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
             this.requestHeaderContext = requestHeaderContext;
             this.logger = logger;
             this.coreLayerFactory = coreLayerFactory;
+            this.dHAnalyticsScheduleRepository = dHAnalyticsScheduleRepository;
         }
 
         public async Task<DHControlScheduleStoragePayloadWrapper> GetScheduleByIdAsync(string scheduleId)
@@ -74,6 +77,28 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                 schedule.OnCreate(this.requestHeaderContext.AccountObjectId.ToString(), scheduleId);
 
                 await this.dhControlScheduleRepository.AddAsync(schedule).ConfigureAwait(false);
+
+                return schedule;
+            }
+        }
+
+        //Self serve analytics
+
+        public async Task<DHControlScheduleStoragePayloadWrapper> CreateAnalyticsScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string? controlId = null)
+        {
+            schedule.Host = DHControlScheduleHost.AzureStack;
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(CreateScheduleAsync)}. Tenant Id: {this.requestHeaderContext.TenantId}. Account Id: {this.requestHeaderContext.AccountObjectId}."))
+            {
+                await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                    .CreateDHWorkerServiceTriggerComponent(this.requestHeaderContext.TenantId, this.requestHeaderContext.AccountObjectId)
+                    .UpsertDEHAnalyticsScheduleJob(schedule.Properties).ConfigureAwait(false);
+
+                var scheduleId = GenerateScheduleId(Guid.NewGuid());
+                this.logger.LogInformation($"DEH Self Serve Analytics Schedule job is created in worker service. Schedule id: {scheduleId}");
+
+                schedule.OnCreate(this.requestHeaderContext.AccountObjectId.ToString(), scheduleId);
+
+                await this.dHAnalyticsScheduleRepository.AddAsync(schedule).ConfigureAwait(false);
 
                 return schedule;
             }
@@ -117,6 +142,47 @@ namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices
                 return schedule;
             }
         }
+
+        //Self serve analytics 
+        public async Task<DHControlScheduleStoragePayloadWrapper> UpdateAnalyticsScheduleAsync(DHControlScheduleStoragePayloadWrapper schedule, string? controlId = null)
+        {
+            using (this.logger.LogElapsed($"{this.GetType().Name}#{nameof(UpdateScheduleAsync)}: Update for schedule with ID {schedule.Id}.  Tenant Id: {this.requestHeaderContext.TenantId}. Account Id: {this.requestHeaderContext.AccountObjectId}."))
+            {
+                var existEntity = await this.dHAnalyticsScheduleRepository.GetByIdAsync(schedule.Id).ConfigureAwait(false);
+
+                if (existEntity == null)
+                {
+                    throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.Schedule.ToString(), schedule.Id));
+                }
+
+                schedule.Host = existEntity.Host;
+
+                if (schedule.Host == DHControlScheduleHost.DGScheduleService)
+                {
+                    var schedulePayload = this.CreateScheduleRequestPayload(schedule, controlId);
+                    await this.scheduleServiceClient.UpdateSchedule(schedulePayload).ConfigureAwait(false);
+                    this.logger.LogInformation($"DEH Self Serve Analytics Schedule job is updated in schedule service. Schedule id: {schedule.Id}");
+                }
+                else if (schedule.Host == DHControlScheduleHost.AzureStack)
+                {
+                    await this.coreLayerFactory.Of(ServiceVersion.From(ServiceVersion.V1))
+                        .CreateDHWorkerServiceTriggerComponent(this.requestHeaderContext.TenantId, this.requestHeaderContext.AccountObjectId)
+                        .UpsertDEHAnalyticsScheduleJob(schedule.Properties).ConfigureAwait(false);
+                    this.logger.LogInformation($"DEH Self Serve Analytics Schedule job is updated in worker service. Schedule id: {schedule.Id}");
+                }
+                else
+                {
+                    throw new Exception($"Invalid schedule host: {schedule.Host}.");
+                }
+
+                schedule.OnUpdate(existEntity, this.requestHeaderContext.AccountObjectId.ToString());
+
+                await this.dHAnalyticsScheduleRepository.UpdateAsync(schedule).ConfigureAwait(false);
+
+                return schedule;
+            }
+        }
+
 
         public async Task DeleteScheduleAsync(string scheduleId)
         {
