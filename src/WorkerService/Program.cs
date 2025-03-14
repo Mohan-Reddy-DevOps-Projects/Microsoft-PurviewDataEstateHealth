@@ -2,6 +2,7 @@
 //  Copyright (c) Microsoft Corporation.  All rights reserved.
 // -----------------------------------------------------------
 
+using DEH.Infrastructure;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
@@ -44,6 +45,7 @@ builder.WebHost.ConfigureKestrel((hostingContext, options) =>
     }
 });
 
+builder.Services.AddCatalogDependencies(builder.Configuration);
 
 WebApplication app = builder.Build();
 await Initialize(app);

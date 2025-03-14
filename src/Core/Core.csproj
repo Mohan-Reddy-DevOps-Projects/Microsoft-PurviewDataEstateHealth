@@ -39,6 +39,7 @@
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
 		<PackageReference Include="Microsoft.Purview.DataGovernance.AuditAPI" />
 		<PackageReference Include="Microsoft.Purview.DataGovernance.BillingServiceClient" />
+		<PackageReference Include="Microsoft.Purview.DataGovernance.Catalog" />
 		<PackageReference Include="Microsoft.Purview.DataGovernance.Common" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" />
 		<PackageReference Include="Microsoft.Extensions.Http" />

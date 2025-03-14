@@ -19,6 +19,7 @@
   </ItemGroup>
   <ItemGroup>
 	<ProjectReference Include="..\Core\Core.csproj" />
+	<ProjectReference Include="..\DEH.Infrastructure\DEH.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
 	<None Update="ameroot.crt">
