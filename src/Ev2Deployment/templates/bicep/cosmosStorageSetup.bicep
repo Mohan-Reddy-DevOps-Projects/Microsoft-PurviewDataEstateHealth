@@ -12,6 +12,7 @@ var controlDatabaseName = 'dgh-Control'
 var actionDatabaseName = 'dgh-Action'
 var settingsDatabaseName = 'dgh-Settings'
 var dehDatabaseName = 'dgh-DataEstateHealth'
+var dehBackfill = 'dgh-Backfill'
 // Contributor role assignment
 // Document: https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/tutorial-vm-managed-identities-cosmos?tabs=azure-resource-manager#grant-access
 var contributorRoleDefName = '00000000-0000-0000-0000-000000000002'
@@ -55,7 +56,6 @@ module settingsCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep
   ]
 }
 
-
 module dehCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep' = {
   name: 'dehCosmosContributorRoleAssignmentModule'
   params: {
@@ -66,6 +66,19 @@ module dehCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep' = {
   }
   dependsOn: [
     controlCosmosDatabaseDataEstateHealth
+  ]
+}
+
+module dehBackfillCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep' = {
+  name: 'dehBackfillCosmosContributorRoleAssignmentModule'
+  params: {
+    accountName: cosmosAccountName
+    principalId: containerAppIdentity.properties.principalId
+    roleDefinitionName: contributorRoleDefName
+    databaseName: dehBackfill
+  }
+  dependsOn: [
+    cosmosDatabaseDehBackfill
   ]
 }
 
@@ -132,5 +145,17 @@ module cosmosDatabaseDHSettings 'cosmosDatabase.bicep' = {
     containerNames: ['DHStorageConfig']
     containerAppIdentityName :  containerAppIdentityName
     containerdehNames: []
+  }
+}
+
+module cosmosDatabaseDehBackfill 'cosmosDatabase.bicep' = {
+  name: 'cosmosDatabaseDehBackfill'
+  params: {
+    accountName: cosmosAccountName
+    databaseName: dehBackfill // 'dgh-Backfill'
+    partitionid: '/accountId'
+    containerAppIdentityName :  containerAppIdentityName
+    containerdehNames: ['okr', 'businessdomain', 'cde', 'keyresult']
+    containerNames: []
   }
 }

@@ -80,6 +80,8 @@ public class JobManager : IJobManager
     static readonly string ActionCleanUpJobPartitionAffix = "-ACTION-CLEAN-UP-JOBS";
     static readonly string ActionCleanUpJobIdAffix = "-ACTION-CLEAN-UP-JOB";
 
+    private const string _catalogBackfillCallback = "CatalogBackfillCallback";
+
     private EnvironmentConfiguration environmentConfiguration;
     private static readonly Random RandomGenerator = new();
 
@@ -999,6 +1001,38 @@ public class JobManager : IJobManager
                 throw;
             }
         }
+    }
+
+    public async Task RunCatalogBackfillJob(List<string> accountIds, int batchAmount, int bufferTimeInMinutes)
+    {
+        const string jobPartition = "CATALOG-BACKFILL-CALLBACK-IMMEDIATE";
+        const string jobId = "GLOBAL-CATALOG-BACKFILL-CALLBACK-IMMEDIATE";
+        var job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+        }
+
+        StartCatalogBackfillMetadata jobMetadata = new() {
+            RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+            WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+            BackfillStatus = CatalogBackfillStatus.NotStarted,
+            AccountIds = accountIds,
+            BatchAmount = batchAmount,
+            BufferTimeInMinutes = bufferTimeInMinutes
+        };
+
+        var jobOptions = new BackgroundJobOptions
+        {
+            CallbackName = nameof(CatalogBackfillCallback),
+            JobPartition = jobPartition,
+            JobId = jobId,
+            StartTime = DateTime.UtcNow
+        };
+        await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+
+        this.dataEstateHealthRequestLogger.LogInformation($"Global CatalogBackfill job created. Partition key: {jobPartition}.");
     }
 
     private void UpdateDerivedMetadataProperties<TMetadata>(TMetadata metadata) where TMetadata : JobMetadataBase

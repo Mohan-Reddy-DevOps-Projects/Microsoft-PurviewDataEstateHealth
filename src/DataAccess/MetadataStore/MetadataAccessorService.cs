@@ -25,7 +25,7 @@ internal class MetadataAccessorService(
         this.GetMetadataServiceClient();
     }
 
-    private IProjectBabylonMetadataClient GetMetadataServiceClient()
+    public IProjectBabylonMetadataClient GetMetadataServiceClient()
     {
         return metadataServiceClientFactory.GetClient();
     }

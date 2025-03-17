@@ -4,6 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
+using DEH.Application;
+using DEH.Infrastructure;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.NewtonsoftJson;
@@ -32,6 +34,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using OperationType = OpenTelemetry.Audit.Geneva.OperationType;
+
 
 /// <summary>
 /// The Data Estate Health API service.
@@ -127,6 +130,8 @@ public class Program
         builder.Services.SetupBusinessLogicServices();
 
         builder.Services.SetupDQServices(builder.Configuration);
+        builder.Services.AddCatalogDependencies(builder.Configuration);
+        builder.Services.AddApplication();
 
         builder.Services.Configure<ForwardedHeadersOptions>(options =>
         {

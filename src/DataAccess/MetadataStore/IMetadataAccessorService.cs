@@ -5,6 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
+using ProjectBabylon.Metadata;
 using System.Threading.Tasks;
 
 /// <summary>
@@ -31,4 +32,6 @@ public interface IMetadataAccessorService
         string containerName,
         string permissions,
         CancellationToken cancellationToken);
+
+    public IProjectBabylonMetadataClient GetMetadataServiceClient();
 }

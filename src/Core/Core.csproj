@@ -33,9 +33,11 @@
 		<PackageReference Include="Azure.Storage.Blobs" />
 		<PackageReference Include="Azure.Storage.Files.DataLake" />
 		<PackageReference Include="LogAnalytics.Client" />
+		<PackageReference Include="MediatR" />
 		<PackageReference Include="Microsoft.Azure.Management.Storage" />
 		<PackageReference Include="Microsoft.Azure.ProjectBabylon.Service.Basics" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Memory" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
 		<PackageReference Include="Microsoft.Purview.DataGovernance.AuditAPI" />
 		<PackageReference Include="Microsoft.Purview.DataGovernance.BillingServiceClient" />
@@ -50,6 +52,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\DataAccess\DataAccess.csproj" />
+		<ProjectReference Include="..\DEH.Domain\DEH.Domain.csproj" />
 		<ProjectReference Include="..\DHDataAccess\DHDataAccess.csproj" />
 		<ProjectReference Include="..\DHModels\DHModels.csproj" />
 		<ProjectReference Include="..\Models\Models.csproj" />

@@ -37,11 +37,14 @@ public class CatalogHttpClient(HttpClient httpClient, Uri baseUri, IDataEstateHe
                     url += $"?$skipToken={skipToken}";
                 }
 
-                this.SetRequestHeaders(requestId, accountId, tenantId);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("x-ms-client-request-id", requestId);
+                request.Headers.Add("x-ms-client-tenant-id", tenantId);
+                request.Headers.Add("x-ms-account-id", accountId);
 
                 this._logger.LogInformation($"Getting business domains for account {accountId}, page {++pageCount}, url: {url}, requestId: {requestId}");
 
-                var response = await this._client.GetAsync(url)
+                var response = await this._client.SendAsync(request)
                     .ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
@@ -109,12 +112,13 @@ public class CatalogHttpClient(HttpClient httpClient, Uri baseUri, IDataEstateHe
                     .ToString();
                 string url = $"{this._baseUri}objectives?domainId={businessDomainId}&skip={skip}&top={pageSize}";
 
-                this.SetRequestHeaders(requestId, accountId, tenantId);
-
                 this._logger.LogInformation($"Getting OKRs for business domain {businessDomainId}, account {accountId}, page {skip / pageSize + 1}, url: {url}, requestId: {requestId}");
 
-                var response = await this._client.GetAsync(url)
-                    .ConfigureAwait(false);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("x-ms-client-request-id", requestId);
+                request.Headers.Add("x-ms-client-tenant-id", tenantId);
+                request.Headers.Add("x-ms-account-id", accountId);
+                var response = await this._client.SendAsync(request).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
                 string content = await response.Content.ReadAsStringAsync();
@@ -173,11 +177,14 @@ public class CatalogHttpClient(HttpClient httpClient, Uri baseUri, IDataEstateHe
                     .ToString();
                 string url = $"{this._baseUri}objectives/{okrId}/keyResults?skip={skip}&top={pageSize}";
 
-                this.SetRequestHeaders(requestId, accountId, tenantId);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("x-ms-client-request-id", requestId);
+                request.Headers.Add("x-ms-client-tenant-id", tenantId);
+                request.Headers.Add("x-ms-account-id", accountId);
 
                 this._logger.LogInformation($"Getting key results for OKR {okrId}, account {accountId}, page {skip / pageSize + 1}, url: {url}, requestId: {requestId}");
 
-                var response = await this._client.GetAsync(url)
+                var response = await this._client.SendAsync(request)
                     .ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
@@ -237,11 +244,14 @@ public class CatalogHttpClient(HttpClient httpClient, Uri baseUri, IDataEstateHe
                     .ToString();
                 string url = $"{this._baseUri}criticaldataelements?domainid={businessDomainId}&skip={skip}&top={pageSize}";
 
-                this.SetRequestHeaders(requestId, accountId, tenantId);
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("x-ms-client-request-id", requestId);
+                request.Headers.Add("x-ms-client-tenant-id", tenantId);
+                request.Headers.Add("x-ms-account-id", accountId);
 
                 this._logger.LogInformation($"Getting critical data elements for business domain {businessDomainId}, account {accountId}, page {skip / pageSize + 1}, url: {url}, requestId: {requestId}");
 
-                var response = await this._client.GetAsync(url)
+                var response = await this._client.SendAsync(request)
                     .ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
@@ -284,16 +294,5 @@ public class CatalogHttpClient(HttpClient httpClient, Uri baseUri, IDataEstateHe
             this._logger.LogError($"Error retrieving critical data elements for business domain {businessDomainId}, account {accountId}: {ex.Message}", ex);
             throw;
         }
-    }
-
-    private void SetRequestHeaders(string requestId, string accountId, string tenantId)
-    {
-        this._client.DefaultRequestHeaders.Remove("x-ms-client-request-id");
-        this._client.DefaultRequestHeaders.Remove("x-ms-client-tenant-id");
-        this._client.DefaultRequestHeaders.Remove("x-ms-account-id");
-
-        this._client.DefaultRequestHeaders.Add("x-ms-client-request-id", requestId);
-        this._client.DefaultRequestHeaders.Add("x-ms-client-tenant-id", tenantId);
-        this._client.DefaultRequestHeaders.Add("x-ms-account-id", accountId);
     }
 }

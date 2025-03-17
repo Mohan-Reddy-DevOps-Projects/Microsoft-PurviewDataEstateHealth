@@ -5,6 +5,8 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
 using Asp.Versioning;
+using DEH.Application.Backfill;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
@@ -30,17 +32,20 @@ public class GenevaActionController : ControlPlaneController
     private readonly IDataEstateHealthRequestLogger logger;
     private readonly IRequestHeaderContext requestHeaderContext;
     private readonly DHScheduleService scheduleService;
+    private ISender sender;
 
     public GenevaActionController(
         ICoreLayerFactory coreLayerFactory,
         IDataEstateHealthRequestLogger logger,
         IRequestHeaderContext requestHeaderContext,
-        DHScheduleService scheduleService)
+        DHScheduleService scheduleService,
+        ISender sender)
     {
         this.coreLayerFactory = coreLayerFactory;
         this.logger = logger;
         this.requestHeaderContext = requestHeaderContext;
         this.scheduleService = scheduleService;
+        this.sender = sender;
     }
 
     /// <summary>
@@ -167,6 +172,43 @@ public class GenevaActionController : ControlPlaneController
             catch (Exception ex)
             {
                 this.logger.LogCritical($"Fail to list monitoring jobs. TenantId: {tenantId}. AccountId: {accountId}. ControlId: {scheduleRunId}", ex);
+                var response = new GenevaActionResponse { Code = "500", Message = ex.Message };
+                return this.StatusCode(500, response);
+            }
+        }
+    }
+
+    [HttpPost]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    [Route("kickOffCatalogBackfill")]
+    public async Task<IActionResult> KickOffCatalogBackfill(
+        [FromBody] KickOffCatalogBackfillRequest request,
+        CancellationToken cancellationToken)
+    {
+        using (this.logger.LogElapsed($"Geneva action: Kick off catalog backfill."))
+        {
+            try
+            {
+                var command = new KickOffCatalogBackfillCommand(
+                    request.AccountIds,
+                    request.BatchAmount,
+                    request.BufferTimeInMinutes);
+
+                var result = await this.sender.Send(command, cancellationToken);
+
+                if (result.IsFailure)
+                {
+                    this.logger.LogCritical($"Geneva fails to kick off catalog backfill. Error: {result.Error}");
+                    var response = new GenevaActionResponse { Code = "400", Message = result.Error.Code };
+                    return this.BadRequest(response);
+                }
+
+                this.logger.LogInformation("Geneva kick off catalog backfill successfully.");
+                return this.Ok(result.Value);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogCritical($"Geneva fails to kick off catalog backfill.", ex);
                 var response = new GenevaActionResponse { Code = "500", Message = ex.Message };
                 return this.StatusCode(500, response);
             }

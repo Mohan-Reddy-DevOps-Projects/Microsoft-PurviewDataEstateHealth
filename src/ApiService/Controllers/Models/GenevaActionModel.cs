@@ -44,4 +44,9 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models
         [JsonProperty("scheduleRunId")]
         public required string ScheduleRunId { get; set; }
     }
+
+    public record KickOffCatalogBackfillRequest(
+            [property: JsonProperty("accountIds")] List<string> AccountIds,
+            [property: JsonProperty("batchAmount")] int BatchAmount,
+            [property: JsonProperty("bufferTimeInMinutes")] int BufferTimeInMinutes);
 }

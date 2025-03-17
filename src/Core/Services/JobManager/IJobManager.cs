@@ -242,4 +242,6 @@ public interface IJobManager
     /// <param name="jobId"></param>
     /// <returns></returns>
     Task<Dictionary<string, string>> GetBackgroundJobDetailAsync(string jobPartition, string jobId);
+
+    Task RunCatalogBackfillJob(List<string> accountIds, int batchAmount, int bufferTimeInMinutes);
 }
