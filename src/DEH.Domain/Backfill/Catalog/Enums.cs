@@ -26,5 +26,6 @@ public enum PayloadKind
 [JsonConverter(typeof(StringEnumConverter))]
 public enum OperationType
 {
+    Create,
     Update
 }

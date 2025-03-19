@@ -5,25 +5,19 @@ using DEH.Application.Abstractions.Catalog;
 using DEH.Domain.Backfill.Catalog;
 using Loggers;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using Microsoft.Purview.DataGovernance.Catalog.Model;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using ProjectBabylon.Metadata;
+using System.Collections.Concurrent;
 using WindowsAzure.ResourceStack.Common.BackgroundJobs;
 
 internal class RunCatalogBackfillStage : IJobCallbackStage
 {
+    private readonly ConcurrentDictionary<string, int> _processedCounters = new();
     private readonly JobCallbackUtils<StartCatalogBackfillMetadata> _jobCallbackUtils;
-    private readonly IServiceScope _scope;
     private readonly StartCatalogBackfillMetadata _metadata;
     private readonly IDataEstateHealthRequestLogger _logger;
     private readonly ICatalogHttpClientFactory _catalogHttpClientFactory;
-    private readonly IDefaultCosmosClient _cosmosClient;
     private readonly IMetadataAccessorService _metadataAccessorService;
-    private const string DatabaseId = "dgh-Backfill";
     private readonly IBackfillCatalogRepository _okrRepository;
     private readonly IBackfillCatalogRepository _keyResultRepository;
     private readonly IBackfillCatalogRepository _cdeRepository;
@@ -34,16 +28,18 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
         JobCallbackUtils<StartCatalogBackfillMetadata> jobCallbackUtils,
         IMetadataAccessorService metadataAccessorService)
     {
-        this._scope = scope;
         this._metadata = metadata;
         this._jobCallbackUtils = jobCallbackUtils;
         this._logger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>() ?? throw new InvalidOperationException("Logger not found");
         this._catalogHttpClientFactory = scope.ServiceProvider.GetService<ICatalogHttpClientFactory>() ?? throw new InvalidOperationException("CatalogHttpClientFactory not found");
-        this._cosmosClient = scope.ServiceProvider.GetService<IDefaultCosmosClient>() ?? throw new InvalidOperationException("DefaultCosmosClient not found");
         this._metadataAccessorService = metadataAccessorService ?? throw new InvalidOperationException("MetadataAccessorService not found");
         this._okrRepository = scope.ServiceProvider.GetRequiredKeyedService<IBackfillCatalogRepository>("OkrBackfillCatalogRepository");
         this._keyResultRepository = scope.ServiceProvider.GetRequiredKeyedService<IBackfillCatalogRepository>("KeyresultBackfillCatalogRepository");
         this._cdeRepository = scope.ServiceProvider.GetRequiredKeyedService<IBackfillCatalogRepository>("CdeBackfillCatalogRepository");
+
+        this._processedCounters["OKRs"] = 0;
+        this._processedCounters["KeyResults"] = 0;
+        this._processedCounters["CDEs"] = 0;
     }
 
     public string StageName => nameof(RunCatalogBackfillStage);
@@ -68,7 +64,6 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
 
             for (int i = 0; i < accountIdsList.Count; i += batchAmount)
             {
-
                 var currentBatch = accountIdsList.Skip(i)
                     .Take(batchAmount)
                     .ToList();
@@ -100,7 +95,7 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
 
                                     if (objectives.Count > 0)
                                     {
-                                        var processObjectivesTask = this.ProcessObjectivesAsync(objectives, [accountId], accountModel.TenantId);
+                                        var processObjectivesTask = this.ProcessObjectivesAsync(objectives, accountId, accountModel.TenantId);
 
                                         // Process Key Results for each OKR
                                         var processKeyresultsTask = Task.Run(async () =>
@@ -112,7 +107,7 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
 
                                                 if (keyResults.Count > 0)
                                                 {
-                                                    await this.ProcessKeyResultsAsync(keyResults, objective.Id, [accountId], accountModel.TenantId);
+                                                    await this.ProcessKeyResultsAsync(keyResults, objective.Id, accountId, accountModel.TenantId);
                                                 }
                                             }
                                         }, cancellationToken);
@@ -128,7 +123,7 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
 
                                     if (criticalDataElements.Count > 0)
                                     {
-                                        await this.ProcessCriticalDataElementsAsync(criticalDataElements, [accountId], accountModel.TenantId);
+                                        await this.ProcessCriticalDataElementsAsync(criticalDataElements, accountId, accountModel.TenantId);
                                     }
                                 }, cancellationToken);
 
@@ -138,6 +133,8 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
                             await this._okrRepository.FlushAsync();
                             await this._keyResultRepository.FlushAsync();
                             await this._cdeRepository.FlushAsync();
+                            this._logger.LogInformation($"Successfully processed account ID {accountId} with " +
+                                                        $"{this._processedCounters["OKRs"]} OKRs, {this._processedCounters["KeyResults"]} KeyResults, and {this._processedCounters["CDEs"]} CDEs");
                         }
                         catch (Exception e)
                         {
@@ -147,6 +144,8 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
 
                 this._metadata.ItemsProcessed += currentBatch.Count;
 
+                this._logger.LogInformation($"Current processing counts - OKRs: {this._processedCounters["OKRs"]}, KeyResults: {this._processedCounters["KeyResults"]}, CDEs: {this._processedCounters["CDEs"]}");
+
                 // If there are more accounts to process, wait for the buffer time
                 if (i + batchAmount >= accountIdsList.Count || bufferTimeInMinutes <= 0)
                 {
@@ -154,14 +153,18 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
                 }
 
                 this._logger.LogInformation($"Batch complete. Waiting for {bufferTimeInMinutes} minutes before processing the next batch");
-                await Task.Delay(TimeSpan.FromMinutes(bufferTimeInMinutes));
+                await Task.Delay(TimeSpan.FromMinutes(bufferTimeInMinutes))
+                    .ConfigureAwait(false);
             }
 
             this._metadata.BackfillStatus = CatalogBackfillStatus.Completed;
             this._metadata.EndTime = DateTime.UtcNow;
 
+            this._logger.LogInformation($"Catalog backfill completed. Final counts - OKRs: {this._processedCounters["OKRs"]}, KeyResults: {this._processedCounters["KeyResults"]}, CDEs: {this._processedCounters["CDEs"]}");
+
             jobStageStatus = JobExecutionStatus.Succeeded;
-            jobStatusMessage = $"{this.StageName}|Global catalog backfill completed successfully. Processed {this._metadata.ItemsProcessed} items.";
+            jobStatusMessage = $"{this.StageName}|Global catalog backfill completed successfully. Processed {this._metadata.ItemsProcessed} accounts " +
+                               $"with {this._processedCounters["OKRs"]} OKRs, {this._processedCounters["KeyResults"]} KeyResults, and {this._processedCounters["CDEs"]} CDEs.";
         }
         catch (Exception exception)
         {
@@ -176,182 +179,135 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
         return this._jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
     }
 
-    private async Task ProcessCriticalDataElementsAsync(List<CriticalDataElement> criticalDataElements, List<string> accountIds, string tenantId)
+    private async Task ProcessCriticalDataElementsAsync(List<CriticalDataElement> criticalDataElements, string accountId, string tenantId)
     {
-        foreach (string accountId in accountIds)
-        {
-            foreach (var cde in criticalDataElements)
-            {
-                try
-                {
-                    var dataChangeEvent = new DataChangeEvent<CriticalDataElement>
-                    {
-                        EventId = Guid.NewGuid()
-                            .ToString(),
-                        CorrelationId = Guid.NewGuid()
-                            .ToString(),
-                        EventSource = EventSource.DataCatalog,
-                        PayloadKind = PayloadKind.CriticalDataElement,
-                        OperationType = OperationType.Update,
-                        PreciseTimestamp = DateTime.UtcNow.ToString("o"),
-                        TenantId = tenantId,
-                        AccountId = accountId,
-                        ChangedBy = "BackfillJob",
-                        EventEnqueuedUtcTime = DateTime.UtcNow,
-                        EventProcessedUtcTime = DateTime.UtcNow,
-                        PartitionId = 0,
-                        Payload = new DataChangeEventPayload<CriticalDataElement> { Before = null, After = cde, Related = null },
-                        Id = Guid.NewGuid()
-                            .ToString()
-                    };
-
-                    await this._cdeRepository.AddBatch(dataChangeEvent);
-
-                    this._logger.LogInformation($"Successfully processed CDE {cde.Id} for account {accountId}");
-                }
-                catch (Exception ex)
-                {
-                    this._logger.LogError($"Error processing CDE {cde.Id} for account {accountId}: {ex.Message}", ex);
-                }
-            }
-        }
-    }
-
-    private async Task ProcessObjectivesAsync(List<ObjectiveWithAdditionalProperties> objectives, List<string> accountIds, string tenantId)
-    {
-        foreach (string accountId in accountIds)
-        {
-            var container = this._cosmosClient.Client.GetDatabase(DatabaseId)
-                .GetContainer("okr");
-
-            foreach (var objective in objectives)
-            {
-                try
-                {
-                    var dataChangeEvent = new DataChangeEvent<ObjectiveWithAdditionalProperties>
-                    {
-                        EventId = Guid.NewGuid()
-                            .ToString(),
-                        CorrelationId = Guid.NewGuid()
-                            .ToString(),
-                        EventSource = EventSource.DataCatalog,
-                        PayloadKind = PayloadKind.OKR,
-                        OperationType = OperationType.Update,
-                        PreciseTimestamp = DateTime.UtcNow.ToString("o"),
-                        TenantId = tenantId,
-                        AccountId = accountId,
-                        ChangedBy = "BackfillJob",
-                        EventEnqueuedUtcTime = DateTime.UtcNow,
-                        EventProcessedUtcTime = DateTime.UtcNow,
-                        PartitionId = 0,
-                        Payload = new DataChangeEventPayload<ObjectiveWithAdditionalProperties> { Before = null, After = objective, Related = null },
-                        Id = Guid.NewGuid()
-                            .ToString()
-                    };
-
-                    var serializerSettings = new JsonSerializerSettings { ContractResolver = new DefaultContractResolver(), Converters = new List<JsonConverter> { new StringEnumConverter() } };
-
-                    string serializedEvent = JsonConvert.SerializeObject(dataChangeEvent, serializerSettings);
-                    var eventJObject = JsonConvert.DeserializeObject<JObject>(serializedEvent);
-
-                    if (!eventJObject.ContainsKey("id"))
-                    {
-                        eventJObject["id"] = dataChangeEvent.EventId;
-                    }
-
-                    await this._okrRepository.AddBatch(dataChangeEvent);
-
-                    this._logger.LogInformation($"Successfully processed OKR {objective.Id} for account {accountId}");
-                }
-                catch (Exception ex)
-                {
-                    this._logger.LogError($"Error processing OKR {objective.Id} for account {accountId}: {ex.Message}", ex);
-                }
-            }
-        }
-    }
-
-    private async Task ProcessKeyResultsAsync(List<KeyResult> keyResults, Guid objectiveId, List<string> accountIds, string tenantId)
-    {
-        foreach (string accountId in accountIds)
-        {
-            foreach (var keyResult in keyResults)
-            {
-                try
-                {
-                    string jsonString = JsonConvert.SerializeObject(keyResult);
-                    var jsonObject = JsonConvert.DeserializeObject<JObject>(jsonString);
-
-                    jsonObject["accountId"] = accountId;
-                    jsonObject["objectiveId"] = objectiveId; // Add reference to parent objective
-
-                    // Create a DataChangeEvent for the key result
-                    var dataChangeEvent = new DataChangeEvent<KeyResult>
-                    {
-                        EventId = Guid.NewGuid()
-                            .ToString(),
-                        CorrelationId = Guid.NewGuid()
-                            .ToString(),
-                        EventSource = EventSource.DataCatalog,
-                        PayloadKind = PayloadKind.KeyResult,
-                        OperationType = OperationType.Update,
-                        PreciseTimestamp = DateTime.UtcNow.ToString("o"),
-                        TenantId = tenantId,
-                        AccountId = accountId,
-                        ChangedBy = "BackfillJob",
-                        EventEnqueuedUtcTime = DateTime.UtcNow,
-                        EventProcessedUtcTime = DateTime.UtcNow,
-                        PartitionId = 0,
-                        Payload = new DataChangeEventPayload<KeyResult> { Before = null, After = keyResult, Related = null },
-                        Id = Guid.NewGuid()
-                            .ToString()
-                    };
-
-                    await this._keyResultRepository.AddBatch(dataChangeEvent);
-
-                    this._logger.LogInformation($"Successfully processed KeyResult {keyResult.Id} for OKR {objectiveId} and account {accountId}");
-                }
-                catch (Exception ex)
-                {
-                    this._logger.LogError($"Error processing KeyResult {keyResult.Id} for OKR {objectiveId} and account {accountId}: {ex.Message}", ex);
-                }
-            }
-        }
-    }
-
-    public async Task RetryAsync(Func<Task> action, string functionName = "", int maxRetries = 5, int delayMilliseconds = 5000)
-    {
-        int retryCount = 0;
-
-        while (retryCount < maxRetries)
+        int processedCount = 0;
+        foreach (var cde in criticalDataElements)
         {
             try
             {
-                await action();
-                this._logger.LogInformation($"{functionName} completed successfully in {retryCount + 1} attempt(s)");
-                return; // Exit if successful
+                var dataChangeEvent = new DataChangeEvent<CriticalDataElement>
+                {
+                    EventId = Guid.NewGuid()
+                        .ToString(),
+                    CorrelationId = Guid.NewGuid()
+                        .ToString(),
+                    EventSource = EventSource.DataCatalog,
+                    PayloadKind = PayloadKind.CriticalDataElement,
+                    OperationType = OperationType.Create,
+                    PreciseTimestamp = DateTime.UtcNow.ToString("o"),
+                    TenantId = tenantId,
+                    AccountId = accountId,
+                    ChangedBy = "BackfillJob",
+                    EventEnqueuedUtcTime = DateTime.UtcNow,
+                    EventProcessedUtcTime = DateTime.UtcNow,
+                    PartitionId = 0,
+                    Payload = new DataChangeEventPayload<CriticalDataElement> { Before = null, After = cde, Related = null },
+                    Id = Guid.NewGuid()
+                        .ToString()
+                };
+
+                await this._cdeRepository.AddBatch(dataChangeEvent);
+                processedCount++;
+
+                this._logger.LogInformation($"Successfully processed CDE {cde.Id} for account {accountId}");
             }
             catch (Exception ex)
             {
-                retryCount++;
-                this._logger.LogInformation($"{functionName} attempt {retryCount} failed: {ex.Message}");
-
-                if (retryCount == maxRetries)
-                {
-                    this._logger.LogInformation($"{functionName} All retry attempts failed.");
-                    throw; // Rethrow the exception if all retries fail
-                }
-
-                // Add a delay before retrying
-                await Task.Delay(delayMilliseconds);
+                this._logger.LogError($"Error processing CDE {cde.Id} for account {accountId}: {ex.Message}", ex);
             }
         }
+
+        this._processedCounters.AddOrUpdate("CDEs", processedCount, (key, oldValue) => oldValue + processedCount);
+    }
+
+    private async Task ProcessObjectivesAsync(List<ObjectiveWithAdditionalProperties> objectives, string accountId, string tenantId)
+    {
+        int processedCount = 0;
+        foreach (var objective in objectives)
+        {
+            try
+            {
+                var dataChangeEvent = new DataChangeEvent<ObjectiveWithAdditionalProperties>
+                {
+                    EventId = Guid.NewGuid()
+                        .ToString(),
+                    CorrelationId = Guid.NewGuid()
+                        .ToString(),
+                    EventSource = EventSource.DataCatalog,
+                    PayloadKind = PayloadKind.OKR,
+                    OperationType = OperationType.Create,
+                    PreciseTimestamp = DateTime.UtcNow.ToString("o"),
+                    TenantId = tenantId,
+                    AccountId = accountId,
+                    ChangedBy = "BackfillJob",
+                    EventEnqueuedUtcTime = DateTime.UtcNow,
+                    EventProcessedUtcTime = DateTime.UtcNow,
+                    PartitionId = 0,
+                    Payload = new DataChangeEventPayload<ObjectiveWithAdditionalProperties> { Before = null, After = objective, Related = null },
+                    Id = Guid.NewGuid()
+                        .ToString()
+                };
+
+                await this._okrRepository.AddBatch(dataChangeEvent);
+                processedCount++;
+
+                this._logger.LogInformation($"Successfully processed OKR {objective.Id} for account {accountId}");
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError($"Error processing OKR {objective.Id} for account {accountId}: {ex.Message}", ex);
+            }
+        }
+
+        this._processedCounters.AddOrUpdate("OKRs", processedCount, (key, oldValue) => oldValue + processedCount);
+    }
+
+    private async Task ProcessKeyResultsAsync(List<KeyResult> keyResults, Guid objectiveId, string accountId, string tenantId)
+    {
+        int processedCount = 0;
+        foreach (var keyResult in keyResults)
+        {
+            try
+            {
+                var dataChangeEvent = new DataChangeEvent<KeyResult>
+                {
+                    EventId = Guid.NewGuid()
+                        .ToString(),
+                    CorrelationId = Guid.NewGuid()
+                        .ToString(),
+                    EventSource = EventSource.DataCatalog,
+                    PayloadKind = PayloadKind.KeyResult,
+                    OperationType = OperationType.Create,
+                    PreciseTimestamp = DateTime.UtcNow.ToString("o"),
+                    TenantId = tenantId,
+                    AccountId = accountId,
+                    ChangedBy = "BackfillJob",
+                    EventEnqueuedUtcTime = DateTime.UtcNow,
+                    EventProcessedUtcTime = DateTime.UtcNow,
+                    PartitionId = 0,
+                    Payload = new DataChangeEventPayload<KeyResult> { Before = null, After = keyResult, Related = null },
+                    Id = Guid.NewGuid()
+                        .ToString()
+                };
+
+                await this._keyResultRepository.AddBatch(dataChangeEvent);
+                processedCount++;
+
+                this._logger.LogInformation($"Successfully processed KeyResult {keyResult.Id} for OKR {objectiveId} and account {accountId}");
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError($"Error processing KeyResult {keyResult.Id} for OKR {objectiveId} and account {accountId}: {ex.Message}", ex);
+            }
+        }
+
+        this._processedCounters.AddOrUpdate("KeyResults", processedCount, (key, oldValue) => oldValue + processedCount);
     }
 
     public bool IsStageComplete()
     {
-        return this._metadata.BackfillStatus == CatalogBackfillStatus.Completed ||
-               this._metadata.BackfillStatus == CatalogBackfillStatus.Failed;
+        return this._metadata.BackfillStatus is CatalogBackfillStatus.Completed or CatalogBackfillStatus.Failed;
     }
 
     public bool IsStagePreconditionMet()

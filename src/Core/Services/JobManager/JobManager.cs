@@ -1007,11 +1007,33 @@ public class JobManager : IJobManager
     {
         const string jobPartition = "CATALOG-BACKFILL-CALLBACK-IMMEDIATE";
         const string jobId = "GLOBAL-CATALOG-BACKFILL-CALLBACK-IMMEDIATE";
-        var job = await this.GetJobAsync(jobPartition, jobId);
 
-        if (job != null)
+        var existingJobs = await this.GetJobsAsync(jobPartition);
+        
+        foreach (var existingJob in existingJobs)
         {
-            await this.DeleteJobAsync(jobPartition, jobId);
+            try
+            {
+                var metadata = existingJob.GetMetadata<StartCatalogBackfillMetadata>();
+                if (metadata.BackfillStatus != CatalogBackfillStatus.Completed && 
+                    metadata.BackfillStatus != CatalogBackfillStatus.Failed)
+                {
+                    this.dataEstateHealthRequestLogger.LogWarning(
+                        $"Cannot start new catalog backfill job - existing job with ID {existingJob.JobId} is still running with status: {metadata.BackfillStatus}");
+                    throw new InvalidOperationException("A catalog backfill job is already in progress. Please wait for it to complete before starting a new one.");
+                }
+            }
+            catch (SerializationException ex)
+            {
+                // Log but continue checking other jobs if metadata deserialization fails
+                this.dataEstateHealthRequestLogger.LogError(
+                    $"Failed to deserialize metadata for job {existingJob.JobId}", ex);
+            }
+        }
+
+        foreach (var existingJob in existingJobs)
+        {
+            await this.DeleteJobAsync(jobPartition, existingJob.JobId);
         }
 
         StartCatalogBackfillMetadata jobMetadata = new() {

@@ -16,6 +16,21 @@ public static class InitializeServices
 {
     public const string BackfillCatalogDatabaseKey = "BackfillCatalogDatabase";
 
+    private static IBackfillCatalogRepository CreateBackfillCatalogRepository(
+        IServiceProvider sp,
+        string repositoryType,
+        Database database)
+    {
+        var logger = sp.GetRequiredService<IDataEstateHealthRequestLogger>();
+        return repositoryType switch
+        {
+            nameof(OkrBackfillCatalogRepository) => new OkrBackfillCatalogRepository(database, logger),
+            nameof(KeyresultBackfillCatalogRepository) => new KeyresultBackfillCatalogRepository(database, logger),
+            nameof(CdeBackfillCatalogRepository) => new CdeBackfillCatalogRepository(database, logger),
+            _ => throw new ArgumentException($"Unknown repository type: {repositoryType}", nameof(repositoryType))
+        };
+    }
+
     public static void AddCatalogDependencies(this IServiceCollection services, IConfiguration configuration)
     {
         const string backfillCatalogDatabaseName = "dgh-Backfill";
@@ -40,32 +55,22 @@ public static class InitializeServices
                 var cosmosClient = sp.GetRequiredService<IDefaultCosmosClient>().Client;
                 return cosmosClient.GetDatabase(backfillCatalogDatabaseName);
             });
-
-        services.AddKeyedScoped<IBackfillCatalogRepository>(
+        string[] repositoryTypes =
+        [
             nameof(OkrBackfillCatalogRepository),
-            (sp, key) =>
-            {
-                var database = sp.GetRequiredKeyedService<Database>(BackfillCatalogDatabaseKey);
-                var logger = sp.GetRequiredService<IDataEstateHealthRequestLogger>();
-                return new OkrBackfillCatalogRepository(database, logger);
-            });
-
-        services.AddKeyedScoped<IBackfillCatalogRepository>(
             nameof(KeyresultBackfillCatalogRepository),
-            (sp, key) =>
-            {
-                var database = sp.GetRequiredKeyedService<Database>(BackfillCatalogDatabaseKey);
-                var logger = sp.GetRequiredService<IDataEstateHealthRequestLogger>();
-                return new KeyresultBackfillCatalogRepository(database, logger);
-            });
+            nameof(CdeBackfillCatalogRepository)
+        ];
 
-        services.AddKeyedScoped<IBackfillCatalogRepository>(
-            nameof(CdeBackfillCatalogRepository),
-            (sp, key) =>
-            {
-                var database = sp.GetRequiredKeyedService<Database>(BackfillCatalogDatabaseKey);
-                var logger = sp.GetRequiredService<IDataEstateHealthRequestLogger>();
-                return new CdeBackfillCatalogRepository(database, logger);
-            });
+        foreach (string repositoryType in repositoryTypes)
+        {
+            services.AddKeyedScoped<IBackfillCatalogRepository>(
+                repositoryType,
+                (sp, key) =>
+                {
+                    var database = sp.GetRequiredKeyedService<Database>(BackfillCatalogDatabaseKey);
+                    return CreateBackfillCatalogRepository(sp, repositoryType, database);
+                });
+        }
     }
 }
