@@ -5,18 +5,16 @@ import org.apache.spark.sql.types.{IntegerType, LongType, StringType, StructFiel
 class CDESchema {
   val cdeSchema: StructType = StructType(
     Array(
-      StructField("Name", StringType, nullable = false),
-      StructField("DataType", StringType, nullable = false),
-      StructField("Status", StringType, nullable = true),
-      StructField("Description", StringType, nullable = true),
-      StructField("CDEId", StringType, nullable = true),
+      StructField("CriticalDataElementId", StringType, nullable = true),
+      StructField("CriticalDataElementDisplayName", StringType, nullable = false),
+      StructField("CriticalDataElementDescription", StringType, nullable = true),
+      StructField("CriticalDataElementStatus", StringType, nullable = true),
+      StructField("ExpectedDataType", StringType, nullable = false),
       StructField("CreatedDatetime", TimestampType, nullable = true),
       StructField("CreatedByUserId", StringType, nullable = true),
       StructField("ModifiedDateTime", TimestampType, nullable = true),
       StructField("ModifiedByUserId", StringType, nullable = true),
-      StructField("EventProcessingTime", LongType, nullable = false),
-      StructField("OperationType", StringType, nullable = false),
-      StructField("BusinessDomainId", StringType, nullable = true)
+      StructField("EventProcessingTime", LongType, nullable = false)
     )
   )
 }

@@ -55,7 +55,7 @@ class DataProductOKRAssignment(spark: SparkSession, logger: Logger) {
           ,col("OperationType").cast(StringType)
         )
 
-      val dfFiltered = dfLatest.filter(col("OperationType") =!= "Delete")
+      val dfFiltered = dfLatest.filter(col("OperationType") =!= "Delete").drop("OperationType")
 
       val dfProcessed = spark.createDataFrame(dfFiltered.rdd, schema=schema)
 

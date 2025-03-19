@@ -67,7 +67,7 @@ class Objective (spark: SparkSession, logger:Logger) {
           .desc)
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpec))
         .filter(col("row_number") === 1)
-        .drop("row_number")
+        .drop("row_number","OperationType")
         .distinct()
       val dfProcessed = spark.createDataFrame(dfProcess.rdd, schema=schema)
       val validator = new Validator()

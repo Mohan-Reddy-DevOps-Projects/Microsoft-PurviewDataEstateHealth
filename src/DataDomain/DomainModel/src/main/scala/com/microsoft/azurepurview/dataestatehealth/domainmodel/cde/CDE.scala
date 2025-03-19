@@ -47,21 +47,20 @@ class CDE(spark: SparkSession, logger:Logger) {
       dfProcess = dfProcess.filter(s"""CDEId IS NOT NULL
                                       | AND Name IS NOT NULL""".stripMargin).distinct()
 
-      dfProcess = dfProcess.select(col("Name")
-        ,col("DataType")
-        ,col("Status")
-        ,col("Description")
-        ,col("CDEId")
+      dfProcess = dfProcess.select(col("CDEId").alias("CriticalDataElementId")
+        ,col("Name").alias("CriticalDataElementDisplayName")
+        ,col("Description").alias("CriticalDataElementDescription")
+        ,col("Status").alias("CriticalDataElementStatus")
+        ,col("DataType").alias("ExpectedDataType")
         ,col("CreatedAt").alias("CreatedDatetime").cast(TimestampType)
         ,col("CreatedBy").alias("CreatedByUserId")
         ,col("LastModifiedAt").alias("ModifiedDateTime").cast(TimestampType)
         ,col("LastModifiedBy").alias("ModifiedByUserId")
         ,col("EventProcessingTime").cast(LongType)
         ,col("OperationType")
-        ,col("BusinessDomainId")
       )
 
-      val windowSpec = Window.partitionBy("CDEId").orderBy(col("ModifiedDateTime").desc,
+      val windowSpec = Window.partitionBy("CriticalDataElementId").orderBy(col("ModifiedDateTime").desc,
         when(col("OperationType") === "Create", 1)
           .when(col("OperationType") === "Update", 2)
           .when(col("OperationType") === "Delete", 3)
@@ -75,7 +74,7 @@ class CDE(spark: SparkSession, logger:Logger) {
 
       val dfProcessed = spark.createDataFrame(dfProcess.rdd, schema=schema)
       val validator = new Validator()
-      validator.validateDataFrame(dfProcessed,"CDEId is null or Name is null")
+      validator.validateDataFrame(dfProcessed,"CriticalDataElementId is null or CriticalDataElementDisplayName is null")
 
       dfProcessed
     }

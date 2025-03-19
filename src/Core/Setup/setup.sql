@@ -1094,69 +1094,65 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CustomAccessUseCase]
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CustomAccessUseCase/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: CustomAccessUseCase';
-/*
+
+
 SET @DynamicSQL = '
-CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDE]
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CriticalDataElement]
 (
-    Name [nvarchar](512),
-    DataType [nvarchar](50),
-    Status [nvarchar](50),
-    Description [nvarchar](max),
-    CDEId [nvarchar](50),
+    CriticalDataElementId [nvarchar](50),
+    CriticalDataElementDisplayName [nvarchar](512),
+    CriticalDataElementDescription [nvarchar](max),
+    CriticalDataElementStatus [nvarchar](50),
+    ExpectedDataType [nvarchar](50),
     CreatedDatetime [datetime2],
     CreatedByUserId [nvarchar](50),
     ModifiedDateTime [datetime2],
     ModifiedByUserId [nvarchar](50),
-    EventProcessingTime [bigint],
-    OperationType [nvarchar](10),
-    BusinessDomainId [nvarchar](50)
+    EventProcessingTime [bigint]
 )
-WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CDE/'', FILE_FORMAT = [DeltaLakeFormat])';
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CriticalDataElement/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
-PRINT 'External table created: CDE';
+PRINT 'External table created: CriticalDataElement';
 
 SET @DynamicSQL = '
-CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDEColumnAssignment]
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataAssetColumnCriticalDataElementAssignment]
 (
-    CDEId [nvarchar](50),
+    CriticalDataElementId [nvarchar](50),
     ColumnId [nvarchar](50),
     ModifiedDateTime [datetime2],
     ModifiedByUserId [nvarchar](50),
-    EventProcessingTime [bigint],
-    OperationType [nvarchar](10)
+    EventProcessingTime [bigint]
 )
-WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CDEColumnAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataAssetColumnCriticalDataElementAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
-PRINT 'External table created: CDEColumnAssignment';
+PRINT 'External table created: DataAssetColumnCriticalDataElementAssignment';
 
 SET @DynamicSQL = '
-CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDEDataProductAssignment]
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductCriticalDataElementAssignment]
 (
-    CDEId [nvarchar](50),
+    CriticalDataElementId [nvarchar](50),
     DataProductId [nvarchar](50),
     ModifiedDateTime [datetime2],
     ModifiedByUserId [nvarchar](50),
-    EventProcessingTime [bigint],
-    OperationType [nvarchar](10)
+    EventProcessingTime [bigint]
 )
-WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CDEDataProductAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataProductCriticalDataElementAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
-PRINT 'External table created: CDEDataProductAssignment';
+PRINT 'External table created: DataProductCriticalDataElementAssignment';
 
 SET @DynamicSQL = '
-CREATE EXTERNAL TABLE [' + @DomainSchema + '].[CDEGlossaryTermAssignment]
+CREATE EXTERNAL TABLE [' + @DomainSchema + '].[GlossaryTermCriticalDataElementAssignment]
 (
-    CDEId [nvarchar](50),
+    CriticalDataElementId [nvarchar](50),
     GlossaryTermId [nvarchar](50),
     ModifiedDateTime [datetime2],
     ModifiedByUserId [nvarchar](50),
-    EventProcessingTime [bigint],
-    OperationType [nvarchar](10)
+    EventProcessingTime [bigint]
 )
-WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/CDEGlossaryTermAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
+WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/GlossaryTermCriticalDataElementAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
-PRINT 'External table created: CDEGlossaryTermAssignment';
-*/
+PRINT 'External table created: GlossaryTermCriticalDataElementAssignment';
+
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[HealthAction]
 (
@@ -1211,7 +1207,7 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[HealthActionUserAssignment]
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/HealthActionUserAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: HealthActionUserAssignment';
-/*
+
 SET @DynamicSQL = '
 CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Objective]
 (
@@ -1224,7 +1220,6 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[Objective]
     ModifiedDateTime [datetime2],
     ModifiedByUserId [nvarchar](50),
     EventProcessingTime [bigint],
-    OperationType [nvarchar](10),
     BusinessDomainId [nvarchar](50)
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/Objective/'', FILE_FORMAT = [DeltaLakeFormat])';
@@ -1245,8 +1240,7 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[KeyResult]
     CreatedByUserId [nvarchar](50),
     ModifiedDateTime [datetime2],
     ModifiedByUserId [nvarchar](50),
-    EventProcessingTime [bigint],
-    OperationType [nvarchar](10)
+    EventProcessingTime [bigint]
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/KeyResult/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
@@ -1259,13 +1253,12 @@ CREATE EXTERNAL TABLE [' + @DomainSchema + '].[DataProductOKRAssignment]
     DataProductId [nvarchar](50),
     ModifiedDateTime [datetime2],
     ModifiedByUserId [nvarchar](50),
-    EventProcessingTime [bigint],
-    OperationType [nvarchar](10)
+    EventProcessingTime [bigint]
 )
 WITH (DATA_SOURCE = [@containerName], LOCATION = N''DomainModel/DataProductOKRAssignment/'', FILE_FORMAT = [DeltaLakeFormat])';
 EXEC sp_executesql @DynamicSQL;
 PRINT 'External table created: DataProductOKRAssignment';
-*/
+
 PRINT 'DOMAIN TABLES CREATION COMPLETE!'
 /*
 DIMENSIONAL MODEL SECTION

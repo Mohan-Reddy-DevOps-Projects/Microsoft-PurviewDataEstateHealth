@@ -5,12 +5,11 @@ import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType
 class CDEColumnAssignmentSchema {
   val cdeColumnAssignmentSchema: StructType = StructType(
     Array(
-      StructField("CDEId", StringType, nullable = false),
+      StructField("CriticalDataElementId", StringType, nullable = false),
       StructField("ColumnId", StringType, nullable = false),
       StructField("ModifiedDateTime", TimestampType, nullable = true),
       StructField("ModifiedByUserId", StringType, nullable = true),
-      StructField("EventProcessingTime", LongType, nullable = false),
-      StructField("OperationType", StringType, nullable = false)
+      StructField("EventProcessingTime", LongType, nullable = false)
     )
   )
 }

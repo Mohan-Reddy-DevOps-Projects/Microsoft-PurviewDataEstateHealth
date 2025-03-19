@@ -62,8 +62,6 @@ package object ObjectiveMain {
       case e: Exception =>
         println(s"Error In Main Objective Spark Application!: ${e.getMessage}")
         logger.error(s"Error In Main Objective Spark Application!: ${e.getMessage}")
-        val VacuumOptimize = new Maintenance(spark, logger)
-        VacuumOptimize.checkpointSentinel(args(2), args(1).concat("/Objective"), None, args(4), "Objective", s"Error In Main Objective Spark Application!: ${e.getMessage}")
         throw new IllegalArgumentException(s"Error In Main Objective Spark Application!: ${e.getMessage}")
     }
   }

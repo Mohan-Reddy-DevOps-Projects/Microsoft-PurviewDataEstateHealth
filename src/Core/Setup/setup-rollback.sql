@@ -482,55 +482,54 @@ BEGIN
     EXEC sp_executesql @DynamicSQL;
     PRINT 'External table dropped: CustomAccessUseCase';
 END
-/*
+
 IF EXISTS (
     SELECT * 
     FROM sys.tables 
-    WHERE [name] = 'CDE'
+    WHERE [name] = 'CriticalDataElement'
     AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
 )
 BEGIN
-    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[CDE]';
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[CriticalDataElement]';
     EXEC sp_executesql @DynamicSQL;
-    PRINT 'External table dropped: CDE';
+    PRINT 'External table dropped: CriticalDataElement';
 END
 
 IF EXISTS (
     SELECT * 
     FROM sys.tables 
-    WHERE [name] = 'CDEColumnAssignment'
+    WHERE [name] = 'DataAssetColumnCriticalDataElementAssignment'
     AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
 )
 BEGIN
-    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[CDEColumnAssignment]';
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[DataAssetColumnCriticalDataElementAssignment]';
     EXEC sp_executesql @DynamicSQL;
-    PRINT 'External table dropped: CDEColumnAssignment';
+    PRINT 'External table dropped: DataAssetColumnCriticalDataElementAssignment';
 END
 
 IF EXISTS (
     SELECT * 
     FROM sys.tables 
-    WHERE [name] = 'CDEDataProductAssignment'
+    WHERE [name] = 'DataProductCriticalDataElementAssignment'
     AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
 )
 BEGIN
-    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[CDEDataProductAssignment]';
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[DataProductCriticalDataElementAssignment]';
     EXEC sp_executesql @DynamicSQL;
-    PRINT 'External table dropped: CDEDataProductAssignment';
+    PRINT 'External table dropped: DataProductCriticalDataElementAssignment';
 END
 
 IF EXISTS (
     SELECT * 
     FROM sys.tables 
-    WHERE [name] = 'CDEGlossaryTermAssignment'
+    WHERE [name] = 'GlossaryTermCriticalDataElementAssignment'
     AND schema_id IN (SELECT schema_id FROM sys.schemas WHERE name = @DomainSchema)
 )
 BEGIN
-    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[CDEGlossaryTermAssignment]';
+    SET @DynamicSQL = 'DROP EXTERNAL TABLE [' + @DomainSchema + '].[GlossaryTermCriticalDataElementAssignment]';
     EXEC sp_executesql @DynamicSQL;
-    PRINT 'External table dropped: CDEGlossaryTermAssignment';
+    PRINT 'External table dropped: GlossaryTermCriticalDataElementAssignment';
 END
-*/
 
 IF EXISTS (
     SELECT * 
@@ -580,7 +579,7 @@ BEGIN
     PRINT 'External table dropped: HealthActionUserAssignment';
 END
 
-/*
+
 IF EXISTS (
     SELECT * 
     FROM sys.tables 
@@ -616,7 +615,7 @@ BEGIN
     EXEC sp_executesql @DynamicSQL;
     PRINT 'External table dropped: DataProductOKRAssignment';
 END
-*/
+
 PRINT 'DOMAIN EXTERNAL TABLES DROPS COMPLETE!'
 /*
 DIMENSIONAL MODEL SECTION

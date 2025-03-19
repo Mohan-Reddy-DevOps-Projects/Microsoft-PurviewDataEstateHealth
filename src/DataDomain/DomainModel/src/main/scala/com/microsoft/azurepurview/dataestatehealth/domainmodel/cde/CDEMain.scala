@@ -12,7 +12,7 @@ package object  CDEMain {
     try {
       println("In CDE Main Spark Application!")
       logger.setLevel(Level.INFO)
-      logger.info("Started the CDE Table Main Application!")
+      logger.info("Started the CriticalDataElement Table Main Application!")
       val coldStartSoftCheck = new ColdStartSoftCheck(spark, logger)
       if (args.length >= 4 && coldStartSoftCheck.validateCheckIn("cde")) {
         val adlsTargetDirectory = args(0)
@@ -34,18 +34,18 @@ package object  CDEMain {
         val dfCDE = reader.readCosmosData(cdeContractSchema,"", accountId, "cde", "DataCatalog","CriticalDataElement")
         val dfCDEProcessed = cde.processCDE(dfCDE, cdeSchema)
         dataWriter.writeData(dfCDEProcessed, adlsTargetDirectory, ReProcessingThresholdInMins
-          , "CDE", Seq("CDEId"), refreshType)
-        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/CDE"), Some(dfCDEProcessed), jobRunGuid, "CDE", "")
-        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/CDE"))
+          , "CriticalDataElement", Seq("CriticalDataElementId"), refreshType)
+        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/CriticalDataElement"), Some(dfCDEProcessed), jobRunGuid, "CriticalDataElement", "")
+        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/CriticalDataElement"))
 
         val cdeDataProductAssignment = new CDEDataProductAssignment(spark, logger)
         val cdeDataProductAssignmentSchema = new CDEDataProductAssignmentSchema().cdeDataProductAssignmentSchema
         val dfCDEDataProductAssignment = cdeDataProductAssignment.processCDEDataProductAssignment(
           adlsTargetDirectory = adlsTargetDirectory, schema = cdeDataProductAssignmentSchema)
         dataWriter.writeData(dfCDEDataProductAssignment, adlsTargetDirectory
-          , ReProcessingThresholdInMins, "CDEDataProductAssignment")
-        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/CDEDataProductAssignment"), Some(dfCDEDataProductAssignment), jobRunGuid, "CDEDataProductAssignment", "")
-        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/CDEDataProductAssignment"))
+          , ReProcessingThresholdInMins, "DataProductCriticalDataElementAssignment")
+        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/DataProductCriticalDataElementAssignment"), Some(dfCDEDataProductAssignment), jobRunGuid, "DataProductCriticalDataElementAssignment", "")
+        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataProductCriticalDataElementAssignment"))
 
         val cdeColumnAssignment = new CDEColumnAssignment(spark, logger)
         val cdeColumnAssignmentSchema = new CDEColumnAssignmentSchema().cdeColumnAssignmentSchema
@@ -53,9 +53,9 @@ package object  CDEMain {
           adlsTargetDirectory = adlsTargetDirectory, schema = cdeColumnAssignmentSchema)
 
         dataWriter.writeData(dfCDEColumnAssignment, adlsTargetDirectory
-          , ReProcessingThresholdInMins, "CDEColumnAssignment")
-        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/CDEColumnAssignment"), Some(dfCDEDataProductAssignment), jobRunGuid, "CDEColumnAssignment", "")
-        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/CDEColumnAssignment"))
+          , ReProcessingThresholdInMins, "DataAssetColumnCriticalDataElementAssignment")
+        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/DataAssetColumnCriticalDataElementAssignment"), Some(dfCDEDataProductAssignment), jobRunGuid, "DataAssetColumnCriticalDataElementAssignment", "")
+        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/DataAssetColumnCriticalDataElementAssignment"))
 
         val cdeGlossaryTermAssignment = new CDEGlossaryTermAssignment(spark, logger)
         val cdeGlossaryTermAssignmentSchema = new CDEGlossaryTermAssignmentSchema().cdeGlossaryTermAssignmentSchema
@@ -63,18 +63,16 @@ package object  CDEMain {
           adlsTargetDirectory = adlsTargetDirectory, schema = cdeGlossaryTermAssignmentSchema)
 
         dataWriter.writeData(dfCDEGlossaryTermAssignment, adlsTargetDirectory
-          , ReProcessingThresholdInMins, "CDEGlossaryTermAssignment")
-        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/CDEGlossaryTermAssignment"), Some(dfCDEDataProductAssignment), jobRunGuid, "CDEGlossaryTermAssignment", "")
-        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/CDEGlossaryTermAssignment"))
+          , ReProcessingThresholdInMins, "GlossaryTermCriticalDataElementAssignment")
+        VacuumOptimize.checkpointSentinel(accountId, adlsTargetDirectory.concat("/GlossaryTermCriticalDataElementAssignment"), Some(dfCDEDataProductAssignment), jobRunGuid, "GlossaryTermCriticalDataElementAssignment", "")
+        VacuumOptimize.processDeltaTable(adlsTargetDirectory.concat("/GlossaryTermCriticalDataElementAssignment"))
 
       }
     } catch {
       case e: Exception =>
-        println(s"Error In Main CDE Spark Application!: ${e.getMessage}")
-        logger.error(s"Error In Main CDE Spark Application!: ${e.getMessage}")
-        val VacuumOptimize = new Maintenance(spark, logger)
-        VacuumOptimize.checkpointSentinel(args(2), args(1).concat("/CDE"), None, args(4), "CDE", s"Error In Main CDE Spark Application!: ${e.getMessage}")
-        throw new IllegalArgumentException(s"Error In Main CDE Spark Application!: ${e.getMessage}")
+        println(s"Error In Main CriticalDataElement Spark Application!: ${e.getMessage}")
+        logger.error(s"Error In Main CriticalDataElement Spark Application!: ${e.getMessage}")
+        throw new IllegalArgumentException(s"Error In Main CriticalDataElement Spark Application!: ${e.getMessage}")
     }
   }
 }

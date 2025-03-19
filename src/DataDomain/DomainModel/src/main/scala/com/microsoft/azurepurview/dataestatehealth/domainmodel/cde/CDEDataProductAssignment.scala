@@ -48,7 +48,7 @@ class CDEDataProductAssignment(spark: SparkSession, logger: Logger) {
         .filter(col("row_number") === 1)
         .drop("row_number")
         .distinct()
-        .select(col("CDEId").cast(StringType)
+        .select(col("CDEId").cast(StringType).alias("CriticalDataElementId")
           ,col("DataProductId").cast(StringType)
           ,col("ModifiedDateTime").cast(TimestampType)
           ,col("ModifiedByUserId").cast(StringType)
@@ -56,7 +56,7 @@ class CDEDataProductAssignment(spark: SparkSession, logger: Logger) {
           ,col("OperationType").cast(StringType)
         )
 
-      val dfFiltered = dfLatest.filter(col("OperationType") =!= "Delete")
+      val dfFiltered = dfLatest.filter(col("OperationType") =!= "Delete").drop("OperationType")
 
       val dfProcessed = spark.createDataFrame(dfFiltered.rdd, schema=schema)
 

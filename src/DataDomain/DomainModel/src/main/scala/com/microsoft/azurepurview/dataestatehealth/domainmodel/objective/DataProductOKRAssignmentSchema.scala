@@ -9,8 +9,7 @@ class DataProductOKRAssignmentSchema {
       StructField("DataProductId", StringType, nullable = false),
       StructField("ModifiedDateTime", TimestampType, nullable = true),
       StructField("ModifiedByUserId", StringType, nullable = true),
-      StructField("EventProcessingTime", LongType, nullable = false),
-      StructField("OperationType", StringType, nullable = false)
+      StructField("EventProcessingTime", LongType, nullable = false)
     )
   )
 }
