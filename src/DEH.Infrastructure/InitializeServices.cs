@@ -3,6 +3,7 @@
 using Application.Abstractions.Catalog;
 using Catalog;
 using Configurations;
+using DEH.Domain.LogAnalytics;
 using Domain.Backfill.Catalog;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
@@ -72,5 +73,12 @@ public static class InitializeServices
                     return CreateBackfillCatalogRepository(sp, repositoryType, database);
                 });
         }
+    }
+
+    public static void AddJobRunLogsDependencies(this IServiceCollection services, IConfiguration configuration)
+    {
+        
+        services.AddSingleton<IDEHAnalyticsJobLogsRepository, DEHAnalyticsJobLogsRepository>();
+       
     }
 }

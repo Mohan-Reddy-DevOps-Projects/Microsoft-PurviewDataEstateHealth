@@ -131,6 +131,7 @@ public class Program
 
         builder.Services.SetupDQServices(builder.Configuration);
         builder.Services.AddCatalogDependencies(builder.Configuration);
+        builder.Services.AddJobRunLogsDependencies(builder.Configuration);
         builder.Services.AddApplication();
 
         builder.Services.Configure<ForwardedHeadersOptions>(options =>

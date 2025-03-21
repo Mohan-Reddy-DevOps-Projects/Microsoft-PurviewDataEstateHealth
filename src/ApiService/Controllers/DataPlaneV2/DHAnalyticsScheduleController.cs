@@ -74,6 +74,19 @@ public class DHAnalyticsScheduleController(
         var result = await analyticsScheduleService.CreateOrUpdateAnalyticsGlobalScheduleAsync(entity).ConfigureAwait(false);
         return this.Ok(result.JObject);
     }
+
+    [HttpGet]
+    [Route("getjoblogs")]
+    public async Task<ActionResult> GetAnalyticsJobLogsGlobalScheduleAsync()
+    {
+        using (logger.LogElapsed("Manually trigger schedule"))
+        {
+            var accountId = requestHeaderContext.AccountObjectId.ToString();
+            logger.LogInformation($"Getting analytics job logs for Account ID: {accountId}");
+            var result = await analyticsScheduleService.GetDEHJobLogs(accountId).ConfigureAwait(false);
+            return this.Ok(result);
+        }
+    }
 }
 
 public record TriggerScheduleReq

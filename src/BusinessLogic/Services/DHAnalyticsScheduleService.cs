@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
+﻿namespace Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
@@ -13,34 +11,23 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Purview.DataEstateHealth.DHDataAccess.Queue;
-using Microsoft.Azure.Purview.DataEstateHealth.Models;
-using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
-using Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Interfaces;
-using Microsoft.Azure.Management.Storage.Models;
+using DEH.Domain.LogAnalytics;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
 {
     private readonly DHScheduleInternalService _scheduleService;
-    private readonly IDataQualityExecutionService _dataQualityExecutionService;
-    private readonly DHMonitoringService _monitoringService;
-    private readonly DHControlService _controlService;
-    private readonly DHAssessmentService _assessmentService;
-    private readonly DHScoreRepository _dhScoreRepository;
     private readonly IDataEstateHealthRequestLogger _logger;
     private readonly IDataQualityScoreRepository _dataQualityScoreRepository;
-    private readonly IRequestHeaderContext _requestHeaderContext;
     private readonly DHAnalyticsScheduleRepository _dHAnalyticsScheduleRepository;
+    private readonly IRequestHeaderContext _requestHeaderContext;
     private readonly DHDataEstateHealthRepository _dhDataEstateHealthRepository;
+    private readonly IDEHAnalyticsJobLogsRepository dEHAnalyticsJobLogsRepository;
+    
 
     public DHAnalyticsScheduleService(
     DHScheduleInternalService scheduleService,
@@ -53,20 +40,16 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
     IDataQualityScoreRepository dataQualityScoreRepository,
     IRequestHeaderContext requestHeaderContext,
      DHAnalyticsScheduleRepository dHAnalyticsScheduleRepository,
-      DHDataEstateHealthRepository dhDataEstateHealthRepository)
+      DHDataEstateHealthRepository dhDataEstateHealthRepository,
+      IDEHAnalyticsJobLogsRepository dEHAnalyticsJobLogsRepository)
     {
         this._scheduleService = scheduleService;
-        this._dataQualityExecutionService = dataQualityExecutionService;
-        this._monitoringService = monitoringService;
-        this._controlService = controlService;
-        this._assessmentService = assessmentService;
-        this._dhScoreRepository = dhScoreRepository;
         this._logger = logger;
         this._dataQualityScoreRepository = dataQualityScoreRepository;
         this._requestHeaderContext = requestHeaderContext;
         this._dHAnalyticsScheduleRepository = dHAnalyticsScheduleRepository;
         this._dhDataEstateHealthRepository = dhDataEstateHealthRepository;
-
+        this.dEHAnalyticsJobLogsRepository = dEHAnalyticsJobLogsRepository;
     }
     public async Task<DHControlGlobalSchedulePayloadWrapper> CreateOrUpdateAnalyticsGlobalScheduleAsync(DHControlGlobalSchedulePayloadWrapper entity)
     {
@@ -176,6 +159,22 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
         }
 
         return hasDocuments;
+    }
+
+
+    public Task<IReadOnlyList<DEHAnalyticsJobLogs>> GetDEHJobLogs(string accountId)
+    {
+        // KQL query string to check for relevant job logs
+        var kqlDehDq = $@"DEH_Job_Logs_CL 
+	| where AccountId_g == '{accountId}'
+	| where JobStatus_s !=""Started""
+    | where JobName_s == ""StorageSync"" 
+    | project JobId_g, JobStatus_s, ErrorMessage_s, JobCompletionTime_s
+    | project-rename JobId=JobId_g, JobStatus=JobStatus_s, ErrorMessage=ErrorMessage_s, TimeStamp=JobCompletionTime_s";
+
+        var result = this.dEHAnalyticsJobLogsRepository.GetDEHJobLogs(kqlDehDq, TimeSpan.FromDays(30));
+        return result;
+
     }
 
 
