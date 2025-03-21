@@ -53,7 +53,12 @@ public class DHAssessmentRuleWrapper(JObject jObject) : BaseEntityWrapper(jObjec
         
         if (this.Rule != null)
         {
-            this.ActionProperties = new DHAssessmentRuleActionPropertiesWrapper();
+            var setDefaultSeverity = false;
+            if (this.ActionProperties == null)
+            {
+                this.ActionProperties = new DHAssessmentRuleActionPropertiesWrapper();
+                setDefaultSeverity = true;
+            }
             var ruleProperties = this.Rule.TypeProperties;
             if (ruleProperties != null)
             {
@@ -75,7 +80,11 @@ public class DHAssessmentRuleWrapper(JObject jObject) : BaseEntityWrapper(jObjec
                 this.ActionProperties.Name = name;
                 this.ActionProperties.Reason = reason;
                 this.ActionProperties.Recommendation = recommendation;
-                this.ActionProperties.Severity = actionPropertiesDescription.Severity;
+                if (setDefaultSeverity)
+                {
+                    this.ActionProperties.Severity = actionPropertiesDescription.Severity;
+                }
+                
             }
         }
     }
