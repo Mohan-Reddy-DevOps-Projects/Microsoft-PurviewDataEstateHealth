@@ -45,9 +45,11 @@ object DimensionalModelMain {
 
           spark.conf.set("spark.cosmos.accountKey", mssparkutils.credentials.getSecret(spark.conf.get("spark.keyvault.name"), spark.conf.get("spark.analyticalcosmos.keyname")))
 
+          /*
           if (spark.conf.get("spark.ec.deleteModelFolder", "false").toBoolean) {
             Maintenance.performMaintenance(config.AdlsTargetDirectory.concat("/DimensionalModel"))
           }
+          */
 
           println(
             s"""Received parameters:

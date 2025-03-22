@@ -14,7 +14,8 @@ class ObjectiveSchema {
       StructField("ModifiedDateTime", TimestampType, nullable = true),
       StructField("ModifiedByUserId", StringType, nullable = true),
       StructField("EventProcessingTime", LongType, nullable = false),
-      StructField("BusinessDomainId", StringType, nullable = true)
+      StructField("BusinessDomainId", StringType, nullable = true),
+      StructField("OperationType", StringType, nullable = false)
     )
   )
 }

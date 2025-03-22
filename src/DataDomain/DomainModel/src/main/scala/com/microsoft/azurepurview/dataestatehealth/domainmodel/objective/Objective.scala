@@ -56,8 +56,8 @@ class Objective (spark: SparkSession, logger:Logger) {
         ,col("LastModifiedAt").alias("ModifiedDateTime").cast(TimestampType)
         ,col("LastModifiedBy").alias("ModifiedByUserId")
         ,col("EventProcessingTime").cast(LongType)
-        ,col("OperationType")
         ,col("BusinessDomainId")
+        ,col("OperationType")
       )
       val windowSpec = Window.partitionBy("ObjectiveId").orderBy(col("ModifiedDateTime").desc,
         when(col("OperationType") === "Create", 1)
@@ -67,7 +67,7 @@ class Objective (spark: SparkSession, logger:Logger) {
           .desc)
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpec))
         .filter(col("row_number") === 1)
-        .drop("row_number","OperationType")
+        .drop("row_number")
         .distinct()
       val dfProcessed = spark.createDataFrame(dfProcess.rdd, schema=schema)
       val validator = new Validator()

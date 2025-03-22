@@ -16,7 +16,8 @@ class KeyResultSchema {
       StructField("CreatedByUserId", StringType, nullable = true),
       StructField("ModifiedDateTime", TimestampType, nullable = true),
       StructField("ModifiedByUserId", StringType, nullable = true),
-      StructField("EventProcessingTime", LongType, nullable = false)
+      StructField("EventProcessingTime", LongType, nullable = false),
+      StructField("OperationType", StringType, nullable = false)
     )
   )
 }
