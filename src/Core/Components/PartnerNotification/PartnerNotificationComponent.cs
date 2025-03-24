@@ -166,12 +166,9 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
                     this.dataEstateHealthRequestLogger.LogInformation("PowerBI credential created successfully");
                 }
 
-                await this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken);
-                //Removing Exposure Control
-                //if (this.exposureControl.IsDataGovHealthDQReportEnabled(account.Id, account.SubscriptionId, account.TenantId))
-                {
-                    await this.healthPBIReportComponent.CreateDataQualityReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken);
-                }
+                await this.RetryAsync(() => this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken), nameof(this.healthPBIReportComponent.CreateDataGovernanceReport));
+                    
+                await this.RetryAsync(() => this.healthPBIReportComponent.CreateDataQualityReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken), nameof(this.healthPBIReportComponent.CreateDataQualityReport));
 
                 this.dataEstateHealthRequestLogger.LogInformation("PowerBI report created successfully");
             }
@@ -179,6 +176,35 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
             {
                 this.dataEstateHealthRequestLogger.LogError("Failed to create PowerBI resources", e);
                 throw;
+            }
+        }
+    }
+
+    public async Task RetryAsync(Func<Task> action, string functionName = "", int maxRetries = 5, int delayMilliseconds = 1000)
+    {
+        int retryCount = 0;
+
+        while (retryCount < maxRetries)
+        {
+            try
+            {
+                await action().ConfigureAwait(false);
+                this.dataEstateHealthRequestLogger.LogInformation($"{functionName} completed successfully in {retryCount} attempt");
+                return; // Exit if successful
+            }
+            catch (Exception ex)
+            {
+                retryCount++;
+                this.dataEstateHealthRequestLogger.LogInformation($"{functionName} attempt {retryCount} failed: {ex.Message}");
+
+                if (retryCount == maxRetries)
+                {
+                    this.dataEstateHealthRequestLogger.LogInformation($"{functionName} All retry attempts failed.");
+                    throw; // Rethrow the exception if all retries fail
+                }
+
+                // Optional: Add a delay before retrying
+                await Task.Delay(delayMilliseconds);
             }
         }
     }

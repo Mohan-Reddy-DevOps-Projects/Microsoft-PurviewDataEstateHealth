@@ -140,7 +140,7 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
         }
     }
 
-    public async Task RetryAsync(Func<Task> action, string functionName = "", int maxRetries = 5, int delayMilliseconds = 5000)
+    public async Task RetryAsync(Func<Task> action, string functionName = "", int maxRetries = 5, int delayMilliseconds = 1000)
     {
         int retryCount = 0;
 
@@ -148,7 +148,7 @@ internal class StartPBIReportUpgradeStage : IJobCallbackStage
         {
             try
             {
-                await action();
+                await action().ConfigureAwait(false);
                 this.logger.LogInformation($"{functionName} completed successfully in {retryCount} attempt");
                 return; // Exit if successful
             }
