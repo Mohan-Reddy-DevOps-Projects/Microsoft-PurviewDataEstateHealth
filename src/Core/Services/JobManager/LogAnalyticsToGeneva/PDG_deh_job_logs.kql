@@ -5,4 +5,5 @@ DEH_Job_Logs_CL
     JobName = JobName_s,
     JobId = JobId_g,
     JobStatus = JobStatus_s,
-    TimeGenerated
+    TimeGenerated,
+    ErrorMessage = ErrorMessage_s
