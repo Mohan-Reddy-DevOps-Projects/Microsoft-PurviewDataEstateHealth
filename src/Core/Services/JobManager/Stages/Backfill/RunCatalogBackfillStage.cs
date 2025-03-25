@@ -21,6 +21,7 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
     private readonly IBackfillCatalogRepository _okrRepository;
     private readonly IBackfillCatalogRepository _keyResultRepository;
     private readonly IBackfillCatalogRepository _cdeRepository;
+    private readonly TimeSpan _defaultDelay = TimeSpan.FromMilliseconds(400);
 
     public RunCatalogBackfillStage(
         IServiceScope scope,
@@ -128,6 +129,7 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
                                 }, cancellationToken);
 
                                 await Task.WhenAll(okrTask, cdeTask);
+                                await this.WaitBetweenCallsToCatalog(cancellationToken);
                             }
 
                             await this._okrRepository.FlushAsync();
@@ -177,6 +179,11 @@ internal class RunCatalogBackfillStage : IJobCallbackStage
         }
 
         return this._jobCallbackUtils.GetExecutionResult(jobStageStatus, jobStatusMessage, DateTime.UtcNow.Add(TimeSpan.FromSeconds(10)));
+    }
+
+    private async Task WaitBetweenCallsToCatalog(CancellationToken cancellationToken)
+    {
+        await Task.Delay(this._defaultDelay, cancellationToken).ConfigureAwait(false);
     }
 
     private async Task ProcessCriticalDataElementsAsync(List<CriticalDataElement> criticalDataElements, string accountId, string tenantId)
