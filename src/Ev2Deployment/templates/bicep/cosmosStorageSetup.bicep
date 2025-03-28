@@ -142,7 +142,7 @@ module cosmosDatabaseDHSettings 'cosmosDatabase.bicep' = {
     accountName: cosmosAccountName
     databaseName: 'dgh-Settings'
     partitionid: '/TenantId'
-    containerNames: ['DHStorageConfig']
+    containerNames: ['DHStorageConfig','DHStorageSchedule']
     containerAppIdentityName :  containerAppIdentityName
     containerdehNames: []
   }
