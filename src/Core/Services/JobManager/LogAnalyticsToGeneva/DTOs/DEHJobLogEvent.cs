@@ -13,4 +13,5 @@ public class DEHJobLogEvent
     public string JobName { get; set; }
     public string JobId { get; set; }
     public string JobStatus { get; set; }
+    public string ErrorMessage { get; set; }
 }
