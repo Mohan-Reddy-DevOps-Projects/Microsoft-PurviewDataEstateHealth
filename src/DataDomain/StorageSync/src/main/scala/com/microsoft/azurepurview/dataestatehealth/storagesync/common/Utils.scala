@@ -49,15 +49,16 @@ object Utils extends SparkLogging {
     }
 
     // Extract the parts
-    val domain = parts(0) // e.g., 'onelake.dfs.fabric.microsoft.com'
+    var domain = parts(0) // e.g., 'onelake.dfs.fabric.microsoft.com'
     val container = parts(1) // e.g., 'abc'
     val path = if (parts.length > 2) parts(2) else "" // e.g., 'ddd/Files/DEHDemo'
+    domain = domain.replace(".blob.core.windows.net",".dfs.core.windows.net")
 
     logger.info(s"Extracted domain: $domain, tenant: $container, path: $path")
 
     // Construct the new URL
-    val convertedUrl = s"abfss://$container@$domain/$path".replace(
-      ".blob.core.windows.net",".dfs.core.windows.net")
+    val convertedUrl = s"abfss://$container@$domain/$path"
+
     logger.info(s"Successfully converted URL: $convertedUrl")
     (domain, convertedUrl)
   }
