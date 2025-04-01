@@ -59,6 +59,7 @@ public class DHControlScheduleWrapper(JObject jObject) : BaseEntityWrapper(jObje
     }
 
     [EntityProperty(keyStartTime)]
+    [EntityRequiredValidator]
     public DateTime? StartTime
     {
         get => this.GetPropertyValue<DateTime?>(keyStartTime);
