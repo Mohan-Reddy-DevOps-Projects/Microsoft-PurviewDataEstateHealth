@@ -103,6 +103,24 @@ public interface IAccountExposureControlConfigProvider
     public bool IsDQBillingEventEnabled(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
+    /// Determines if DEH Billing Domain Split is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDEHBillingSplitEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
+    /// Determines if DQ Billing Domain Split is enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDQBillingSplitEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
     /// Determines if DEH data cleanup is enabled. By default this is false.
     /// </summary>
     /// <param name="accountId"></param>

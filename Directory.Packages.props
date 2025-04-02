@@ -35,7 +35,7 @@
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.LoggerBase" Version="2.26.0" />
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.Service.Basics" Version="1.0.2326.38" />
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.Metadata.ProjectBabylonMetadataClient" Version="1.0.161" />
-    <PackageVersion Include="Microsoft.Azure.Purview.ExposureControlLibrary" Version="1.0.541" />
+    <PackageVersion Include="Microsoft.Azure.Purview.ExposureControlLibrary" Version="1.0.551" />
     <PackageVersion Include="Microsoft.Data.DeltaLake" Version="3.0.2.4" />
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
@@ -46,7 +46,7 @@
     <PackageVersion Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.3.0" />
     <PackageVersion Include="Microsoft.Purview.ArtifactStoreClient" Version="3.0.30" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.AuditAPI" Version="0.4.0" />
-    <PackageVersion Include="Microsoft.Purview.DataGovernance.BillingServiceClient" Version="0.2.5" />
+    <PackageVersion Include="Microsoft.Purview.DataGovernance.BillingServiceClient" Version="0.2.9" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.Catalog" Version="1.0.52" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.Common" Version="1.0.22" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.DataLakeAPI" Version="1.0.15" />

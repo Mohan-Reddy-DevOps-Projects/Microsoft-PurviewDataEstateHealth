@@ -11,6 +11,15 @@ public interface ICatalogHttpClient
     /// <param name="tenantId">The tenant ID for which to get business domains.</param>
     /// <returns>A list of all business domains.</returns>
     Task<List<Domain>> GetAllBusinessDomains(string accountId, string tenantId);
+    
+    /// <summary>
+    ///     Gets a specific business domain by its ID.
+    /// </summary>
+    /// <param name="domainId">The ID of the business domain to retrieve.</param>
+    /// <param name="accountId">The account ID for which to get the business domain.</param>
+    /// <param name="tenantId">The tenant ID for which to get the business domain.</param>
+    /// <returns>The business domain with the specified ID.</returns>
+    Task<Domain> GetBusinessDomainById(string domainId, string accountId, string tenantId);
 
     /// <summary>
     ///     Gets all objectives (OKRs) for a specific business domain across all pages.

@@ -6,6 +6,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Purview.DataGovernance.Catalog.Model;
 using Microsoft.Rest;
 using Newtonsoft.Json;
+using System.Net.Http;
 using System.Web;
 
 public class CatalogHttpClient(HttpClient httpClient, Uri baseUri, IDataEstateHealthRequestLogger logger)
@@ -93,6 +94,43 @@ public class CatalogHttpClient(HttpClient httpClient, Uri baseUri, IDataEstateHe
         catch (Exception ex)
         {
             this._logger.LogError($"Error retrieving business domains for account {accountId}: {ex.Message}", ex);
+            throw;
+        }
+    }
+
+    public async Task<Domain> GetBusinessDomainById(string domainId, string accountId, string tenantId)
+    {
+        try
+        {
+            string requestId = Guid.NewGuid().ToString();
+            string url = $"{this._baseUri}businessdomains/{domainId}";
+
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("x-ms-client-request-id", requestId);
+            request.Headers.Add("x-ms-client-tenant-id", tenantId);
+            request.Headers.Add("x-ms-account-id", accountId);
+
+            this._logger.LogInformation($"Getting business domain by ID {domainId} for account {accountId}, url: {url}, requestId: {requestId}");
+
+            var response = await this._client.SendAsync(request).ConfigureAwait(false);
+            response.EnsureSuccessStatusCode();
+
+            string content = await response.Content.ReadAsStringAsync();
+
+            var domain = JsonConvert.DeserializeObject<Domain>(content);
+
+            if (domain == null)
+            {
+                this._logger.LogWarning($"Business domain with ID {domainId} for account {accountId} was not found or could not be deserialized");
+                throw new InvalidOperationException($"Could not retrieve business domain with ID {domainId}");
+            }
+
+            this._logger.LogInformation($"Retrieved business domain with ID {domainId} for account {accountId}");
+            return domain;
+        }
+        catch (Exception ex)
+        {
+            this._logger.LogError($"Error retrieving business domain with ID {domainId} for account {accountId}: {ex.Message}", ex);
             throw;
         }
     }

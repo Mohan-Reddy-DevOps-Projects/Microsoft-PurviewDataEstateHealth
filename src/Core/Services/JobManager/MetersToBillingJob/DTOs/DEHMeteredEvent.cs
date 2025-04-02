@@ -21,4 +21,6 @@ public class DEHMeteredEvent : MeteredEvent
     public String DMSJobSubType { get; set; }
     public String JobId { get; set; }
     public String ClientTenantId { get; set; }
+    public string ReportingDimensions { get; set; }
+    public string CorrelationId { get; set; }
 }
