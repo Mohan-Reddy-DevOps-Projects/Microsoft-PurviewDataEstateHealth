@@ -584,12 +584,12 @@ public class MetersToBillingJobStage : IJobCallbackStage
         try
         {
             // Step 1: Assign correlation IDs and update last poll time
-            List<DEHMeteredEvent> eventsWithCorrelationIds = this.AssignCorrelationIds(dehMeteredEvents);
+            List<DEHMeteredEvent> aggregatedEvents = this.AssignCorrelationIds(dehMeteredEvents);
             this.metadata.LastPollTime = toDate.ToString();
 
             // Step 2: Enrich events with business domain information
             List<DEHMeteredEvent> enrichedEvents = new List<DEHMeteredEvent>();
-            foreach (var dehEvent in eventsWithCorrelationIds)
+            foreach (var dehEvent in aggregatedEvents)
             {
                 try
                 {
@@ -604,14 +604,16 @@ public class MetersToBillingJobStage : IJobCallbackStage
             }
 
             // Step 3: Process original events with receipt logging
-            var originalReceipts = await this.ProcessEventsBatch(eventsWithCorrelationIds, toDate, true);
-            receipts.AddRange(originalReceipts);
+            if (aggregatedEvents.Any())
+            {
+                var originalReceipts = await this.ProcessEventsByCorrelationId(aggregatedEvents, toDate, true, logPrefix);
+                receipts.AddRange(originalReceipts);
+            }
 
             // Step 4: Process enriched events without receipt logging
             if (enrichedEvents.Any())
             {
-                var enrichedReceipts = await this.ProcessEventsBatch(enrichedEvents, toDate, false);
-                // receipts.AddRange(enrichedReceipts);
+                await this.ProcessEventsByCorrelationId(enrichedEvents, toDate, false, logPrefix);
             }
 
             return receipts;
@@ -621,6 +623,52 @@ public class MetersToBillingJobStage : IJobCallbackStage
             this.logger.LogError($"{logPrefix} | Error in domain-based processing: {ex.Message}", ex);
             return receipts;
         }
+    }
+
+    /// <summary>
+    /// Processes events by correlation ID with the option to log receipts.
+    /// </summary>
+    /// <param name="events">The events to process</param>
+    /// <param name="toDate">The cutoff date for processing</param>
+    /// <param name="logReceipts">Whether to log receipts</param>
+    /// <param name="logPrefix">The prefix for log messages</param>
+    /// <returns>A list of billing receipts</returns>
+    private async Task<List<CBSBillingReceipt>> ProcessEventsByCorrelationId(
+        List<DEHMeteredEvent> events, 
+        DateTimeOffset toDate, 
+        bool logReceipts, 
+        string logPrefix)
+    {
+        List<CBSBillingReceipt> receipts = new List<CBSBillingReceipt>();
+        
+        // Get distinct correlation IDs
+        var distinctCorrelationIds = events
+            .Select(r => r.CorrelationId)
+            .Distinct()
+            .ToList();
+
+        this.logger.LogInformation($"{logPrefix} | Processing {distinctCorrelationIds.Count} distinct correlation IDs");
+
+        // Process each correlation ID separately
+        foreach (var correlationId in distinctCorrelationIds)
+        {
+            var eventsForCorrelation = events
+                .Where(e => e.CorrelationId == correlationId)
+                .ToList();
+
+            if (eventsForCorrelation.Any())
+            {
+                this.logger.LogInformation($"{logPrefix} | Processing {eventsForCorrelation.Count} events for correlation ID: {correlationId}");
+                var batchReceipts = await this.ProcessEventsBatch(eventsForCorrelation, toDate, logReceipts, correlationId);
+                
+                if (logReceipts && batchReceipts != null && batchReceipts.Any())
+                {
+                    receipts.AddRange(batchReceipts);
+                }
+            }
+        }
+        
+        return receipts;
     }
 
     /// <summary>
@@ -646,8 +694,9 @@ public class MetersToBillingJobStage : IJobCallbackStage
     /// <param name="events">The list of events to process</param>
     /// <param name="toDate">The end date for processing</param>
     /// <param name="logReceipts">Whether to log the receipts</param>
+    /// <param name="correlationId">Optional correlation ID to use for the batch. If not provided, a new GUID will be generated.</param>
     /// <returns>A list of billing receipts</returns>
-    private async Task<List<CBSBillingReceipt>> ProcessEventsBatch(List<DEHMeteredEvent> events, DateTimeOffset toDate, bool logReceipts)
+    private async Task<List<CBSBillingReceipt>> ProcessEventsBatch(List<DEHMeteredEvent> events, DateTimeOffset toDate, bool logReceipts, string correlationId = null)
     {
         List<CBSBillingReceipt> receipts = new List<CBSBillingReceipt>();
         string logPrefix = $"{this.GetType().Name}:|{this.StageName}";
@@ -700,11 +749,14 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
                 if (billingEvents.Any())
                 {
+                    // Use provided correlation ID or generate a new one
+                    var batchCorrelationId = correlationId != null ? Guid.Parse(correlationId) : Guid.NewGuid();
+
                     // Submit billing events to billing service
                     var batchReceipts = await this.EmitEventsWithRetryAndErrorHandling(
                         $"{logPrefix} | Batch {batchIndex}: Size={batchSize}, Emitting {billingEvents.Count}, Total processed={totalProcessed}",
                         billingEvents,
-                        Guid.NewGuid(),
+                        batchCorrelationId,
                         logReceipts);
 
                     receipts.AddRange(batchReceipts);

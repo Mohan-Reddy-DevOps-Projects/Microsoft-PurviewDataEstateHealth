@@ -545,7 +545,7 @@ public class JobManager : IJobManager
 
             };
 
-            var repeatInterval = TimeSpan.FromMinutes(this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 1 : 10);
+            var repeatInterval = TimeSpan.FromMinutes(this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 5 : 20);
             var startTime = DateTime.UtcNow;
 
             var jobOptions = new BackgroundJobOptions()
