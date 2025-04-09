@@ -7,6 +7,7 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
+using Microsoft.Azure.Purview.DataEstateHealth.Core.Services.JobManager.SparkJobs.SelfServeAnalyticsSparkJob;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.Errors;
@@ -74,13 +75,13 @@ public class JobManager : IJobManager
     static readonly string DEHScheduleJobPartitionAffix = "-DEH-SCHEDULE-JOBS";
     static readonly string DEHScheduleJobIdAffix = "-DEH-SCHEDULE-JOB";
 
-    static readonly string DEHAnalyticsScheduleJobPartitionAffix = "-DEH-ANALYTICSSCHEDULE-JOBS";
-    static readonly string DEHAnalyticsScheduleJobIdAffix = "-DEH-ANALYTICSSCHEDULE-JOB";
-
     static readonly string ActionCleanUpJobPartitionAffix = "-ACTION-CLEAN-UP-JOBS";
     static readonly string ActionCleanUpJobIdAffix = "-ACTION-CLEAN-UP-JOB";
 
     private const string _catalogBackfillCallback = "CatalogBackfillCallback";
+
+    static readonly string AnalyticsSparkJobPartitionAffix = "-ANALYTICS-SPARK-JOBS";
+    static readonly string AnalyticsSparkJobIdAffix = "-ANALYTICS-SPARK-JOB";
 
     private EnvironmentConfiguration environmentConfiguration;
     private static readonly Random RandomGenerator = new();
@@ -727,6 +728,52 @@ public class JobManager : IJobManager
         }
     }
 
+   public async Task ProvisionAnalyticsSparkJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload)
+    {
+        var catalogRepeatStrategy = TimeSpan.FromHours(schedulePayload.Interval);
+
+        string jobPartition = $"{accountId}{AnalyticsSparkJobPartitionAffix}";
+        string jobId = $"{accountId}{AnalyticsSparkJobIdAffix}";
+
+        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+        if (job != null && job.State == JobState.Faulted)
+        {
+            await this.DeleteJobAsync(jobPartition, jobId);
+            job = null;
+        }
+
+        if (job == null)
+        {
+            var jobMetadata = new DataPlaneSparkJobMetadata
+            {
+                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+                AccountServiceModel = null,
+                SparkPoolId = string.Empty,
+                CatalogSparkJobBatchId = string.Empty,
+                DimensionSparkJobBatchId = string.Empty,
+                FabricSparkJobBatchId = string.Empty,
+                CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others,
+                DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others,
+                FabricSparkJobStatus = DataPlaneSparkJobStatus.Others,
+
+            };
+            int randomMins = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 1 : RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
+
+            var jobOptions = new BackgroundJobOptions()
+            {
+                CallbackName = nameof(AnalyticsSparkJobCallback),
+                JobPartition = jobPartition,
+                JobId = jobId,
+                RepeatInterval = catalogRepeatStrategy,
+                StartTime = DateTime.UtcNow.AddMinutes(randomMins),
+                RetryStrategy = TimeSpan.FromMinutes(SparkJobsRetryStrategyTime)
+            };
+            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+        }
+    }
+
     public async Task DeprovisionCatalogSparkJob(AccountServiceModel accountServiceModel)
     {
         string accountId = accountServiceModel.Id;
@@ -886,73 +933,6 @@ public class JobManager : IJobManager
         }
         await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
     }
-
-
-    //Self serve analytics related
-    public async Task ProvisionDEHAnalyticsScheduleJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload)
-    {
-        string jobPartition = $"{accountId}{DEHAnalyticsScheduleJobPartitionAffix}";
-        string jobId = $"{accountId}{DEHAnalyticsScheduleJobIdAffix}";
-
-        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
-
-        var jobMetadata = new DEHScheduleJobMetadata
-        {
-            RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
-            ScheduleTenantId = tenantId,
-            ScheduleAccountId = accountId,
-        };
-
-        var repeat = TimeSpan.FromDays(1);
-        var interval = schedulePayload.Interval;
-        switch (schedulePayload.Frequency)
-        {
-            case DHControlScheduleFrequency.Day:
-                repeat = TimeSpan.FromDays(1 * interval);
-                break;
-            case DHControlScheduleFrequency.Week:
-                repeat = TimeSpan.FromDays(7 * interval);
-                break;
-            case DHControlScheduleFrequency.Month:
-                repeat = TimeSpan.FromDays(30 * interval);
-                break;
-        }
-
-        // For disabled job, set repeat to 30 years instead of deleting the job
-        if (schedulePayload.Status == DHScheduleState.Disabled)
-        {
-            repeat = TimeSpan.FromDays(365 * 30);
-        }
-
-        // Check if StartTime is not null and greater than current date + 30 years
-        if (schedulePayload.StartTime.HasValue && schedulePayload.StartTime.Value > DateTime.Now.AddYears(30))
-        {
-            schedulePayload.StartTime = DateTime.Now.AddYears(30);
-        }
-
-        var jobOptions = new BackgroundJobOptions()
-        {
-            CallbackName = nameof(DHAnalyticsScheduleCallback),
-            JobPartition = jobPartition,
-            JobId = jobId,
-            RepeatInterval = repeat,
-            StartTime = schedulePayload.StartTime,
-        };
-
-        if (!String.IsNullOrEmpty(schedulePayload.TimeZone))
-        {
-            try
-            {
-                jobOptions.TimeZone = TimeZoneInfo.FindSystemTimeZoneById(schedulePayload.TimeZone);
-            }
-            catch (Exception ex)
-            {
-                this.dataEstateHealthRequestLogger.LogError($"Failed to find timezone {schedulePayload.TimeZone}", ex);
-            }
-        }
-        await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
-    }
-
 
     public async Task DeprovisionDEHScheduleJob(string tenantId, string accountId)
     {

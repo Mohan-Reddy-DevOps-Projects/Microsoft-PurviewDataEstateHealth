@@ -20,8 +20,7 @@ using Newtonsoft.Json.Linq;
 public class DHAnalyticsScheduleController(
     IDHAnalyticsScheduleService analyticsScheduleService,
     IDataEstateHealthRequestLogger logger,
-    IRequestHeaderContext requestHeaderContext,
-    IAccountExposureControlConfigProvider exposureControl
+    IRequestHeaderContext requestHeaderContext
    ) : DataPlaneController
 {
     [HttpGet]
@@ -30,31 +29,6 @@ public class DHAnalyticsScheduleController(
     {
         var result = await analyticsScheduleService.GetAnalyticsGlobalScheduleAsync().ConfigureAwait(false);
         return this.Ok(result.JObject);
-    }
-
-    [HttpPost]
-    [Route("trigger")]
-    public async Task<ActionResult> TriggerAnalyticsScheduleAsync([FromBody] TriggerScheduleRequest requestPayload)
-    {
-        var accountId = requestHeaderContext.AccountObjectId.ToString();
-        var tenantId = requestHeaderContext.TenantId.ToString();
-        if (!exposureControl.IsDataGovHealthTipsEnabled(accountId, string.Empty, tenantId))
-        {
-            logger.LogInformation($"Not allowed to trigger schedule. Account id: {accountId}. Tenant id: {tenantId}.");
-            return this.Unauthorized();
-        }
-        using (logger.LogElapsed("Manually trigger schedule"))
-        {
-            var payload = new DHAnalyticsScheduleCallbackPayload
-            {
-                Operator = requestHeaderContext.ClientObjectId,
-                TriggerType = DHAnalyticsScheduleCallbackTriggerType.Manually,
-                ControlId = requestPayload.ControlId,
-            };
-            var scheduleRunId = await analyticsScheduleService.TriggerAnalyticsScheduleJobCallbackAsync(payload).ConfigureAwait(false);
-            logger.LogInformation($"Manually trigger schedule successfully. ScheduleRunId: {scheduleRunId}. Operator: {requestHeaderContext.ClientObjectId}.");
-            return this.Ok(new Dictionary<string, string>() { { "scheduleRunId", scheduleRunId } });
-        }
     }
 
 

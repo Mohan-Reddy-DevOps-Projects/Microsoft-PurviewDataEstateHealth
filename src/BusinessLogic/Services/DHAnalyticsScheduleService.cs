@@ -17,6 +17,15 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Interfaces;
 using DEH.Domain.LogAnalytics;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.JobMonitoring;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Rule.DHRuleEngine;
+using Microsoft.Purview.DataGovernance.Common;
+using Newtonsoft.Json.Linq;
+using IRequestHeaderContext = Azure.Purview.DataEstateHealth.Models.IRequestHeaderContext;
 
 public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
 {
@@ -24,10 +33,13 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
     private readonly IDataEstateHealthRequestLogger _logger;
     private readonly IDataQualityScoreRepository _dataQualityScoreRepository;
     private readonly DHAnalyticsScheduleRepository _dHAnalyticsScheduleRepository;
-    private readonly IRequestHeaderContext _requestHeaderContext;
+    private readonly Azure.Purview.DataEstateHealth.Models.IRequestHeaderContext _requestHeaderContext;
     private readonly DHDataEstateHealthRepository _dhDataEstateHealthRepository;
     private readonly IDEHAnalyticsJobLogsRepository dEHAnalyticsJobLogsRepository;
-    
+    private readonly DHMonitoringService _dhMonitoringService;
+    private readonly DHAssessmentService _dhAssessmentService;
+    private readonly DHControlService _dHControlService;
+
 
     public DHAnalyticsScheduleService(
     DHScheduleInternalService scheduleService,
@@ -39,9 +51,9 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
     IDataEstateHealthRequestLogger logger,
     IDataQualityScoreRepository dataQualityScoreRepository,
     IRequestHeaderContext requestHeaderContext,
-     DHAnalyticsScheduleRepository dHAnalyticsScheduleRepository,
-      DHDataEstateHealthRepository dhDataEstateHealthRepository,
-      IDEHAnalyticsJobLogsRepository dEHAnalyticsJobLogsRepository)
+    DHAnalyticsScheduleRepository dHAnalyticsScheduleRepository,
+    DHDataEstateHealthRepository dhDataEstateHealthRepository,
+    IDEHAnalyticsJobLogsRepository dEHAnalyticsJobLogsRepository)
     {
         this._scheduleService = scheduleService;
         this._logger = logger;
@@ -50,6 +62,9 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
         this._dHAnalyticsScheduleRepository = dHAnalyticsScheduleRepository;
         this._dhDataEstateHealthRepository = dhDataEstateHealthRepository;
         this.dEHAnalyticsJobLogsRepository = dEHAnalyticsJobLogsRepository;
+        this._dHControlService = controlService;
+        this._dhAssessmentService = assessmentService;
+        this._dhMonitoringService = monitoringService;
     }
     public async Task<DHControlGlobalSchedulePayloadWrapper> CreateOrUpdateAnalyticsGlobalScheduleAsync(DHControlGlobalSchedulePayloadWrapper entity)
     {
@@ -118,34 +133,6 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
         return globalScheduleQueryResult.FirstOrDefault();
     }
 
-    public async Task<string> TriggerAnalyticsScheduleJobCallbackAsync(DHAnalyticsScheduleCallbackPayload payload, bool isTriggeredFromGeneva = false)
-    {
-        using (this._logger.LogElapsed($"{this.GetType().Name}#{nameof(TriggerAnalyticsScheduleJobCallbackAsync)}"))
-        {
-            try
-            {
-                string scheduleRunId = Guid.NewGuid().ToString();
-
-                // Step 1: Check if business domain container has any documents
-                if (!isTriggeredFromGeneva)
-                {
-                    bool hasDocuments = await this.skipIfNoBusinessDomainExists(scheduleRunId);
-                    if (!hasDocuments)
-                    {
-                        return scheduleRunId;
-                    }
-                }
-
-                return scheduleRunId;
-            }
-            catch (Exception ex)
-            {
-                this._logger.LogError($"Failed to trigger schedule job", ex);
-                throw;
-            }
-        }
-    }
-
     private async Task<bool> skipIfNoBusinessDomainExists(string scheduleRunId)
     {
         bool hasDocuments = await this._dhDataEstateHealthRepository.DoesBusinessDomainHaveDocumentsAsync()
@@ -161,7 +148,6 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
         return hasDocuments;
     }
 
-
     public Task<IReadOnlyList<DEHAnalyticsJobLogs>> GetDEHJobLogs(string accountId)
     {
         // KQL query string to check for relevant job logs
@@ -176,7 +162,6 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
         return result;
 
     }
-
 
 }
 

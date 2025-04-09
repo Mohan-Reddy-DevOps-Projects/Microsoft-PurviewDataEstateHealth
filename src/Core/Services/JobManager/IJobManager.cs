@@ -180,6 +180,12 @@ public interface IJobManager
     Task ProvisionCatalogSparkJob(AccountServiceModel accountServiceModel);
 
     /// <summary>
+    /// Provisions analytics SPARK job per account.
+    /// </summary>
+    /// <returns></returns>
+    Task ProvisionAnalyticsSparkJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload);
+
+    /// <summary>
     /// Deprovisions catalog SPARK job per account.
     /// </summary>
     /// <param name="accountServiceModel"></param>
@@ -208,15 +214,6 @@ public interface IJobManager
     /// <param name="schedulePayload"></param>
     /// <returns></returns>
     Task ProvisionDEHScheduleJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload);
-
-    /// <summary>
-    /// Provisions DEH analytics schedule job.
-    /// </summary>
-    /// <param name="tenantId"></param>
-    /// <param name="accountId"></param>
-    /// <param name="schedulePayload"></param>
-    /// <returns></returns>
-    Task ProvisionDEHAnalyticsScheduleJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload);
 
     /// <summary>
     /// Deprovisions DEH schedule job.
