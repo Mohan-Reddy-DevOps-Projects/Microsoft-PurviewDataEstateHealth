@@ -730,7 +730,7 @@ public class JobManager : IJobManager
 
    public async Task ProvisionAnalyticsSparkJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload)
     {
-        var catalogRepeatStrategy = TimeSpan.FromHours(schedulePayload.Interval);
+        var catalogRepeatStrategy = TimeSpan.FromDays(schedulePayload.Interval);
 
         string jobPartition = $"{accountId}{AnalyticsSparkJobPartitionAffix}";
         string jobId = $"{accountId}{AnalyticsSparkJobIdAffix}";
