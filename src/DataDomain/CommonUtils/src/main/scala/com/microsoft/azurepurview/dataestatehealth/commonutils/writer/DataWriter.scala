@@ -6,7 +6,64 @@ import io.delta.tables.DeltaTable
 import org.apache.spark.sql.functions._
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 
+// Add companion object before the DataWriter class definition
+object DataWriter {
+  // Set of column names that need HTML tag removal
+  // Using Set for more efficient membership checking
+  val columnsToCleanHtmlTags: Set[String] = Set(
+    "BusinessDomainDescription",
+    "CriticalDataElementDescription",
+    "AssetDescription",
+    "ColumnDescription",
+    "DataProductDescription",
+    "UseCases",
+    "GlossaryDescription")
+  
+  // Define common HTML tags to ensure we're only matching real HTML and not any text in brackets
+  private val commonHtmlTags = 
+    """a|abbr|address|area|article|aside|audio|b|base|bdi|bdo|blockquote|body|br|button|
+       |canvas|caption|cite|code|col|colgroup|data|datalist|dd|del|details|dfn|dialog|div|
+       |dl|dt|em|embed|fieldset|figcaption|figure|footer|form|h1|h2|h3|h4|h5|h6|head|header|
+       |hr|html|i|iframe|img|input|ins|kbd|label|legend|li|link|main|map|mark|meta|meter|
+       |nav|noscript|object|ol|optgroup|option|output|p|param|picture|pre|progress|q|rp|rt|
+       |ruby|s|samp|script|section|select|small|source|span|strong|style|sub|summary|sup|
+       |table|tbody|td|template|textarea|tfoot|th|thead|
+       |time|title|tr|track|u|ul|var|video|wbr""".stripMargin.replaceAll("\\s+", "")
+  
+  // Regular expression to match real HTML tags using the defined list of tags
+  // This will only match proper HTML tags and ignore arbitrary text in angle brackets
+  private val htmlTagPattern = "</?(" + commonHtmlTags + ")(\\s+[a-zA-Z][a-zA-Z0-9-]*(\\s*=\\s*(\"[^\"]*\"|'[^']*'|[^\\s'\">=]+))?)*\\s*/?>|<!--.*?-->"
+}
+
 class DataWriter(spark: SparkSession) extends SparkLogging {
+
+  /**
+   * Removes HTML tags from specified columns in the DataFrame
+   *
+   * @param df The input DataFrame
+   * @return DataFrame with HTML tags removed from specified columns
+   */
+  private def cleanHtmlTagsFromColumns(df: DataFrame): DataFrame = {
+    import org.apache.spark.sql.functions.regexp_replace
+    
+    // Get the intersection of columns in DataFrame and columns to clean
+    val columnsToClean = df.columns.toSet.intersect(DataWriter.columnsToCleanHtmlTags)
+    
+    // If no columns need cleaning, return the original DataFrame
+    if (columnsToClean.isEmpty) {
+      logger.info(s"No columns matched for HTML tag cleaning in the current DataFrame")
+      return df
+    }
+    
+    logger.info(s"Cleaning HTML tags from columns: ${columnsToClean.mkString(", ")}")
+    
+    // Apply HTML tag removal to each column that needs cleaning
+    columnsToClean.foldLeft(df) { (currentDf, columnName) =>
+      logger.debug(s"Removing HTML tags from column: $columnName")
+      currentDf.withColumn(columnName, 
+        regexp_replace(col(columnName), DataWriter.htmlTagPattern, ""))
+    }
+  }
 
   def writeData(df: DataFrame, adlsTargetDirectory: String, reProcessingThresholdInMins: Int, entityName: String,
                 keyColumns: Seq[String] = Seq(""), refreshType: String = "full", operationType: String = "Merge"): Unit = {
@@ -15,22 +72,25 @@ class DataWriter(spark: SparkSession) extends SparkLogging {
 
       logger.info(s"Starting write operation for entity: $entityName to path: $targetPath with refreshType: $refreshType")
 
+      // Clean HTML tags from specified columns
+      val cleanedDf = cleanHtmlTagsFromColumns(df)
+
       // Check if the Delta table has been refreshed within the specified time threshold
       if (isDeltaTableRefreshedWithinXMinutes(adlsTargetDirectory, entityName, reProcessingThresholdInMins)) {
         logger.info(s"Delta table for entity: $entityName was refreshed within the last $reProcessingThresholdInMins minutes. No action taken.")
         return // Exit early if no refresh is needed
       }
 
-      val coldStartDF = Utils.createColdStartDataFrame(spark, df.schema)
+      val coldStartDF = Utils.createColdStartDataFrame(spark, cleanedDf.schema)
 
       // Handle the different types of refresh operations
       refreshType match {
         case "full" =>
           logger.info("Performing full write operation.")
-          writeFull(if (df.isEmpty) coldStartDF else df, targetPath)
+          writeFull(if (cleanedDf.isEmpty) coldStartDF else cleanedDf, targetPath)
         case "incremental" =>
           logger.info("Handling incremental refresh.")
-          handleIncrementalRefresh(df, targetPath, entityName, coldStartDF, keyColumns, operationType)
+          handleIncrementalRefresh(cleanedDf, targetPath, entityName, coldStartDF, keyColumns, operationType)
         case _ =>
           logger.error(s"Unsupported refreshType: $refreshType")
           throw new IllegalArgumentException(s"Unsupported refreshType: $refreshType") // Handle unsupported refresh types
