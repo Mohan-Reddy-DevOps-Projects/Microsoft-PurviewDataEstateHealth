@@ -132,7 +132,7 @@ let BillingEvents = (BYOCJobsFiltered
     | project
         TimeGenerated,
         TenantId,
-        AccountId=AccountId_g,
+        AccountId=coalesce(AccountId_g,AccountId),
         MDQBatchId,
         JobId=JobId1,
         JobStartTime,

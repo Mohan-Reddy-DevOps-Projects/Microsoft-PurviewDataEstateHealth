@@ -123,7 +123,7 @@ let BillingEvents = BYOCJobsFiltered
     | join kind=leftouter (DEHJobsAgg) on $left.AccountId_g == $right.AccountId 
     | project
         TenantId,
-        AccountId=AccountId_g,
+        AccountId=coalesce(AccountId_g,AccountId),
         MDQBatchId=JobId,
         ProcessingTier,
         MDQJobDuration = JobDuration,
