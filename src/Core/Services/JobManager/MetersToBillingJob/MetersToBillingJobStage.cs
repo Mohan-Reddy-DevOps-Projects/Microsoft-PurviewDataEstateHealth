@@ -1154,8 +1154,8 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
                         this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | Found {domains.Count()} business domains for account: {meteredEvent.AccountId}");
 
-                        // Calculate per-domain processing units (divide evenly with 3 decimal places)
-                        double processingUnitsPerDomain = Math.Round(meteredEvent.ProcessingUnits / domains.Count(), 3);
+                        // Calculate per-domain processing units (divide evenly with 6 decimal places)
+                        double processingUnitsPerDomain = Math.Round(meteredEvent.ProcessingUnits / domains.Count(), 6);
 
                         // Create a new event for each business domain
                         foreach (var domain in domains)

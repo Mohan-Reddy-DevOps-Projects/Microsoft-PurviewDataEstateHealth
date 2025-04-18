@@ -12,6 +12,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Purview.DataEstateHealth.DHDataAccess;
 using Repositories;
+using Polly;
+using Polly.Retry;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 public static class InitializeServices
 {
@@ -32,6 +38,32 @@ public static class InitializeServices
         };
     }
 
+    // Create a custom retry policy for HTTP requests
+    private static IAsyncPolicy<HttpResponseMessage> CreateCustomRetryPolicy(IDataEstateHealthRequestLogger logger)
+    {
+        return Policy<HttpResponseMessage>
+            .Handle<HttpRequestException>()
+            .Or<TaskCanceledException>()
+            .OrResult(r => r.StatusCode == HttpStatusCode.TooManyRequests ||
+                         r.StatusCode == HttpStatusCode.RequestTimeout ||
+                         r.StatusCode >= HttpStatusCode.InternalServerError)
+            .WaitAndRetryAsync(
+                5, // Number of retries
+                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), // Exponential backoff
+                (outcome, timeSpan, retryCount, context) =>
+                {
+                    if (outcome.Exception != null)
+                    {
+                        logger?.LogWarning($"Attempt {retryCount} failed: {outcome.Exception.Message}. Retrying after {timeSpan.TotalSeconds} seconds.");
+                    }
+                    else
+                    {
+                        logger?.LogWarning($"Attempt {retryCount} failed with status code {outcome.Result.StatusCode}. Retrying after {timeSpan.TotalSeconds} seconds.");
+                    }
+                }
+            );
+    }
+    
     public static void AddCatalogDependencies(this IServiceCollection services, IConfiguration configuration)
     {
         const string backfillCatalogDatabaseName = "dgh-Backfill";
@@ -45,7 +77,15 @@ public static class InitializeServices
             RetryCount = 3
         };
 
-        services.AddCustomHttpClient<CatalogAdapterConfiguration>(httpClientSettings);
+        services.AddCustomHttpClient<CatalogAdapterConfiguration>(httpClientSettings, 
+            (serviceProvider, request, defaultPolicy) => 
+            {
+                var logger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
+                var retryPolicy = CreateCustomRetryPolicy(logger);
+                
+                // Apply this policy by wrapping the default policy
+                defaultPolicy.WrapAsync(retryPolicy);
+            });
 
         services.AddSingleton<ICatalogHttpClientFactory, CatalogHttpClientFactory>();
 
