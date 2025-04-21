@@ -678,10 +678,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
     {
         foreach (var dehEvent in events)
         {
-            if (string.IsNullOrEmpty(dehEvent.CorrelationId))
-            {
-                dehEvent.CorrelationId = Guid.NewGuid().ToString();
-            }
+            dehEvent.CorrelationId = dehEvent.DMSScope.ToLower() == "dq" ? dehEvent.JobId : dehEvent.MDQBatchId;
         }
 
         this.logger.LogInformation($"{this.GetType().Name}:|{this.StageName} | Assigned correlation IDs to {events.Count} events");
