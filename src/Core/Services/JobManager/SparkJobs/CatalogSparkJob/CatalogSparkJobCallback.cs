@@ -9,13 +9,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Purview.DataEstateHealth.DHDataAccess.Repositories.DHControl;
+using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Schedule;
 
 [JobCallback(Name = nameof(CatalogSparkJobCallback))]
 internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCallback<DataPlaneSparkJobMetadata>(scope)
 {
     private readonly IDataEstateHealthRequestLogger dataEstateHealthRequestLogger = scope.ServiceProvider.GetService<IDataEstateHealthRequestLogger>();
     private readonly ISparkJobManager sparkJobManager = scope.ServiceProvider.GetService<ISparkJobManager>();
+    private readonly DHAnalyticsScheduleRepository dHAnalyticsScheduleRepository = scope.ServiceProvider.GetService<DHAnalyticsScheduleRepository>();
     private readonly IServiceScope serviceScope = scope;
 
     protected override string JobName => nameof(CatalogSparkJobCallback);
@@ -41,36 +45,84 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
         return await Task.FromResult(true);
     }
 
+    private async Task<bool> HasAnalyticsScheduleConfigured()
+    {
+        // If repository is not available, assume no schedule exists
+        if (this.dHAnalyticsScheduleRepository == null)
+        {
+            this.dataEstateHealthRequestLogger.LogInformation($"DHAnalyticsScheduleRepository is not available, assuming no analytics schedule exists");
+            return false;
+        }
+
+        try
+        {
+            var schedules = await this.dHAnalyticsScheduleRepository.QueryAnalyticsScheduleAsync(DHControlScheduleType.ControlGlobal);
+            var hasSchedule = schedules.Any();
+            this.dataEstateHealthRequestLogger.LogInformation($"Analytics schedule check completed. Has schedule: {hasSchedule}");
+            return hasSchedule;
+        }
+        catch (Exception ex)
+        {
+            this.dataEstateHealthRequestLogger.LogError($"Failed to check for analytics schedule, assuming no schedule exists", ex);
+            return false;
+        }
+    }
+
     protected override void OnJobConfigure()
     {
+        this.dataEstateHealthRequestLogger.LogInformation($"Configuring job stages for account: {this.Metadata.AccountServiceModel.Id}, tenant: {this.Metadata.AccountServiceModel.TenantId}");
+        
         JobSubmissionEvaluator jobSubmissionEvaluator = new JobSubmissionEvaluator(this.serviceScope);
         var isStorageSyncConfigured = jobSubmissionEvaluator.IsStorageSyncConfigured(this.Metadata.AccountServiceModel.Id,
-            this.Metadata.AccountServiceModel.TenantId).Result;
-        var isDEHRanInLast24Hours = jobSubmissionEvaluator.IsDEHRanInLast24Hours(this.Metadata.AccountServiceModel.Id).Result;
+            this.Metadata.AccountServiceModel.TenantId).GetAwaiter().GetResult();
+        var isDEHRanInLast24Hours = jobSubmissionEvaluator.IsDEHRanInLast24Hours(this.Metadata.AccountServiceModel.Id).GetAwaiter().GetResult();
+        var hasAnalyticsSchedule = this.HasAnalyticsScheduleConfigured().GetAwaiter().GetResult();
+        
+        this.dataEstateHealthRequestLogger.LogInformation($"Job configuration preconditions: isStorageSyncConfigured={isStorageSyncConfigured}, isDEHRanInLast24Hours={isDEHRanInLast24Hours}, hasAnalyticsSchedule={hasAnalyticsSchedule}");
+        
         if (isStorageSyncConfigured)
         {
-            this.JobStages = [
-            new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TriggerFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TrackFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            ];
+            // Base stages that are always included
+            var stages = new List<IJobCallbackStage>
+            {
+                new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+                new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+                new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+                new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            };
+            
+            // Only add Fabric stages if no analytics schedule is configured
+            if (!hasAnalyticsSchedule)
+            {
+                this.dataEstateHealthRequestLogger.LogInformation("No analytics schedule configured, adding Fabric Spark job stages");
+                stages.Add(new TriggerFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils));
+                stages.Add(new TrackFabricSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils));
+            }
+            else
+            {
+                this.dataEstateHealthRequestLogger.LogInformation("Analytics schedule configured, skipping Fabric Spark job stages");
+            }
+            
+            this.JobStages = stages.ToArray();
+            this.dataEstateHealthRequestLogger.LogInformation($"Configured job with {stages.Count} stages for isStorageSyncConfigured=true path");
         }
         else if (isDEHRanInLast24Hours)
         {
             this.JobStages = [
-            new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-            new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
-        ];
+                new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+                new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+                new TriggerDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+                new TrackDimensionModelSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
+            ];
+            this.dataEstateHealthRequestLogger.LogInformation($"Configured job with 4 stages for isDEHRanInLast24Hours=true path");
         }
         else
         {
             this.JobStages = [];
+            this.dataEstateHealthRequestLogger.LogInformation("No job stages configured as no preconditions were met");
         }
+        
+        this.dataEstateHealthRequestLogger.LogInformation($"Job stage configuration completed with {this.JobStages.Count()} total stages");
     }
 
     protected override async Task TransitionToJobFailed()
