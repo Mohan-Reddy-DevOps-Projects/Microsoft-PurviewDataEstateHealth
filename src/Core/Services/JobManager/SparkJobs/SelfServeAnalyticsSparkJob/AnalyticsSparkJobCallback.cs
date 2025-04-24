@@ -46,15 +46,15 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
 
         try
         {
-            this.dataEstateHealthRequestLogger.LogInformation($"Processing account ID: {this.Metadata.RequestContext.AccountId}");
+            this.dataEstateHealthRequestLogger.LogInformation($"AnalyticsSparkJobCallback OnJobConfigure: Processing account ID: {this.Metadata.RequestContext.AccountId}");
             var metadataClient = this._metadataAccessorService.GetMetadataServiceClient();
             var accountModel = metadataClient.Accounts.GetAsync(this.Metadata.RequestContext.AccountId.ToString(), "ByAccountId");
-            this.dataEstateHealthRequestLogger.LogInformation($"Retrieved account information for {accountModel.Result.Name} (ID: {accountModel.Id}, Tenant: {accountModel.Result.TenantId})");
+            this.dataEstateHealthRequestLogger.LogInformation($"AnalyticsSparkJobCallback: Retrieved account information for {accountModel.Result.Name} (ID: {accountModel.Id}, Tenant: {accountModel.Result.TenantId})");
             this.Metadata.AccountServiceModel = accountModel.Result;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
+            this.dataEstateHealthRequestLogger.LogError($"AnalyticsSparkJobCallback OnJobConfigure: Error Processing: {ex}");
         }
 
         this.JobStages = [        

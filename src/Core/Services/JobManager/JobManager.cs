@@ -728,49 +728,72 @@ public class JobManager : IJobManager
         }
     }
 
-   public async Task ProvisionAnalyticsSparkJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload)
+    public async Task ProvisionAnalyticsSparkJob(string tenantId, string accountId, DHControlScheduleWrapper schedulePayload)
     {
-        var catalogRepeatStrategy = TimeSpan.FromDays(schedulePayload.Interval);
+        this.dataEstateHealthRequestLogger.LogInformation($"Starting ProvisionAnalyticsSparkJob for AccountId: {accountId}");
+        var repeat = TimeSpan.FromDays(1);
+        var interval = schedulePayload.Interval;
+        switch (schedulePayload.Frequency)
+        {
+            case DHControlScheduleFrequency.Day:
+                repeat = TimeSpan.FromDays(1 * interval);
+                break;
+            case DHControlScheduleFrequency.Week:
+                repeat = TimeSpan.FromDays(7 * interval);
+                break;
+            case DHControlScheduleFrequency.Month:
+                repeat = TimeSpan.FromDays(30 * interval);
+                break;
+        }
 
         string jobPartition = $"{accountId}{AnalyticsSparkJobPartitionAffix}";
         string jobId = $"{accountId}{AnalyticsSparkJobIdAffix}";
 
-        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
-
-        if (job != null && job.State == JobState.Faulted)
+        try
         {
-            await this.DeleteJobAsync(jobPartition, jobId);
-            job = null;
+            using (this.dataEstateHealthRequestLogger.LogElapsed($"Get job for JobPartition: {jobPartition}, JobId: {jobId}"))
+            {
+                BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+
+                if (job != null && job.State == JobState.Faulted)
+                {
+                    this.dataEstateHealthRequestLogger.LogInformation($"Job {jobId} is in Faulted state. Deleting job.");
+                    await this.DeleteJobAsync(jobPartition, jobId);
+                    job = null;
+                }
+
+                var jobMetadata = new DataPlaneSparkJobMetadata
+                {
+                    WorkerJobExecutionContext = WorkerJobExecutionContext.None,
+                    RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
+                    AccountServiceModel = null,
+                    SparkPoolId = string.Empty,
+                    CatalogSparkJobBatchId = string.Empty,
+                    DimensionSparkJobBatchId = string.Empty,
+                    FabricSparkJobBatchId = string.Empty,
+                    CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others,
+                    DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others,
+                    FabricSparkJobStatus = DataPlaneSparkJobStatus.Others,
+
+                };
+
+                var jobOptions = new BackgroundJobOptions()
+                {
+                    CallbackName = nameof(AnalyticsSparkJobCallback),
+                    JobPartition = jobPartition,
+                    JobId = jobId,
+                    RepeatInterval = repeat,
+                    StartTime = schedulePayload.StartTime,
+                    RetryStrategy = repeat
+                };
+                await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+                this.dataEstateHealthRequestLogger.LogInformation($"ProvisionAnalyticsSparkJob completed successfully for AccountId: {accountId}");
+            }
         }
-
-        if (job == null)
+        catch (Exception ex)
         {
-            var jobMetadata = new DataPlaneSparkJobMetadata
-            {
-                WorkerJobExecutionContext = WorkerJobExecutionContext.None,
-                RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
-                AccountServiceModel = null,
-                SparkPoolId = string.Empty,
-                CatalogSparkJobBatchId = string.Empty,
-                DimensionSparkJobBatchId = string.Empty,
-                FabricSparkJobBatchId = string.Empty,
-                CatalogSparkJobStatus = DataPlaneSparkJobStatus.Others,
-                DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others,
-                FabricSparkJobStatus = DataPlaneSparkJobStatus.Others,
-
-            };
-            int randomMins = this.environmentConfiguration.IsDevelopmentOrDogfoodEnvironment() ? 1 : RandomGenerator.Next(JobsMinStartTime, JobsMaxStartTime);
-
-            var jobOptions = new BackgroundJobOptions()
-            {
-                CallbackName = nameof(AnalyticsSparkJobCallback),
-                JobPartition = jobPartition,
-                JobId = jobId,
-                RepeatInterval = catalogRepeatStrategy,
-                StartTime = DateTime.UtcNow.AddMinutes(randomMins),
-                RetryStrategy = TimeSpan.FromMinutes(SparkJobsRetryStrategyTime)
-            };
-            await this.CreateBackgroundJobAsync(jobMetadata, jobOptions);
+            this.dataEstateHealthRequestLogger.LogError($"Failed to ProvisionAnalyticsSparkJob. {jobPartition} {jobId}", ex);
+            throw;
         }
     }
 

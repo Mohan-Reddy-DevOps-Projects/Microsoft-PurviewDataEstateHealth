@@ -85,19 +85,19 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
             {
                 // Create Global Schedule
 
-                this._logger.LogInformation($"Creating Global Schedule");
+                this._logger.LogInformation($"Creating Self Serve Analytics Global Schedule");
 
                 var result = await this._scheduleService.CreateAnalyticsScheduleAsync(scheduleStoragePayload, null).ConfigureAwait(false);
                 entity.SystemData = result.SystemData;
 
-                this._logger.LogInformation($"Global schedule created successfully. {result.Id}");
+                this._logger.LogInformation($"Global Self Serve Analytics schedule created successfully. {result.Id}");
                 return entity;
             }
             else
             {
                 // Update Global Schedule
 
-                this._logger.LogInformation($"Updating Global Schedule {existingGlobalSchedule.Id}");
+                this._logger.LogInformation($"Updating Global  Self Serve Analytics Schedule {existingGlobalSchedule.Id}");
 
                 scheduleStoragePayload.Id = existingGlobalSchedule.Id;
                 var result = await this._scheduleService.UpdateAnalyticsScheduleAsync(scheduleStoragePayload).ConfigureAwait(false);

@@ -45,6 +45,7 @@ public class DHAnalyticsScheduleController(
         string jsonpayload = JsonConvert.SerializeObject(payload);
         JObject jsonpayloadobj = JObject.Parse(jsonpayload);
         var entity = new DHControlGlobalSchedulePayloadWrapper(jsonpayloadobj);
+        logger.LogInformation($"Received create or update analytics schedule request: {jsonpayload}");
         var result = await analyticsScheduleService.CreateOrUpdateAnalyticsGlobalScheduleAsync(entity).ConfigureAwait(false);
         return this.Ok(result.JObject);
     }
