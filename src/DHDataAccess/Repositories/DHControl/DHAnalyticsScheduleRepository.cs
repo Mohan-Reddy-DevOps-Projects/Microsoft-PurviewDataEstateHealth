@@ -31,6 +31,11 @@ public class DHAnalyticsScheduleRepository(
 
     private readonly IDataEstateHealthRequestLogger logger = logger;
 
+    /// <summary>
+    /// Query analytics schedule for the current account
+    /// </summary>
+    /// <param name="scheduleType">The schedule type to query</param>
+    /// <returns>Collection of schedule payload wrappers</returns>
     public async Task<IEnumerable<DHControlScheduleStoragePayloadWrapper>> QueryAnalyticsScheduleAsync(DHControlScheduleType scheduleType)
     {
         var methodName = nameof(QueryAnalyticsScheduleAsync);
@@ -60,6 +65,48 @@ public class DHAnalyticsScheduleRepository(
             catch (Exception ex)
             {
                 this.logger.LogError($"{this.GetType().Name}#{methodName} failed, {this.AccountIdentifier.Log}", ex);
+                throw;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Query analytics schedule for a specific account and tenant
+    /// </summary>
+    /// <param name="tenantId">The tenant ID</param>
+    /// <param name="accountId">The account ID</param>
+    /// <param name="scheduleType">The schedule type to query</param>
+    /// <returns>Collection of schedule payload wrappers</returns>
+    public async Task<IEnumerable<DHControlScheduleStoragePayloadWrapper>> QueryAnalyticsScheduleAsync(string tenantId, string accountId, DHControlScheduleType scheduleType)
+    {
+        var methodName = nameof(QueryAnalyticsScheduleAsync);
+
+        using (this.logger.LogElapsed($"{this.GetType().Name}#{methodName}, TenantId: {tenantId}, AccountId: {accountId}"))
+        {
+            try
+            {
+                var partitionKey = new PartitionKey(tenantId);
+                var query = this.CosmosContainer.GetItemLinqQueryable<DHControlScheduleStoragePayloadWrapper>(
+                    requestOptions: new QueryRequestOptions { PartitionKey = partitionKey })
+                    .Where(c => c.Type == scheduleType && c.AccountId == accountId)
+                    .ToFeedIterator();
+
+                var results = new List<DHControlScheduleStoragePayloadWrapper>();
+                while (query.HasMoreResults)
+                {
+                    var response = await this.retryPolicy.ExecuteAsync(
+                        (context) => query.ReadNextAsync(),
+                        new Context($"{this.GetType().Name}#{methodName}_{scheduleType}_{tenantId}_{accountId}")
+                    ).ConfigureAwait(false);
+                    this.cosmosMetricsTracker.LogCosmosMetrics(new AccountIdentifier { AccountId = accountId, TenantId = tenantId }, response);
+                    results.AddRange([.. response]);
+                }
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError($"{this.GetType().Name}#{methodName} failed, TenantId: {tenantId}, AccountId: {accountId}", ex);
                 throw;
             }
         }

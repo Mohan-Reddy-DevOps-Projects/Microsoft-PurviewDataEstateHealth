@@ -56,7 +56,11 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
 
         try
         {
-            var schedules = await this.dHAnalyticsScheduleRepository.QueryAnalyticsScheduleAsync(DHControlScheduleType.ControlGlobal);
+            string accountId = this.Metadata.AccountServiceModel.Id;
+            string tenantId = this.Metadata.AccountServiceModel.TenantId;
+
+            this.dataEstateHealthRequestLogger.LogInformation($"Checking analytics schedule for Account ID: {accountId}, Tenant ID: {tenantId}");
+            var schedules = await this.dHAnalyticsScheduleRepository.QueryAnalyticsScheduleAsync(tenantId, accountId, DHControlScheduleType.ControlGlobal);
             var hasSchedule = schedules.Any();
             this.dataEstateHealthRequestLogger.LogInformation($"Analytics schedule check completed. Has schedule: {hasSchedule}");
             return hasSchedule;
