@@ -4,20 +4,19 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
+using AspNetCore.HttpOverrides;
+using AspNetCore.OData;
+using AspNetCore.OData.NewtonsoftJson;
+using AspNetCore.Server.Kestrel.Core;
+using AspNetCore.Server.Kestrel.Https;
+using Common;
+using Configurations;
+using Core;
+using DataAccess;
 using DEH.Application;
 using DEH.Infrastructure;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.OData;
-using Microsoft.AspNetCore.OData.NewtonsoftJson;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
-using Microsoft.AspNetCore.Server.Kestrel.Https;
-using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Extensions;
-using Microsoft.Azure.Purview.DataEstateHealth.Common;
-using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
-using Microsoft.Azure.Purview.DataEstateHealth.Core;
-using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
-using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
-using Microsoft.Extensions.DependencyInjection;
+using Extensions;
+using Loggers;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic;
 using Microsoft.Purview.DataEstateHealth.DHConfigurations;
@@ -33,22 +32,22 @@ using System.Security.Authentication;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Environment = System.Environment;
 using OperationType = OpenTelemetry.Audit.Geneva.OperationType;
 
-
 /// <summary>
-/// The Data Estate Health API service.
+///     The Data Estate Health API service.
 /// </summary>
 public class Program
 {
     private const string CorsPolicyName = "AllowOrigin";
 
     /// <summary>
-    /// Main entry point for the data access service.
+    ///     Main entry point for the data access service.
     /// </summary>
     public static async Task Main(string[] args)
     {
-        WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder(args);
 
         if (!builder.Environment.IsDevelopment())
         {
@@ -60,26 +59,29 @@ public class Program
             ConfigurePortsAndSsl(hostingContext, options, builder);
         });
 
-        var genevaConfiguration = builder.Configuration.GetSection("geneva").Get<GenevaConfiguration>();
+        var genevaConfiguration = builder.Configuration.GetSection("geneva")
+            .Get<GenevaConfiguration>();
 
-        var serviceConfiguration = builder.Configuration.GetSection("service").Get<ServiceConfiguration>();
-        var environmentConfiguration = builder.Configuration.GetSection("environment").Get<EnvironmentConfiguration>();
+        var serviceConfiguration = builder.Configuration.GetSection("service")
+            .Get<ServiceConfiguration>();
+        var environmentConfiguration = builder.Configuration.GetSection("environment")
+            .Get<EnvironmentConfiguration>();
 
         builder.Logging.AddOltpExporter(builder.Environment.IsDevelopment(), genevaConfiguration, environmentConfiguration);
 
         // Add services to the container.
         builder.Services
             .AddApiVersioning(
-        //o =>
-        //{
-        //    o.ReportApiVersions = true; 
-        //    o.AssumeDefaultVersionWhenUnspecified = true; 
-        //    o.DefaultApiVersion = new ApiVersion(new DateOnly(2023,10,1), "preview");
-        //    o.ApiVersionReader = new QueryStringApiVersionReader("api-version");
-        //}
+                //o =>
+                //{
+                //    o.ReportApiVersions = true;
+                //    o.AssumeDefaultVersionWhenUnspecified = true;
+                //    o.DefaultApiVersion = new ApiVersion(new DateOnly(2023,10,1), "preview");
+                //    o.ApiVersionReader = new QueryStringApiVersionReader("api-version");
+                //}
             )
             .AddMvc();
-        builder.Services.AddMvc((config) => config.Filters.Add<RequestAuditFilter>());
+        builder.Services.AddMvc(config => config.Filters.Add<RequestAuditFilter>());
 
         builder.Services
             .AddLogger(genevaConfiguration, serviceConfiguration, environmentConfiguration, builder.Environment.IsDevelopment())
@@ -89,14 +91,8 @@ public class Program
             .AddDataAccessLayer()
             .AddServiceBasicsForApiService();
 
-        builder.Services
-            .AddScoped<CertificateValidationService>()
-            .AddAuthentication()
-            .AddCertificateAuthentication();
-
-        builder.Services
-            .AddAuthentication();
-
+        builder.Services.AddHttpContextAccessor();
+        builder.AddApplicationSecurityControls();
         builder.Services
             .AddControllers()
             .AddJsonOptions(options =>
@@ -113,7 +109,8 @@ public class Program
             .AddOData(opt =>
             {
                 opt.EnableNoDollarQueryOptions = true;
-                opt.Filter().OrderBy();
+                opt.Filter()
+                    .OrderBy();
             })
             .AddODataNewtonsoftJson();
 
@@ -143,7 +140,7 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        WebApplication app = builder.Build();
+        var app = builder.Build();
 
         await Initialize(app);
 
@@ -159,13 +156,14 @@ public class Program
             app.UseHsts();
         }
 
-        IDataEstateHealthRequestLogger logger = app.Services.GetRequiredService<IDataEstateHealthRequestLogger>();
-        IRequestContextAccessor requestContextAccessor = app.Services.GetRequiredService<IRequestContextAccessor>();
-        IOptions<EnvironmentConfiguration> envConfig = app.Services.GetRequiredService<IOptions<EnvironmentConfiguration>>();
+        var logger = app.Services.GetRequiredService<IDataEstateHealthRequestLogger>();
+        var requestContextAccessor = app.Services.GetRequiredService<IRequestContextAccessor>();
+        var envConfig = app.Services.GetRequiredService<IOptions<EnvironmentConfiguration>>();
         app.ConfigureExceptionHandler(logger, envConfig, requestContextAccessor);
 
         // The readiness probe for the AKS pod
-        ServiceConfiguration serverConfig = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>().Value;
+        var serverConfig = app.Services.GetRequiredService<IOptions<ServiceConfiguration>>()
+            .Value;
         app.UseHealthChecks(serverConfig.ReadinessProbePath, serverConfig.ApiServiceReadinessProbePort.Value);
 
         app.UseHttpsRedirection()
@@ -178,18 +176,22 @@ public class Program
 
         app.MapControllers();
 
-        app.Lifetime.ApplicationStarted.Register(
-            () =>
-            {
-                IServiceProvider serviceProvider = app.Services.GetRequiredService<IServiceProvider>();
-                ServiceHealthCheck readinessCheck = app.Services.GetRequiredService<ServiceHealthCheck>();
-                readinessCheck.Initialized = true;
+        app.Lifetime.ApplicationStarted.Register(() =>
+        {
+            var serviceProvider = app.Services.GetRequiredService<IServiceProvider>();
+            var readinessCheck = app.Services.GetRequiredService<ServiceHealthCheck>();
+            readinessCheck.Initialized = true;
 
-                IDataEstateHealthRequestLogger logger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
-                EnvironmentConfiguration environmentConfiguration = serviceProvider.GetRequiredService<IOptions<EnvironmentConfiguration>>().Value;
-                logger.LogInformation($"ApiService started successfully for versions {string.Join(", ", environmentConfiguration.PermittedApiVersions)}");
-                logger.LogAudit(AuditOperation.startup, OperationType.Read, OperationResult.Success, "serviceStartup", "NA", OperationCategory.ResourceManagement);
-            });
+            var logger = serviceProvider.GetRequiredService<IDataEstateHealthRequestLogger>();
+            var environmentConfiguration = serviceProvider.GetRequiredService<IOptions<EnvironmentConfiguration>>()
+                .Value;
+
+            string appId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")!;
+            logger.LogInformation("ContainerApp.ApplicationId = {AppId}", appId);
+
+            logger.LogInformation($"ApiService started successfully for versions {String.Join(", ", environmentConfiguration.PermittedApiVersions)}");
+            logger.LogAudit(AuditOperation.startup, OperationType.Read, OperationResult.Success, "serviceStartup", "NA");
+        });
 
         await app.RunAsync();
     }
@@ -199,36 +201,35 @@ public class Program
         try
         {
             // Initialize client certificate cache
-            ICertificateLoaderService certificateLoaderService = app.Services.GetRequiredService<ICertificateLoaderService>();
+            var certificateLoaderService = app.Services.GetRequiredService<ICertificateLoaderService>();
             await certificateLoaderService.InitializeAsync();
 
             // Initialize the exposure control client
-            IExposureControlClient exposureControlClient = app.Services.GetRequiredService<IExposureControlClient>();
+            var exposureControlClient = app.Services.GetRequiredService<IExposureControlClient>();
             await exposureControlClient.Initialize();
 
             // Initialize PowerBI service
-            PowerBIProvider powerBIProvider = app.Services.GetService<PowerBIProvider>();
+            var powerBIProvider = app.Services.GetService<PowerBIProvider>();
             await powerBIProvider.PowerBIService.Initialize();
 
             // Initialize synapse service
-            IServerlessPoolClient serverlessPoolClient = app.Services.GetService<IServerlessPoolClient>();
+            var serverlessPoolClient = app.Services.GetService<IServerlessPoolClient>();
             await serverlessPoolClient.Initialize();
 
             // Initialize metadata service
-            IMetadataAccessorService metadataService = app.Services.GetService<IMetadataAccessorService>();
+            var metadataService = app.Services.GetService<IMetadataAccessorService>();
             metadataService.Initialize();
 
             // Initialize cache
-            ICacheManager cacheManager = app.Services.GetService<ICacheManager>();
+            var cacheManager = app.Services.GetService<ICacheManager>();
             cacheManager.Initialize();
         }
         catch (Exception ex)
         {
-            IDataEstateHealthRequestLogger logger = app.Services.GetRequiredService<IDataEstateHealthRequestLogger>();
+            var logger = app.Services.GetRequiredService<IDataEstateHealthRequestLogger>();
             logger.LogCritical("Failed to initialize services during startup", ex);
             throw;
         }
-
     }
 
     private static void ConfigurePortsAndSsl(WebHostBuilderContext hostingContext, KestrelServerOptions options, WebApplicationBuilder builder)
@@ -245,7 +246,8 @@ public class Program
 
     private static void ConfigureKestrelServerForProduction(KestrelServerOptions options, WebApplicationBuilder builder)
     {
-        var serverConfig = options.ApplicationServices.GetService<IOptions<ServiceConfiguration>>().Value;
+        var serverConfig = options.ApplicationServices.GetService<IOptions<ServiceConfiguration>>()
+            .Value;
 
         if (serverConfig.ApiServiceReadinessProbePort.HasValue)
         {
@@ -261,7 +263,8 @@ public class Program
 
     private static void ConfigureKestrelServerForDevelopment(KestrelServerOptions options)
     {
-        var serverConfig = options.ApplicationServices.GetService<IOptions<ServiceConfiguration>>().Value;
+        var serverConfig = options.ApplicationServices.GetService<IOptions<ServiceConfiguration>>()
+            .Value;
 
         options.ListenAnyIP(
             serverConfig.ApiServicePort.Value,
@@ -283,7 +286,7 @@ public class Program
     private static void SetAksConfiguration(WebApplicationBuilder builder)
     {
         const string appSettingsEnvVar = "APP_SETTINGS_JSON";
-        string appSettingsJson = System.Environment.GetEnvironmentVariable(appSettingsEnvVar);
+        string appSettingsJson = Environment.GetEnvironmentVariable(appSettingsEnvVar);
         if (appSettingsJson == null)
         {
             throw new InvalidOperationException($"environment variable '{appSettingsEnvVar}' was not found");

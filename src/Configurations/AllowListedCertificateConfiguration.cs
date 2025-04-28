@@ -71,4 +71,15 @@ public class AllowListedCertificateConfiguration
                     .ToException();
         }
     }
+
+    public List<string> GetAllAllowListedSubjectNames()
+    {
+        var allAllowListedSubjectNames = new List<string>();
+        allAllowListedSubjectNames.AddRange(this.AllowListedDataPlaneSubjectNames);
+        allAllowListedSubjectNames.AddRange(this.AllowListedControlPlaneSubjectNames);
+        allAllowListedSubjectNames.AddRange(this.AllowListedDataQualitySubjectNames);
+        allAllowListedSubjectNames.AddRange(this.AllowListedDHControlScheduleSubjectNames);
+        allAllowListedSubjectNames.AddRange(this.AllowListedDHSettingsSubjectNames);
+        return allAllowListedSubjectNames;
+    }
 }

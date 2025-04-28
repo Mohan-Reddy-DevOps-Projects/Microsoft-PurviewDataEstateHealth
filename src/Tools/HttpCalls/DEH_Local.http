@@ -6,7 +6,7 @@
 @apiVersion2023=2023-10-01-preview
 
 ### List All Scores
-GET {{baseUrl}}/scores
+GET {{baseUrl}}/scores?api-version=2024-02-01-preview
 accept: application/json
 content-type: application/json
 x-ms-account-id: {{accountId}}
@@ -90,5 +90,5 @@ x-ms-catalog-id: {{catalogId}}
   "typeProperties": {
     "locationURL": "https://onelake.dfs.fabric.microsoft.com/TestWSPDGBB/testlakehouseBB.Lakehouse/Files/DEH1"
   },
-  "status": "Enabled",
+  "status": "Enabled"
 }

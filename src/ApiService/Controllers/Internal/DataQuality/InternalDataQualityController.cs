@@ -5,6 +5,8 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Internal.DataQuality;
 
 using Asp.Versioning;
+using AspNetCore.Authentication.Certificate;
+using IdentityModel.S2S.Extensions.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
@@ -21,7 +23,10 @@ using System.Threading.Tasks;
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
 [CertificateConfig(CertificateSet.DataQuality)]
-[Authorize(AuthenticationSchemes = "Certificate")]
+[Authorize(
+    Policy = "ClientCertOnly",
+    AuthenticationSchemes = S2SAuthenticationDefaults.AuthenticationScheme + "," + CertificateAuthenticationDefaults.AuthenticationScheme
+)]
 [Route("/internal/dataquality")]
 public class InternalDataQualityController : Controller
 {

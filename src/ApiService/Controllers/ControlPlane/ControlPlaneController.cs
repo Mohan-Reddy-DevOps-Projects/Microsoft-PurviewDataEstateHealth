@@ -4,6 +4,8 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
+using AspNetCore.Authentication.Certificate;
+using IdentityModel.S2S.Extensions.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
@@ -11,7 +13,10 @@ using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 /// <summary>
 /// </summary>
 [CertificateConfig(CertificateSet.ControlPlane)]
-[Authorize(AuthenticationSchemes = "Certificate")]
+[Authorize(
+    Policy = "ClientCertOnly",
+    AuthenticationSchemes = S2SAuthenticationDefaults.AuthenticationScheme + "," + CertificateAuthenticationDefaults.AuthenticationScheme
+)]
 public abstract class ControlPlaneController : Controller
 {
 }

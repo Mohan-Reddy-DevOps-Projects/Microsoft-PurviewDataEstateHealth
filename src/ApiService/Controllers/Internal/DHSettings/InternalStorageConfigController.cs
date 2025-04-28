@@ -2,6 +2,8 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Internal.DHSettings;
 
 using Asp.Versioning;
+using AspNetCore.Authentication.Certificate;
+using IdentityModel.S2S.Extensions.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
@@ -15,7 +17,10 @@ using Newtonsoft.Json.Linq;
 [ApiController]
 [ApiVersion(ServiceVersion.LabelV2)]
 [CertificateConfig(CertificateSet.DHSettings)]
-[Authorize(AuthenticationSchemes = "Certificate")]
+[Authorize(
+    Policy = "ClientCertOnly",
+    AuthenticationSchemes = S2SAuthenticationDefaults.AuthenticationScheme + "," + CertificateAuthenticationDefaults.AuthenticationScheme
+)]
 [Route("/internal/settings")]
 public class InternalStorageConfigController(
       DHStorageConfigService dhStorageConfigService,
