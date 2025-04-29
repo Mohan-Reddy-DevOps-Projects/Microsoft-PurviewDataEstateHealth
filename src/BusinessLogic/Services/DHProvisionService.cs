@@ -52,8 +52,17 @@ public class DHProvisionService(
                     }
                 }
 
-                logger.LogInformation($"Create global schedule in provision for account {accountId}");
-                await scheduleService.CreateGlobalScheduleInProvision().ConfigureAwait(false);
+                // Check if global schedule exists before creating a new one
+                var globalScheduleExists = await scheduleService.GlobalScheduleExistsAsync().ConfigureAwait(false);
+                if (!globalScheduleExists)
+                {
+                    logger.LogInformation($"Creating global schedule in provision for account {accountId}");
+                    await scheduleService.CreateGlobalScheduleInProvision().ConfigureAwait(false);
+                }
+                else
+                {
+                    logger.LogInformation($"Global schedule already exists for account {accountId}, skipping creation.");
+                }
             }
             catch (Exception ex)
             {

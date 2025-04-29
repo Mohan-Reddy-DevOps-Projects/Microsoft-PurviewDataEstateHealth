@@ -513,4 +513,13 @@ public class DHScheduleService(
 
         return globalScheduleQueryResult.FirstOrDefault();
     }
+
+    public async Task<bool> GlobalScheduleExistsAsync()
+    {
+        using (logger.LogElapsed($"{this.GetType().Name}#{nameof(GlobalScheduleExistsAsync)}"))
+        {
+            var globalSchedule = await this.GetGlobalScheduleInternalAsync().ConfigureAwait(false);
+            return globalSchedule != null;
+        }
+    }
 }
