@@ -13,7 +13,7 @@ public class DHStorageConfigFabricWrapper(JObject jObject) : DHStorageConfigBase
 
     [EntityRequiredValidator]
     [EntityTypeProperty(keyLocationURL)]
-    [EntityRegexValidator(@"^https:\/\/onelake\.dfs\.fabric\.microsoft\.com\/")]
+    [EntityRegexValidator(@"(?i)^https:\/\/(msit-)?onelake\.dfs\.fabric\.microsoft\.com\/")]
     public string LocationURL
     {
         get => this.GetTypePropertyValue<string>(keyLocationURL);
