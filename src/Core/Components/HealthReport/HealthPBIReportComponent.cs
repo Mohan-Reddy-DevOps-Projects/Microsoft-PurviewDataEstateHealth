@@ -13,13 +13,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
 using System.Threading;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Microsoft.Purview.DataGovernance.SynapseSqlClient;
 
 internal sealed class HealthPBIReportComponent : IHealthPBIReportComponent
 {

@@ -6,8 +6,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
+using Microsoft.Purview.DataGovernance.SynapseSqlClient;
 
 /// <summary>
 /// Extension methods for adding configurations

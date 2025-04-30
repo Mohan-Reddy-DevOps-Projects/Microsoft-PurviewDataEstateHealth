@@ -8,7 +8,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Common.Extensions;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Data.SqlClient;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Purview.DataGovernance.SynapseSqlClient;
 using System;
 using System.Reflection;
 using System.Threading;

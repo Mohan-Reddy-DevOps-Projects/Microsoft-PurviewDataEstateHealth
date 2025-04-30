@@ -15,7 +15,7 @@ using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.JobManagerModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
 using Microsoft.Extensions.Options;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Purview.DataGovernance.SynapseSqlClient;
 using System;
 using System.Collections.Generic;
 using System.Threading;

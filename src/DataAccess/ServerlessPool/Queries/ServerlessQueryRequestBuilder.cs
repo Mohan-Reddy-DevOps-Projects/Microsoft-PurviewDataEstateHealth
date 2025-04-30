@@ -5,7 +5,7 @@
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
 using Microsoft.Extensions.Options;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
+using Microsoft.Purview.DataGovernance.SynapseSqlClient;
 using System;
 using System.Text;
 using static Microsoft.Azure.Purview.DataEstateHealth.DataAccess.QueryConstants;

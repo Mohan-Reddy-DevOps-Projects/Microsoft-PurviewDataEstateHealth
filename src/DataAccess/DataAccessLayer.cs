@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
+using Microsoft.Purview.DataGovernance.SynapseSqlClient;
 using Polly;
 using AzureCredentialFactory = Microsoft.Purview.DataGovernance.Common.AzureCredentialFactory;
 

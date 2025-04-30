@@ -9,9 +9,9 @@ using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.WorkerService;
 using Microsoft.Extensions.Options;
-using Microsoft.Purview.DataGovernance.DataLakeAPI;
 using Microsoft.Purview.DataGovernance.Reporting;
 using Microsoft.Purview.DataGovernance.Reporting.Common;
+using Microsoft.Purview.DataGovernance.SynapseSqlClient;
 using System.Net;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(new WebApplicationOptions

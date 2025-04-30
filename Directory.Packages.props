@@ -38,21 +38,23 @@
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.Metadata.ProjectBabylonMetadataClient" Version="1.0.161" />
     <PackageVersion Include="Microsoft.Azure.Purview.ExposureControlLibrary" Version="1.0.551" />
     <PackageVersion Include="Microsoft.Data.DeltaLake" Version="3.0.2.4" />
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.0.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="8.0.2" />
+    <PackageVersion Include="Microsoft.Identity.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Identity.Web" Version="3.8.4" />
     <PackageVersion Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.3.0" />
     <PackageVersion Include="Microsoft.Purview.ArtifactStoreClient" Version="3.0.30" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.AuditAPI" Version="0.4.0" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.BillingServiceClient" Version="0.2.9" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.Catalog" Version="1.0.52" />
-    <PackageVersion Include="Microsoft.Purview.DataGovernance.Common" Version="1.0.22" />
-    <PackageVersion Include="Microsoft.Purview.DataGovernance.DataLakeAPI" Version="1.0.15" />
+    <PackageVersion Include="Microsoft.Purview.DataGovernance.Common" Version="1.0.23" />
+    <PackageVersion Include="Microsoft.Purview.DataGovernance.DataLakeAPI" Version="1.0.17" />
     <PackageVersion Include="Microsoft.Purview.DataGovernance.DeltaWriter" Version="1.0.4" />
-    <PackageVersion Include="Microsoft.Purview.DataGovernance.Reporting" Version="1.0.08" />
+    <PackageVersion Include="Microsoft.Purview.DataGovernance.Reporting" Version="1.0.12" />
     <PackageVersion Include="OpenTelemetry.Audit.Geneva" Version="2.2.6" />
     <PackageVersion Include="OpenTelemetry.Exporter.InMemory" Version="1.9.0" />
     <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
