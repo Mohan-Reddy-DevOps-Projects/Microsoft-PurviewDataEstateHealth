@@ -374,68 +374,93 @@ resource generateSqlAdminCreds 'Microsoft.Resources/deploymentScripts@2023-08-01
       }
     ]
     scriptContent: '''
-      Set-AzContext -subscription ${Env:subscriptionId}
-
-      $symbols = '!@#$%^&*'.ToCharArray()
-      $alphaNumericCharacterList =  'a'..'z' + 'A'..'Z' + '0'..'9'
-      $symbolCharacterList = $alphaNumericCharacterList + $symbols
-
-      #Generates a secure random value with a default length of 14
-      function GeneratePassword {
-          param(
-              [ValidateRange(12, 256)]
-              [int]
-              $length = 14,
-              [switch]
-              $useSymbols
-          )
-
-          if ($useSymbols)
-          {
-              $characterList = $symbolCharacterList
-          }
-          else {
-              $characterList = $alphaNumericCharacterList
-          }
-
-          do {
-              $password = "pdg" + -join (0..$length | % { $characterList | Get-Random }) #Need prefix for username restrictions
-              [int]$hasLowerChar = $password -cmatch '[a-z]'
-              [int]$hasUpperChar = $password -cmatch '[A-Z]'
-              [int]$hasDigit = $password -match '[0-9]'
-              [int]$hasSymbol = ($password.IndexOfAny($symbols) -ne -1) -or !$useSymbols
-
-          }
-          until (($hasLowerChar + $hasUpperChar + $hasDigit + $hasSymbol) -ge 3)
-
-          $password | ConvertTo-SecureString -AsPlainText
-      }
-
-      $kvUserName = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminUserSecretName} -AsPlainText
+      # Enable error logging
+      $ErrorActionPreference = "Continue"
       
-      if(!$kvUserName)
-      {
-          $userName = GeneratePassword
-          Set-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminUserSecretName} -SecretValue $userName
-      }
-      else {
-        $userName = $kvUserName | ConvertTo-SecureString -AsPlainText
-      }
+      Write-Output "Starting SQL credentials generation script"
+      
+      try {
+        Set-AzContext -subscription ${Env:subscriptionId}
+        Write-Output "Azure context set successfully"
 
-      $kvSqlPassword = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminPassSecretName} -AsPlainText
-      if(!$kvSqlPassword)
-      {
-          $sqlPassword = GeneratePassword -useSymbols
-          Set-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminPassSecretName} -SecretValue $sqlPassword
-      }
-      else {
-        $sqlPassword = $kvSqlPassword | ConvertTo-SecureString -AsPlainText
-      }
+        $symbols = '!@#$%^&*'.ToCharArray()
+        $alphaNumericCharacterList =  'a'..'z' + 'A'..'Z' + '0'..'9'
+        $symbolCharacterList = $alphaNumericCharacterList + $symbols
 
-      $DeploymentScriptOutputs = @{}
-      $DeploymentScriptOutputs['username'] = (ConvertFrom-SecureString -SecureString $username -AsPlainText)
-      $DeploymentScriptOutputs['password'] = (ConvertFrom-SecureString -SecureString $sqlPassword -AsPlainText)
+        #Generates a secure random value with a default length of 14
+        function GeneratePassword {
+            param(
+                [ValidateRange(12, 256)]
+                [int]
+                $length = 14,
+                [switch]
+                $useSymbols
+            )
 
+            if ($useSymbols)
+            {
+                $characterList = $symbolCharacterList
+            }
+            else {
+                $characterList = $alphaNumericCharacterList
+            }
+
+            do {
+                $password = "pdg" + -join (0..$length | % { $characterList | Get-Random }) #Need prefix for username restrictions
+                [int]$hasLowerChar = $password -cmatch '[a-z]'
+                [int]$hasUpperChar = $password -cmatch '[A-Z]'
+                [int]$hasDigit = $password -match '[0-9]'
+                [int]$hasSymbol = ($password.IndexOfAny($symbols) -ne -1) -or !$useSymbols
+
+            }
+            until (($hasLowerChar + $hasUpperChar + $hasDigit + $hasSymbol) -ge 3)
+
+            $password | ConvertTo-SecureString -AsPlainText
+        }
+
+        Write-Output "Checking for existing username in KeyVault"
+        $kvUserName = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminUserSecretName} -AsPlainText
+        
+        if(!$kvUserName)
+        {
+            Write-Output "Generating new username"
+            $userName = GeneratePassword
+            Set-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminUserSecretName} -SecretValue $userName
+            Write-Output "Username stored in KeyVault"
+        }
+        else {
+          Write-Output "Using existing username from KeyVault"
+          $userName = $kvUserName | ConvertTo-SecureString -AsPlainText
+        }
+
+        Write-Output "Checking for existing password in KeyVault"
+        $kvSqlPassword = Get-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminPassSecretName} -AsPlainText
+        if(!$kvSqlPassword)
+        {
+            Write-Output "Generating new password"
+            $sqlPassword = GeneratePassword -useSymbols
+            Set-AzKeyVaultSecret -VaultName ${Env:keyVaultName} -Name ${Env:sqlAdminPassSecretName} -SecretValue $sqlPassword
+            Write-Output "Password stored in KeyVault"
+        }
+        else {
+          Write-Output "Using existing password from KeyVault"
+          $sqlPassword = $kvSqlPassword | ConvertTo-SecureString -AsPlainText
+        }
+
+        Write-Output "Setting deployment script outputs"
+        $DeploymentScriptOutputs = @{}
+        # Fix variable name typo - using $userName instead of $username
+        $DeploymentScriptOutputs['username'] = (ConvertFrom-SecureString -SecureString $userName -AsPlainText)
+        $DeploymentScriptOutputs['password'] = (ConvertFrom-SecureString -SecureString $sqlPassword -AsPlainText)
+        Write-Output "Deployment script outputs set successfully"
+        
+        Write-Output "Script completed successfully"
+      }
+      catch {
+        Write-Output "Exception occurred in SQL credentials generation script"
+        Write-Error "Exception details: $_"
+        throw  # rethrow the exception after logging it
+      }
     '''
     retentionInterval: 'PT1H'
   }
