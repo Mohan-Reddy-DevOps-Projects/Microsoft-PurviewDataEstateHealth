@@ -462,7 +462,8 @@ resource generateSqlAdminCreds 'Microsoft.Resources/deploymentScripts@2023-08-01
         throw  # rethrow the exception after logging it
       }
     '''
-    retentionInterval: 'PT1H'
+    cleanupPreference: 'OnExpiration'
+    retentionInterval: 'PT3H'
   }
 }
 
