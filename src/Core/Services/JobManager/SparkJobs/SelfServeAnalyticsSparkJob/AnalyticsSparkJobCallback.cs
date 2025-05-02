@@ -104,6 +104,29 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
                 this.dataEstateHealthRequestLogger.LogInformation($"Retrieved account information for {accountModel.Name} (ID: {accountModel.Id})");
             }
             
+            // Check if storage sync is configured
+            JobSubmissionEvaluator jobSubmissionEvaluator = new JobSubmissionEvaluator(this.serviceScope);
+            if (this.Metadata.AccountServiceModel == null || string.IsNullOrEmpty(this.Metadata.AccountServiceModel.Id) || string.IsNullOrEmpty(this.Metadata.AccountServiceModel.TenantId))
+            {
+                this.dataEstateHealthRequestLogger.LogError("Account information missing required fields (ID or TenantId)");
+                this.JobStages = [];
+                return;
+            }
+            
+            var isStorageSyncConfigured = jobSubmissionEvaluator.IsStorageSyncConfigured(
+                this.Metadata.AccountServiceModel.Id,
+                this.Metadata.AccountServiceModel.TenantId).GetAwaiter().GetResult();
+                
+            this.dataEstateHealthRequestLogger.LogInformation($"Storage sync configured: {isStorageSyncConfigured}");
+                
+            // For AnalyticsSparkJobCallback, we only check if storage sync is configured without checking its status
+            if (!isStorageSyncConfigured)
+            {
+                this.dataEstateHealthRequestLogger.LogInformation("Storage sync not configured, skipping all stages");
+                this.JobStages = [];
+                return;
+            }
+            
             // Check if a catalog job is currently running
             bool isCatalogJobRunning = false;
             try
@@ -138,7 +161,6 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
             }
             
             // Check if DEH ran in the last 24 hours
-            JobSubmissionEvaluator jobSubmissionEvaluator = new JobSubmissionEvaluator(this.serviceScope);
             var isDEHRanInLast24Hours = jobSubmissionEvaluator.IsDEHRanInLast24Hours(this.Metadata.AccountServiceModel?.Id).GetAwaiter().GetResult();
             
             this.dataEstateHealthRequestLogger.LogInformation($"DEH job ran in last 24 hours: {isDEHRanInLast24Hours}");

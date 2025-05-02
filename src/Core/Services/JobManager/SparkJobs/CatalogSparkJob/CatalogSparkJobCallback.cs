@@ -77,13 +77,14 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
         this.dataEstateHealthRequestLogger.LogInformation($"Configuring job stages for account: {this.Metadata.AccountServiceModel.Id}, tenant: {this.Metadata.AccountServiceModel.TenantId}");
         
         JobSubmissionEvaluator jobSubmissionEvaluator = new JobSubmissionEvaluator(this.serviceScope);
-        var isStorageSyncConfigured = jobSubmissionEvaluator.IsStorageSyncConfigured(this.Metadata.AccountServiceModel.Id,
+        var isStorageSyncConfigured = jobSubmissionEvaluator.IsStorageSyncEnabledAndConfigured(this.Metadata.AccountServiceModel.Id,
             this.Metadata.AccountServiceModel.TenantId).GetAwaiter().GetResult();
         var isDEHRanInLast24Hours = jobSubmissionEvaluator.IsDEHRanInLast24Hours(this.Metadata.AccountServiceModel.Id).GetAwaiter().GetResult();
         var hasAnalyticsSchedule = this.HasAnalyticsScheduleConfigured().GetAwaiter().GetResult();
         
         this.dataEstateHealthRequestLogger.LogInformation($"Job configuration preconditions: isStorageSyncConfigured={isStorageSyncConfigured}, isDEHRanInLast24Hours={isDEHRanInLast24Hours}, hasAnalyticsSchedule={hasAnalyticsSchedule}");
         
+        // For CatalogSparkJobCallback, we use IsStorageSyncEnabledAndConfigured which only returns true if configured AND not disabled
         if (isStorageSyncConfigured)
         {
             // Base stages that are always included
@@ -112,6 +113,7 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
         }
         else if (isDEHRanInLast24Hours)
         {
+            // If storage sync is disabled or not configured, but DEH ran recently, we still process catalog/dimension stages
             this.JobStages = [
                 new TriggerCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),
                 new TrackCatalogSparkJobStage(this.Scope, this.Metadata, this.JobCallbackUtils),

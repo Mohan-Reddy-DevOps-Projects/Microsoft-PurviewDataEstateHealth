@@ -62,12 +62,33 @@ internal class JobSubmissionEvaluator
         return returnConfig;
     }
 
-    public async Task<bool> IsStorageSyncConfigured(string accountId, string tenantId)
+    public async Task<bool> IsStorageSyncEnabledAndConfigured(string accountId, string tenantId)
     {
         try
         {
             var storageConfig = await this.GetStorageConfigSettings(accountId, tenantId);
             if (storageConfig == null || storageConfig.Status == "Disabled")
+            {
+                this.logger.LogInformation($"StorageSync is not configured or is disabled for account: {accountId}");
+                return false;
+            }
+            this.logger.LogInformation($"StorageSync is configured and enabled for account: {accountId}");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            // Log error if the query or other process fails
+            this.logger.LogError($"Failed to get storage config for account {accountId}: {ex.Message}", ex);
+            return true; // Consider returning `true` as a default to ensure job submission attempt
+        }
+    }
+
+    public async Task<bool> IsStorageSyncConfigured(string accountId, string tenantId)
+    {
+        try
+        {
+            var storageConfig = await this.GetStorageConfigSettings(accountId, tenantId);
+            if (storageConfig == null)
             {
                 this.logger.LogInformation($"StorageSync is not configured for account: {accountId}");
                 return false;

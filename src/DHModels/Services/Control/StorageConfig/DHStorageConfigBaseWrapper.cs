@@ -20,13 +20,16 @@ public class DHStorageConfigBaseWrapper(JObject jObject) : ContainerEntityDynami
     public DHStorageConfigBaseWrapper() : this([]) { }
 
     [EntityProperty(keyStatus)]
-    [EntityRequiredValidator]
     public DHStorageConfigStatus Status
     {
         get
         {
             var enumStr = this.GetPropertyValue<string>(keyStatus);
-            return Enum.TryParse<DHStorageConfigStatus>(enumStr, true, out var result) ? result : DHStorageConfigStatus.Enabled;
+            if (string.IsNullOrEmpty(enumStr))
+            {
+                return DHStorageConfigStatus.Unknown;
+            }
+            return Enum.TryParse<DHStorageConfigStatus>(enumStr, true, out var result) ? result : DHStorageConfigStatus.Unknown;
         }
         set => this.SetPropertyValue(keyStatus, value.ToString());
     }
@@ -40,6 +43,7 @@ public static class DHStorageConfigWrapperDerivedTypes
 
 public enum DHStorageConfigStatus
 {
+    Unknown,
     Disabled,
     Enabled
 }

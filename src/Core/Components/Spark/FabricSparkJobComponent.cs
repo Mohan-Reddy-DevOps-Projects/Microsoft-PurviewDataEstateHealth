@@ -71,12 +71,10 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
             {
                 storageConfig.TypeProperties.LocationURL = storageConfig.TypeProperties.Endpoint;
             }
-            if (storageConfig == null || string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) || string.IsNullOrEmpty(miToken)
-                || storageConfig.Status != "Enabled")
+            if (storageConfig == null || string.IsNullOrEmpty(storageConfig?.TypeProperties.LocationURL) || string.IsNullOrEmpty(miToken))
             {
-                this.logger.LogInformation($"SubmitFabricJob |BYOC is not configured or enabled: accountID:  {processingStorageModel.AccountId.ToString()}");
+                this.logger.LogInformation($"SubmitFabricJob |BYOC is not configured: accountID:  {processingStorageModel.AccountId.ToString()}");
                 return null;
-
             }
             this.logger.LogInformation($"SubmitJob|StorageConfig: {storageConfig}, accountid: {accountServiceModel.Id}");
             this.logger.LogInformation($"SubmitJob|MiToken: {string.IsNullOrEmpty(miToken)}, accountid: {accountServiceModel.Id}");
