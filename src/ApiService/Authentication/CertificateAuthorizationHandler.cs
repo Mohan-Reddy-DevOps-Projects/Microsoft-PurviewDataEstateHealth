@@ -56,7 +56,7 @@ public class CertificateAuthorizationHandler(
         switch (clientCert)
         {
             case null when this.environmentConfig.Value.IsDevelopmentEnvironment():
-                // Don't bother.
+                context.Succeed(requirement);
                 return Task.CompletedTask;
             case null:
                 this.logger.LogWarning("Client certificate is null during authorization check");

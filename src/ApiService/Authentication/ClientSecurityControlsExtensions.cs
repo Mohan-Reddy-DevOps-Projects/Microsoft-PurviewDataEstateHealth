@@ -4,16 +4,16 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.ApiService;
 
+using AspNetCore.Authentication;
 using AspNetCore.Authentication.Certificate;
 using AspNetCore.Authorization;
 using Configurations;
 using DGP.ServiceBasics.Errors;
 using IdentityModel.S2S.Extensions.AspNetCore;
-using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 
 /// <summary>
-/// Extension methods to add different authentication types
+///     Extension methods to add different authentication types
 /// </summary>
 internal static class ClientSecurityControlsExtensions
 {
@@ -29,11 +29,13 @@ internal static class ClientSecurityControlsExtensions
     internal static IServiceCollection AddApplicationSecurityControls(this WebApplicationBuilder builder)
     {
         // Get the certificate configuration
-        var certConfig = builder.Configuration.GetSection("AllowListedCertificate").Get<AllowListedCertificateConfiguration>();
+        var certConfig = builder.Configuration.GetSection("AllowListedCertificate")
+            .Get<AllowListedCertificateConfiguration>();
         if (certConfig == null)
         {
             throw new ServiceException("Certificate configuration is not set");
         }
+
         string appId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")!;
         // Add AzureAd configuration
         builder.Configuration.AddInMemoryCollection(new Dictionary<string, string>
@@ -47,7 +49,7 @@ internal static class ClientSecurityControlsExtensions
             ["AzureAd:InboundPolicies:0:AuthenticationSchemes:0"] = "ClientCertificate",
             ["AzureAd:InboundPolicies:0:ClientId"] = appId ?? "c2b3a6f0-88cc-4cf5-931e-0bb5e06ebfda",
             ["AzureAd:InboundPolicies:0:CertificatePolicy:Cloud"] = "Public",
-            ["AzureAd:InboundPolicies:0:CertificatePolicy:CertificateUsage"] = "ClientAuth",
+            ["AzureAd:InboundPolicies:0:CertificatePolicy:CertificateUsage"] = "ClientAuth"
         });
 
         // Add the PermittedDomainNames from the certificate configuration
@@ -67,14 +69,25 @@ internal static class ClientSecurityControlsExtensions
 
         builder.Services.AddSingleton<IAuthorizationHandler, CertificateAuthorizationHandler>();
 
-        builder.Services.AddAuthorizationBuilder()
-            .AddPolicy("ClientCertOnly", policy =>
-                policy
-                    .AddAuthenticationSchemes(CertificateAuthenticationDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser()
-                    .AddRequirements(new CertificateAuthorizationHandlerRequirement())
-                    .RequireClaim(ClaimTypes.Dns, certConfig.GetAllAllowListedSubjectNames()));
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddAuthorizationBuilder()
+                .AddPolicy("ClientCertOnly", policy =>
+                    policy
+                        .AddAuthenticationSchemes(CertificateAuthenticationDefaults.AuthenticationScheme)
+                        .AddRequirements(new CertificateAuthorizationHandlerRequirement()));
+        }
+        else
+        {
+            builder.Services.AddAuthorizationBuilder()
+                .AddPolicy("ClientCertOnly", policy =>
+                    policy
+                        .AddAuthenticationSchemes(CertificateAuthenticationDefaults.AuthenticationScheme)
+                        .RequireAuthenticatedUser()
+                        .AddRequirements(new CertificateAuthorizationHandlerRequirement())
+                        .RequireClaim(ClaimTypes.Dns, certConfig.GetAllAllowListedSubjectNames()));
+        }
+
         return builder.Services;
     }
 }
-
