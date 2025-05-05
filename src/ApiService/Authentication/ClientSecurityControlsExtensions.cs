@@ -10,6 +10,7 @@ using AspNetCore.Authorization;
 using Configurations;
 using DGP.ServiceBasics.Errors;
 using IdentityModel.S2S.Extensions.AspNetCore;
+using Microsoft.Extensions.Options;
 using System.Security.Claims;
 
 /// <summary>
@@ -17,7 +18,7 @@ using System.Security.Claims;
 /// </summary>
 internal static class ClientSecurityControlsExtensions
 {
-    internal static AuthenticationBuilder AddCertificateAuthentication(
+    private static AuthenticationBuilder AddCertificateAuthentication(
         this AuthenticationBuilder builder)
     {
         return builder.AddScheme<CertificateAuthenticationOptions, CertificateAuthenticationHandler>(
@@ -29,8 +30,9 @@ internal static class ClientSecurityControlsExtensions
     internal static IServiceCollection AddApplicationSecurityControls(this WebApplicationBuilder builder)
     {
         // Get the certificate configuration
-        var certConfig = builder.Configuration.GetSection("AllowListedCertificate")
-            .Get<AllowListedCertificateConfiguration>();
+        using var tempServiceProvider = builder.Services.BuildServiceProvider();
+        var certConfigOptions = tempServiceProvider.GetService<IOptions<AllowListedCertificateConfiguration>>();
+        var certConfig = certConfigOptions?.Value;
         if (certConfig == null)
         {
             throw new ServiceException("Certificate configuration is not set");
@@ -53,13 +55,10 @@ internal static class ClientSecurityControlsExtensions
         });
 
         // Add the PermittedDomainNames from the certificate configuration
+        var allAllowListedSubjectNames = certConfig.GetAllAllowListedSubjectNames();
+        for (int i = 0; i < allAllowListedSubjectNames.Count; i++)
         {
-            // For data plane subjects (you can choose which certificate set you need)
-            var dataPlaneSubjects = certConfig.GetAllAllowListedSubjectNames();
-            for (int i = 0; i < dataPlaneSubjects.Count; i++)
-            {
-                builder.Configuration[$"AzureAd:InboundPolicies:0:CertificatePolicy:PermittedDomainNames:{i}"] = dataPlaneSubjects[i];
-            }
+            builder.Configuration[$"AzureAd:InboundPolicies:0:CertificatePolicy:PermittedDomainNames:{i}"] = allAllowListedSubjectNames[i];
         }
 
         builder.Services

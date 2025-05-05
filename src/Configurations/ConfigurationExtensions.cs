@@ -22,8 +22,42 @@ public static class ConfigurationExtensions
         IConfiguration configuration)
     {
         services.AddCommonConfigurations(configuration)
-            .Configure<AllowListedCertificateConfiguration>(configuration.GetSection("allowListedCertificate"))
+            //TODO: Uncomment this line once Manoj is done testing in Canary.
+            // .Configure<AllowListedCertificateConfiguration>(configuration.GetSection("allowListedCertificate"))
             .AddProvisioningConfigurations(configuration);
+
+        //TODO:Hotfix to let Manoj test in Canary. This needs to be removed once testing is complete.
+        var certConfig = new AllowListedCertificateConfiguration();
+        configuration.GetSection("allowListedCertificate").Bind(certConfig);
+
+        var environmentConfig = configuration.GetSection("environment").Get<EnvironmentConfiguration>();
+
+        if (environmentConfig?.IsCanaryEnvironment() == true)
+        {
+            const string canaryCertName = "prod-cus-client.dgcatalog.purview-service.azure.com";
+
+            certConfig.AllowListedDataPlaneSubjectNames ??= [];
+
+            if (!certConfig.AllowListedDataPlaneSubjectNames.Contains(canaryCertName))
+            {
+                certConfig.AllowListedDataPlaneSubjectNames.Add(canaryCertName);
+            }
+        }
+
+        services.Configure<AllowListedCertificateConfiguration>(options =>
+        {
+            foreach (var property in typeof(AllowListedCertificateConfiguration).GetProperties())
+            {
+                if (!property.CanWrite)
+                {
+                    continue;
+                }
+
+                object value = property.GetValue(certConfig);
+                property.SetValue(options, value);
+            }
+        });
+        ///////////////////////////////////////////////////
 
         return services;
     }
