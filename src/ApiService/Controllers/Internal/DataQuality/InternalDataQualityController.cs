@@ -9,10 +9,14 @@ using AspNetCore.Authentication.Certificate;
 using IdentityModel.S2S.Extensions.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
+using Microsoft.Extensions.Logging;
+using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Constants;
 using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
@@ -32,13 +36,19 @@ public class InternalDataQualityController : Controller
 {
     private readonly IProcessingStorageManager processingStorageManager;
     private readonly IRequestHeaderContext requestHeaderContext;
+    private readonly DHStorageConfigService dhStorageConfigService;
+    private readonly IDataEstateHealthRequestLogger logger;
 
     public InternalDataQualityController(
         IRequestHeaderContext requestHeaderContext,
-        IProcessingStorageManager processingStorageManager)
+        IProcessingStorageManager processingStorageManager,
+        DHStorageConfigService dhStorageConfigService,
+        IDataEstateHealthRequestLogger logger)
     {
         this.requestHeaderContext = requestHeaderContext;
         this.processingStorageManager = processingStorageManager;
+        this.dhStorageConfigService = dhStorageConfigService;
+        this.logger = logger;
     }
 
     [HttpPost]
@@ -75,5 +85,35 @@ public class InternalDataQualityController : Controller
         {
             { "sasToken", token }
         });
+    }
+
+    [HttpGet]
+    [Route("storageConfig")]
+    public async Task<ActionResult> GetStorageConfigAsync()
+    {
+        using (this.logger.LogElapsed($"Get storage config internal."))
+        {
+            try
+            {
+                var accountId = this.GetAccountId();
+                var storageConfig = await this.dhStorageConfigService.GetStorageConfig(accountId).ConfigureAwait(false);
+                return this.Ok(storageConfig.JObject);
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, "Error retrieving storage config.");
+                return this.StatusCode(500, "An error occurred while retrieving the storage configuration.");
+            }
+        }
+    }
+
+    private string GetAccountId()
+    {
+        var accountId = this.requestHeaderContext.AccountObjectId;
+        if (accountId.Equals(Guid.Empty))
+        {
+            throw new InvalidRequestException("Empty account id in request headers.");
+        }
+        return accountId.ToString();
     }
 }
