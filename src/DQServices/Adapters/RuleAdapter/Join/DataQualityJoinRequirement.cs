@@ -14,5 +14,6 @@ public enum DataQualityJoinRequirement
     DataProductAssetsOwner,
     DataAssetClassification,
     BusinessDomainData,
-    DataProductTermsOfUseCount
+    DataProductTermsOfUseCount,
+    DataProductObjectivesCount
 }

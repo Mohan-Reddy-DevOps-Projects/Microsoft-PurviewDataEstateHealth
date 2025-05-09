@@ -9,6 +9,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.DHAssessment;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Exceptions;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -18,13 +19,16 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 
 public class DHTemplateService(
     DHControlService controlService,
     DHAssessmentService assessmentService,
     DHControlRepository controlRepository,
     DHAssessmentRepository assessmentRepository,
-    IDataEstateHealthRequestLogger logger
+    IDataEstateHealthRequestLogger logger,
+    IRequestHeaderContext requestHeaderContext,
+    IAccountExposureControlConfigProvider exposureControl
     )
 {
     public async Task ProvisionControlTemplate(string templateName)
@@ -66,6 +70,9 @@ public class DHTemplateService(
                     controlWrapper.AssessmentId = assessment.Id;
                     controlWrapper.GroupId = controlGroup.Id;
                     controlWrapper.SystemTemplate = templateType.ToString();
+                    
+                    // Check if Business OKRs alignment is enabled from exposure control
+                    this.UpdateControlStatusBasedOnECFlag(controlWrapper);
 
                     logger.LogInformation($"Provisioning Control Node {controlWrapper.Name} (SystemEntityId {controlWrapper.SystemTemplateEntityId}) for the template {templateName}");
 
@@ -136,6 +143,10 @@ public class DHTemplateService(
                     {
                         templateNode.Contacts = nodeEntity.Contacts;
                     }
+                    
+                    // Check if Business OKRs alignment is enabled from exposure control
+                    this.UpdateControlStatusBasedOnECFlag(templateNode);
+                    
                     return await controlService.UpdateControlByIdAsync(controlId, templateNode, true).ConfigureAwait(false);
                 default:
                     throw new EntityValidationException("Wrong control type");
@@ -274,6 +285,9 @@ public class DHTemplateService(
                     controlWrapper.AssessmentId = assessment.Id;
                     controlWrapper.GroupId = controlGroup.Id;
                     controlWrapper.SystemTemplate = templateType.ToString();
+                    
+                    // Check if Business OKRs alignment is enabled from exposure control
+                    this.UpdateControlStatusBasedOnECFlag(controlWrapper);
 
                     if (existControl == null)
                     {
@@ -325,6 +339,27 @@ public class DHTemplateService(
                 logger.LogInformation($"Delete assessment {assessmentId} that is removed from the template.");
 
                 await assessmentService.DeleteAssessmentByIdAsync(assessmentId).ConfigureAwait(false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Updates the control status based on exposure control flags.
+    /// </summary>
+    /// <param name="controlWrapper">The control wrapper to update.</param>
+    private void UpdateControlStatusBasedOnECFlag(DHControlBaseWrapper controlWrapper)
+    {
+        if (controlWrapper is DHControlNodeWrapper controlNodeWrapper)
+        {
+            var accountId = requestHeaderContext.AccountObjectId.ToString();
+            var tenantId = requestHeaderContext.TenantId.ToString();
+
+            // Check if the control is "Business OKRs alignment" and update status based on EC flag
+            if (string.Equals(controlNodeWrapper.Name, DHControlConstants.BusinessOKRsAlignment, StringComparison.OrdinalIgnoreCase))
+            {
+                bool isEnabled = exposureControl.IsDEHBusinessOKRsAlignmentEnabled(accountId, string.Empty, tenantId);
+                controlNodeWrapper.Status = isEnabled ? DHControlStatus.Enabled : DHControlStatus.InDevelopment;
+                logger.LogInformation($"Set control {controlNodeWrapper.Name} status to {controlNodeWrapper.Status} based on EC flag (IsEnabled: {isEnabled})");
             }
         }
     }

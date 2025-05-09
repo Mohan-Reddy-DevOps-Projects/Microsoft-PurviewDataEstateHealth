@@ -15,4 +15,5 @@ public enum DomainModelType
     DataProductTermsOfUse,
     AccessPolicySet,
     DataProduct,
+    DataProductOKRAssignment,
 }

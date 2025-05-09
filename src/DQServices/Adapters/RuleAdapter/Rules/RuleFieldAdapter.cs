@@ -56,6 +56,9 @@ internal static class RuleFieldAdapter
             case DHCheckPoint.DataProductDomainDescriptionLength:
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.BusinessDomainData);
                 return "length(regexReplace(BusinessDomainDescription, '(<(.*?)>)', ''))";
+            case DHCheckPoint.DataProductRelatedObjectivesCount:
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductObjectivesCount);
+                return "DataProductObjectivesCount";
             // TODO delete DataProductAllRelatedTermsMinimalDescriptionLength
             case DHCheckPoint.DataProductAllRelatedTermsMinimalDescriptionLength:
             case DHCheckPoint.DataProductRelatedTermsDescriptionLength:

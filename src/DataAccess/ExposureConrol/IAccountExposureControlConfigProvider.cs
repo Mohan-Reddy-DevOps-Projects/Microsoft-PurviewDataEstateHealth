@@ -139,6 +139,15 @@ public interface IAccountExposureControlConfigProvider
     public bool IsDEHEnableAutoGenerateRulesDescriptiveFieldsValue(string accountId, string subscriptionId, string tenantId);
 
     /// <summary>
+    /// Determines if DEH Business OKRs Alignment enabled. By default this is false.
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <param name="subscriptionId"></param>
+    /// <param name="tenantId"></param>
+    /// <returns></returns>
+    public bool IsDEHBusinessOKRsAlignmentEnabled(string accountId, string subscriptionId, string tenantId);
+
+    /// <summary>
     /// Retrieve the Spark Job configurations.
     /// </summary>
     /// <returns></returns>

@@ -19,6 +19,7 @@ internal static class DomainModelUtils
         { DomainModelType.DataQualityRuleColumnExecution, new DataQualityRuleColumnExecutionDomainModel() },
         { DomainModelType.GlossaryTerm, new GlossaryTermDomainModel() },
         { DomainModelType.GlossaryTermDataProductAssignment, new GlossaryTermDataProductAssignmentDomainModel() },
+        { DomainModelType.DataProductOKRAssignment, new DataProductOKRAssignmentDomainModel() },
     };
 
     public static DomainModel GetDomainModel(DomainModelType domainModelType)

@@ -289,6 +289,19 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
         };
         return this.IsFeatureEnabled(options);
     }
+
+    public bool IsDEHBusinessOKRsAlignmentEnabled(string accountId, string subscriptionId, string tenantId)
+    {
+        this.logger.LogInformation($"EC EnableBusinessOKRsAlignment called for account: {accountId} , tennant: {tenantId}");
+        ExposureControlOptions options = new(Features.EnableBusinessOKRsAlignment.ToString(), false)
+        {
+            AccountId = accountId,
+            SubscriptionId = subscriptionId,
+            TenantId = tenantId
+        };
+        return this.IsFeatureEnabled(options);
+    }
+
     public Dictionary<string, SparkPoolECConfig> GetDGSparkJobConfig()
     {
         ExposureControlOptions dictionaryOptions = new(Dictionaries.DGSparkJobConfig.ToString());

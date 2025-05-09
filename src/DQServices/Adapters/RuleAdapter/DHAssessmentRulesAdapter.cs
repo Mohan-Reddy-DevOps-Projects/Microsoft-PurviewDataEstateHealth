@@ -94,6 +94,9 @@ public class DHAssessmentRulesAdapter
                     case DataQualityJoinRequirement.DataProductTermsOfUseCount:
                         joinAdapter = new DataProductTermsOfUseJoinAdapter(context);
                         break;
+                    case DataQualityJoinRequirement.DataProductObjectivesCount:
+                        joinAdapter = new DataProductObjectivesCountJoinAdapter(context);
+                        break;
                     default:
                         throw new System.NotImplementedException("Join requirement: " + joinRequirement.ToString());
                 }

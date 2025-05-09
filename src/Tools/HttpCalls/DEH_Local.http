@@ -1,5 +1,5 @@
 @baseUrl=https://localhost:5001
-@accountId=4285effc-d0a0-43bb-88b9-34932df50117
+@accountId=ecf09339-34e0-464b-a8fb-661209048543
 @tenantId=12d98746-0b5a-4778-8bd0-449994469062
 @catalogId=ef5af140-62b9-431f-89be-2cdfcb0bf3a8
 @apiVersion=2024-02-01-preview
@@ -91,4 +91,16 @@ x-ms-catalog-id: {{catalogId}}
     "locationURL": "https://onelake.dfs.fabric.microsoft.com/TestWSPDGBB/testlakehouseBB.Lakehouse/Files/DEH1"
   },
   "status": "Enabled"
+}
+
+### Query Control Group Scores - Primary Route  "3d40e233-d431-4b56-af09-de5b0652d8bf" OKR
+POST {{baseUrl}}/controls/schedule/trigger?api-version={{apiVersion}}
+accept: application/json
+content-type: application/json
+x-ms-account-id: {{accountId}}
+x-ms-client-tenant-id: {{tenantId}}
+x-ms-catalog-id: {{catalogId}}
+ 
+{
+  "controlId": "3d40e233-d431-4b56-af09-de5b0652d8bf"
 }
