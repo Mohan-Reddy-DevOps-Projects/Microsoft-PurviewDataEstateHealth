@@ -64,6 +64,9 @@ internal static class RuleFieldAdapter
             case DHCheckPoint.DataProductRelatedTermsDescriptionLength:
                 ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.DataProductTerm);
                 return "length(regexReplace(DataProductRelatedTermsDescription, '(<(.*?)>)', ''))";
+            case DHCheckPoint.BusinessDomainCriticalDataElementCount:
+                ruleAdapterContext.joinRequirements.Add(DataQualityJoinRequirement.BusinessDomainCriticalDataElement);
+                return "BusinessDomainCriticalDataElementCount";
             default: throw new NotImplementedException("Checkpoint: " + checkpoint.ToString());
         }
     }

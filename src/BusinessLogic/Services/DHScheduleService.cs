@@ -42,7 +42,8 @@ public class DHScheduleService(
     IDataQualityScoreRepository dataQualityScoreRepository,
     DHScoreRepository dhScoreRepository,
     TriggeredScheduleQueue triggeredScheduleQueue,
-    DHDataEstateHealthRepository dhDataEstateHealthRepository
+    DHDataEstateHealthRepository dhDataEstateHealthRepository,
+    IAccountExposureControlConfigProvider accountExposureControlConfigProvider
     )
 {
     private const string MDQEventOperationName = "MDQ event";
@@ -116,14 +117,30 @@ public class DHScheduleService(
 
                 var DQControlList = new Dictionary<string, DHControlNodeWrapper>();
 
-                // DomainModelStatus? domainModelStatus = null;
+                // Get exposure control flags once before the loop for better performance
+                var accountId = requestHeaderContext.AccountObjectId.ToString();
+                var tenantId = requestHeaderContext.TenantId.ToString();
+                bool businessOKRsAlignmentEnabled = accountExposureControlConfigProvider.IsDEHBusinessOKRsAlignmentEnabled(accountId, string.Empty, tenantId);
+                bool criticalDataIdentificationEnabled = accountExposureControlConfigProvider.IsDEHCriticalDataIdentificationEnabled(accountId, string.Empty, tenantId);
 
                 foreach (var control in controls)
                 {
                     try
                     {
                         logger.LogInformation($"start with control, Id: {control.Id}. AssessmentId: {control.AssessmentId}");
-                        if (control.Status != DHControlStatus.Enabled)
+                        
+                        // Check if it's one of our special controls with EC flags enabled
+                        if (string.Equals(control.Name, DHControlConstants.BusinessOKRsAlignment, StringComparison.OrdinalIgnoreCase) && 
+                            businessOKRsAlignmentEnabled && control.Status == DHControlStatus.InDevelopment)
+                        {
+                            logger.LogInformation($"Processing {DHControlConstants.BusinessOKRsAlignment} control because EC flag is enabled, regardless of control status.");
+                        }
+                        else if (string.Equals(control.Name, DHControlConstants.CriticalDataIdentification, StringComparison.OrdinalIgnoreCase) && 
+                                 criticalDataIdentificationEnabled && control.Status == DHControlStatus.InDevelopment)
+                        {
+                            logger.LogInformation($"Processing {DHControlConstants.CriticalDataIdentification} control because EC flag is enabled, regardless of control status.");
+                        }
+                        else if (control.Status != DHControlStatus.Enabled)
                         {
                             logger.LogInformation($"control is not enabled, skip. ControlId: {control.Id}. AssessmentId: {control.AssessmentId}");
                             continue;

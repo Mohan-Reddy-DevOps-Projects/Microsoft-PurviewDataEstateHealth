@@ -20,6 +20,9 @@ internal static class DomainModelUtils
         { DomainModelType.GlossaryTerm, new GlossaryTermDomainModel() },
         { DomainModelType.GlossaryTermDataProductAssignment, new GlossaryTermDataProductAssignmentDomainModel() },
         { DomainModelType.DataProductOKRAssignment, new DataProductOKRAssignmentDomainModel() },
+        { DomainModelType.CriticalDataElement, new CriticalDataElementDomainModel() },
+        { DomainModelType.BusinessDomainCriticalDataElementAssignment, new BusinessDomainCriticalDataElementAssignmentDomainModel() },
+        { DomainModelType.DataProductCriticalDataElementAssignment, new DataProductCriticalDataElementAssignmentDomainModel() },
     };
 
     public static DomainModel GetDomainModel(DomainModelType domainModelType)

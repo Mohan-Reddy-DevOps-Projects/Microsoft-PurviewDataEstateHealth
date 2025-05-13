@@ -361,6 +361,13 @@ public class DHTemplateService(
                 controlNodeWrapper.Status = isEnabled ? DHControlStatus.Enabled : DHControlStatus.InDevelopment;
                 logger.LogInformation($"Set control {controlNodeWrapper.Name} status to {controlNodeWrapper.Status} based on EC flag (IsEnabled: {isEnabled})");
             }
+            // Check if the control is "Critical data identification" and update status based on EC flag
+            else if (string.Equals(controlNodeWrapper.Name, DHControlConstants.CriticalDataIdentification, StringComparison.OrdinalIgnoreCase))
+            {
+                bool isEnabled = exposureControl.IsDEHCriticalDataIdentificationEnabled(accountId, string.Empty, tenantId);
+                controlNodeWrapper.Status = isEnabled ? DHControlStatus.Enabled : DHControlStatus.InDevelopment;
+                logger.LogInformation($"Set control {controlNodeWrapper.Name} status to {controlNodeWrapper.Status} based on EC flag (IsEnabled: {isEnabled})");
+            }
         }
     }
 

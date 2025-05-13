@@ -97,6 +97,9 @@ public class DHAssessmentRulesAdapter
                     case DataQualityJoinRequirement.DataProductObjectivesCount:
                         joinAdapter = new DataProductObjectivesCountJoinAdapter(context);
                         break;
+                    case DataQualityJoinRequirement.BusinessDomainCriticalDataElement:
+                        joinAdapter = new BusinessDomainCriticalDataElementCountJoinAdapter(context);
+                        break;
                     default:
                         throw new System.NotImplementedException("Join requirement: " + joinRequirement.ToString());
                 }

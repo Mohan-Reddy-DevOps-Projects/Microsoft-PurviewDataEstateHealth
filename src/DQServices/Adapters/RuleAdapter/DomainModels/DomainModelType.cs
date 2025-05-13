@@ -16,4 +16,7 @@ public enum DomainModelType
     AccessPolicySet,
     DataProduct,
     DataProductOKRAssignment,
+    CriticalDataElement,
+    BusinessDomainCriticalDataElementAssignment,
+    DataProductCriticalDataElementAssignment,
 }
