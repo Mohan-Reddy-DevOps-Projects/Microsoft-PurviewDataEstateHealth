@@ -219,6 +219,9 @@ public class DHTemplateService(
 
                 var existControlGroup = allExistingTemplateControlGroups.FirstOrDefault(x => x.SystemTemplateEntityId == controlGroupWrapper.SystemTemplateEntityId);
 
+                // Update control group status based on EC flags
+                this.UpdateControlGroupStatusBasedOnECFlag(controlGroupWrapper);
+
                 DHControlBaseWrapper controlGroup;
 
                 if (existControlGroup == null)
@@ -367,6 +370,28 @@ public class DHTemplateService(
                 bool isEnabled = exposureControl.IsDEHCriticalDataIdentificationEnabled(accountId, string.Empty, tenantId);
                 controlNodeWrapper.Status = isEnabled ? DHControlStatus.Enabled : DHControlStatus.InDevelopment;
                 logger.LogInformation($"Set control {controlNodeWrapper.Name} status to {controlNodeWrapper.Status} based on EC flag (IsEnabled: {isEnabled})");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Updates the control group status based on exposure control flags.
+    /// </summary>
+    /// <param name="controlGroupWrapper">The control group wrapper to update.</param>
+    private void UpdateControlGroupStatusBasedOnECFlag(DHControlBaseWrapper controlGroupWrapper)
+    {
+        var accountId = requestHeaderContext.AccountObjectId.ToString();
+        var tenantId = requestHeaderContext.TenantId.ToString();
+
+        // Check if the control group is "Value Creation" and update status based on Business OKRs alignment EC flag
+        if (string.Equals(controlGroupWrapper.Name, DHControlConstants.ValueCreation, StringComparison.OrdinalIgnoreCase) &&
+            controlGroupWrapper.Status == DHControlStatus.InDevelopment)
+        {
+            bool isEnabled = exposureControl.IsDEHBusinessOKRsAlignmentEnabled(accountId, string.Empty, tenantId);
+            if (isEnabled)
+            {
+                controlGroupWrapper.Status = DHControlStatus.Enabled;
+                logger.LogInformation($"Set control group {controlGroupWrapper.Name} status to {controlGroupWrapper.Status} based on Business OKRs alignment EC flag");
             }
         }
     }

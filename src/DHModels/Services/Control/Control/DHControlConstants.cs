@@ -14,4 +14,9 @@ public static class DHControlConstants
     /// Critical data identification control name.
     /// </summary>
     public const string CriticalDataIdentification = "Critical data identification";
+    
+    /// <summary>
+    /// Value Creation control group name.
+    /// </summary>
+    public const string ValueCreation = "Value Creation";
 } 

@@ -49,6 +49,7 @@ public class DHControlController(
             foreach (var control in batchResults.Results)
             {
                 this.OverrideControlStatus(control, criticalDataIdentificationEnabled, businessOKRsAlignmentEnabled);
+                this.OverrideControlGroupStatus(control, businessOKRsAlignmentEnabled);
             }
         }
         
@@ -89,6 +90,7 @@ public class DHControlController(
         if (criticalDataIdentificationEnabled || businessOKRsAlignmentEnabled)
         {
             this.OverrideControlStatus(entity, criticalDataIdentificationEnabled, businessOKRsAlignmentEnabled);
+            this.OverrideControlGroupStatus(entity, businessOKRsAlignmentEnabled);
         }
         
         return this.Ok(entity.JObject);
@@ -161,6 +163,23 @@ public class DHControlController(
         {
             control.Status = DHControlStatus.Enabled;
             logger.LogInformation($"Changed Business OKRs alignment control (ID: {control.Id}) status from InDevelopment to Enabled");
+        }
+    }
+
+    /// <summary>
+    /// Overrides a control group's status based on exposure control flags
+    /// </summary>
+    /// <param name="control">The control to process</param>
+    /// <param name="businessOKRsAlignmentEnabled">Whether the Business OKRs alignment feature is enabled</param>
+    private void OverrideControlGroupStatus(DHControlBaseWrapper control,bool businessOKRsAlignmentEnabled)
+    {
+        // Handle Value Creation control group
+        if (businessOKRsAlignmentEnabled && 
+            string.Equals(control.Name, DHControlConstants.ValueCreation, StringComparison.OrdinalIgnoreCase) &&
+            control.Status == DHControlStatus.InDevelopment)
+        {
+            control.Status = DHControlStatus.Enabled;
+            logger.LogInformation($"Changed Value Creation control group (ID: {control.Id}) status from InDevelopment to Enabled");
         }
     }
 }
