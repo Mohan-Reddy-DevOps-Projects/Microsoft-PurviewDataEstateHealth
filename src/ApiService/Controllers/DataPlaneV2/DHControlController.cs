@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Controllers.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.ApiService.Exceptions;
 using Microsoft.Azure.Purview.DataEstateHealth.Common;
+using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
+using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
+using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Purview.DataEstateHealth.BusinessLogic.Services;
 using Microsoft.Purview.DataEstateHealth.DHModels.Services.Control.Control;
 using Newtonsoft.Json.Linq;
@@ -20,7 +23,10 @@ using Newtonsoft.Json.Linq;
 [Route("/controls")]
 public class DHControlController(
     DHControlService dataHealthControlService,
-    DHTemplateService templateService
+    DHTemplateService templateService,
+    IAccountExposureControlConfigProvider accountExposureControlConfigProvider,
+    IDataEstateHealthRequestLogger logger,
+    IRequestHeaderContext requestHeaderContext
     ) : DataPlaneController
 {
     [HttpGet]
@@ -28,6 +34,24 @@ public class DHControlController(
     public async Task<ActionResult> ListControlsAsync()
     {
         var batchResults = await dataHealthControlService.ListControlsAsync().ConfigureAwait(false);
+        
+        // Get account and tenant IDs for exposure control checks
+        var accountId = requestHeaderContext.AccountObjectId.ToString();
+        var tenantId = requestHeaderContext.TenantId.ToString();
+        
+        // Check exposure control flags
+        bool criticalDataIdentificationEnabled = accountExposureControlConfigProvider.IsDEHCriticalDataIdentificationEnabled(accountId, string.Empty, tenantId);
+        bool businessOKRsAlignmentEnabled = accountExposureControlConfigProvider.IsDEHBusinessOKRsAlignmentEnabled(accountId, string.Empty, tenantId);
+        
+        // Process controls if any flags are enabled
+        if (criticalDataIdentificationEnabled || businessOKRsAlignmentEnabled)
+        {
+            foreach (var control in batchResults.Results)
+            {
+                this.OverrideControlStatus(control, criticalDataIdentificationEnabled, businessOKRsAlignmentEnabled);
+            }
+        }
+        
         return this.Ok(PagedResults.FromBatchResults(batchResults));
     }
 
@@ -52,6 +76,21 @@ public class DHControlController(
     public async Task<ActionResult> GetControlById(string id)
     {
         var entity = await dataHealthControlService.GetControlByIdAsync(id).ConfigureAwait(false);
+        
+        // Get account and tenant IDs for exposure control checks
+        var accountId = requestHeaderContext.AccountObjectId.ToString();
+        var tenantId = requestHeaderContext.TenantId.ToString();
+        
+        // Check exposure control flags
+        bool criticalDataIdentificationEnabled = accountExposureControlConfigProvider.IsDEHCriticalDataIdentificationEnabled(accountId, string.Empty, tenantId);
+        bool businessOKRsAlignmentEnabled = accountExposureControlConfigProvider.IsDEHBusinessOKRsAlignmentEnabled(accountId, string.Empty, tenantId);
+        
+        // Process control status if any flags are enabled
+        if (criticalDataIdentificationEnabled || businessOKRsAlignmentEnabled)
+        {
+            this.OverrideControlStatus(entity, criticalDataIdentificationEnabled, businessOKRsAlignmentEnabled);
+        }
+        
         return this.Ok(entity.JObject);
     }
 
@@ -96,5 +135,32 @@ public class DHControlController(
         await templateService.ResetControlTemplate("CDMC").ConfigureAwait(false);
 
         return this.Ok();
+    }
+    
+    /// <summary>
+    /// Overrides a control's status based on exposure control flags
+    /// </summary>
+    /// <param name="control">The control to process</param>
+    /// <param name="criticalDataIdentificationEnabled">Whether the Critical data identification feature is enabled</param>
+    /// <param name="businessOKRsAlignmentEnabled">Whether the Business OKRs alignment feature is enabled</param>
+    private void OverrideControlStatus(DHControlBaseWrapper control, bool criticalDataIdentificationEnabled, bool businessOKRsAlignmentEnabled)
+    {
+        // Handle Critical data identification control
+        if (criticalDataIdentificationEnabled && 
+            string.Equals(control.Name, DHControlConstants.CriticalDataIdentification, StringComparison.OrdinalIgnoreCase) &&
+            control.Status == DHControlStatus.InDevelopment)
+        {
+            control.Status = DHControlStatus.Enabled;
+            logger.LogInformation($"Changed Critical data identification control (ID: {control.Id}) status from InDevelopment to Enabled");
+        }
+        
+        // Handle Business OKRs alignment control
+        if (businessOKRsAlignmentEnabled && 
+            string.Equals(control.Name, DHControlConstants.BusinessOKRsAlignment, StringComparison.OrdinalIgnoreCase) &&
+            control.Status == DHControlStatus.InDevelopment)
+        {
+            control.Status = DHControlStatus.Enabled;
+            logger.LogInformation($"Changed Business OKRs alignment control (ID: {control.Id}) status from InDevelopment to Enabled");
+        }
     }
 }
