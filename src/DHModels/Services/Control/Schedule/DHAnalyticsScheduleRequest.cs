@@ -23,6 +23,9 @@ public class DHAnalyticsScheduleRequest
     [JsonProperty("startTime", NullValueHandling = NullValueHandling.Ignore)]
     public DateTime? StartTime { get; set; }
 
+    [JsonProperty("endTime", NullValueHandling = NullValueHandling.Ignore)]
+    public DateTime? EndTime { get; set; }
+
     [JsonProperty("systemData", NullValueHandling = NullValueHandling.Ignore)]
     public SystemData? SystemData { get; set; }
 
