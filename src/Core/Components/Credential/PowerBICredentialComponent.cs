@@ -40,7 +40,7 @@ internal class PowerBICredentialComponent : IPowerBICredentialComponent
         this.logger.LogTrace("Reporting.Models:PowerBICredentialComponent:CreateCredential executed successfully");
         return new PowerBICredential(accountId, this.serverlessAuthConfig.AzureRegion, owner)
         {
-            Password = StringExtensions.RandomString(10, 5).ToSecureString()
+            Password = StringExtensions.RandomString(16, 4).ToSecureString()
         };
     }
 
@@ -89,7 +89,7 @@ internal class PowerBICredentialComponent : IPowerBICredentialComponent
         return new DatabaseMasterKey
         {
             DatabaseName = databaseName,
-            MasterKey = StringExtensions.RandomString(10, 5).ToSecureString()
+            MasterKey = StringExtensions.RandomString(16, 4).ToSecureString()
         };
     }
 
