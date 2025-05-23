@@ -24,6 +24,7 @@ public class BusinessDomainCriticalDataElementCountJoinAdapter : DataQualityJoin
 
     public override JoinAdapterResult Adapt()
     {
+        var businessDomainDataset = this.GetInputDataset(DomainModelType.BusinessDomain);
         var criticalDataElementDataset = this.GetInputDataset(DomainModelType.CriticalDataElement);
         var dataProductCriticalDataElementAssignmentDataset = this.GetInputDataset(DomainModelType.DataProductCriticalDataElementAssignment);
 
@@ -39,7 +40,7 @@ public class BusinessDomainCriticalDataElementCountJoinAdapter : DataQualityJoin
                 LEFT JOIN CriticalDataElement CDE ON DPCDE.CriticalDataElementId = CDE.CriticalDataElementId
                 GROUP BY DPBDA.BusinessDomainId
             ) BDCDEBusinessDomain ON TDataProductBusinessDomainAssignment.BusinessDomainId = BDCDEBusinessDomain.BDCDEBusinessDomainId",
-            inputDatasetsFromJoin = new List<InputDatasetWrapper>() { criticalDataElementDataset, dataProductCriticalDataElementAssignmentDataset },
+            inputDatasetsFromJoin = new List<InputDatasetWrapper>() { businessDomainDataset, criticalDataElementDataset, dataProductCriticalDataElementAssignmentDataset },
             SchemaFromJoin = this.outputSchema
         };
     }
