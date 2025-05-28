@@ -33,7 +33,8 @@ class DataSubscriberRequest (spark: SparkSession, logger:Logger){
         ,col("payload.After.createdBy").alias("CreatedByUserId")
         ,col("payload.After.createdAt").alias("CreatedDatetime")
         ,col("payload.After.modifiedBy").alias("ModifiedByUserId")
-        ,col("payload.After.modifiedAt").alias("ModifiedDateTime"))
+        ,col("payload.After.modifiedAt").alias("ModifiedDateTime")
+        ,expr("coalesce(array_max(transform(payload.After.policySetValues.approverDecisions, x -> x.decision)), '')").alias("ApproverDecision"))
         .filter("operationType=='Create' or operationType=='Update'")
 
       val DeleteIsEmpty = df.filter("operationType=='Delete'").isEmpty
@@ -62,7 +63,8 @@ class DataSubscriberRequest (spark: SparkSession, logger:Logger){
           ,col("payload.Before.createdBy").alias("CreatedByUserId")
           ,col("payload.Before.createdAt").alias("CreatedDatetime")
           ,col("payload.Before.modifiedBy").alias("ModifiedByUserId")
-          ,col("payload.Before.modifiedAt").alias("ModifiedDateTime"))
+          ,col("payload.Before.modifiedAt").alias("ModifiedDateTime")
+          ,expr("coalesce(array_max(transform(payload.Before.policySetValues.approverDecisions, x -> x.decision)), '')").alias("ApproverDecision"))
           .filter("operationType=='Delete'")
         dfProcess = dfProcessUpsert.unionAll(dfProcessDelete)
       } else {
@@ -76,7 +78,10 @@ class DataSubscriberRequest (spark: SparkSession, logger:Logger){
         col("AccessPolicySetId").cast(StringType).alias("AccessPolicySetId"),
         col("SubscriberIdentityTypeDisplayName").cast(StringType).alias("SubscriberIdentityTypeDisplayName"),
         col("RequestorIdentityTypeDisplayName").cast(StringType).alias("RequestorIdentityTypeDisplayName"),
-        col("SubscriberRequestStatus").cast(StringType).alias("SubscriberRequestStatus"),
+        when(col("SubscriberRequestStatus") === "Pending" && col("ApproverDecision") === "Approved", col("ApproverDecision"))
+          .otherwise(col("SubscriberRequestStatus"))
+          .cast(StringType)
+          .alias("SubscriberRequestStatus"),
         col("RequestStatusDisplayName").cast(StringType).alias("RequestStatusDisplayName"),
         col("SubscribedByUserId").cast(StringType).alias("SubscribedByUserId"),
         col("SubscribedByUserTenantId").cast(StringType).alias("SubscribedByUserTenantId"),
@@ -93,10 +98,16 @@ class DataSubscriberRequest (spark: SparkSession, logger:Logger){
         col("ModifiedDateTime").cast(TimestampType).alias("ModifiedDateTime"),
         col("ModifiedByUserId").cast(StringType).alias("ModifiedByUserId"),
         col("EventProcessingTime").cast(LongType).alias("EventProcessingTime"),
-        col("OperationType").cast(StringType).alias("OperationType")
+        col("OperationType").cast(StringType).alias("OperationType"),
+        col("ApproverDecision").cast(StringType).alias("ApproverDecision")
       )
 
-      val windowSpec = Window.partitionBy("SubscriberRequestId").orderBy(col("ModifiedDateTime").desc,
+      val windowSpec = Window.partitionBy("SubscriberRequestId").orderBy(
+        col("ModifiedDateTime").desc,
+        when(col("SubscriberRequestStatus") === "Pending", 1)
+          .when(col("SubscriberRequestStatus") === "Approved", 2)
+          .when(col("SubscriberRequestStatus") === "Completed", 3)
+          .otherwise(4).desc,
         when(col("OperationType") === "Create", 1)
           .when(col("OperationType") === "Update", 2)
           .when(col("OperationType") === "Delete", 3)
@@ -105,6 +116,7 @@ class DataSubscriberRequest (spark: SparkSession, logger:Logger){
       dfProcess = dfProcess.withColumn("row_number", row_number().over(windowSpec))
         .filter(col("row_number") === 1)
         .drop("row_number")
+        .drop("ApproverDecision")
         .distinct()
 
       dfProcess = dfProcess.filter(s"""SubscriberRequestId IS NOT NULL
