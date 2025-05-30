@@ -78,11 +78,11 @@ class DataSubscriberRequest (spark: SparkSession, logger:Logger){
         col("AccessPolicySetId").cast(StringType).alias("AccessPolicySetId"),
         col("SubscriberIdentityTypeDisplayName").cast(StringType).alias("SubscriberIdentityTypeDisplayName"),
         col("RequestorIdentityTypeDisplayName").cast(StringType).alias("RequestorIdentityTypeDisplayName"),
-        when(col("SubscriberRequestStatus") === "Pending" && col("ApproverDecision") === "Approved", col("ApproverDecision"))
-          .otherwise(col("SubscriberRequestStatus"))
+        col("SubscriberRequestStatus").cast(StringType).alias("SubscriberRequestStatus"),
+        when(col("RequestStatusDisplayName") === "Pending" && col("ApproverDecision") === "Approved", col("ApproverDecision"))
+          .otherwise(col("RequestStatusDisplayName"))
           .cast(StringType)
-          .alias("SubscriberRequestStatus"),
-        col("RequestStatusDisplayName").cast(StringType).alias("RequestStatusDisplayName"),
+          .alias("RequestStatusDisplayName"),
         col("SubscribedByUserId").cast(StringType).alias("SubscribedByUserId"),
         col("SubscribedByUserTenantId").cast(StringType).alias("SubscribedByUserTenantId"),
         col("SubscribedByUserEmail").cast(StringType).alias("SubscribedByUserEmail"),
@@ -104,9 +104,9 @@ class DataSubscriberRequest (spark: SparkSession, logger:Logger){
 
       val windowSpec = Window.partitionBy("SubscriberRequestId").orderBy(
         col("ModifiedDateTime").desc,
-        when(col("SubscriberRequestStatus") === "Pending", 1)
-          .when(col("SubscriberRequestStatus") === "Approved", 2)
-          .when(col("SubscriberRequestStatus") === "Completed", 3)
+        when(col("RequestStatusDisplayName") === "Pending", 1)
+          .when(col("RequestStatusDisplayName") === "Approved", 2)
+          .when(col("RequestStatusDisplayName") === "Completed", 3)
           .otherwise(4).desc,
         when(col("OperationType") === "Create", 1)
           .when(col("OperationType") === "Update", 2)
