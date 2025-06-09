@@ -12,12 +12,21 @@
         <scala.version.major>2.12</scala.version.major>
         <scala.version.minor>12</scala.version.minor>
         <scala.version>${scala.version.major}.${scala.version.minor}</scala.version>
+        <mockito.version>4.11.0</mockito.version>
+        <scalatest.version>3.3.0-SNAP3</scalatest.version>
+        <scoverage.plugin.version>1.4.1</scoverage.plugin.version>
+        <scoverage.aggregate>true</scoverage.aggregate>
+        <scoverage.minimum.coverage>0</scoverage.minimum.coverage>
+        <scoverage.failOnMinimumCoverage>false</scoverage.failOnMinimumCoverage>
+        <scoverage.minimumStatementCoverage>0</scoverage.minimumStatementCoverage>
+        <scoverage.minimumBranchCoverage>0</scoverage.minimumBranchCoverage>
     </properties>
     <modules>
         <module>StorageSync</module>
         <module>DimensionalModel</module>
         <module>DomainModel</module>
         <module>CommonUtils</module>
+        <module>Controls</module>
     </modules>
     <repositories>
         <repository>
@@ -77,7 +86,19 @@
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_2.12</artifactId>
-            <version>3.3.0-SNAP3</version>
+            <version>${scalatest.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatestplus</groupId>
+            <artifactId>mockito-4-5_${scala.version.major}</artifactId>
+            <version>3.2.12.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -100,6 +121,7 @@
             <artifactId>hadoop-azure</artifactId>
             <version>3.3.1</version>
         </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -109,8 +131,17 @@
                 <version>3.2.2</version>
                 <executions>
                     <execution>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>
                         <goals>
+                            <goal>add-source</goal>
                             <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-test-compile</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
                             <goal>testCompile</goal>
                         </goals>
                     </execution>
@@ -119,6 +150,13 @@
                     <scalaVersion>${scala.version}</scalaVersion>
                     <sourceDir>src/main/scala</sourceDir>
                     <testSourceDir>src/test/scala</testSourceDir>
+                    <args>
+                        <arg>-g:vars</arg>
+                        <arg>-feature</arg>
+                        <arg>-deprecation</arg>
+                        <arg>-dependencyfile</arg>
+                        <arg>${project.build.directory}/.scala_dependencies</arg>
+                    </args>
                 </configuration>
             </plugin>
             <plugin>
@@ -129,14 +167,14 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.3.0</version>
-                    <configuration>
-                        <outputDirectory>${project.parent.basedir}/target/</outputDirectory>
-                    </configuration>
-                </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <outputDirectory>${project.parent.basedir}/target/</outputDirectory>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -153,11 +191,61 @@
                                     <include>com.microsoft:*</include>
                                 </includes>
                             </artifactSet>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>**/scoverage-classes/**</exclude>
+                                        <exclude>**/scoverage-data/**</exclude>
+                                        <exclude>**/scoverage-reports/**</exclude>
+                                        <exclude>**/scoverage.xml</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
 
+            <plugin>
+                <groupId>org.scalatest</groupId>
+                <artifactId>scalatest-maven-plugin</artifactId>
+                <version>2.2.0</version>
+                <configuration>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                    <junitxml>.</junitxml>
+                    <filereports>TestSuite.txt</filereports>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>test</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-</project>
+    <reporting>
+        <plugins>
+
+        </plugins>
+    </reporting>
+
+    <profiles>
+
+    </profiles>
+</project> 

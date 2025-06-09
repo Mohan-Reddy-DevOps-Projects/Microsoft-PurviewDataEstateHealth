@@ -57,6 +57,8 @@ internal class DataPlaneSparkJobMetadata : StagedWorkerJobMetadata
     [JsonProperty]
     public DataPlaneSparkJobStatus FabricSparkJobStatus { get; set; }
 
+
+
     /// <summary>
     /// Current schedule start time. 
     /// </summary>

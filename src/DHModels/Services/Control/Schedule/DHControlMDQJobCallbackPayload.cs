@@ -12,6 +12,9 @@ public class DHControlMDQJobCallbackPayload
     [JsonProperty("jobStatus")]
     public required string JobStatus { get; set; }
 
+    [JsonProperty("controlId")]
+    public string? ControlId { get; set; }
+
     public DHComputingJobStatus ParseJobStatus()
     {
         return Enum.TryParse(this.JobStatus, out DHComputingJobStatus status) ? status : DHComputingJobStatus.Unknown;

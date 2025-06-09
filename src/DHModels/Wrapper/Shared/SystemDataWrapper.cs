@@ -14,10 +14,10 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared
 
     public class SystemDataWrapper : BaseEntityWrapper
     {
-        private const string keyLastModifiedAt = "lastModifiedAt";
-        private const string keyLastModifiedBy = "lastModifiedBy";
-        private const string keyCreatedAt = "createdAt";
-        private const string keyCreatedBy = "createdBy";
+        protected const string KeyLastModifiedAt = "lastModifiedAt";
+        protected const string KeyLastModifiedBy = "lastModifiedBy";
+        protected const string KeyCreatedAt = "createdAt";
+        protected const string KeyCreatedBy = "createdBy";
 
         public SystemDataWrapper(string createdBy, DateTime? createdAt = null) : base([])
         {
@@ -36,32 +36,32 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Shared
         {
         }
 
-        [EntityProperty(keyLastModifiedAt, true)]
-        public DateTime? LastModifiedAt
+        [EntityProperty(KeyLastModifiedAt, true)]
+        public virtual DateTime? LastModifiedAt
         {
-            get => this.GetPropertyValue<DateTime?>(keyLastModifiedAt);
-            set => this.SetPropertyValue(keyLastModifiedAt, value);
+            get => this.GetPropertyValue<DateTime?>(KeyLastModifiedAt);
+            set => this.SetPropertyValue(KeyLastModifiedAt, value);
         }
 
-        [EntityProperty(keyLastModifiedBy, true)]
-        public string LastModifiedBy
+        [EntityProperty(KeyLastModifiedBy, true)]
+        public virtual string LastModifiedBy
         {
-            get => this.GetPropertyValue<string>(keyLastModifiedBy);
-            set => this.SetPropertyValue(keyLastModifiedBy, value);
+            get => this.GetPropertyValue<string>(KeyLastModifiedBy);
+            set => this.SetPropertyValue(KeyLastModifiedBy, value);
         }
 
-        [EntityProperty(keyCreatedAt, true)]
-        public DateTime? CreatedAt
+        [EntityProperty(KeyCreatedAt, true)]
+        public virtual DateTime? CreatedAt
         {
-            get => this.GetPropertyValue<DateTime?>(keyCreatedAt);
-            set => this.SetPropertyValue(keyCreatedAt, value?.GetDateTimeStr());
+            get => this.GetPropertyValue<DateTime?>(KeyCreatedAt);
+            set => this.SetPropertyValue(KeyCreatedAt, value?.GetDateTimeStr());
         }
 
-        [EntityProperty(keyCreatedBy, true)]
-        public string CreatedBy
+        [EntityProperty(KeyCreatedBy, true)]
+        public virtual string CreatedBy
         {
-            get => this.GetPropertyValue<string>(keyCreatedBy);
-            set => this.SetPropertyValue(keyCreatedBy, value);
+            get => this.GetPropertyValue<string>(KeyCreatedBy);
+            set => this.SetPropertyValue(KeyCreatedBy, value);
         }
 
         public void OnModify(string modifiedBy, DateTime? modifiedAt = null)

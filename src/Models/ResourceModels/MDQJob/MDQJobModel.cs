@@ -27,6 +27,11 @@ public class MDQJobModel
     public Guid DQJobId { get; set; }
 
     /// <summary>
+    /// Gets or sets the control identifier.
+    /// </summary>
+    public string ControlId { get; set; }
+
+    /// <summary>
     /// Gets or sets job status.
     /// </summary>
     public string JobStatus { get; set; }

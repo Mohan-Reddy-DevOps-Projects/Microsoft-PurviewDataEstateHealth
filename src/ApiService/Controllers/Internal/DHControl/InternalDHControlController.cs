@@ -92,6 +92,27 @@ public class InternalDHControlController(
     }
 
     [HttpPost]
+    [Route("createDataQualitySpec")]
+    public async Task<ActionResult<string>> CreateDataQualitySpec([FromBody] DHScheduleCallbackPayload requestBody)
+    {
+        var tenantId = requestHeaderContext.TenantId;
+        var accountId = requestHeaderContext.AccountObjectId;
+        using (logger.LogElapsed($"Create data quality specification. TenantId: {tenantId}. AccountId: {accountId}."))
+        {
+            try
+            {
+                string scheduleRunId = await dhScheduleService.CreateDqRulesSpecification(requestBody)
+                    .ConfigureAwait(false);
+                return this.Ok(scheduleRunId);
+            }
+            catch (Exception ex)
+            {
+                return this.Problem(ex.Message);
+            }
+        }
+    }
+
+    [HttpPost]
     [Route("triggerMDQJobCallback")]
     public async Task<ActionResult> TriggerMDQJobCallback([FromBody] DHControlMDQJobCallbackPayload requestBody)
     {
@@ -115,6 +136,34 @@ public class InternalDHControlController(
                 return this.Problem(ex.Message);
             }
         }
+        return this.Ok();
+    }
+
+    [HttpPost]
+    [Route("upsertMdqActions")]
+    public async Task<ActionResult> UpsertMdqActions([FromBody] DHControlMDQJobCallbackPayload requestBody)
+    {
+        if (requestBody.ParseJobStatus() == DHComputingJobStatus.Unknown)
+        {
+            logger.LogInformation($"Invalid job status. Job Id: {requestBody.DQJobId}");
+            return this.BadRequest("Invalid job status");
+        }
+
+        using (logger.LogElapsed($"MDQ job callback start. TenantId: {requestHeaderContext.TenantId}. AccountId: {requestHeaderContext.AccountObjectId}. " +
+                                 $"Job Id: {requestBody.DQJobId}. Job Status: {requestBody.JobStatus}."))
+        {
+            try
+            {
+                logger.LogInformation($"New controls flow enabled - calling UpsertMdqActions for Job Id: {requestBody.DQJobId}");
+                await dhScheduleService.UpsertMdqActions(requestBody)
+                    .ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                return this.Problem(ex.Message);
+            }
+        }
+
         return this.Ok();
     }
 

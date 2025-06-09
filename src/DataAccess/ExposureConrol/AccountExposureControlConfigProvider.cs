@@ -290,6 +290,19 @@ internal sealed class AccountExposureControlConfigProvider : IAccountExposureCon
         return this.IsFeatureEnabled(options);
     }
 
+    public bool IsDehEnableNewControlsFlowEnabled(string accountId, string subscriptionId, string tenantId)
+    {
+        this.logger.LogInformation($"EC IsDehEnableNewControlsFlowEnabled called for account: {accountId} , tennant: {tenantId}");
+        ExposureControlOptions options = new(Features.SwitchToNewControlsWorkflowPipeline.ToString(), false)
+        {
+            AccountId = accountId,
+            SubscriptionId = subscriptionId,
+            TenantId = tenantId
+        };
+        return this.IsFeatureEnabled(options);
+    }
+
+
     public bool IsDEHBusinessOKRsAlignmentEnabled(string accountId, string subscriptionId, string tenantId)
     {
         this.logger.LogInformation($"EC EnableBusinessOKRsAlignment called for account: {accountId} , tennant: {tenantId}");

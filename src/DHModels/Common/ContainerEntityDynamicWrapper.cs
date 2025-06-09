@@ -18,7 +18,7 @@ public abstract class ContainerEntityDynamicWrapper<T>(JObject jObject) : Dynami
     [JsonProperty(keyId)] // for cosmos DB
     [EntityProperty(keyId, true)]
     [EntityIdValidator(maxLength: 1023)] // https://learn.microsoft.com/en-us/azure/cosmos-db/concepts-limits#per-item-limits
-    public string Id
+    public virtual string Id
     {
         get => this.GetPropertyValue<string>(keyId);
         set => this.SetPropertyValue(keyId, value);
@@ -27,7 +27,7 @@ public abstract class ContainerEntityDynamicWrapper<T>(JObject jObject) : Dynami
     private SystemDataWrapper? systemData;
 
     [EntityProperty(keySystemData)]
-    public SystemDataWrapper SystemData
+    public virtual SystemDataWrapper SystemData
     {
         get => this.systemData ??= this.GetPropertyValueAsWrapper<SystemDataWrapper>(keySystemData);
         set
@@ -37,9 +37,9 @@ public abstract class ContainerEntityDynamicWrapper<T>(JObject jObject) : Dynami
         }
     }
 
-    public string? TenantId { get; set; }
+    public virtual string? TenantId { get; set; }
 
-    public string? AccountId { get; set; }
+    public virtual string? AccountId { get; set; }
 
     public virtual void OnCreate(string userId, string? id = null)
     {

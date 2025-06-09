@@ -20,7 +20,8 @@ class Reader (spark: SparkSession, logger:Logger){
   def readCosmosData(contractSchema:StructType,cosmosDBLinkedServiceName:String,accountId:String
                      ,container:String,eventSource:String,payloadKind:String
                      ,database:String=spark.conf.get("spark.cosmos.database","")
-                    , tenantId:String=""): DataFrame = {
+                    , tenantId:String=""
+                    , jobId: String=""): DataFrame = {
     try {
 
       // Initialize a list to hold the filter conditions
@@ -39,6 +40,11 @@ class Reader (spark: SparkSession, logger:Logger){
       // Add `tenantId` to the filters if it is not blank
       if (tenantId != null && tenantId.nonEmpty) {
         filters += s"tenantId = '$tenantId'"
+      }
+
+      // Add `jobId` to the filters if it is not blank
+      if (jobId != null && jobId.nonEmpty) {
+        filters += s"jobId = '$jobId'"
       }
 
       // Add `eventSource` to the filters if it is not blank

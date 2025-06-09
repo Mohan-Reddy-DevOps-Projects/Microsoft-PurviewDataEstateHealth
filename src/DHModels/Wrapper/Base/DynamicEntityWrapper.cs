@@ -32,7 +32,7 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Base
 
         [EntityProperty(keyType)]
         [EntityRequiredValidator]
-        public string Type
+        public virtual string Type
         {
             get => this.GetPropertyValue<string>(keyType);
             set => this.SetPropertyValue(keyType, value);

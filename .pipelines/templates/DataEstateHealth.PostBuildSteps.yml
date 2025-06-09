@@ -30,7 +30,28 @@ steps:
   displayName: Maven DataDomain/pom.xml
   inputs:
     mavenPOMFile: src/DataDomain/pom.xml
-    options: '-X -B -s $(Agent.TempDirectory)/settings.xml'
+    options: '-X -B -s $(Agent.TempDirectory)/settings.xml -Dmaven.test.failure.ignore=true'
+    publishJUnitResults: false
+    codeCoverageToolOption: 'None'
+    codeCoverageFailIfEmpty: false
+  env:
+    SYSTEM_TEAMFOUNDATIONCOLLECTIONURI: ''
+    SYSTEM_TEAMPROJECT: ''
+    BUILD_BUILDID: ''
+
+- task: PublishTestResults@2
+  displayName: 'Publish Test Results'
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: |
+      **/target/surefire-reports/TEST-*.xml
+      **/target/surefire-reports/*.xml
+    searchFolder: '$(Build.SourcesDirectory)/src/DataDomain'
+    mergeTestResults: true
+    publishRunAttachments: true
+    testRunTitle: 'DataDomain Maven Tests'
+    failTaskOnFailedTests: true
+  condition: succeededOrFailed()
 
 - task: ArchiveFiles@2
   displayName: "Archive Jars"

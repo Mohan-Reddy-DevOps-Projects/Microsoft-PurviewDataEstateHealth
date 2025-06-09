@@ -898,13 +898,24 @@ public class JobManager : IJobManager
         string jobPartition = $"{accountId}{DEHScheduleJobPartitionAffix}";
         string jobId = $"{accountId}{DEHScheduleJobIdAffix}";
 
-        BackgroundJob job = await this.GetJobAsync(jobPartition, jobId);
+        string catalogJobPartition = $"{accountId}{CatalogSparkJobPartitionAffix}";
+        string catalogJobId = $"{accountId}{CatalogSparkJobIdAffix}";
 
-        var jobMetadata = new DEHScheduleJobMetadata
+        var catalogJob = await this.GetJobAsync(catalogJobPartition, catalogJobId);
+
+        DataPlaneSparkJobMetadata catalogSparkJobMetadata = null;
+
+        if (catalogJob != null)
+        {
+            catalogSparkJobMetadata = catalogJob.GetMetadata<DataPlaneSparkJobMetadata>();
+        }
+
+        var jobMetadata = new DehScheduleJobMetadata
         {
             RequestContext = new CallbackRequestContext(this.requestContextAccessor.GetRequestContext()),
             ScheduleTenantId = tenantId,
             ScheduleAccountId = accountId,
+            CatalogSparkJobMetadata = catalogSparkJobMetadata
         };
 
         var repeat = TimeSpan.FromDays(1);
@@ -936,7 +947,7 @@ public class JobManager : IJobManager
 
         var jobOptions = new BackgroundJobOptions()
         {
-            CallbackName = nameof(DEHScheduleCallback),
+            CallbackName = nameof(DehScheduleCallback),
             JobPartition = jobPartition,
             JobId = jobId,
             RepeatInterval = repeat,

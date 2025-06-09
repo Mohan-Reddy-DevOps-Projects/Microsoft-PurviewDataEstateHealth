@@ -23,6 +23,6 @@ internal class DHSimpleRuleAdapter
                 return $"notNull(DPTGlossaryTermId) && ({basicExp})";
             default:
                 return basicExp;
-        };
+        }
     }
 }

@@ -211,6 +211,49 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             }
         }
 
+        public async Task<CreateDataQualityRulesSpecResult> CreateDataQualityRulesSpec(TriggeredSchedulePayload payload, 
+            CancellationToken cancellationToken)
+        {
+            string payloadString = JsonConvert.SerializeObject(payload);
+            using (this.logger.LogElapsed($"Create data quality rules specification. {payloadString}"))
+            {
+                try
+                {
+                    var client = this.GetDEHServiceClient();
+                    string controlsWorkflowId = await client.CreateDataQualitySpec(payload, cancellationToken)
+                        .ConfigureAwait(false);
+                    this.logger.LogInformation($"Succeed to create data quality rules specification. " +
+                                               $"{payloadString}, SpecificationId: {controlsWorkflowId}");
+                    return new CreateDataQualityRulesSpecResult(true, controlsWorkflowId);
+                }
+                catch (Exception ex)
+                {
+                    this.logger.LogError($"Fail to create data quality rules specification. {payloadString}", ex);
+                    return new CreateDataQualityRulesSpecResult(false, null);
+                }
+            }
+        }
+
+        public async Task TriggerActionsUpsert(MDQJobModel jobModel, string traceId, CancellationToken cancellationToken)
+        {
+            var requestId = new Guid(traceId);
+            this.logger.LogInformation($"Start to trigger actions creation for control: {jobModel.ControlId}, DQ Job Id: {jobModel.DQJobId}, Job status: {jobModel.JobStatus}, Request ID: {requestId}");
+            
+            var payload = new UpsertMdqActionsPayload
+            {
+                DQJobId = jobModel.DQJobId,
+                JobStatus = jobModel.JobStatus,
+                TenantId = jobModel.TenantId,
+                AccountId = jobModel.AccountId,
+                IsRetry = false,
+                RequestId = requestId,
+                ControlId = jobModel.ControlId
+            };
+            var client = this.GetDEHServiceClient();
+            await client.UpsertMdqActions(payload, cancellationToken).ConfigureAwait(false);
+            this.logger.LogInformation($"Succeed to trigger actions creation for control: {jobModel.ControlId}, DQ Job Id: {jobModel.DQJobId}.");
+        }
+
         public async Task<bool> CleanUpActionsJobCallback(AccountServiceModel account, CancellationToken cancellationToken)
         {
             this.logger.LogInformation($"Start to clean up actions callback.");

@@ -53,6 +53,23 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             await this.HandleResponseStatusCode(response);
         }
 
+        public async Task UpsertMdqActions(UpsertMdqActionsPayload payload, CancellationToken cancellationToken)
+        {
+            var requestUri = this.CreateRequestUri("/internal/control/upsertMdqActions");
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
+            request.Content = this.CreateRequestContent(new Dictionary<string, string>()
+            {
+                ["dqJobId"] = payload.DQJobId.ToString(),
+                ["jobStatus"] = payload.JobStatus,
+                ["controlId"] = payload.ControlId
+            });
+            request.Headers.Add(HeaderAccountIdName, payload.AccountId.ToString());
+            request.Headers.Add(HeaderTenantIdName, payload.TenantId.ToString());
+            request.Headers.Add(HeaderRequestIdName, payload.RequestId.ToString());
+            var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            await this.HandleResponseStatusCode(response);
+        }
+
         public async Task<string> GetMITokenfromDEH(string accountId, CancellationToken cancellationToken)
         {
             var requestUri = this.CreateRequestUri($"/internal/settings/storageConfig/mitoken");
@@ -89,7 +106,6 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             return responseContent;
         }
 
-
         public async Task TriggerSchedule(TriggeredSchedulePayload payload, CancellationToken cancellationToken)
         {
             var requestUri = this.CreateRequestUri("/internal/control/triggerScheduleJob");
@@ -105,6 +121,28 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess
             request.Headers.Add(HeaderRequestIdName, payload.RequestId.ToString());
             var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
             await this.HandleResponseStatusCode(response);
+        }
+
+        public async Task<string> CreateDataQualitySpec(TriggeredSchedulePayload payload, 
+            CancellationToken cancellationToken)
+        {
+            var requestUri = this.CreateRequestUri("/internal/control/createDataQualitySpec");
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri);
+            request.Content = this.CreateRequestContent(new Dictionary<string, string>()
+            {
+                ["controlId"] = payload.ControlId,
+                ["operator"] = payload.Operator,
+                ["triggerType"] = payload.TriggerType,
+            });
+            request.Headers.Add(HeaderAccountIdName, payload.AccountId.ToString());
+            request.Headers.Add(HeaderTenantIdName, payload.TenantId.ToString());
+            request.Headers.Add(HeaderRequestIdName, payload.RequestId.ToString());
+            var response = await this.Client.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            await this.HandleResponseStatusCode(response);
+            
+            // Read and return the job run ID from the response
+            string jobRunId = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            return jobRunId?.Trim('"'); // Remove quotes if the response is a JSON string
         }
 
         public async Task CleanUpActionJobCallback(AccountServiceModel account, CancellationToken cancellationToken)

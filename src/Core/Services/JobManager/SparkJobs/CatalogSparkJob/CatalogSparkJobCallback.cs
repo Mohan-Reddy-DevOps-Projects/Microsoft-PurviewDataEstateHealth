@@ -4,6 +4,7 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
+using DataAccess;
 using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.WindowsAzure.ResourceStack.Common.BackgroundJobs;
@@ -21,6 +22,7 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
     private readonly ISparkJobManager sparkJobManager = scope.ServiceProvider.GetService<ISparkJobManager>();
     private readonly DHAnalyticsScheduleRepository dHAnalyticsScheduleRepository = scope.ServiceProvider.GetService<DHAnalyticsScheduleRepository>();
     private readonly IServiceScope serviceScope = scope;
+    private readonly IAccountExposureControlConfigProvider exposureControlConfigProvider = scope.ServiceProvider.GetService<IAccountExposureControlConfigProvider>();
 
     protected override string JobName => nameof(CatalogSparkJobCallback);
 
@@ -74,6 +76,15 @@ internal class CatalogSparkJobCallback(IServiceScope scope) : StagedWorkerJobCal
 
     protected override void OnJobConfigure()
     {
+        if (exposureControlConfigProvider.IsDehEnableNewControlsFlowEnabled(this.Metadata.AccountServiceModel.Id, null, this.Metadata.AccountServiceModel.TenantId))
+        {
+            this.JobStages = [];
+            this.dataEstateHealthRequestLogger.LogInformation($"New controls flow is enabled for account: {this.Metadata.AccountServiceModel.Id}, " +
+                                                              $"tenant: {this.Metadata.AccountServiceModel.TenantId}. No job stages configured.");
+            return;
+        }
+        this.dataEstateHealthRequestLogger.LogInformation($"New controls flow is not enabled for account: {this.Metadata.AccountServiceModel.Id}, " +
+                                                              $"tenant: {this.Metadata.AccountServiceModel.TenantId}. Configuring job stages.");
         this.dataEstateHealthRequestLogger.LogInformation($"Configuring job stages for account: {this.Metadata.AccountServiceModel.Id}, tenant: {this.Metadata.AccountServiceModel.TenantId}");
         
         JobSubmissionEvaluator jobSubmissionEvaluator = new JobSubmissionEvaluator(this.serviceScope);
