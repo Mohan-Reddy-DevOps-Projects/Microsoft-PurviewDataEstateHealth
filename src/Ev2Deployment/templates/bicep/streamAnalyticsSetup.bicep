@@ -58,12 +58,19 @@ var dcatalogall= '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-dcat
 var cde= '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-cde'
 var okr= '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-okr'
 var keyresult= '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-keyresult'
+var cdc= '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-cdc'
 
 var datasubscription = '${streamAnalyticsPrefixName}-${streampartNameDataaccess}-datasubscription'
 var policyset =  '${streamAnalyticsPrefixName}-${streampartNameDataaccess}-policyset'
 
 var dataqualityfact = '${streamAnalyticsPrefixName}-${streampartNameDQ}-dataqualityfact'
 var dataqualityv2fact = '${streamAnalyticsPrefixName}-${streampartNameDQv2}-dataqualityv2fact'
+var dataqualityrule = '${streamAnalyticsPrefixName}-${streampartNameDQv2}-dataqualityrule'
+var dataqualityjobmetadata = '${streamAnalyticsPrefixName}-${streampartNameDQv2}-dataqualityjobmetadata'
+var dataqualityassetdelete = '${streamAnalyticsPrefixName}-${streampartNameDQv2}-dataqualityassetdelete'
+var dataqualityjobdelete = '${streamAnalyticsPrefixName}-${streampartNameDQv2}-dataqualityjobdelete'
+var dataqualityschema = '${streamAnalyticsPrefixName}-${streampartNameDQv2}-dataqualityschema'
+
 var provisioningdata = '${streamAnalyticsPrefixName}-${streampartNamePV}-provisionevent'
 
 module streamAnalyticsJobsCatalog 'streamAnalyticsAccount.bicep' = {
@@ -79,7 +86,7 @@ module streamAnalyticsJobsCatalog 'streamAnalyticsAccount.bicep' = {
     cosmosDbDatabaseName: dehCosmosDBDatabaseName
     partitionKey: partitionKey 
     documentId : documentId
-    streamNameList: '${businessdomain},${dataasset},${dataproduct},${relationship},${term},${dataassetwithlineage},${dcatalogall},${cde},${okr},${keyresult}'
+    streamNameList: '${businessdomain},${dataasset},${dataproduct},${relationship},${term},${dataassetwithlineage},${dcatalogall},${cde},${okr},${keyresult},${cdc}'
     dghResourceGroupName : dghResourceGroupName 
     principalId : dehResourceAppIdentity.properties.principalId
     subscriptionId : subscriptionId
@@ -213,6 +220,18 @@ module streamAnalyticsJobsCatalog 'streamAnalyticsAccount.bicep' = {
         FilterField2 : 'payloadKind'
         FilterValue2 : 'KeyResult'
       }
+      { StreamName: cdc // '${streamAnalyticsPrefixName}-${streampartNameDataCatalog}-term'
+        OutputName: outputName
+        collectionName: 'cdc'
+        consumerGroupName: cdc
+        fromSelect : ' * '
+        toSelect : ' * '
+        FilterField1 : 'eventSource'
+        FilterValue1 : 'DataCatalog'
+        Operator : ' And '
+        FilterField2 : 'payloadKind'
+        FilterValue2 : 'CDC'
+      }
     ]
   }
 }
@@ -339,7 +358,7 @@ module streamAnalyticsJobsDataQualityv2  'streamAnalyticsAccount.bicep' = {
     eventHubName: dataQualityv2EH
     cosmosAccountName: cosmosAccountName
     cosmosDbDatabaseName: dehCosmosDBDatabaseName
-    streamNameList: '${dataqualityv2fact}'
+    streamNameList: '${dataqualityv2fact},${dataqualityrule},${dataqualityjobmetadata},${dataqualityassetdelete},${dataqualityjobdelete},${dataqualityschema}'
     partitionKey: partitionKey 
     documentId : documentId
     dghResourceGroupName : dghResourceGroupName 
@@ -363,6 +382,51 @@ module streamAnalyticsJobsDataQualityv2  'streamAnalyticsAccount.bicep' = {
         Operator : ' And '
         FilterField2 : 'payloadKind'
         FilterValue2 : 'dataQualityFact'
+      }
+      { StreamName: dataqualityrule 
+        OutputName: outputName
+        collectionName: 'dataqualityrule'
+        consumerGroupName: dataqualityrule
+        fromSelect : ' * '
+        toSelect : ' * '
+        FilterField1 : 'payloadKind'
+        FilterValue1 : 'dataQualityRule'
+      }
+      { StreamName: dataqualityjobmetadata 
+        OutputName: outputName
+        collectionName: 'dataqualityjobmetadata'
+        consumerGroupName: dataqualityjobmetadata
+        fromSelect : ' * '
+        toSelect : ' * '
+        FilterField1 : 'payloadKind'
+        FilterValue1 : 'dataQualityJobMetadata'
+      }
+      { StreamName: dataqualityassetdelete 
+        OutputName: outputName
+        collectionName: 'dataqualityassetdelete'
+        consumerGroupName: dataqualityassetdelete
+        fromSelect : ' * '
+        toSelect : ' * '
+        FilterField1 : 'payloadKind'
+        FilterValue1 : 'dataQualityAssetDelete'
+      }
+      { StreamName: dataqualityjobdelete 
+        OutputName: outputName
+        collectionName: 'dataqualityjobdelete'
+        consumerGroupName: dataqualityjobdelete
+        fromSelect : ' * '
+        toSelect : ' * '
+        FilterField1 : 'payloadKind'
+        FilterValue1 : 'dataQualityJobDelete'
+      }
+      { StreamName: dataqualityschema 
+        OutputName: outputName
+        collectionName: 'dataqualityschema'
+        consumerGroupName: dataqualityschema
+        fromSelect : ' * '
+        toSelect : ' * '
+        FilterField1 : 'payloadKind'
+        FilterValue1 : 'dataQualitySchema'
       }
     ]
   }

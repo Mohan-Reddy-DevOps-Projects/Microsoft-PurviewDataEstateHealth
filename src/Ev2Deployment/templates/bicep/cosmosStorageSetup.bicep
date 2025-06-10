@@ -26,7 +26,7 @@ module controlCosmosContributorRoleAssignmentModule 'cosmosRoleAssignment.bicep'
     databaseName: controlDatabaseName
   }
   dependsOn: [
-    controlCosmosDatabaseDHControl
+    controlCosmosDatabaseDHControl, controlCosmosDatabaseDHControlJob
   ]
 }
 
@@ -96,6 +96,18 @@ module controlCosmosDatabaseDHControl 'cosmosDatabase.bicep' = {
   }
 }
 
+// Databases and containers
+module controlCosmosDatabaseDHControlJob 'cosmosDatabase.bicep' = {
+  name: 'controlCosmosDatabaseDHControlJob'
+  params: {
+    accountName: cosmosAccountName
+    databaseName: 'dgh-Control'
+    partitionid: '/accountId'
+    containerAppIdentityName :  containerAppIdentityName
+    containerNames: []
+    containerdehNames: ['DHControlJob']    
+  }
+}
 
 // Databases and containers
 module controlCosmosDatabaseDataEstateHealth 'cosmosDatabase.bicep' = {
@@ -105,7 +117,7 @@ module controlCosmosDatabaseDataEstateHealth 'cosmosDatabase.bicep' = {
     databaseName: dehDatabaseName // 'dgh-DataEstateHealth'
     partitionid: '/accountId'
     containerAppIdentityName :  containerAppIdentityName
-    containerdehNames: ['businessdomain', 'dataasset', 'dataproduct', 'dataqualityfact','dataqualityv2fact', 'datasubscription', 'policyset','relationship','term', 'dehsentinel','provisionevent','dataassetwithlineage', 'dcatalogall', 'cde','okr','keyresult']
+    containerdehNames: ['businessdomain', 'dataasset', 'dataproduct', 'dataqualityfact','dataqualityv2fact', 'datasubscription', 'policyset','relationship','term', 'dehsentinel','provisionevent','dataassetwithlineage', 'dcatalogall', 'cde','okr','keyresult','dataqualityrule','dataqualityjobmetadata','dataqualityassetdelete','dataqualityjobdelete','dataqualityschema','cdc']
     containerNames: []    
   }
 }
