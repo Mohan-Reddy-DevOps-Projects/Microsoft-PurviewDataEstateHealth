@@ -391,6 +391,9 @@ module streamAnalyticsJobsDataQualityv2  'streamAnalyticsAccount.bicep' = {
         toSelect : ' * '
         FilterField1 : 'payloadKind'
         FilterValue1 : 'dataQualityRule'
+        Operator : ' And '
+        FilterField2 : 'payloadKind'
+        FilterValue2 : 'dataQualityRule'
       }
       { StreamName: dataqualityjobmetadata 
         OutputName: outputName
@@ -400,6 +403,9 @@ module streamAnalyticsJobsDataQualityv2  'streamAnalyticsAccount.bicep' = {
         toSelect : ' * '
         FilterField1 : 'payloadKind'
         FilterValue1 : 'dataQualityJobMetadata'
+        Operator : ' And '
+        FilterField2 : 'payloadKind'
+        FilterValue2 : 'dataQualityJobMetadata'
       }
       { StreamName: dataqualityassetdelete 
         OutputName: outputName
@@ -409,6 +415,9 @@ module streamAnalyticsJobsDataQualityv2  'streamAnalyticsAccount.bicep' = {
         toSelect : ' * '
         FilterField1 : 'payloadKind'
         FilterValue1 : 'dataQualityAssetDelete'
+        Operator : ' And '
+        FilterField2 : 'payloadKind'
+        FilterValue2 : 'dataQualityAssetDelete'
       }
       { StreamName: dataqualityjobdelete 
         OutputName: outputName
@@ -418,6 +427,9 @@ module streamAnalyticsJobsDataQualityv2  'streamAnalyticsAccount.bicep' = {
         toSelect : ' * '
         FilterField1 : 'payloadKind'
         FilterValue1 : 'dataQualityJobDelete'
+        Operator : ' And '
+        FilterField2 : 'payloadKind'
+        FilterValue2 : 'dataQualityJobDelete'
       }
       { StreamName: dataqualityschema 
         OutputName: outputName
@@ -427,6 +439,9 @@ module streamAnalyticsJobsDataQualityv2  'streamAnalyticsAccount.bicep' = {
         toSelect : ' * '
         FilterField1 : 'payloadKind'
         FilterValue1 : 'dataQualitySchema'
+        Operator : ' And '
+        FilterField2 : 'payloadKind'
+        FilterValue2 : 'dataQualitySchema'
       }
     ]
   }
