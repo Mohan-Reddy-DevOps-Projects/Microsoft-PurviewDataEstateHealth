@@ -21,7 +21,8 @@ class Reader (spark: SparkSession, logger:Logger){
                      ,container:String,eventSource:String,payloadKind:String
                      ,database:String=spark.conf.get("spark.cosmos.database","")
                     , tenantId:String=""
-                    , jobId: String=""): DataFrame = {
+                    , jobId: String=""
+                    , format: String="cosmos.olap"): DataFrame = {
     try {
 
       // Initialize a list to hold the filter conditions
@@ -55,7 +56,7 @@ class Reader (spark: SparkSession, logger:Logger){
       // Combine the filters with `AND` if any filters exist
       val filterCondition = if (filters.nonEmpty) filters.mkString(" AND ") else ""  // If no filters, return an empty string
 
-      var df = spark.read.format("cosmos.olap")
+      var df = spark.read.format(format)
         .schema(contractSchema)
         .option("spark.cosmos.accountEndpoint", spark.conf.get("spark.cosmos.accountEndpoint"))
         .option("spark.cosmos.database", database)

@@ -204,7 +204,8 @@ object ControlJobExecutor {
       "",
       Constants.Cosmos.DATABASE,
       "",
-      jobRunGuid
+      jobRunGuid,
+      "cosmos.oltp"
     )
     
     if (result == null) {

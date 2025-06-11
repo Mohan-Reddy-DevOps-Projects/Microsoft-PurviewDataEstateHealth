@@ -104,6 +104,7 @@ class ControlJobExecutorTest extends AnyFunSuite with BeforeAndAfterAll with Moc
       anyString(), 
       anyString(), 
       anyString(), 
+      anyString(),
       anyString())
     ).thenReturn(controlJobQueriesDF)
     
