@@ -57,6 +57,9 @@ internal class TriggerActionsUpsertWorkflowStage(
                 this.dataEstateHealthRequestLogger.LogInformation($"Found {controlJobs.Count} control jobs with IDs: {String.Join(", ", controlIds)}");
 
                 // Trigger actions creation for each control individually
+                int successfulTriggers = 0;
+                int failedTriggers = 0;
+                
                 foreach (var mdqJobModel in controlIds.Select(controlId => new Models.MDQJobModel
                          {
                              AccountId = new Guid(accountId),
@@ -66,19 +69,28 @@ internal class TriggerActionsUpsertWorkflowStage(
                              JobStatus = "Succeeded"
                          }))
                 {
-                    await this.dataHealthApiService.TriggerActionsUpsert(
-                        mdqJobModel,
-                        metadata.CatalogSparkJobMetadata.TraceId,
-                        CancellationToken.None).ConfigureAwait(false);
-                    
-                    this.dataEstateHealthRequestLogger.LogInformation($"Triggered actions creation for control: {mdqJobModel.ControlId}");
+                    try
+                    {
+                        await this.dataHealthApiService.TriggerActionsUpsert(
+                            mdqJobModel,
+                            metadata.CatalogSparkJobMetadata.TraceId,
+                            CancellationToken.None).ConfigureAwait(false);
+                        
+                        this.dataEstateHealthRequestLogger.LogInformation($"Triggered actions creation for control: {mdqJobModel.ControlId}");
+                        successfulTriggers++;
+                    }
+                    catch (Exception controlException)
+                    {
+                        this.dataEstateHealthRequestLogger.LogError($"Failed to trigger actions creation for control: {mdqJobModel.ControlId} with error: {controlException.Message}", controlException);
+                        failedTriggers++;
+                    }
                 }
                 
                 jobStageStatus = JobExecutionStatus.Completed;
-                jobStatusMessage = $"Actions creation workflow triggered successfully for account: {accountId}, processed {controlIds.Count} controls with jobId: {metadata.SqlGenerationMetadata.ControlsWorkflowJobRunId}";
+                jobStatusMessage = $"Actions creation workflow triggered for account: {accountId}, jobId: {metadata.SqlGenerationMetadata.ControlsWorkflowJobRunId}. Successful: {successfulTriggers}, Failed: {failedTriggers}, Total: {controlIds.Count}";
                 this.dataEstateHealthRequestLogger.LogInformation(jobStatusMessage);
                 
-                // Set the status to succeeded when stage completes successfully
+                // Set the status to succeeded when stage completes (even if some individual controls failed)
                 metadata.ActionsGenerationMetadata.ActionsGenerationWorkflowStatus = ActionsGenerationWorkflowStatus.Succeeded;
             }
             catch (Exception exception)
