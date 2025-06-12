@@ -2,6 +2,7 @@
 {
     using Microsoft.Azure.Purview.DataEstateHealth.Loggers;
     using Microsoft.Azure.Purview.DataEstateHealth.Models;
+    using Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.Exceptions.Model;
     using Microsoft.Purview.DataEstateHealth.BusinessLogic.InternalServices;
@@ -24,6 +25,7 @@
         DHStatusPaletteInternalService statusPaletteInternalService,
         DHAssessmentService assessmentService,
         IRequestHeaderContext requestHeaderContext,
+        IAccountExposureControlConfigProvider accountExposureControlConfigProvider,
         IDataEstateHealthRequestLogger logger)
     {
         public async Task<IBatchResults<DHControlBaseWrapper>> ListControlsAsync()
@@ -71,7 +73,7 @@
                 {
                     entity.NormalizeInput();
 
-                    if (entity.Status == DHControlStatus.InDevelopment)
+                    if (entity.Status == DHControlStatus.InDevelopment && !this.ShouldIgnoreInDevelopmentStatusCheck(entity))
                     {
                         throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageInDevelopStatus));
                     }
@@ -198,7 +200,7 @@
                         entity.Type));
                 }
 
-                if (!isSystem && existEntity.Status == DHControlStatus.InDevelopment)
+                if (!isSystem && existEntity.Status == DHControlStatus.InDevelopment && !this.ShouldIgnoreInDevelopmentStatusCheck(existEntity))
                 {
                     throw new EntityValidationException(String.Format(CultureInfo.InvariantCulture, StringResources.ErrorMessageInDevelopStatus));
                 }
@@ -467,6 +469,32 @@
                     await scheduleService.DeleteScheduleAsync(scheduleId).ConfigureAwait(false);
                 }
             }
+        }
+
+        /// <summary>
+        /// Determines whether to ignore the InDevelopment status check for the given control.
+        /// Ignores the check if the control name is BusinessOKRsAlignment and the feature flag is enabled.
+        /// </summary>
+        /// <param name="entity">The control entity to check</param>
+        /// <returns>True if the InDevelopment status check should be ignored, false otherwise</returns>
+        private bool ShouldIgnoreInDevelopmentStatusCheck(DHControlBaseWrapper entity)
+        {
+            if (!String.Equals(entity.Name, DHControlConstants.BusinessOKRsAlignment, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            logger.LogInformation($"Checking feature flag for BusinessOKRsAlignment control: {entity.Name}");
+                
+            string accountId = requestHeaderContext.AccountObjectId.ToString();
+            string tenantId = requestHeaderContext.TenantId.ToString();
+                
+            bool isFeatureEnabled = accountExposureControlConfigProvider.IsDEHBusinessOKRsAlignmentEnabled(accountId, String.Empty, tenantId);
+                
+            logger.LogInformation($"BusinessOKRsAlignment feature flag enabled: {isFeatureEnabled} for control: {entity.Name}");
+                
+            return isFeatureEnabled;
+
         }
     }
 }
