@@ -13,6 +13,21 @@ using Microsoft.Purview.DataGovernance.Common;
 using System.Diagnostics.Eventing.Reader;
 using System.Threading.Tasks;
 
+/// <summary>
+/// Response object for DEH Job Log events
+/// </summary>
+public class DehJobLogEvent
+{
+    public string AccountId { get; set; }
+    public string JobName { get; set; }
+    public string Status { get; set; }
+
+    public override string ToString()
+    {
+        return $"AccountId: {AccountId}, JobName: {JobName}, Status: {Status}";
+    }
+}
+
 internal class JobSubmissionEvaluator
 {
     private readonly IDataEstateHealthRequestLogger logger;
@@ -111,31 +126,33 @@ internal class JobSubmissionEvaluator
         var toDate = DateTimeOffset.UtcNow;
 
         // KQL query string to check for relevant job logs
-        var kqlDeh = $@"DEH_JobInitMapping_log_CL
-                        | where AccountId_g == ""{accountId}""
-                        | project AccountId=AccountId_g, JobId=BatchId_g, JobTimestamp=TimeGenerated
-                        | limit 1";
+        string kqlDeh = $"""
+                         DEH_Job_Logs_CL
+                         | project AccountId=AccountId_g, JobName=JobName_s, Status=JobStatus_s
+                         | where AccountId == "{accountId}" and Status == "Completed" and JobName == "DomainModel"
+                         | limit 1
+                         """;
         try
         {
             // Execute the query and fetch events
-            var dehDQEvents = await this.logsAnalyticsReader.Query<DEHDQEvent>(kqlDeh, fromDate, toDate);
+            var dehJobLogEvents = await this.logsAnalyticsReader.Query<DehJobLogEvent>(kqlDeh, fromDate, toDate);
 
             // If no events were found, return false
-            if (dehDQEvents?.Value?.Count == 0)
+            if (dehJobLogEvents?.Value?.Count == 0)
             {
-                this.logger.LogInformation($"No control Job found within the last 24 hours for account: {accountId}");
+                this.logger.LogInformation($"No job found within the last 24 hours for account: {accountId}");
                 return false;
             }
-            foreach (var dehDQEvent in dehDQEvents.Value)
+            foreach (var dehJobLogEvent in dehJobLogEvents.Value)
             {
-                this.logger.LogInformation($"Control Job found: {dehDQEvent}");
+                this.logger.LogInformation($"Job found: {dehJobLogEvent}");
             }
             return true;
         }
         catch (Exception ex)
         {
             // Log error if the query or other process fails
-            this.logger.LogError($"Failed to get Control Job Events from logs for account {accountId}: {ex.Message}", ex);
+            this.logger.LogError($"Failed to get Job Events from logs for account {accountId}: {ex.Message}", ex);
             return true; // Consider returning `true` as a default to ensure job submission attempt
         }
     }

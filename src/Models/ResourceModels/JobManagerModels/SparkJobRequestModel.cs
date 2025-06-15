@@ -20,5 +20,6 @@ public class SparkJobRequestModel
     public string cosmosDBKey { get; set; } = "";
     public string workSpaceID { get; set; } = "";
     public String tenantId { get; set; }
+    public string traceId { get; set; }
 
 }

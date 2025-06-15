@@ -57,7 +57,8 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
                     new CancellationToken(),
                     jobId,
                     this.metadata.SparkPoolId,
-                    isDEHDataCleanup);
+                    isDEHDataCleanup,
+                    this.metadata.RootTraceId);
 
                 this.metadata.SparkPoolId = jobInfo.PoolResourceId;
                 this.metadata.DimensionSparkJobBatchId = jobInfo.JobId;

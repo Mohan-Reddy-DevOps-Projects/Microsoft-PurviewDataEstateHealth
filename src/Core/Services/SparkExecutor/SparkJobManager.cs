@@ -44,11 +44,11 @@ internal sealed class SparkJobManager : ISparkJobManager
     }
 
     /// <inheritdoc/>
-    public async Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null, int retryCount = 5)
+    public async Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null, int retryCount = 5, Action<SynapseBigDataPoolInfoData> poolConfigAction = null)
     {
         using (this.logger.LogElapsed("submit job"))
         {
-            var sparkPoolId = existingPoolResourceId ?? await this.CreateSparkPoolWithRetry(accountServiceModel, cancellationToken);
+            var sparkPoolId = existingPoolResourceId ?? await this.CreateSparkPoolWithRetry(accountServiceModel, cancellationToken, poolConfigAction: poolConfigAction);
 
             this.logger.LogInformation($"Submitting spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}");
 
@@ -70,7 +70,7 @@ internal sealed class SparkJobManager : ISparkJobManager
                     this.logger.LogError($"Failed to submit spark job {sparkJobRequest.Name} to pool={sparkPoolId.Name}. Existing pool not exist.", ex);
                     throw;
                 }
-                return await this.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, retryCount: retryCount - 1);
+                return await this.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, retryCount: retryCount - 1, poolConfigAction: poolConfigAction);
             }
             catch (RequestFailedException ex) when (ex.Status == 429 || ex.Status == 504)
             {
@@ -81,7 +81,7 @@ internal sealed class SparkJobManager : ISparkJobManager
                     throw;
                 }
                 await Task.Delay(Random.Shared.Next(1000, 5000), cancellationToken);
-                return await this.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, sparkPoolId, retryCount - 1);
+                return await this.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, sparkPoolId, retryCount - 1, poolConfigAction);
             }
             catch (Exception ex)
             {
@@ -149,7 +149,7 @@ internal sealed class SparkJobManager : ISparkJobManager
     }
 
     /// <inheritdoc/>
-    public async Task<SparkPoolModel> CreateOrUpdateSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
+    public async Task<SparkPoolModel> CreateOrUpdateSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, Action<SynapseBigDataPoolInfoData> configAction = null)
     {
         using (this.logger.LogElapsed("Creating or updating spark pool"))
         {
@@ -159,14 +159,14 @@ internal sealed class SparkJobManager : ISparkJobManager
             if (existingModel == null)
             {
                 string sparkPoolName = await this.GenerateSparkPoolName(OwnerNames.Health, cancellationToken);
-                synapseSparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolName, accountServiceModel, cancellationToken);
+                synapseSparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolName, accountServiceModel, cancellationToken, configAction);
                 newModel = ToModel(synapseSparkPool, null, accountServiceModel);
 
                 return await this.sparkPoolRepository.Create(newModel, accountServiceModel.Id, cancellationToken);
             }
 
             ResourceIdentifier sparkPoolId = GetSparkPoolResourceId(existingModel);
-            synapseSparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolId.Name, accountServiceModel, cancellationToken);
+            synapseSparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolId.Name, accountServiceModel, cancellationToken, configAction);
             newModel = ToModel(synapseSparkPool, existingModel, accountServiceModel);
 
             await this.sparkPoolRepository.Update(newModel, accountServiceModel.Id, cancellationToken);
@@ -228,7 +228,7 @@ internal sealed class SparkJobManager : ISparkJobManager
         await this.synapseSparkExecutor.DeleteSparkPool(sparkPoolId.Name, cancellationToken);
     }
 
-    private async Task<ResourceIdentifier> CreateSparkPoolWithRetry(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, int maxAttempts = 3)
+    private async Task<ResourceIdentifier> CreateSparkPoolWithRetry(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, int maxAttempts = 3, Action<SynapseBigDataPoolInfoData> poolConfigAction = null)
     {
         using (this.logger.LogElapsed("Creating spark pool with retry"))
         {
@@ -237,7 +237,7 @@ internal sealed class SparkJobManager : ISparkJobManager
                 try
                 {
                     this.logger.LogInformation($"Creating spark pool attempt {attempt}. Max attempt {maxAttempts}.");
-                    return await this.CreateSparkPool(accountServiceModel, cancellationToken);
+                    return await this.CreateSparkPool(accountServiceModel, cancellationToken, poolConfigAction);
                 }
                 catch (Exception ex)
                 {
@@ -253,12 +253,12 @@ internal sealed class SparkJobManager : ISparkJobManager
         }
     }
 
-    private async Task<ResourceIdentifier> CreateSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
+    private async Task<ResourceIdentifier> CreateSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, Action<SynapseBigDataPoolInfoData> poolConfigAction = null)
     {
         using (this.logger.LogElapsed("Creating spark pool"))
         {
             string sparkPoolName = await this.GenerateSparkPoolName("v2" + OwnerNames.Health, cancellationToken);
-            var sparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolName, accountServiceModel, cancellationToken);
+            var sparkPool = await this.synapseSparkExecutor.CreateOrUpdateSparkPool(sparkPoolName, accountServiceModel, cancellationToken, poolConfigAction);
 
             this.logger.LogInformation($"Created pool id = {sparkPool.Id}");
 

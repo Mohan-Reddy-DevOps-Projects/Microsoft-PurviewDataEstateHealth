@@ -55,6 +55,7 @@ internal class DehScheduleCallback(IServiceScope scope) : StagedWorkerJobCallbac
     {
 
         this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] OnJobConfigure started");
+
         this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Metadata - ScheduleAccountId: {this.Metadata.ScheduleAccountId}, ScheduleTenantId: {this.Metadata.ScheduleTenantId}");
         
         this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Checking if DEH enable new controls flow is enabled...");
@@ -70,6 +71,8 @@ internal class DehScheduleCallback(IServiceScope scope) : StagedWorkerJobCallbac
             this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Getting DataPlaneSparkJobMetadata...");
             var catalogSparkJobMetadata = this.GetDataPlaneSparkJobMetadata();
             this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] DataPlaneSparkJobMetadata retrieved: {(catalogSparkJobMetadata != null ? "SUCCESS" : "NULL")}");
+
+            SetParentRootTraceIdToChildren(catalogSparkJobMetadata, this.Metadata);
             
             if (catalogSparkJobMetadata != null)
             {
@@ -185,6 +188,7 @@ internal class DehScheduleCallback(IServiceScope scope) : StagedWorkerJobCallbac
             catalogMetadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others;
             catalogMetadata.FabricSparkJobStatus = DataPlaneSparkJobStatus.Others;
             catalogMetadata.CurrentScheduleStartTime = null;
+            catalogMetadata.RootTraceId = String.Empty;
         }
 
         // Reset the separate workflow metadata
@@ -193,7 +197,10 @@ internal class DehScheduleCallback(IServiceScope scope) : StagedWorkerJobCallbac
         this.Metadata.ActionsGenerationMetadata.ActionsGenerationWorkflowStatus = ActionsGenerationWorkflowStatus.NotStarted;
         this.Metadata.SqlGenerationMetadata.SqlGenerationStatus = SqlGenerationWorkflowStatus.NotStarted;
         this.Metadata.SqlGenerationMetadata.ControlsWorkflowJobRunId = String.Empty;
-            
+
+        //reset the root trace id
+        this.Metadata.RootTraceId = String.Empty;
+
         this.dataEstateHealthRequestLogger.LogInformation("Reset CatalogSparkJobMetadata state");
     }
 
@@ -236,7 +243,7 @@ internal class DehScheduleCallback(IServiceScope scope) : StagedWorkerJobCallbac
         if (isStorageSyncConfigured)
         {
             this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Taking STORAGE SYNC CONFIGURED path");
-            
+
             // Base stages that are always included
             this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Creating base stages for storage sync configured path...");
             var stages = new List<IJobCallbackStage>
@@ -371,5 +378,14 @@ internal class DehScheduleCallback(IServiceScope scope) : StagedWorkerJobCallbac
 
         this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] OnJobExecutionResult completed for postponed job");
         return baseDecoratedResult;
+    }
+
+    private static void SetParentRootTraceIdToChildren(StagedWorkerJobMetadata parent, StagedWorkerJobMetadata child)
+    {
+        if (String.IsNullOrEmpty(parent.RootTraceId))
+        {
+            parent.RootTraceId = Guid.NewGuid().ToString();
+        }
+        child.RootTraceId = parent.RootTraceId;
     }
 }

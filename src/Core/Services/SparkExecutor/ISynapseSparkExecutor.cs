@@ -10,6 +10,7 @@ using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using System.Threading;
 using System.Threading.Tasks;
+using System;
 
 /// <summary>
 /// Defines the operations to be performed on the Synapse Spark pool.
@@ -22,8 +23,9 @@ public interface ISynapseSparkExecutor
     /// <param name="sparkPoolName"></param>
     /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
+    /// <param name="configAction">Optional action to customize the spark pool configuration</param>
     /// <returns></returns>
-    Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(string sparkPoolName, AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
+    Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(string sparkPoolName, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, Action<SynapseBigDataPoolInfoData> configAction = null);
 
     /// <summary>
     /// Gets the spark pool.

@@ -24,7 +24,7 @@ public interface IControlsWorkflowSparkJobComponent
     /// <param name="sparkPoolId">Spark pool ID</param>
     /// <param name="isDEHDataCleanup">Flag for DEH data cleanup</param>
     /// <returns>Spark pool job model</returns>
-    Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId, bool isDEHDataCleanup);
+    Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId, bool isDEHDataCleanup, string traceId = null);
 
     /// <summary>
     /// Get details for a spark job.

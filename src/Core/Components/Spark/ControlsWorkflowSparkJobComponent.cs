@@ -6,6 +6,8 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.Core;
+using global::Azure.ResourceManager.Synapse;
+using global::Azure.ResourceManager.Synapse.Models;
 using global::Azure.Security.KeyVault.Secrets;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Configurations;
@@ -24,13 +26,14 @@ internal sealed class ControlsWorkflowSparkJobComponent(
     IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration,
     IKeyVaultAccessorService keyVaultAccessorService,
     IOptions<KeyVaultConfiguration> keyVaultConfig,
-    IProcessingStorageManager processingStorageManager) : IControlsWorkflowSparkJobComponent
+    IProcessingStorageManager processingStorageManager,
+    IAccountExposureControlConfigProvider exposureControlConfigProvider) : IControlsWorkflowSparkJobComponent
 {
     private readonly ServerlessPoolConfiguration serverlessPoolConfiguration = serverlessPoolConfiguration.Value;
     private readonly string keyVaultBaseUrl = keyVaultConfig.Value.BaseUrl;
 
     /// <inheritdoc/>
-    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId, bool isDEHDataCleanup)
+    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId, bool isDEHDataCleanup, string traceId = null)
     {
         var cosmosDbKey = await keyVaultAccessorService.GetSecretAsync("cosmosDBWritekey", cancellationToken);
         var cosmosDbEndpoint = await keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
@@ -41,11 +44,17 @@ internal sealed class ControlsWorkflowSparkJobComponent(
         const string containerName = "deh"; // Controls workflow uses "deh" container
         var sinkSasUri = await this.GetSinkSasUri(processingStorageModel, containerName, cancellationToken);
 
-        var sparkJobRequest = this.GetSparkJobRequest(accountServiceModel.Id, jobId, accountServiceModel.TenantId, isDEHDataCleanup, cosmosDbEndpoint.Value, cosmosDbKey.Value, workSpaceId.Value, sinkSasUri, containerName);
+        var sparkJobRequest = this.GetSparkJobRequest(accountServiceModel.Id, jobId, accountServiceModel.TenantId, isDEHDataCleanup, cosmosDbEndpoint.Value, cosmosDbKey.Value, workSpaceId.Value, sinkSasUri, containerName, traceId);
         
         var poolResourceId = String.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
         
-        return await sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, poolResourceId);
+        // Create pool configuration action to set node size to Small for Controls Workflow jobs
+        Action<SynapseBigDataPoolInfoData> poolConfigAction = (poolInfo) =>
+        {
+            poolInfo.NodeSize = BigDataPoolNodeSize.Small;
+        };
+        
+        return await sparkJobManager.SubmitJob(sparkJobRequest, accountServiceModel, cancellationToken, poolResourceId, 5, poolConfigAction);
     }
 
     /// <inheritdoc/>
@@ -80,7 +89,8 @@ internal sealed class ControlsWorkflowSparkJobComponent(
         string cosmosDBKey,
         string workSpaceID,
         Uri sasUri,
-        string containerName)
+        string containerName,
+        string traceId = null)
     {
         return new SparkJobRequest
         {
@@ -107,13 +117,13 @@ internal sealed class ControlsWorkflowSparkJobComponent(
             },
             
             // Configure Spark settings
-            Configuration = this.GetStorageConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID, tenantId, isDEHDataCleanup)
+            Configuration = this.GetStorageConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID, tenantId, isDEHDataCleanup, traceId, accountId)
         };
     }
 
-    private Dictionary<string, string> GetStorageConfiguration(Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey, string workSpaceID, string tenantId, bool isDEHDataCleanup)
+    private Dictionary<string, string> GetStorageConfiguration(Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey, string workSpaceID, string tenantId, bool isDEHDataCleanup, string traceId = null, string accountId = null)
     {
-        return new Dictionary<string, string>
+        var configuration = new Dictionary<string, string>
         {
             // Azure Storage authentication configuration
             // { $"fs.azure.account.auth.type.{sasUri.Host}", "SAS" },
@@ -156,5 +166,27 @@ internal sealed class ControlsWorkflowSparkJobComponent(
             { "spark.ec.deleteModelFolder", isDEHDataCleanup.ToString() },
             { "spark.purview.tenantId", tenantId }
         };
+
+        // Add correlation ID - generate one if not provided
+        var correlationId = !string.IsNullOrEmpty(traceId) ? traceId : Guid.NewGuid().ToString();
+        configuration.Add("spark.correlationId", correlationId);
+
+        // Add switchToNewControlsFlow feature flag - defaults to false if feature flag check fails
+        bool switchToNewControlsFlow = false;
+        try
+        {
+            if (!string.IsNullOrEmpty(accountId))
+            {
+                switchToNewControlsFlow = exposureControlConfigProvider.IsDehEnableNewControlsFlowEnabled(accountId, string.Empty, tenantId);
+            }
+        }
+        catch
+        {
+            // Default to false if feature flag check fails
+            switchToNewControlsFlow = false;
+        }
+        configuration.Add("spark.ec.switchToNewControlsFlow", switchToNewControlsFlow.ToString().ToLower());
+
+        return configuration;
     }
 } 

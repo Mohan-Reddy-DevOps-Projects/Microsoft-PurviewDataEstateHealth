@@ -32,9 +32,9 @@ internal sealed class SynapseSparkExecutor(
     private readonly IDataHealthApiService dataHealthApiService = dataHealthApiService;
 
     /// <inheritdoc/>
-    public async Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(string sparkPoolName, AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
+    public async Task<SynapseBigDataPoolInfoData> CreateOrUpdateSparkPool(string sparkPoolName, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, Action<SynapseBigDataPoolInfoData> configAction = null)
     {
-        var info = DefaultSparkConfig(this.synapseSparkConfiguration.AzureRegion);
+        var info = DefaultSparkConfig(this.synapseSparkConfiguration.AzureRegion, configAction);
 
         this.TweakDefaultSparkConfig(info, accountServiceModel);
 
@@ -168,9 +168,9 @@ internal sealed class SynapseSparkExecutor(
         return request;
     }
 
-    private static SynapseBigDataPoolInfoData DefaultSparkConfig(string location)
+    private static SynapseBigDataPoolInfoData DefaultSparkConfig(string location, Action<SynapseBigDataPoolInfoData> configAction = null)
     {
-        return new(new AzureLocation(location))
+        var info = new SynapseBigDataPoolInfoData(new AzureLocation(location))
         {
             AutoScale = new BigDataPoolAutoScaleProperties()
             {
@@ -198,6 +198,10 @@ internal sealed class SynapseSparkExecutor(
             NodeSize = BigDataPoolNodeSize.Medium,
             NodeSizeFamily = BigDataPoolNodeSizeFamily.MemoryOptimized
         };
+
+        configAction?.Invoke(info);
+
+        return info;
     }
 
     private void TweakDefaultSparkConfig(SynapseBigDataPoolInfoData info, AccountServiceModel accountServiceModel)

@@ -30,6 +30,7 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
     private readonly string keyVaultBaseURL;
     private readonly IDataHealthApiService dataHealthApiService;
     private readonly IDataEstateHealthRequestLogger logger;
+    private readonly IAccountExposureControlConfigProvider exposureControlConfigProvider;
 
     public FabricSparkJobComponent(
         ISparkJobManager sparkJobManager,
@@ -38,7 +39,8 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
         IKeyVaultAccessorService keyVaultAccessorService,
         IOptions<KeyVaultConfiguration> keyVaultConfig,
         IDataHealthApiService dataHealthApiService,
-        IDataEstateHealthRequestLogger logger)
+        IDataEstateHealthRequestLogger logger,
+        IAccountExposureControlConfigProvider exposureControlConfigProvider)
     {
         this.sparkJobManager = sparkJobManager;
         this.processingStorageManager = processingStorageManager;
@@ -47,11 +49,12 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
         this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
         this.dataHealthApiService = dataHealthApiService;
         this.logger = logger;
+        this.exposureControlConfigProvider = exposureControlConfigProvider;
     }
 
     /// <inheritdoc/>
     //public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken)
-    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId)
+    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId, string traceId = null)
     {
         KeyVaultSecret cosmosDBKey = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBWritekey", cancellationToken);
         KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
@@ -93,7 +96,8 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
                 cosmosDBEndpoint = cosmosDBEndpoint.Value,
                 cosmosDBKey = cosmosDBKey.Value,
                 workSpaceID = workSpaceID.Value,
-                tenantId = accountServiceModel.TenantId
+                tenantId = accountServiceModel.TenantId,
+                traceId = traceId
             };
 
             SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sparkJobRequestModel);
@@ -162,7 +166,7 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
     //string accountId, Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey, string workSpaceID, string miToken)
     private Dictionary<string, string> GetSinkConfiguration(SparkJobRequestModel sparkJobRequestModel)
     {
-        return new Dictionary<string, string>()
+        var configuration = new Dictionary<string, string>()
         {
             {$"spark.microsoft.delta.optimizeWrite.enabled" ,"true" },
             {$"spark.serializer","org.apache.spark.serializer.KryoSerializer" },
@@ -187,5 +191,27 @@ internal sealed class FabricSparkJobComponent : IFabricSparkJobComponent
             {$"spark.mitoken.value",$"{sparkJobRequestModel.miToken}" },
             {$"spark.purview.tenantId",  $"{sparkJobRequestModel.tenantId}" }
         };
+
+        // Add correlation ID - generate one if not provided
+        var correlationId = !string.IsNullOrEmpty(sparkJobRequestModel.traceId) ? sparkJobRequestModel.traceId : Guid.NewGuid().ToString();
+        configuration.Add("spark.correlationId", correlationId);
+
+        // Add switchToNewControlsFlow feature flag - defaults to false if feature flag check fails
+        bool switchToNewControlsFlow = false;
+        try
+        {
+            if (!string.IsNullOrEmpty(sparkJobRequestModel.accountId))
+            {
+                switchToNewControlsFlow = this.exposureControlConfigProvider.IsDehEnableNewControlsFlowEnabled(sparkJobRequestModel.accountId, string.Empty, sparkJobRequestModel.tenantId);
+            }
+        }
+        catch
+        {
+            // Default to false if feature flag check fails
+            switchToNewControlsFlow = false;
+        }
+        configuration.Add("spark.ec.switchToNewControlsFlow", switchToNewControlsFlow.ToString().ToLower());
+
+        return configuration;
     }
 }

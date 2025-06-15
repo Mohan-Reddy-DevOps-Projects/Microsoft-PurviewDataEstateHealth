@@ -115,12 +115,16 @@ internal abstract class StagedWorkerJobCallback<TMetadata> : JobCallback<TMetada
 
         if (this.TraceActivity != null)
         {
-            if (!string.IsNullOrEmpty(this.Metadata.TraceId))
+            if (!String.IsNullOrEmpty(this.Metadata.TraceId))
             {
                 var parentTrace = ActivityTraceId.CreateFromString(this.Metadata.TraceId);
                 var parentSpan = ActivitySpanId.CreateFromString(this.Metadata.SpanId);
 
                 this.TraceActivity.SetParentId(parentTrace, parentSpan, ActivityTraceFlags.Recorded);
+            }
+
+            if (!String.IsNullOrEmpty(this.Metadata.RootTraceId))
+            {
                 this.TraceActivity.SetRootIdTag(this.Metadata.RootTraceId);
             }
 

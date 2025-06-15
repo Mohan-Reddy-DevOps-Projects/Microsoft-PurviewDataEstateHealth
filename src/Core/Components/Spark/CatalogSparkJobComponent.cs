@@ -26,6 +26,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     private readonly ServerlessPoolConfiguration serverlessPoolConfiguration;
     private readonly IKeyVaultAccessorService keyVaultAccessorService;
     private readonly string keyVaultBaseURL;
+    private readonly IAccountExposureControlConfigProvider exposureControlConfigProvider;
 
 
     public CatalogSparkJobComponent(
@@ -33,17 +34,19 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         IProcessingStorageManager processingStorageManager,
         IOptions<ServerlessPoolConfiguration> serverlessPoolConfiguration,
         IKeyVaultAccessorService keyVaultAccessorService,
-        IOptions<KeyVaultConfiguration> keyVaultConfig)
+        IOptions<KeyVaultConfiguration> keyVaultConfig,
+        IAccountExposureControlConfigProvider exposureControlConfigProvider)
     {
         this.sparkJobManager = sparkJobManager;
         this.processingStorageManager = processingStorageManager;
         this.serverlessPoolConfiguration = serverlessPoolConfiguration.Value;
         this.keyVaultAccessorService = keyVaultAccessorService;
         this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
+        this.exposureControlConfigProvider = exposureControlConfigProvider;
     }
 
     /// <inheritdoc/>
-    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId, bool isDEHDataCleanup)
+    public async Task<SparkPoolJobModel> SubmitJob(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, string jobId, string sparkPoolId, bool isDEHDataCleanup, string traceId = null)
     {
         KeyVaultSecret cosmosDBKey = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBWritekey", cancellationToken);
         KeyVaultSecret cosmosDBEndpoint = await this.keyVaultAccessorService.GetSecretAsync("cosmosDBEndpoint", cancellationToken);
@@ -55,7 +58,7 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
         //Update Main Method
         string jarClassName = "com.microsoft.azurepurview.dataestatehealth.domainmodel.main.DomainModelMain";        
         SparkJobRequest sparkJobRequest = this.GetSparkJobRequest(sinkSasUri, processingStorageModel.AccountId.ToString(), containerName, sinkSasUri.Host, jobId
-            , accountServiceModel.TenantId, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value, jarClassName, isDEHDataCleanup);
+            , accountServiceModel.TenantId, cosmosDBEndpoint.Value, cosmosDBKey.Value, workSpaceID.Value, jarClassName, isDEHDataCleanup, traceId);
 
 
         var poolResourceId = string.IsNullOrEmpty(sparkPoolId) ? null : new ResourceIdentifier(sparkPoolId);
@@ -80,11 +83,11 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     }
 
     private SparkJobRequest GetSparkJobRequest(Uri sasUri, string accountId, string containerName, string sinkLocation, string joId, string tenantId, string cosmosDBEndpoint = ""
-        , string cosmosDBKey = "", string workSpaceID = "", string jarClassName = "", bool isDEHDataCleanup = false)
+        , string cosmosDBKey = "", string workSpaceID = "", string jarClassName = "", bool isDEHDataCleanup = false, string traceId = null)
     {
         return new()
         {
-            Configuration = this.GetSinkConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID, tenantId, isDEHDataCleanup),
+            Configuration = this.GetSinkConfiguration(sasUri, containerName, cosmosDBEndpoint, cosmosDBKey, workSpaceID, tenantId, isDEHDataCleanup, traceId, accountId),
             ExecutorCount = 2,
             File = $"abfss://datadomain@{this.serverlessPoolConfiguration.StorageAccount}.dfs.core.windows.net/dataestatehealthanalytics-azure-purview-domainmodel-1.1.jar",
             Name = $"DomainModelSparkJob-{accountId}",
@@ -102,9 +105,9 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
     }
 
 
-    private Dictionary<string, string> GetSinkConfiguration(Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey, string workSpaceID, string tenantId, bool isDEHDataCleanup)
+    private Dictionary<string, string> GetSinkConfiguration(Uri sasUri, string containerName, string cosmosDBEndpoint, string cosmosDBKey, string workSpaceID, string tenantId, bool isDEHDataCleanup, string traceId = null, string accountId = null)
     {
-        return new Dictionary<string, string>()
+        var configuration = new Dictionary<string, string>()
         {
             //{$"fs.azure.account.auth.type.{sasUri.Host}", "SAS"},
             //{$"fs.azure.sas.token.provider.type.{sasUri.Host}", "com.microsoft.azure.synapse.tokenlibrary.ConfBasedSASProvider" },
@@ -133,7 +136,28 @@ internal sealed class CatalogSparkJobComponent : ICatalogSparkJobComponent
             {$"spark.synapse.logAnalytics.keyVault.key.secret","logAnalyticsKey" },
             {$"spark.ec.deleteModelFolder", isDEHDataCleanup.ToString() },
             {$"spark.purview.tenantId",  $"{tenantId}" }
-
         };
+
+        // Add correlation ID - generate one if not provided
+        var correlationId = !string.IsNullOrEmpty(traceId) ? traceId : Guid.NewGuid().ToString();
+        configuration.Add("spark.correlationId", correlationId);
+
+        // Add switchToNewControlsFlow feature flag - defaults to false if feature flag check fails
+        bool switchToNewControlsFlow = false;
+        try
+        {
+            if (!string.IsNullOrEmpty(accountId))
+            {
+                switchToNewControlsFlow = this.exposureControlConfigProvider.IsDehEnableNewControlsFlowEnabled(accountId, string.Empty, tenantId);
+            }
+        }
+        catch
+        {
+            // Default to false if feature flag check fails
+            switchToNewControlsFlow = false;
+        }
+        configuration.Add("spark.ec.switchToNewControlsFlow", switchToNewControlsFlow.ToString().ToLower());
+
+        return configuration;
     }
 }

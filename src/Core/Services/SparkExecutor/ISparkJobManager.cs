@@ -6,10 +6,12 @@ namespace Microsoft.Azure.Purview.DataEstateHealth.Core;
 
 using global::Azure.Analytics.Synapse.Spark.Models;
 using global::Azure.Core;
+using global::Azure.ResourceManager.Synapse;
 using Microsoft.Azure.ProjectBabylon.Metadata.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels;
 using Microsoft.Azure.Purview.DataEstateHealth.Models.ResourceModels.Spark;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -24,8 +26,11 @@ public interface ISparkJobManager
     /// <param name="sparkJobRequest"></param>
     /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
+    /// <param name="existingPoolResourceId"></param>
+    /// <param name="retryCount"></param>
+    /// <param name="poolConfigAction">Optional action to customize the spark pool configuration</param>
     /// <returns></returns>
-    Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null, int retryCount = 5);
+    Task<SparkPoolJobModel> SubmitJob(SparkJobRequest sparkJobRequest, AccountServiceModel accountServiceModel, CancellationToken cancellationToken, ResourceIdentifier existingPoolResourceId = null, int retryCount = 5, Action<SynapseBigDataPoolInfoData> poolConfigAction = null);
 
     /// <summary>
     /// Cancels the job.
@@ -66,8 +71,9 @@ public interface ISparkJobManager
     /// </summary>
     /// <param name="accountServiceModel"></param>
     /// <param name="cancellationToken"></param>
+    /// <param name="configAction">Optional action to customize the spark pool configuration</param>
     /// <returns></returns>
-    Task<SparkPoolModel> CreateOrUpdateSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken);
+    Task<SparkPoolModel> CreateOrUpdateSparkPool(AccountServiceModel accountServiceModel, CancellationToken cancellationToken, Action<SynapseBigDataPoolInfoData> configAction = null);
 
     /// <summary>
     /// Gets the spark pool.

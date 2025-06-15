@@ -46,7 +46,8 @@ internal class TriggerFabricSparkJobStage : IJobCallbackStage
                     this.metadata.AccountServiceModel,
                     new CancellationToken(),
                     jobId,
-                    this.metadata.SparkPoolId);
+                    this.metadata.SparkPoolId,
+                    this.metadata.RootTraceId);
                 if (jobInfo == null)
                 {
                     this.dataEstateHealthRequestLogger.LogInformation($"Copy Activity not configured account: {this.metadata.AccountServiceModel.Id} in {this.StageName}");
