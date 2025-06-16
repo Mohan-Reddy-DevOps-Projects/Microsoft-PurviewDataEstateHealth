@@ -2,6 +2,7 @@ package com.microsoft.azurepurview.dataestatehealth.controls.main
 
 import com.microsoft.azurepurview.dataestatehealth.commonutils.common.JobStatus
 import com.microsoft.azurepurview.dataestatehealth.controls.common.{CommandLineParser, MainConfig}
+import com.microsoft.azurepurview.dataestatehealth.commonutils.logger.LogAnalyticsLogger
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.SparkSession
 
@@ -27,6 +28,8 @@ object ControlsMain {
     val KEY_VAULT_NAME_CONFIG = "spark.keyvault.name"
     val COSMOS_KEY_NAME_CONFIG = "spark.analyticalcosmos.keyname"
     val COSMOS_ACCOUNT_KEY_CONFIG = "spark.cosmos.accountKey"
+    val CORRELATION_ID_CONFIG = "spark.correlationId"
+    val SWITCH_TO_NEW_CONTROLS_FLOW = "spark.ec.switchToNewControlsFlow"
   }
 
   /**
@@ -36,16 +39,49 @@ object ControlsMain {
    */
   def main(args: Array[String]): Unit = {
     var jobStatus = JobStatus.Failed
+    var correlationId = ""
+    var switchToNewControlsFlow = false
+    var config: MainConfig = null
+    var spark: SparkSession = null
     
     try {
       logger.setLevel(Level.INFO)
       logger.info("Starting Controls Main application")
-      
+
+      jobStatus = JobStatus.Started
+
       // Parse command line arguments
-      val config = CommandLineParser.parseArgs(args)
+      config = CommandLineParser.parseArgs(args)
       
       // Create Spark session
-      val spark = createSparkSession(config)
+      spark = createSparkSession(config)
+      
+      // Get correlation ID and switch value
+      correlationId = spark.conf.get(Config.CORRELATION_ID_CONFIG, "")
+      switchToNewControlsFlow = spark.conf.get(Config.SWITCH_TO_NEW_CONTROLS_FLOW, "false").toBoolean
+      
+      // Initialize LogAnalyticsConfig with Spark session
+      LogAnalyticsLogger.initialize(spark)
+      
+      // Log job status with correlation ID if switch is enabled
+      if (switchToNewControlsFlow) {
+        LogAnalyticsLogger.checkpointJobStatus(
+          accountId = config.accountId,
+          jobRunGuid = config.jobRunGuid,
+          jobName = Config.JOB_NAME,
+          jobStatus = jobStatus.toString,
+          tenantId = spark.conf.get(Config.TENANT_ID_CONFIG, ""),
+          correlationId = correlationId
+        )
+      } else {
+        LogAnalyticsLogger.checkpointJobStatus(
+          accountId = config.accountId,
+          jobRunGuid = config.jobRunGuid,
+          jobName = Config.JOB_NAME,
+          jobStatus = jobStatus.toString,
+          tenantId = spark.conf.get(Config.TENANT_ID_CONFIG, "")
+        )
+      }
       
       // Process Control Jobs
       ControlJobExecutor.main(
@@ -62,13 +98,63 @@ object ControlsMain {
       jobStatus = JobStatus.Completed
       logger.info("Controls Main application completed successfully")
       
+      // Log final status with correlation ID if switch is enabled
+      if (switchToNewControlsFlow) {
+        LogAnalyticsLogger.checkpointJobStatus(
+          accountId = config.accountId,
+          jobRunGuid = config.jobRunGuid,
+          jobName = Config.JOB_NAME,
+          jobStatus = jobStatus.toString,
+          tenantId = spark.conf.get(Config.TENANT_ID_CONFIG, ""),
+          correlationId = correlationId
+        )
+      } else {
+        LogAnalyticsLogger.checkpointJobStatus(
+          accountId = config.accountId,
+          jobRunGuid = config.jobRunGuid,
+          jobName = Config.JOB_NAME,
+          jobStatus = jobStatus.toString,
+          tenantId = spark.conf.get(Config.TENANT_ID_CONFIG, "")
+        )
+      }
+      
     } catch {
       case e: Exception =>
         logger.error(s"Error in Controls Main application: ${e.getMessage}", e)
         jobStatus = JobStatus.Failed
+        
+        // Log failure with correlation ID if switch is enabled
+        if (config != null && spark != null) {
+          if (switchToNewControlsFlow) {
+            LogAnalyticsLogger.checkpointJobStatus(
+              accountId = config.accountId,
+              jobRunGuid = config.jobRunGuid,
+              jobName = Config.JOB_NAME,
+              jobStatus = jobStatus.toString,
+              tenantId = spark.conf.get(Config.TENANT_ID_CONFIG, ""),
+              correlationId = correlationId,
+              errorMessage = e.toString
+            )
+          } else {
+            LogAnalyticsLogger.checkpointJobStatus(
+              accountId = config.accountId,
+              jobRunGuid = config.jobRunGuid,
+              jobName = Config.JOB_NAME,
+              jobStatus = jobStatus.toString,
+              tenantId = spark.conf.get(Config.TENANT_ID_CONFIG, ""),
+              errorMessage = e.toString
+            )
+          }
+        }
     } finally {
       // Log final job status
       logJobStatus(jobStatus)
+      
+      // Stop Spark session if it exists
+      if (spark != null) {
+        Thread.sleep(10000)
+        spark.stop()
+      }
     }
   }
   

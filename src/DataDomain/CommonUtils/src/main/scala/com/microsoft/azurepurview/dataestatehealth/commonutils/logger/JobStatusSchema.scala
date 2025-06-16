@@ -7,4 +7,5 @@ case class JobStatusSchema(Id: String,
                            JobStatus: String,
                            JobCompletionTime: String,
                            PurviewTenantId: String,
-                           ErrorMessage: String)
+                           ErrorMessage: String,
+                           CorrelationId: String = "")

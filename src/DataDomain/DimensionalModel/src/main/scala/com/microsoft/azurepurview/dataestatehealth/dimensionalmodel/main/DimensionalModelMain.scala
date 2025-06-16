@@ -11,9 +11,19 @@ import java.util.ResourceBundle
 
 object DimensionalModelMain {
   val logger: Logger = Logger.getLogger(getClass.getName)
+  
+  private object Config {
+    val JOB_NAME = "DimensionalModel"
+    val CORRELATION_ID_CONFIG = "spark.correlationId"
+    val SWITCH_TO_NEW_CONTROLS_FLOW = "spark.ec.switchToNewControlsFlow"
+  }
 
   def main(args: Array[String]): Unit = {
     val resourceBundle = ResourceBundle.getBundle("dimensionalmodel")
+    var correlationId = ""
+    var switchToNewControlsFlow = false
+    var spark: SparkSession = null
+
     // Retrieve and Log Release Version
     println(
       s"""Release Version:
@@ -33,7 +43,7 @@ object DimensionalModelMain {
         logger.setLevel(Level.INFO)
         logger.info("Started the DimensionalModel Main Spark Application!")
 
-        val spark = SparkSession.builder
+        spark = SparkSession.builder
           .appName("DimensionalModelMainSparkApplication")
           .getOrCreate()
 
@@ -58,23 +68,83 @@ object DimensionalModelMain {
                |Account ID - ${config.AccountId},
                |Unique JobRunGuid (CorrelationId) - ${config.JobRunGuid}""".stripMargin)
 
+          // Get correlation ID and switch value
+          correlationId = spark.conf.get(Config.CORRELATION_ID_CONFIG, "")
+          switchToNewControlsFlow = spark.conf.get(Config.SWITCH_TO_NEW_CONTROLS_FLOW, "false").toBoolean
+
           // Initialize LogAnalyticsConfig with Spark session
           LogAnalyticsLogger.initialize(spark)
-          LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid
-            , jobName = "DimensionalModel", jobStatus = JobStatus.Started.toString, tenantId = tenantId)
+          
+          // Log job status with correlation ID if switch is enabled
+          if (switchToNewControlsFlow) {
+            LogAnalyticsLogger.checkpointJobStatus(
+              accountId = config.AccountId,
+              jobRunGuid = config.JobRunGuid,
+              jobName = Config.JOB_NAME,
+              jobStatus = JobStatus.Started.toString,
+              tenantId = tenantId,
+              correlationId = correlationId
+            )
+          } else {
+            LogAnalyticsLogger.checkpointJobStatus(
+              accountId = config.AccountId,
+              jobRunGuid = config.JobRunGuid,
+              jobName = Config.JOB_NAME,
+              jobStatus = JobStatus.Started.toString,
+              tenantId = tenantId
+            )
+          }
 
           // Processing DimDate Delta Table
           com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.dimension.DimMain.main(config.AdlsTargetDirectory, config.ReProcessingThresholdInMins, config.AccountId, config.JobRunGuid, spark)
           com.microsoft.azurepurview.dataestatehealth.dimensionalmodel.fact.FactMain.main(config.AdlsTargetDirectory, config.ReProcessingThresholdInMins, config.AccountId, config.JobRunGuid, spark)
 
-          LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid
-            , jobName = "DimensionalModel", jobStatus = JobStatus.Completed.toString, tenantId = tenantId)
+          // Log completion with correlation ID if switch is enabled
+          if (switchToNewControlsFlow) {
+            LogAnalyticsLogger.checkpointJobStatus(
+              accountId = config.AccountId,
+              jobRunGuid = config.JobRunGuid,
+              jobName = Config.JOB_NAME,
+              jobStatus = JobStatus.Completed.toString,
+              tenantId = tenantId,
+              correlationId = correlationId
+            )
+          } else {
+            LogAnalyticsLogger.checkpointJobStatus(
+              accountId = config.AccountId,
+              jobRunGuid = config.JobRunGuid,
+              jobName = Config.JOB_NAME,
+              jobStatus = JobStatus.Completed.toString,
+              tenantId = tenantId
+            )
+          }
         }
         catch {
           case e =>
             logger.error(s"Error in DomainModel Main Spark Application: ${e.getMessage}", e)
-            LogAnalyticsLogger.checkpointJobStatus(accountId = config.AccountId, jobRunGuid = config.JobRunGuid
-              , jobName = "DimensionalModel", JobStatus.Failed.toString, tenantId = tenantId, e.toString)
+            // Log failure with correlation ID if switch is enabled
+            if (config != null && spark != null) {
+              if (switchToNewControlsFlow) {
+                LogAnalyticsLogger.checkpointJobStatus(
+                  accountId = config.AccountId,
+                  jobRunGuid = config.JobRunGuid,
+                  jobName = Config.JOB_NAME,
+                  jobStatus = JobStatus.Failed.toString,
+                  tenantId = tenantId,
+                  correlationId = correlationId,
+                  errorMessage = e.toString
+                )
+              } else {
+                LogAnalyticsLogger.checkpointJobStatus(
+                  accountId = config.AccountId,
+                  jobRunGuid = config.JobRunGuid,
+                  jobName = Config.JOB_NAME,
+                  jobStatus = JobStatus.Failed.toString,
+                  tenantId = tenantId,
+                  errorMessage = e.toString
+                )
+              }
+            }
             throw e // Re-throw the exception to ensure the job failure is reported correctly
         } finally {
           if (spark != null) {

@@ -493,7 +493,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
         {
             // Step 1: Ensure billing receipts table exists
             await this.EnsureBillingReceiptsTableExists(billingReceipts, fromDate, toDate);
-            
+
             // Original code for querying Log Analytics:
             // Step 2: Query Log Analytics for metered events and convert to DEHMeteredEvent list
             var meteredEventsResponse = await this.logsAnalyticsReader.Query<T>(await this.LoadKQL(DEHBillingProcesingKQL), fromDate, toDate);
@@ -545,7 +545,7 @@ public class MetersToBillingJobStage : IJobCallbackStage
             bool isBillingSplitEnabled = dehEvent.DMSScope == "DQ"
                 ? this.exposureControl.IsDQBillingSplitEnabled(dehEvent.AccountId, string.Empty, dehEvent.TenantId)
                 : this.exposureControl.IsDEHBillingSplitEnabled(dehEvent.AccountId, string.Empty, dehEvent.TenantId);
-            
+
             if (isBillingSplitEnabled)
             {
                 enabledBillingSplitEvents.Add(dehEvent);
@@ -634,13 +634,13 @@ public class MetersToBillingJobStage : IJobCallbackStage
     /// <param name="logPrefix">The prefix for log messages</param>
     /// <returns>A list of billing receipts</returns>
     private async Task<List<CBSBillingReceipt>> ProcessEventsByCorrelationId(
-        List<DEHMeteredEvent> events, 
-        DateTimeOffset toDate, 
-        bool logReceipts, 
+        List<DEHMeteredEvent> events,
+        DateTimeOffset toDate,
+        bool logReceipts,
         string logPrefix)
     {
         List<CBSBillingReceipt> receipts = new List<CBSBillingReceipt>();
-        
+
         // Get distinct correlation IDs
         var distinctCorrelationIds = events
             .Select(r => r.CorrelationId)
@@ -660,14 +660,14 @@ public class MetersToBillingJobStage : IJobCallbackStage
             {
                 this.logger.LogInformation($"{logPrefix} | Processing {eventsForCorrelation.Count} events for correlation ID: {correlationId}");
                 var batchReceipts = await this.ProcessEventsBatch(eventsForCorrelation, toDate, logReceipts, correlationId);
-                
+
                 if (logReceipts && batchReceipts != null && batchReceipts.Any())
                 {
                     receipts.AddRange(batchReceipts);
                 }
             }
         }
-        
+
         return receipts;
     }
 
