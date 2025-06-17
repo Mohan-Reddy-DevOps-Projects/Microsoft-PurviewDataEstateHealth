@@ -37,9 +37,6 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
     private readonly CapacityProvider capacityAssignment;
 
     [Inject]
-    private readonly IHealthPBIReportComponent healthPBIReportComponent;
-
-    [Inject]
     private readonly ISparkJobManager sparkJobManager;
 
     [Inject]
@@ -88,25 +85,10 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
 
             List<Task> tasks =
             [
+                this.CreatePowerBIResources(account, cancellationToken),
                 this.databaseManagementService.RunSetupSQL(cancellationToken)
             ];
 
-            // Trigger PowerBI resource creation asynchronously via background job
-
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await this.backgroundJobManager.RunPBIRefreshJob(account);
-                }
-                catch (Exception ex)
-                {
-                    this.dataEstateHealthRequestLogger.LogError($"PBI refresh job failed for account {account.Name}", ex);
-                }
-            });
-
-            this.dataEstateHealthRequestLogger.LogInformation($"PowerBI refresh job triggered for account: {account.Name}. Resources will be created asynchronously.");
-            
             await Task.WhenAll(tasks);
         }
     }
@@ -182,11 +164,19 @@ internal sealed class PartnerNotificationComponent : BaseComponent<IPartnerNotif
                     this.dataEstateHealthRequestLogger.LogInformation("PowerBI credential created successfully");
                 }
 
-                await this.RetryAsync(() => this.healthPBIReportComponent.CreateDataGovernanceReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken), nameof(this.healthPBIReportComponent.CreateDataGovernanceReport));
-                    
-                await this.RetryAsync(() => this.healthPBIReportComponent.CreateDataQualityReport(account, profile.Id, workspace.Id, powerBICredential, cancellationToken), nameof(this.healthPBIReportComponent.CreateDataQualityReport));
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await this.backgroundJobManager.RunPBIRefreshJob(account);
+                    }
+                    catch (Exception ex)
+                    {
+                        this.dataEstateHealthRequestLogger.LogError($"PBI refresh job failed for account {account.Name}", ex);
+                    }
+                });
 
-                this.dataEstateHealthRequestLogger.LogInformation("PowerBI report created successfully");
+                this.dataEstateHealthRequestLogger.LogInformation($"PowerBI refresh job triggered for account: {account.Name}. Resources will be created asynchronously.");
             }
             catch (Exception e)
             {
