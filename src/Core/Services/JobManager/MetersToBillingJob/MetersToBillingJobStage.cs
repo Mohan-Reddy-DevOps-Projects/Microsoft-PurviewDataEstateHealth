@@ -126,6 +126,9 @@ public class MetersToBillingJobStage : IJobCallbackStage
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billingV1.kql", QueryType.Deh, pollFrom, utcNow);
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_dq_billing.kql", QueryType.Dq, pollFrom, utcNow);
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_byoc_billing.kql", QueryType.BYOC, pollFrom, utcNow);
+            // New billing query
+            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billingV2.kql", QueryType.Deh, pollFrom, utcNow);
+            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_byoc_billingV2.kql", QueryType.BYOC, pollFrom, utcNow);
 
             finalExecutionStatus = JobExecutionStatus.Succeeded;
 
@@ -232,14 +235,19 @@ public class MetersToBillingJobStage : IJobCallbackStage
             {
                 var receipts = await this.ProcessBillingEventsWithSplit<T>(kql, fromDate, toDate);
                 var totalEvents = receipts.Count();
-                if (queryType == QueryType.Deh)
+
+                if (!new[] { "PDG_deh_billingV2.kql", "PDG_byoc_billingV2.kql" }.Contains(kql))
                 {
-                    await this.LogProcessedJobs("PDG_deh_jobs.kql", fromDate, toDate, receipts);
+                    if (queryType == QueryType.Deh)
+                    {
+                        await this.LogProcessedJobs("PDG_deh_jobs.kql", fromDate, toDate, receipts);
+                    }
+                    else if (queryType == QueryType.BYOC)
+                    {
+                        await this.LogProcessedJobs("PDG_byoc_jobs.kql", fromDate, toDate, receipts);
+                    }
                 }
-                else if (queryType == QueryType.BYOC)
-                {
-                    await this.LogProcessedJobs("PDG_byoc_jobs.kql", fromDate, toDate, receipts);
-                }
+
                 // set the final details into the job
                 finalStatus = $" | KQL: {kql} | Completed on {DateTimeOffset.Now.ToString()} | Duration {(DateTimeOffset.UtcNow - started).TotalSeconds} seconds. | Total Events Processed: {totalEvents}";
             }

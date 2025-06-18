@@ -1,0 +1,65 @@
+﻿let AllJobsWithDuration = 
+    DEH_Job_Logs_CL
+    | where JobStatus_s == "Completed" and JobName_s in ("DimensionalModel", "DomainModel", "Controls")
+    | join kind=inner (
+        DEH_Job_Logs_CL
+        | where JobStatus_s == "Started" and JobName_s in ("DimensionalModel", "DomainModel", "Controls")
+        | project JobId_g, JobStartTime = JobCompletionTime_s
+        )
+        on JobId_g
+    | extend 
+        JobStartTimeDT = todatetime(JobStartTime),
+        JobCompletionTimeDT = todatetime(JobCompletionTime_s)
+    | extend JobDuration = datetime_diff('second', JobCompletionTimeDT, JobStartTimeDT)
+    | project
+        AccountId_g,
+        PurviewTenantId_g,
+        CorrelationId,
+        JobId_g,
+        JobDuration, 
+        JobStartTimeDT,
+        JobCompletionTimeDT,
+        JobName_s;
+// Ensure all 3 jobs are completed for each CorrelationId before processing
+let CompleteCorrelations = 
+    AllJobsWithDuration
+    | summarize JobCount = dcount(JobName_s) by CorrelationId
+    | where JobCount == 3  // Only include CorrelationIds with all 3 jobs completed
+    | project CorrelationId;
+// Filter to only include complete correlations and optimize the processing
+AllJobsWithDuration
+| join kind=inner CompleteCorrelations on CorrelationId
+| summarize 
+    JobDuration = sum(JobDuration),
+    JobStartTime = min(JobStartTimeDT),
+    JobEndTime = max(JobCompletionTimeDT),
+    AccountId_g = any(AccountId_g),
+    PurviewTenantId_g = any(PurviewTenantId_g)
+    by CorrelationId
+| extend 
+    TenantId = PurviewTenantId_g,
+    AccountId = AccountId_g,
+    MDQBatchId = CorrelationId,
+    ProcessingTier = "Basic",
+    DMSScope = "DEH"
+| extend JobDurationMinutes = round(JobDuration / 60.0, 0)
+| extend JobDurationModuloMin =  JobDurationMinutes % 60
+| extend JobDurationModuloHours = toint(JobDurationMinutes / 60)
+| extend ProcessingUnits = round(todecimal(iff(toint(JobDurationModuloMin) == 0, 1, toint(JobDurationModuloMin))) / 60, 2) + JobDurationModuloHours
+| project 
+    TenantId,
+    AccountId,
+    MDQBatchId,
+    ProcessingTier,
+    DMSScope,
+    JobDuration,
+    JobStartTime,
+    JobEndTime,
+    JobDurationMinutes,
+    ProcessingUnits
+| join kind=leftanti (
+    CBSBillingReceipts_CL 
+    | where Status_s == 'Succeeded'
+    | project EventId_g
+    )
+    on $left.MDQBatchId == $right.EventId_g 
