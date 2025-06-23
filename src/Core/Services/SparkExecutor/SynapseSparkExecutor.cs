@@ -208,7 +208,25 @@ internal sealed class SynapseSparkExecutor(
     {
         var methodName = nameof(TweakDefaultSparkConfig);
         var tenantId = accountServiceModel.TenantId;
+        var accountId = accountServiceModel.Id.ToString();
+        var subscriptionId = accountServiceModel.SubscriptionId.ToString();
         logger.LogInformation($"[{methodName}] TenantID: {tenantId}");
+
+        // Check if the new controls flow is enabled - if yes, set node size to Small
+        try
+        {
+            var isNewControlsFlowEnabled = accountExposureControlConfigProvider.IsDehEnableNewControlsFlowEnabled(accountId, subscriptionId, tenantId);
+            if (isNewControlsFlowEnabled)
+            {
+                logger.LogInformation($@"[{methodName}] New controls flow is enabled - setting NodeSize to Small for Account: {accountId}");
+                info.NodeSize = BigDataPoolNodeSize.Small;
+                return; // Exit early if new controls flow is enabled and node size is set to Small
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning($@"[{methodName}] Failed to check new controls flow EC flag for Account: {accountId}, continuing with default configuration", ex);
+        }
 
         // above hard code config can be overridden by the following account exposure control config
 

@@ -55,6 +55,12 @@ class Maintenance (spark: SparkSession, logger:Logger) {
     sdf.format(new Timestamp(posixTime * 1000L))
   }
   def checkpointSentinel (accountId:String,deltaTablePath:String,df:Option[DataFrame],JobRunGuid:String,Entity:String,ExceptionStackTrace:String): Unit={
+    // Exit early if switch to new controls flow is enabled
+    val switchToNewControlsFlow = spark.conf.get("spark.ec.switchToNewControlsFlow", "false").toBoolean
+    if (switchToNewControlsFlow) {
+      return
+    }
+    
     try {
      val sentinelSchema = new SentinelSchema().sentinelSchema
      val maxEventProcessingTime = df match {
