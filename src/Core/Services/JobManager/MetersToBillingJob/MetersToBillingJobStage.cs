@@ -123,14 +123,17 @@ public class MetersToBillingJobStage : IJobCallbackStage
 
             DateTimeOffset pollFrom = DateTimeOffset.UtcNow.AddDays(-7);
             DateTimeOffset utcNow = DateTimeOffset.UtcNow;
-            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billingV1.kql", QueryType.Deh, pollFrom, utcNow);
             finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_dq_billing.kql", QueryType.Dq, pollFrom, utcNow);
-            finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_byoc_billing.kql", QueryType.BYOC, pollFrom, utcNow);
             // New billing query
             if (this.exposureControl.IsEnableControlRedesignBillingImprovements(string.Empty, string.Empty, string.Empty))
             {
                 finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billingV2.kql", QueryType.Deh, pollFrom, utcNow);
                 finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_byoc_billingV2.kql", QueryType.BYOC, pollFrom, utcNow);
+            }
+            else
+            {
+                finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_deh_billingV1.kql", QueryType.Deh, pollFrom, utcNow);
+                finalExecutionStatusDetails += await this.ProcessBilling<DEHMeteredEvent>("PDG_byoc_billing.kql", QueryType.BYOC, pollFrom, utcNow);
             }
             finalExecutionStatus = JobExecutionStatus.Succeeded;
 
