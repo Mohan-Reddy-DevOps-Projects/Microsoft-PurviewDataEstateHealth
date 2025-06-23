@@ -36,7 +36,7 @@
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.LoggerBase" Version="2.26.0" />
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.Service.Basics" Version="1.0.2326.38" />
     <PackageVersion Include="Microsoft.Azure.ProjectBabylon.Metadata.ProjectBabylonMetadataClient" Version="1.0.161" />
-    <PackageVersion Include="Microsoft.Azure.Purview.ExposureControlLibrary" Version="1.0.608" />
+    <PackageVersion Include="Microsoft.Azure.Purview.ExposureControlLibrary" Version="1.0.655" />
     <PackageVersion Include="Microsoft.Data.DeltaLake" Version="3.0.2.4" />
     <PackageVersion Include="Microsoft.Data.SqlClient" Version="6.0.1" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
