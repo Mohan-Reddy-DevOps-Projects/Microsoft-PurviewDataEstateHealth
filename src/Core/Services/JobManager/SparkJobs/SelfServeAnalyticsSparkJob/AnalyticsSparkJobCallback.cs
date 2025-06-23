@@ -91,6 +91,9 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
     {
         this.dataEstateHealthRequestLogger.LogInformation($"Configuring job stages for account: {this.Metadata.RequestContext?.AccountId}");
         
+        // Set RootTraceId for this job run
+        this.SetRootTraceId();
+        
         try
         {
             // First ensure account info is loaded - needed for checking catalog jobs
@@ -280,6 +283,9 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
         this.Metadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.FabricSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.CurrentScheduleStartTime = null;
+        
+        // Reset the root trace id
+        this.Metadata.RootTraceId = string.Empty;
     }
 
     private async Task DeleteSparkPools()
@@ -292,6 +298,19 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
         catch (Exception e)
         {
             this.dataEstateHealthRequestLogger.LogError($"Failed to delete spark pool. SparkPoolId: {this.Metadata.SparkPoolId}", e);
+        }
+    }
+
+    private void SetRootTraceId()
+    {
+        if (string.IsNullOrEmpty(this.Metadata.RootTraceId))
+        {
+            this.Metadata.RootTraceId = Guid.NewGuid().ToString();
+            this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Generated new RootTraceId: {this.Metadata.RootTraceId}");
+        }
+        else
+        {
+            this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Using existing RootTraceId: {this.Metadata.RootTraceId}");
         }
     }
 }
