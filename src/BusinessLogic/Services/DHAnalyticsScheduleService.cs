@@ -39,6 +39,7 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
     private readonly DHMonitoringService _dhMonitoringService;
     private readonly DHAssessmentService _dhAssessmentService;
     private readonly DHControlService _dHControlService;
+    private readonly IAccountExposureControlConfigProvider _exposureControl;
 
 
     public DHAnalyticsScheduleService(
@@ -53,7 +54,8 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
     IRequestHeaderContext requestHeaderContext,
     DHAnalyticsScheduleRepository dHAnalyticsScheduleRepository,
     DHDataEstateHealthRepository dhDataEstateHealthRepository,
-    IDEHAnalyticsJobLogsRepository dEHAnalyticsJobLogsRepository)
+    IDEHAnalyticsJobLogsRepository dEHAnalyticsJobLogsRepository,
+    IAccountExposureControlConfigProvider exposureControl)
     {
         this._scheduleService = scheduleService;
         this._logger = logger;
@@ -65,6 +67,7 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
         this._dHControlService = controlService;
         this._dhAssessmentService = assessmentService;
         this._dhMonitoringService = monitoringService;
+        this._exposureControl = exposureControl;
     }
     public async Task<DHControlGlobalSchedulePayloadWrapper> CreateOrUpdateAnalyticsGlobalScheduleAsync(DHControlGlobalSchedulePayloadWrapper entity)
     {
@@ -150,8 +153,22 @@ public class DHAnalyticsScheduleService : IDHAnalyticsScheduleService
 
     public Task<IReadOnlyList<DEHAnalyticsJobLogs>> GetDEHJobLogs(string accountId)
     {
+        // Determine which table to use based on exposure control flag
+        string tableName = "DEH_Job_Logs_CL";
+        try
+        {
+            if (this._exposureControl?.IsEnableControlRedesignBillingImprovements(accountId, string.Empty, string.Empty) == true)
+            {
+                tableName = "DEH_Job_Logs_V2_CL";
+            }
+        }
+        catch (Exception ex)
+        {
+            this._logger.LogWarning($"Failed to check exposure control flag, using default table: {ex.Message}");
+        }
+
         // KQL query string to check for relevant job logs
-        var kqlDehDq = $@"DEH_Job_Logs_CL 
+        var kqlDehDq = $@"{tableName} 
 	| where AccountId_g == '{accountId}'
 	| where JobStatus_s !=""Started""
     | where JobName_s == ""StorageSync"" 

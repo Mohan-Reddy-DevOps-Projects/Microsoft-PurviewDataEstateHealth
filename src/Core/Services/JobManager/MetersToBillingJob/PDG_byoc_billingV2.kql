@@ -1,10 +1,10 @@
 let AllJobsWithDuration = 
-    DEH_Job_Logs_CL
+    DEH_Job_Logs_V2_CL
     | where CorrelationId != ""
-    | where JobStatus_s == "Completed" and JobName_s in ("DimensionalModel", "DomainModel", "Controls", "StorageSync")
+    | where JobStatus_s == "Completed" and JobName_s in ("DimensionalModel", "DomainModel", "Controls")
     | join kind=inner (
-        DEH_Job_Logs_CL
-        | where JobStatus_s == "Started"
+        DEH_Job_Logs_V2_CL
+        | where JobStatus_s == "Started" and JobName_s in ("DimensionalModel", "DomainModel", "Controls")
         | project JobId_g, JobStartTime = JobCompletionTime_s
         )
         on JobId_g

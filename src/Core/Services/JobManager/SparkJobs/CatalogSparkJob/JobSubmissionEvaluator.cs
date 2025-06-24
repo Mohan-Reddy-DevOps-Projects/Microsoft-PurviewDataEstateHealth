@@ -39,6 +39,7 @@ internal class JobSubmissionEvaluator
     private string workspaceId;
     private string workspaceKey;
     private readonly IDataHealthApiService dataHealthApiService;
+    private readonly IAccountExposureControlConfigProvider exposureControl;
 
     internal JobSubmissionEvaluator(
         IServiceScope scope)
@@ -50,6 +51,7 @@ internal class JobSubmissionEvaluator
         var keyVaultConfig = scope.ServiceProvider.GetService<IOptions<KeyVaultConfiguration>>();
         this.keyVaultBaseURL = keyVaultConfig.Value.BaseUrl.ToString();
         this.dataHealthApiService = scope.ServiceProvider.GetService<IDataHealthApiService>();
+        this.exposureControl = scope.ServiceProvider.GetService<IAccountExposureControlConfigProvider>();
 
         using (this.logger.LogElapsed("JobSubmissionEvaluator Constructor"))
         {
@@ -125,9 +127,23 @@ internal class JobSubmissionEvaluator
         var fromDate = DateTimeOffset.UtcNow.AddHours(-24).AddMinutes(-30);
         var toDate = DateTimeOffset.UtcNow;
 
+        // Determine which table to use based on exposure control flag
+        string tableName = "DEH_Job_Logs_CL";
+        try
+        {
+            if (this.exposureControl?.IsEnableControlRedesignBillingImprovements(accountId, string.Empty, string.Empty) == true)
+            {
+                tableName = "DEH_Job_Logs_V2_CL";
+            }
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogWarning($"Failed to check exposure control flag, using default table: {ex.Message}");
+        }
+
         // KQL query string to check for relevant job logs
         string kqlDeh = $"""
-                         DEH_Job_Logs_CL
+                         {tableName}
                          | project AccountId=AccountId_g, JobName=JobName_s, Status=JobStatus_s
                          | where AccountId == "{accountId}" and Status == "Completed" and JobName == "DomainModel"
                          | limit 1

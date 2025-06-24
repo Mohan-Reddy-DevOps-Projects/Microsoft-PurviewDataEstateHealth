@@ -18,9 +18,11 @@ object LogAnalyticsLogger {
   // Configuration variables
   private var logAnalyticsWorkSpaceId: String = "defaultWorkspaceId"
   private var logAnalyticsSecret: String = "defaultSecret"
+  private var sparkSession: SparkSession = _
 
   def initialize(spark: SparkSession): Unit = {
     try {
+      this.sparkSession = spark
       val keyVaultName = spark.conf.get("spark.keyvault.name")
       val workspaceIdSecretName = spark.conf.get("spark.loganalytics.workspaceid")
       val workspaceKeySecretName = spark.conf.get("spark.loganalytics.workspacekeyname")
@@ -52,8 +54,16 @@ object LogAnalyticsLogger {
 
       println(s"Checkpoint Job Status: $jsonString")
 
+      // Determine which table to use based on feature flag
+      val logTableName = try {
+        val switchToNewControlsFlow = sparkSession.conf.get("spark.ec.switchToNewControlsFlow", "false").toBoolean
+        if (switchToNewControlsFlow) "DEH_Job_Logs_V2" else "DEH_Job_Logs"
+      } catch {
+        case _: Exception => "DEH_Job_Logs" // Default to original table if flag check fails
+      }
+
       // Write the JSON string to Log Analytics asynchronously
-      writeToLogAnalyticsAsync(jsonString, "DEH_Job_Logs")
+      writeToLogAnalyticsAsync(jsonString, logTableName)
 
       println("CheckpointJobStatus operation completed successfully.")
     } catch {

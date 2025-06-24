@@ -18,6 +18,7 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
     private readonly IServiceScope serviceScope = scope;
     private readonly IMetadataAccessorService _metadataAccessorService = scope.ServiceProvider.GetService<IMetadataAccessorService>();
     private readonly IDEHAnalyticsJobLogsRepository _dehAnalyticsJobLogsRepository = scope.ServiceProvider.GetService<IDEHAnalyticsJobLogsRepository>();
+    private readonly IAccountExposureControlConfigProvider _exposureControl = scope.ServiceProvider.GetService<IAccountExposureControlConfigProvider>();
  
     protected override string JobName => nameof(AnalyticsSparkJobCallback);
 
@@ -59,9 +60,23 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
                 return false;
             }
 
+            // Determine which table to use based on exposure control flag
+            string tableName = "DEH_Job_Logs_CL";
+            try
+            {
+                if (this._exposureControl?.IsEnableControlRedesignBillingImprovements(this.Metadata.AccountServiceModel.Id, string.Empty, this.Metadata.AccountServiceModel.TenantId) == true)
+                {
+                    tableName = "DEH_Job_Logs_V2_CL";
+                }
+            }
+            catch (Exception ex)
+            {
+                this.dataEstateHealthRequestLogger.LogWarning($"Failed to check exposure control flag, using default table: {ex.Message}");
+            }
+
             // Build KQL query to find running catalog jobs
             var kqlQuery = $@"
-                DEH_Job_Logs_CL 
+                {tableName} 
                 | where AccountId_g == '{this.Metadata.AccountServiceModel.Id}'
                 | where JobName_s == ""DomainModel""
                 | where TimeGenerated > ago(1h)
