@@ -47,7 +47,7 @@ internal class TriggerControlsDqRulesEvaluationSparkJobStage(
                     jobId,
                     metadata.CatalogSparkJobMetadata.SparkPoolId,
                     isDehDataCleanup,
-                    metadata.RootTraceId);
+                    metadata.JobRunId);
                 
                 // Update the metadata with job information
                 metadata.CatalogSparkJobMetadata.SparkPoolId = jobInfo.PoolResourceId;

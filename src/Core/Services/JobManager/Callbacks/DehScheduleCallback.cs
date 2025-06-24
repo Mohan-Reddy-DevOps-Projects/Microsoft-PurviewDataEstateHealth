@@ -72,7 +72,7 @@ internal class DehScheduleCallback(IServiceScope scope) : StagedWorkerJobCallbac
             var catalogSparkJobMetadata = this.GetDataPlaneSparkJobMetadata();
             this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] DataPlaneSparkJobMetadata retrieved: {(catalogSparkJobMetadata != null ? "SUCCESS" : "NULL")}");
 
-            SetParentRootTraceIdToChildren(catalogSparkJobMetadata, this.Metadata);
+            SetParentJobIdToChildren(catalogSparkJobMetadata, this.Metadata);
             
             if (catalogSparkJobMetadata != null)
             {
@@ -188,7 +188,7 @@ internal class DehScheduleCallback(IServiceScope scope) : StagedWorkerJobCallbac
             catalogMetadata.DimensionSparkJobStatus = DataPlaneSparkJobStatus.Others;
             catalogMetadata.FabricSparkJobStatus = DataPlaneSparkJobStatus.Others;
             catalogMetadata.CurrentScheduleStartTime = null;
-            catalogMetadata.RootTraceId = String.Empty;
+            catalogMetadata.JobRunId = String.Empty;
         }
 
         // Reset the separate workflow metadata
@@ -198,8 +198,8 @@ internal class DehScheduleCallback(IServiceScope scope) : StagedWorkerJobCallbac
         this.Metadata.SqlGenerationMetadata.SqlGenerationStatus = SqlGenerationWorkflowStatus.NotStarted;
         this.Metadata.SqlGenerationMetadata.ControlsWorkflowJobRunId = String.Empty;
 
-        //reset the root trace id
-        this.Metadata.RootTraceId = String.Empty;
+        //reset the job id
+        this.Metadata.JobRunId = String.Empty;
 
         this.dataEstateHealthRequestLogger.LogInformation("Reset CatalogSparkJobMetadata state");
     }
@@ -380,12 +380,12 @@ internal class DehScheduleCallback(IServiceScope scope) : StagedWorkerJobCallbac
         return baseDecoratedResult;
     }
 
-    private static void SetParentRootTraceIdToChildren(StagedWorkerJobMetadata parent, StagedWorkerJobMetadata child)
+    private static void SetParentJobIdToChildren(StagedWorkerJobMetadata parent, StagedWorkerJobMetadata child)
     {
-        if (String.IsNullOrEmpty(parent.RootTraceId))
+        if (String.IsNullOrEmpty(parent.JobRunId))
         {
-            parent.RootTraceId = Guid.NewGuid().ToString();
+            parent.JobRunId = Guid.NewGuid().ToString();
         }
-        child.RootTraceId = parent.RootTraceId;
+        child.JobRunId = parent.JobRunId;
     }
 }

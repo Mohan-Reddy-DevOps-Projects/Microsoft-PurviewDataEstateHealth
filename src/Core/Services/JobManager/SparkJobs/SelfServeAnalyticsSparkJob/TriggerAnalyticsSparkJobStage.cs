@@ -50,7 +50,7 @@ internal class TriggerAnalyticsSparkJobStage : IJobCallbackStage
                     new CancellationToken(),
                     jobId,
                     this.metadata.SparkPoolId,
-                    this.metadata.RootTraceId);
+                    this.metadata.JobRunId);
                 if (jobInfo == null)
                 {
                     this.dataEstateHealthRequestLogger.LogInformation($"Copy Activity not configured account: {this.metadata.AccountServiceModel.Id} in {this.StageName}");

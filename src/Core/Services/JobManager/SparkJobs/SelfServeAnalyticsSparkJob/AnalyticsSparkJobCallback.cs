@@ -91,8 +91,8 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
     {
         this.dataEstateHealthRequestLogger.LogInformation($"Configuring job stages for account: {this.Metadata.RequestContext?.AccountId}");
         
-        // Set RootTraceId for this job run
-        this.SetRootTraceId();
+        // Set JobRunId for this job run
+        this.SetJobId();
         
         try
         {
@@ -284,8 +284,8 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
         this.Metadata.FabricSparkJobStatus = DataPlaneSparkJobStatus.Others;
         this.Metadata.CurrentScheduleStartTime = null;
         
-        // Reset the root trace id
-        this.Metadata.RootTraceId = string.Empty;
+        // Reset the job id
+        this.Metadata.JobRunId = string.Empty;
     }
 
     private async Task DeleteSparkPools()
@@ -301,16 +301,16 @@ internal class AnalyticsSparkJobCallback(IServiceScope scope) : StagedWorkerJobC
         }
     }
 
-    private void SetRootTraceId()
+    private void SetJobId()
     {
-        if (string.IsNullOrEmpty(this.Metadata.RootTraceId))
+        if (String.IsNullOrEmpty(this.Metadata.JobRunId))
         {
-            this.Metadata.RootTraceId = Guid.NewGuid().ToString();
-            this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Generated new RootTraceId: {this.Metadata.RootTraceId}");
+            this.Metadata.JobRunId = Guid.NewGuid().ToString();
+            this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Generated new JobRunId: {this.Metadata.JobRunId}");
         }
         else
         {
-            this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Using existing RootTraceId: {this.Metadata.RootTraceId}");
+            this.dataEstateHealthRequestLogger.LogInformation($"[{this.JobName}] Using existing JobRunId: {this.Metadata.JobRunId}");
         }
     }
 }

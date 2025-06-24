@@ -58,7 +58,7 @@ internal class TriggerDimensionModelSparkJobStage : IJobCallbackStage
                     jobId,
                     this.metadata.SparkPoolId,
                     isDEHDataCleanup,
-                    this.metadata.RootTraceId);
+                    this.metadata.JobRunId);
 
                 this.metadata.SparkPoolId = jobInfo.PoolResourceId;
                 this.metadata.DimensionSparkJobBatchId = jobInfo.JobId;

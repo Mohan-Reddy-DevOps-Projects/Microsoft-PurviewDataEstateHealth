@@ -14,6 +14,12 @@ using System.ComponentModel;
 public class StagedWorkerJobMetadata : JobMetadataBase
 {
     /// <summary>
+    /// The unique job ID for tracking jobs across callbacks and stages
+    /// </summary>
+    [JsonProperty]
+    public string JobRunId { get; set; }
+
+    /// <summary>
     /// The distributed root trace ID
     /// </summary>
     [JsonProperty]
