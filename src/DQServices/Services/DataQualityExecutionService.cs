@@ -46,12 +46,16 @@ public class DataQualityExecutionService : IDataQualityExecutionService
     private string workspaceKey;
     private readonly LogAnalyticsManager.LogAnalyticsQueryClient logsAnalyticsReader;
     private readonly AzureCredentialFactory credentialFactory;
+    private readonly IControlRepositoryFactory controlRepositoryFactory;
+    private readonly IAssessmentRepositoryFactory assessmentRepositoryFactory;
 
     public DataQualityExecutionService(
         IServiceProvider scope,
         IProcessingStorageManager processingStorageManager,
         DataQualityServiceClientFactory dataQualityServiceClientFactory,
         IDataQualityOutputRepository dataQualityOutputRepository,
+        IControlRepositoryFactory controlRepositoryFactory,
+        IAssessmentRepositoryFactory assessmentRepositoryFactory,
         IDataEstateHealthRequestLogger logger)
     {
         this.processingStorageManager = processingStorageManager;
@@ -72,6 +76,8 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         });
         Task.WaitAll(task);
         this.logsAnalyticsWriter = new LogAnalyticsClient(workspaceId: this.workspaceId, sharedKey: this.workspaceKey);
+        this.controlRepositoryFactory = controlRepositoryFactory;
+        this.assessmentRepositoryFactory = assessmentRepositoryFactory;
         // Log analytics reader
         LogAnalyticsManager manager = new LogAnalyticsManager(this.credentialFactory.CreateDefaultAzureCredential());
         this.logsAnalyticsReader = manager.WithWorkspace(this.workspaceId);
@@ -92,6 +98,31 @@ public class DataQualityExecutionService : IDataQualityExecutionService
         {
             this.logger.LogInformation($"Start ParseDQResult, accountId:{job.AccountId}, controlId:{job.ControlId}, healthJobId:{job.Id}, dqJobId:{job.DQJobId}");
 
+            // Get the control and assessment to determine the target entity type
+            var controlRepository = this.controlRepositoryFactory.CreateControlRepository();
+            var assessmentRepository = this.assessmentRepositoryFactory.CreateAssessmentRepository();
+            
+            var control = await controlRepository.GetByIdAsync(job.ControlId).ConfigureAwait(false);
+            if (control == null)
+            {
+                this.logger.LogError($"Control not found for controlId:{job.ControlId}");
+                throw new InvalidOperationException($"Control not found for controlId:{job.ControlId}");
+            }
+
+            // Ensure the control is a node type (only nodes have AssessmentId)
+            if (control is not DHControlNodeWrapper controlNode)
+            {
+                this.logger.LogError($"Control {job.ControlId} is not a node control and does not have an AssessmentId");
+                throw new InvalidOperationException($"Control {job.ControlId} is not a node control and does not have an AssessmentId");
+            }
+
+            var assessment = await assessmentRepository.GetByIdAsync(controlNode.AssessmentId ?? throw new ArgumentNullException(nameof(controlNode.AssessmentId))).ConfigureAwait(false);
+            if (assessment == null)
+            {
+                this.logger.LogError($"Assessment not found for assessmentId:{controlNode.AssessmentId}");
+                throw new InvalidOperationException($"Assessment not found for assessmentId:{controlNode.AssessmentId}");
+            }
+
             // Query storage account
             var accountStorageModel = await this.processingStorageManager.Get(new Guid(job.AccountId), CancellationToken.None).ConfigureAwait(false);
             if (accountStorageModel == null)
@@ -103,15 +134,37 @@ public class DataQualityExecutionService : IDataQualityExecutionService
             var dataProductId = job.ControlId;
             var dataAssetId = job.Id;
 
-            var outputResult = await this.dataQualityOutputRepository.GetMultiple(new DataQualityOutputQueryCriteria()
+            IEnumerable<DHRawScore> result;
+
+            // Check the target entity type and use appropriate query
+            if (assessment.TargetEntityType == DHAssessmentTargetEntityType.BusinessDomain)
             {
-                AccountStorageModel = accountStorageModel,
-                FolderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={job.DQJobId}"
-            }, CancellationToken.None).ConfigureAwait(false);
+                this.logger.LogInformation($"Using BusinessDomain query for controlId:{job.ControlId}, assessmentId:{controlNode.AssessmentId}");
+                
+                var businessDomainOutputResult = await this.dataQualityOutputRepository.GetMultipleForBusinessDomain(new DataQualityOutputQueryCriteria()
+                {
+                    AccountStorageModel = accountStorageModel,
+                    FolderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={job.DQJobId}"
+                }, CancellationToken.None).ConfigureAwait(false);
 
-            this.logger.LogInformation($"Read output is done, row count:{outputResult.Results.Count()}, healthJobId:{job.Id}");
+                this.logger.LogInformation($"Read BusinessDomain output is done, row count:{businessDomainOutputResult.Results.Count()}, healthJobId:{job.Id}");
 
-            var result = DataQualityOutputAdapter.ToScorePayload(outputResult.Results, this.logger);
+                result = DataQualityOutputAdapter.ToScorePayloadForBusinessDomain(businessDomainOutputResult.Results, this.logger);
+            }
+            else
+            {
+                this.logger.LogInformation($"Using DataProduct query for controlId:{job.ControlId}, assessmentId:{controlNode.AssessmentId}");
+                
+                var outputResult = await this.dataQualityOutputRepository.GetMultiple(new DataQualityOutputQueryCriteria()
+                {
+                    AccountStorageModel = accountStorageModel,
+                    FolderPath = ErrorOutputInfo.GeneratePartOfFolderPath(dataProductId, dataAssetId) + $"/observation={job.DQJobId}"
+                }, CancellationToken.None).ConfigureAwait(false);
+
+                this.logger.LogInformation($"Read DataProduct output is done, row count:{outputResult.Results.Count()}, healthJobId:{job.Id}");
+
+                result = DataQualityOutputAdapter.ToScorePayload(outputResult.Results, this.logger);
+            }
 
             this.logger.LogInformation($"End ParseDQResult, resultCount:{result.Count()}, healthJobId:{job.Id}");
             if (result.Count() > 0)

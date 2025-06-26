@@ -4,9 +4,12 @@
 
 namespace Microsoft.Azure.Purview.DataEstateHealth.DataAccess;
 
+using EntityModel.DataQualityOutput;
 using Microsoft.Azure.Purview.DataEstateHealth.DataAccess.Repositories.DataQualityOutput;
 using Microsoft.Azure.Purview.DataEstateHealth.Models;
 using Microsoft.DGP.ServiceBasics.BaseModels;
+using ServerlessPool.Queries.DataQualityOutput;
+using ServerlessPool.Records.DataQualityOutput;
 using System.Threading.Tasks;
 
 internal class DataQualityOutputRepository : IDataQualityOutputRepository
@@ -46,6 +49,26 @@ internal class DataQualityOutputRepository : IDataQualityOutputRepository
         IList<DataQualityDataProductOutputEntity> list = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
 
         return new BaseBatchResults<DataQualityDataProductOutputEntity>
+        {
+            Results = list,
+            ContinuationToken = continuationToken
+        };
+    }
+
+    public async Task<IBatchResults<DataQualityBusinessDomainOutputEntity>> GetMultipleForBusinessDomain(
+          DataQualityOutputQueryCriteria criteria,
+          CancellationToken cancellationToken,
+          string continuationToken = null)
+    {
+        string containerPath = this.ConstructContainerPath(criteria.AccountStorageModel);
+
+        var query = this.queryRequestBuilder.Build<DataQualityBusinessDomainOutputRecord>(containerPath) as DataQualityBusinessDomainOutputQuery;
+        ArgumentNullException.ThrowIfNull(query);
+        query.QueryPath = $"{containerPath}/{criteria.FolderPath}/*.parquet";
+        query.Timeout = DefaultTimeout;
+        var list = await this.queryExecutor.ExecuteAsync(query, cancellationToken);
+
+        return new BaseBatchResults<DataQualityBusinessDomainOutputEntity>
         {
             Results = list,
             ContinuationToken = continuationToken

@@ -46,7 +46,7 @@
                 {
                     throw new EntityNotFoundException(new ExceptionRefEntityInfo(EntityCategory.StorageConfig.ToString(), accountId.ToString()));
                 }
-                return entities.First(); ;
+                return entities.First();
             }
         }
 

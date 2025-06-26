@@ -27,6 +27,8 @@ namespace Microsoft.Purview.DataEstateHealth.DHModels
                 (serviceProvider, request, policy) => { });
 
             services.AddSingleton<DataQualityServiceClientFactory>();
+            services.AddSingleton<IControlRepositoryFactory, ControlRepositoryFactory>();
+            services.AddSingleton<IAssessmentRepositoryFactory, AssessmentRepositoryFactory>();
             services.AddSingleton<IDataQualityExecutionService, DataQualityExecutionService>();
         }
     }

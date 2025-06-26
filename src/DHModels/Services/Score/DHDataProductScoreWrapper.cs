@@ -4,7 +4,7 @@ using Microsoft.Purview.DataEstateHealth.DHModels.Wrapper.Attributes;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 
-[EntityWrapper(DHScoreBaseWrapperDerivedTypes.DataProductScore, EntityCategory.Score)]
+[EntityWrapper(DhScoreBaseWrapperDerivedTypes.DataProductScore, EntityCategory.Score)]
 public class DHDataProductScoreWrapper(JObject jObject) : DHScoreBaseWrapper(jObject)
 {
     private const string keyDataProductId = "dataProductId";
@@ -14,7 +14,7 @@ public class DHDataProductScoreWrapper(JObject jObject) : DHScoreBaseWrapper(jOb
 
     public DHDataProductScoreWrapper() : this([])
     {
-        this.Type = DHScoreBaseWrapperDerivedTypes.DataProductScore;
+        this.Type = DhScoreBaseWrapperDerivedTypes.DataProductScore;
     }
 
     [EntityTypeProperty(keyDataProductId)]

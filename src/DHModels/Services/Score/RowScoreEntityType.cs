@@ -9,5 +9,6 @@
 namespace Microsoft.Purview.DataEstateHealth.DHModels.Services.Score;
 public enum RowScoreEntityType
 {
-    DataProduct
+    DataProduct,
+    BusinessDomain
 }

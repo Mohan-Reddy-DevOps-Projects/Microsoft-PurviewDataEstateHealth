@@ -38,6 +38,12 @@ public class DHRawScore(JObject jObject) : BaseEntityWrapper(jObject)
      *   DataProductStatusDisplayName - string
      *   DataProductOwnerIds - string
      * }
+     * 
+     * For BusinessDomain
+     * {
+     *   BusinessDomainId - string
+     *   BusinessDomainCriticalDataElementCount - int
+     * }
      **/
     [EntityProperty(keyEntityPayload)]
     public JObject EntityPayload
@@ -61,7 +67,8 @@ public class DHRawScore(JObject jObject) : BaseEntityWrapper(jObject)
 
     public string EntityId => this.EntityType switch
     {
-        RowScoreEntityType.DataProduct => this.EntityPayload.Value<string>(DQOutputFields.DP_ID)!,
+        RowScoreEntityType.DataProduct => this.EntityPayload.Value<string>(DqOutputFields.DP_ID)!,
+        RowScoreEntityType.BusinessDomain => this.EntityPayload.Value<string>(DqOutputFields.BD_ID)!,
         _ => throw new NotImplementedException($"EntityId for {this.EntityType} is not implemented")
     };
 }

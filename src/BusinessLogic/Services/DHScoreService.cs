@@ -118,35 +118,9 @@
                     switch (simpleAggregation.AggregationType)
                     {
                         case DHAssessmentSimpleAggregationType.Average:
-                            var scoreWrappers = scores.Where(x => x.Scores.Any()).Select(x =>
-                            {
-                                switch (assessment.TargetEntityType)
-                                {
-                                    case DHAssessmentTargetEntityType.DataProduct:
-                                        var dataProductId = x.EntityId ?? throw new InvalidOperationException("Data product id not found in entity payload!");
-                                        var id = $"{controlId}_{computingJobId}_{dataProductId}";
-                                        var score = new DHDataProductScoreWrapper
-                                        {
-                                            Id = id,
-                                            ControlId = controlId,
-                                            ControlGroupId = controlNode.GroupId,
-                                            ComputingJobId = computingJobId,
-                                            ScheduleRunId = scheduleRunId,
-                                            Time = currentTime,
-                                            Scores = x.Scores,
-                                            AggregatedScore = x.Scores.Average(scoreUnit => scoreUnit.Score),
-                                            DataProductDomainId = x.EntityPayload[DQOutputFields.BD_ID]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
-                                            DataProductStatus = x.EntityPayload[DQOutputFields.DP_STATUS]?.ToString() ?? throw new InvalidOperationException("Data product status not found in entity payload!"),
-                                            DataProductId = dataProductId,
-                                            DataProductOwners = x.EntityPayload[DQOutputFields.DP_OWNER_IDS]?.ToString().Split(",") ?? throw new InvalidOperationException("Data product owner ids not found in entity payload!")
-                                        };
-                                        score.Validate();
-                                        score.OnCreate(requestHeaderContext.ClientObjectId, id);
-                                        return score;
-                                    default:
-                                        throw new NotImplementedException($"Target entity type {assessment.TargetEntityType} not supported yet!");
-                                }
-                            }).ToList();
+                            var scoreWrappers = scores.Where(x => x.Scores.Any()).Select<DHRawScore, DHScoreBaseWrapper>(x =>
+                                CreateScoreWrapperForAggregation(x, assessment.TargetEntityType, controlId, controlNode.GroupId, computingJobId, scheduleRunId, currentTime, requestHeaderContext.ClientObjectId)
+                            ).ToList();
                             await dhScoreRepository.AddAsync(scoreWrappers).ConfigureAwait(false);
                             break;
                         default:
@@ -156,6 +130,54 @@
                 default:
                     throw new NotImplementedException($"Aggregation type {aggregation.Type} not supported yet!");
             }
+        }
+
+        private static DHScoreBaseWrapper CreateScoreWrapperForAggregation(
+            DHRawScore rawScore,
+            DHAssessmentTargetEntityType? targetEntityType,
+            string controlId,
+            string controlGroupId,
+            string computingJobId,
+            string scheduleRunId,
+            DateTime currentTime,
+            string clientObjectId)
+        {
+            string entityId = rawScore.EntityId ?? throw new InvalidOperationException($"{targetEntityType} id not found in entity payload!");
+            string id = $"{controlId}_{computingJobId}_{entityId}";
+
+            DHScoreBaseWrapper scoreWrapper = targetEntityType switch
+            {
+                DHAssessmentTargetEntityType.DataProduct => new DHDataProductScoreWrapper
+                {
+                    Id = id,
+                    DataProductDomainId = rawScore.EntityPayload[DqOutputFields.BD_ID]?.ToString() ?? throw new InvalidOperationException("Data product domain id not found in entity payload!"),
+                    DataProductStatus = rawScore.EntityPayload[DqOutputFields.DP_STATUS]?.ToString() ?? throw new InvalidOperationException("Data product status not found in entity payload!"),
+                    DataProductId = entityId,
+                    DataProductOwners = rawScore.EntityPayload[DqOutputFields.DP_OWNER_IDS]?.ToString()?.Split(",") ?? throw new InvalidOperationException("Data product owner ids not found in entity payload!")
+                },
+                DHAssessmentTargetEntityType.BusinessDomain => new DhBusinessDomainScoreWrapper
+                {
+                    Id = id,
+                    BusinessDomainId = entityId,
+                    BusinessDomainCriticalDataElementCount = (int?)rawScore.EntityPayload[DqOutputFields.keyBdCdeCount]
+                },
+                _ => throw new NotImplementedException($"Target entity type {targetEntityType} not supported yet!")
+            };
+
+            // Set common properties
+            scoreWrapper.ControlId = controlId;
+            scoreWrapper.ControlGroupId = controlGroupId;
+            scoreWrapper.ComputingJobId = computingJobId;
+            scoreWrapper.ScheduleRunId = scheduleRunId;
+            scoreWrapper.Time = currentTime;
+            scoreWrapper.Scores = rawScore.Scores;
+            scoreWrapper.AggregatedScore = rawScore.Scores.Average(scoreUnit => scoreUnit.Score);
+
+            // Validate and initialize
+            scoreWrapper.Validate();
+            scoreWrapper.OnCreate(clientObjectId, id);
+
+            return scoreWrapper;
         }
 
         private async Task GenerateActionAsync(DHControlNodeWrapper control, DHAssessmentWrapper assessment, IEnumerable<DHRawScore> scores, string computingJobId, bool isRetry)
@@ -179,13 +201,29 @@
                     foreach (var score in scores)
                     {
                         var entityOwners = new List<string>();
-                        var owners = (string?)score.EntityPayload[DQOutputFields.DP_OWNER_IDS] ?? "";
-                        if (!string.IsNullOrEmpty(owners))
+                        string? targetEntityId;
+                        string? businessDomainId;
+
+                        // Handle different entity types
+                        if (assessment.TargetEntityType == DHAssessmentTargetEntityType.BusinessDomain)
                         {
-                            entityOwners.AddRange(owners.Split(","));
+                            // For BusinessDomain entities
+                            targetEntityId = (string?)score.EntityPayload[DqOutputFields.BD_ID];
+                            businessDomainId = targetEntityId; // BusinessDomain ID is both target and domain
+                            // BusinessDomain entities don't have owners in our current model
                         }
-                        var targetEntityId = (string?)score.EntityPayload[DQOutputFields.DP_ID];
-                        var businessDomainId = (string?)score.EntityPayload[DQOutputFields.BD_ID];
+                        else
+                        {
+                            // For DataProduct entities (existing logic)
+                            var owners = (string?)score.EntityPayload[DqOutputFields.DP_OWNER_IDS] ?? "";
+                            if (!string.IsNullOrEmpty(owners))
+                            {
+                                entityOwners.AddRange(owners.Split(","));
+                            }
+                            targetEntityId = (string?)score.EntityPayload[DqOutputFields.DP_ID];
+                            businessDomainId = (string?)score.EntityPayload[DqOutputFields.BD_ID];
+                        }
+
                         if (businessDomainId != null && targetEntityId != null)
                         {
                             foreach (var scoreUnit in score.Scores)

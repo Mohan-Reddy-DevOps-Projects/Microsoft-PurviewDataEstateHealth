@@ -96,7 +96,8 @@ public abstract class DHScoreBaseWrapper(JObject jObject) : ContainerEntityDynam
     }
 }
 
-public static class DHScoreBaseWrapperDerivedTypes
+public static class DhScoreBaseWrapperDerivedTypes
 {
     public const string DataProductScore = "DataProductScore";
+    public const string BusinessDomainScore = "BusinessDomainScore";
 }
